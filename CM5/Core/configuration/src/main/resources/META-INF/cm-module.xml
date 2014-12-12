@@ -19,10 +19,30 @@
         <configuration-path>config/navigation-panel.xml</configuration-path>
         <configuration-path>config/url-config.xml</configuration-path>
         <configuration-path>config/actions.xml</configuration-path>
+        <!--vtb/calendar-->
+        <configuration-path>config/vtb/collections/event_collection.xml</configuration-path>
+        <configuration-path>config/vtb/calendar/occasions_domain_objects.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_fixed_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_calculated_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_floated_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_contact_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_qualifier_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_organization_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/occasion_calendar_form.xml</configuration-path>
+
+        <configuration-path>config/vtb/form/person_occasions_form.xml</configuration-path>
+        <configuration-path>config/vtb/form/org_occasions_form.xml</configuration-path>
+
     </configuration-paths>
     <import-files>
         <import-file>importdata/status.csv</import-file>
         <import-file>importdata/import-authinfo.csv</import-file>
         <import-file>importdata/import-system-event-log-types.csv</import-file>
+
+        <!--vtb import-->
+        <import-file>importdata/vtb/import-occa-occasion.csv</import-file>
+        <import-file>importdata/vtb/import-occa-occasion-fixed.csv</import-file>
+        <import-file>importdata/vtb/import-occa-occasion-calculated.csv</import-file>
+        <import-file>importdata/vtb/import-occa-calendar-occasion.csv</import-file>
     </import-files>
 </module>

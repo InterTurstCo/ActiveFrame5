@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="occasion_calculated_form" domain-object-type="Occa_Occasion_Calculated" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aCreate" rendered="false"/>
+            <act:action-ref name-ref="aSave" merged="true" rendered="not preview"/>
+            <act:action-ref name-ref="aDelete" rendered="toggle-edit and preview" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or preview" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainTypeLabel"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="mainTypeText"/>
+                                    </td>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainAnnualLabel"/>
+                                    </td>
+                                    <td width="30px" h-align="left">
+                                        <widget id="mainAnnualCB"/>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainNameLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="mainNameText"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainNoteLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="mainNoteText"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainMonthLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="mainMonthValue"/>
+                                    </td>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainDayOfWeekLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="mainDayOfWeekValue"/>
+                                    </td>
+                                    <td width="70px" h-align="right">
+                                        <widget id="mainWeekOfMonthLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="mainWeekOfMonthValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                   <td colspan="2" h-align="left">
+                                        <widget id="occasionClassifier"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Контактные лица">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="occasionPersons"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+
+                <tab name="Организации">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="occasionOrganization"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Событие с вычисляемой датой</text>
+            </label>
+            <label id="mainClassifiersLabel">
+                <field-path/>
+                <text>Классификаторы</text>
+            </label>
+            <label id="mainTypeLabel">
+                <field-path/>
+                <text>Тип события:</text>
+            </label>
+            <label id="mainTypeText">
+                <field-path/>
+                <text>c вычисляемой датой</text>
+            </label>
+
+            <label id="mainNameLabel">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <text-box id="mainNameText">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="mainNoteLabel">
+                <field-path/>
+                <text>Дополнительно:</text>
+            </label>
+            <text-box id="mainNoteText">
+                <field-path value="note"/>
+            </text-box>
+
+            <label id="mainAnnualLabel">
+                <field-path/>
+                <text>Ежегодный:</text>
+            </label>
+            <check-box id="mainAnnualCB">
+                <field-path value="Annual"/>
+            </check-box>
+
+            <label id="mainMonthLabel">
+                <field-path/>
+                <text>Месяц:</text>
+            </label>
+            <enumeration-box id="mainMonthValue">
+                <field-path value="Month"/>
+                <mapping>
+                    <map display-text="Январь" value="0"/>
+                    <map display-text="Февраль" value="1"/>
+                    <map display-text="Март" value="2"/>
+                    <map display-text="Апрель" value="3"/>
+                    <map display-text="Май" value="4"/>
+                    <map display-text="Июнь" value="5"/>
+                    <map display-text="Июль" value="6"/>
+                    <map display-text="Август" value="7"/>
+                    <map display-text="Сентябрь" value="8"/>
+                    <map display-text="Октябрь" value="9"/>
+                    <map display-text="Ноябрь" value="10"/>
+                    <map display-text="Декабрь" value="11"/>
+                </mapping>
+            </enumeration-box>
+
+            <label id="mainDayOfWeekLabel">
+                <field-path/>
+                <text>День недели:</text>
+            </label>
+            <enumeration-box id="mainDayOfWeekValue">
+                <field-path value="Day_Week"/>
+                <mapping>
+                    <map display-text="Понедельник" value="1"/>
+                    <map display-text="Вторник" value="2"/>
+                    <map display-text="Среда" value="3"/>
+                    <map display-text="Четверг" value="4"/>
+                    <map display-text="Пятница" value="5"/>
+                    <map display-text="Суббота" value="6"/>
+                    <map display-text="Воскресенье" value="0"/>
+                </mapping>
+            </enumeration-box>
+
+            <label id="mainWeekOfMonthLabel">
+                <field-path/>
+                <text>Номер недели:</text>
+            </label>
+            <enumeration-box id="mainWeekOfMonthValue">
+                <field-path value="Number_Week"/>
+                <mapping>
+                    <map display-text="1" value="1"/>
+                    <map display-text="2" value="2"/>
+                    <map display-text="3" value="3"/>
+                    <map display-text="4" value="4"/>
+                    <map display-text="5" value="5"/>
+                </mapping>
+            </enumeration-box>
+            <label id="stubLabel">
+                <field-path/>
+                <text>Место для вашей рекламы</text>
+            </label>
+
+            <!-- Связь события с контактным лицом -->
+            <linked-domain-objects-table id="occasionPersons" read-only="false">
+                <field-path value="Occa_Occasion_CPerson^Occasion"/>
+                <linked-form name="occasion_contact_form" inline="true" modal-height="250px" modal-width="500px"/>
+                <summary-table>
+                    <summary-table-column header="Контактное лицо" widget-id="contact_person_value">
+                        <pattern value="{Contact_Person.surname} {Contact_Person.name} {Contact_Person.patronymic}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Дополнительно" widget-id="noteText">
+                        <pattern value="{Note}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+
+            <!-- Связь события с классификатором -->
+            <linked-domain-objects-table id="occasionClassifier" read-only="false">
+                <field-path value="Occa_Occasion_Qualifier^Occasion"/>
+                <linked-form name="occasion_qualifier_form" inline="true" modal-height="150px" modal-width="500px"/>
+                <summary-table>
+                    <summary-table-column header="Классификатор" widget-id="availableQualifiersSuggestBox">
+                        <pattern value="{Qualifier.Group_Qualifier.Name} {Qualifier.Name}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+
+            <!-- Связь события с организацией -->
+            <linked-domain-objects-table id="occasionOrganization" read-only="false">
+                <field-path value="Occa_Occasion_Org^Occasion"/>
+                <linked-form name="occasion_organization_form" inline="true" modal-height="150px" modal-width="500px"/>
+                <summary-table>
+                    <summary-table-column header="Организация" widget-id="organizationValue">
+                        <pattern value="{cont_organization.name} {cont_organization.fullname}"/>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+</configuration>

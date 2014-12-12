@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="occasion_qualifier_form" domain-object-type="Occa_Occasion_Qualifier" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="80px" h-align="right">
+                                        <widget id="classifiersListLabel"/>
+                                    </td>
+                                    <!--<td width="200px" h-align="left">-->
+                                        <!--<widget id="availableQualifiersSuggestBox"/>-->
+                                    <!--</td>-->
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Связь события/праздника с классификатором</text>
+            </label>
+
+            <label id="classifiersListLabel">
+                <field-path/>
+                <text>Классификатор:</text>
+            </label>
+
+            <!--<suggest-box id="availableQualifiersSuggestBox">-->
+                <!--<field-path value="Qualifier"/>-->
+                <!--<collection-ref name="all_qualifiers_collection"/>-->
+                <!--<drop-down-pattern value="{name}"/>-->
+                <!--<selection-pattern value="{name}"/>-->
+                <!--<input-text-filter name="byText"/>-->
+                <!--<page-size>30</page-size>-->
+                <!--<selection-style name="inline"/>-->
+                <!--<single-choice value="true"/>-->
+            <!--</suggest-box>-->
+
+
+        </widget-config>
+    </form>
+</configuration>

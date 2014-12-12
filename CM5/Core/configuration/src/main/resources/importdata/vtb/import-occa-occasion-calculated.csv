@@ -1,0 +1,4 @@
+TYPE_NAME=Occa_Occasion_Calculated;KEYS=name
+name;Occasion_Type;Annual;Number_Week;Day_Week;Month
+"День работника нефтяной, газовой и топливной промышленности";"2";true;1;0;8
+"День Строителя";"2";true;2;0;7

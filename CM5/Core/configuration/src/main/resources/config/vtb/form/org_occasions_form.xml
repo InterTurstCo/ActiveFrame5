@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="org_occasions_form" domain-object-type="Occa_Occasion_Org" is-default="false">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="80px" h-align="right">
+                                        <widget id="occasionListLabel"/>
+                                    </td>
+                                    <td width="400px" h-align="left">
+                                        <widget id="eventSelectionBox"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Связь события/праздника с организацией</text>
+            </label>
+
+            <label id="occasionListLabel">
+                <field-path/>
+                <text>Событие:</text>
+            </label>
+
+            <suggest-box id="eventSelectionBox">
+
+                <linked-form-mapping>
+                    <linked-form name="occasion_fixed_form" domain-object-type="Occa_Occasion_Fixed"/>
+                    <linked-form name="occasion_calculated_form" domain-object-type="Occa_Occasion_Calculated"/>
+                    <linked-form name="occasion_floated_form" domain-object-type="Occa_Occasion_Floated"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="Новое событие с фиксированной датой" domain-object-type="Occa_Occasion_Fixed"/>
+                    <created-object text="Новое вычисляемое событие" domain-object-type="Occa_Occasion_Calculated"/>
+                    <created-object text="Новое событие с переходящей датой" domain-object-type="Occa_Occasion_Floated"/>
+                </created-objects>
+
+                <field-path value="Occasion"/>
+                <collection-ref name="col_events"/>
+                <drop-down-pattern value="{event_date},{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byName"/>
+                <page-size>20</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <create-new-button text="Создать"/>
+                <default-sort-criteria order="asc" column-field="event_date"/>
+            </suggest-box>
+
+
+        </widget-config>
+    </form>
+</configuration>

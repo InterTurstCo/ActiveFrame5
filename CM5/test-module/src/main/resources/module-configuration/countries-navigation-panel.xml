@@ -38,6 +38,82 @@
             </child-links>
         </link>
 
+        <link name="events" display-text="События" image="images/calendar.png" child-to-open="link_events">
+            <child-links>
+                <link name="link_events" display-text="Список событий">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Occa_Occasion_Fixed">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action name="aCreate" componentName="create.new.object.action"
+                                                text="Создать фиксированное"
+                                                tooltip="Создать новое с фиксированной датой"
+                                                imageClass="actionBar-create" order="100"
+                                                dirtySensitivity="true" permissions="Create">
+                                        <act:action-params>
+                                            <act:action-param name="create.object.type" value="Occa_Occasion_Fixed"/>
+                                        </act:action-params>
+                                    </act:action>
+
+                                    <act:action name="aCreate" componentName="create.new.object.action"
+                                                text="Создать вычисляемое" tooltip="Создать событие с вычисляемой датой"
+                                                imageClass="actionBar-create" order="101"
+                                                dirtySensitivity="true" permissions="Create">
+                                        <act:action-params>
+                                            <act:action-param name="create.object.type"
+                                                              value="Occa_Occasion_Calculated"/>
+                                        </act:action-params>
+                                    </act:action>
+                                    <act:action name="aCreate" componentName="create.new.object.action"
+                                                text="Создать переходящее" tooltip="Создать событие с переходящей датой"
+                                                imageClass="actionBar-create" order="102"
+                                                dirtySensitivity="true" permissions="Create">
+                                        <act:action-params>
+                                            <act:action-param name="create.object.type" value="Occa_Occasion_Floated"/>
+                                        </act:action-params>
+                                    </act:action>
+
+                                </act:tool-bar>
+                                <collection-ref name="col_events"/>
+                                <default-sort-criteria column-field="event_date"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+                <link name="OccasionCalendar" display-text="Календарь событий">
+                    <plugin>
+                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                            <calendar-view>
+                                <collection-ref name="col_events"/>
+                                <date-field-path value="event_date"/>
+                                <date-field-filter name="byEventDate" type="timelessDate"/>
+                                <sort-criteria>
+                                    <sort-criterion field="event_date" order="asc"/>
+                                </sort-criteria>
+                                <month-item type="link">
+                                    <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;&lt;/br&gt;"/>
+                                </month-item>
+                                <day-items>
+                                    <day-item type="link">
+                                        <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;"/>
+                                    </day-item>
+                                    <day-item type="label">
+                                        <pattern value="актуально с {event_date} по {event_date}"/>
+                                    </day-item>
+                                </day-items>
+                                <!-- <image-field name="letter_image">
+                                    <image-mappings imageWidth="10px" imageHeight="10px">
+                                        <mapping value="" image="cancel.png"/>
+                                    </image-mappings>
+                                </image-field> -->
+                            </calendar-view>
+                        </calendar>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
         <!--<link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">-->
             <!--<child-links>-->
                 <!--<link name="Calendar1" display-text="Календар 1">-->

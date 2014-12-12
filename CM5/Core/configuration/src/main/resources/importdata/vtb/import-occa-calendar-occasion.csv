@@ -1,0 +1,9 @@
+TYPE_NAME=Occa_Calendar_Occasion;KEYS=Occasion,Date_Occasion
+Occasion;Date_Occasion
+"name=""Пасха""";"19.12.2014"
+"name=""Пасха""";"12.04.2015"
+"name=""Пасха""";"01.05.2016"
+"name=""Пасха""";"16.04.2017"
+"name=""Пасха""";"08.04.2018"
+"name=""Пасха""";"28.04.2019"
+"name=""Пасха""";"12.04.2020"

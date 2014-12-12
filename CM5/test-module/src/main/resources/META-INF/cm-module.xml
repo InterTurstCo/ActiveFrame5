@@ -52,7 +52,7 @@
         <configuration-path>contacts-module/configuration/search.xml</configuration-path>
         <configuration-path>contacts-module/configuration/data/contact_domain_objects.xml</configuration-path>
         <configuration-path>contacts-module/configuration/data/address_domain_objects.xml</configuration-path>
-        <configuration-path>contacts-module/configuration/data/occasions_domain_objects.xml</configuration-path>
+        <!--<configuration-path>contacts-module/configuration/data/occasions_domain_objects.xml</configuration-path>-->
         <configuration-path>contacts-module/configuration/collection/contacts_collection.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/rank_collection.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/type_attachments_collection.xml</configuration-path>

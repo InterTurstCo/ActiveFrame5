@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="occasion_organization_form" domain-object-type="Occa_Occasion_Org" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="80px" h-align="right">
+                                        <widget id="organizationListLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="organizationValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Связь события/праздника с организацией</text>
+            </label>
+
+            <label id="organizationListLabel">
+                <field-path/>
+                <text>Организация:</text>
+            </label>
+
+            <suggest-box id="organizationValue">
+                <field-path value="cont_organization"/>
+                <collection-ref name="cont_organization_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+
+
+        </widget-config>
+    </form>
+</configuration>

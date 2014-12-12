@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="occasion_calendar_form" domain-object-type="Occa_Calendar_Occasion" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td width="80px" h-align="right">
+                                        <widget id="odateSelectionLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="dateBox"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td width="80px" h-align="right">
+                                        <widget id="noteLabel"/>
+                                    </td>
+                                    <td width="200px" h-align="left">
+                                        <widget id="noteText"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <field-path/>
+                <text>Привязка конкретной даты к событию</text>
+            </label>
+
+            <label id="odateSelectionLabel">
+                <field-path/>
+                <text>Выбор даты:</text>
+            </label>
+
+            <date-box id="dateBox">
+                <field-path value="Date_Occasion"/>
+            </date-box>
+
+            <label id="noteLabel">
+                <field-path/>
+                <text>Дополнительно:</text>
+            </label>
+
+            <text-box id="noteText">
+                <field-path value="Note"/>
+            </text-box>
+
+
+        </widget-config>
+    </form>
+</configuration>

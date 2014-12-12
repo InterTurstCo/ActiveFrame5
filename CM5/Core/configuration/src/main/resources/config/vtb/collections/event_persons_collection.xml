@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <!-- Коллекция для отображения контактных лиц для поздравления по данному событию -->
+    <collection name="col_event_persons" idField="PID">
+        <prototype>
+            <![CDATA[
+SELECT
+ALL_DATA.PID as PID,
+(select distinct id_type from cont_contact_person) as pid_type,
+ALL_DATA.title AS title,
+ALL_DATA.occasionName AS occasionName,
+ALL_DATA.position AS position,
+ALL_DATA.qualifierName AS qualifierName,
+COALESCE(ALL_DATA.orgRank,100) AS orgRank,
+ALL_DATA.qualifierOrder AS qualifierOrder
+
+FROM
+
+(
+-- ------------------------------- Связка СОБЫТИЕ - КОНТАКТНОЕ ЛИЦО -----------------------------------
+SELECT
+	PersonId as PID,
+	PersonOccasionsData.title,
+	Occasion.name AS occasionName,
+	PersonOccasionsData.position AS position,
+	PersonOccasionsData.qualifierName,
+	PersonOccasionsData.orgRank,
+	PersonOccasionsData.qualifierOrder,
+	PersonOccasion.occasion as occasion
+
+FROM
+
+(
+-- Выбираем все контактные лица и их организации
+SELECT
+Person.id as PersonId,
+Person.title AS title,
+COALESCE(Organization.name,'')||' '||COALESCE(PersonOrganization.position,'') AS position,
+cont_rank.index_number AS orgRank,
+qualifier.corder AS qualifierOrder,
+qualifier.name AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON PersonOrganization.contact_person=Person.id
+JOIN cont_organization Organization ON Organization.id=PersonOrganization.organization
+LEFT JOIN cont_rank ON Organization.rank=cont_rank.id
+
+JOIN cont_qualifier_org OrganizationQualifier ON OrganizationQualifier.organization=Organization.id
+JOIN qualifier ON qualifier.id=OrganizationQualifier.classifier
+JOIN qual_group_qualifier QualifierGroup ON qualifier.group_qualifier=QualifierGroup.id AND QualifierGroup.uid='101'
+
+UNION
+
+-- Объединяем с контактными лицами не состоящими в организациях
+SELECT DISTINCT
+
+Person.id As PersonId,
+Person.title AS title,
+'нет информации' AS position,
+100 AS orgRank,
+100 AS qualifierOrder,
+'Другое' AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON Person.id NOT IN (SELECT contact_person FROM cont_cperson_org)
+
+) PersonOccasionsData
+-- Выбираем события связаные напрямую с контактными лицами
+JOIN occa_occasion_cperson PersonOccasion ON PersonOccasion.contact_person=PersonOccasionsData.PersonId
+JOIN occa_occasion Occasion ON Occasion.id=PersonOccasion.occasion
+
+
+
+UNION
+
+-- ----------------------------------- Связка СОБЫТИЕ - ОРГАНИЗАЦИЯ -------------------------------------
+
+SELECT
+	PersonId as PID,
+	OrganizationOccasionsData.title,
+	Occasion.name AS occasionName,
+	OrganizationOccasionsData.position AS position,
+	OrganizationOccasionsData.qualifierName,
+	OrganizationOccasionsData.orgRank,
+	OrganizationOccasionsData.qualifierOrder,
+	OrganizationOccasion.occasion as occasion
+
+FROM
+
+(
+-- Выбираем все контактные лица и их организации (только высшее руководство)
+SELECT
+Person.id as PersonId,
+Organization.id AS OrganizationId,
+Person.title AS title,
+COALESCE(Organization.name,'')||' '||COALESCE(PersonOrganization.position,'') AS position,
+cont_rank.index_number AS orgRank,
+qualifier.corder AS qualifierOrder,
+qualifier.name AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON PersonOrganization.contact_person=Person.id
+JOIN cont_organization Organization ON Organization.id=PersonOrganization.organization
+JOIN Cont_Type_Accessory Accessory ON PersonOrganization.type_accessory=Accessory.id AND Accessory.uid='199'
+LEFT JOIN cont_rank ON Organization.rank=cont_rank.id
+JOIN cont_qualifier_org OrganizationQualifier ON OrganizationQualifier.organization=Organization.id
+JOIN qualifier ON qualifier.id=OrganizationQualifier.classifier
+JOIN qual_group_qualifier QualifierGroup ON qualifier.group_qualifier=QualifierGroup.id AND QualifierGroup.uid='101'
+
+) OrganizationOccasionsData
+-- Выбираем события связаные напрямую с контактными лицами
+JOIN occa_occasion_org OrganizationOccasion ON OrganizationOccasion.cont_organization=OrganizationOccasionsData.OrganizationId
+JOIN occa_occasion Occasion ON Occasion.id=OrganizationOccasion.occasion
+
+UNION
+
+-- ----------------------------------- Связка СОБЫТИЕ - КЛАССИФИКАТОР - КОНТАКТНЫЕ ЛИЦА -------------------------------------
+
+SELECT
+	QualifierPersonOccasionsData.PersonId as PID,
+	QualifierPersonOccasionsData.title,
+	Occasion.name AS occasionName,
+	QualifierPersonOccasionsData.position AS position,
+	QualifierPersonOccasionsData.qualifierName,
+	QualifierPersonOccasionsData.orgRank,
+	QualifierPersonOccasionsData.qualifierOrder,
+	Occasion.id as occasion
+
+FROM
+
+(
+-- Выбираем все контактные лица и их организации (только высшее руководство)
+SELECT
+
+Person.id AS PersonId,
+Person.title AS title,
+COALESCE(Organization.name,'')||' '||COALESCE(PersonOrganization.position,'') AS position,
+cont_rank.index_number AS orgRank,
+qualifier.corder AS qualifierOrder,
+qualifier.name AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON PersonOrganization.contact_person=Person.id
+JOIN cont_organization Organization ON Organization.id=PersonOrganization.organization
+LEFT JOIN cont_rank ON Organization.rank=cont_rank.id
+JOIN cont_qualifier_org OrganizationQualifier ON OrganizationQualifier.organization=Organization.id
+JOIN qualifier ON qualifier.id=OrganizationQualifier.classifier
+JOIN qual_group_qualifier QualifierGroup ON qualifier.group_qualifier=QualifierGroup.id AND QualifierGroup.uid='101'
+
+UNION
+
+-- Объединяем с контактными лицами не состоящими в организациях
+SELECT DISTINCT
+
+
+Person.id AS PersonId,
+Person.title AS title,
+'нет информации' AS position,
+100 AS orgRank,
+100 AS qualifierOrder,
+'Другое' AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON Person.id NOT IN (SELECT contact_person FROM cont_cperson_org)
+
+) QualifierPersonOccasionsData
+
+-- Выбираем события связаные напрямую с контактными лицами
+JOIN cont_qualifier_cperson PersonQualifier ON PersonQualifier.contact_person=QualifierPersonOccasionsData.PersonId
+JOIN Qualifier ON Qualifier.id=PersonQualifier.classifier
+JOIN occa_occasion_qualifier OccasionQualifier ON OccasionQualifier.qualifier=Qualifier.id
+JOIN occa_occasion Occasion ON Occasion.id=OccasionQualifier.occasion
+
+
+-- ----------------------------------- Связка СОБЫТИЕ - КЛАССИФИКАТОР - ОРГАНИЗАЦИИ КЛ не состоящие в организациях не выбираем -------------------------------------
+UNION
+
+SELECT
+	QualifierOrganizationOccasionsData.PersonId as PID,
+	QualifierOrganizationOccasionsData.title,
+	Occasion.name AS occasionName,
+	QualifierOrganizationOccasionsData.position AS position,
+	QualifierOrganizationOccasionsData.qualifierName,
+	QualifierOrganizationOccasionsData.orgRank,
+	QualifierOrganizationOccasionsData.qualifierOrder,
+	Occasion.id as occasion
+
+FROM
+
+(
+-- Выбираем все контактные лица и их организации (только высшее руководство)
+SELECT
+Person.id as PersonId,
+Organization.id AS OrganizationId,
+Person.title AS title,
+COALESCE(Organization.name,'')||' '||COALESCE(PersonOrganization.position,'') AS position,
+cont_rank.index_number AS orgRank,
+qualifier.corder AS qualifierOrder,
+qualifier.name AS qualifierName
+
+FROM cont_contact_person Person
+JOIN cont_cperson_org PersonOrganization ON PersonOrganization.contact_person=Person.id
+JOIN cont_organization Organization ON Organization.id=PersonOrganization.organization
+LEFT JOIN cont_rank ON Organization.rank=cont_rank.id
+JOIN Cont_Type_Accessory Accessory ON PersonOrganization.type_accessory=Accessory.id AND Accessory.uid='199'
+JOIN cont_qualifier_org OrganizationQualifier ON OrganizationQualifier.organization=Organization.id
+JOIN qualifier ON qualifier.id=OrganizationQualifier.classifier
+JOIN qual_group_qualifier QualifierGroup ON qualifier.group_qualifier=QualifierGroup.id AND QualifierGroup.uid='101'
+
+) QualifierOrganizationOccasionsData
+
+-- Выбираем события связаные напрямую с контактными лицами
+JOIN cont_qualifier_org OrganizationQualifier ON OrganizationQualifier.organization=QualifierOrganizationOccasionsData.OrganizationId
+JOIN Qualifier ON Qualifier.id=OrganizationQualifier.classifier
+JOIN occa_occasion_qualifier OccasionQualifier ON OccasionQualifier.qualifier=Qualifier.id
+JOIN occa_occasion Occasion ON Occasion.id=OccasionQualifier.occasion
+
+
+) ALL_DATA
+
+WHERE 1=1
+::where-clause
+
+
+GROUP BY title,occasionName,position,qualifierName,qualifierOrder,orgRank,occasion,PID
+ORDER BY qualifierOrder,orgRank,title
+                    ]]>
+        </prototype>
+
+        <filter name="byOccasionId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   ALL_DATA.occasion = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="event_persons_default_view" collection="col_event_persons" is-default="true">
+        <display>
+            <column field="title" name="Контактное лицо" type="string" sortable="true"  min-width="80px" max-width="150px" resizable="true"/>
+            <column field="position" name="Организация и должность" type="string" sortable="true"  min-width="80px" max-width="200px" resizable="true"/>
+            <column field="qualifierName" name="Группа" type="string" sortable="true"  min-width="80px" max-width="200px" resizable="true"/>
+        </display>
+    </collection-view>
+</configuration>
