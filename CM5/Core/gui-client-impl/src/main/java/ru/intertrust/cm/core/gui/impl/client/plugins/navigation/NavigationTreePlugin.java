@@ -12,6 +12,8 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
@@ -20,7 +22,7 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import java.util.List;
 
 @ComponentName("navigation.tree")
-public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler {
+public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, LeaveLeftPanelEventHandler {
     private Integer sideBarOpenningTime;
     protected EventBus eventBus;
 
@@ -152,5 +154,10 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     public void setSideBarOpenningTime(Integer sideBarOpenningTime) {
         this.sideBarOpenningTime = sideBarOpenningTime;
+    }
+
+    @Override
+    public void onLeavingLeftPanel(LeaveLeftPanelEvent event) {
+        ((NavigationTreePluginView)(getView())).onLeavingLeftPanel();
     }
 }

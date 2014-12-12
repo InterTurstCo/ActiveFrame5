@@ -4,6 +4,8 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -47,6 +49,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  */
 @ComponentName("business.universe")
 public class BusinessUniverse extends BaseComponent implements EntryPoint, NavigationTreeItemSelectedEventHandler {
+    private static final int LEFT_PANEL_WIDTH = 375;
+
     private CentralPluginPanel centralPluginPanel;
     private NavigationTreePlugin navigationTreePlugin;
     private PluginPanel navigationTreePanel;
@@ -127,6 +131,17 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         left.setStyleName("left-section-active");
         clearPositionAttribute(left);
         left.getElement().setId(ComponentHelper.LEFT_ID);
+
+        center.addDomHandler(new MouseMoveHandler() {
+
+            @Override
+            public void onMouseMove(MouseMoveEvent event) {
+                if (event.getClientX() > LEFT_PANEL_WIDTH) {
+                    glEventBus.fireEvent(new LeaveLeftPanelEvent());
+                }
+            }
+        }, MouseMoveEvent.getType());
+
         centrInner.setStyleName("centr-inner-section");
         center.setStyleName("center-section");
         center.getElement().setId(ComponentHelper.CENTER_ID);
@@ -157,6 +172,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         centralPluginPanel.setVisibleHeight(centralPluginHeight);
         glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
         glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, this);
+        glEventBus.addHandler(LeaveLeftPanelEvent.TYPE, navigationTreePlugin);
         String logoImagePath = GlobalThemesManager.getResourceFolder() + initizationInfo.getLogoImagePath();
         CurrentUserInfo currentUserInfo = getUserInfo(initizationInfo);
         CurrentVersionInfo version = getVersion(initizationInfo);

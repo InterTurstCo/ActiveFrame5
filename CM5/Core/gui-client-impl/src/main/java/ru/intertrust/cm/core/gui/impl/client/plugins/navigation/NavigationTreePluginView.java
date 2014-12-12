@@ -2,14 +2,23 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -38,11 +47,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_ACTIVE_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_ACTIVE_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG;
 
 
 public class NavigationTreePluginView extends PluginView {
 
+    public static final int LEFT_PART_WIDTH = 110;
     private final int DURATION = 500;
     private int END_WIDGET_WIDTH = 245;
     private int START_WIDGET_WIDTH = 0;
@@ -59,7 +75,7 @@ public class NavigationTreePluginView extends PluginView {
     private FocusPanel navigationTreeContainer;
     private Timer mouseHoldTimer;
     private Integer navigationTreeOpeningTime;
-    private boolean iSOpenTheAnimatedTreePanel;
+    private boolean animatedTreePanelIsOpened;
     private boolean openPanelMarker = false;
 
     protected NavigationTreePluginView(Plugin plugin) {
@@ -115,7 +131,7 @@ public class NavigationTreePluginView extends PluginView {
                     pinButton.setStyleName("icon pin-normal");
                     eventBus.fireEvent(new SideBarResizeEvent(START_WIDGET_WIDTH, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                     navigationTreesPanel.setStyleName("navigation-dynamic-panel");
-                    iSOpenTheAnimatedTreePanel = false;
+                    animatedTreePanelIsOpened = true;
                 }
                 Application.getInstance().getCompactModeState().setNavigationTreePanelExpanded(pinButtonClick);
             }
@@ -136,22 +152,21 @@ public class NavigationTreePluginView extends PluginView {
 //                }
 //            }
 //        });
-        navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
-            @Override
-            public void onMouseOut(MouseOutEvent event) {
-                if (mouseHoldTimer != null) {
-                    mouseHoldTimer.cancel();
-                }
-                openPanelMarker = false;
-                hideTreePanel();
-                iSOpenTheAnimatedTreePanel = false;
-            }
-        });
 
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
         }
         return navigationTreeContainer;
+    }
+
+    void onLeavingLeftPanel() {
+        if (animatedTreePanelIsOpened && !pinButtonClick) {
+            if (mouseHoldTimer != null) {
+                mouseHoldTimer.cancel();
+            }
+            openPanelMarker = false;
+            hideTreePanel();
+        }
     }
 
     private void openTheAnimatedTreePanel() {
@@ -167,7 +182,7 @@ public class NavigationTreePluginView extends PluginView {
                 final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
                         navigationTreesPanel);
                 resizeTreeAnimation.run(DURATION);
-                iSOpenTheAnimatedTreePanel = true;
+                animatedTreePanelIsOpened = true;
                 navigationTreesPanel.getElement().getStyle().setDisplay(Style.Display.BLOCK);
             }
         };
@@ -175,21 +190,19 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     private void hideTreePanel() {
-        if (iSOpenTheAnimatedTreePanel == true | pinButtonClick == false) {
-            if (!pinButtonClick) {
-                mouseHoldTimer = new Timer() {
-                    @Override
-                    public void run() {
-                        final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
-                        Application.getInstance().getEventBus()
-                                .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
-                        resizeTreeAnimation.run(DURATION);
-                        //navigationTreesPanel.getElement().getStyle().clearDisplay();
-                    }
-                };
-                mouseHoldTimer.schedule(navigationTreeOpeningTime);
+        mouseHoldTimer = new Timer() {
+            @Override
+            public void run() {
+                final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                Application.getInstance().getEventBus()
+                        .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
+                resizeTreeAnimation.run(DURATION);
+                //navigationTreesPanel.getElement().getStyle().clearDisplay();
+
+                animatedTreePanelIsOpened = false;
             }
-        }
+        };
+        mouseHoldTimer.schedule(navigationTreeOpeningTime);
     }
 
     private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
@@ -404,7 +417,7 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
                 public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
-                    if ((!openPanelMarker & mouseMoveEvent.getClientX() < 110) && !pinButtonClick) {
+                    if (!openPanelMarker && (mouseMoveEvent.getClientX() < LEFT_PART_WIDTH) && !pinButtonClick) {
                         openPanelMarker = true;
                         openTheAnimatedTreePanel();
                     }
@@ -462,6 +475,5 @@ public class NavigationTreePluginView extends PluginView {
             source.setSelected(true);
         }
     }
-
 
 }
