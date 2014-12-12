@@ -54,6 +54,9 @@ public class WidgetUtil {
     public static boolean containsOneElement(Collection collection){
         return collection != null && collection.size() == 1;
     }
+    public static boolean isStringEmpty(String s){
+        return s == null || s.isEmpty();
+    }
 
     private static List<String> getWidgetIdsFromFilters(AbstractFiltersConfig<? extends AbstractFilterConfig> filtersConfig) {
         if(filtersConfig != null && isNotEmpty(filtersConfig.getFilterConfigs())){

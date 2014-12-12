@@ -418,6 +418,8 @@ public class CollectionPluginView extends PluginView {
                         paramConfig.setValue(entry.getValue().get(index));
                         paramConfig.setType((String) getPluginData().getDomainObjectFieldPropertiesMap()
                                 .get(entry.getKey()).getProperty(CollectionColumnProperties.TYPE_KEY));
+                        paramConfig.setTimeZoneId((String) getPluginData().getDomainObjectFieldPropertiesMap()
+                                .get(entry.getKey()).getProperty(CollectionColumnProperties.TIME_ZONE_ID));
                         paramConfigs.add(paramConfig);
                     }
                 }
@@ -427,12 +429,14 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         }
-
-        if (configs.isEmpty()) {
+        List<InitialFilterConfig> previous = config.getInitialFiltersConfig() == null ? null
+                : config.getInitialFiltersConfig().getFilterConfigs();
+        List<InitialFilterConfig> mergedConfigs = CollectionDataGridUtils.mergeInitialFiltersConfigs(configs, previous);
+        if (mergedConfigs.isEmpty()) {
             config.setInitialFiltersConfig(null);
         } else {
             final InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
-            initialFiltersConfig.setFilterConfigs(configs);
+            initialFiltersConfig.setFilterConfigs(mergedConfigs);
             config.setInitialFiltersConfig(initialFiltersConfig);
         }
         final Action action = ComponentRegistry.instance.get(CollectionFiltersActionContext.COMPONENT_NAME);
@@ -689,8 +693,8 @@ public class CollectionPluginView extends PluginView {
                 collectionPluginData.getCollectionName(), collectionPluginData.getDomainObjectFieldPropertiesMap(),
                 simpleSearchQuery, searchArea);
         collectionRowsRequest.setFiltersMap(filtersMap);
-
-        InitialFiltersConfig initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
+        InitialFiltersConfig initialFiltersConfig = config.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         collectionRowsRequest.setTableBrowserParams(tableBrowserParams);
@@ -724,7 +728,8 @@ public class CollectionPluginView extends PluginView {
         collectionRowsRequest.setSortCriteriaConfig(sortCriteriaConfig);
         collectionRowsRequest.setFiltersMap(filtersMap);
         CollectionPluginData collectionPluginData = plugin.getInitialData();
-        InitialFiltersConfig initialFiltersConfig = collectionPluginData.getInitialFiltersConfig();
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
+        InitialFiltersConfig initialFiltersConfig = config.getInitialFiltersConfig();
         collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         collectionRowsRequest.setTableBrowserParams(tableBrowserParams);

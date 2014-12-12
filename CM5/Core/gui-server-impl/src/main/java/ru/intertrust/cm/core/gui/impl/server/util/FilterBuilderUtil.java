@@ -1,13 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
@@ -39,53 +44,83 @@ public class FilterBuilderUtil {
         return referenceFilter;
 
     }
-
-
+     @Deprecated // will be private, use prepareFilter(InitialFilterConfig filterConfig, InitialFiltersParams initialFiltersParams, Filter filter)
      public static Filter prepareColumnFilter(List<String> filterValues, CollectionColumnProperties columnProperties, Filter filter){
-        Filter result = null;
         if (columnProperties != null) {
-            String filterName = (String) columnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
-            result = initFilter(filterName, filter);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
+            prepareFilter(filterValues, fieldType, rawTimeZone, filter);
+
+        }
+        return filter;
+    }
+
+    public static Filter prepareFilter(InitialFilterConfig filterConfig, InitialFiltersParams initialFiltersParams, Filter filter){
+        Filter result = initFilter(filterConfig.getName(), filter);
+        if(shouldPrepareFilterFromConfig(filterConfig)){
+            prepareFilterFromConfig(filterConfig, result);
+        }else {
+            List<String> filterValues = prepareFilterStringValues(filterConfig);
+            String filterName = filterConfig.getName();
+            CollectionColumnProperties columnProperties = initialFiltersParams.getFilterNameColumnPropertiesMap().get(filterName);
+            prepareColumnFilter(filterValues, columnProperties, result);
+       }
+        return result;
+
+    }
+    private static void prepareFilterFromConfig(InitialFilterConfig filterConfig, Filter filter){
+        if(WidgetUtil.isNotEmpty(filterConfig.getParamConfigs())){
+        InitialParamConfig paramConfig = filterConfig.getParamConfigs().get(0);
+        List<String> filterValues = prepareFilterStringValues(filterConfig);
+        prepareFilter(filterValues, paramConfig, filter);
+        }
+    }
+
+    public static void prepareFilter(List<String> filterValues, InitialParamConfig paramConfig, Filter filter){
+            String fieldType = paramConfig.getType();
+            String rawTimeZone = paramConfig.getTimeZoneId();
+            prepareFilter(filterValues, fieldType, rawTimeZone, filter);
+
+    }
+
+    private static void prepareFilter(List<String> filterValues, String fieldType, String rawTimeZone, Filter filter){
+
             switch (fieldType) {
                 case TIMELESS_DATE_TYPE:
                     try {
-                        prepareTimelessDateFilter(result, filterValues, columnProperties);
+                        prepareTimelessDateFilter(filter, filterValues, rawTimeZone);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case DATE_TIME_TYPE:
                     try {
-                        prepareDateTimeFilter(result, filterValues, columnProperties);
+                        prepareDateTimeFilter(filter, filterValues, rawTimeZone);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case DATE_TIME_WITH_TIME_ZONE_TYPE:
                     try {
-                        prepareDateTimeWithTimeZoneFilter(result, filterValues, columnProperties);
+                        prepareDateTimeWithTimeZoneFilter(filter, filterValues, rawTimeZone);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     break;
                 case LONG_TYPE:
-                    prepareLongFilter(result, filterValues);
+                    prepareLongFilter(filter, filterValues);
                     break;
                 case DECIMAL_TYPE:
-                    prepareDecimalFilter(result, filterValues);
+                    prepareDecimalFilter(filter, filterValues);
                     break;
                 case BOOLEAN_TYPE:
-                    prepareBooleanFilter(result, filterValues);
+                    prepareBooleanFilter(filter, filterValues);
                     break;
                 default:
-                    prepareStringFilter(result, filterValues);
+                    prepareStringFilter(filter, filterValues);
                     break;
             }
-        } else {
-            result = filter;
-        }
-        return result;
+
     }
 
     /**
@@ -115,13 +150,12 @@ public class FilterBuilderUtil {
     }
 
     private static void prepareTimelessDateFilter(Filter filter, List<String> filterValues,
-                                                  CollectionColumnProperties columnProperties) throws ParseException {
+                                                 String rawTimeZone) throws ParseException {
 
-        String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
-        DateFormat format = new SimpleDateFormat(datePattern);
+        DateFormat format = TIMELESS_DATE_FORMATTER;
         String rangeStartFilterValue = filterValues.get(0);
         Date rangeStartDate = format.parse(rangeStartFilterValue);
-        String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
+
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
         Calendar rangeStartCalendar = Calendar.getInstance(timeZone);
         rangeStartCalendar.setTime(rangeStartDate);
@@ -147,13 +181,9 @@ public class FilterBuilderUtil {
     }
 
     private static void prepareDateTimeFilter(Filter filter, List<String> filterValues,
-                                              CollectionColumnProperties columnProperties) throws ParseException {
-        String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
-        String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
+                                              String rawTimeZone) throws ParseException {
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
-        String timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
-        String pattern = DateUtil.prepareDatePattern(datePattern, timePattern);
-        DateFormat format = new SimpleDateFormat(pattern);
+        DateFormat format = DATE_TIME_FORMATTER;
         format.setTimeZone(timeZone);
         if (filterValues.size() == 1) {
             String filterValue = filterValues.get(0);
@@ -165,7 +195,7 @@ public class FilterBuilderUtil {
             rangeStartDateTimeValue.setValue(rangeStart);
             filter.addCriterion(0, rangeStartDateTimeValue);
             DateTimeValue rangeEndDateTimeValue = new DateTimeValue();
-            if (timePattern == null) {
+            if (isUserWithoutTimePattern(calendar)) {
                 Date rangeEnd = prepareEndOfDayForSelectedDate(calendar);
                 rangeEndDateTimeValue.setValue(rangeEnd);
             } else {
@@ -251,15 +281,11 @@ public class FilterBuilderUtil {
     }
 
     public static void prepareDateTimeWithTimeZoneFilter(Filter filter, List<String> filterValues,
-                                                          CollectionColumnProperties columnProperties) throws ParseException {
+                                                         String rawTimeZone) throws ParseException {
         String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-        String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
-        String timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
-        String pattern = DateUtil.prepareDatePattern(datePattern, timePattern);
-        DateFormat dateFormat = new SimpleDateFormat(pattern);
+        DateFormat dateFormat = DATE_TIME_FORMATTER;
         TimeZone userTimeZone = TimeZone.getTimeZone(userTimeZoneId);
         dateFormat.setTimeZone(userTimeZone);
-        String rawTimeZone = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_ZONE_ID);
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
         if (filterValues.size() == 1) {
             String filterValue = filterValues.get(0);
@@ -271,7 +297,7 @@ public class FilterBuilderUtil {
                     rawTimeZone, timeZone);
             Value selectedDateTimeWithTimeZoneValue = new DateTimeWithTimeZoneValue(rangeStartDateTimeWithTimeZone);
             filter.addCriterion(0, selectedDateTimeWithTimeZoneValue);
-            if (timePattern == null) {
+            if (isUserWithoutTimePattern(calendar)) {
                 Date rangeEnd = prepareEndOfDayForSelectedDate(calendar);
                 DateTimeWithTimeZone rangeEndDateTimeWithTimeZone = prepareDateTimeWithTimeZone(rangeEnd, rawTimeZone,
                         timeZone);
@@ -312,5 +338,32 @@ public class FilterBuilderUtil {
         return result;
 
     }
+    private static boolean isUserWithoutTimePattern(Calendar calendar){
+        return calendar.get(Calendar.HOUR) == 0
+                && calendar.get(Calendar.MINUTE) == 0
+                && calendar.get(Calendar.SECOND) == 0;
+    }
 
+    private static List<String> prepareFilterStringValues(AbstractFilterConfig abstractFilterConfig) {
+        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
+        List<String> result = new ArrayList<>(paramConfigs.size());
+        for (ParamConfig paramConfig : paramConfigs) {
+            result.add(paramConfig.getValue());
+        }
+        return result;
+
+    }
+    private static boolean shouldPrepareFilterFromConfig(InitialFilterConfig initialFilterConfig){
+        boolean result = true;
+        List<InitialParamConfig> paramConfigs = initialFilterConfig.getParamConfigs();
+
+        if(ru.intertrust.cm.core.gui.model.util.WidgetUtil.isEmpty(paramConfigs)){
+            result = false;
+        } else {
+        for (InitialParamConfig paramConfig : paramConfigs) {
+            result = paramConfig.getType() != null;
+        }
+        }
+        return result;
+    }
 }

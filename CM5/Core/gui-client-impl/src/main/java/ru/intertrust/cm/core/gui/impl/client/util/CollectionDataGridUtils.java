@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.util;
 
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
@@ -116,28 +117,30 @@ public class CollectionDataGridUtils {
         }
     }
 
-    public static void mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
+    public static List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
                                                                        List<InitialFilterConfig> previous){
         if(WidgetUtil.isEmpty(previous)){
-            return;
+            return current;
         }
-        Collection<String> names = getFilterNames(current);
-        for (InitialFilterConfig config: previous) {
-            if(!names.contains(config.getName())){
-                current.add(config);
+        List<InitialFilterConfig> result = new ArrayList<InitialFilterConfig>();
+        for (final InitialFilterConfig currentConfig: current) {
+                InitialFilterConfig previousConfig = GuiUtil.find(previous, new Predicate<InitialFilterConfig>() {
+                    @Override
+                    public boolean evaluate(InitialFilterConfig input) {
+                        return input.getName().equalsIgnoreCase(currentConfig.getName());
+                    }
+                });
+            if(previousConfig == null){
+                result.add(currentConfig);
+            } else {
+                previousConfig.setParamConfigs(currentConfig.getParamConfigs());
+                result.add(previousConfig);
             }
-        }
 
-    }
-
-    private static Collection<String> getFilterNames(List<InitialFilterConfig> configs){
-        Set<String> result = new HashSet<>();
-        if(WidgetUtil.isNotEmpty(configs)){
-        for (InitialFilterConfig config : configs) {
-            result.add(config.getName());
-        }
         }
         return result;
+
     }
+
 
 }

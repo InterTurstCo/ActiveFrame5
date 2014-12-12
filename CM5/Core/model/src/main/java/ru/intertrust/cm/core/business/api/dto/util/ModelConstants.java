@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto.util;
 
+import java.text.SimpleDateFormat;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 25.07.2014
@@ -25,5 +27,11 @@ public class ModelConstants {
     //collection image sizes
     public static final String COLLECTION_IMAGE_WIDTH = "25px";
     public static final String COLLECTION_IMAGE_HEIGHT = "25px";
+    //GUI date parsing patterns
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    public static final String TIMELESS_DATE_FORMAT = "yyyy-MM-dd";
 
+
+    public static final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat(ModelConstants.DATE_TIME_FORMAT);
+    public  static final SimpleDateFormat TIMELESS_DATE_FORMATTER = new SimpleDateFormat(ModelConstants.TIMELESS_DATE_FORMAT);
 }

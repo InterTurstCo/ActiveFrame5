@@ -69,12 +69,12 @@ public class DateUtil {
             return new OlsonTimeZoneContext(timeZoneId);
         }
     }
-
+    @Deprecated //use the same method GuiServerHelper
     public static DateFormat getDateFormat(String datePattern, String timePattern) {
         String formatDatePattern = prepareDatePattern(datePattern, timePattern);
         return formatDatePattern == null ? null : new SimpleDateFormat(formatDatePattern);
     }
-
+    @Deprecated //use the same method GuiServerHelper
     public static String prepareDatePattern(String datePattern, String timePattern){
         if (datePattern == null) {
             return null;

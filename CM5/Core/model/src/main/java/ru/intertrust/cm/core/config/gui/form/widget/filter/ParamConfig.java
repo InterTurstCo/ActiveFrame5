@@ -27,6 +27,9 @@ public abstract class ParamConfig implements Dto{
     @Attribute(name = "set-current-user", required = false)
     private boolean setCurrentUser;
 
+    @Attribute(name = "time-zone-id", required = false)
+    private String timeZoneId;
+
     public String getValue() {
         return value;
     }
@@ -75,6 +78,14 @@ public abstract class ParamConfig implements Dto{
         this.setBaseObject = setBaseObject;
     }
 
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
+
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -104,6 +115,9 @@ public abstract class ParamConfig implements Dto{
         if (setCurrentUser != that.setCurrentUser) {
             return false;
         }
+        if (timeZoneId!= null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
+            return false;
+        }
 
         return true;
     }
@@ -113,6 +127,7 @@ public abstract class ParamConfig implements Dto{
         int result = value != null ? value.hashCode() : 0;
         result = name != null ? name.hashCode() : 0;
         result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
         result = 31 * result + (setBaseObject ? 1 : 0);
         result = 31 * result + (setCurrentMoment ? 1 : 0);
         result = 31 * result + (setCurrentUser ? 1 : 0);

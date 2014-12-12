@@ -177,6 +177,7 @@ public class JsonUtil {
         jsonFilterParamObj.put("name", new JSONNumber(name));
         putNotNullString("value", paramConfig.getValue(), jsonFilterParamObj);
         putNotNullString("type", paramConfig.getType(), jsonFilterParamObj);
+        putNotNullString("timeZoneId", paramConfig.getTimeZoneId(), jsonFilterParamObj);
         jsonFilterParamObj.put("setCurrentMoment", JSONBoolean.getInstance(paramConfig.isSetCurrentMoment()));
         jsonFilterParamObj.put("setCurrentUser", JSONBoolean.getInstance(paramConfig.isSetCurrentUser()));
         jsonFilterParamObj.put("setBaseObject", JSONBoolean.getInstance(paramConfig.isSetBaseObject()));

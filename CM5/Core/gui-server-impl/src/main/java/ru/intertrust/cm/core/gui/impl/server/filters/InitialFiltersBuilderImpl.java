@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
@@ -15,7 +14,6 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,29 +42,16 @@ public class InitialFiltersBuilderImpl extends AbstractFiltersBuilder implements
     }
 
     private Filter prepareInitialFilter(InitialFilterConfig filterConfig, InitialFiltersParams params) {
-        Filter filter = null;
-        String filterName = filterConfig.getName();
-        List<String> excludedInitialFilterNames = params.getExcludedInitialFilterNames();
-        Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = params.getFilterNameColumnPropertiesMap();
-        if (excludedInitialFilterNames == null || !excludedInitialFilterNames.contains(filterName)) {
-            CollectionColumnProperties columnProperties = filterNameColumnPropertiesMap.get(filterName);
-            filter = tryPrepareNotTextFilter(filterConfig, params.getRootId(), columnProperties);
-            List<String> filterValues = prepareFilterStringValues(filterConfig);
-            filter = FilterBuilderUtil.prepareColumnFilter(filterValues, columnProperties, filter);
 
-        }
+        String filterName = filterConfig.getName();
+        Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = params.getFilterNameColumnPropertiesMap();
+        CollectionColumnProperties columnProperties = filterNameColumnPropertiesMap.get(filterName);
+        Filter filter = tryPrepareNotTextFilter(filterConfig, params.getRootId(), columnProperties);
+        filter = FilterBuilderUtil.prepareFilter(filterConfig, params, filter);
+
         return filter;
     }
 
-    private List<String> prepareFilterStringValues(AbstractFilterConfig abstractFilterConfig) {
-        List<ParamConfig> paramConfigs = abstractFilterConfig.getParamConfigs();
-        List<String> result = new ArrayList<>(paramConfigs.size());
-        for (ParamConfig paramConfig : paramConfigs) {
-            result.add(paramConfig.getValue());
-        }
-        return result;
-
-    }
 
     private Filter tryPrepareNotTextFilter(InitialFilterConfig filterConfig, Id rootId,
                                            CollectionColumnProperties columnProperties) {

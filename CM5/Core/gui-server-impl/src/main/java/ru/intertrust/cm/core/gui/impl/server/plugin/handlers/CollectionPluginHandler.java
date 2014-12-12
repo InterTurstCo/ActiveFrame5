@@ -248,17 +248,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offset = request.getOffset();
         int limit = request.getLimit();
-        Map<String, List<String>> filtersMap = request.getFiltersMap();
-        List<Filter> filters = CollectionPluginHelper.prepareSearchFilters(filtersMap, properties);
-
+        List<Filter> filters = new ArrayList<>();
         prepareTableBrowserFilters(tableBrowserParams, filters);
         filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplicatedFiltersParams(), filters);
         InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
-        Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
-        List<String> excludedInitialFilterNames = CollectionPluginHelper.prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
+
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.
                 getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
-        InitialFiltersParams filtersParams = new InitialFiltersParams(excludedInitialFilterNames, filterNameColumnPropertiesMap);
+        InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
 
         ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
@@ -275,13 +272,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         int limitFromRequest = request.getLimit();
         int offset = 0;
         int limit = offsetFromRequest + limitFromRequest;
-        Map<String, List<String>> filtersMap = request.getFiltersMap();
-        List<Filter> filters = CollectionPluginHelper.prepareSearchFilters(filtersMap, properties);
+        List<Filter> filters = new ArrayList<Filter>();
         InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
-        Set<String> userFilterNamesWithInputs = filtersMap == null ? null : filtersMap.keySet();
-        List<String> excludedInitialFilterNames = CollectionPluginHelper.prepareExcludedInitialFilterNames(userFilterNamesWithInputs, properties);
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
-        InitialFiltersParams initialFiltersParams = new InitialFiltersParams(excludedInitialFilterNames, filterNameColumnPropertiesMap);
+        InitialFiltersParams initialFiltersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, initialFiltersParams, filters);
         Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {

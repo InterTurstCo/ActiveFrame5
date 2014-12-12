@@ -2,15 +2,21 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.head
 
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
+import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
+import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
+import java.util.Date;
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_CLEAR_BUTTON_ID_PART;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,15 +27,18 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
     protected DatePickerPopup popupDatePicker;
     protected String fieldType;
     protected String timePattern;
-    protected DateTimeFormat dateTimeFormat;
+    protected DateTimeFormat userDateTimeFormat;
+    protected DateTimeFormat guiDateTimeFormat;
     protected HandlerRegistration handlerRegistration;
+
     public DateFilterHeaderWidget(CollectionColumn column, CollectionColumnProperties columnProperties,
                                   List<String> initialFilterValues, String valueSeparator) {
         super(column, columnProperties, initialFilterValues, valueSeparator);
         fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
         String datePattern = (String) columnProperties.getProperty(CollectionColumnProperties.DATE_PATTERN);
         timePattern = (String) columnProperties.getProperty(CollectionColumnProperties.TIME_PATTERN);
-        dateTimeFormat = initDateTimeFormat(datePattern, timePattern);
+        userDateTimeFormat = initUserDateTimeFormat(datePattern, timePattern);
+        guiDateTimeFormat = initGuiDateTimeFormat();
     }
 
     protected void initHtml() {
@@ -59,7 +68,7 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
         html = htmlBuilder.toString();
     }
 
-    private DateTimeFormat initDateTimeFormat(String datePattern, String timePattern) {
+    private DateTimeFormat initUserDateTimeFormat(String datePattern, String timePattern) {
         if (datePattern == null) {
             return null;
         }
@@ -72,14 +81,46 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
         return DateTimeFormat.getFormat(patternBuilder.toString());
     }
 
+    private DateTimeFormat initGuiDateTimeFormat() {
+        return !FieldType.TIMELESSDATE.equals(FieldType.forTypeName(fieldType))
+                ? DateTimeFormat.getFormat(ModelConstants.DATE_TIME_FORMAT)
+                : DateTimeFormat.getFormat(ModelConstants.TIMELESS_DATE_FORMAT);
+
+    }
+
     public DatePickerPopup getDateBox() {
         return popupDatePicker;
     }
 
-    protected void removePreviousHandlerIfExist(){
-        if(handlerRegistration == null){
+    protected void removePreviousHandlerIfExist() {
+        if (handlerRegistration == null) {
             return;
         }
         handlerRegistration.removeHandler();
     }
+
+    protected boolean isShowTime() {
+        return timePattern == null ? false : !FieldType.TIMELESSDATE.equals(FieldType.forTypeName(fieldType));
+    }
+
+    protected String convertUserDateStringToGuiDateString(String userDateString) {
+        if(WidgetUtil.isStringEmpty(userDateString)){
+            return EMPTY_VALUE;
+        }
+        try{
+        Date userDate = userDateTimeFormat.parse(userDateString);
+        return guiDateTimeFormat.format(userDate);
+        }catch (IllegalArgumentException ex) {
+            ApplicationWindow.errorAlert(getErrorMessage());
+            throw new GuiException(getErrorMessage());
+        }
+
+
+    }
+    protected String getErrorMessage(){
+        StringBuilder errorMessageBuilder = new StringBuilder(BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE);
+        errorMessageBuilder.append(userDateTimeFormat.getPattern());
+        return errorMessageBuilder.toString();
+    }
+
 }

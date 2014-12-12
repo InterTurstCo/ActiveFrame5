@@ -16,7 +16,9 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.*;
+import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
+import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
@@ -170,7 +172,7 @@ public class JsonExportToCsv {
                                        JsonInitialFilters jsonHierarchicalFilters) throws ParseException {
         List<Filter> filters = new ArrayList<>();
         List<String> excludedFilterFields = new ArrayList<>();
-
+/*
         for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
             List<String> filterValues = jsonProperties.getFilterValues();
             String fieldName = jsonProperties.getFieldName();
@@ -186,7 +188,7 @@ public class JsonExportToCsv {
                     excludedFilterFields.add(fieldName);
                 }
             }
-        }
+        }*/
         InitialFiltersConfig initialFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonInitialFilters);
         CollectionExtraFiltersConfig hierarchicalFiltersConfig = JsonUtil.
                 convertToCollectionExtraFiltersConfig(jsonHierarchicalFilters);
@@ -219,7 +221,7 @@ public class JsonExportToCsv {
                 String datePattern =
                         (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.DATE_PATTERN);
                 String timePattern = (String) columnPropertiesMap.get(field).getProperty(CollectionColumnProperties.TIME_PATTERN);
-                String dateTimePattern = DateUtil.prepareDatePattern(datePattern, timePattern);
+                String dateTimePattern = GuiServerHelper.prepareDatePattern(datePattern, timePattern);
                 switch (value.getFieldType()) {
                     case DATETIMEWITHTIMEZONE:
                         final DateTimeWithTimeZone dateTimeWithTimeZone = (DateTimeWithTimeZone) value.get();

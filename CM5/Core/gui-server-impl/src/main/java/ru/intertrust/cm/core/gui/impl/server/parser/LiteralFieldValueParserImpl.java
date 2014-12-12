@@ -10,9 +10,11 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 
 import java.math.BigDecimal;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.DATE_TIME_FORMATTER;
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.TIMELESS_DATE_FORMATTER;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,11 +23,7 @@ import java.util.TimeZone;
  */
 @ComponentName("literal-parser")
 public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
-    private static final String TIMELESS_DATE_FORMAT = "yyyy-MM-dd";
 
-    private final SimpleDateFormat DATE_TIME_FORMATTER = new SimpleDateFormat(DATE_TIME_FORMAT);
-    private final SimpleDateFormat TIMELESS_DATE_FORMATTER = new SimpleDateFormat(TIMELESS_DATE_FORMAT);
     @Autowired
     private IdService idService;
 

@@ -160,7 +160,7 @@ public class CollectionRowsRequest implements Dto {
     public void setColumnProperties(LinkedHashMap<String, CollectionColumnProperties> columnProperties) {
         this.columnProperties = columnProperties;
     }
-
+    @Deprecated //not used anymore, all filter info is in initial filter configs
     public Map<String, List<String>> getFiltersMap() {
         return filtersMap;
     }

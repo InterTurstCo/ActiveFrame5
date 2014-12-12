@@ -9,14 +9,14 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.CollectionDateP
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.TimeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.HeaderWidgetUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
 import java.util.Date;
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_CLEAR_BUTTON_ID_PART;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_INPUT_ID_PART;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -32,24 +32,22 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
 
     public void init() {
         initHtml();
-        boolean showTime = timePattern == null ? false : !TIMELESS_DATE_TYPE.equalsIgnoreCase(fieldType);
         Date date = null;
         try {
             date = filterValuesRepresentation == null || filterValuesRepresentation.isEmpty() ? null
-                    : dateTimeFormat.parse(filterValuesRepresentation);
+                    : userDateTimeFormat.parse(filterValuesRepresentation);
         } catch (IllegalArgumentException ex) {
-            ApplicationWindow.errorAlert(BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE
-                    + dateTimeFormat.getPattern());
+            ApplicationWindow.errorAlert(getErrorMessage());
         }
-        boolean showSeconds = TimeUtil.showSeconds(dateTimeFormat.getPattern());
-        popupDatePicker = new CollectionDatePicker(date, eventBus, showTime, showSeconds);
+        boolean showSeconds = TimeUtil.showSeconds(userDateTimeFormat.getPattern());
+        popupDatePicker = new CollectionDatePicker(date, eventBus, isShowTime(), showSeconds);
         initHandlers();
 
     }
 
     @Override
     public List<String> getFilterValues() {
-        return HeaderWidgetUtil.getFilterValues(null, filterValuesRepresentation);
+        return HeaderWidgetUtil.getFilterValues(null, convertUserDateStringToGuiDateString(filterValuesRepresentation));
     }
 
     protected void initHandlers() {
@@ -61,9 +59,9 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
                     return;
                 }
                 Date date = event.getDate();
-                String dateValue = dateTimeFormat.format(date);
-                setFilterValuesRepresentation(dateValue);
-                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(dateValue);
+                String userDateValue = userDateTimeFormat.format(date);
+                setFilterValuesRepresentation(userDateValue);
+                InputElement.as(DOM.getElementById(id + HEADER_INPUT_ID_PART)).setValue(userDateValue);
                 DOM.getElementById(id + HEADER_CLEAR_BUTTON_ID_PART)
                         .setClassName(GlobalThemesManager.getCurrentTheme().commonCss().filterBoxClearButtonOn());
                 setFocused(true);

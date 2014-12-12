@@ -12,6 +12,7 @@ public class JsonFilterParam {
     private boolean setCurrentMoment;
     private boolean setCurrentUser;
     private boolean setBaseObject;
+    private String timeZoneId;
 
     public Integer getName() {
         return name;
@@ -59,6 +60,14 @@ public class JsonFilterParam {
 
     public void setSetBaseObject(boolean setBaseObject) {
         this.setBaseObject = setBaseObject;
+    }
+
+    public String getTimeZoneId() {
+        return timeZoneId;
+    }
+
+    public void setTimeZoneId(String timeZoneId) {
+        this.timeZoneId = timeZoneId;
     }
 
     @Override

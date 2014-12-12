@@ -47,7 +47,7 @@ public class InitialFiltersParams {
     public void setRootId(Id rootId) {
         this.rootId = rootId;
     }
-
+    @Deprecated //not used anymore during filters creating
     public List<String> getExcludedInitialFilterNames() {
         return excludedInitialFilterNames;
     }
