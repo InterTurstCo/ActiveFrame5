@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
@@ -43,6 +45,7 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
     private double nodeSectionWidth;
     private String title;
     private boolean shouldDrawTooltipButton;
+    private CaptionCloseButton captionCloseButton;
 
     public HierarchyBrowserMainPopup(EventBus eventBus, HierarchyBrowserWidgetState state) {
         this.eventBus = eventBus;
@@ -53,7 +56,6 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         title = state.getRootNodeLinkConfig() == null ? "link" : state.getRootNodeLinkConfig().getTitle();
         containerMap = new HashMap<String, HierarchyBrowserNodeView>();
         nodeTypes = new ArrayList<String>();
-
         DialogWindowConfig dialogWindowConfig = state.getHierarchyBrowserConfig().getDialogWindowConfig();
         popupWidth = HierarchyBrowserUtil.getSizeFromString(dialogWindowConfig != null ?
                 dialogWindowConfig.getWidth() : null, HierarchyBrowserMainPopup.DEFAULT_WIDTH);
@@ -126,7 +128,6 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         dialogBox.addStyleName("popup-body");
         dialogBox.setModal(true);
         dialogBox.add(initPopup());
-
         popupChosenContent.setTooltipClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -134,8 +135,10 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
             }
         });
 
+        HTML caption = (HTML) dialogBox.getCaption();
+        captionCloseButton = new CaptionCloseButton();
+        caption.getElement().appendChild(captionCloseButton.getElement());
         popupChosenContent.displayChosenItems(chosenItems, shouldDrawTooltipButton);
-
         dialogBox.setHeight(popupHeight + "px");
         dialogBox.setWidth(popupWidth + "px");
         dialogBox.center();
@@ -226,6 +229,9 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
 
     public void addCancelClickHandler(ClickHandler cancelClickHandler) {
         cancelButton.addClickHandler(cancelClickHandler);
+    }
+    public void addCancelListener(EventListener listener){
+        captionCloseButton.addClickListener(listener);
     }
 
     private void adjustNodeWidth(){

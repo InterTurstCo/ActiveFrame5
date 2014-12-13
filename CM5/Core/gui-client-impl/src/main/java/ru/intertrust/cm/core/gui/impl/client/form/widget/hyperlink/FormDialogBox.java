@@ -1,16 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.DialogBoxUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
@@ -64,6 +62,8 @@ public class FormDialogBox extends DialogBox {
             panel.setHeight(modalHeight);
         }
         this.add(panel);
+        HTML caption = (HTML) getCaption();
+        caption.getElement().appendChild(new Button("bla").getElement());
     }
 
 
@@ -90,6 +90,7 @@ public class FormDialogBox extends DialogBox {
                 String resultTitle = headerTitle == null
                         ? GuiUtil.getConfiguredTitle(formPlugin, config.getDomainObjectId() == null) : headerTitle;
                 FormDialogBox.this.getCaption().setText(resultTitle);
+                DialogBoxUtils.addCaptionCloseButton(FormDialogBox.this);
                 setTitle(resultTitle);
                 showDialogBox();
 

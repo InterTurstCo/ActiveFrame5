@@ -69,4 +69,7 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("addDoBtn")
     String addDoBtn();
+
+    @ClassName("deleteBtn")
+    String deleteBtn();
 }

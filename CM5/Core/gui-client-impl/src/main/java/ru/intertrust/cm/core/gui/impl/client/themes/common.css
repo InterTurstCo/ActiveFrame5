@@ -233,6 +233,18 @@
 
 }
 
+@sprite .deleteBtn {
+    gwt-image: "deleteIm";
+    background-repeat: no-repeat;
+    background-position: center center;
+    cursor: pointer;
+    padding: 8px;
+    width: 5px;
+    height: 100%;
+    float: right;
+
+}
+
 .refreshBtn:hover {
     cursor: pointer;
 }
