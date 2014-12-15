@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public class AttachmentBoxWidget extends BaseWidget {
 
     private void setCurrentStateForEditableWidget(AttachmentBoxState state) {
         AttachmentUploaderView view = (AttachmentUploaderView) impl;
-        view.setAttachments(state.getAttachments());
+        view.setAttachments(new ArrayList(state.getAttachments()));
         view.setAllAttachments(state.getAllAttachments());
         view.displayAttachmentItems();
     }

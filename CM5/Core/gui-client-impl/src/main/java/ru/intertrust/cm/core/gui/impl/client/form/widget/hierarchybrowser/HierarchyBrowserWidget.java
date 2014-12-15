@@ -13,7 +13,11 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -30,7 +34,12 @@ import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserUpdaterContext;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -63,7 +72,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     public void setCurrentState(WidgetState currentState) {
-        this.currentState = (HierarchyBrowserWidgetState) currentState;
+        this.currentState = cloneState(currentState);
 
         initialData = currentState;
         if (isEditable()) {
@@ -76,7 +85,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     @Override
     protected boolean isChanged() {
         final List<Id> initialValue = ((HierarchyBrowserWidgetState) getInitialData()).getIds();
-        final List<Id> currentValue = currentState.getIds(); //looks like every time will be the same
+        final List<Id> currentValue = currentState.getIds();
         return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
     }
 
@@ -168,16 +177,25 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             return super.getFullClientStateCopy();
         }
 
-        HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
-        state.setChosenItems(currentState.getChosenItems());
+        HierarchyBrowserWidgetState state = cloneState(currentState);
+        return state;
+    }
 
+    private HierarchyBrowserWidgetState cloneState(WidgetState stateToClone) {
+        HierarchyBrowserWidgetState currentState = (HierarchyBrowserWidgetState)stateToClone;
+        HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
+
+        state.setSelectedIds(new ArrayList(currentState.getIds()));
+        state.setChosenItems(currentState.getChosenItems());
         state.setSingleChoice(currentState.isSingleChoice());
         state.setCollectionNameNodeMap(currentState.getCollectionNameNodeMap());
         state.setHierarchyBrowserConfig(currentState.getHierarchyBrowserConfig());
         state.setConstraints(currentState.getConstraints());
         state.setWidgetProperties(currentState.getWidgetProperties());
+
         return state;
     }
+
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
