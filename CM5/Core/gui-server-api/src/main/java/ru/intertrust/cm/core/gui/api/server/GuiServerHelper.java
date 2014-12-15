@@ -12,14 +12,12 @@ import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
+import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.DATE_TIME_FORMATTER;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.TIMELESS_DATE_FORMATTER;
 
 /**
  * @author Sergey.Okolot
@@ -124,10 +122,12 @@ public final class GuiServerHelper {
             return null;
         }
         List<String> initialFilterValues = new ArrayList<>();
+        final SimpleDateFormat timelessDateFormat = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
+        final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
         for (ParamConfig paramConfig : paramConfigs) {
             String paramValue = paramConfig.getValue();
             try {
-                initialFilterValues.add(convertToUserFormat(paramValue, properties));
+                initialFilterValues.add(convertToUserFormat(paramValue, properties, timelessDateFormat, dateTimeFormat));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -136,20 +136,18 @@ public final class GuiServerHelper {
         return initialFilterValues;
     }
 
-    private static String convertToUserFormat(String value, CollectionColumnProperties properties) throws ParseException {
+    private static String convertToUserFormat(String value, CollectionColumnProperties properties, DateFormat timelessDateFormat, DateFormat dateTimeFormat) throws ParseException {
         String type = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
         FieldType fieldType = FieldType.forTypeName(type);
 
         switch (fieldType) {
             case TIMELESSDATE:
-                DateFormat timelessDateFormat = TIMELESS_DATE_FORMATTER;
                 Date timelessDate = timelessDateFormat.parse(value);
                 return getUserDateFormatter(properties).format(timelessDate);
 
             case DATETIME:
             case DATETIMEWITHTIMEZONE:
-                DateFormat dateFormat = DATE_TIME_FORMATTER;
-                Date date = dateFormat.parse(value);
+                Date date = dateTimeFormat.parse(value);
                 return getUserDateFormatter(properties).format(date);
             default:
                 return value;

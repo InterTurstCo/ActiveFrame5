@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.head
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
@@ -11,6 +10,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.Date;
@@ -83,8 +83,8 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
 
     private DateTimeFormat initGuiDateTimeFormat() {
         return !FieldType.TIMELESSDATE.equals(FieldType.forTypeName(fieldType))
-                ? DateTimeFormat.getFormat(ModelConstants.DATE_TIME_FORMAT)
-                : DateTimeFormat.getFormat(ModelConstants.TIMELESS_DATE_FORMAT);
+                ? DateTimeFormat.getFormat(GuiConstants.DATE_TIME_FORMAT)
+                : DateTimeFormat.getFormat(GuiConstants.TIMELESS_DATE_FORMAT);
 
     }
 

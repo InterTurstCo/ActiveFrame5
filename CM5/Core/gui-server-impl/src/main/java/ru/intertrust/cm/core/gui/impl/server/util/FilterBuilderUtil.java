@@ -8,11 +8,13 @@ import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
+import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
@@ -152,7 +154,7 @@ public class FilterBuilderUtil {
     private static void prepareTimelessDateFilter(Filter filter, List<String> filterValues,
                                                  String rawTimeZone) throws ParseException {
 
-        DateFormat format = TIMELESS_DATE_FORMATTER;
+        DateFormat format = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
         String rangeStartFilterValue = filterValues.get(0);
         Date rangeStartDate = format.parse(rangeStartFilterValue);
 
@@ -183,7 +185,7 @@ public class FilterBuilderUtil {
     private static void prepareDateTimeFilter(Filter filter, List<String> filterValues,
                                               String rawTimeZone) throws ParseException {
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
-        DateFormat format = DATE_TIME_FORMATTER;
+        DateFormat format = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
         format.setTimeZone(timeZone);
         if (filterValues.size() == 1) {
             String filterValue = filterValues.get(0);
@@ -283,7 +285,7 @@ public class FilterBuilderUtil {
     public static void prepareDateTimeWithTimeZoneFilter(Filter filter, List<String> filterValues,
                                                          String rawTimeZone) throws ParseException {
         String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-        DateFormat dateFormat = DATE_TIME_FORMATTER;
+        DateFormat dateFormat = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
         TimeZone userTimeZone = TimeZone.getTimeZone(userTimeZoneId);
         dateFormat.setTimeZone(userTimeZone);
         TimeZone timeZone = prepareTimeZone(rawTimeZone);
