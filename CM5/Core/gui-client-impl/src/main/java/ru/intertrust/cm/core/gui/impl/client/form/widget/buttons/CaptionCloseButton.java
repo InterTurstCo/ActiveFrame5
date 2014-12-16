@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  */
 public class CaptionCloseButton extends AbsolutePanel {
     public CaptionCloseButton() {
-        this.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().deleteBtn());
+        this.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().closeBtn());
     }
     public void addClickListener(EventListener listener){
         DOM.setEventListener(getElement(), listener);

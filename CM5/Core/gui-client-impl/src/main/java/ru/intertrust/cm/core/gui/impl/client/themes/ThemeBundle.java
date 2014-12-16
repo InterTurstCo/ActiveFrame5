@@ -75,8 +75,8 @@ public interface ThemeBundle extends ClientBundle {
     @ClientBundle.Source("images/refreshBtn.gif")
     ImageResource refreshBtnIm();
 
-    @ClientBundle.Source("images/icon-delete.png")
-    ImageResource deleteIm();
+    @ClientBundle.Source("images/icon-close.png")
+    ImageResource closeIm();
 
     @Source("common.css")
     public CommonCssResource commonCss();

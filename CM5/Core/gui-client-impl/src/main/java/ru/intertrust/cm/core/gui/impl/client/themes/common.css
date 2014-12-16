@@ -233,15 +233,52 @@
 
 }
 
-@sprite .deleteBtn {
-    gwt-image: "deleteIm";
+@sprite .closeBtn {
+    gwt-image: "closeIm";
     background-repeat: no-repeat;
-    background-position: center center;
-    cursor: pointer;
-    padding: 8px;
-    width: 5px;
-    height: 100%;
+    background-position: -33px -0.5px;
+    -webkit-transition: background-color .3s;
+    -moz-transition: background-color .3s;
+    -ms-transition: background-color .3s;
+    -o-transition: background-color .3s;
+    transition: background-color .3s;
+    border: 0;
+    border-radius: 50%;
+    cursor: default;
+    height: 15px;
+    top: -2px;
+    width: 15px;
+    z-index: 5;
     float: right;
+}
+
+@sprite .closeBtn:hover {
+    gwt-image: "closeIm";
+    background-repeat: no-repeat;
+    background-position: 0 -0.5px;
+    background-color: rgba(0, 0, 0, 0.5);
+    -webkit-transition: background-color .3s;
+    -moz-transition: background-color .3s;
+    -ms-transition: background-color .3s;
+    -o-transition: background-color .3s;
+    transition: background-color .3s;
+    height: 15px;
+    width: 15px;
+
+}
+
+@sprite .closeBtn:active {
+    gwt-image: "closeIm";
+    background-repeat: no-repeat;
+    background-position: -16.7px -0.5px;
+    background-color: rgba(250, 250, 250, 0.7);
+    -webkit-transition: background-color .3s;
+    -moz-transition: background-color .3s;
+    -ms-transition: background-color .3s;
+    -o-transition: background-color .3s;
+    transition: background-color .3s;
+    height: 15px;
+    width: 15px;
 
 }
 
