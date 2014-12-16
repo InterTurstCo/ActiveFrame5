@@ -14,13 +14,14 @@ import java.util.HashSet;
  *         Date: 25.08.2014
  *         Time: 20:43
  */
+//TODO rename to ParentWidgetParams
 public class TableBrowserParams implements Dto {
     private Dto complicatedFiltersParams;
     private Collection<Id> ids;
     private boolean displayOnlySelectedIds;
     private boolean displayChosenValues;
     private boolean displayCheckBoxes;
-    private int pageSize;
+    private Integer pageSize;
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
     public TableBrowserParams() {
@@ -54,10 +55,10 @@ public class TableBrowserParams implements Dto {
     }
 
     public int getPageSize() {
-        return pageSize == 0 ? ModelConstants.INIT_ROWS_NUMBER : pageSize;
+        return pageSize == null ? ModelConstants.INIT_ROWS_NUMBER : pageSize;
     }
 
-    public TableBrowserParams  setPageSize(int pageSize) {
+    public TableBrowserParams  setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
         return this;
     }

@@ -135,8 +135,7 @@ public class CollectionPluginView extends PluginView {
         hierarchicalFiltersConfig = collectionPluginData.getHierarchicalFiltersConfig();
         init();
         final Set<Id> selectedIds = prepareSelectedIds();
-        boolean shouldSetSelection = CollectionDataGridUtils.shouldSetSelection(collectionPluginData);
-        if (shouldSetSelection) {
+        if (!collectionPluginData.isEmbedded()) {
             if (WidgetUtil.isNotEmpty(selectedIds)) {
                 for (CollectionRowItem item : items) {
                     if (selectedIds.contains(item.getId())) {
@@ -144,8 +143,9 @@ public class CollectionPluginView extends PluginView {
                     }
                 }
             }
+            Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
         }
-        Application.getInstance().getHistoryManager().setSelectedIds(selectedIds.toArray(new Id[selectedIds.size()]));
+
         root.addStyleName("collection-plugin-view-container");
         addHandlers();
         if (!collectionPluginData.isExtendedSearchMarker()) {
@@ -191,7 +191,7 @@ public class CollectionPluginView extends PluginView {
         final Id oldSelectedFormId = selectedIds.isEmpty() ? null : selectedIds.get(0);
         Id newSelectedFormId = null;
         selectionModel.clear();
-        boolean restoreSelection = CollectionDataGridUtils.shouldSetSelection(getPluginData());
+        boolean restoreSelection = !getPluginData().isEmbedded();
         if (!selectedFromHistoryIds.isEmpty() && restoreSelection) {
             for (CollectionRowItem item : items) {
                 if (selectedFromHistoryIds.contains(item.getId())) {

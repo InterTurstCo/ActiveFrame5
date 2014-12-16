@@ -99,7 +99,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         LinkedHashMap<Id, String> listValues = new LinkedHashMap<>();
         FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         String selectionPattern = widgetConfig.getPatternConfig().getValue();
-        List<DomainObject> domainObjects = crudService.find(selectedIds);
+        List<DomainObject> domainObjects = selectedIds.isEmpty() ?  new ArrayList<DomainObject>(0) : crudService.find(selectedIds);
         DomainObjectsSorter.sort(widgetConfig.getSelectionSortCriteriaConfig(), domainObjects);
         for (DomainObject domainObject : domainObjects) {
             Id id = domainObject.getId();

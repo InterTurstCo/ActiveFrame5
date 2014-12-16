@@ -100,6 +100,9 @@ public class BusinessUniverseConstants {
     public static final String WRONG_DATE_FORMAT_ERROR_MESSAGE = "Неверный формат времени! Попробуйте ";
     public static final String DATA_IS_NOT_SAVED_CONFIRM_MESSAGE= "Изменения данных не сохранены.\nПродолжить выполнение команды ?";
 
+    public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT = "300px";
+    public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH = "800px";
+
     private BusinessUniverseConstants() {
     }
 }

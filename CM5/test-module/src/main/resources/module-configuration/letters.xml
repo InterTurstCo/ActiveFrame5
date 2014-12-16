@@ -258,6 +258,20 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="TableViewerDemo">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <!-- label (Сама информация) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="table-viewer"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -742,6 +756,19 @@
 
                 </mapping>
             </enumeration-box>
+            <table-viewer id="table-viewer">
+                <collection-ref name="Organizations"/>
+                <collection-view-ref name="organizations_default_view"/>
+                <default-sort-criteria column-field="name" order="desc"/>
+                <collection-extra-filters>
+                    <extra-filter name="byNames" >
+                        <param name="0" value="Организация 1" type="string"/>
+                        <param name="1" value="Организация 2" type="string"/>
+                        <param name="2" value="Организация 3" type="string"/>
+                        <param name="3" value="Организация 4" type="string"/>
+                    </extra-filter>
+                </collection-extra-filters>
+            </table-viewer>
         </widget-config>
     </form>
 

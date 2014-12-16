@@ -50,6 +50,8 @@ public class CollectionViewerConfig extends PluginConfig {
 
     private TableBrowserParams tableBrowserParams;
 
+    private boolean isEmbedded;
+
     //Used for hierarchical collections. Not intended to be used in xml configs.
     //Marked as @Attribute to be able to serialize the value in DB (in bu_nav_link_collection.collection_viewer)
     @Attribute(name="hierarchical", required = false)
@@ -171,6 +173,14 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public void setHierarchicalFiltersConfig(CollectionExtraFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
+    }
+
+    public boolean isEmbedded() {
+        return isEmbedded;
+    }
+
+    public void setEmbedded(boolean embedded) {
+        this.isEmbedded = embedded;
     }
 
     @Override

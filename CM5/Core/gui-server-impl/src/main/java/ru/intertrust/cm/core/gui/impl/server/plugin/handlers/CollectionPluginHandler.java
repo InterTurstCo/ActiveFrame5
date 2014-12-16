@@ -14,10 +14,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
-import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -104,7 +101,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);
 
         CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
-        int initRowsNumber = collectionViewerConfig.getRowsChunk();
+        int initRowsNumber = collectionViewerConfig.getRowsChunk() >=0 ? collectionViewerConfig.getRowsChunk() : WidgetConstants.UNBOUNDED_LIMIT;
         pluginData.setRowsChunk(initRowsNumber);
         if (displayChosenValues && collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
             if (filterBuilder.prepareExtraFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, filters)) {
@@ -123,7 +120,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         } else {
             pluginData.setSearchArea("");
         }
-
+        pluginData.setEmbedded(collectionViewerConfig.isEmbedded());
         pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
         return pluginData;
     }

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -15,30 +17,16 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRequestEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRequestEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEvent;
@@ -56,29 +44,14 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.getLimit;
-import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.isNotEmpty;
-import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipButton;
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -88,7 +61,7 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipB
 @ComponentName("table-browser")
 public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler, OpenCollectionRequestEventHandler,
-        CheckBoxFieldUpdateEventHandler{
+        CheckBoxFieldUpdateEventHandler, ParentTabSelectedEventHandler{
     private TableBrowserState currentState;
     private CollectionDialogBox dialogBox;
     private ViewHolder viewHolder;
@@ -97,7 +70,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private HandlerRegistration expandHierarchyRegistration;
     private HandlerRegistration checkBoxRegistration;
     private HandlerRegistration rowSelectedRegistration;
-
+    private CollectionPlugin collectionPlugin;
     private String collectionName;
     private CollectionViewerConfig initialCollectionViewerConfig;
 
@@ -189,6 +162,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         localEventBus.addHandler(OpenCollectionRequestEvent.TYPE, this);
+        if(currentState.isTableView()){
+            eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
+        }
 
     }
 
@@ -211,7 +187,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
         collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
         collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-
+        collectionViewerConfig.setEmbedded(true);
         SelectionFiltersConfig selectionFiltersConfig = tableBrowserConfig.getSelectionFiltersConfig();
         collectionViewerConfig.setSelectionFiltersConfig(selectionFiltersConfig);
 
@@ -253,7 +229,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
                                       PluginPanel pluginPanel) {
 
-        final CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
+        collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setLocalEventBus(localEventBus);
         collectionPlugin.setNavigationConfig(navigationConfig);
@@ -370,6 +346,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 HierarchicalCollectionData data = (HierarchicalCollectionData) result;
                 DomainObjectSurferConfig pluginConfig = data.getDomainObjectSurferConfig();
                 CollectionViewerConfig collectionViewerConfig = pluginConfig.getCollectionViewerConfig();
+                collectionViewerConfig.setEmbedded(true);
                 LinkConfig link = data.getHierarchicalLink();
                 NavigationConfig navigationConfig = new NavigationConfig();
                 LinkUtil.addHierarchicalLinkToNavigationConfig(navigationConfig, link);
@@ -452,6 +429,17 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 fetchTableBrowserItems();
             }
 
+        }
+    }
+
+    @Override
+    public void onParentTabSelectedEvent(ParentTabSelectedEvent event) {
+        Element parentElement = event.getParent().getElement();
+        Node widgetNode = impl.getElement().getParentNode();
+        boolean widgetIsChildOfSelectedTab = parentElement.isOrHasChild(widgetNode);
+        boolean viewIsInitialized = collectionPlugin != null && collectionPlugin.getView() != null;
+        if(widgetIsChildOfSelectedTab && viewIsInitialized){
+            collectionPlugin.getView().onPluginPanelResize();
         }
     }
 
@@ -623,11 +611,11 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private List<IsWidget> breadCrumbItemsToWidgets() {
         List<IsWidget> breadCrumbWidgets = new ArrayList<>();
         for (final BreadCrumbItem item : breadCrumbItems) {
-            Anchor breadCrumb = new Anchor(item.displayText);
+            Anchor breadCrumb = new Anchor(item.getDisplayText());
             breadCrumb.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    navigateByBreadCrumb(item.name);
+                    navigateByBreadCrumb(item.getName());
                 }
             });
             breadCrumbWidgets.add(breadCrumb);
@@ -640,8 +628,8 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         int removeFrom = breadCrumbItems.size();
         for (int i = 0; i < breadCrumbItems.size() - 1; i++) { // skip last item
             BreadCrumbItem breadCrumbItem = breadCrumbItems.get(i);
-            if (breadCrumbItem.name.equals(linkName)) {
-                config = breadCrumbItem.config;
+            if (breadCrumbItem.getName().equals(linkName)) {
+                config = breadCrumbItem.getConfig();
                 removeFrom = i;
             }
         }
@@ -655,16 +643,5 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         }
     }
 
-    private static class BreadCrumbItem {
-        private final String name;
-        private final String displayText;
-        private final CollectionViewerConfig config;
-
-        private BreadCrumbItem(String name, String displayText, CollectionViewerConfig config) {
-            this.name = name;
-            this.displayText = displayText;
-            this.config = config;
-        }
-    }
 
 }

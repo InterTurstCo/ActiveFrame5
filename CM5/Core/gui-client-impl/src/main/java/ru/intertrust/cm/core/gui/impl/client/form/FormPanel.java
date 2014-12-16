@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryItem;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -205,6 +206,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
                 } else {
                     footer.setStyleName("form-footer-blank");
                 }
+                eventBus.fireEvent(new ParentTabSelectedEvent(selectedWidget));
             }
         });
         if (!tabs.isEmpty()) {

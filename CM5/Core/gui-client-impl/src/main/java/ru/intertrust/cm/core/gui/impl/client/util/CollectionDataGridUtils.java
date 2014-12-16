@@ -48,7 +48,7 @@ public class CollectionDataGridUtils {
         int scrollMaxHorizontal = dataGrid.getScrollPanel().getMaximumHorizontalScrollPosition();
         return scrollMinHorizontal == scrollMaxHorizontal;
     }
-
+    @Deprecated //plugin data contains boolean if plugin is embedded inside the widget
     public static boolean shouldSetSelection(CollectionPluginData collectionPluginData) {
         TableBrowserParams tableBrowserParams = collectionPluginData.getTableBrowserParams();
         return tableBrowserParams == null;

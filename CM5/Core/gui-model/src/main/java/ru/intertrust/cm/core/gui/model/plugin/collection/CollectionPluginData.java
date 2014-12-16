@@ -35,6 +35,7 @@ public class CollectionPluginData extends ActivePluginData {
     private TableBrowserParams tableBrowserParams;
     private boolean extendedSearchMarker;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
+    private boolean embedded;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
@@ -155,5 +156,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setIncludeIds(boolean includeIds) {
         this.includeIds = includeIds;
+    }
+
+    public boolean isEmbedded() {
+        return embedded;
+    }
+
+    public void setEmbedded(boolean embedded) {
+        this.embedded = embedded;
     }
 }

@@ -101,7 +101,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
 
         public void performOnClickAction(Id id) {
             final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
-            if (collectionViewerConfig.getTableBrowserParams() == null) {
+            if (collectionViewerConfig.getTableBrowserParams() == null && !collectionViewerConfig.isEmbedded()) {
                 Application.getInstance().getHistoryManager().setSelectedIds(id);
             }
             eventBus.fireEvent(new CollectionRowSelectedEvent(id));
