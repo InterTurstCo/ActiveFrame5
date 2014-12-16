@@ -6,6 +6,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
 import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
@@ -152,6 +154,13 @@ public class NavigationTreePluginView extends PluginView {
 //                }
 //            }
 //        });
+
+        navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
+            @Override
+            public void onMouseOut(MouseOutEvent event) {
+                onLeavingLeftPanel();
+            }
+        });
 
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());

@@ -136,7 +136,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
             @Override
             public void onMouseMove(MouseMoveEvent event) {
-                if (event.getClientX() > LEFT_PANEL_WIDTH) {
+                if (event.getClientX() > LEFT_PANEL_WIDTH || event.getClientX() <= 5) {
                     glEventBus.fireEvent(new LeaveLeftPanelEvent());
                 }
             }
