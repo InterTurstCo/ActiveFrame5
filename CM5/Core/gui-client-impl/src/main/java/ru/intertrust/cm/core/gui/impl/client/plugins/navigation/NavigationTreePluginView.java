@@ -349,13 +349,18 @@ public class NavigationTreePluginView extends PluginView {
             currentSelectedItem.removeStyleName("synchronized");
             currentSelectedItem.getElement().getFirstChildElement().removeClassName("gwt-custom-TreeItem-selected");
         }
-        TreeItem parent = tempItem.getParentItem();
-        if (parent != null) {
-            tempItem.getTree().setSelectedItem(parent, false);
-        }
         currentSelectedItem = tempItem;
-        boolean state = tempItem.getState();
-        tempItem.setState(!state, false);
+
+        TreeItem parent = tempItem.getParentItem();
+        if (parent != null) { //CMFIVE-1836 - Кнопки Ctrl/Alt/Shift сбрасывают положение в дереве навигации
+            tempItem.getTree().setSelectedItem(parent, false);
+            // Here we change state only for non-top-level items. Because of workaround for CMFIVE-1836,
+            // top-level tempItem remains selected, and setState(false) in this case causes
+            // firing subsequent selection event, which resets the state back to true. For top-level items we
+            // change the state separately in ClickHandler.
+            boolean state = tempItem.getState();
+            tempItem.setState(!state, false);
+        }
         tempItem.setStyleName("synchronized");
         int childCount = tempItem.getChildCount();
         if (childCount != 0) {

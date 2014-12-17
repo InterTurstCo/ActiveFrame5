@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Tree;
@@ -12,7 +14,11 @@ import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 class NavigationTreeBuilder {
 
@@ -37,12 +43,12 @@ class NavigationTreeBuilder {
             for (LinkConfig linkConfig : linkConfigs) {
                 buildGroup(linkConfig, group);
             }
-            fireEventsOnChildsToOpen();
+            fireEventsOnChildrenToOpen();
         } else {
             for (LinkConfig linkConfig : linkConfigs) {
                 buildTree(linkConfig);
             }
-            fireEventsOnChildsToOpen();
+            fireEventsOnChildrenToOpen();
         }
         return tree;
     }
@@ -109,8 +115,14 @@ class NavigationTreeBuilder {
             label.setText(displayText);
         }
         label.setStyleName("tree-label");
-        TreeItem treeItem = new TreeItem(label);
 
+        final TreeItem treeItem = new TreeItem(label);
+        label.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                treeItem.setState(!treeItem.getState());
+            }
+        });
         return treeItem;
     }
 
@@ -136,7 +148,7 @@ class NavigationTreeBuilder {
         return treeItem;
     }
 
-    private void fireEventsOnChildsToOpen() {
+    private void fireEventsOnChildrenToOpen() {
         Iterator<TreeItem> treeItemIterator = tree.treeItemIterator();
         while (treeItemIterator.hasNext()) {
             TreeItem next = treeItemIterator.next();

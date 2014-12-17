@@ -478,7 +478,7 @@
             </child-links>
         </link>
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
-            <child-links group-name="Группа">
+            <child-links group-name="Группа1">
                 <link name="TasksTest" display-text="Задачи">
 
                     <plugin>
