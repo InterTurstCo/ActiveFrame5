@@ -1,5 +1,5 @@
 .wrap-date {
-    background: #fafafa;
+    background: #fff;
     border: 1px solid #bbb;
     float: left;
     margin: 3px 0;
@@ -11,13 +11,10 @@
 .date-box-button {
     background: url(images/icon-datepicker.png) no-repeat;
     cursor: pointer;
-    /*display: inline-block;*/
     height: 16px;
-    /*margin: 0 10px 4px -25px;*/
     position: absolute;
     top: 10px;
     right: 6px;
-    /*vertical-align: middle;*/
     width: 16px;
     z-index: 5;
 }
@@ -418,6 +415,7 @@ div, input, textarea, select {
     font-size: 12px;
     width: 20px;
 }
+
 /* ------------>>> end timePicker block <<<------------ */
 
 /* ------------>>> datePicker confirm button <<<------------ */
@@ -432,4 +430,5 @@ div, input, textarea, select {
     margin: 15px 0 10px 85%;
     position: initial;
 }
+
 /* ------------>>> end datePicker confirm button <<<------------ */

@@ -57,12 +57,13 @@
 .table-browser-dialog.popup-z-index table[class="collection-plugin-view-container"] {
     top: 30px;
 }
+
 .tableBrowserFilterInput {
     border: hidden;
     display: inline-block;
-    margin-top: 8px;
-
+    padding: 5px 5px 3px;
 }
+
 .inlineStyle {
     display: inline-block;
     float: left;
@@ -72,15 +73,17 @@
 .facebookElementDel {
     margin-top: 9px;
 }
-.tableBrowserRoot td{
+
+.tableBrowserRoot td {
     width: 100%;
 }
 
-.tableBrowserControlsWrapper{
+.tableBrowserControlsWrapper {
     border: 1px solid grey;
     margin: 5px;
 }
-.tableBrowserCollectionFilterInput{
+
+.tableBrowserCollectionFilterInput {
     border: hidden;
     margin: 5px;
     width: 100%;

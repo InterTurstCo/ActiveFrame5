@@ -62,18 +62,16 @@
 }
 
 .gwt-SuggestBoxPopup {
-    background: #FFFDF0;
-    border: 1px solid #7f9db9;
     margin-left: 0 !important;
-    /*width: auto !important;*/
-    z-index: 101;
 }
+
 .gwt-SuggestBoxPopup .popupMiddleCenterInner table {
     width: 100%;
 }
+
 /*
 .gwt-SuggestBoxPopup .suggestPopupMiddleCenterInner {
-width: 207px;
+    width: 207px;
 }
 */
 
@@ -83,96 +81,118 @@ width: 207px;
     cursor: default !important;
     font-size: 100% !important;
 }
+
 .gwt-SuggestBoxPopup .item-selected {
-    background: #D5E2FF !important;
+    background: #d5e2ff !important;
 }
+
 .gwt-SuggestBoxPopup .popupContent {
     background: white !important;
+    border: 1px solid #7f9db9;
 }
+
 .gwt-SuggestBoxPopup .popupTopCenter {
     border-top: 1px solid #bbb !important;
 }
+
 .gwt-SuggestBoxPopup .popupBottomCenter {
     border-bottom: 1px solid #bbb !important;
 }
+
 .gwt-SuggestBoxPopup .popupTopCenterInner,
 .gwt-SuggestBoxPopup .popupBottomCenterInner {
     height: 1px !important;
     line-height: 1px !important;
 }
+
 .gwt-SuggestBoxPopup .popupMiddleLeft {
     border-left: 1px solid #bbb !important;
 }
+
 .gwt-SuggestBoxPopup .popupMiddleRight {
     border-right: 1px solid #bbb !important;
 }
+
 .gwt-SuggestBoxPopup .popupMiddleLeftInner,
 .gwt-SuggestBoxPopup .popupMiddleRightInner {
     width: 1px !important;
     line-height: 1px !important;
 }
+
 .gwt-SuggestBoxPopup .popupTopLeftInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
+
 .gwt-SuggestBoxPopup .popupTopRightInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
+
 .gwt-SuggestBoxPopup .popupBottomLeftInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
+
 .gwt-SuggestBoxPopup .popupBottomRightInner {
     width: 0px !important;
     height: 0px !important;
     zoom: 1 !important;
 }
+
 .gwt-SuggestBoxPopup .popupTopLeft {
     background: url(images/circles.png) no-repeat 0px -6px !important;
     -background: url(images/circles_ie6.png) no-repeat 0px -6px !important;
     width: 5px !important;
     height: 5px !important;
 }
+
 .gwt-SuggestBoxPopup .popupTopRight {
     background: url(images/circles.png) no-repeat -5px -6px !important;
     -background: url(images/circles_ie6.png) no-repeat -5px -6px !important;
     width: 5px !important;
     height: 5px !important;
 }
+
 .gwt-SuggestBoxPopup .popupBottomLeft {
     background: url(images/circles.png) no-repeat 0px -11px !important;
     -background: url(images/circles_ie6.png) no-repeat 0px -11px !important;
     width: 5px !important;
     height: 5px !important;
 }
+
 .gwt-SuggestBoxPopup .popupBottomRight {
     background: url(images/circles.png) no-repeat -5px -11px !important;
     -background: url(images/circles_ie6.png) no-repeat -5px -11px !important;
     width: 5px !important;
     height: 5px !important;
 }
+
 .gwt-SuggestBoxPopup {
     z-index: 999;
 }
+
 * html .gwt-SuggestBoxPopup .popupTopLeftInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
+
 * html .gwt-SuggestBoxPopup .popupTopRightInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
+
 * html .gwt-SuggestBoxPopup .popupBottomLeftInner {
     width: 0px !important;
     height: 0px !important;
     overflow: hidden !important;
 }
+
 * html .gwt-SuggestBoxPopup .popupBottomRightInner {
     width: 0px !important;
     height: 0px !important;
@@ -217,7 +237,7 @@ td .gwt-SuggestBox {
     -moz-box-sizing: border-box;
 }
 
-.suggestWrapper{
+.suggestWrapper {
     display: inline-block;
     vertical-align: middle;
 }

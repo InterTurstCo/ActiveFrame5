@@ -40,11 +40,12 @@ table.hierarh-browser-inline td {
 }
 
 .hierarchyBrowserBorder {
-    border: 1px solid #bbb;
-    overflow-x: hidden;
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
     margin: 6px 6px 0 0;
-    padding: 6px 0 6px 5px;
     min-width: 155px;
+    overflow-x: hidden;
+    padding: 6px 0 6px 5px;
 }
 
 .hierarh-browser-border .facebook-main-box {

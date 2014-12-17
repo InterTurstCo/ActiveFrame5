@@ -2563,9 +2563,7 @@ a:active .icon.back {
     /*transition: background-color .3s;*/
 /*}*/
 
-.linkedFormBodyPanel {
-    margin-top: 37px;
-}
+.linkedFormBodyPanel {}
 
 .linkedFormButtonsPanel {
     position: relative;
@@ -2844,12 +2842,21 @@ a:active .icon.back {
     color: red;
 }
 
-.linkedWidgetsBorderStyle {
+.attachmentPluginWrapper .linkedWidgetsBorderStyle {
     background: #f9f9f9;
     border: 1px solid #f0f0f0;
     border-radius: 3px;
     box-shadow: inset 0 0 7px rgba(45, 45, 45, 0.1);
     margin: 0;
+}
+
+.linkedWidgetsBorderStyle {
+    border: 1px solid #dbdbdb;
+    border-radius: 3px;
+}
+
+.linkedWidgetsBorderStyle .tableBrowserFilterInput {
+
 }
 
 .linkedWidgetsBorderStyle .facebook-element {
