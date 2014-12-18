@@ -17,13 +17,29 @@ import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHandler;
@@ -44,14 +60,30 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.BreadCrumbItem;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.model.plugin.HierarchicalCollectionData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.getLimit;
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.isNotEmpty;
+import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipButton;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -139,7 +171,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 .withHasLinkedFormMappings(this)
                 .withOpenCollectionButtonHandler(new OpenCollectionClickHandler())
                 .withWidgetDisplayConfig(getDisplayConfig())
+                .withParentWidget(this)
                 .buildViewHolder();
+
         return viewHolder.getWidget();
     }
 
@@ -441,6 +475,11 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         if(widgetIsChildOfSelectedTab && viewIsInitialized){
             collectionPlugin.getView().onPluginPanelResize();
         }
+    }
+
+    @Override
+    public Object getValue() {
+        return currentState.getSelectedIds();
     }
 
     private class OpenCollectionClickHandler implements ClickHandler {

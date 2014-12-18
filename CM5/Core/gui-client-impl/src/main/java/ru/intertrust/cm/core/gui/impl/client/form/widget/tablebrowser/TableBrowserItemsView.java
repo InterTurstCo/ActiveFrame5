@@ -2,15 +2,24 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
@@ -36,12 +45,16 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     private Map<String, PopupTitlesHolder> typeTitleMap;
     private HasLinkedFormMappings widget;
 
+    private BaseWidget parent;
+
     public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
-                                 Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
+                                 Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget,
+                                 BaseWidget parent) {
 
         this.eventBus = eventBus;
         this.typeTitleMap = typeTitleMap;
         this.widget = widget;
+        this.parent = parent;
         root = new AbsolutePanel();
         root.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
@@ -54,6 +67,15 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         root.add(filter);
         changeInputFilterWidth();
         filter.setFocus(true);
+
+        filter.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                if (parent != null) {
+                    parent.validate();
+                }
+            }
+        });
     }
 
     public void clearContent() {

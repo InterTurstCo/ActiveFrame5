@@ -3,9 +3,15 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ClearAllConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.OpenCollectionConfiguredButton;
@@ -22,8 +28,8 @@ public class TableBrowserViewsBuilder {
     public static final int DEFAULT_DIALOG_HEIGHT = 300;
     public static final int DEFAULT_TABLE_HEIGHT = 300;
     public static final int DEFAULT_TABLE_WIDTH = 500;
-
     public static final int DEFAULT_HEIGHT_OFFSET = 100;
+
     private int dialogWidth;
     private int dialogHeight;
     private int tableHeight;
@@ -35,6 +41,7 @@ public class TableBrowserViewsBuilder {
     private ClickHandler openCollectionButtonHandler;
     private ConfiguredButton createLinkedItemButton;
     private WidgetDisplayConfig displayConfig;
+    private BaseWidget parent;
 
     public TableBrowserViewsBuilder withState(TableBrowserState state) {
         this.state = state;
@@ -69,10 +76,16 @@ public class TableBrowserViewsBuilder {
         return this;
 
     }
+
     public TableBrowserViewsBuilder withWidgetDisplayConfig(WidgetDisplayConfig displayConfig) {
         this.displayConfig = displayConfig;
         return this;
 
+    }
+
+    public TableBrowserViewsBuilder withParentWidget(BaseWidget parent) {
+        this.parent = parent;
+        return this;
     }
 
     public ViewHolder buildViewHolder() {
@@ -147,7 +160,7 @@ public class TableBrowserViewsBuilder {
                 TableBrowserCollection collection = createTableBrowserCollection(false, true);
                 TableBrowserCollectionViewHolder itemsWidgetChildViewHolder = new TableBrowserCollectionViewHolder(collection);
                 TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
-                        hasLinkedFormMappings);
+                        hasLinkedFormMappings, parent);
                 TableBrowserItemsViewHolder editableWidgetChildViewHolder = new TableBrowserItemsViewHolder(itemsWidget);
                 editableWidgetChildViewHolder.setChildViewHolder(itemsWidgetChildViewHolder);
                 TableBrowserEditableView editableView = createEditableTableWidgetView(itemsWidget, collection);
@@ -156,7 +169,7 @@ public class TableBrowserViewsBuilder {
                 return tableBrowserEditableViewHolder;
             } else {
                 TableBrowserItemsView mainWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
-                        hasLinkedFormMappings);
+                        hasLinkedFormMappings, parent);
                 TableBrowserItemsViewHolder childViewHolder = new TableBrowserItemsViewHolder(mainWidget);
                 TableBrowserEditableView editableView = createEditableWidgetView(mainWidget);
                 TableBrowserEditableViewHolder tableBrowserEditableViewHolder = new TableBrowserEditableViewHolder(editableView);

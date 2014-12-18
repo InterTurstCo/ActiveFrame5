@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.event.dom.client.BlurEvent;
+import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
@@ -70,7 +72,14 @@ public class EnumBoxWidget extends BaseWidget  {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        return new ListBox(false);
+        ListBox listBox = new ListBox(false);
+        listBox.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                validate();
+            }
+        });
+        return listBox;
     }
 
     @Override
@@ -84,4 +93,9 @@ public class EnumBoxWidget extends BaseWidget  {
     }
 
 
+    @Override
+    public Object getValue() {
+        ListBox listBox = (ListBox) impl;
+        return listBox.getValue(listBox.getSelectedIndex());
+    }
 }
