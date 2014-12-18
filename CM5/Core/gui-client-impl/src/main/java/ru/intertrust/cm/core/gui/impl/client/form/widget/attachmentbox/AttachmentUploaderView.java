@@ -27,7 +27,9 @@ import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory
+        .AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditablePresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.UploadProgressPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
@@ -70,7 +72,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     private AddButtonConfig addButtonConfig;
     private ClearAllButtonConfig clearAllButtonConfig;
 
-    public AttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
+    private BaseWidget parent;
+
+    public AttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
         setAttachments(state.getAttachments());
         setAllAttachments(state.getAllAttachments());
         this.extensionValidator = new ExtensionValidator(state.getAcceptedTypesConfig(), state.getImagesConfig() != null);
@@ -83,6 +87,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 state.getImagesConfig(), state.getDeleteButtonConfig());
         uploadPresenterFactory = new UploadProgressPresenterFactory(state.getActionLinkConfig(),
                 state.getDeleteButtonConfig(), eventBus);
+        this.parent = parent;
         init();
     }
 
@@ -213,10 +218,12 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         if (!attachments.contains((attachment))) {
             attachments.add(attachment);
         }
+        parent.validate();
     }
 
     protected void deselectAttachment(AttachmentItem attachment) {
         attachments.remove(attachment);
+        parent.validate();
     }
 
     protected void addAttachment(AttachmentItem attachment) {
@@ -227,12 +234,13 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
     }
 
     protected void removeAttachment(AttachmentItem attachment) {
-        attachments.remove(attachment);
+        deselectAttachment(attachment);
         allAttachments.remove(attachment);
     }
 
     protected void deselectAllAttachments() {
         attachments.clear();
+        parent.validate();
     }
 
     private void initFileUpload() {

@@ -5,6 +5,7 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -20,8 +21,8 @@ public class SelectAttachmentUploaderView extends AttachmentUploaderView {
 
     private List<CheckBox> checkboxes = new ArrayList<>();
 
-    public SelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
-        super(state, eventBus);
+    public SelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
+        super(state, eventBus, parent);
     }
 
     @Override

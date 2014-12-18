@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
@@ -31,8 +32,8 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
     private AttachmentElementPresenterFactory presenterFactory;
 
-    public PopupSelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus) {
-        super(state, eventBus);
+    public PopupSelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
+        super(state, eventBus, parent);
         presenterFactory = new EditableNonDeletablePresenterFactory(state.getActionLinkConfig(),
                 state.getImagesConfig());
         init();

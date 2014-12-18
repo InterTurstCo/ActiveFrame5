@@ -74,15 +74,15 @@ public class AttachmentBoxWidget extends BaseWidget {
         AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
         if (attachmentBoxState.isPopupChoiceStyle()) {
             if (attachmentBoxState.isInSelectionMode()) {
-                return new PopupSelectAttachmentUploaderView(attachmentBoxState, eventBus);
+                return new PopupSelectAttachmentUploaderView(attachmentBoxState, eventBus, this);
             } else {
-                return new PopupAttachmentUploaderView(attachmentBoxState, eventBus);
+                return new PopupAttachmentUploaderView(attachmentBoxState, eventBus, this);
             }
         }
         if (attachmentBoxState.isInSelectionMode()){
-            return new SelectAttachmentUploaderView(attachmentBoxState, eventBus);
+            return new SelectAttachmentUploaderView(attachmentBoxState, eventBus, this);
         } else {
-            return new AttachmentUploaderView(attachmentBoxState, eventBus);
+            return new AttachmentUploaderView(attachmentBoxState, eventBus, this);
         }
     }
 
@@ -93,4 +93,8 @@ public class AttachmentBoxWidget extends BaseWidget {
         return new AttachmentNonEditablePanel(selectionStyleConfig, attachmentBoxState);
     }
 
+    @Override
+    public Object getValue() {
+        return ((AttachmentUploaderView)impl).getAttachments();
+    }
 }
