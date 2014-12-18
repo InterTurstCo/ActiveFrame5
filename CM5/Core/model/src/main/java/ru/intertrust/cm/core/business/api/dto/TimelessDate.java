@@ -64,6 +64,38 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
         this.dayOfMonth = dayOfMonth;
     }
 
+    /**
+     * Преобразует объект в стандартный <code>java.util.Date</code>.
+     * @return момент времени, соответствующий полночи содержащейся в объекте даты по UTC
+     */
+    @GwtIncompatible
+    public Date toDate() {
+        return toDate(TimeZone.getTimeZone("UTC"));
+    }
+
+    /**
+     * Преобразует объект в стандартный <code>java.util.Date</code> с учётом часового пояса.
+     * @param timeZone часовой пояс
+     * @return момент времени, соответствующий полночи содержащейся в объекте даты в заданном часовом поясе
+     */
+    @GwtIncompatible
+    public Date toDate(TimeZone timeZone) {
+        final Calendar calendar = Calendar.getInstance(timeZone);
+        calendar.clear();
+        calendar.set(getYear(), getMonth(), getDayOfMonth());
+        return calendar.getTime();
+    }
+
+    /**
+     * Преобразует объект в стандартный <code>java.util.Date</code> с учётом часового пояса.
+     * @param timeZoneId идентификатор часового пояса
+     * @return момент времени, соответствующий полночи содержащейся в объекте даты в заданном часовом поясе
+     */
+    @GwtIncompatible
+    public Date toDate(String timeZoneId) {
+        return toDate(TimeZone.getTimeZone(timeZoneId));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
