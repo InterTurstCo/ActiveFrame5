@@ -1,0 +1,15 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-ear" name="EAR GWT Dev Mode">
+    <output-path>$PROJECT_DIR$/out/artifacts/EAR_GWT_Dev_Mode.ear</output-path>
+    <root id="root">
+      <element id="dir-copy" path="$PROJECT_DIR$/../../../CM5/Ear/src/main/application" />
+      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.7.2" />
+      <element id="directory" name="web-app.war">
+        <element id="artifact" artifact-name="web-app:war exploded" />
+        <element id="javaee-facet-resources" facet="web-resources/web/Web" />
+        <element id="javaee-facet-resources" facet="web-business-universe/web/Web" />
+        <element id="javaee-facet-resources" facet="web-login-page/web/Web" />
+      </element>
+    </root>
+  </artifact>
+</component>
