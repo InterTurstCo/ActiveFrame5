@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.Localizer;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
@@ -178,114 +180,68 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     // обработка условий расширенного поиска и формирование результирующих данных
     public  Dto searchFormDataProcessor (Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
-        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(), FormConfig.TYPE_SEARCH);
+        FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(),
+                FormConfig.TYPE_SEARCH);
         List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
-        // данные из полей формы поиска
-        Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
-        ArrayList<Id> idsWidgetObjects = null;
-        // список значений дат в интервале
-        ArrayList<Date> dateBoxList = null;
 
-        Map<String, WidgetState> dateBoxWidgetsDataByIds = new HashMap<>();
-
-        // фильтр для интервалов дат
-        DatePeriodFilter datePeriodFilter = null;
-
-        //boolean isRangeDateFilterFull = false;
         Map<String, WidgetConfig> widgetConfigById = new HashMap<>();
-
         for (WidgetConfig config : widgetConfigs) {
             widgetConfigById.put(config.getId(), config);
         }
+        SearchQuery searchQuery = extendedSearchData.getSearchQuery();
 
-        for (String key : formWidgetsData.keySet()) {
-            WidgetState widgetState = formWidgetsData.get(key);
-            if (widgetState instanceof ValueEditingWidgetState) {
-                dateBoxWidgetsDataByIds.put(key, widgetState);
-            }
-        }
-
-        // Если на форме поиска 2 или более DateBox-ов, то создаем поисковый фильтр
-        if (dateBoxWidgetsDataByIds.size() >= 2) {
-            if (datePeriodFilter == null) {
-                dateBoxList = new ArrayList<>();
-                for (String k : dateBoxWidgetsDataByIds.keySet()) {
-                    datePeriodFilter = new DatePeriodFilter(widgetConfigById.get(k).getFieldPathConfig().getValue());
-                    break;
-                }
-            }
-        }
+        // данные из полей формы поиска
+        Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
+        // Кэш диапазонных фильтров - чтобы не искать их в поисковом запросе при обработке второго виджета
+        Map<String, TimeIntervalFilter> rangeFilters = new HashMap<>();
 
         // проходим по полям формы поиска, собираем данные и строим поисковые фильтры
-        for (String key : formWidgetsData.keySet()) {
-            // список идентификаторов объектов в виджете
-            if (idsWidgetObjects == null)
-            idsWidgetObjects = new ArrayList<Id>();
-            WidgetState widgetState = formWidgetsData.get(key);
-            // состояние меток и гиперссылок для поиска не важны
-            if (widgetState instanceof LabelState) {
-                continue;
-            }
-            if (widgetState instanceof LinkedDomainObjectHyperlinkState) {
-                continue;
-            }
+        for (Map.Entry<String, WidgetState> entry : formWidgetsData.entrySet()) {
+            String widgetId = entry.getKey();
+            WidgetState widgetState = entry.getValue();//formWidgetsData.get(key);
+            WidgetConfig widgetConfig = widgetConfigById.get(widgetId);
+            String fieldPath = widgetConfig.getFieldPathConfig().getValue();
 
-            // для создания поисковых фильтров нужны Id доменных объектов - получаем их
             if (widgetState instanceof LinkEditingWidgetState) {
-                idsWidgetObjects = ((LinkEditingWidgetState) widgetState).getIds();
-            }
-
-            // получить значение поля формы поиска можно из хэндлера виджета
-            WidgetHandler widgetHandler = PluginHandlerHelper.getWidgetHandler(widgetConfigById.get(key), applicationContext);
-            Value value = widgetHandler.getValue(widgetState);
-            //try {
-            if (value != null) {
-                Object plainValue = value.get();
-
-                if (plainValue != null) {
-                    // создание фильтров для поиска на основе виджетов формы
-                    if (widgetState instanceof TextState)
-                        extendedSearchData.getSearchQuery().addFilter(new TextSearchFilter(
-                                          widgetConfigById.get(key).getFieldPathConfig().getValue(), value.toString()));
-
-                    if (widgetState instanceof LinkEditingWidgetState) {
-                        if (!idsWidgetObjects.isEmpty()) {
-                            OneOfListFilter filter = new OneOfListFilter(widgetConfigById.get(key).getFieldPathConfig().getValue());
-                            for(Id formWidgetId : idsWidgetObjects){
-                                filter.addValue(formWidgetId);
-                            }
-                            extendedSearchData.getSearchQuery().addFilter(filter);
-                        } else {
-                            continue;
-                        }
-                        idsWidgetObjects.clear();
+                List<Id> ids = ((LinkEditingWidgetState) widgetState).getIds();
+                if (ids != null && !ids.isEmpty()) {
+                    OneOfListFilter filter = new OneOfListFilter(fieldPath);
+                    for (Id id : ids) {
+                        filter.addValue(id);
                     }
-
-                    //if (widgetState instanceof ValueEditingWidgetState)
-                    if (widgetState instanceof DateBoxState) {
-                        // дату добавляем в список дат интервала формы поиска
-                        if (dateBoxList != null)
-                            dateBoxList.add((Date)plainValue);
-
-                        /*if (((DateBoxConfig)widgetConfigById.get(key)).getRangeEndConfig().getWidgetId() != null ) {
-                            if (datePeriodFilter.getEndDate() == null) {
-                                datePeriodFilter.setEndDate((Date)plainValue);
-                                continue;
-                            }
-                        }
-                        if (((DateBoxConfig)widgetConfigById.get(key)).getRangeStartConfig().getWidgetId() != null ) {
-                            datePeriodFilter.setStartDate((Date)plainValue);
-                            continue;
-                        }*/
+                    searchQuery.addFilter(filter);
+                }
+            } else if (widgetState instanceof TextState) {
+                String text = ((TextState) widgetState).getText();
+                if (text != null && !text.isEmpty()) {
+                    TextSearchFilter filter = new TextSearchFilter(fieldPath, text);
+                    searchQuery.addFilter(filter);
+                }
+            } else if (widgetState instanceof DateBoxState) {
+                WidgetHandler widgetHandler = PluginHandlerHelper.getWidgetHandler(widgetConfig, applicationContext);
+                Value<?> value = widgetHandler.getValue(widgetState);
+                if (value != null && value.get() != null) {
+                    TimeIntervalFilter filter;
+                    if (!rangeFilters.containsKey(fieldPath)) {
+                        filter = new TimeIntervalFilter(fieldPath);
+                        rangeFilters.put(fieldPath, filter);
+                        searchQuery.addFilter(filter);
+                    } else {
+                        filter = rangeFilters.get(fieldPath);
+                    }
+                    DateBoxConfig dateBoxConfig = (DateBoxConfig) widgetConfig;
+                    if (dateBoxConfig.getRangeEndConfig() != null) {
+                        // Есть ссылка на виджет конца диапазона - значит, выбранный виджет задаёт начало
+                        initStartDate(filter, value);
+                    } else if (dateBoxConfig.getRangeStartConfig() != null) {
+                        initEndDate(filter, value);
+                    } else {
+                        // Виджет не связан по диапазону - ищем по фиксированной дате
+                        initEndDate(filter, value);
+                        initEndDate(filter, value);
                     }
                 }
             }
-            //} catch (NullPointerException npe) { continue; }
-        }
-
-        // фильтр по интервалу дат в поисковый запрос
-        if (datePeriodFilter != null && dateBoxList.size() == 2) {
-            extendedSearchData.getSearchQuery().addFilter(createDatePeriodFilter(datePeriodFilter, dateBoxList));
         }
 
         CollectionPluginHandler collectionPluginHandler =
@@ -370,20 +326,28 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         return result;
     }
 
-    private DatePeriodFilter createDatePeriodFilter(DatePeriodFilter datePeriodFilter, ArrayList<Date> dates) {
-        //DatePeriodFilter dpf = new DatePeriodFilter();
-        //dpf = datePeriodFilter;
-        Date date1 = dates.get(0);
-        Date date2 = dates.get(1);
-
-        if (date1.after(date2)) {
-            datePeriodFilter.setEndDate(date1);
+    private void initStartDate(TimeIntervalFilter filter, Value<?> date) {
+        if (date instanceof DateTimeValue) {
+            filter.setStartTime(((DateTimeValue) date).get());
+        } else if (date instanceof TimelessDateValue) {
+            filter.setStartTime(((TimelessDateValue) date).get());
+        } else if (date instanceof DateTimeWithTimeZoneValue) {
+            filter.setStartTime(((DateTimeWithTimeZoneValue) date).get());
+        } else {
+            throw new IllegalArgumentException("Unexpected value type: " + date.getFieldType());
         }
-        if (date2.before(date1)) {
-            datePeriodFilter.setStartDate(date2);
-        }
+    }
 
-        return datePeriodFilter;
+    private void initEndDate(TimeIntervalFilter filter, Value<?> date) {
+        if (date instanceof DateTimeValue) {
+            filter.setEndTime(((DateTimeValue) date).get());
+        } else if (date instanceof TimelessDateValue) {
+            filter.setEndTime(((TimelessDateValue) date).get());
+        } else if (date instanceof DateTimeWithTimeZoneValue) {
+            filter.setEndTime(((DateTimeWithTimeZoneValue) date).get());
+        } else {
+            throw new IllegalArgumentException("Unexpected value type: " + date.getFieldType());
+        }
     }
 
     // запрос на поиск
