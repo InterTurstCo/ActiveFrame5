@@ -25,7 +25,10 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
-import javax.ejb.*;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.Collection;
 import java.util.List;
@@ -62,7 +65,6 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
 
     @Override
     @Asynchronous
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotifications(List<SendNotificationInfo> sendNotificationInfos) {
         for (SendNotificationInfo sendNotificationInfo : sendNotificationInfos) {
             try {
@@ -75,7 +77,6 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
 
     @Override
     @Asynchronous
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotifications(DomainObject domainObject, EventType eventType, List<FieldModification> changedFields) {
         doSendNotification(domainObject, eventType, changedFields);
     }
