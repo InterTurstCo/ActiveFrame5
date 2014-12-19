@@ -5,12 +5,15 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * @deprecated Устаревший фильтр, используйте вместо него {@link TimeIntervalFilter}.
+ * 
  * Фильтр расширенного поиска, позволяющий искать документ по факту того, что значение определённого поля
  * этого документа попадает в заданный период дат.
  * Фильтр поддерживает открытые периоды, что задаётся значением null в поле начала или окончания периода.
  * 
  * @author apirozhkov
  */
+@Deprecated
 public class DatePeriodFilter extends SearchFilterBase {
 
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");

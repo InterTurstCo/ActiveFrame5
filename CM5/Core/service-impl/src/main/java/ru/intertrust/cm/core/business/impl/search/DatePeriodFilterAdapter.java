@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 
+@Deprecated
 public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> {
 
     protected Logger log = LoggerFactory.getLogger(getClass());

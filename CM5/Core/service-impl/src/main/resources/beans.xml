@@ -153,6 +153,8 @@
                        value="ru.intertrust.cm.core.business.impl.search.TextFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.DatePeriodFilter"
                        value="ru.intertrust.cm.core.business.impl.search.DatePeriodFilterAdapter"/>
+                <entry key="ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter"
+                       value="ru.intertrust.cm.core.business.impl.search.TimeIntervalFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.NumberRangeFilter"
                        value="ru.intertrust.cm.core.business.impl.search.NumberRangeFilterAdapter"/>
                 <entry key="ru.intertrust.cm.core.business.api.dto.OneOfListFilter"
