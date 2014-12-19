@@ -83,6 +83,10 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
         final Calendar calendar = Calendar.getInstance(timeZone);
         calendar.clear();
         calendar.set(getYear(), getMonth(), getDayOfMonth());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 

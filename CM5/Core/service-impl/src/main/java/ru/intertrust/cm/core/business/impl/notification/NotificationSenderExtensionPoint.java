@@ -1,22 +1,16 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.ejb.EJB;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.impl.EventTriggerImpl.EventType;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.dao.api.extension.*;
+
+import javax.ejb.EJB;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -27,7 +21,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 public class NotificationSenderExtensionPoint implements AfterSaveAfterCommitExtensionHandler, AfterChangeStatusAfterCommitExtentionHandler,
         AfterCreateAfterCommitExtentionHandler, AfterDeleteAfterCommitExtensionHandler {
     @EJB
-    private NotificationSenderAsync acyncSender;
+    private NotificationSenderAsync asyncSender;
 
     @Autowired
     private UserTransactionService userTransactionService;
@@ -84,40 +78,8 @@ public class NotificationSenderExtensionPoint implements AfterSaveAfterCommitExt
 
         @Override
         public void onAfterCommit() {
-            for (SendNotificationInfo sendNotificationInfo : sendNotificationInfos) {
-                acyncSender.sendNotifications(sendNotificationInfo.getDomainObject(), sendNotificationInfo.getEventType(),
-                        sendNotificationInfo.getChangedFields());
-            }
+            asyncSender.sendNotifications(sendNotificationInfos);
         }
     }
 
-    private class SendNotificationInfo {
-        private DomainObject domainObject;
-        private EventType eventType;
-        private List<FieldModification> changedFields;
-
-        public DomainObject getDomainObject() {
-            return domainObject;
-        }
-
-        public void setDomainObject(DomainObject domainObject) {
-            this.domainObject = domainObject;
-        }
-
-        public EventType getEventType() {
-            return eventType;
-        }
-
-        public void setEventType(EventType eventType) {
-            this.eventType = eventType;
-        }
-
-        public List<FieldModification> getChangedFields() {
-            return changedFields;
-        }
-
-        public void setChangedFields(List<FieldModification> changedFields) {
-            this.changedFields = changedFields;
-        }
-    }
 }
