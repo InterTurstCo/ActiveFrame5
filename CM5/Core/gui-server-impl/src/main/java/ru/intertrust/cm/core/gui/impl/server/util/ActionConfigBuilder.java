@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,7 +192,7 @@ public class ActionConfigBuilder {
     }
 
     private static class ActionContextList {
-        private Map<AbstractActionConfig, ActionContext> contextMap = new HashMap<>();
+        private Map<AbstractActionConfig, ActionContext> contextMap = new LinkedHashMap<>();
 
         public List<ActionContext> getContexts() {
             return new ArrayList<>(contextMap.values());
