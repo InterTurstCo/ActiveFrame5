@@ -1,41 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ExecuteActionConfig;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
-import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
@@ -44,6 +22,13 @@ import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
+
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.util.*;
 
 @Stateless
 @Local(ActionService.class)
@@ -78,6 +63,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     public List<ActionContext> getActions(Id domainObjectId) {
         try {
             List<ActionContext> list = new ArrayList<ActionContext>();
+            HashMap<String, Id> statusIdByName = new HashMap<>();
             if (domainObjectId != null) {
                 DomainObject domainObject = crudservice.find(domainObjectId);
 
@@ -86,7 +72,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                     Collection<DomainObjectContextConfig> domainObjectContext = actionContextConfig.getDomainObjectContext();
                     for (DomainObjectContextConfig domainContextConfig : domainObjectContext) {
                         List<String> domainObjectTypes = domainContextConfig.getDomainObjectType();
-                        List<Id> domainObjectStatusIds = getStatusNames(domainContextConfig.getStatus());
+                        Set<Id> domainObjectStatusIds = getStatusIds(domainContextConfig.getStatus(), statusIdByName);
 
                         if (domainObjectTypes.contains(domainObject.getTypeName())
                                 && domainObjectStatusIds.contains(domainObject.getStatus())) {
@@ -207,7 +193,32 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
     }
 
-    private List<Id> getStatusNames(List<String> statuses) {
+    private Set<Id> getStatusIds(List<String> statusNames, Map<String, Id> statusIdByName) {
+        final int size = statusNames.size();
+        HashSet<Id> result = new HashSet<>(size);
+        ArrayList<String> toRetrieveFromDb = new ArrayList<>();
+        for (String name : statusNames) {
+            final Id id = statusIdByName.get(name);
+            if (id != null) {
+                result.add(id);
+            } else {
+                toRetrieveFromDb.add(name);
+            }
+        }
+        if (toRetrieveFromDb.isEmpty()) {
+            return result;
+        }
+        final List<Id> statusIds = getStatusIds(toRetrieveFromDb);
+        for (int i = 0; i < toRetrieveFromDb.size(); ++i) {
+            String name = toRetrieveFromDb.get(i);
+            final Id id = statusIds.get(i);
+            statusIdByName.put(name, id);
+            result.add(id);
+        }
+        return result;
+    }
+
+    private List<Id> getStatusIds(List<String> statuses) {
         String query = "select t.id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
 
         boolean first = true;
