@@ -118,6 +118,22 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             jdbcTemplate.update(getQueryHelper().generateCreateAclTableQuery(config));
             jdbcTemplate.update(getQueryHelper().generateCreateAclReadTableQuery(config));
         }
+        createAclIndexes(config);
+    }
+
+    /**
+     * Создание индексов для _ACL, _READ таблиц по полям object_id, group_id
+     * @param config
+     * @return
+     */
+    private void createAclIndexes(DomainObjectTypeConfig config) {
+        String aclTableName = getSqlName(config) + BasicQueryHelper.ACL_TABLE_SUFFIX;
+        String readTableName = getSqlName(config) + BasicQueryHelper.READ_TABLE_SUFFIX;
+
+        jdbcTemplate.update(getQueryHelper().generateCreateAclIndexQuery(config, aclTableName, BasicQueryHelper.OBJECT_ID_FIELD, 1));
+        jdbcTemplate.update(getQueryHelper().generateCreateAclIndexQuery(config, aclTableName, BasicQueryHelper.GROUP_ID_FIELD, 2));
+        jdbcTemplate.update(getQueryHelper().generateCreateAclIndexQuery(config, readTableName, BasicQueryHelper.OBJECT_ID_FIELD, 1));
+        jdbcTemplate.update(getQueryHelper().generateCreateAclIndexQuery(config, readTableName, BasicQueryHelper.GROUP_ID_FIELD, 2));
     }
 
     @Override

@@ -75,6 +75,10 @@ public abstract class BasicQueryHelper {
 
     public static final String READ_TABLE_SUFFIX = "_read";
 
+    public static final String OBJECT_ID_FIELD = "object_id";
+
+    public static final String GROUP_ID_FIELD = "group_id";
+    
     private static final String GROUP_TABLE = "user_group";
 
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
@@ -518,6 +522,24 @@ public abstract class BasicQueryHelper {
 
         String indexName = createAutoIndexName(config, index, isAl);
         return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + columnNames.toString() + ")";
+    }
+
+    public String generateCreateAclIndexQuery(DomainObjectTypeConfig parentConfig, String tableName, String columnName, int index) {
+        tableName = getSqlName(tableName);
+        String suffix = null;
+        if (tableName.indexOf(ACL_TABLE_SUFFIX) > 0) {
+            suffix = ACL_TABLE_SUFFIX;
+        } else {
+            suffix = READ_TABLE_SUFFIX;
+        }
+        String indexName = createAclIndexName(parentConfig, index, suffix);
+        return "create index " + wrap(indexName) + " on " + wrap(tableName) + " (" + columnName + ")";
+    }
+    
+    protected String createAclIndexName(DomainObjectTypeConfig config, int index, String suffix) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("i_").append(getName(getDOTypeConfigId(config).toString(), false)).append("_").append(suffix).append("_").append(index);
+        return builder.toString();
     }
 
     /**
