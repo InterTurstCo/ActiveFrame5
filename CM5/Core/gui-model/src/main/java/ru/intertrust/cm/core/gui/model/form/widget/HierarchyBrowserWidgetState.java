@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBro
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private ArrayList<Id> temporarySelectedIds;
     private ArrayList<HierarchyBrowserItem> temporaryTooltipChosenItems;
     private Map<String, Integer> temporaryCountOfType;
+    private int recursiveDeepness;
 
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
@@ -53,7 +55,8 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     public void setRootNodeLinkConfig(RootNodeLinkConfig rootNodeLinkConfig) {
         this.rootNodeLinkConfig = rootNodeLinkConfig;
     }
-    public ArrayList<HierarchyBrowserItem> getCurrentItems(){
+
+    public ArrayList<HierarchyBrowserItem> getCurrentItems() {
         return isHandlingTemporarySate ? temporaryChosenItems : chosenItems;
     }
 
@@ -183,7 +186,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return result;
     }
 
-    public String getHyperlinkPopupTitle(String collectionName, String domainObjectType){
+    public String getHyperlinkPopupTitle(String collectionName, String domainObjectType) {
         PopupTitlesHolder popupTitlesHolder = collectionNameNodeMap.get(collectionName).getDoTypeTitlesMap().get(domainObjectType);
         return popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
     }
@@ -194,29 +197,34 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         decrementCountOfType(item.getNodeCollectionName());
     }
 
-    public void handleCommonSingleChoice(HierarchyBrowserItem item){
-        temporarySelectedIds.clear();
-        temporaryChosenItems.clear();
-        if(item.isChosen()){
+    public void handleCommonSingleChoice(HierarchyBrowserItem item) {
+        Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
+        while (iterator.hasNext()){
+            HierarchyBrowserItem chosenItem = iterator.next();
+            iterator.remove();
+            postItemRemove(chosenItem);
+        }
+        if (item.isChosen()) {
             temporarySelectedIds.add(item.getId());
             temporaryChosenItems.add(item);
 
         }
     }
+    private void postItemRemove(HierarchyBrowserItem item){
+        temporarySelectedIds.remove(item.getId());
+        decrementCountOfType(item.getNodeCollectionName());
 
-    public void handleNodeSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem previous){
-        if(previous != null){
-            previous.setChosen(false);
-            temporarySelectedIds.remove(previous.getId());
-            temporaryChosenItems.remove(previous);
-        }
-        if(item.isChosen()){
+    }
+
+    public void handleNodeSingleChoice(HierarchyBrowserItem item) {
+        if (item.isChosen()) {
             temporarySelectedIds.add(item.getId());
             temporaryChosenItems.add(item);
 
-        }else{
+        } else {
             temporarySelectedIds.remove(item.getId());
             temporaryChosenItems.remove(item);
+            decrementCountOfType(item.getNodeCollectionName());
 
         }
     }
@@ -251,6 +259,14 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         Integer oldValue = temporaryCountOfType.get(collectionName);
         Integer newValue = --oldValue;
         temporaryCountOfType.put(collectionName, newValue);
+    }
+
+    public int getRecursiveDeepness() {
+        return recursiveDeepness;
+    }
+
+    public void setRecursiveDeepness(int recursiveDeepness) {
+        this.recursiveDeepness = recursiveDeepness;
     }
 
     @Override

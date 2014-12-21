@@ -12,10 +12,9 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
 
     public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE = new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
     private HierarchyBrowserItem item;
-    private HierarchyBrowserItem previousChosenItem;
-    public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item, HierarchyBrowserItem previousSelectedItem) {
+
+    public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item) {
         this.item = item;
-        this.previousChosenItem = previousSelectedItem;
     }
 
     @Override
@@ -32,7 +31,4 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
         return item;
     }
 
-    public HierarchyBrowserItem getPreviousChosenItem() {
-        return previousChosenItem;
-    }
 }

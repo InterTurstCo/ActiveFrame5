@@ -15,11 +15,13 @@ public class HierarchyBrowserScrollEvent extends GwtEvent<HierarchyBrowserScroll
     private String parentCollectionName;
     private String inputText;
     private int factor;
-    public HierarchyBrowserScrollEvent(Id parentId, String parentCollectionName, int factor, String inputText){
+    private int recursionDeepness;
+    public HierarchyBrowserScrollEvent(Id parentId, String parentCollectionName, int factor, String inputText, int recursionDeepness){
         this.parentId = parentId;
         this.parentCollectionName = parentCollectionName;
         this.factor = factor;
         this.inputText = inputText;
+        this.recursionDeepness = recursionDeepness;
     }
 
     @Override
@@ -46,5 +48,9 @@ public class HierarchyBrowserScrollEvent extends GwtEvent<HierarchyBrowserScroll
 
     public String getInputText() {
         return inputText;
+    }
+
+    public int getRecursionDeepness() {
+        return recursionDeepness;
     }
 }

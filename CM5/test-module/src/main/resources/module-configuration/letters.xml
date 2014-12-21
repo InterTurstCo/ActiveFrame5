@@ -272,6 +272,20 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="RecursiveHierarchyBrowser">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <!-- label (Сама информация) -->
+                                    <td colspan="3" h-align="left">
+                                        <widget id="recursive"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -621,6 +635,122 @@
                 </mapping>
             </enumeration-box>
 
+            <hierarchy-browser id="recursive">
+                <field-path
+                        value="organization_addressee^letter.organization, department_addressee^letter.department"/>
+                <node-collection-def collection="organizations"
+                                     title="Организацию">
+                    <root-node-link title="Организации"/>
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <selection-filters >
+                        <selection-filter name="byNames">
+                            <param name="0" value="Организация 9" type="string"/>
+                            <param name="1" value="Организация 10" type="string"/>
+                            <param name="2" value="Организация 2" type="string"/>
+                            <param name="3" value="Организация 22" type="string"/>
+                        </selection-filter>
+                    </selection-filters>
+                    <selection-sort-criteria>
+                        <sort-criterion field="name" order="asc"/>
+                    </selection-sort-criteria>
+
+                    <created-objects>
+                        <created-object text="Орг" domain-object-type="Organization"/>
+                    </created-objects>
+                    <linked-form-mapping>
+
+                        <linked-form name="organization_form" domain-object-type="organization"/>
+
+                    </linked-form-mapping>
+                    <!--<selection-filters row-limit="1"></selection-filters>-->
+                    <node-collection-def collection="departments"
+                                         title="Департамент" display-create-button="true">
+                        <single-choice>
+                            <parent-object-field name="name" value="Организация 1"/>
+                        </single-choice>
+                        <fill-parent-on-add field-to-fill="organization"/>
+                        <linked-form-mapping>
+                            <linked-form name="department_form" domain-object-type="department">
+                                <title>
+                                    <existing-object>
+                                        <pattern value="{id}, {created_date}"/>
+                                        <formatting>
+                                            <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                                <time-zone id="Europe/Kiev"/>
+                                                <field-paths>
+                                                    <field-path value="created_date"/>
+                                                </field-paths>
+                                            </date-format>
+                                        </formatting>
+                                    </existing-object>
+                                    <new-object>
+                                        <pattern value="new form "/>
+
+                                    </new-object>
+                                </title>
+
+                            </linked-form>
+                        </linked-form-mapping>
+                        <create-new-button text="Department" image="images/icons/arrow-down.png"/>
+
+                        <display-values-as-links value="false"/>
+                        <input-text-filter name="byName"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name}"/>
+
+                        <node-collection-def collection="departments" parent-filter="byParentDepartment"
+                                             title="Департамент" display-create-button="true">
+                            <single-choice>
+                                <parent-object-field name="name" value="Организация 1"/>
+                            </single-choice>
+                            <fill-parent-on-add field-to-fill="organization"/>
+                            <linked-form-mapping>
+                                <linked-form name="department_form" domain-object-type="department">
+                                    <title>
+                                        <existing-object>
+                                            <pattern value="{id}, {created_date}"/>
+                                            <formatting>
+                                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                                    <time-zone id="Europe/Kiev"/>
+                                                    <field-paths>
+                                                        <field-path value="created_date"/>
+                                                    </field-paths>
+                                                </date-format>
+                                            </formatting>
+                                        </existing-object>
+                                        <new-object>
+                                            <pattern value="new form "/>
+
+                                        </new-object>
+                                    </title>
+
+                                </linked-form>
+                            </linked-form-mapping>
+                            <create-new-button text="Department" image="images/icons/arrow-down.png"/>
+
+                            <display-values-as-links value="false"/>
+                            <input-text-filter name="byName"/>
+                            <!-- паттерн отображения уже выбранных значений -->
+                            <selection-pattern value="{name}"/>
+                            <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+
+                        </node-collection-def>
+                    </node-collection-def>
+                </node-collection-def>
+
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>10</page-size>
+                <single-choice value="true"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="true"/>
+
+            </hierarchy-browser>
             <hierarchy-browser id="2c">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
@@ -660,9 +790,7 @@
                     <!--<selection-filters row-limit="1"></selection-filters>-->
                     <node-collection-def collection="departments" parent-filter="byOrganization"
                                          title="Департамент" display-create-button="true">
-                        <single-choice>
-                            <parent-object-field name="name" value="Организация 1"/>
-                        </single-choice>
+                        <single-choice value="false"/>
                         <fill-parent-on-add field-to-fill="organization"/>
                         <linked-form-mapping>
                             <linked-form name="department_form" domain-object-type="department">
@@ -725,7 +853,7 @@
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
-                <single-choice value="false"/>
+                <single-choice value="true"/>
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Добавить"/>
                 <display-values-as-links value="true"/>

@@ -75,7 +75,7 @@
         <prototype>
             <![CDATA[
                     select
-                        d.id, d.name
+                        d.id, d.name, d.parentdepartment
                     from
                         Department d
                     where
@@ -100,7 +100,13 @@
                 ]]>
             </criteria>
         </filter>
-
+        <filter name="byParentDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    d.parentdepartment = {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="departments_default_view" collection="Departments" is-default="true">

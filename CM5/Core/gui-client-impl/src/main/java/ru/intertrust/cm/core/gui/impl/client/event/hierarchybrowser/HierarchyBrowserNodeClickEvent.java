@@ -14,10 +14,11 @@ public class HierarchyBrowserNodeClickEvent extends GwtEvent<HierarchyBrowserNod
     public static Type<HierarchyBrowserNodeClickEventHandler> TYPE = new Type<HierarchyBrowserNodeClickEventHandler>();
     private String collectionName;
     private Id parentId;
-
-    public HierarchyBrowserNodeClickEvent(String collectionName, Id parentId) {
+    private int recursionDeepness;
+    public HierarchyBrowserNodeClickEvent(String collectionName, Id parentId, int recursionDeepness) {
         this.collectionName = collectionName;
         this.parentId = parentId;
+        this.recursionDeepness = recursionDeepness;
 
     }
 
@@ -37,6 +38,10 @@ public class HierarchyBrowserNodeClickEvent extends GwtEvent<HierarchyBrowserNod
 
     public Id getParentId() {
         return parentId;
+    }
+
+    public int getRecursionDeepness() {
+        return recursionDeepness;
     }
 }
 

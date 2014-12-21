@@ -18,9 +18,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -35,8 +33,8 @@ public class HierarchyBrowserNodeView implements IsWidget {
     private int factor;
     private ScrollPanel scroll = new ScrollPanel();
     private TextBox textBox;
-    private Map<String, HierarchyBrowserItem> previousChosenItems;
-
+    private List<HierarchyCheckBoxesWrapper> checkBoxesWrappers;
+    private int recursionDeepness;
     private HorizontalPanel styledActivePanel = new HorizontalPanel();
     private boolean displayAsHyperlinks;
 
@@ -50,7 +48,9 @@ public class HierarchyBrowserNodeView implements IsWidget {
         root.addStyleName("hierarchyBrowserNode");
         scroll.addStyleName("oneNodeScroll");
         currentNodePanel.addStyleName("one-node-body");
-        previousChosenItems = new HashMap<String, HierarchyBrowserItem>();
+        checkBoxesWrappers = new ArrayList<HierarchyCheckBoxesWrapper>();
+        HierarchyCheckBoxesManager checkBoxesManager = new HierarchyCheckBoxesManager(checkBoxesWrappers, eventBus);
+        checkBoxesManager.activate();
 
     }
 
@@ -100,7 +100,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 if (scroll.getVerticalScrollPosition() == scroll.getMaximumVerticalScrollPosition()) {
                     factor++;
                     eventBus.fireEvent(new HierarchyBrowserScrollEvent(parentId, parentCollectionName,
-                            factor, textBox.getText()));
+                            factor, textBox.getText(), recursionDeepness));
                 }
             }
         });
@@ -125,7 +125,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             focusPanel.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
+                    eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId(),recursionDeepness));
                     styledActivePanel.removeStyleName("node-item-row-active");
                     currentItemPanel.addStyleName("node-item-row-active");
                     styledActivePanel = currentItemPanel;
@@ -138,14 +138,14 @@ public class HierarchyBrowserNodeView implements IsWidget {
         currentItemPanel.add(focusPanel);
 
         final String id = item.getId().toStringRepresentation();
-        currentItemPanel.getElement().setId(id);
+        currentItemPanel.getElement().setId(recursionDeepness + id);
         currentItemPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                if (GuiUtil.isChildClicked(event, id) || !item.isMayHaveChildren()) {
+                if (GuiUtil.isChildClicked(event, recursionDeepness + id) || !item.isMayHaveChildren()) {
                     return;
                 }
-                eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId()));
+                eventBus.fireEvent(new HierarchyBrowserNodeClickEvent(item.getNodeCollectionName(), item.getId(), recursionDeepness));
                 styledActivePanel.removeStyleName("node-item-row-active");
                 currentItemPanel.addStyleName("node-item-row-active");
                 styledActivePanel = currentItemPanel;
@@ -173,37 +173,14 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     private CheckBox createCheckBox(final HierarchyBrowserItem item) {
-        final CheckBox checkBox = new CheckBox();
-        if (item.isChosen()) {
+        CheckBox checkBox = new CheckBox();
+        if(item.isChosen()){
             checkBox.setValue(true);
-            previousChosenItems.put(item.getNodeCollectionName(), item);
         }
-        checkBox.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
-            @Override
-            public void onValueChange(ValueChangeEvent<Boolean> event) {
-                boolean chosen = event.getValue();
-                item.setChosen(chosen);
-                String collectionName = item.getNodeCollectionName();
-                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item, previousChosenItems.get(collectionName)));
-                if (chosen) {
-                    previousChosenItems.put(collectionName, item);
-                } else {
-                    previousChosenItems.remove(collectionName);
-                }
+        HierarchyCheckBoxValueChangeHandler handler = new HierarchyCheckBoxValueChangeHandler(item, eventBus);
+        checkBox.addValueChangeHandler(handler);
+        checkBoxesWrappers.add(new HierarchyCheckBoxesWrapper(checkBox, item));
 
-            }
-        });
-        //TODO find more verbose way
-        eventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE, new HierarchyBrowserCheckBoxUpdateEventHandler() {
-            @Override
-            public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
-                 HierarchyBrowserItem changedItem = event.getItem();
-                if (changedItem != null && item.getId().equals(changedItem.getId())) {
-                    boolean value = event.getItem().isChosen();
-                    checkBox.setValue(value);
-                }
-            }
-        });
         return checkBox;
     }
 
@@ -218,6 +195,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 Widget addItem = createAddItemButton(parentId, parentCollectionName, config, buttonsPanel);
                 buttonsPanel.add(addItem);
             }
+            recursionDeepness = config.getRecursiveDeepness() > 0 ? config.getRecursiveDeepness() : 0;
         }
         FocusPanel refreshButton = createRefreshButton(parentId, parentCollectionName);
         buttonsPanel.add(refreshButton);
@@ -229,7 +207,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                                        final NodeCollectionDefConfig nodeConfig, UIObject uiObject) {
         ConfiguredButton button = new HierarchyConfiguredButton(nodeConfig.getCreateNewButtonConfig());
         button.addClickHandler(new HierarchyBrowserAddClickHandler(parentId, parentCollectionName, nodeConfig,
-                eventBus, uiObject));
+                eventBus, uiObject, recursionDeepness));
         return button;
     }
 
@@ -239,7 +217,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
+                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName, recursionDeepness));
                 factor = 0;
             }
         });
@@ -273,7 +251,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
                 if ("".equalsIgnoreCase(inputText)) {
                     return;
                 }
-                eventBus.fireEvent(new HierarchyBrowserSearchClickEvent(parentId, parentCollectionName, inputText));
+                eventBus.fireEvent(new HierarchyBrowserSearchClickEvent(parentId, parentCollectionName, inputText, recursionDeepness));
 
             }
         });
@@ -290,7 +268,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             @Override
             public void onClick(ClickEvent event) {
                 textBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
-                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
+                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName, recursionDeepness));
                 result.removeFromParent();
                 factor = 0;
             }
@@ -321,7 +299,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             public void onKeyDown(KeyDownEvent event) {
                 if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
                     String inputText = textBox.getValue();
-                    eventBus.fireEvent(new HierarchyBrowserSearchClickEvent(parentId, parentCollectionName, inputText));
+                    eventBus.fireEvent(new HierarchyBrowserSearchClickEvent(parentId, parentCollectionName, inputText, recursionDeepness));
                 }
             }
         });
@@ -333,6 +311,5 @@ public class HierarchyBrowserNodeView implements IsWidget {
             redrawNode(items);
         }
     }
-
 
 }

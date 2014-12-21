@@ -16,12 +16,14 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
     private NodeCollectionDefConfig nodeConfig;
     private String parentCollectionName;
     private String domainObjectType;
+    private int recursionDeepness;
     public HierarchyBrowserAddItemClickEvent(Id parentId, String parentCollectionName, String domainObjectType,
-                                             NodeCollectionDefConfig nodeConfig) {
+                                             NodeCollectionDefConfig nodeConfig, int recursionDeepness) {
         this.parentId = parentId;
         this.nodeConfig = nodeConfig;
         this.parentCollectionName = parentCollectionName;
         this.domainObjectType = domainObjectType;
+        this.recursionDeepness = recursionDeepness;
 
     }
 
@@ -49,5 +51,9 @@ public class HierarchyBrowserAddItemClickEvent extends GwtEvent<HierarchyBrowser
 
     public String getDomainObjectType() {
         return domainObjectType;
+    }
+
+    public int getRecursionDeepness() {
+        return recursionDeepness;
     }
 }

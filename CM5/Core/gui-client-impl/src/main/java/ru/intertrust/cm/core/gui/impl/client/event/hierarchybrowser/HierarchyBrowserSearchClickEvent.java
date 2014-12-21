@@ -14,10 +14,12 @@ public class HierarchyBrowserSearchClickEvent extends GwtEvent<HierarchyBrowserS
     private Id parentId;
     private String parentCollectionName;
     private String inputText;
-    public HierarchyBrowserSearchClickEvent(Id parentId, String parentCollectionName, String inputText) {
+    private int recursionDeepness;
+    public HierarchyBrowserSearchClickEvent(Id parentId, String parentCollectionName, String inputText, int recursionDeepness) {
         this.parentId = parentId;
         this.parentCollectionName = parentCollectionName;
         this.inputText = inputText;
+        this.recursionDeepness = recursionDeepness;
     }
 
     @Override
@@ -40,5 +42,9 @@ public class HierarchyBrowserSearchClickEvent extends GwtEvent<HierarchyBrowserS
 
     public String getInputText() {
         return inputText;
+    }
+
+    public int getRecursionDeepness() {
+        return recursionDeepness;
     }
 }

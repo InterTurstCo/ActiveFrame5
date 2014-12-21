@@ -163,8 +163,10 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         StringBuilder sb = new StringBuilder();
         for (NodeCollectionDefConfig config : nodeConfigs) {
             sb.append(config.getCollection());
+            sb.append(config.getRecursiveDeepness());
             sb.append(";") ;
         }
+
         return sb.toString();
     }
 

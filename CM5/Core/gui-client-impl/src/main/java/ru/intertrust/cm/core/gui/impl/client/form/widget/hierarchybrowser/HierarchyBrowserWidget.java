@@ -4,22 +4,19 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.HandlerRegistration;
+import com.google.gwt.event.shared.ResettableEventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
@@ -34,12 +31,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserUpdaterContext;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -61,7 +53,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserShowTooltipEventHandler {
     private HierarchyBrowserWidgetState currentState;
     private HierarchyBrowserMainPopup mainPopup;
-    private EventBus localEventBus = new SimpleEventBus();
+    private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus()) ;
     private HandlerRegistration handlerRegistration;
 
     @Override
@@ -182,7 +174,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     private HierarchyBrowserWidgetState cloneState(WidgetState stateToClone) {
-        HierarchyBrowserWidgetState currentState = (HierarchyBrowserWidgetState)stateToClone;
+        HierarchyBrowserWidgetState currentState = (HierarchyBrowserWidgetState) stateToClone;
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
 
         state.setSelectedIds(new ArrayList(currentState.getIds()));
@@ -252,31 +244,34 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     private boolean handleAsSingleChoice(HierarchyBrowserCheckBoxUpdateEvent event) {
-        HierarchyBrowserItem previous = event.getPreviousChosenItem();
-        if (previous == null) {
-            return false;
-        }
+        boolean result = false;
         HierarchyBrowserItem item = event.getItem();
-        if (item.isSingleChoice() == null || !item.isSingleChoice()) {
-            if (currentState.isSingleChoice()) {
-                currentState.handleCommonSingleChoice(item);
-                return true;
-            }
-            return false;
-        }
+        if ((item.isSingleChoice() == null && currentState.isSingleChoice()) || item.isSingleChoice()) {
+            result = true;
+            currentState.handleCommonSingleChoice(item);
+            refreshViewForSingleChoice(item, false);
+        } else if (item.isSingleChoice()) {
+            result = true;
+            currentState.handleNodeSingleChoice(item);
+            refreshViewForSingleChoice(item, true);
 
-        currentState.handleNodeSingleChoice(item, previous);
-        localEventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(previous, null));
-        refreshView();
-        return true;
+        }
+        return result;
 
     }
+
+    private void refreshViewForSingleChoice(HierarchyBrowserItem item, boolean handledOnlyNode) {
+        localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, handledOnlyNode));
+        refreshView();
+    }
+
 
     private void handleItemChangeState(HierarchyBrowserItem item) {
         boolean chosen = item.isChosen();
         if (chosen) {
             currentState.handleAddingItem(item);
         } else {
+            localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, false));
             currentState.handleRemovingItem(item);
         }
         refreshView();
@@ -372,8 +367,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     @Override
     public void onHierarchyBrowserNodeClick(HierarchyBrowserNodeClickEvent event) {
         HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
-        String collectionName = event.getCollectionName();
+        final String collectionName = event.getCollectionName();
         Id parentId = event.getParentId();
+        handleRecursionDeepness(collectionName, event.getRecursionDeepness(), 0);
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         NodeContentManager nodeContentManager = new NewNodeContentManager(config, mainPopup, chosenIds,
                 collectionName, parentId, currentState.getCollectionNameNodeMap());
@@ -386,6 +382,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String parentCollectionName = event.getParentCollectionName();
         Id parentId = event.getParentId();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
+        handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
         NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
                 parentCollectionName, parentId, "", currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
@@ -394,10 +391,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     @Override
     public void onHierarchyBrowserSearchClick(HierarchyBrowserSearchClickEvent event) {
         HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
-        String parentCollectionName = event.getParentCollectionName();
+        final String parentCollectionName = event.getParentCollectionName();
         Id parentId = event.getParentId();
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
+        handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
         NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
                 parentCollectionName, parentId, inputText, currentState.getCollectionNameNodeMap());
         nodeContentManager.fetchNodeContent();
@@ -412,6 +410,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         int offset = factor * config.getPageSize();
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
+        handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
         NodeContentManager nodeContentManager = new ScrollNodeContentManager(config, mainPopup,
                 chosenIds, parentCollectionName, parentId, inputText, offset,
                 currentState.getCollectionNameNodeMap());
@@ -425,6 +424,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         NodeCollectionDefConfig nodeConfig = event.getNodeConfig();
         String domainObjectTypeToCreate = event.getDomainObjectType();
         final String parentCollectionName = event.getParentCollectionName();
+        final int recursionDeepness = event.getRecursionDeepness();
         FormPluginConfig config = GuiUtil.createFormPluginConfig(null, nodeConfig, domainObjectTypeToCreate, true);
         FillParentOnAddConfig fillParentOnAddConfig = nodeConfig.getFillParentOnAddConfig();
         if (fillParentOnAddConfig != null) {
@@ -434,19 +434,19 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
         PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectTypeToCreate);
-        String newObjectTitle = popupTitlesHolder == null ? null  : popupTitlesHolder.getTitleNewObject();
+        String newObjectTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
 
         final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
-            public void onClick(ClickEvent event) {
+            public void onClick(final ClickEvent event) {
                 final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId, true);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {
                         createItemDialogBox.hide();
-                        localEventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName));
+                        localEventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName, recursionDeepness));
                     }
                 });
                 action.perform();
@@ -484,6 +484,20 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         hyperlinkContentManager.updateHyperlink();
     }
 
+    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta){
+        NodeCollectionDefConfig nodeDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
+        if (nodeDefConfig.isChildrenRecursive()) {
+            List<NodeCollectionDefConfig> nodeDefConfigs = nodeDefConfig.getNodeCollectionDefConfigs();
+            NodeCollectionDefConfig recursiveChildNode = GuiUtil.find(nodeDefConfigs, new Predicate<NodeCollectionDefConfig>() {
+                @Override
+                public boolean evaluate(NodeCollectionDefConfig input) {
+                    return collectionName.equalsIgnoreCase(input.getCollection());
+                }
+            });
+            recursiveChildNode.setRecursiveDeepness(recursionDeepness - delta);
+        }
+    }
+
     private void handleNodeItemChanges(HierarchyBrowserItem updatedItem) {
         handleHyperlinkItemChanges(mainPopup, updatedItem, false);
 
@@ -519,6 +533,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         mainPopup.hidePopup();
         currentState.resetChanges();
         mainPopup = null;
+        localEventBus.removeHandlers();
+        registerEventsHandling();
 
     }
 

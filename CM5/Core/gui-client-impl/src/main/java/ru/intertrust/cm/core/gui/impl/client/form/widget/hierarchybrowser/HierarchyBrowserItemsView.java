@@ -87,7 +87,7 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
             public void onClick(ClickEvent event) {
                 element.removeFromParent();
                 item.setChosen(false);
-                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item, null));
+                eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(item));
             }
         });
         element.add(label);

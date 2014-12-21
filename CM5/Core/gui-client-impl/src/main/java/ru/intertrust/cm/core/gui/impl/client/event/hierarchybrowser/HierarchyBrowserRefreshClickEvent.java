@@ -13,10 +13,12 @@ public class HierarchyBrowserRefreshClickEvent extends GwtEvent<HierarchyBrowser
     public static Type<HierarchyBrowserRefreshClickEventHandler> TYPE = new Type<HierarchyBrowserRefreshClickEventHandler>();
     private Id parentId;
     private String parentCollectionName;
+    private int recursionDeepness;
 
-    public HierarchyBrowserRefreshClickEvent(Id parentId, String parentCollectionName) {
+    public HierarchyBrowserRefreshClickEvent(Id parentId, String parentCollectionName, int recursionDeepness) {
         this.parentId = parentId;
         this.parentCollectionName = parentCollectionName;
+        this.recursionDeepness = recursionDeepness;
 
     }
 
@@ -36,5 +38,9 @@ public class HierarchyBrowserRefreshClickEvent extends GwtEvent<HierarchyBrowser
 
     public String getParentCollectionName() {
         return parentCollectionName;
+    }
+
+    public int getRecursionDeepness() {
+        return recursionDeepness;
     }
 }

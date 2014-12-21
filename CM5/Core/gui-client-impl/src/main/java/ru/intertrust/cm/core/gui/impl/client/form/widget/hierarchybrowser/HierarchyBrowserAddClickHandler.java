@@ -27,14 +27,16 @@ public class HierarchyBrowserAddClickHandler implements ClickHandler {
     private EventBus eventBus;
     private UIObject uiObject;
     private SelectTypePopup selectTypePopup;
+    private int recursionDeepness;
 
     public HierarchyBrowserAddClickHandler(Id parentId, String parentCollectionName, NodeCollectionDefConfig nodeConfig,
-                                           EventBus eventBus, UIObject uiObject) {
+                                           EventBus eventBus, UIObject uiObject, int recursionDeepness) {
         this.parentId = parentId;
         this.parentCollectionName = parentCollectionName;
         this.nodeConfig = nodeConfig;
         this.eventBus = eventBus;
         this.uiObject = uiObject;
+        this.recursionDeepness = recursionDeepness;
         initEventHandler();
 
     }
@@ -46,7 +48,7 @@ public class HierarchyBrowserAddClickHandler implements ClickHandler {
                 if (event.getSource().equals(selectTypePopup)) {
                     String domainObjectType = event.getDomainObjectType();
                     eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName,
-                            domainObjectType, nodeConfig));
+                            domainObjectType, nodeConfig, recursionDeepness));
 
                 }
             }
@@ -60,7 +62,7 @@ public class HierarchyBrowserAddClickHandler implements ClickHandler {
         if (createdObjectConfigs.size() == 1) {
             String domainObjectType = createdObjectConfigs.get(0).getDomainObjectType();
             eventBus.fireEvent(new HierarchyBrowserAddItemClickEvent(parentId, parentCollectionName, domainObjectType,
-                    nodeConfig));
+                    nodeConfig, recursionDeepness));
         } else {
             selectTypePopup = new SelectTypePopup(createdObjectsConfig, eventBus);
             selectTypePopup.showRelativeTo(uiObject);

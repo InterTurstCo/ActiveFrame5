@@ -312,7 +312,9 @@
                         <domain-object-surfer domain-object-type-to-create="letter">
                             <collection-viewer>
                                 <collection-ref name="letters"/>
+
                             </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
                             <!--<form-viewer>
                                 <form-mapping domain-object-type="letter" form="letter_form">
                                     <field-path value="subject">
@@ -346,7 +348,6 @@
                                 </form-mapping>
                                 &lt;!&ndash;<form-mapping domain-object-type="superCountry" form="my-custom-form"/>&ndash;&gt;
                             </form-viewer>-->
-                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

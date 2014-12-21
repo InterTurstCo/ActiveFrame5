@@ -57,10 +57,10 @@ public class NodeCollectionDefConfig implements Dto {
     @Element(name = "selection-filters", required = false)
     private SelectionFiltersConfig selectionFiltersConfig;
 
-    @ElementList(inline = true, name ="node-collection-def", required = false)
+    @ElementList(inline = true, name = "node-collection-def", required = false)
     private List<NodeCollectionDefConfig> nodeCollectionDefConfigs = new ArrayList<NodeCollectionDefConfig>();
 
-    @Element(name = "selection-sort-criteria",required = false)
+    @Element(name = "selection-sort-criteria", required = false)
     private SelectionSortCriteriaConfig selectionSortCriteriaConfig;
 
     @Element(name = "create-new-button", required = false)
@@ -77,8 +77,10 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Element(name = "created-objects", required = false)
     private CreatedObjectsConfig createdObjectsConfig;
-
+   // params not be persisted
     private int elementsCount;
+    private int recursionDeepness;
+    private boolean childrenRecursive;
 
     private Map<String, PopupTitlesHolder> doTypeTitlesMap;
 
@@ -145,6 +147,7 @@ public class NodeCollectionDefConfig implements Dto {
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
+
     @Deprecated
     public String getTitle() {
         return title;
@@ -241,6 +244,23 @@ public class NodeCollectionDefConfig implements Dto {
 
     public void setDoTypeTitlesMap(Map<String, PopupTitlesHolder> doTypeTitlesMap) {
         this.doTypeTitlesMap = doTypeTitlesMap;
+    }
+
+    public int getRecursiveDeepness() {
+        return recursionDeepness;
+    }
+
+    public void setRecursiveDeepness(int recursionDeepness) {
+        this.recursionDeepness = recursionDeepness;
+    }
+
+    public void makeRecursive() {
+        childrenRecursive = true;
+
+    }
+
+    public boolean isChildrenRecursive() {
+        return childrenRecursive;
     }
 
     @Override
