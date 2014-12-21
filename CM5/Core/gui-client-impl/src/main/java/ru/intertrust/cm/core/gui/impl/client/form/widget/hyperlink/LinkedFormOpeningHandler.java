@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -66,46 +67,11 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
     }
 
     private String getModalHeight(HasLinkedFormMappings widget) {
-        LinkedFormConfig linkedFormConfig = null;
-        if (domainObjectType != null) {
-            linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
-            if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-                return linkedFormConfig.getModalHeight();
-            }
-        }
-        linkedFormConfig = widget.getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalHeight();
-        }
-
-        return null;
+        return GuiUtil.getModalHeight(domainObjectType, widget.getLinkedFormMappingConfig(), widget.getLinkedFormConfig());
     }
 
     private String getModalWidth(HasLinkedFormMappings widget) {
-        LinkedFormConfig linkedFormConfig = null;
-        if (domainObjectType != null) {
-            linkedFormConfig = getLinkedFormConfig(domainObjectType, widget.getLinkedFormMappingConfig());
-            if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
-                return linkedFormConfig.getModalWidth();
-            }
-        }
-        linkedFormConfig = widget.getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalWidth();
-        }
-
-        return null;
-    }
-
-    private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
-        if (mappingConfig != null) {
-            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
-                if (domainObjectType.equals(linkedFormConfig.getDomainObjectType())) {
-                    return linkedFormConfig;
-                }
-            }
-        }
-        return null;
+       return GuiUtil.getModalWidth(domainObjectType, widget.getLinkedFormMappingConfig(), widget.getLinkedFormConfig());
     }
 
     protected void init(final HasLinkedFormMappings widget){
@@ -116,7 +82,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
             public void onSuccess(Dto result) {
                StringValue value = (StringValue) result;
                domainObjectType = value.get();
-               PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType);
+               PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(domainObjectType);
                popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
                createNonEditableFormDialogBox(widget);
 

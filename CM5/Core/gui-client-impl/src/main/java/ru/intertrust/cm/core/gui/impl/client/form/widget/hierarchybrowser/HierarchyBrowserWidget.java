@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
@@ -286,7 +287,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             view.displayChosenItems(currentState.getChosenItems(), currentState.isTooltipAvailable());
         }
     }
-
+    //TODO make method more simpler and verbose
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
         HierarchyBrowserItem item = event.getItem();
@@ -300,10 +301,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         NodeCollectionDefConfig nodeCollectionDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
         final String domainObjectType = item.getDomainObjectType();
         final FormPluginConfig config = GuiUtil.createFormPluginConfig(id, nodeCollectionDefConfig, domainObjectType, false);
-
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(currentState.getHyperlinkPopupTitle(collectionName,
-                domainObjectType));
-
+        LinkedFormMappingConfig linkedFormMappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
+        final String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, null);
+        final String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, null);
+        final String title = currentState.getHyperlinkPopupTitle(collectionName,domainObjectType);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
 
@@ -323,8 +325,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                 noneEditableFormDialogBox.hide();
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox = new FormDialogBox(currentState
-                        .getHyperlinkPopupTitle(collectionName, domainObjectType));
+                final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton("Изменить", new ClickHandler() {
                     @Override
@@ -435,8 +436,10 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
         PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectTypeToCreate);
         String newObjectTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
-
-        final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle);
+        LinkedFormMappingConfig linkedFormMappingConfig = nodeConfig.getLinkedFormMappingConfig();
+        final String modalHeight = GuiUtil.getModalHeight(domainObjectTypeToCreate, linkedFormMappingConfig, null);
+        final String modalWidth = GuiUtil.getModalWidth(domainObjectTypeToCreate, linkedFormMappingConfig, null);
+        final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override

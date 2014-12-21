@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
@@ -239,4 +240,48 @@ public final class GuiUtil {
         return navigator.userAgent;
     }-*/;
 
+    public static String getModalHeight(String domainObjectType, LinkedFormMappingConfig linkedFormMappingConfig,
+                                        LinkedFormConfig lowPriorityLinkedFormConfig) {
+        LinkedFormConfig linkedFormConfig = null;
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, linkedFormMappingConfig);
+            if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+                return linkedFormConfig.getModalHeight();
+            }
+        }
+        linkedFormConfig = lowPriorityLinkedFormConfig;
+        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
+            return linkedFormConfig.getModalHeight();
+        }
+
+        return null;
+    }
+
+    public static String getModalWidth(String domainObjectType, LinkedFormMappingConfig linkedFormMappingConfig,
+                                LinkedFormConfig lowPriorityLinkedFormConfig) {
+        LinkedFormConfig linkedFormConfig = null;
+        if (domainObjectType != null) {
+            linkedFormConfig = getLinkedFormConfig(domainObjectType, linkedFormMappingConfig);
+            if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
+                return linkedFormConfig.getModalWidth();
+            }
+        }
+        linkedFormConfig = lowPriorityLinkedFormConfig;
+        if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
+            return linkedFormConfig.getModalWidth();
+        }
+
+        return null;
+    }
+
+    private static LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
+        if (mappingConfig != null) {
+            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
+                if (domainObjectType.equalsIgnoreCase(linkedFormConfig.getDomainObjectType())) {
+                    return linkedFormConfig;
+                }
+            }
+        }
+        return null;
+    }
 }

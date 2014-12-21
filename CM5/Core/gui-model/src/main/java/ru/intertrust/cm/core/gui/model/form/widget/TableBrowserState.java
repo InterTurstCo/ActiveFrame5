@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
@@ -22,7 +21,6 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
     private Set<Id> selectedIds;
     private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
     private boolean isTemporaryState;
-    private boolean tableView;
 
     public TableBrowserConfig getTableBrowserConfig() {
         return tableBrowserConfig;
@@ -99,12 +97,6 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
         return tableBrowserConfig;
     }
 
-    public SelectionStyleConfig.Type getViewType(){
-        return tableBrowserConfig.getSelectionStyleConfig() == null
-                ?  SelectionStyleConfig.Type.INLINE
-                : SelectionStyleConfig.Type.forName(getTableBrowserConfig().getSelectionStyleConfig().getName());
-
-    }
     public boolean isTableView(){
         return WidgetUtil.drawAsTable(getWidgetConfig().getSelectionStyleConfig());
     }

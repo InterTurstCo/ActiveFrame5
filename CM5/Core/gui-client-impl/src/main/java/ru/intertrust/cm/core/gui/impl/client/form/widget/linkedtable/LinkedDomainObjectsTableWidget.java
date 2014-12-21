@@ -249,46 +249,21 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
 
     private String getModalHeight(String domainObjectType) {
-        LinkedFormConfig linkedFormConfig = null;
-        if (domainObjectType != null) {
-            linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
-            if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-                return linkedFormConfig.getModalHeight();
-            }
-        }
-        linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalHeight();
-        }
+        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
+                .getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
 
-        return currentState.getLinkedDomainObjectsTableConfig().getModalHeight();
+        return modalHeight == null ? currentState.getLinkedDomainObjectsTableConfig().getModalHeight() : modalHeight;
     }
 
     private String getModalWidth(String domainObjectType) {
-        LinkedFormConfig linkedFormConfig = null;
-        if (domainObjectType != null) {
-            linkedFormConfig = getLinkedFormConfig(domainObjectType, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig());
-            if (linkedFormConfig != null && linkedFormConfig.getModalWidth() != null) {
-                return linkedFormConfig.getModalWidth();
-            }
-        }
-        linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        if (linkedFormConfig != null && linkedFormConfig.getModalHeight() != null) {
-            return linkedFormConfig.getModalWidth();
-        }
+        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
+                .getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
 
-        return currentState.getLinkedDomainObjectsTableConfig().getModalWidth();
-    }
-
-    private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
-        if (mappingConfig != null) {
-            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
-                if (domainObjectType.equals(linkedFormConfig.getDomainObjectType())) {
-                    return linkedFormConfig;
-                }
-            }
-        }
-        return null;
+        return modalWidth == null ? currentState.getLinkedDomainObjectsTableConfig().getModalWidth() : modalWidth;
     }
 
     private void insertInCorrectModel(RowItem rowItem) {
