@@ -1,9 +1,23 @@
 package ru.intertrust.cm.core.business.impl.notification;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.EventTrigger;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScriptService;
@@ -25,17 +39,10 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.util.Collection;
-import java.util.List;
-
 @Stateless(name = "NotificationSenderAsync")
 @Local(NotificationSenderAsync.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class NotificationSenderAsyncImpl extends NotificationSenderBase implements NotificationSenderAsync {
     final static Logger logger = LoggerFactory.getLogger(NotificationSenderAsyncImpl.class);
 
@@ -155,7 +162,7 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
 
         List<NotificationAddressee> addresseeList = getAddresseeList(domainObject.getId(), notificationConfig.getNotificationTypeConfig());
         logger.debug("Sending notification: " + notificationType + " on event: " + eventType + " for Domain Object: " + domainObject);
-        notificationService.sendOnTransactionSuccess(notificationType, senderId,
+        notificationService.sendSync(notificationType, senderId,
                 addresseeList, priority, notificationContext);
     }
 

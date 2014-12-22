@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
-import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelectorFactory;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
@@ -56,7 +55,7 @@ public class NotificationServiceImpl implements NotificationService {
     private PersonManagementService personManagementService;
 
     @Autowired
-    private NotificationChannelSelectorFactory notificationChannelSelectorFactory;
+    private NotificationChannelSelector notificationChannelSelector;
 
     @Autowired
     private NotificationChannelLoader notificationChannelLoader;
@@ -90,36 +89,8 @@ public class NotificationServiceImpl implements NotificationService {
     @Asynchronous
     public Future<Boolean> sendNow(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
-        try {
-            logger.debug("Send notification " + notificationType + " " + addresseeList);
-            //Получаем список адресатов
-            List<Id> persons = getAddressee(addresseeList);
-
-            for (Id personId : persons) {
-                context.addContextObject("addressee", new DomainObjectAccessor(personId));
-                //Получаем список каналов для персоны
-                List<String> channelNames =
-                        notificationChannelSelectorFactory.getService().getNotificationChannels(notificationType, personId, priority);
-                for (String channelName : channelNames) {
-                    try {
-                        NotificationChannelHandle notificationChannelHandle =
-                                notificationChannelLoader.getNotificationChannel(channelName);
-                        notificationChannelHandle.send(notificationType, sender, personId, priority, context);
-                    } catch (NotificationException ex) {
-                        //skip exception, allow other channels to be executed.
-                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
-                    }
-                }
-            }
-
-            return new AsyncResult<Boolean>(true);
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in sendNow", ex);
-            throw new UnexpectedException("NotificationService", "sendNow",
-                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
-                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
-                    + " priority: " + priority + " context:" + context , ex);
-        }
+        sendSync(notificationType, sender, addresseeList, priority, context);
+        return new AsyncResult<Boolean>(true);
     }
 
     /**
@@ -226,5 +197,39 @@ public class NotificationServiceImpl implements NotificationService {
             
         }
 
+    }
+
+    @Override
+    public void sendSync(String notificationType, Id sender, List<NotificationAddressee> addresseeList, NotificationPriority priority,
+            NotificationContext context) {
+        try {
+            logger.debug("Send notification " + notificationType + " " + addresseeList);
+            //Получаем список адресатов
+            List<Id> persons = getAddressee(addresseeList);
+
+            for (Id personId : persons) {
+                context.addContextObject("addressee", new DomainObjectAccessor(personId));
+                //Получаем список каналов для персоны
+                List<String> channelNames =
+                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                for (String channelName : channelNames) {
+                    try {
+                        NotificationChannelHandle notificationChannelHandle =
+                                notificationChannelLoader.getNotificationChannel(channelName);
+                        notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+                    } catch (NotificationException ex) {
+                        //skip exception, allow other channels to be executed.
+                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                    }
+                }
+            }
+
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in sendNow", ex);
+            throw new UnexpectedException("NotificationService", "sendNow",
+                    "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
+                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
+                    + " priority: " + priority + " context:" + context , ex);
+        }
     }
 }

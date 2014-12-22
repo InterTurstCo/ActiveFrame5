@@ -181,10 +181,6 @@
     <bean id="notificationChannelSelector"
           class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorImpl"/>
 
-    <bean id="notificationChannelSelectorFactory" class="org.springframework.beans.factory.config.ServiceLocatorFactoryBean">
-        <property name="serviceLocatorInterface" value="ru.intertrust.cm.core.business.api.notification.NotificationChannelSelectorFactory"/>
-    </bean>
-
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 
     <bean id="scriptService" class="ru.intertrust.cm.core.business.impl.JavaScriptServiceImpl"/>

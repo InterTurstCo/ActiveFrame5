@@ -129,6 +129,9 @@
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
 
+    <jee:local-slsb id="afterCommitExtensionPointService"
+                    jndi-name="java:module/AfterCommitExtensionPointService!ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService"
+                    business-interface="ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService"/>
 
     <beans profile="default">
         <bean id="attachmentContentDao"

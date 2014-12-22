@@ -12,17 +12,49 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -33,19 +65,25 @@ import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExtentionHandler;
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
@@ -105,7 +143,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     @Autowired
     private EventLogService eventLogService;
-
+    
+    @Autowired
+    private AfterCommitExtensionPointService afterCommitExtensionPointService;
+    
     @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
@@ -2468,68 +2509,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         
         
         @Override
-        public void onBeforeCommit() {
-            AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
-
-            for (Id createdId : createdDomainObjects) {
-                DomainObject domainObject = find(createdId, sysAccessTocken);
-                if (domainObject != null){
-                    // Вызов точки расширения после создания после коммита
-                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                    parentTypes.add("");
-                    for (String typeName : parentTypes) {
-                        AfterCreateAfterCommitExtentionHandler extension = extensionService
-                                .getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, typeName);
-                        extension.onAfterCreate(domainObject);
-                    }
-                }
-            }
-
-            for (Id id : changeStatusDomainObjects) {
-                DomainObject domainObject = find(id, sysAccessTocken);
-
-                if (domainObject != null){
-                
-                    // Вызов точки расширения после смены статуса после коммита
-                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                    parentTypes.add("");
-                    for (String typeName : parentTypes) {
-                        AfterChangeStatusAfterCommitExtentionHandler extension = extensionService
-                                .getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, typeName);
-                        extension.onAfterChangeStatus(domainObject);
-                    }
-                }
-            }
-            
-            for (Id id : savedDomainObjects.keySet()) {
-                DomainObject domainObject = find(id, sysAccessTocken);
-                if (domainObject != null){
-
-                    // Вызов точки расширения после сохранения после коммита
-                    List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                    //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                    parentTypes.add("");
-                    for (String typeName : parentTypes) {
-                        AfterSaveAfterCommitExtensionHandler extension = extensionService
-                                .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
-                        extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjects.get(id)));
-                    }
-                }
-            }
-            
-            for (DomainObject deletedDomainObject : deletedDomainObjects.values()) {
-                // Вызов точки расширения после удаления после коммита
-                List<String> parentTypes = getAllParentTypes(deletedDomainObject.getTypeName());
-                //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                parentTypes.add("");
-                for (String typeName : parentTypes) {
-                    AfterDeleteAfterCommitExtensionHandler extension = extensionService
-                            .getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName);
-                    extension.onAfterDelete(deletedDomainObject);
-                }
-            }
+        public void onAfterCommit() {
+            //Точки расширения вызываем в специальном EJB чтобы открылась новая транзакция
+            afterCommitExtensionPointService.afterCommit(savedDomainObjects, createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
         }
 
         private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
@@ -2582,7 +2564,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         @Override
-        public void onAfterCommit() {
+        public void onBeforeCommit() {
             // Ничего не делаем
             
         }
