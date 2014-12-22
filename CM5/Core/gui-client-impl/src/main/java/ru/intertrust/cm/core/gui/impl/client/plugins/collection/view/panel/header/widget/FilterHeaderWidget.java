@@ -28,7 +28,7 @@ public abstract class FilterHeaderWidget extends HeaderWidget {
         this.filterWidth = userColumnWidth == 0
                 ? column.getMinWidth() - BusinessUniverseConstants.FILTER_CONTAINER_MARGIN
                 : userColumnWidth - BusinessUniverseConstants.FILTER_CONTAINER_MARGIN;
-        id = (column.hashCode() + title).replaceAll(" ", "");
+        id = (title + System.currentTimeMillis() + (int)(Math.random() * 50 + 1)).replaceAll(" ", "");
         fieldName = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
         this.filterValuesRepresentation = HeaderWidgetUtil.initFilterValuesRepresentation(valueSeparator, initialFilterValues);
     }
