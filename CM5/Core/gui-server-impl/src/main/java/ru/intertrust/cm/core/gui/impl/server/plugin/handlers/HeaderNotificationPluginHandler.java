@@ -3,13 +3,25 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.gui.navigation.HeaderNotificationConfig;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.CancelHeaderNotificationItem;
+import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationItem;
+import ru.intertrust.cm.core.gui.model.plugin.HeaderNotificationPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by lvov on 26.03.14.
@@ -22,6 +34,9 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
 
     @Autowired
     protected CrudService crudService;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
 
     private final String collectionName = "NewNotifications";
     private final String subjectColumnName = "subject";
@@ -56,9 +71,15 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     }
 
     private ArrayList<HeaderNotificationItem> getNotificationList(){
-
         ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName);
+
+        Filter filter = new Filter();
+        filter.setFilter("byRecipient");
+
+        Id id = currentUserAccessor.getCurrentUserId();
+        filter.addReferenceCriterion(0, id);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, new SortOrder(),
+                Collections.singletonList(filter));
         for (int i =0; i < collection.size(); i++){
             IdentifiableObject identifiableObject = collection.get(i);
             collItems.add(new HeaderNotificationItem(identifiableObject.getId(),
