@@ -134,7 +134,7 @@ public abstract class Plugin extends BaseComponent {
         postSetUp();
     }
 
-    protected void clearHandlers() {
+    public void clearHandlers() {
         for (HandlerRegistration registration : handlerRegistrations) {
             registration.removeHandler();
         }

@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -26,7 +28,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @ComponentName("collection.plugin")
-public class CollectionPlugin extends Plugin {
+public class CollectionPlugin extends Plugin implements SideBarResizeEventHandler {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
@@ -110,7 +112,12 @@ public class CollectionPlugin extends Plugin {
 
     @Override
     protected GwtEvent.Type[] getEventTypesToHandle() {
-        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE};
+        return new GwtEvent.Type[]{CollectionRowSelectedEvent.TYPE, SideBarResizeEvent.TYPE};
+    }
+
+    @Override
+    public void sideBarFixPositionEvent(SideBarResizeEvent event) {
+        ((CollectionPluginView)getView()).sideBarFixPositionEvent(event);
     }
 
 }

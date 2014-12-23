@@ -282,6 +282,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         collectionPlugin.refresh();
     }
 
+    @Override
+    public void clearHandlers() {
+        super.clearHandlers();
+        collectionPlugin.clearHandlers();
+        formPlugin.clearHandlers();
+    }
+
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
 
         @Override

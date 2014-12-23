@@ -13,6 +13,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -837,6 +838,12 @@ public class CollectionPluginView extends PluginView {
                 tableBody.flush();
             }
         });
+    }
+
+    public void sideBarFixPositionEvent(SideBarResizeEvent event) {
+        if (getPluginData().getTableBrowserParams() == null) {
+            columnHeaderController.sideBarFixPositionEvent(event);
+        }
     }
 
     private class ScrollLazyLoadHandler implements ScrollHandler {
