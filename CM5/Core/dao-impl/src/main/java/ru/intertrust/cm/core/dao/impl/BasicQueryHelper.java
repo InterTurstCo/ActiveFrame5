@@ -527,7 +527,7 @@ public abstract class BasicQueryHelper {
     public String generateCreateAclIndexQuery(DomainObjectTypeConfig parentConfig, String tableName, String columnName, int index) {
         tableName = getSqlName(tableName);
         String suffix = null;
-        if (tableName.indexOf(ACL_TABLE_SUFFIX) > 0) {
+        if (tableName.endsWith(ACL_TABLE_SUFFIX)) {
             suffix = ACL_TABLE_SUFFIX;
         } else {
             suffix = READ_TABLE_SUFFIX;
@@ -538,7 +538,7 @@ public abstract class BasicQueryHelper {
     
     protected String createAclIndexName(DomainObjectTypeConfig config, int index, String suffix) {
         StringBuilder builder = new StringBuilder();
-        builder.append("i_").append(getName(getDOTypeConfigId(config).toString(), false)).append("_").append(suffix).append("_").append(index);
+        builder.append("i_").append(getName(getDOTypeConfigId(config).toString(), false)).append(suffix).append("_").append(index);
         return builder.toString();
     }
 
