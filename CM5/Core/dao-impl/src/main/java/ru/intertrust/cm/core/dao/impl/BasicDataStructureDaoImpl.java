@@ -117,8 +117,9 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         if (!config.isTemplate()) {
             jdbcTemplate.update(getQueryHelper().generateCreateAclTableQuery(config));
             jdbcTemplate.update(getQueryHelper().generateCreateAclReadTableQuery(config));
+            createAclIndexes(config);    
         }
-        createAclIndexes(config);
+        
     }
 
     /**
