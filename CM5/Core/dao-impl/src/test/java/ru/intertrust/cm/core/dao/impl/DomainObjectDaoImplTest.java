@@ -62,6 +62,8 @@ public class DomainObjectDaoImplTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
+    private DomainObjectQueryHelper queryHelper;
+
     @Before
     public void setUp() throws Exception {
         initConfigs();
@@ -70,6 +72,10 @@ public class DomainObjectDaoImplTest {
         AccessToken mockAccessToken = createMockAccessToken();
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockAccessToken);
         domainObjectDaoImpl.setAccessControlService(accessControlService);
+
+        queryHelper = new DomainObjectQueryHelper();
+        queryHelper.setConfigurationExplorer(configurationExplorer);
+        domainObjectDaoImpl.setQueryHelper(queryHelper);
     }
 
     @Test
@@ -92,28 +98,6 @@ public class DomainObjectDaoImplTest {
 
         String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
         assertEquals(checkCreateQuery, query);
-    }
-
-    @Test
-    public void testGenerateFindQuery() throws Exception {
-        AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id  and "
-                + "exists (select a.object_id from person_read a  inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-                + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") "
-                + "where gm.person_id = :user_id and o.id = :id)";
-        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken, false));
-    }
-
-    @Test
-    public void testGenerateFindQueryWithLock() throws Exception {
-        AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id  "
-                + "and exists (select a.object_id from person_read a  inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-                + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") "
-                + "where gm.person_id = :user_id and o.id = :id)for update";
-        Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindQuery("Person", accessToken, true));
     }
 
     //@Test Метод update удален, так как непонятно чем он отличается от save

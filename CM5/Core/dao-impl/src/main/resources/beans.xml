@@ -83,6 +83,8 @@
 
     <bean id="personManagement" factory-bean="daoFactory" factory-method="createPersonManagementServiceDao"/>
 
+    <bean id="domainObjectQueryHelper" class="ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper"/>
+
     <bean id="databaseAccessAgent"
           class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
           p:dataSource-ref="dataSource" />
