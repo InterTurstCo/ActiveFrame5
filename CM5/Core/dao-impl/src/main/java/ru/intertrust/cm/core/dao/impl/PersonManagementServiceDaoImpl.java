@@ -39,7 +39,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
-    private DomainObjectQueryHelper queryHelper;
+    private PersonManagementQueryHelper personManagementQueryHelper;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -62,7 +62,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getPersonsInGroup(Id groupId) {
         String typeName = "Person";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
 
         return findMultipleDomainObjects(query, typeName, groupId, accessToken);
     }
@@ -74,7 +74,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
         String typeName = "Person";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
 
         return findMultipleDomainObjects(query, typeName, groupId, accessToken);
     }
@@ -109,7 +109,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getPersonGroups(Id personId) {
         String typeName = "User_Group";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindPersonGroups(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
 
         return findMultipleDomainObjects(query, typeName, personId, accessToken);
     }
@@ -166,7 +166,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getAllParentGroup(Id parent) {
         String typeName = "User_Group";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindAllParentGroups(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
         return findMultipleDomainObjects(query, typeName, parent, accessToken);
     }
 
@@ -174,7 +174,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getChildGroups(Id parent) {
         String typeName = "User_Group";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindChildGroups(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
 
         return findMultipleDomainObjects(query, typeName, parent, accessToken);
     }
@@ -183,7 +183,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public List<DomainObject> getAllChildGroups(Id parent) {
         String typeName = "User_Group";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = queryHelper.generateFindAllChildGroups(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
         return findMultipleDomainObjects(query, typeName, parent, accessToken);
     }
 
@@ -325,13 +325,10 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         String typeName = "User_Group";
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-        String query = queryHelper.generateFindDynamicGroup(typeName, accessToken);
+        String query = personManagementQueryHelper.generateFindDynamicGroup(typeName, accessToken);
 
-        Map<String, Object> parameters = queryHelper.initializeIdParameter(contectId);
+        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(contectId, accessToken);
         parameters.put("name", name);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
 
         DomainObject result = jdbcTemplate.query(query, parameters,
                 new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
@@ -348,10 +345,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     }
 
     private List<DomainObject> findMultipleDomainObjects(String query, String typeName, Id id, AccessToken accessToken) {
-        Map<String, Object> parameters = queryHelper.initializeIdParameter(id);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
+        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(id, accessToken);
 
         List<DomainObject> result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));

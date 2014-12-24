@@ -20,8 +20,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
- * Класс реализации работы с доменным объектом
- * @author atsvetkov
+ * Класс для генерации sql-запросов для работы с доменными объектами
  *
  */
 public class DomainObjectQueryHelper {
@@ -51,164 +50,7 @@ public class DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append("=:id");
 
-        return generateFindQuery(typeName, accessToken, lock, null, whereClause);
-    }
-
-    /**
-     * Создает SQL запрос для нахождения персон из группы
-     * @param typeName тип доменного объекта
-     * @return SQL запрос для нахождения персон из группы
-     */
-    public String generateFindPersonsInGroupQuery(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append("inner join ").append(wrap("group_member")).append(" gm on (").
-                append("gm.").append(wrap("person_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("gm.").append(wrap(getReferenceTypeColumnName("person_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("gm.").append(wrap("usergroup")).append("=:id and gm.").
-                append(wrap(getReferenceTypeColumnName("usergroup"))).append("=:id_type");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создает SQL запрос для нахождения персон группы с учётом наследования
-     * @return SQL запрос для нахождения персон группы с учётом наследования
-     */
-    public String generateFindAllPersonsInGroupQuery(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append("inner join ").append(wrap("group_member")).append(" gm on (").
-                append("gm.").append(wrap("person_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("gm.").append(wrap(getReferenceTypeColumnName("person_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(") ");
-        joinClause.append("inner join ").append(wrap("group_group")).append(" gg on (").
-                append("gg.").append(wrap("child_group_id")).append(" = ").
-                append("gm.").append(wrap("usergroup")).append(" and ").
-                append("gg.").append(wrap(getReferenceTypeColumnName("child_group_id"))).append(" = ").
-                append("gm.").append(wrap(getReferenceTypeColumnName("usergroup"))).append(")");
-
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("gg.").append(wrap("parent_group_id")).append("=:id and gg.").
-                append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создает SQL запрос для групп, в которые входит пользователь
-     * @return SQL запрос для групп, в которые входит пользователь
-     */
-    public String generateFindPersonGroups(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append(" inner join ").append(wrap("group_group")).append(" gg on (").
-                append("gg.").append(wrap("parent_group_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("gg.").append(wrap(getReferenceTypeColumnName("parent_group_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(") ");
-        joinClause.append("inner join ").append(wrap("group_member")).append(" gm on (").
-                append("gm.").append(wrap("usergroup")).append(" = ").
-                append("gg.").append(wrap("child_group_id")).append(" and ").
-                append("gm.").append(wrap(getReferenceTypeColumnName("usergroup"))).append(" = ").
-                append("gg.").append(wrap("child_group_id")).append(")");
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("gm.").append(wrap("person_id")).append("=:id and gm.").
-                append(wrap(getReferenceTypeColumnName("person_id"))).append("=:id_type");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создаёт запрос для нахождения всех родительских групп
-     * @return запрос для нахождения всех родительских групп
-     */
-    public String generateFindAllParentGroups(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append(" inner join ").append(wrap("group_group")).append(" gg on (").
-                append("gg.").append(wrap("parent_group_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("gg.").append(wrap(getReferenceTypeColumnName("parent_group_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("gg.").append(wrap("child_group_id")).append("=:id and gg.").
-                append(wrap(getReferenceTypeColumnName("child_group_id"))).append("=:id_type and (").
-                append(wrap(tableAlias)).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
-                append(wrap(tableAlias)).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создаёт запрос для нахождения всех наследуемых групп
-     * @return запрос для нахождения всех наследуемых групп
-     */
-    public String generateFindChildGroups(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append(" inner join ").append(wrap("group_group_settings")).append(" ggs on (").
-                append("ggs.").append(wrap("child_group_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("ggs.").append(wrap(getReferenceTypeColumnName("child_group_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("ggs.").append(wrap("parent_group_id")).append("=:id and ggs.").
-                append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создаёт запрос для нахождения всех порожденных групп с учётом наследования
-     * @return запрос для нахождения всех порожденных групп с учётом наследования
-     */
-    public String generateFindAllChildGroups(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder joinClause = new StringBuilder();
-        joinClause.append(" inner join ").append(wrap("group_group")).append(" gg on (").
-                append("gg.").append(wrap("child_group_id")).append(" = ").
-                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
-                append("gg.").append(wrap(getReferenceTypeColumnName("child_group_id"))).append(" = ").
-                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append("gg.").append(wrap("parent_group_id")).append("=:id and gg.").
-                append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type and (").
-                append(wrap(tableAlias)).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
-                append(wrap(tableAlias)).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
-
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause);
-    }
-
-    /**
-     * Создаёт запрос для нахождения динамической группы
-     * @return запрос для нахождения динамической группы
-     */
-    public String generateFindDynamicGroup(String typeName, AccessToken accessToken) {
-        String tableAlias = getSqlAlias(typeName);
-
-        StringBuilder whereClause = new StringBuilder();
-        whereClause.append(wrap(tableAlias)).append(".").append(wrap("object_id")).append("=:id and ").
-                append(wrap(tableAlias)).append(".").append(wrap(getReferenceTypeColumnName("object_id"))).append("=:id_type and ").
-                append(wrap(tableAlias)).append(".").append(wrap("group_name")).append("=:name");
-
-        return generateFindQuery(typeName, accessToken, false, null, whereClause);
+        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null);
     }
 
     /**
@@ -218,29 +60,58 @@ public class DomainObjectQueryHelper {
      *            идентификатор доменного объекта
      * @return карту объектов содержащую имя параметра и его значение
      */
-    public Map<String, Object> initializeIdParameter(Id id) {
+    public Map<String, Object> initializeParameters(Id id) {
         RdbmsId rdbmsId = (RdbmsId) id;
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", rdbmsId.getId());
         parameters.put("id_type", rdbmsId.getTypeId());
         return parameters;
     }
 
     /**
-     * Инициализация параметров для отложенной провеки доступа.
+     * Инициализирует параметры прав доступа
      *
-     * @param accessToken
-     * @return
+     * @param accessToken accessToken
+     * @return карту объектов содержащую имя параметра и его значение
      */
-    public Map<String, Object> getAclParameters(AccessToken accessToken) {
-        long userId = ((UserSubject) accessToken.getSubject()).getUserId();
+    public Map<String, Object> initializeParameters(AccessToken accessToken) {
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("user_id", userId);
+
+        if (accessToken.isDeferred()) {
+            long userId = ((UserSubject) accessToken.getSubject()).getUserId();
+            parameters.put("user_id", userId);
+        }
+
         return parameters;
     }
 
-    private String generateFindQuery(String typeName, AccessToken accessToken, boolean lock, StringBuilder joinClause,
-                                     StringBuilder whereClause) {
+    /**
+     * Инициализирует параметры прав доступа и идентификатора
+     *
+     * @param accessToken accessToken
+     * @param id accessToken
+     * @return карту объектов содержащую имена параметров и их значения
+     */
+    public Map<String, Object> initializeParameters(Id id, AccessToken accessToken) {
+        Map<String, Object> parameters = initializeParameters(accessToken);
+        parameters.putAll(initializeParameters(id));
+        return parameters;
+    }
+
+    /**
+     * Возвращает имя типа или исходное имя типа, если передан активити-лог-тип
+     * @param typeName имя типа
+     * @return имя типа или исходное имя типа, если передан активити-лог-тип
+     */
+    public String getRelevantType(String typeName) {
+        if (configurationExplorer.isAuditLogType(typeName)) {
+            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        }
+        return typeName;
+    }
+
+    protected String generateFindQuery(String typeName, AccessToken accessToken, boolean lock, StringBuilder joinClause,
+                                     StringBuilder whereClause, StringBuilder orderClause) {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
@@ -255,6 +126,10 @@ public class DomainObjectQueryHelper {
 
         query.append(" where ").append(whereClause);
         appendAccessRightsPart(typeName, accessToken, tableAlias, query);
+
+        if (orderClause != null) {
+            query.append(" order by ").append(orderClause);
+        }
 
         if (lock) {
             query.append(" for update");
@@ -397,12 +272,5 @@ public class DomainObjectQueryHelper {
 
     private boolean isDerived(DomainObjectTypeConfig domainObjectTypeConfig) {
         return domainObjectTypeConfig.getExtendsAttribute() != null;
-    }
-
-    public String getRelevantType(String typeName) {
-        if (configurationExplorer.isAuditLogType(typeName)) {
-            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
-        }
-        return typeName;
     }
 }

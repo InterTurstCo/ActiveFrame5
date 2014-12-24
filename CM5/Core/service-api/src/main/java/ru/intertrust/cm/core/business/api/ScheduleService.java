@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
+import ru.intertrust.cm.core.dao.api.SchedulerDao;
 
 /**
  * Сервис периодических заданий
@@ -34,7 +35,7 @@ public interface ScheduleService {
     public static final String SCHEDULE_LAST_RUN = "last_run";
     public static final String SCHEDULE_LAST_END = "last_end";
     
-    public static final String SCHEDULE_STATUS_SLEEP = "Sleep";
+    public static final String SCHEDULE_STATUS_SLEEP = SchedulerDao.SCHEDULE_STATUS_SLEEP;
     public static final String SCHEDULE_STATUS_READY = "Ready";
     public static final String SCHEDULE_STATUS_WAIT = "Wait";
     public static final String SCHEDULE_STATUS_RUN = "Run";

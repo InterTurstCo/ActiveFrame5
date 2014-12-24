@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -13,23 +11,23 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Юнит тест для DomainObjectQueryHelper
- */
-@RunWith(MockitoJUnitRunner.class)
-public class DomainObjectQueryHelperTest {
+public class SchedulerQueryHelperTest {
 
-    private static final String ACCESS_RIGHTS_PART = " and exists (select a.object_id from person_read a  " +
+    private static final String ACCESS_RIGHTS_PART = " and exists (select a.object_id from schedule_read a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") ";
+            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
 
-    private final DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
+    private static final String ACCESS_RIGHTS_PART2 = " and exists (select a.object_id from schedule_read a  " +
+            "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
+            + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
+
+    private final SchedulerQueryHelper queryHelper = new SchedulerQueryHelper();
 
     private ConfigurationExplorerImpl configurationExplorer;
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
-
 
     @Before
     public void setUp() throws Exception {
@@ -37,19 +35,26 @@ public class DomainObjectQueryHelperTest {
     }
 
     @Test
-    public void testGenerateFindQuery() throws Exception {
+    public void testGenerateFindTasksByStatusQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id" +
-                ACCESS_RIGHTS_PART + "where gm.person_id = :user_id and o.id = :id)";
-        Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, false));
+        String expectedQuery = "select schedule.* from \"schedule\" schedule inner join \"status\" s on " +
+                "(s.\"id\" = schedule.\"status\" and s.\"id_type\" = schedule.\"status_type\") " +
+                "where s.\"name\"=:status and active = 1" + ACCESS_RIGHTS_PART + " order by schedule.\"priority\"";
+        Assert.assertEquals(expectedQuery, queryHelper.generateFindTasksByStatusQuery("schedule", accessToken, true));
+
+        String expectedQuery2 = "select schedule.* from \"schedule\" schedule inner join \"status\" s on " +
+                "(s.\"id\" = schedule.\"status\" and s.\"id_type\" = schedule.\"status_type\") " +
+                "where s.\"name\"=:status" + ACCESS_RIGHTS_PART + " order by schedule.\"priority\"";
+        Assert.assertEquals(expectedQuery2, queryHelper.generateFindTasksByStatusQuery("schedule", accessToken, false));
     }
 
     @Test
-    public void testGenerateFindQueryWithLock() throws Exception {
+    public void testGenerateFindNotInStatusTasksQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id"
-                + ACCESS_RIGHTS_PART + "where gm.person_id = :user_id and o.id = :id) for update";
-        Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, true));
+        String expectedQuery = "select schedule.* from \"schedule\" schedule  inner join \"status\" s on " +
+                "(s.\"id\" = schedule.\"status\" and s.\"id_type\" = schedule.\"status_type\") " +
+                "where s.\"name\"!=:status" + ACCESS_RIGHTS_PART;
+        Assert.assertEquals(expectedQuery, queryHelper.generateFindNotInStatusTasksQuery("schedule", accessToken));
     }
 
     private void initConfigs() {
@@ -110,15 +115,28 @@ public class DomainObjectQueryHelperTest {
 
         assignment.getFieldConfigs().add(author);
 
+        DomainObjectTypeConfig schedule = new DomainObjectTypeConfig();
+        schedule.setName("schedule");
+
+        StringFieldConfig scheduleName = new StringFieldConfig();
+        scheduleName.setName("name");
+        schedule.getFieldConfigs().add(scheduleName);
+
+        StringFieldConfig taskClass = new StringFieldConfig();
+        taskClass.setName("task_class");
+        schedule.getFieldConfigs().add(taskClass);
+
+
         Configuration configuration = new Configuration();
         configuration.getConfigurationList().add(domainObjectTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
         configuration.getConfigurationList().add(externalEmployee);
         configuration.getConfigurationList().add(assignment);
         configuration.getConfigurationList().add(globalSettings);
+        configuration.getConfigurationList().add(schedule);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        queryHelper.setConfigurationExplorer(configurationExplorer);
     }
 
     private AccessToken createMockAccessToken() {
@@ -130,5 +148,4 @@ public class DomainObjectQueryHelperTest {
         when(accessToken.getSubject()).thenReturn(subject);
         return accessToken;
     }
-
 }

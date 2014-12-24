@@ -64,9 +64,7 @@ import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
@@ -137,7 +135,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private EventLogService eventLogService;
     
     @Autowired
-    private DomainObjectQueryHelper queryHelper;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     @Autowired
     private AfterCommitExtensionPointService afterCommitExtensionPointService;
@@ -156,8 +154,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void setQueryHelper(DomainObjectQueryHelper queryHelper) {
-        this.queryHelper = queryHelper;
+    public void setDomainObjectQueryHelper(DomainObjectQueryHelper domainObjectQueryHelper) {
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -691,7 +689,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object>[] parameters = new Map[deletedIds.length];
         int i = 0;
         for (Id deletedId : deletedIds) {
-            parameters[i++] = queryHelper.initializeIdParameter(deletedId);
+            parameters[i++] = domainObjectQueryHelper.initializeParameters(deletedId);
         }
 
 
@@ -847,12 +845,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
         String typeName = getDOTypeName(rdbmsId.getTypeId());
 
-        String query = queryHelper.generateFindQuery(typeName, accessToken, false);
-
-        Map<String, Object> parameters = queryHelper.initializeIdParameter(rdbmsId);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
+        String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, false);
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
 
         DomainObject result = jdbcTemplate.query(query, parameters,
                 new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
@@ -880,12 +874,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
         String typeName = getDOTypeName(rdbmsId.getTypeId());
 
-        String query = queryHelper.generateFindQuery(typeName, accessToken, true);
-
-        Map<String, Object> parameters = queryHelper.initializeIdParameter(rdbmsId);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
+        String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, true);
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
 
         DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
@@ -939,14 +929,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String query = generateFindAllQuery(domainObjectType, exactType, offset, limit, accessToken);
 
-        Map<String, Object> parameters = new HashMap<>();
-
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         if (exactType) {
             parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(domainObjectType));
-        }
-
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
         }
 
         result = jdbcTemplate.query(query, parameters,
@@ -1031,7 +1016,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     .append(wrap("child_group_id")).append(" = gm." + wrap("usergroup"));
             query.append(" where gm.person_id = :user_id and t.id in (:object_ids) ");
 
-            aclParameters = queryHelper.getAclParameters(accessToken);
+            aclParameters = domainObjectQueryHelper.initializeParameters(accessToken);
 
         } else {
             query.append("select ");
@@ -1048,10 +1033,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             List<Long> listIds = AccessControlUtility
                     .convertRdbmsIdsToLongIds(new ArrayList<>(idsToRead));
             parameters.put("object_ids", listIds);
-
-            if (accessToken.isDeferred()) {
-                parameters.putAll(aclParameters);
-            }
+            parameters.putAll(aclParameters);
 
             readDomainObjects = jdbcTemplate.query(query
                     .toString(), parameters, new MultipleObjectRowMapper(
@@ -1110,7 +1092,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
         }
 
-        Map<String, Object> parameters = new HashMap<>();
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
         parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
         if (exactType) {
@@ -1118,9 +1100,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
 
         List<DomainObject> domainObjects = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(linkedType, configurationExplorer, domainObjectTypeIdCache));
@@ -1177,7 +1156,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
         }
 
-        Map<String, Object> parameters = new HashMap<>();
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
         parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
         if (exactType) {
@@ -1185,9 +1164,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         String query = buildFindChildrenIdsQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
-        if (accessToken.isDeferred()) {
-            parameters.putAll(queryHelper.getAclParameters(accessToken));
-        }
 
         return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
     }
@@ -1207,7 +1183,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
-        Map<String, Object> parameters = queryHelper.initializeIdParameter(rdbmsId);
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId);
 
         if (!isDerived(domainObjectTypeConfig)) {
             parameters.put("created_date",
@@ -1288,7 +1264,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            typeName = queryHelper.getRelevantType(typeName);
+            typeName = domainObjectQueryHelper.getRelevantType(typeName);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
             String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
             String aclReadTable = null;
@@ -1770,11 +1746,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String originalLinkedType = DataStructureNamingHelper.getSqlName(linkedType);
         
         // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
-        linkedType = queryHelper.getRelevantType(linkedType);
+        linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
         //Добавляем учет ReadPermittedToEverybody
         if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
          // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            linkedType = queryHelper.getRelevantType(linkedType);
+            linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
             String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(linkedType);
             String childAclReadTable = null;

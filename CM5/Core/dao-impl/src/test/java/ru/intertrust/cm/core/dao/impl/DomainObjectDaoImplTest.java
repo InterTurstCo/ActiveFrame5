@@ -75,7 +75,7 @@ public class DomainObjectDaoImplTest {
 
         queryHelper = new DomainObjectQueryHelper();
         queryHelper.setConfigurationExplorer(configurationExplorer);
-        domainObjectDaoImpl.setQueryHelper(queryHelper);
+        domainObjectDaoImpl.setDomainObjectQueryHelper(queryHelper);
     }
 
     @Test

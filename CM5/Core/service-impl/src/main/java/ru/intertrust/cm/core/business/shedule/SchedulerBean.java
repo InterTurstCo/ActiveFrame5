@@ -43,10 +43,7 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "SchedulerBean")
@@ -92,6 +89,9 @@ public class SchedulerBean {
 
     @Autowired
     private PersonManagementServiceDao personManagementService;
+
+    @Autowired
+    private SchedulerDao schedulerDao;
     
     private static List<StartedTask> startedTasks = new ArrayList<StartedTask>();
 
@@ -110,7 +110,7 @@ public class SchedulerBean {
                 //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
                 //на случай если они не завершились по причине остановки сервера приложений
                 if (firstRun) {
-                    List<DomainObject> notSleepTasks = getNotSleepTasks();
+                    List<DomainObject> notSleepTasks = schedulerDao.getNonSleepTasks();
                     for (DomainObject notSleepTask : notSleepTasks) {
                         domainObjectDao.setStatus(notSleepTask.getId(),
                                 statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
@@ -125,7 +125,7 @@ public class SchedulerBean {
                 }
 
                 //Получение всех периодических заданий находящихся в статусе SLEEP
-                List<DomainObject> tasks = getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
+                List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
 
                 //Проверка прохождения фильтра по расписанию
                 for (DomainObject task : tasks) {
@@ -240,7 +240,7 @@ public class SchedulerBean {
             SecurityException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         //Получение всех задач в статусе Ready
-        List<DomainObject> tasks = getTasksByStatus(ScheduleService.SCHEDULE_STATUS_READY, false);
+        List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_READY, false);
 
         //Запуск задач путем асинхронного вызова ScheduleProcessor
         for (DomainObject task : tasks) {
@@ -313,47 +313,6 @@ public class SchedulerBean {
             result = now % Integer.parseInt(field.substring(2)) == 0;
         }
 
-        return result;
-    }
-
-    /**
-     * Получение задач в определенном статусе
-     * @param status
-     * @return
-     */
-    private List<DomainObject> getTasksByStatus(String status, boolean activeOnly) {
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        String query =
-                "select t.id from schedule t inner join status s on t.status = s.id where s.name = '" + status + "' ";
-        if (activeOnly) {
-            query += "and active = 1 ";
-        }
-        query += "order by t.priority";
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
-        for (IdentifiableObject identifiableObject : collection) {
-            DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
-            result.add(task);
-        }
-        return result;
-    }
-
-    /**
-     * Получение всех задач у которых статус отличен от ScheduleService.SCHEDULE_STATUS_SLEEP
-     * @return
-     */
-    private List<DomainObject> getNotSleepTasks() {
-        List<DomainObject> result = new ArrayList<DomainObject>();
-        String query =
-                "select t.id from schedule t inner join status s on t.status = s.id where s.name != '"
-                        + ScheduleService.SCHEDULE_STATUS_SLEEP + "' ";
-
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
-        for (IdentifiableObject identifiableObject : collection) {
-            DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
-            result.add(task);
-        }
         return result;
     }
 

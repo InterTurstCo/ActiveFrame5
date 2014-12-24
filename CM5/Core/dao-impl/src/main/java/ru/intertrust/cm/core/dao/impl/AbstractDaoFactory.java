@@ -51,4 +51,9 @@ public abstract class AbstractDaoFactory implements DaoFactory {
     public StatusDao createStatusDao() {
         return new StatusDaoImpl();
     }
+
+    @Override
+    public SchedulerDao createSchedulerDao() {
+        return new SchedulerDaoImpl();
+    }
 }

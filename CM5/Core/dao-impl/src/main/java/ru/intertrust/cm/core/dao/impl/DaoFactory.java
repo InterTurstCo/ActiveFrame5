@@ -69,4 +69,10 @@ public interface DaoFactory {
      * @return IdGenerator
      */
     IdGenerator createIdGenerator();
+
+    /**
+     * Создаёт SchedulerDao
+     * @return SchedulerDao
+     */
+    SchedulerDao createSchedulerDao();
 }

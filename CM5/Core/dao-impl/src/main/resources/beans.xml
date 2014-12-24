@@ -81,9 +81,15 @@
 
     <bean id="auditServiceDao" factory-bean="daoFactory" factory-method="createAuditLogServiceDao"/>
 
+    <bean id="schedulerDao" factory-bean="daoFactory" factory-method="createSchedulerDao"/>
+
     <bean id="personManagement" factory-bean="daoFactory" factory-method="createPersonManagementServiceDao"/>
 
     <bean id="domainObjectQueryHelper" class="ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper"/>
+
+    <bean id="personManagementQueryHelper" class="ru.intertrust.cm.core.dao.impl.PersonManagementQueryHelper"/>
+
+    <bean id="schedulerQueryHelper" class="ru.intertrust.cm.core.dao.impl.SchedulerQueryHelper"/>
 
     <bean id="databaseAccessAgent"
           class="ru.intertrust.cm.core.dao.impl.access.PostgresDatabaseAccessAgent"
