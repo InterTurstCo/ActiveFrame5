@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
-import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -28,6 +28,9 @@ public class SummaryTableConfig implements Dto {
         return summaryTableColumnConfigList;
     }
 
+    @Element(name="summary-table-actions-column",required = false)
+    private SummaryTableActionsColumnConfig summaryTableActionsColumnConfig;
+
     public void setSummaryTableColumnConfigList(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
     }
@@ -35,6 +38,14 @@ public class SummaryTableConfig implements Dto {
     @Deprecated
     public void setSummaryTableColumnConfig(List<SummaryTableColumnConfig> summaryTableColumnConfigList) {
         this.summaryTableColumnConfigList = summaryTableColumnConfigList;
+    }
+
+    public SummaryTableActionsColumnConfig getSummaryTableActionsColumnConfig() {
+        return summaryTableActionsColumnConfig;
+    }
+
+    public void setSummaryTableActionsColumnConfig(SummaryTableActionsColumnConfig summaryTableActionsColumnConfig) {
+        this.summaryTableActionsColumnConfig = summaryTableActionsColumnConfig;
     }
 
     @Override

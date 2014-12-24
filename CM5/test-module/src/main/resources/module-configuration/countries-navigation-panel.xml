@@ -314,7 +314,7 @@
                                 <collection-ref name="letters"/>
 
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit>true</toggle-edit>
                             <!--<form-viewer>
                                 <form-mapping domain-object-type="letter" form="letter_form">
                                     <field-path value="subject">

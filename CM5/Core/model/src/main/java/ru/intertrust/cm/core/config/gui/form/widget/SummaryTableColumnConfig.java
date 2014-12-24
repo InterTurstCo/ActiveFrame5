@@ -19,6 +19,9 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
     @Attribute(name = "widget-id", required = false)
     private String widgetId;
 
+    @Element(name="action",required = false)
+    private SummaryTableActionColumnConfig summaryTableActionColumnConfig;
+
     @Element(name="widget-id-mappings",required = false)
     private WidgetIdMappingsConfig widgetIdMappingsConfig;
 
@@ -95,5 +98,13 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
 
     public void setValueGeneratorComponent(String valueGeneratorComponent) {
         this.valueGeneratorComponent = valueGeneratorComponent;
+    }
+
+    public SummaryTableActionColumnConfig getSummaryTableActionColumnConfig() {
+        return summaryTableActionColumnConfig;
+    }
+
+    public void setSummaryTableActionColumnConfig(SummaryTableActionColumnConfig summaryTableActionColumnConfig) {
+        this.summaryTableActionColumnConfig = summaryTableActionColumnConfig;
     }
 }

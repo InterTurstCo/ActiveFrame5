@@ -83,7 +83,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         model.addDataDisplay(table);
         drawTooltipButtonIfRequired();
         if (addButton != null) {
-            if(addButtonHandlerRegistration != null) {
+            if (addButtonHandlerRegistration != null) {
                 addButtonHandlerRegistration.removeHandler();
             }
             addButtonHandlerRegistration = addHandlersToAddButton(addButton);
@@ -432,7 +432,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 currentState.getIds().remove(rowItem.getObjectId());
                 currentState.getRowItems().remove(rowItem);
                 hasRemovedItems = true;
-
             }
         }
         currentState.decrementFilteredItemsNumber();
@@ -524,7 +523,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     }
 
-    public class TableFieldUpdater implements FieldUpdater<RowItem, String> {
+    public class TableFieldUpdater implements FieldUpdater<RowItem, ColumnContext> {
         private ListDataProvider<RowItem> model;
         private boolean tooltipContent;
 
@@ -542,7 +541,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
 
         @Override
-        public void update(final int index, final RowItem object, String value) {
+        public void update(final int index, final RowItem object, ColumnContext value) {
             DialogBoxAction saveAction = new DialogBoxAction() {
                 @Override
                 public void execute(FormPlugin formPlugin) {

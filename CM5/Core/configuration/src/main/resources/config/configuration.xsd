@@ -1777,7 +1777,8 @@
                     <xs:element type="con:fieldPathType" name="field-path"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
-                                xmlns:con="https://cm5.intertrust.ru/config"/> <!--Deprecated use con:linkedFormMappingType instead-->
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <!--Deprecated use con:linkedFormMappingType instead-->
                     <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:createdObjectsType" name="created-objects"
@@ -1805,6 +1806,8 @@
             <xs:element type="con:summaryTableColumnType"
                         name="summary-table-column" maxOccurs="unbounded"
                         minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:summaryTableActionsColumn" name="summary-table-actions-column"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="form-name"/>
     </xs:complexType>
@@ -1969,7 +1972,8 @@
                     <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
-                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/> <!--Deprecated use con:linkedFormMappingType instead-->
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <!--Deprecated use con:linkedFormMappingType instead-->
                     <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                                 minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:createdObjectsType" name="created-objects"
@@ -2166,7 +2170,8 @@
                     <xs:element type="con:selectionSortCriteriaType" name="selection-sort-criteria"
                                 minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
-                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/> <!--Deprecated use con:linkedFormMappingType instead-->
+                                minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <!--Deprecated use con:linkedFormMappingType instead-->
                     <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="con:createdObjectsType" name="created-objects"
@@ -2192,7 +2197,8 @@
                     <xs:element type="con:linkedFormMappingType" name="linked-form-mapping"
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
                     <xs:element type="con:linkedFormType" name="linked-form"
-                                xmlns:con="https://cm5.intertrust.ru/config"/><!--Deprecated use con:linkedFormMappingType instead-->
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <!--Deprecated use con:linkedFormMappingType instead-->
                     <xs:element type="con:patternType" name="pattern"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:selectionStyleType" name="selection-style"
@@ -2699,6 +2705,8 @@
     </xs:complexType>
     <xs:complexType name="summaryTableColumnType">
         <xs:sequence>
+            <xs:element type="con:summaryTableColumnActionType" name="action"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
             <xs:element type="con:widgetIdMappingsType" name="widget-id-mappings"
                         xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" maxOccurs="1"/>
             <xs:element type="con:linkedTablePatternType" name="pattern"
@@ -3202,28 +3210,33 @@
                     <xs:element name="calendar-view" minOccurs="1" maxOccurs="1">
                         <xs:complexType>
                             <xs:sequence>
-                                <xs:element name="collection-ref" type="con:collectionRefType" minOccurs="1" maxOccurs="1"/>
-                                <xs:element name="date-field-path" type="con:fieldPathType" minOccurs="1" maxOccurs="1"/>
+                                <xs:element name="collection-ref" type="con:collectionRefType" minOccurs="1"
+                                            maxOccurs="1"/>
+                                <xs:element name="date-field-path" type="con:fieldPathType" minOccurs="1"
+                                            maxOccurs="1"/>
                                 <xs:element name="date-field-filter" minOccurs="1" maxOccurs="1">
                                     <xs:complexType>
                                         <xs:attribute name="name" type="xs:string" use="required"/>
                                         <xs:attribute name="type" type="con:columnFieldTypeEnum" use="required"/>
                                     </xs:complexType>
                                 </xs:element>
-                                <xs:element name="sort-criteria" type="con:sortCriteriaType" minOccurs="0" maxOccurs="1"/>
+                                <xs:element name="sort-criteria" type="con:sortCriteriaType" minOccurs="0"
+                                            maxOccurs="1"/>
                                 <xs:element name="renderer" type="con:uiRendererType" minOccurs="0" maxOccurs="1"/>
                                 <xs:element name="month-item" type="con:calendarItemType" minOccurs="0" maxOccurs="1"/>
                                 <xs:element name="day-items" minOccurs="0" maxOccurs="1">
                                     <xs:complexType>
                                         <xs:sequence>
-                                            <xs:element name="day-item" type="con:calendarItemType" minOccurs="1" maxOccurs="unbounded"/>
+                                            <xs:element name="day-item" type="con:calendarItemType" minOccurs="1"
+                                                        maxOccurs="unbounded"/>
                                         </xs:sequence>
                                     </xs:complexType>
                                 </xs:element>
                                 <xs:element name="image-field" minOccurs="0" maxOccurs="1">
                                     <xs:complexType>
                                         <xs:sequence>
-                                            <xs:element name="image-mappings" type="con:imageMappingsType" minOccurs="1" maxOccurs="1"/>
+                                            <xs:element name="image-mappings" type="con:imageMappingsType" minOccurs="1"
+                                                        maxOccurs="1"/>
                                         </xs:sequence>
                                         <xs:attribute name="name" type="xs:string" use="required"/>
                                     </xs:complexType>
@@ -3276,7 +3289,7 @@
     <xs:complexType name="extraParamType">
         <xs:complexContent>
             <xs:extension base="con:complicatedParamType">
-                <xs:attribute name="widget-id" type="xs:string"  use="optional"/>
+                <xs:attribute name="widget-id" type="xs:string" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -3303,7 +3316,7 @@
 
     <xs:complexType name="extraFilterType">
         <xs:sequence>
-            <xs:element name="param" type="con:extraParamType"  minOccurs="0" maxOccurs="unbounded"
+            <xs:element name="param" type="con:extraParamType" minOccurs="0" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
@@ -3327,7 +3340,7 @@
     <xs:complexType name="patternDomainObjectTypes">
         <xs:sequence>
             <xs:element type="con:patternDomainObjectType" name="domain-object-type"
-                    minOccurs="1" maxOccurs="unbounded"/>
+                        minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="patternDomainObjectType">
@@ -3357,15 +3370,15 @@
                     <xs:sequence>
                         <xs:element name="delete-all" minOccurs="0" maxOccurs="unbounded">
                             <xs:complexType>
-                                <xs:attribute name="doel" type="xs:string" use="required" />
+                                <xs:attribute name="doel" type="xs:string" use="required"/>
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
-                    <xs:attribute name="import-type" type="xs:string" use="required" />
+                    <xs:attribute name="import-type" type="xs:string" use="required"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" type="xs:string" use="required" />
+        <xs:attribute name="name" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:element type="con:tableViewerType" name="table-viewer" substitutionGroup="con:widget"/>
@@ -3389,4 +3402,49 @@
         </xs:complexContent>
     </xs:complexType>
 
+
+    <xs:complexType name="summaryTableColumnActionType">
+        <xs:sequence>
+            <xs:element name="display" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="image">
+                            <xs:complexType>
+                                <xs:attribute name="url" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                        <xs:element name="text">
+                            <xs:complexType>
+                                <xs:attribute name="value" type="xs:string"/>
+                            </xs:complexType>
+                        </xs:element>
+                    </xs:sequence>
+                    <xs:attribute name="position" type="con:positionType"/>
+                    <xs:attribute name="tooltip" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="component-name" type="xs:string"/>
+        <xs:attribute name="access-checker" type="xs:string"/>
+        <xs:attribute name="new-objects-access-checker" type="xs:string"/>
+        <xs:attribute name="type" type="con:typeEnum"/>
+        <xs:attribute name="tooltip" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="summaryTableActionsColumn">
+        <xs:sequence>
+            <xs:element type="con:summaryTableColumnActionType" name="action" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="positionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="before"/>
+            <xs:enumeration value="after"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="typeEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="edit"/>
+            <xs:enumeration value="delete"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

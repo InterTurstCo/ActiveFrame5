@@ -343,6 +343,15 @@
 
                 <summary-table>
                     <summary-table-column header="Название" widget-id="Name">
+                        <action component-name="default.linked.table.action"
+                                access-checker="attachment.read.access.checker"
+                                new-objects-access-checker="attachment.write.access.checker"
+                                tooltip="Скачать">
+                            <display position="before" tooltip="Скачать">
+                                <image url="/images/icons/ico-save.gif"/>
+                                <text value="Скачать"/>
+                            </display>
+                        </action>
                         <widget-id-mappings>
                             <widget-id-mapping linked-form-name="organization_form" widget-id="Name"/>
                             <widget-id-mapping linked-form-name="employee_form" widget-id="Name"/>

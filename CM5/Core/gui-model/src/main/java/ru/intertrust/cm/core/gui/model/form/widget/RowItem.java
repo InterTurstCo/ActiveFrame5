@@ -66,4 +66,13 @@ public class RowItem implements Dto {
         result = 31 * result + (objectId != null ? objectId.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "RowItem{" +
+                "values=" + values +
+                ", additionalParams=" + additionalParams +
+                ", objectId=" + objectId +
+                '}';
+    }
 }
