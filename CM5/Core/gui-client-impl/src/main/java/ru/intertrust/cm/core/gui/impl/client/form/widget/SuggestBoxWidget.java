@@ -78,6 +78,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -102,11 +103,14 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private LazyLoadState lazyLoadState;
     private int lastScrollPos;
     private SuggestBoxState currentState;
+    private Set<Id> selectedIds = new HashSet<>();
 
 
     @Override
     public void setCurrentState(WidgetState state) {
-        currentState = cloneState(state);
+        currentState = (SuggestBoxState)state;
+        selectedIds.clear();
+        selectedIds.addAll(currentState.getSelectedIds());
 
         suggestBoxConfig = currentState.getSuggestBoxConfig();
         if (isEditable()) {
@@ -142,14 +146,14 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     @Override
     protected boolean isChanged() {
         Set<Id> initialSelectedIds = ((SuggestBoxState) getInitialData()).getSelectedIds();
-        Set<Id> currentSelectedIds = currentState.getSelectedIds();
+        Set<Id> currentSelectedIds = selectedIds;
         return initialSelectedIds == null ? currentSelectedIds != null : !initialSelectedIds.equals(currentSelectedIds);
     }
 
     @Override
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
-        state.setSelectedIds(currentState.getSelectedIds());
+        state.setSelectedIds(selectedIds);
         return state;
     }
 
@@ -158,14 +162,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         if (!isEditable()) {
             return super.getFullClientStateCopy();
         }
-        return cloneState(currentState);
-
-    }
-
-    private SuggestBoxState cloneState(WidgetState stateToClone) {
-        SuggestBoxState currentState = (SuggestBoxState)stateToClone;
         SuggestBoxState state = new SuggestBoxState();
-        state.setSelectedIds(new LinkedHashSet(currentState.getSelectedIds()));
+        state.setSelectedIds(currentState.getSelectedIds());
         state.setSingleChoice(currentState.isSingleChoice());
         state.setSuggestBoxConfig(currentState.getSuggestBoxConfig());
         state.setWidgetProperties(currentState.getWidgetProperties());
@@ -313,7 +311,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             }
 
         }
-        currentState.getSelectedIds().add(id);
+        selectedIds.add(id);
         presenter.changeSuggestInputWidth();
         suggestBox.setText(EMPTY_VALUE);
         suggestBox.setFocus(true);
@@ -396,7 +394,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
         result.setDropdownPattern(dropDownPatternConfig);
         result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
-        result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
+        result.setExcludeIds(new LinkedHashSet<Id>(selectedIds));
         result.setComplicatedFiltersParams(createFiltersParams(requestQuery));
         result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
@@ -417,7 +415,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     @Override
     public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
-        currentState.getSelectedIds().remove(event.getId());
+        selectedIds.remove(event.getId());
         if (event.isTooltipContent()) {
             currentState.getTooltipValues().remove(event.getId());
         } else {
@@ -546,7 +544,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         private void removeSuggestItemFromStates(Id id) {
             selectedSuggestions.remove(id);
             currentState.getListValues().remove(id);
-            currentState.getSelectedIds().remove(id);
+            selectedIds.remove(id);
             currentState.decrementFilteredItemsNumber();
             suggestBox.setFocus(true);
         }
@@ -644,7 +642,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         currentState.getListValues().clear();
                         selectedSuggestions.clear();
                         currentState.evictTooltipItems();
-                        currentState.getSelectedIds().clear();
+                        selectedIds.clear();
                         clearAll();
 
                     }
@@ -743,7 +741,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
             }
             if (currentState.isSingleChoice()) {
-                currentState.getSelectedIds().clear();
+                selectedIds.clear();
                 clearAllItems();
                 currentState.getListValues().clear();
             }
