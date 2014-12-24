@@ -73,6 +73,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private CollectionPlugin collectionPlugin;
     private String collectionName;
     private CollectionViewerConfig initialCollectionViewerConfig;
+    private Set<Id> initiallySelectedIds = new HashSet<>();
 
     public TableBrowserWidget() {
         super();
@@ -81,16 +82,19 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     @Override
     public void setCurrentState(WidgetState state) {
         initialData = state;
-        currentState = cloneState(state);
+        currentState = (TableBrowserState)state;
         currentState.resetTemporaryState();
         viewHolder.setContent(state);
+        initiallySelectedIds.clear();
+        if (currentState.getSelectedIds() != null) {
+            initiallySelectedIds.addAll(currentState.getSelectedIds());
+        }
     }
 
     @Override
     protected boolean isChanged() {
-        Set<Id> initialSelectedIds = ((TableBrowserState)initialData).getSelectedIds();
-        Set<Id> currentSelectedIds = currentState.getSelectedIds();
-        return initialSelectedIds == null ? currentSelectedIds != null : !initialSelectedIds.equals(currentSelectedIds);
+        Set<Id> currentlySelectedIds = currentState.getSelectedIds();
+        return currentlySelectedIds == null ? !initiallySelectedIds.isEmpty() : !currentlySelectedIds.equals(initiallySelectedIds);
     }
 
 
@@ -107,23 +111,17 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         if (!isEditable()) {
             return super.getFullClientStateCopy();
         }
-        TableBrowserState fullClientState = cloneState(getInitialData());
+        TableBrowserState stateWithItems = createNewState();
+        TableBrowserState fullClientState = new TableBrowserState();
+        fullClientState.setListValues(stateWithItems.getListValues());
+        fullClientState.setSelectedIds(stateWithItems.getSelectedIds());
+        TableBrowserState initialState = getInitialData();
+        fullClientState.setSingleChoice(initialState.isSingleChoice());
+        fullClientState.setTableBrowserConfig(initialState.getTableBrowserConfig());
+        fullClientState.setDomainFieldOnColumnNameMap(initialState.getDomainFieldOnColumnNameMap());
+        fullClientState.setWidgetProperties(initialState.getWidgetProperties());
+        fullClientState.setConstraints(initialState.getConstraints());
         return fullClientState;
-    }
-
-    private TableBrowserState cloneState(WidgetState stateToClone) {
-        TableBrowserState currentState = (TableBrowserState)stateToClone;
-        TableBrowserState state = new TableBrowserState();
-
-        state.setSelectedIds(new LinkedHashSet(currentState.getSelectedIds()));
-        state.setListValues(currentState.getListValues());
-        state.setSingleChoice(currentState.isSingleChoice());
-        state.setTableBrowserConfig(currentState.getTableBrowserConfig());
-        state.setDomainFieldOnColumnNameMap(currentState.getDomainFieldOnColumnNameMap());
-        state.setWidgetProperties(currentState.getWidgetProperties());
-        state.setConstraints(currentState.getConstraints());
-
-        return state;
     }
 
     @Override
@@ -354,11 +352,13 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 LinkUtil.addHierarchicalLinkToNavigationConfig(navigationConfig, link);
 
                 if (breadCrumbItems.isEmpty()) {
-                    breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", //we haven't display text for the root
+                    breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", //we haven't display text
+                    // for the root
                             initialCollectionViewerConfig));
                 }
                 breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
-                PluginPanel pluginPanel = new TableBrowserViewsBuilder().withState(currentState).createDialogCollectionPluginPanel();
+                PluginPanel pluginPanel = new TableBrowserViewsBuilder().withState(currentState)
+                        .createDialogCollectionPluginPanel();
                 openCollectionPlugin(collectionViewerConfig, navigationConfig, pluginPanel);
             }
         });

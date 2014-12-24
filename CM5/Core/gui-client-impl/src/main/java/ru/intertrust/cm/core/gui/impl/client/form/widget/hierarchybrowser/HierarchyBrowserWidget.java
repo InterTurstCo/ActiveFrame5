@@ -38,7 +38,9 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -56,6 +58,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private HierarchyBrowserMainPopup mainPopup;
     private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus()) ;
     private HandlerRegistration handlerRegistration;
+    private Set<Id> initiallySelectedIds = new HashSet<>();
 
     @Override
     public Component createNew() {
@@ -65,7 +68,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     }
 
     public void setCurrentState(WidgetState currentState) {
-        this.currentState = cloneState(currentState);
+        this.currentState = (HierarchyBrowserWidgetState) currentState;
 
         initialData = currentState;
         if (isEditable()) {
@@ -73,13 +76,16 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         } else {
             setCurrentStateForNoneEditableWidget();
         }
+        initiallySelectedIds.clear();
+        if (this.currentState.getIds() != null) {
+            initiallySelectedIds.addAll(this.currentState.getIds());
+        }
     }
 
     @Override
     protected boolean isChanged() {
-        final List<Id> initialValue = ((HierarchyBrowserWidgetState) getInitialData()).getIds();
-        final List<Id> currentValue = currentState.getIds();
-        return initialValue == null ? currentValue != null : !initialValue.equals(currentValue);
+        final Set<Id> currentValue = currentState.getIds() != null ? new HashSet(currentState.getIds()) : null;
+        return currentValue == null ? !initiallySelectedIds.isEmpty() : !currentValue.equals(initiallySelectedIds);
     }
 
     @Override
@@ -169,26 +175,16 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         if (!isEditable()) {
             return super.getFullClientStateCopy();
         }
-
-        HierarchyBrowserWidgetState state = cloneState(currentState);
-        return state;
-    }
-
-    private HierarchyBrowserWidgetState cloneState(WidgetState stateToClone) {
-        HierarchyBrowserWidgetState currentState = (HierarchyBrowserWidgetState) stateToClone;
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
-
-        state.setSelectedIds(new ArrayList(currentState.getIds()));
         state.setChosenItems(currentState.getChosenItems());
+
         state.setSingleChoice(currentState.isSingleChoice());
         state.setCollectionNameNodeMap(currentState.getCollectionNameNodeMap());
         state.setHierarchyBrowserConfig(currentState.getHierarchyBrowserConfig());
         state.setConstraints(currentState.getConstraints());
         state.setWidgetProperties(currentState.getWidgetProperties());
-
         return state;
     }
-
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
