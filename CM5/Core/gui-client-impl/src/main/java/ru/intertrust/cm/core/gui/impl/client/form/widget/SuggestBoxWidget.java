@@ -103,14 +103,16 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private LazyLoadState lazyLoadState;
     private int lastScrollPos;
     private SuggestBoxState currentState;
-    private Set<Id> selectedIds = new HashSet<>();
+    private Set<Id> initiallySelectedIds = new HashSet<>();
 
 
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (SuggestBoxState)state;
-        selectedIds.clear();
-        selectedIds.addAll(currentState.getSelectedIds());
+        initiallySelectedIds.clear();
+        if (currentState.getSelectedIds() != null) {
+            initiallySelectedIds.addAll(currentState.getSelectedIds());
+        }
 
         suggestBoxConfig = currentState.getSuggestBoxConfig();
         if (isEditable()) {
@@ -145,15 +147,14 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     @Override
     protected boolean isChanged() {
-        Set<Id> initialSelectedIds = ((SuggestBoxState) getInitialData()).getSelectedIds();
-        Set<Id> currentSelectedIds = selectedIds;
-        return initialSelectedIds == null ? currentSelectedIds != null : !initialSelectedIds.equals(currentSelectedIds);
+        Set<Id> currentlySelectedIds = currentState.getSelectedIds();
+        return currentlySelectedIds == null ? !initiallySelectedIds.isEmpty() : !currentlySelectedIds.equals(initiallySelectedIds);
     }
 
     @Override
     protected SuggestBoxState createNewState() {
         SuggestBoxState state = new SuggestBoxState();
-        state.setSelectedIds(selectedIds);
+        state.setSelectedIds(currentState.getSelectedIds());
         return state;
     }
 
@@ -311,7 +312,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             }
 
         }
-        selectedIds.add(id);
+        currentState.getSelectedIds().add(id);
         presenter.changeSuggestInputWidth();
         suggestBox.setText(EMPTY_VALUE);
         suggestBox.setFocus(true);
@@ -394,7 +395,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         String dropDownPatternConfig = suggestBoxConfig.getDropdownPatternConfig().getValue();
         result.setDropdownPattern(dropDownPatternConfig);
         result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
-        result.setExcludeIds(new LinkedHashSet<Id>(selectedIds));
+        result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
         result.setComplicatedFiltersParams(createFiltersParams(requestQuery));
         result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
@@ -415,7 +416,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     @Override
     public void onWidgetItemRemove(WidgetItemRemoveEvent event) {
-        selectedIds.remove(event.getId());
+        currentState.getSelectedIds().remove(event.getId());
         if (event.isTooltipContent()) {
             currentState.getTooltipValues().remove(event.getId());
         } else {
@@ -544,7 +545,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         private void removeSuggestItemFromStates(Id id) {
             selectedSuggestions.remove(id);
             currentState.getListValues().remove(id);
-            selectedIds.remove(id);
+            currentState.getSelectedIds().remove(id);
             currentState.decrementFilteredItemsNumber();
             suggestBox.setFocus(true);
         }
@@ -642,7 +643,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         currentState.getListValues().clear();
                         selectedSuggestions.clear();
                         currentState.evictTooltipItems();
-                        selectedIds.clear();
+                        currentState.getSelectedIds().clear();
                         clearAll();
 
                     }
@@ -741,7 +742,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
             }
             if (currentState.isSingleChoice()) {
-                selectedIds.clear();
+                currentState.getSelectedIds().clear();
                 clearAllItems();
                 currentState.getListValues().clear();
             }
