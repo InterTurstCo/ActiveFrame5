@@ -68,7 +68,8 @@
 }
 
 .gwt-PopupPanel {
-    border: 1px solid #eee;
+    /*border: 1px solid #eee;*/
+    border: none;
     background: none;
 }
 
