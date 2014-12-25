@@ -8,11 +8,12 @@
     <inherits name="ru.intertrust.cm.core.gui.GuiModel"/>
     <inherits name="ru.intertrust.cm.core.gui.impl.Login"/>
     <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.gwt.resources.Resources" />
     <extend-property name="locale" values="ru"/>
 
     <inherits name="ru.intertrust.cm.core.config.Configuration"/>
-    <source path="client"/>
     <source path="images"/>
+
     <!-- defines HistoryManager -->
     <replace-with class="ru.intertrust.cm.core.gui.impl.client.history.HistoryManagerImpl">
         <when-type-assignable class="ru.intertrust.cm.core.gui.api.client.history.HistoryManager"/>

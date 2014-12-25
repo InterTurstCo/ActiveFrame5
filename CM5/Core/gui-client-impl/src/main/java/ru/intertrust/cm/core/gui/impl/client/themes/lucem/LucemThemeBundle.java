@@ -6,7 +6,6 @@ package ru.intertrust.cm.core.gui.impl.client.themes.lucem;
  *         Time: 12:55
  */
 
-import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
@@ -26,17 +25,17 @@ public interface LucemThemeBundle extends ThemeBundle{
     @Source("splitter/splitter.css")
     SplitterStyles splitterCss();
 
-    @Source("images/settings.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/settings.png")
     public ImageResource settingsIm();
 
     @Override
-    @Source("images/cancel.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/cancel.png")
     ImageResource failedIm();
 
     @Override
-    @Source("images/confirm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/confirm.png")
     ImageResource doneIm();
 
-    @ClientBundle.Source("images/confirmDialogDefIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/confirmDialogDefIm.png")
     ImageResource confirmDialogWindowIm();
 }
