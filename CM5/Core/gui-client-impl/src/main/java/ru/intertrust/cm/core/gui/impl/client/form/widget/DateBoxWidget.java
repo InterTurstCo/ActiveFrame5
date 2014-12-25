@@ -28,6 +28,7 @@ import java.util.Date;
 @ComponentName("date-box")
 public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEventHandler {
     private DateBoxState dbState;
+
     @Override
     public Component createNew() {
         return new DateBoxWidget();
@@ -60,12 +61,12 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
         String initValue = null;
         if (state.getDateTimeContext() != null) {
             String dateTime = state.getDateTimeContext().getDateTime();
-            if(dateTime != null){
-            final DateTimeFormat dtoDateTimeFormat = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN);
-            final Date initDate = dtoDateTimeFormat.parse(state.getDateTimeContext().getDateTime());
-            final DateTimeFormat stateDateTimeFormat = DateTimeFormat.getFormat(state.getPattern());
-            final Date clientDate = stateDateTimeFormat.parse(stateDateTimeFormat.format(initDate));
-            initValue = dtoDateTimeFormat.format(clientDate);
+            if (dateTime != null) {
+                final DateTimeFormat dtoDateTimeFormat = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN);
+                final Date initDate = dtoDateTimeFormat.parse(state.getDateTimeContext().getDateTime());
+                final DateTimeFormat stateDateTimeFormat = DateTimeFormat.getFormat(state.getPattern());
+                final Date clientDate = stateDateTimeFormat.parse(stateDateTimeFormat.format(initDate));
+                initValue = dtoDateTimeFormat.format(clientDate);
             }
         }
         final DecoratedDateTimeBox decorate = (DecoratedDateTimeBox) impl;
@@ -124,7 +125,9 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
     @Override
     public void clearErrors() {
         impl.setTitle(null);
-        ((DecoratedDateTimeBox) impl).getDateBox().removeStyleName("validation-error");
+        if (isEditable()) {
+            ((DecoratedDateTimeBox) impl).getDateBox().removeStyleName("validation-error");
+        }
         impl.removeStyleName("validation-error");
     }
 
