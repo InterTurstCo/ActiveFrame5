@@ -37,7 +37,7 @@ public class SendNotification extends SpringClient implements JavaDelegate {
         notificationContext.addContextObject("document", (Id) context.getValue(execution));
         notificationService.sendOnTransactionSuccess(
                 (String) notificationType.getValue(execution),
-                null,
+                (Id)null,
                 converter.getAddresseeList(),
                 NotificationPriority.valueOf((String) notificationPriority.getValue(execution)),
                 notificationContext);

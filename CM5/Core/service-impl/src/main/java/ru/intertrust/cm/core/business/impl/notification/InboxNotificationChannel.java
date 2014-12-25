@@ -71,4 +71,10 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
         return notification;
     }
 
+    @Override
+    public void send(String notificationType, String senderName, Id addresseeId, NotificationPriority priority, NotificationContext context) {
+        //Игнорируем строкового отправителя, подставляем null, тоесть от имени система
+        send(notificationType, (Id)null, addresseeId, priority, context);
+    }
+
 }

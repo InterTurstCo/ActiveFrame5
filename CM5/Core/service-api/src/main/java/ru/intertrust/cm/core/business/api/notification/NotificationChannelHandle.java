@@ -15,13 +15,13 @@ public interface NotificationChannelHandle {
 
     public static final String MAIL_NOTIFICATION_CHANNEL = "MailNotificationChannel";
 
-
     /**
      * Отправка сообщения с помощью канала
      * @param notificationType
      *            тип сообщения
      * @param senderId
-     *            идентификатор персоны отправителя. Может быть null в случае если отправитель система
+     *            идентификатор персоны отправителя. Может быть null в случае
+     *            если отправитель система
      * @param addresseeId
      *            идентификатор персоны адресата
      * @param priority
@@ -30,4 +30,20 @@ public interface NotificationChannelHandle {
      *            контекст сообщения
      */
     void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority, NotificationContext context);
+
+    /**
+     * Отправка сообщения с помощью канала
+     * @param notificationType
+     *            тип сообщения
+     * @param senderName
+     *            отображаемое имя отправителя. Может быть null в случае если
+     *            отправитель система
+     * @param addresseeId
+     *            идентификатор персоны адресата
+     * @param priority
+     *            приоритет
+     * @param context
+     *            контекст сообщения
+     */
+    void send(String notificationType, String senderName, Id addresseeId, NotificationPriority priority, NotificationContext context);
 }

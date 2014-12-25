@@ -172,4 +172,9 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             }
         }
     }
+
+    @Override
+    public void send(String notificationType, String senderName, Id addresseeId, NotificationPriority priority, NotificationContext context) {
+        send(notificationType, (Id)null, addresseeId, priority, context);        
+    }
 }

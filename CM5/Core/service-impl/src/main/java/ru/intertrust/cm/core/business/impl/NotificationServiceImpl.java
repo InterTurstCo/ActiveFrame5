@@ -81,7 +81,7 @@ public class NotificationServiceImpl implements NotificationService {
             logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
             throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
                     "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
-                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
+                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
         }
     }
 
@@ -125,6 +125,7 @@ public class NotificationServiceImpl implements NotificationService {
     public class SendNotificationActionListener implements ActionListener {
         private String notificationType;
         private Id sender;
+        private String senderName;
         private List<NotificationAddressee> addresseeList;
         private NotificationPriority priority;
         private NotificationContext context;
@@ -134,6 +135,16 @@ public class NotificationServiceImpl implements NotificationService {
             super();
             this.notificationType = notificationType;
             this.sender = sender;
+            this.addresseeList = addresseeList;
+            this.priority = priority;
+            this.context = context;
+        }
+
+        public SendNotificationActionListener(String notificationType, String senderName,
+                List<NotificationAddressee> addresseeList, NotificationPriority priority, NotificationContext context) {
+            super();
+            this.notificationType = notificationType;
+            this.setSenderName(senderName);
             this.addresseeList = addresseeList;
             this.priority = priority;
             this.context = context;
@@ -194,7 +205,15 @@ public class NotificationServiceImpl implements NotificationService {
         @Override
         public void onAfterCommit() {
             // Ничего не делаем
-            
+
+        }
+
+        public String getSenderName() {
+            return senderName;
+        }
+
+        public void setSenderName(String senderName) {
+            this.senderName = senderName;
         }
 
     }
@@ -228,8 +247,65 @@ public class NotificationServiceImpl implements NotificationService {
             logger.error("Unexpected exception caught in sendNow", ex);
             throw new UnexpectedException("NotificationService", "sendNow",
                     "notificationType:" + notificationType + " sender:" + sender + " addresseeList:"
-                    + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
-                    + " priority: " + priority + " context:" + context , ex);
+                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
+                            + " priority: " + priority + " context:" + context, ex);
+        }
+    }
+
+    @Override
+    public void sendOnTransactionSuccess(String notificationType, String senderName, List<NotificationAddressee> addresseeList, NotificationPriority priority,
+            NotificationContext context) {
+        try {
+            SendNotificationActionListener listener =
+                    new SendNotificationActionListener(notificationType, senderName, addresseeList, priority, context);
+            userTransactionService.addListener(listener);
+            logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
+            throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
+                    "notificationType:" + notificationType + " sender:" + senderName + " addresseeList:"
+                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray())), ex);
+        }
+    }
+
+    @Override
+    public Future<Boolean> sendNow(String notificationType, String senderName, List<NotificationAddressee> addresseeList, NotificationPriority priority,
+            NotificationContext context) {
+        sendSync(notificationType, senderName, addresseeList, priority, context);
+        return new AsyncResult<Boolean>(true);
+    }
+
+    @Override
+    public void sendSync(String notificationType, String senderName, List<NotificationAddressee> addresseeList, NotificationPriority priority,
+            NotificationContext context) {
+        try {
+            logger.debug("Send notification " + notificationType + " " + addresseeList);
+            //Получаем список адресатов
+            List<Id> persons = getAddressee(addresseeList);
+
+            for (Id personId : persons) {
+                context.addContextObject("addressee", new DomainObjectAccessor(personId));
+                //Получаем список каналов для персоны
+                List<String> channelNames =
+                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                for (String channelName : channelNames) {
+                    try {
+                        NotificationChannelHandle notificationChannelHandle =
+                                notificationChannelLoader.getNotificationChannel(channelName);
+                        notificationChannelHandle.send(notificationType, senderName, personId, priority, context);
+                    } catch (NotificationException ex) {
+                        //skip exception, allow other channels to be executed.
+                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                    }
+                }
+            }
+
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in sendNow", ex);
+            throw new UnexpectedException("NotificationService", "sendNow",
+                    "notificationType:" + notificationType + " sender:" + senderName + " addresseeList:"
+                            + (addresseeList == null ? "null" : Arrays.toString(addresseeList.toArray()))
+                            + " priority: " + priority + " context:" + context, ex);
         }
     }
 }
