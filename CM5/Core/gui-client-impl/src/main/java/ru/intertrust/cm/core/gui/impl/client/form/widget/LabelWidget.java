@@ -12,6 +12,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Iterator;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 15.09.13
@@ -27,14 +29,13 @@ public class LabelWidget extends BaseWidget {
 
     @Override
     public void setCurrentState(WidgetState currentState) {
-        LabelState labelState = (LabelState)currentState;
-        Panel panel = (Panel)impl;
+        LabelState labelState = (LabelState) currentState;
+        Panel panel = (Panel) impl;
         Iterator<Widget> iterator = panel.iterator();
-        Label redAsteriskLabel = (Label)iterator.next();
-        Label label = (Label)iterator.next();
-
+        Label redAsteriskLabel = (Label) iterator.next();
+        Label label = (Label) iterator.next();
         setTrimmedText(label, labelState.getLabel());
-        applyFontStyle(label, labelState);
+        applyStyles(label, labelState);
 
         boolean showRedAsterisk = labelState.isAsteriskRequired() && isEditable;
         redAsteriskLabel.setText(showRedAsterisk ? "*" : "");
@@ -50,7 +51,7 @@ public class LabelWidget extends BaseWidget {
     protected WidgetState createNewState() {
         final LabelState initialState = getInitialData();
         LabelState state = new LabelState();
-        Panel panel = (Panel)impl;
+        Panel panel = (Panel) impl;
         final Iterator<Widget> iterator = panel.iterator();
         Label redAsteriskLabel = (Label) iterator.next();
         Label label = (Label) iterator.next();
@@ -82,6 +83,11 @@ public class LabelWidget extends BaseWidget {
         return asEditableWidget(state);
     }
 
+    private void applyStyles(Label label, LabelState state) {
+        applyFontStyle(label, state);
+        applyAdditionalStyles(label, state);
+    }
+
     private void applyFontStyle(Label label, LabelState state) {
         final String fontWeight = state.getFontWeight();
         final String fontStyle = state.getFontStyle();
@@ -101,4 +107,18 @@ public class LabelWidget extends BaseWidget {
             style.setProperty("fontSize", fontSize);
         }
     }
+
+    private void applyAdditionalStyles(Label label, LabelState state) {
+        if (getDisplayConfig().getHeight() != null) {
+            label.setTitle(state.getLabel() == null ? EMPTY_VALUE : state.getLabel());
+            label.addStyleName("labelWidgetCut");
+            label.setHeight(getDisplayConfig().getHeight());
+        } else {
+            label.addStyleName("labelWidgetDefault");
+        }
+        if (getDisplayConfig().getWidth() != null) {
+            label.setWidth(getDisplayConfig().getWidth());
+        }
+    }
+
 }

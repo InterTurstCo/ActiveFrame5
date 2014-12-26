@@ -3015,4 +3015,14 @@ a:active .icon.back {
     cursor: pointer;
 }
 
+.labelWidgetDefault{
+    white-space: pre;
+}
+
+.labelWidgetCut{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 /* ------------>>> end sticker/footer Panel <<<------------ */
