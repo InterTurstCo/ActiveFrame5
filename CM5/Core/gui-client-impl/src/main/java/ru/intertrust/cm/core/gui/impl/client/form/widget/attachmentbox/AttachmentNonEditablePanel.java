@@ -30,9 +30,17 @@ public class AttachmentNonEditablePanel extends AbstractNoneEditablePanel implem
 
     @Override
     public void displayAttachmentItems() {
+        cleanUp();
         for (AttachmentItem item : attachments) {
             displayAttachmentItem(item);
         }
+    }
+
+    /**
+     * Удаляет все прикрепления из отображения
+     */
+    protected void cleanUp() {
+        mainBoxPanel.clear();
     }
 
     public void setAttachments(List<AttachmentItem> attachments) {
