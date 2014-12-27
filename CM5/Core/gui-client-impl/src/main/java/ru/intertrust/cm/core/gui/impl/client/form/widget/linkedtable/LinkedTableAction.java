@@ -48,9 +48,9 @@ public abstract class LinkedTableAction implements Component {
 
     }
 
-    abstract void execute(Id id, int rowIndex);
+    protected abstract void execute(Id id, int rowIndex);
 
-    abstract String getServerComponentName();
+    protected abstract String getServerComponentName();
 
     public void setCallback(PostPerformCallback callback) {
         this.callback = callback;

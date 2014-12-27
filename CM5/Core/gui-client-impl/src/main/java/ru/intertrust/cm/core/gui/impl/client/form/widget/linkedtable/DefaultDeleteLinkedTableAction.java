@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 
-import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -12,11 +11,11 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 public class DefaultDeleteLinkedTableAction extends LinkedTableAction {
 
     @Override
-    void execute(Id id, int rowIndex) {
+    protected void execute(Id id, int rowIndex) {
     }
 
     @Override
-    String getServerComponentName() {
+    protected String getServerComponentName() {
         return "default.delete.table.action";
     }
 
