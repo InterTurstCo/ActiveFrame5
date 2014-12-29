@@ -80,7 +80,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
                 append("gm.").append(wrap("usergroup")).append(" = ").
                 append("gg.").append(wrap("child_group_id")).append(" and ").
                 append("gm.").append(wrap(getReferenceTypeColumnName("usergroup"))).append(" = ").
-                append("gg.").append(wrap("child_group_id")).append(")");
+                append("gg.").append(wrap(getReferenceTypeColumnName("child_group_id"))).append(")");
 
         StringBuilder whereClause = new StringBuilder();
         whereClause.append("gm.").append(wrap("person_id")).append("=:id and gm.").

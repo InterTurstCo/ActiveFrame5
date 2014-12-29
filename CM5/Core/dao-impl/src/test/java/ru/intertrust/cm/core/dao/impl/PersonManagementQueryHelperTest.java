@@ -60,7 +60,7 @@ public class PersonManagementQueryHelperTest {
         String expectedQuery = "select user_group.* from \"user_group\" user_group  inner join \"group_group\" gg on " +
                 "(gg.\"parent_group_id\" = user_group.\"id\" and gg.\"parent_group_id_type\" = user_group.\"id_type\") " +
                 "inner join \"group_member\" gm on (gm.\"usergroup\" = gg.\"child_group_id\" and " +
-                "gm.\"usergroup_type\" = gg.\"child_group_id\") " +
+                "gm.\"usergroup_type\" = gg.\"child_group_id_type\") " +
                 "where gm.\"person_id\"=:id and gm.\"person_id_type\"=:id_type" + ACCESS_RIGHTS_PART2;
         Assert.assertEquals(expectedQuery, queryHelper.generateFindPersonGroups("User_Group", accessToken));
     }
