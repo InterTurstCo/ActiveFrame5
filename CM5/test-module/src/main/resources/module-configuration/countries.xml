@@ -983,7 +983,14 @@
                                     <td colspan="3" h-align="left">
                                         <widget id="countries"/>
                                     </td>
-                                    <!-- decimal-box  (Долгота) -->
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="country_label"/>
+                                    </td>
+                                    <td colspan="3" h-align="left">
+                                        <widget id="country_table"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -1041,6 +1048,7 @@
             <decimal-box id="12">
                 <field-path value="longitude"/>
             </decimal-box>
+
             <suggest-box id="countries">
                 <field-path value="country"/>
 
@@ -1066,6 +1074,60 @@
                    <sort-criterion field="name" order="asc"/>
                </selection-sort-criteria>
             </suggest-box>
+            <label id="country_label">
+                <text>Страна:</text>
+            </label>
+            <linked-domain-objects-table id="country_table" modal-width="500px" modal-height="300px"
+                                         max-tooltip-width="300px">
+                <field-path value="country"/>
+                <linked-form name="country_form" inline="true">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new country"/>
+
+                        </new-object>
+                    </title>
+                </linked-form>
+                <collection-ref name="Countries"/>
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="2">
+                        <action component-name="download.attachment.table.action"
+                                access-checker="download.attachment.access.checker"
+                                new-objects-access-checker="upload.attachment.access.checker"
+                                tooltip="Скачать">
+                            <display position="before" tooltip="Скачать">
+                                <image url="/images/icons/ico-save.gif"/>
+                                <text value="Скачать"/>
+                            </display>
+                        </action>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+
+                    </summary-table-column>
+                    <summary-table-column header="Население" widget-id="3">
+                        <pattern value="{population}"/>
+                    </summary-table-column>
+                </summary-table>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
+                <single-choice value="false"/>
+
+            </linked-domain-objects-table>
+
+
+
             <label id="titleExisting">
                 <pattern value="date: {created_date}"/>
                 <field-path value="created_date"/>
