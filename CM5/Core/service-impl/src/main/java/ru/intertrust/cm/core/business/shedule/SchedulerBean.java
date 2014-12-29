@@ -200,7 +200,7 @@ public class SchedulerBean {
                     context.addContextObject("task", new DomainObjectAccessor(task));
                     //Отправляем уведомление
                     notificationService.sendOnTransactionSuccess(DISABLE_TASK_NOTIFICATION_TYPE, 
-                            null, 
+                            (Id)null, 
                             addresseeList, 
                             NotificationPriority.HIGH, 
                             context);

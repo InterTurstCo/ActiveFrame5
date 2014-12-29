@@ -18,64 +18,67 @@ public interface ThemeBundle extends ClientBundle {
 
     SplitterStyles splitterCss();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/settings.png")
     ImageResource settingsIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/confirm.png")
     ImageResource doneIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/cancel.png")
     ImageResource failedIm();
 
-    @Source("images/ext-search.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/ext-search.png")
     ImageResource extendedSearchIm();
 
-    @Source("images/columnSettingsIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/columnSettingsIm.png")
     ImageResource columnSettingsIm();
 
-    @ClientBundle.Source("images/confirmDialogDefIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/confirmDialogDefIm.png")
     ImageResource confirmDialogIm();
 
-    @ClientBundle.Source("images/errorDialogDefIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/errorDialogDefIm.png")
     ImageResource errorDialogIm();
 
-    @ClientBundle.Source("images/infoDialogDefIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/infoDialogDefIm.png")
     ImageResource infoDialogIm();
 
-    @ClientBundle.Source("images/form-fullsize-on.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/form-fullsize-on.png")
     ImageResource formFullSizeOnActionIm();
 
-    @ClientBundle.Source("images/form-fullsize-off.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/form-fullsize-off.png")
     ImageResource formFullSizeOffActionIm();
 
-    @ClientBundle.Source("images/favorite-panel-on.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/favorite-panel-on.png")
     ImageResource favoritePanelOnActionIm();
 
-    @ClientBundle.Source("images/icon-upload.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-upload.png")
     ImageResource configurationUploaderIcon();
 
-    @ClientBundle.Source("images/favorite-panel-off.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/favorite-panel-off.png")
     ImageResource favoritePanelOffActionIm();
 
-    @ClientBundle.Source("images/filterClearButton.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/filterClearButton.png")
     ImageResource filterClearButtonIm();
 
-    @ClientBundle.Source("images/arrowDown.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/arrowDown.png")
     ImageResource arrowDownIm();
 
-    @ClientBundle.Source("images/magnifier.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/magnifier.png")
     ImageResource magnifierIm();
 
-    @ClientBundle.Source("images/filterOpenBtn.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/filterOpenBtn.png")
     ImageResource filterOpenBtnIm();
 
-    @ClientBundle.Source("images/recalculateColumnsWidthIm.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/recalculateColumnsWidthIm.png")
     ImageResource recalculateColumnsWidthBtnIm();
 
-    @ClientBundle.Source("images/addButton.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/addButton.png")
     ImageResource addDoBtnIm();
 
-    @ClientBundle.Source("images/refreshBtn.gif")
+    @Source("ru/intertrust/cm/core/gui/impl/images/refreshBtn.gif")
     ImageResource refreshBtnIm();
 
-    @ClientBundle.Source("images/icon-close.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-close.png")
     ImageResource closeIm();
 
     @Source("common.css")

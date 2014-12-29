@@ -5,12 +5,17 @@ import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.EnumBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
+import ru.intertrust.cm.core.gui.model.validation.Validator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,5 +102,20 @@ public class EnumBoxWidget extends BaseWidget  {
     public Object getValue() {
         ListBox listBox = (ListBox) impl;
         return listBox.getValue(listBox.getSelectedIndex());
+    }
+
+    @Override
+    public List<Validator> getValidators() {
+        // the only supported validator for this widget is not-empty validator, all the others are ignored
+        List<Validator> validators = new ArrayList<>(1);
+        for (Constraint constraint : getInitialData().getConstraints()) {
+            if (constraint.getType() != Constraint.Type.SIMPLE) {
+                continue;
+            }
+            if (Constraint.KEYWORD_NOT_EMPTY.equals(constraint.getParams().get(Constraint.PARAM_PATTERN))) {
+                validators.add(new SimpleValidator(constraint));
+            }
+        }
+        return validators;
     }
 }

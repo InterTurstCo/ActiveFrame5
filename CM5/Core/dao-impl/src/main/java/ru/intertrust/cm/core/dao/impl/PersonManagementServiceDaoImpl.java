@@ -1,19 +1,25 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
@@ -32,24 +38,6 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Autowired
     private AccessControlService accessControlService;
 
-    @Autowired
-    private EventLogService eventLogService;
-
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    @Autowired
-    private PersonManagementQueryHelper personManagementQueryHelper;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
-    private NamedParameterJdbcOperations jdbcTemplate;
-
-    @Autowired
-    private DomainObjectCacheService domainObjectCacheService;
-
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
     }
@@ -60,11 +48,26 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonsInGroup(Id groupId) {
-        String typeName = "Person";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byGroup");
+        ReferenceValue rv = new ReferenceValue(groupId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
 
-        return findMultipleDomainObjects(query, typeName, groupId, accessToken);
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection("PersonInGroup", filters, null, 0, 0,
+                        accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        return result;
     }
 
     /**
@@ -72,11 +75,26 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
-        String typeName = "Person";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byGroup");
+        ReferenceValue rv = new ReferenceValue(groupId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
 
-        return findMultipleDomainObjects(query, typeName, groupId, accessToken);
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection("AllPersonInGroup", filters, null, 0, 0,
+                        accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        return result;
     }
 
     /**
@@ -107,11 +125,26 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonGroups(Id personId) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byPerson");
+        ReferenceValue rv = new ReferenceValue(personId);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
 
-        return findMultipleDomainObjects(query, typeName, personId, accessToken);
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection("PersonGroups", filters, null, 0, 0,
+                        accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject item : collection) {
+            DomainObject group = domainObjectDao
+                    .find(item.getId(), accessToken);
+            result.add(group);
+        }
+        return result;
     }
 
     /**
@@ -164,27 +197,95 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllParentGroup(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byChild");
+        ReferenceValue rv = new ReferenceValue(parent);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagmentService");
+
+        String collectionName = "AllParentGroups";
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection(collectionName, filters, null, 0, 0, accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject identifiableObject : collection) {
+            // Не добавляем ссылку на саму себя
+            if (!parent.equals(identifiableObject.getId())) {
+                result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
+            }
+        }
+
+        return result;
     }
 
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byParent");
+        ReferenceValue rv = new ReferenceValue(parent);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
 
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagmentService");
+
+        String collectionName = "ChildGroups";
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection(collectionName, filters, null, 0, 0, accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject identifiableObject : collection) {
+            result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
+        }
+
+        return result;
     }
 
     @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byParent");
+        ReferenceValue rv = new ReferenceValue(parent);
+        filter.addCriterion(0, rv);
+        List<Filter> filters = new ArrayList<>();
+        filters.add(filter);
+
+        /*
+         * AccessToken accessToken = accessControlService
+         * .createCollectionAccessToken(personIdAsint);
+         */
+        // TODO пока права не работают работаю от имени админа
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagmentService");
+
+        String collectionName = "AllChildGroups";
+
+        IdentifiableObjectCollection collection = collectionsDao
+                .findCollection(collectionName, filters, null, 0, 0, accessToken);
+        List<DomainObject> result = new ArrayList<DomainObject>();
+        for (IdentifiableObject identifiableObject : collection) {
+            // Не добавляем ссылку на саму себя
+            if (!parent.equals(identifiableObject.getId())) {
+                result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -192,7 +293,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         DomainObject groupMembers = createDomainObject("Group_Member");
         groupMembers.setReference("person_id", person);
         groupMembers.setReference("UserGroup", group);
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
         domainObjectDao.save(groupMembers, accessToken);
     }
 
@@ -201,7 +302,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         DomainObject groupGroup = createDomainObject("group_group_settings");
         groupGroup.setReference("parent_group_id", parent);
         groupGroup.setReference("child_group_id", child);
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagmentService");
         domainObjectDao.save(groupGroup, accessToken);
     }
 
@@ -322,38 +423,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Override
     public DomainObject findDynamicGroup(String name, Id contectId) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-
-        String query = personManagementQueryHelper.generateFindDynamicGroup(typeName, accessToken);
-
-        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(contectId, accessToken);
-        parameters.put("name", name);
-
-        DomainObject result = jdbcTemplate.query(query, parameters,
-                new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
-
-        if (result == null) {
-            return null;
+        AccessToken accessToken = accessControlService
+                .createSystemAccessToken("PersonManagementService");
+        String query = "select t.id from User_Group t where group_name = '" + name + "' and object_id = '" + ((RdbmsId) contectId).getId() + "'";
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        DomainObject result = null;
+        if (collection.size() > 0) {
+            result = domainObjectDao.find(collection.getId(0), accessToken);
         }
-
-        domainObjectCacheService.putObjectToCache(result, accessToken);
-
-        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-
-        return result;
-    }
-
-    private List<DomainObject> findMultipleDomainObjects(String query, String typeName, Id id, AccessToken accessToken) {
-        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(id, accessToken);
-
-        List<DomainObject> result = jdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
-
-        domainObjectCacheService.putObjectsToCache(result, accessToken);
-
-        eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
-
         return result;
     }
 

@@ -14,7 +14,7 @@ public interface DarkThemeBundle extends DefaultThemeBundle {
     @Source("dark-theme.css")
     @CssResource.NotStrict
     public abstract CssResource mainCss();
-    @Source("images/setting-dark.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images//setting-dark.png")
     public abstract ImageResource settingsIm();
 
 }

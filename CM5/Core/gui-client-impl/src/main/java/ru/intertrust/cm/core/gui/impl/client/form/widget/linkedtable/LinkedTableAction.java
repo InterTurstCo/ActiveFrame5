@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.LinkedTableActionRequest;
 import ru.intertrust.cm.core.gui.model.action.LinkedTableActionResponse;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
@@ -16,6 +17,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  */
 public abstract class LinkedTableAction implements Component {
     private PostPerformCallback callback;
+    protected FormState rowFormState;
 
     void perform(final Id objectId, final int rowIndex, String accessChecker, String newObjectsAccessChecker) {
         LinkedTableActionRequest request = new LinkedTableActionRequest();
@@ -46,9 +48,9 @@ public abstract class LinkedTableAction implements Component {
 
     }
 
-    abstract void execute(Id id, int rowIndex);
+    protected abstract void execute(Id id, int rowIndex);
 
-    abstract String getServerComponentName();
+    protected abstract String getServerComponentName();
 
     public void setCallback(PostPerformCallback callback) {
         this.callback = callback;
@@ -56,5 +58,9 @@ public abstract class LinkedTableAction implements Component {
 
     public PostPerformCallback getCallback() {
         return callback;
+    }
+
+    public void setRowFormState(FormState rowFormState) {
+        this.rowFormState = rowFormState;
     }
 }

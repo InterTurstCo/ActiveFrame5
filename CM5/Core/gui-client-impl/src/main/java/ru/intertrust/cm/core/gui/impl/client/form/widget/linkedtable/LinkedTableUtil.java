@@ -10,10 +10,14 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 
 /**
@@ -31,21 +35,23 @@ public class LinkedTableUtil {
     public static final String DEFAULT_EDIT_ACTION_COMPONENT = "default.edit.table.action";
     public static final String DEFAULT_DELETE_ACTION_COMPONENT = "default.delete.table.action";
 
+    private CellTable<RowItem> table;
+
     enum ActionTypes {
         edit, delete
     }
 
     public static void configureEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table,
                                               LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater,
-                                              EventBus localEventBus) {
-        configureNoneEditableTable(summaryTableConfig, table);
+                                              EventBus localEventBus, LinkedDomainObjectsTableState currentState) {
+        configureNoneEditableTable(summaryTableConfig, table, currentState);
 
         //TODO build action column based on configuration
         if (summaryTableConfig.getSummaryTableActionsColumnConfig() != null) {
-            table.addColumn(buildActionsColumn(summaryTableConfig.getSummaryTableActionsColumnConfig(), fieldUpdater, localEventBus));
+            table.addColumn(buildActionsColumn(summaryTableConfig.getSummaryTableActionsColumnConfig(), fieldUpdater, localEventBus, currentState));
         } else {
             //default actions
-            table.addColumn(buildActionsColumn(null, fieldUpdater, localEventBus));
+            table.addColumn(buildActionsColumn(null, fieldUpdater, localEventBus, currentState));
            /* table.addColumn(buildEditButtonColumn(fieldUpdater), "");
             table.addColumn(buildDeleteButtonColumn(localEventBus, fieldUpdater.isTooltipContent()), "");*/
         }
@@ -53,8 +59,8 @@ public class LinkedTableUtil {
     }
 
     private static Column<RowItem, ColumnContext> buildActionsColumn(SummaryTableActionsColumnConfig summaryTableActionsColumnConfig,
-                                                                     LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater, EventBus localEventBus) {
-        ActionsColumn column = new ActionsColumn(new ActionsCell(summaryTableActionsColumnConfig, localEventBus));
+                                                                     LinkedDomainObjectsTableWidget.TableFieldUpdater fieldUpdater, EventBus localEventBus, LinkedDomainObjectsTableState currentState) {
+        ActionsColumn column = new ActionsColumn(new ActionsCell(summaryTableActionsColumnConfig, localEventBus, currentState));
         column.setFieldUpdater(fieldUpdater);
         return column;
     }
@@ -66,11 +72,13 @@ public class LinkedTableUtil {
         private static final String DEFAULT_DELETE_NEWOBJECT_ACCESS_CHECKER = "default.delete.newobject.access.checker";
         private SummaryTableActionsColumnConfig summaryTableActionsColumnConfig;
         private EventBus localEventBus;
+        private LinkedDomainObjectsTableState currentState;
 
-        public ActionsCell(SummaryTableActionsColumnConfig summaryTableActionsColumnConfig, EventBus localEventBus) {
+        public ActionsCell(SummaryTableActionsColumnConfig summaryTableActionsColumnConfig, EventBus localEventBus, LinkedDomainObjectsTableState currentState) {
             super("click");
             this.summaryTableActionsColumnConfig = summaryTableActionsColumnConfig;
             this.localEventBus = localEventBus;
+            this.currentState = currentState;
         }
 
         @Override
@@ -86,13 +94,6 @@ public class LinkedTableUtil {
                             String text = columnDisplayConfig.getColumnDisplayTextConfig().getValue();
                             Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
                                     + url);
-                            //fill column context
-                            ColumnContext nestedContext = new ColumnContext();
-                            nestedContext.setAccessChecker(summaryTableActionColumnConfig.getAccessChecker());
-                            nestedContext.setNewObjectsAccessChecker(summaryTableActionColumnConfig.getNewObjectsAccessChecker());
-                            nestedContext.setComponentName(summaryTableActionColumnConfig.getComponentName());
-                            columnContext.setNestedColumnContext(summaryTableActionColumnConfig.getComponentName(), nestedContext);
-
                             actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
                             String componentName = summaryTableActionColumnConfig.getComponentName();
                             actionImage.addStyleName(componentName);
@@ -121,7 +122,7 @@ public class LinkedTableUtil {
         }
 
         @Override
-        public void onBrowserEvent(final Context context, Element parent, final ColumnContext value, NativeEvent event, final ValueUpdater<ColumnContext> valueUpdater) {
+        public void onBrowserEvent(final Context context, Element parent, final ColumnContext columnContext, NativeEvent event, final ValueUpdater<ColumnContext> valueUpdater) {
             EventTarget eventTarget = event.getEventTarget();
             Element as = Element.as(eventTarget);
             String className = as.getClassName();
@@ -134,7 +135,7 @@ public class LinkedTableUtil {
                     if ((className.contains(ACTION_IMAGE_SELECTOR) || className.contains(ACTION_TEXT_SELECTOR)) &&
                             className.contains(componentName)) {
                         LinkedTableAction action = ComponentRegistry.instance.get(componentName);
-                        action.perform(value.getObjectId(), context.getIndex(),
+                        action.perform(columnContext.getObjectId(), context.getIndex(),
                                 summaryTableActionColumnConfig.getAccessChecker(),
                                 summaryTableActionColumnConfig.getNewObjectsAccessChecker());
                     }
@@ -142,32 +143,51 @@ public class LinkedTableUtil {
             }
             if (className.contains(EDIT_BUTTON_SELECTOR)) {
                 LinkedTableAction action = ComponentRegistry.instance.get(DEFAULT_EDIT_ACTION_COMPONENT);
+                FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
+                action.setRowFormState(rowFormState);
                 action.setCallback(new PostPerformCallback() {
                     @Override
                     public void onPerform() {
-                        valueUpdater.update(value);
+                        valueUpdater.update(columnContext);
                     }
                 });
-                action.perform(value.getObjectId(), context.getIndex(),
+                action.perform(columnContext.getObjectId(), context.getIndex(),
                         DEFAULT_EDIT_ACCESS_CHECKER,
                         DEFAULT_EDIT_NEWOBJECT_ACCESS_CHECKER);
 
             } else if (className.contains(DELETE_BUTTON_SELECTOR)) {
                 LinkedTableAction action = ComponentRegistry.instance.get(DEFAULT_DELETE_ACTION_COMPONENT);
-                action.perform(value.getObjectId(), context.getIndex(),
+                FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
+                action.perform(columnContext.getObjectId(), context.getIndex(),
                         DEFAULT_DELETE_ACCESS_CHECKER,
                         DEFAULT_DELETE_NEWOBJECT_ACCESS_CHECKER);
+                action.setRowFormState(rowFormState);
                 action.setCallback(new PostPerformCallback() {
                     @Override
                     public void onPerform() {
                         FieldUpdater<RowItem, ColumnContext> deleteFieldupdater = createDeleteFieldupdater(localEventBus, false);
-                        deleteFieldupdater.update(context.getIndex(), value.getRowItem(), value);
+                        deleteFieldupdater.update(context.getIndex(), columnContext.getRowItem(), columnContext);
                     }
                 });
 
             }
-            super.onBrowserEvent(context, parent, value, event, valueUpdater);
+            super.onBrowserEvent(context, parent, columnContext, event, valueUpdater);
         }
+
+
+    }
+
+    private static FormState obtainFormStateForRow(ColumnContext columnContext, LinkedDomainObjectsTableState currentState) {
+        FormState rowFormState;
+        RowItem rowItem = columnContext.getRowItem();
+        Id objectId = rowItem.getObjectId();
+        if (objectId != null) {
+            rowFormState = currentState.getFromEditedStates(objectId.toStringRepresentation());
+
+        } else {
+            rowFormState = currentState.getFromNewStates(rowItem.getParameter(BusinessUniverseConstants.STATE_KEY));
+        }
+        return rowFormState;
     }
 
     private static Button createDeleteButton() {
@@ -199,10 +219,12 @@ public class LinkedTableUtil {
 
     static class MixedCell extends AbstractCell<ColumnContext> {
         private SummaryTableColumnConfig summaryTableColumnConfig;
+        private LinkedDomainObjectsTableState currentState;
 
-        public MixedCell(SummaryTableColumnConfig summaryTableColumnConfig) {
+        public MixedCell(SummaryTableColumnConfig summaryTableColumnConfig, LinkedDomainObjectsTableState currentState) {
             super("click");
             this.summaryTableColumnConfig = summaryTableColumnConfig;
+            this.currentState = currentState;
         }
 
         @Override
@@ -240,15 +262,17 @@ public class LinkedTableUtil {
         }
 
         @Override
-        public void onBrowserEvent(Context context, Element parent, ColumnContext value, NativeEvent event, ValueUpdater<ColumnContext> valueUpdater) {
+        public void onBrowserEvent(Context context, Element parent, ColumnContext columnContext, NativeEvent event, ValueUpdater<ColumnContext> valueUpdater) {
             EventTarget eventTarget = event.getEventTarget();
             Element as = Element.as(eventTarget);
             if (as.getClassName().contains(ACTION_IMAGE_SELECTOR) || as.getClassName().contains(ACTION_TEXT_SELECTOR)) {
                 String componentName = summaryTableColumnConfig.getSummaryTableActionColumnConfig().getComponentName();
                 LinkedTableAction action = ComponentRegistry.instance.get(componentName);
-                action.perform(value.getObjectId(), context.getIndex(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getAccessChecker(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getNewObjectsAccessChecker());
+                FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
+                action.setRowFormState(rowFormState);
+                action.perform(columnContext.getObjectId(), context.getIndex(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getAccessChecker(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getNewObjectsAccessChecker());
             }
-            super.onBrowserEvent(context, parent, value, event, valueUpdater);
+            super.onBrowserEvent(context, parent, columnContext, event, valueUpdater);
         }
     }
 
@@ -268,14 +292,15 @@ public class LinkedTableUtil {
             String valueByKey = rowItem.getValueByKey(columnConfig.getWidgetId());
             columnContext.setObjectId(rowItem.getObjectId());
             columnContext.setValue(valueByKey);
+            columnContext.setRowItem(rowItem);
             return columnContext;
         }
     }
 
 
-    public static void configureNoneEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table) {
+    public static void configureNoneEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table, LinkedDomainObjectsTableState currentState) {
         for (final SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
-            MixedContentColumn mixedContentColumn = new MixedContentColumn(new MixedCell(summaryTableColumnConfig), summaryTableColumnConfig);
+            MixedContentColumn mixedContentColumn = new MixedContentColumn(new MixedCell(summaryTableColumnConfig, currentState), summaryTableColumnConfig);
             //TextColumn<RowItem> column = createTextColumn(summaryTableColumnConfig);
             table.addColumn(mixedContentColumn, summaryTableColumnConfig.getHeader());
         }

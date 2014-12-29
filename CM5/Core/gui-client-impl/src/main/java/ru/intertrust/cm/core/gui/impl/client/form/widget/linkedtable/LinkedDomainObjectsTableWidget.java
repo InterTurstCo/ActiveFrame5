@@ -75,9 +75,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         view.add(table);
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
-                    localEventBus);
+                    localEventBus,currentState);
         } else {
-            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table);
+            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table,currentState);
         }
 
         model.addDataDisplay(table);
@@ -498,10 +498,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
             if (isEditable()) {
                 LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(tooltipModel, true),
-                        localEventBus);
+                        localEventBus, currentState);
 
             } else {
-                LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table);
+                LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table, currentState);
             }
             tooltipModel.addDataDisplay(table);
             this.add(table);

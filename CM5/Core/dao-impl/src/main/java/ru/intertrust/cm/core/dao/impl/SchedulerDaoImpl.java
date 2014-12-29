@@ -2,14 +2,18 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Реализация DAO для работы с расписанием задач
@@ -52,7 +56,7 @@ public class SchedulerDaoImpl implements SchedulerDao {
         String typeName = "schedule";
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         return getMultipleTasks(typeName, accessToken,
-                schedulerQueryHelper.generateFindNotInStatusTasksQuery(typeName, accessToken));
+                schedulerQueryHelper.generateFindNotInStatusTasksQuery(typeName, accessToken), SCHEDULE_STATUS_SLEEP);
     }
 
     /**
@@ -65,13 +69,13 @@ public class SchedulerDaoImpl implements SchedulerDao {
         String typeName = "schedule";
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         return getMultipleTasks(typeName, accessToken,
-                schedulerQueryHelper.generateFindTasksByStatusQuery(typeName, accessToken, activeOnly));
+                schedulerQueryHelper.generateFindTasksByStatusQuery(typeName, accessToken, activeOnly), status);
 
     }
 
-    private List<DomainObject> getMultipleTasks(String typeName, AccessToken accessToken, String query) {
+    private List<DomainObject> getMultipleTasks(String typeName, AccessToken accessToken, String query, String statusName) {
         Map<String, Object> parameters = schedulerQueryHelper.initializeParameters(accessToken);
-        parameters.put("status", SCHEDULE_STATUS_SLEEP);
+        parameters.put("status", statusName);
 
         List<DomainObject> result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));

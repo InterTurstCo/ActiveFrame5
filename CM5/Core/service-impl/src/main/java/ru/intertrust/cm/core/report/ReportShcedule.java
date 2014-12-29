@@ -97,7 +97,7 @@ public class ReportShcedule implements ScheduleTaskHandle {
         NotificationContext notificationContext = new NotificationContext();
         notificationContext.addContextObject("report", reportResult.getResultId());
         notificationContext.addContextObject("context", contextId);
-        notificationService.sendOnTransactionSuccess(PERIODIC_REPORT, null, getAddressee(reportParameter, contextId), NotificationPriority.NORMAL,
+        notificationService.sendOnTransactionSuccess(PERIODIC_REPORT, (Id)null, getAddressee(reportParameter, contextId), NotificationPriority.NORMAL,
                 notificationContext);
     }
 

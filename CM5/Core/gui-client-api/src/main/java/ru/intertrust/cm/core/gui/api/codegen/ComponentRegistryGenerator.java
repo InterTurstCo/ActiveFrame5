@@ -33,7 +33,7 @@ public class ComponentRegistryGenerator extends Generator {
     public static final String REGISTRY_IMPL_NAME = "ComponentRegistryImpl";
 
     @Override
-    public String generate(TreeLogger logger, GeneratorContext context, String typeName) throws UnableToCompleteException {
+    public String generate(TreeLogger treeLogger, GeneratorContext context, String typeName) throws UnableToCompleteException {
         Properties properties = getGuiProperties();
         TypeOracle typeOracle = context.getTypeOracle();
 
@@ -43,11 +43,14 @@ public class ComponentRegistryGenerator extends Generator {
         try {
             for (JClassType currentType : typeOracle.getTypes()) {
                 String componentName = null;
+                if (!isComponent(COMPONENT_TYPE, currentType)) {
+                    continue;
+                }
                 ComponentName annotation = currentType.getAnnotation(ComponentName.class);
                 if (annotation != null ) {
                     componentName = annotation.value();
-                }
-                if (!isComponent(COMPONENT_TYPE, currentType)) {
+                } else {
+                    System.out.println(currentType + " is ignored as @ComponentName annotation is absent.");
                     continue;
                 }
 
@@ -55,7 +58,9 @@ public class ComponentRegistryGenerator extends Generator {
                 if (componentClassesByName.containsKey(componentName)) {
                     String definedClassName = properties.getProperty(componentName);
                     if (definedClassName == null) {
-                        String message = "Компонент " + componentName + " определён не однозначно";
+                        String message = "Component " + componentName + " is not unique. Resolve name in gui.properties";
+                        System.out.println("===========================================================================================");
+                        System.out.println(message);
                         throw new IllegalArgumentException(message);
                     }
                     className = definedClassName;
@@ -72,7 +77,7 @@ public class ComponentRegistryGenerator extends Generator {
         ClassSourceFileComposerFactory sourceWriterFactory = getFactory();
         sourceWriterFactory.addImplementedInterface(REGISTRY_PACKAGE + '.' + REGISTRY_CLASS_NAME);
 
-        PrintWriter printWriter = context.tryCreate(logger, REGISTRY_PACKAGE, REGISTRY_IMPL_NAME);
+        PrintWriter printWriter = context.tryCreate(treeLogger, REGISTRY_PACKAGE, REGISTRY_IMPL_NAME);
         if (printWriter == null) {
             return sourceWriterFactory.getCreatedClassName();
         }
@@ -98,7 +103,7 @@ public class ComponentRegistryGenerator extends Generator {
         sourceWriter.println("return obj instanceof BaseComponent ? (T) ((BaseComponent) obj.createNew()).setName(name) : (T) obj.createNew();");
         sourceWriter.outdent();
         sourceWriter.println("}");
-        sourceWriter.commit(logger);
+        sourceWriter.commit(treeLogger);
         return sourceWriterFactory.getCreatedClassName();
     }
 

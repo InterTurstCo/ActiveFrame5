@@ -36,7 +36,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 12:05 PM
  */
 public class CollectionColumnHeaderController implements ComponentWidthChangedHandler, ComponentOrderChangedHandler,
-         CollectionRowSelectedEventHandler {
+        CollectionRowSelectedEventHandler {
     private final String collectionViewName;
     private List<ColumnHeaderBlock> columnHeaderBlocks;
     private CollectionDataGrid dataGrid;
@@ -146,7 +146,11 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
             boolean shouldChangeVisibilityState = columnHeaderBlock.shouldChangeVisibilityState();
 
             if (visible && shouldChangeVisibilityState) {
-                dataGrid.insertColumn(i, collectionColumn, columnHeaderBlock.getHeader());
+                if (i > dataGrid.getColumnCount()) {
+                    dataGrid.addColumn(collectionColumn, columnHeaderBlock.getHeader());
+                } else {
+                    dataGrid.insertColumn(i, collectionColumn, columnHeaderBlock.getHeader());
+                }
                 dataGrid.setColumnWidth(collectionColumn, collectionColumn.getDrawWidth() + "px");
                 columnHeaderBlock.getHeader().setSearchAreaVisibility(filtersVisibility);
                 columnHeaderBlock.setShouldChangeVisibilityState(false);
@@ -320,7 +324,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     }
 
     public void changeTableWidthByCondition() {
-        if(CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)){
+        if (CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)) {
             return;
         }
         changeColumnsWidth(displayedWidth - otherWidgetsDelta);
@@ -346,10 +350,10 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     }
 
     public void sideBarFixPositionEvent(final SideBarResizeEvent event) {
-                if (otherWidgetsDelta != 0) {
-                    changeColumnsWidth(displayedWidth);
-                }
-                otherWidgetsDelta = event.getSideBarWidths();
+        if (otherWidgetsDelta != 0) {
+            changeColumnsWidth(displayedWidth);
+        }
+        otherWidgetsDelta = event.getSideBarWidths();
 
     }
 

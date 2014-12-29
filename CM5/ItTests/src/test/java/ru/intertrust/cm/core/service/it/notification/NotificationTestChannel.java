@@ -12,8 +12,8 @@ import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle
 @NotificationChannel(name = "TEST_NOTIFICATION_CHANNEL",
         description = "Тестовый канал для использования в интеграционных тестах")
 public class NotificationTestChannel implements NotificationChannelHandle {
-    private static List<NotificationItem> notifications = new ArrayList<NotificationItem>(); 
-    
+    private static List<NotificationItem> notifications = new ArrayList<NotificationItem>();
+
     @Override
     public void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
             NotificationContext context) {
@@ -22,29 +22,39 @@ public class NotificationTestChannel implements NotificationChannelHandle {
         }
     }
 
-    public void clear(){
+    public void clear() {
         synchronized (notifications) {
             notifications.clear();
         }
     }
-    
+
     public boolean contains(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
-            NotificationContext context){
+            NotificationContext context) {
         NotificationItem comparedItem = new NotificationItem(notificationType, senderId, addresseeId, priority, context);
         return notifications.contains(comparedItem);
     }
-    
+
     public class NotificationItem {
         private String notificationType;
         private Id senderId;
+        private String senderName;
         private Id addresseeId;
         private NotificationPriority priority;
         private NotificationContext context;
-        
+
         private NotificationItem(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
-                NotificationContext context){
+                NotificationContext context) {
             this.notificationType = notificationType;
             this.senderId = senderId;
+            this.addresseeId = addresseeId;
+            this.priority = priority;
+            this.context = context;
+        }
+
+        private NotificationItem(String notificationType, String senderName, Id addresseeId, NotificationPriority priority,
+                NotificationContext context) {
+            this.notificationType = notificationType;
+            this.senderName = senderName;
             this.addresseeId = addresseeId;
             this.priority = priority;
             this.context = context;
@@ -55,10 +65,11 @@ public class NotificationTestChannel implements NotificationChannelHandle {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((addresseeId == null) ? 0 : addresseeId.hashCode());
-//            result = prime * result + ((context == null) ? 0 : context.hashCode());
+            //            result = prime * result + ((context == null) ? 0 : context.hashCode());
             result = prime * result + ((notificationType == null) ? 0 : notificationType.hashCode());
             result = prime * result + ((priority == null) ? 0 : priority.hashCode());
             result = prime * result + ((senderId == null) ? 0 : senderId.hashCode());
+            result = prime * result + ((senderName == null) ? 0 : senderName.hashCode());
             return result;
         }
 
@@ -93,9 +104,21 @@ public class NotificationTestChannel implements NotificationChannelHandle {
                     return false;
             } else if (!senderId.equals(other.senderId))
                 return false;
+            if (senderName == null) {
+                if (other.senderName != null)
+                    return false;
+            } else if (!senderName.equals(other.senderName))
+                return false;
             return true;
         }
-        
+
+    }
+
+    @Override
+    public void send(String notificationType, String senderName, Id addresseeId, NotificationPriority priority, NotificationContext context) {
+        synchronized (notifications) {
+            notifications.add(new NotificationItem(notificationType, senderName, addresseeId, priority, context));
+        }
     }
 
 }
