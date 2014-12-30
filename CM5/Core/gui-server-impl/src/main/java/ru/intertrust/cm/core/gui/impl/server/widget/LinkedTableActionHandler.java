@@ -19,22 +19,6 @@ public abstract class LinkedTableActionHandler implements ComponentHandler {
     public abstract LinkedTableActionResponse handle(Dto request);
 
     public LinkedTableActionResponse execute(Dto request) {
-        // do checks
-        LinkedTableActionRequest linkedTableActionRequest = (LinkedTableActionRequest) request;
-        LinkedTableActionResponse response = new LinkedTableActionResponse();
-        String checkingComponent = linkedTableActionRequest.getObjectId() == null ?
-                linkedTableActionRequest.getNewObjectsAccessCheckerComponent() :
-                linkedTableActionRequest.getAccessCheckerComponent();
-        if (checkingComponent != null) {
-            AccessChecker accessChecker = (AccessChecker) applicationContext.getBean(checkingComponent);
-            if (accessChecker != null) {
-                if (accessChecker.checkAccess(linkedTableActionRequest.getObjectId())) {
-                    return handle(request);
-                } else {
-                    response.setAccessGranted(false);
-                }
-            }
-        }
-        return response;
+        return handle(request);
     }
 }

@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.action.access.AccessChecker;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -50,6 +51,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     private GuiService guiService;
+
+    private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
+    private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
 
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
@@ -216,7 +220,27 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
         RowItem rowItem = new RowItem();
+        Map<String, Boolean> rowAccessMatrix = new HashMap<>();
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
+            SummaryTableActionColumnConfig summaryTableActionColumnConfig = columnConfig.getSummaryTableActionColumnConfig();
+            if (summaryTableActionColumnConfig != null) {
+                String accessCheckerComponent = summaryTableActionColumnConfig.getAccessChecker();
+                if (accessCheckerComponent != null) {
+                    if (applicationContext.containsBeanDefinition(accessCheckerComponent)) {
+                        AccessChecker accessChecker = (AccessChecker) applicationContext.getBean(accessCheckerComponent);
+                        if (accessChecker != null) {
+                            rowAccessMatrix.put(summaryTableActionColumnConfig.getComponentName(),
+                                    accessChecker.checkAccess(domainObject.getId()));
+                        }
+                    }
+
+                }
+            }
+            AccessChecker defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_EDIT_ACCESS_CHECKER);
+            rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+            defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_DELETE_ACCESS_CHECKER);
+            rowAccessMatrix.put(DEFAULT_DELETE_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+
             String displayValue;
             String valueGeneratorComponentName = columnConfig.getValueGeneratorComponent();
             if (valueGeneratorComponentName != null) {
@@ -235,6 +259,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 }
             }
             rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
+            rowItem.setAccessMatrix(rowAccessMatrix);
         }
         return rowItem;
     }

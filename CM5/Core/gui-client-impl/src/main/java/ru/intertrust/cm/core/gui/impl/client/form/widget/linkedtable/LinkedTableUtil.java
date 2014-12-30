@@ -8,17 +8,24 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.action.CheckAccessRequest;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState;
 import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -34,8 +41,6 @@ public class LinkedTableUtil {
 
     public static final String DEFAULT_EDIT_ACTION_COMPONENT = "default.edit.table.action";
     public static final String DEFAULT_DELETE_ACTION_COMPONENT = "default.delete.table.action";
-
-    private CellTable<RowItem> table;
 
     enum ActionTypes {
         edit, delete
@@ -56,6 +61,46 @@ public class LinkedTableUtil {
             table.addColumn(buildDeleteButtonColumn(localEventBus, fieldUpdater.isTooltipContent()), "");*/
         }
 
+    }
+
+    private static void withCheckAccess(String checkerComponentName, ColumnContext columnContext, final CheckAccessCallback callback) {
+        Id objectId = columnContext.getRowItem().getObjectId();
+        if (objectId != null) {
+            Map<String, Boolean> accessMatrix = columnContext.getRowItem().getAccessMatrix();
+            if (accessMatrix != null && accessMatrix.containsKey(checkerComponentName)) {
+                if (accessMatrix.get(checkerComponentName)) {
+                    callback.onSuccess();
+                } else {
+                    callback.onDenied();
+                }
+            } else {
+                callback.onSuccess();
+            }
+        } else {
+            //TODO to server check for new row
+            callback.onSuccess();
+        }
+    }
+
+    private static void withCheckAccessOnServer(String checkerComponentName, final CheckAccessCallback callback) {
+        CheckAccessRequest request = new CheckAccessRequest();
+        request.setAccessCheckerName(checkerComponentName);
+        Command command = new Command("checkAccess", "checkAccessHandler", request);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onSuccess(Dto result) {
+                // CheckAccessResponse response = (CheckAccessResponse) result;
+                //  if (response.isAccessGranted()) {
+                callback.onSuccess();
+                //  } else {
+                callback.onDenied();
+                //   }
+            }
+
+            @Override
+            public void onFailure(Throwable caught) {
+            }
+        });
     }
 
     private static Column<RowItem, ColumnContext> buildActionsColumn(SummaryTableActionsColumnConfig summaryTableActionsColumnConfig,
@@ -83,42 +128,83 @@ public class LinkedTableUtil {
 
         @Override
         public void render(Context context, ColumnContext columnContext, SafeHtmlBuilder sb) {
-            HorizontalPanel container = new HorizontalPanel();
+            final HorizontalPanel container = new HorizontalPanel();
             if (summaryTableActionsColumnConfig != null) {
-                for (SummaryTableActionColumnConfig summaryTableActionColumnConfig :
+                for (final SummaryTableActionColumnConfig summaryTableActionColumnConfig :
                         summaryTableActionsColumnConfig.getSummaryTableActionColumnConfig()) {
                     if (summaryTableActionColumnConfig.getComponentName() != null) {
-                        ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
+                        final ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
                         if (columnDisplayConfig != null) {
-                            String url = columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
-                            String text = columnDisplayConfig.getColumnDisplayTextConfig().getValue();
-                            Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
-                                    + url);
-                            actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
-                            String componentName = summaryTableActionColumnConfig.getComponentName();
-                            actionImage.addStyleName(componentName);
-                            container.add(actionImage);
-                            Label actionText = new Label(text);
-                            actionText.addStyleName(componentName);
-                            actionText.addStyleName(ACTION_TEXT_SELECTOR);
-                            container.add(actionText);
+                            withCheckAccessDo(columnContext, new CheckAccessCallback() {
+                                        @Override
+                                        public void onSuccess() {
+                                            displayAction(columnDisplayConfig, summaryTableActionColumnConfig, container);
+                                        }
+
+                                        @Override
+                                        public void onDenied() {
+                                        }
+                                    },
+                                    summaryTableActionColumnConfig.getAccessChecker());
                         }
                     } else if (summaryTableActionColumnConfig.getType() != null) {
                         String type = summaryTableActionColumnConfig.getType();
                         if (type.equals(ActionTypes.edit.name())) {
-                            Button editButton = createEditButton();
-                            container.add(editButton);
+                            addEditButton(container, columnContext);
                         } else if (type.equals(ActionTypes.delete.name())) {
-                            Button deleteButton = createDeleteButton();
-                            container.add(deleteButton);
+                            addDeleteButton(container, columnContext);
                         }
                     }
                 }
             } else {
-                container.add(createEditButton());
-                container.add(createDeleteButton());
+                //default actions
+                addEditButton(container, columnContext);
+                addDeleteButton(container, columnContext);
             }
             sb.appendHtmlConstant(container.toString());
+        }
+
+        private void displayAction(ColumnDisplayConfig columnDisplayConfig, SummaryTableActionColumnConfig summaryTableActionColumnConfig, HorizontalPanel container) {
+            String url = columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
+            String text = columnDisplayConfig.getColumnDisplayTextConfig().getValue();
+            Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
+                    + url);
+            actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
+            String componentName = summaryTableActionColumnConfig.getComponentName();
+            actionImage.addStyleName(componentName);
+            container.add(actionImage);
+            Label actionText = new Label(text);
+            actionText.addStyleName(componentName);
+            actionText.addStyleName(ACTION_TEXT_SELECTOR);
+            container.add(actionText);
+        }
+
+        private void addDeleteButton(final HorizontalPanel container, ColumnContext columnContext) {
+            withCheckAccess(DEFAULT_DELETE_ACCESS_CHECKER, columnContext, new CheckAccessCallback() {
+                @Override
+                public void onSuccess() {
+                    container.add(createDeleteButton());
+                }
+
+                @Override
+                public void onDenied() {
+
+                }
+            });
+        }
+
+        private void addEditButton(final HorizontalPanel container, ColumnContext columnContext) {
+            withCheckAccess(DEFAULT_EDIT_ACCESS_CHECKER, columnContext, new CheckAccessCallback() {
+                @Override
+                public void onSuccess() {
+                    container.add(createEditButton());
+                }
+
+                @Override
+                public void onDenied() {
+
+                }
+            });
         }
 
         @Override
@@ -135,9 +221,8 @@ public class LinkedTableUtil {
                     if ((className.contains(ACTION_IMAGE_SELECTOR) || className.contains(ACTION_TEXT_SELECTOR)) &&
                             className.contains(componentName)) {
                         LinkedTableAction action = ComponentRegistry.instance.get(componentName);
-                        action.perform(columnContext.getObjectId(), context.getIndex(),
-                                summaryTableActionColumnConfig.getAccessChecker(),
-                                summaryTableActionColumnConfig.getNewObjectsAccessChecker());
+                        action.perform(columnContext.getObjectId(), context.getIndex()
+                        );
                     }
                 }
             }
@@ -151,16 +236,14 @@ public class LinkedTableUtil {
                         valueUpdater.update(columnContext);
                     }
                 });
-                action.perform(columnContext.getObjectId(), context.getIndex(),
-                        DEFAULT_EDIT_ACCESS_CHECKER,
-                        DEFAULT_EDIT_NEWOBJECT_ACCESS_CHECKER);
+                action.perform(columnContext.getObjectId(), context.getIndex()
+                );
 
             } else if (className.contains(DELETE_BUTTON_SELECTOR)) {
                 LinkedTableAction action = ComponentRegistry.instance.get(DEFAULT_DELETE_ACTION_COMPONENT);
                 FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
-                action.perform(columnContext.getObjectId(), context.getIndex(),
-                        DEFAULT_DELETE_ACCESS_CHECKER,
-                        DEFAULT_DELETE_NEWOBJECT_ACCESS_CHECKER);
+                action.perform(columnContext.getObjectId(), context.getIndex()
+                );
                 action.setRowFormState(rowFormState);
                 action.setCallback(new PostPerformCallback() {
                     @Override
@@ -175,6 +258,10 @@ public class LinkedTableUtil {
         }
 
 
+    }
+
+    private static void withCheckAccessDo(ColumnContext columnContext, CheckAccessCallback callback, String accessChecker) {
+        withCheckAccess(accessChecker, columnContext, callback);
     }
 
     private static FormState obtainFormStateForRow(ColumnContext columnContext, LinkedDomainObjectsTableState currentState) {
@@ -228,37 +315,60 @@ public class LinkedTableUtil {
         }
 
         @Override
-        public void render(Context context, ColumnContext columnContext, SafeHtmlBuilder safeHtmlBuilder) {
-            HorizontalPanel container = new HorizontalPanel();
+        public void render(Context context, final ColumnContext columnContext, SafeHtmlBuilder safeHtmlBuilder) {
+            final HorizontalPanel container = new HorizontalPanel();
             SummaryTableActionColumnConfig summaryTableActionColumnConfig = summaryTableColumnConfig.getSummaryTableActionColumnConfig();
-
-            Widget actionableCellText;
             if (summaryTableActionColumnConfig != null) {
-                ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
+                final ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
                 if (columnDisplayConfig != null) {
-                    Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
-                            + columnDisplayConfig.getColumnDisplayImageConfig().getUrl());
-                    actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
-                    container.add(actionImage);
-                    Label actionText = new Label(columnDisplayConfig.getColumnDisplayTextConfig().getValue());
-                    actionText.addStyleName(ACTION_TEXT_SELECTOR);
-                    container.add(actionText);
-                    HTML htmlCellText = new HTML("<div>" + columnContext.renderRow() + "</div>");
-                    if (ColumnDisplayConfig.Position.before.name().equals(columnDisplayConfig.getPosition())) {
-                        container.insert(htmlCellText, 0);
-                    } else {
-                        container.add(htmlCellText);
-                    }
+                    withCheckAccessDo(columnContext, new CheckAccessCallback() {
+                        @Override
+                        public void onSuccess() {
+                            drawColumnAction(columnDisplayConfig, container, columnContext);
+                        }
+
+                        @Override
+                        public void onDenied() {
+
+                        }
+                    }, summaryTableActionColumnConfig.getAccessChecker());
                 } else {
-                    actionableCellText = new Hyperlink(columnContext.renderRow(), null);
-                    actionableCellText.addStyleName(ACTION_TEXT_SELECTOR);
-                    container.add(actionableCellText);
+                    withCheckAccessDo(columnContext, new CheckAccessCallback() {
+                        @Override
+                        public void onSuccess() {
+                            Widget actionableCellText;
+                            actionableCellText = new Hyperlink(columnContext.renderRow(), null);
+                            actionableCellText.addStyleName(ACTION_TEXT_SELECTOR);
+                            container.add(actionableCellText);
+                        }
+
+                        @Override
+                        public void onDenied() {
+                            container.add(new HTML(columnContext.renderRow()));
+                        }
+                    }, summaryTableActionColumnConfig.getAccessChecker());
                 }
             } else {
                 container.add(new HTML(columnContext.renderRow()));
 
             }
             safeHtmlBuilder.appendHtmlConstant(container.toString());
+        }
+
+        private void drawColumnAction(ColumnDisplayConfig columnDisplayConfig, HorizontalPanel container, ColumnContext columnContext) {
+            Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
+                    + columnDisplayConfig.getColumnDisplayImageConfig().getUrl());
+            actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
+            container.add(actionImage);
+            Label actionText = new Label(columnDisplayConfig.getColumnDisplayTextConfig().getValue());
+            actionText.addStyleName(ACTION_TEXT_SELECTOR);
+            container.add(actionText);
+            HTML htmlCellText = new HTML("<div>" + columnContext.renderRow() + "</div>");
+            if (ColumnDisplayConfig.Position.before.name().equals(columnDisplayConfig.getPosition())) {
+                container.insert(htmlCellText, 0);
+            } else {
+                container.add(htmlCellText);
+            }
         }
 
         @Override
@@ -270,7 +380,7 @@ public class LinkedTableUtil {
                 LinkedTableAction action = ComponentRegistry.instance.get(componentName);
                 FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
                 action.setRowFormState(rowFormState);
-                action.perform(columnContext.getObjectId(), context.getIndex(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getAccessChecker(), summaryTableColumnConfig.getSummaryTableActionColumnConfig().getNewObjectsAccessChecker());
+                action.perform(columnContext.getObjectId(), context.getIndex());
             }
             super.onBrowserEvent(context, parent, columnContext, event, valueUpdater);
         }
@@ -352,5 +462,11 @@ public class LinkedTableUtil {
 
             }
         };
+    }
+
+    private static abstract class CheckAccessCallback {
+        public abstract void onSuccess();
+
+        public abstract void onDenied();
     }
 }

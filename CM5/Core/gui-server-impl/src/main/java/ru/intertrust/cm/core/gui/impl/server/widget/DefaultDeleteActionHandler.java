@@ -13,8 +13,6 @@ public class DefaultDeleteActionHandler extends LinkedTableActionHandler {
     @Override
     public LinkedTableActionResponse handle(Dto request) {
         LinkedTableActionRequest linkedTableActionRequest = (LinkedTableActionRequest) request;
-        System.out.println(linkedTableActionRequest.getAccessCheckerComponent());
-        System.out.println(linkedTableActionRequest.getNewObjectsAccessCheckerComponent());
         LinkedTableActionResponse response = new LinkedTableActionResponse();
         return response;
     }

@@ -305,6 +305,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 RowItem rowItem = (RowItem) result;
                 String stateKey = currentState.addNewFormState(formState);
                 rowItem.setParameter(STATE_KEY, stateKey);
+
                 insertInCorrectModel(rowItem);
 
             }

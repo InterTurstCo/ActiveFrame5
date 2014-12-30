@@ -414,14 +414,14 @@
                     </summary-table-column>
                 </summary-table>
                 <collection-ref name="Organizations"/>
-                <selection-filters>
+                <!--<selection-filters>
                     <selection-filter name="byNames">
                         <param name="0" value="Организация 11" type="string"/>
                         <param name="1" value="Организация 1" type="string"/>
                         <param name="2" value="Организация 2" type="string"/>
                         <param name="3" value="Организация 22" type="string"/>
                     </selection-filter>
-                </selection-filters>
+                </selection-filters>-->
             </linked-domain-objects-table>
 
             <suggest-box id="l_suggestbox">
