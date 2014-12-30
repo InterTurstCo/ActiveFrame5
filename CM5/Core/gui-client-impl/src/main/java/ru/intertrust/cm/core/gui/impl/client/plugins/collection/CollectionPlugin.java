@@ -120,4 +120,10 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         ((CollectionPluginView)getView()).sideBarFixPositionEvent(event);
     }
 
+    @Override
+    public void clearHandlers() {
+        super.clearHandlers();
+        ((CollectionPluginView)getView()).clearHandlers();
+    }
+
 }

@@ -613,6 +613,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         if (rowSelectedRegistration != null) {
             rowSelectedRegistration.removeHandler();
         }
+        collectionPlugin.clearHandlers();
     }
 
     private List<IsWidget> breadCrumbItemsToWidgets() {
