@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 
@@ -311,7 +312,17 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                     index++;
                 }
             }
+
+            createIndexForAccessObjectId(config, index, isAl);
+
         }
+    }
+
+    private void createIndexForAccessObjectId(DomainObjectTypeConfig config, int index, boolean isAl) {
+        ReferenceFieldConfig accessObjectIdConfig = new ReferenceFieldConfig();
+        accessObjectIdConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);            
+        //тип ссылочного поля не должен быть типа *, т.к. нет поля access_object_id_type и оно не будет указвано в DDL для индекса.
+        jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, accessObjectIdConfig, index, isAl));
     }
 
     private boolean hasSystemFields(DomainObjectTypeConfig config) {
