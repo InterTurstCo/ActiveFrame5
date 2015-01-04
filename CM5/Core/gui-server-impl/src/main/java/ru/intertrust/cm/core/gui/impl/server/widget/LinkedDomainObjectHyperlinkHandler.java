@@ -52,10 +52,10 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     private FilterBuilder filterBuilder;
 
     @Autowired
-    protected TitleBuilder titleBuilder;
+    private TitleBuilder titleBuilder;
 
     @Autowired
-    protected AccessVerificationService accessVerificationService;
+    private AccessVerificationService accessVerificationService;
 
     @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
@@ -209,5 +209,10 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         return false;
 
     }
+
+    public Dto getRepresentationForOneItem(Dto inputParams){
+        return formatHandler.getRepresentationForOneItem(inputParams);
+    }
+
 
 }

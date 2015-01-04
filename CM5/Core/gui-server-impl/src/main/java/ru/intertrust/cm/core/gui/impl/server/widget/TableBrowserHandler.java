@@ -126,5 +126,12 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         return response;
     }
 
+    public Dto getRepresentationForOneItem(Dto inputParams){
+        return formatHandler.getRepresentationForOneItem(inputParams);
+    }
+
+    public Dto fetchWidgetItems(Dto inputParams){
+        return widgetItemsHandler.fetchWidgetItems(inputParams);
+    }
 
 }

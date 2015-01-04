@@ -283,6 +283,10 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return nodeContent;
     }
 
+    public Dto getRepresentationForOneItem(Dto inputParams){
+        return formatHandler.getRepresentationForOneItem(inputParams);
+    }
+
     private List<Filter> addParentFilter(Id parentId, String filterByParentName, List<Filter> filters) {
         Filter parentFilter = FilterBuilderUtil.prepareReferenceFilter(parentId, filterByParentName);
         filters.add(parentFilter);

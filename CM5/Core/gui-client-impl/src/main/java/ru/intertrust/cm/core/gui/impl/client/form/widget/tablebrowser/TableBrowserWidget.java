@@ -574,7 +574,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, collectionName,
                 config.getFormattingConfig());
 
-        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
+        Command command = new Command("getRepresentationForOneItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {

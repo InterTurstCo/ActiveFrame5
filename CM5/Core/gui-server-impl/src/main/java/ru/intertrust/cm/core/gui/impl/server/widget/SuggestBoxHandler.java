@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
@@ -45,6 +46,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
 
     @Autowired
     private FilterBuilder filterBuilder;
+
+    @Autowired
+    private WidgetItemsHandler widgetItemsHandler;
 
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
@@ -128,5 +132,12 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         return suggestionResponse;
     }
 
+    public Dto getRepresentationForOneItem(Dto inputParams){
+        return formatHandler.getRepresentationForOneItem(inputParams);
+    }
+
+    public Dto fetchWidgetItems(Dto inputParams){
+        return widgetItemsHandler.fetchWidgetItems(inputParams);
+    }
 
 }

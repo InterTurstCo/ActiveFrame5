@@ -41,7 +41,7 @@ public class NewNodeContentManager extends NodeContentManager {
 
     public void fetchNodeContent() {
         NodeContentRequest nodeContentRequest = prepareRequestDataForNewNodeOpening();
-        Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
+        Command command = new Command("fetchNodeContent", HierarchyBrowserWidget.COMPONENT_NAME, nodeContentRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {

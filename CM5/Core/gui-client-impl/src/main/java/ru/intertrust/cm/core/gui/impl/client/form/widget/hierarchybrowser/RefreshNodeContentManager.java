@@ -33,7 +33,7 @@ public class RefreshNodeContentManager extends RedrawNodeContentManager {
     public void fetchNodeContent() {
         NodeContentRequest nodeContentRequest = prepareRequestDataForNodeRedraw();
         nodeContentRequest.setInputText(inputText);
-        Command command = new Command("fetchNodeContent", "hierarchy-browser", nodeContentRequest);
+        Command command = new Command("fetchNodeContent", HierarchyBrowserWidget.COMPONENT_NAME, nodeContentRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {

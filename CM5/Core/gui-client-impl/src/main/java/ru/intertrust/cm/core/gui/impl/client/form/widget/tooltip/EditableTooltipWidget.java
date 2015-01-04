@@ -28,7 +28,7 @@ public abstract class EditableTooltipWidget extends TooltipWidget {
 
     protected void fetchWidgetItems(final TooltipCallback tooltipCallback) {
         WidgetItemsRequest widgetItemsRequest = createRequest();
-        Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
+        Command command = new Command("fetchWidgetItems", getName(), widgetItemsRequest);
         final HandlerRegistration handlerRegistration = Event.addNativePreviewHandler(new EventBlocker(impl));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

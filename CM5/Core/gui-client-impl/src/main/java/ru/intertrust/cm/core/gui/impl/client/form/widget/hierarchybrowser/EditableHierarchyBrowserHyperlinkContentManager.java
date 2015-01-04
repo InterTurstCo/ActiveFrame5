@@ -37,7 +37,7 @@ public abstract class EditableHierarchyBrowserHyperlinkContentManager extends Hi
         ids.add(id);
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, nodeConfig.getCollection(),
                 config.getFormattingConfig());
-        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
+        Command command = new Command("getRepresentationForOneItem", HierarchyBrowserWidget.COMPONENT_NAME, request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
