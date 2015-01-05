@@ -486,8 +486,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 dontShowNewRow = true;
                 setUpProgressOfUpload(true);
                 cancelTimer();
-                reinitSubmitForm();
-                submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
+//                reinitSubmitForm();
+//               submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
+                submitForm.reset();
             }
         }
     }
