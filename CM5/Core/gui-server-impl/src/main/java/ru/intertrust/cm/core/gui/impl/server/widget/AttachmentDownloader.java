@@ -71,7 +71,7 @@ public class AttachmentDownloader {
             String mimeType = domainObject.getString("MimeType");
             response.setContentType(mimeType);
             remoteFileData = attachmentService.loadAttachment(rdmsId);
-            filename = URLEncoder.encode(domainObject.getString("Name"),"UTF-8");
+            filename = domainObject.getString("Name");
             contentLength = remoteFileData.available();
         } else {
             filename = request.getParameter("tempName");
@@ -82,10 +82,12 @@ public class AttachmentDownloader {
         response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
         response.setBufferSize(BUFFER_SIZE);
         response.setCharacterEncoding("UTF-8");
+
+        filename = URLEncoder.encode(filename, "UTF-8");
         //For Firefox encoding issue
-        String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*='UTF-8'"
-                :"attachment; filename=\"";
-        response.setHeader("Content-disposition", contentDispositionPart + filename + "\"");
+        String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*=UTF-8''" + filename
+                :"attachment; filename=\"" + filename + "\"";
+        response.setHeader("Content-disposition", contentDispositionPart);
 
         try (InputStream fileData = (id != null ?  RemoteInputStreamClient.wrap(remoteFileData)
              : new FileInputStream(absolutePath)); ) {
