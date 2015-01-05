@@ -452,6 +452,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 cancelTimer();
             }
             mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+            submitForm.reset();
         }
     }
 
