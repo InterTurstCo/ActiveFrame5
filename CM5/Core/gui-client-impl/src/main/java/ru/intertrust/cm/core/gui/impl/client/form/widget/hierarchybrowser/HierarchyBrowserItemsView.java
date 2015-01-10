@@ -6,8 +6,13 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.api.client.WidgetNavigator;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserItemClickEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.WidgetNavigatorImpl;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkEditingNavigationHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.WidgetDelegatedKeyDownHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.panel.WidgetCollectionPanel;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 
@@ -19,27 +24,37 @@ import java.util.List;
  *         Time: 13:15
  */
 public class HierarchyBrowserItemsView extends Composite implements HierarchyBrowserDisplay {
-    private AbsolutePanel container;
-    private AbsolutePanel mainBoxPanel;
+    public static final String ITEM_STYLE_CLASS_NAME = "hierarchyBrowserElement";
+    private FocusPanel container;
+    private WidgetCollectionPanel mainBoxPanel;
     private EventBus eventBus;
     private Style.Display displayStyle;
     private boolean displayAsHyperlinks;
     private ClickHandler tooltipClickHandler;
 
     private boolean tooltipContent;
+
     public HierarchyBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                      boolean displayAsHyperlink) {
         this.eventBus = eventBus;
         this.displayAsHyperlinks = displayAsHyperlink;
-        mainBoxPanel = new AbsolutePanel();
+        init(selectionStyleConfig);
+        initWidget(container);
+    }
+
+    private void init(SelectionStyleConfig selectionStyleConfig){
+        mainBoxPanel = new WidgetCollectionPanel();
         mainBoxPanel.setStyleName("hierarchyBrowserMainBox");
         displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         mainBoxPanel.getElement().getStyle().clearOverflow();
 
-        container = new AbsolutePanel();
-        container.getElement().getStyle().clearOverflow();
-        container.add(mainBoxPanel);
-        initWidget(container);
+        WidgetNavigator<HierarchyBrowserItemPanel> widgetNavigator =
+                new WidgetNavigatorImpl<HierarchyBrowserItemPanel>(mainBoxPanel.getChildren(),HierarchyBrowserItemPanel.class);
+        WidgetDelegatedKeyDownHandler<HierarchyBrowserItemPanel> widgetDelegatedKeyDownHandler =
+                new HierarchyBrowserKeyDownHandler(widgetNavigator, eventBus);
+        container = new FocusPanel(mainBoxPanel);
+        new LinkEditingNavigationHandler().handleNavigation(container, widgetDelegatedKeyDownHandler);
+
     }
 
     public void setTooltipContent(boolean tooltipContent) {
@@ -57,10 +72,10 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     }
 
     private Panel createChosenItem(final HierarchyBrowserItem item) {
-        final AbsolutePanel element = new AbsolutePanel();
+        final AbsolutePanel element = new HierarchyBrowserItemPanel(item);
         element.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
         element.getElement().getStyle().setDisplay(displayStyle);
-        element.setStyleName("hierarchyBrowserElement");
+        element.setStyleName(ITEM_STYLE_CLASS_NAME);
         Label label = new Label(item.getStringRepresentation());
 
         boolean isHyperlink = item.isDisplayAsHyperlinks() == null ? displayAsHyperlinks : item.isDisplayAsHyperlinks();
@@ -114,14 +129,14 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
         Button openTooltip = new Button("...");
         openTooltip.setStyleName("tooltipButton");
         AbsolutePanel wrapper = new AbsolutePanel();
-        wrapper.setStyleName("hierarchyBrowserElement");
+        wrapper.setStyleName(ITEM_STYLE_CLASS_NAME);
         wrapper.add(openTooltip);
         mainBoxPanel.add(wrapper);
         openTooltip.addClickHandler(tooltipClickHandler);
     }
 
     public void setHeight(String height) {
-        container.setHeight(height);
+        mainBoxPanel.setHeight(height);
     }
 
     public boolean isEmpty() {
@@ -132,6 +147,8 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     public void display(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
         displayChosenItems(items, shouldDrawTooltipButton);
     }
+
+
 }
 
 

@@ -3,12 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.web.bindery.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
@@ -156,11 +151,11 @@ public class TableBrowserViewsBuilder {
     class TableBrowserEditableViewBuilder {
         private ViewHolder buildViewHolder() {
             SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
+            TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
+                    hasLinkedFormMappings, parent);
             if (state.isTableView()) {
                 TableBrowserCollection collection = createTableBrowserCollection(false, true);
                 TableBrowserCollectionViewHolder itemsWidgetChildViewHolder = new TableBrowserCollectionViewHolder(collection);
-                TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
-                        hasLinkedFormMappings, parent);
                 TableBrowserItemsViewHolder editableWidgetChildViewHolder = new TableBrowserItemsViewHolder(itemsWidget);
                 editableWidgetChildViewHolder.setChildViewHolder(itemsWidgetChildViewHolder);
                 TableBrowserEditableView editableView = createEditableTableWidgetView(itemsWidget, collection);
@@ -168,10 +163,8 @@ public class TableBrowserViewsBuilder {
                 tableBrowserEditableViewHolder.setChildViewHolder(editableWidgetChildViewHolder);
                 return tableBrowserEditableViewHolder;
             } else {
-                TableBrowserItemsView mainWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
-                        hasLinkedFormMappings, parent);
-                TableBrowserItemsViewHolder childViewHolder = new TableBrowserItemsViewHolder(mainWidget);
-                TableBrowserEditableView editableView = createEditableWidgetView(mainWidget);
+                TableBrowserItemsViewHolder childViewHolder = new TableBrowserItemsViewHolder(itemsWidget);
+                TableBrowserEditableView editableView = createEditableWidgetView(itemsWidget);
                 TableBrowserEditableViewHolder tableBrowserEditableViewHolder = new TableBrowserEditableViewHolder(editableView);
                 tableBrowserEditableViewHolder.setChildViewHolder(childViewHolder);
                 return tableBrowserEditableViewHolder;
@@ -257,4 +250,5 @@ public class TableBrowserViewsBuilder {
         return null;
 
     }
+
 }

@@ -43,9 +43,7 @@ public class EditableWidgetTooltip extends PopupPanel {
     }
 
     private void init(SelectionStyleConfig selectionStyleConfig, Map<String, PopupTitlesHolder> typeTitleMap) {
-        widgetItemsView = new WidgetItemsView(selectionStyleConfig, typeTitleMap, widget);
-        widgetItemsView.setEventBus(eventBus);
-        widgetItemsView.setTooltipContent(true);
+        widgetItemsView = new WidgetItemsView(selectionStyleConfig, typeTitleMap, widget, eventBus);
         this.add(widgetItemsView);
         this.setStyleName("tooltipPopup");
 

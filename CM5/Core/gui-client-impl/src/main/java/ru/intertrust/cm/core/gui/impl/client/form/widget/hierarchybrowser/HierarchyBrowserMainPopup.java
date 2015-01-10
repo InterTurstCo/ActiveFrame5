@@ -79,6 +79,7 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         popupChosenContent.setHeight(0.13 * popupHeight + "px");
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
+
         ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.addStyleName("node-section-scroll");
         nodesSection = new HorizontalPanel();

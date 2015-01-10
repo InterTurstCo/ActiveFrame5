@@ -541,11 +541,11 @@
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>
-                <selection-filters row-limit="1">
+               <!-- <selection-filters row-limit="1">
                     <selection-filter name="byName">
                         <param name="0" value="А%" type="string"/>
                     </selection-filter>
-                </selection-filters>
+                </selection-filters>-->
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name} {population}"/>
 
@@ -556,7 +556,7 @@
                 <input-text-filter name="byText"/>
 
                 <!-- количество элементов, показываемых на одной странице выпадающего списка -->
-                <page-size>10</page-size>
+                <page-size>35</page-size>
                    <display-values-as-links value="true"/>
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
@@ -764,11 +764,11 @@
                 <created-objects>
                   <created-object domain-object-type="city" text="Город"/>
                </created-objects>
-                <selection-filters row-limit="1">
+               <!-- <selection-filters row-limit="1">
                     <selection-filter name="byNameforTableBrowser">
                         <param name="0" value="А%" type="string"/>
                     </selection-filter>
-                </selection-filters>
+                </selection-filters>-->
                 <linked-form name="city_form">
                     <title>
                         <existing-object>

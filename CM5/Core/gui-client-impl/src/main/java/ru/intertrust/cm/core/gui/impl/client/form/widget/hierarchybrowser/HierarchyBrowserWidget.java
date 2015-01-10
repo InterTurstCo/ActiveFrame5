@@ -193,8 +193,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserConfig hierarchyBrowserConfig = currentState.getHierarchyBrowserConfig();
         SelectionStyleConfig selectionStyleConfig = hierarchyBrowserConfig.getSelectionStyleConfig();
         boolean displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(currentState);
-
-        return new HierarchyBrowserView(selectionStyleConfig, localEventBus, displayAsHyperlinks);
+        HierarchyBrowserView hierarchyBrowserView = new HierarchyBrowserView(selectionStyleConfig, localEventBus, displayAsHyperlinks);
+        return hierarchyBrowserView;
     }
 
     @Override
