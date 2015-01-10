@@ -210,25 +210,53 @@ public class AccessControlServiceImpl implements AccessControlService {
      *          <permit-role name="Contact_Name_Editor_Role" />
      *     </create-child>
      * 
-     * Права для статических и безконтексных групп настраиваются через <create> тег.
+     * Права для статических и безконтекстных групп настраиваются через <create> тег.
      * Например,
      *     <create>
      *          <permit-group name="AllPersons" />
      *     </create>
-     *
+     * При этом учитываются права на создание, данные через косвенные матрицы доступа. Тип ДО косвенной матрицы доступа 
+     * определяется по типу ссылочного поля. 
      */
     
     @Override
     public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
 
-        Id[] parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
-        return createDomainObjectCreateToken(login, domainObject.getTypeName(), parentIds);
+        Id[] parentObjects = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        String objectType = domainObject.getTypeName();
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
+
+        if (parentObjects != null && parentObjects.length > 0) {
+            AccessType accessType = new CreateChildAccessType(objectType);
+            return createAccessToken(login, parentObjects, accessType, true);
+        }
+
+        if (isAllowedToCreateByStaticGroups(personId, domainObject)) {
+            List<String> parentTypes = new ArrayList<>();
+            collectParentTypes(objectType, parentTypes);
+
+            AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
+            return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
+        }
+
+        throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
 
     }
 
     private boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
         return databaseAgent.isAllowedToCreateByStaticGroups(userId, objectType);
+    }
+
+    private boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject){
+        return databaseAgent.isAllowedToCreateByStaticGroups(userId, domainObject);
     }
 
     private Id getUserIdByLogin(String login) {

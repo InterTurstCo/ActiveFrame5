@@ -121,6 +121,25 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="department_test2">
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>            
+        </status>
+    </access-matrix>
+    
+
     <access-matrix type="organization_test">
          <create>
             <permit-group name="AllPersons" />
@@ -171,7 +190,9 @@
     </access-matrix>
 
     <access-matrix type="employee_test" matrix-reference-field="Department" />
-
+    
+    <access-matrix type="employee_test_ref_matrix" matrix-reference-field="Department" />
+    
     <access-matrix type="test_type_1" read-everybody="true" />
 
     <access-matrix type="test_type_2" matrix-reference-field="test_type_1" />

@@ -24,6 +24,22 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="department_test2" audit-log="true" initial-status="Active">
+        <fields>
+            <string name="Name" length="128" not-null="true" />
+            <long name="Number1" not-null="false" />            
+            <long name="Number2" not-null="false" />
+            <date-time name="Date1" not-null="false" />            
+            <date-time name="Date2" not-null="false" />            
+            <reference name="Organization" type="organization_test" not-null="true"/>
+            <reference name="Boss" type="employee_test"/>
+            <reference name="ParentDepartment" type="department_test" not-null="false"/>
+            <include-group name = "testGroup2"/>
+            <string name="Description" length="512" not-null="false" />
+            <include-group name = "testGroup"/>
+        </fields>
+    </domain-object-type>
+
     <field-group name="testGroup">
         <string name="NewName" length="128" not-null="false" />
         <long name="NewNumber1" not-null="false" />
@@ -88,6 +104,20 @@
     <domain-object-type name="employee_test" extends="person_test" audit-log="true" initial-status="Active">
         <fields>
             <reference name="Department" type="department_test" not-null="true"/>
+            <string name="Name" length="64" not-null="true" />
+            <string name="Position" length="64" not-null="true" />
+            <string name="Phone" length="32" />
+            <string name="Certificate" length="4000" />
+            <string name="Fingerprint" length="128" />
+        </fields>
+        <uniqueKey> <!-- This key means automatic key + index creation -->
+            <field name="Phone" />
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="employee_test_ref_matrix" extends="person_test" audit-log="true" initial-status="Active">
+        <fields>
+            <reference name="Department" type="*" not-null="true"/>
             <string name="Name" length="64" not-null="true" />
             <string name="Position" length="64" not-null="true" />
             <string name="Phone" length="32" />
