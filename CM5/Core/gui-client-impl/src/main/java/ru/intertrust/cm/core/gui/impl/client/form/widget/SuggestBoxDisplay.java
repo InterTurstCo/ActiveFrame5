@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.suggestbox.SuggestBoxPo
  *         Time: 15:29
  */
 public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
+    private static final int SCROLL_HEIGHT_MARGIN = 40;
     private ScrollPanel lazyLoadPanel;
 
     public SuggestBoxDisplay() {
@@ -32,8 +33,18 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         return super.decorateSuggestionList(lazyLoadPanel);
     }
 
+    @Deprecated //use setLazyLoadPanelHeight(int height, int lastScrollPosition, boolean scrollable) instead
     public void setLazyLoadPanelHeight(int height) {
         lazyLoadPanel.getElement().getFirstChildElement().getStyle().setHeight(height, Style.Unit.PX);
+    }
+
+    public void setLazyLoadPanelHeight(int height, int lastScrollPosition, boolean scrollable) {
+        if (scrollable) {
+            makeScrollVisible(height, lastScrollPosition);
+        } else {
+            setScrollHeight(height);
+        }
+
     }
 
     public void setLazyLoadHandler(SuggestBoxWidget.ScrollLazyLoadHandler handler) {
@@ -41,9 +52,12 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         lazyLoadPanel.addScrollHandler(handler);
     }
 
-    public void setScrollPosition(int position) {
-        lazyLoadPanel.setVerticalScrollPosition(position);
+    private void setScrollHeight(int height) {
+        lazyLoadPanel.getElement().getFirstChildElement().getStyle().setHeight(height, Style.Unit.PX);
+    }
 
+    public void clearScrollHeight() {
+        lazyLoadPanel.getElement().getFirstChildElement().getStyle().clearHeight();
     }
 
     @Override
@@ -55,7 +69,23 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         return p;
 
     }
-    public boolean isNotShown(){
+
+    private int getScrollHeight() {
+        return lazyLoadPanel.getElement().getFirstChildElement().getOffsetHeight();
+    }
+
+    public void makeScrollVisible(final int calculatedHeight, final int lastScrollPos) {
+        int scrollHeight = getScrollHeight();
+        if (scrollHeight != 0 && scrollHeight <= calculatedHeight){
+            setScrollHeight(scrollHeight -  SCROLL_HEIGHT_MARGIN);
+        } else {
+            setScrollHeight(calculatedHeight);
+        }
+        lazyLoadPanel.setVerticalScrollPosition(lastScrollPos);
+
+    }
+
+    public boolean isNotShown() {
         return !getSuggestionPopup().isShowing();
     }
 }

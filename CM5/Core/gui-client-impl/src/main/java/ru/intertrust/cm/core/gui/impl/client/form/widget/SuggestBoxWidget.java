@@ -74,7 +74,6 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private SuggestBoxState currentState;
     private Set<Id> initiallySelectedIds = new HashSet<>();
 
-
     @Override
     public void setCurrentState(WidgetState state) {
         currentState = (SuggestBoxState) state;
@@ -495,13 +494,17 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         }
 
         private void changeSuggestionsPopupSize() {
-            SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
+            final SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
             int screenAvailableHeight = getScreenAvailableHeight();
             int suggestionsHeight = getSuggestionsHeight();
             int lazyLoadPanelHeight = screenAvailableHeight >= suggestionsHeight ? suggestionsHeight : screenAvailableHeight;
-            display.setLazyLoadPanelHeight(lazyLoadPanelHeight);
+            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
+            int suggestionsSize = suggestions.size();
+            boolean scrollable = suggestionsSize >= pageSize;
+            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, scrollable);
+
         }
 
         public int getScreenAvailableHeight() {
@@ -746,6 +749,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     }
 
     class ScrollLazyLoadHandler implements ScrollHandler {
+        private static final int ZOOM_SCROLL_INACCURACY = 1;
         private ScrollPanel lazyLoadPanel;
 
         public void setLazyLoadPanel(ScrollPanel lazyLoadPanel) {
@@ -766,11 +770,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 return;
             }
 
-            if (lastScrollPos >= maxScrollTop) {
+            if (lastScrollPos + ZOOM_SCROLL_INACCURACY >= maxScrollTop && lazyLoadState != null) {
                 if (suggestBox.getText().isEmpty()) {
                     suggestBox.setText(ALL_SUGGESTIONS);
                 }
-
                 lazyLoadState.onNextPage();
 
                 suggestBox.showSuggestionList();
@@ -828,12 +831,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                             suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
                 }
                 SuggestPresenter presenter = (SuggestPresenter) impl;
-                presenter.changeSuggestionsPopupSize();
+                ((SuggestBoxDisplay)suggestBox.getSuggestionDisplay()).clearScrollHeight();//clearing previous height lets gwt to calculate
                 SuggestOracle.Response response = new SuggestOracle.Response();
                 response.setSuggestions(suggestions);
                 callback.onSuggestionsReady(request, response);
-                ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay())
-                        .setScrollPosition(lastScrollPos);
+                presenter.changeSuggestionsPopupSize();
             }
 
             @Override
