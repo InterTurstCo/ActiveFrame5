@@ -3064,3 +3064,7 @@ a:active .icon.back {
 }
 
 /* ------------>>> end sticker/footer Panel <<<------------ */
+
+.infoDialogBox {
+    z-index: 20;
+}
