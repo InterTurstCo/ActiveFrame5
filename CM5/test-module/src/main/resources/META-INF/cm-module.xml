@@ -143,6 +143,7 @@
         <report-template>
             <template-file>reports/all-employee/template.xml</template-file>
             <template-file>reports/all-employee/all-employee.jrxml</template-file>
+            <template-file>reports/all-employee/36_128x128.png</template-file>            
         </report-template>
 
         <report-template>

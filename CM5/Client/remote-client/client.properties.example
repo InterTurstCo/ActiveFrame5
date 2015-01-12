@@ -1,4 +1,4 @@
 address=localhost:4447
-user="admin"
-password="admin"
-log="client.log"
+user=admin
+password=admin
+log=client.log

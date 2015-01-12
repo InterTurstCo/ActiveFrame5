@@ -2,6 +2,6 @@
 <ReportMetadataConfig name="all-employee"
 	description="Все сотрудники" mainTemplate="all-employee" keepDays="5">
 	<formats>
-		<format>PDF</format>
+		<format>DOCX</format>
 	</formats>
 </ReportMetadataConfig>

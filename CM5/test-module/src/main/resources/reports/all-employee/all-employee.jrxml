@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Created with Jaspersoft Studio version last-->
+<!-- Created with Jaspersoft Studio version 5.6.2.final using JasperReports Library version 5.6.1  -->
+<!-- 2015-01-12T13:28:55 -->
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="all-employee" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="9fce2c98-92c0-4f2d-b864-9b72c225e35d">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Sochi JDBC on localhost"/>
 	<style name="odd" mode="Opaque">
@@ -16,14 +17,18 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="20" splitType="Stretch">
+		<band height="50" splitType="Stretch">
 			<staticText>
-				<reportElement x="159" y="0" width="236" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
+				<reportElement x="150" y="15" width="236" height="20" uuid="9af2dd75-c5ca-4a05-8c16-67c229f9f61e"/>
 				<textElement textAlignment="Center">
 					<font pdfFontName="DejaVuSans.ttf" pdfEncoding="Cp1251" isPdfEmbedded="true"/>
 				</textElement>
 				<text><![CDATA[Отчет все сотрудники (простой отчет)]]></text>
 			</staticText>
+			<image>
+				<reportElement x="0" y="0" width="50" height="50" uuid="ed640bc0-a59a-4db4-b970-2492d5c99354"/>
+				<imageExpression><![CDATA["36_128x128.png"]]></imageExpression>
+			</image>
 		</band>
 	</title>
 	<columnHeader>
