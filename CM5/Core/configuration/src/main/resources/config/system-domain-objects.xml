@@ -26,6 +26,7 @@
         <reference name="person" type="Person" />
         <string name="client_ip_address" length="20" />
         <text name="client_info" />
+        <string name="user_id" length="128" />        
     </field-group>
 
     <!-- Протоколирование входа/выхода пользователя -->
@@ -51,10 +52,10 @@
 
             <!-- Поле для системного процесса. Возможно это поле не нужно. Если person пустое, значит, выполняется от имени 
                 системы. -->
-            <string name="process_name" length="128" not-null="true" />
+            <string name="process_name" length="128" />
             <!-- Ссылка на бизнес-ДО или на вложение. Отличить вложение можно по типу события DOWNLOAD_ATTACHMENT -->
             <reference name="object" type="*" not-null="true" />
-            <string name="access_type" length="1" not-null="true" /> <!-- R|W -->
+            <string name="access_type" length="1" /> <!-- R|W -->
 
             <!-- Поле date необходимо, т.к. дата в created_date может не совпадать с датой протоколирования в случае асинхронного 
                 логирования. -->
