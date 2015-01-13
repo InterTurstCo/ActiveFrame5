@@ -45,12 +45,12 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjects, List<Id> createdDomainObjects,
+    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjects, List<Id> createdDomainObjectIds,
             Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjects) {
         AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
-        for (Id createdId : createdDomainObjects) {
-            DomainObject domainObject = domainObjectDao.find(createdId, sysAccessTocken);
+        List<DomainObject> createdObjects = domainObjectDao.find(createdDomainObjectIds, sysAccessTocken);
+        for (DomainObject domainObject : createdObjects) {
             if (domainObject != null) {
                 // Вызов точки расширения после создания после коммита
                 List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
