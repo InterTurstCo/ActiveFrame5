@@ -1,29 +1,38 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
 
 @Stateless
 @Local(EventLogService.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class EventLogServiceImpl implements EventLogService {
 
-    @Autowired
-    private PersonServiceDao personServiceDao;
+    private static final String USER_EVENT_LOG = "user_event_log";
+
+    private static final String OBJECT_ACCESS_LOG = "object_access_log";
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -43,10 +52,11 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logLogInEvent(String login, String ip, boolean success) {
-        if (!isLoginEventEnabled()) return;
-
-        DomainObject selSubjUser = createSelSubjUserRecord(success ? getCurrentUserId() : null, login, ip);
-        createSystemEventLogRecord(EventLogService.LOGIN, success, selSubjUser, null);
+        if (!isLoginEventEnabled()) {
+            return;
+        }
+        UserEventLogBuilder userEventLogBuilder = createLoginEventLogBuilder(login, ip, success);
+        saveUserEventLog(userEventLogBuilder);
     }
 
     private boolean isLoginEventEnabled() {
@@ -60,10 +70,30 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logLogOutEvent(String login) {
-        if (!isLogoutEventEnabled()) return;
+        if (!isLogoutEventEnabled()) {
+            return;
+        }
 
-        DomainObject selSubjUser = createSelSubjUserRecord(findPersonByLogin(login), null, null);
-        createSystemEventLogRecord(EventLogService.LOGOUT, true, selSubjUser, null);
+        UserEventLogBuilder logoutEventLogBuilder = createLogoutEventLogBuilder(login);
+        saveUserEventLog(logoutEventLogBuilder);
+    }
+
+    private UserEventLogBuilder createLogoutEventLogBuilder(String login) {
+        UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
+        userEventLogBuilder.setUserId(login);
+        userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        userEventLogBuilder.setDate(new Date()).setEventType(EventLogType.LOGOUT.name()).setSuccess(true);
+        return userEventLogBuilder;
+    }
+
+    private UserEventLogBuilder createLoginEventLogBuilder(String login, String ip, boolean success) {
+        UserEventLogBuilder userEventLogBuilder = new UserEventLogBuilder();
+        userEventLogBuilder.setUserId(login);
+        if (success) {
+            userEventLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        }
+        userEventLogBuilder.setClientIp(ip).setDate(new Date()).setEventType(EventLogType.LOGIN.name()).setSuccess(success);
+        return userEventLogBuilder;
     }
 
     private boolean isLogoutEventEnabled() {
@@ -77,20 +107,20 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logDownloadAttachmentEvent(Id attachment) {
-        if (!isDownloadAttachmentEventEnabled()) return;
-        DomainObject selSubjUser = createSelSubjUserRecord(getCurrentUserId(), null, null);
-        DomainObject selObjAttachment = createDomainObject("sel_obj_attachment");
-        selObjAttachment.setReference("attachment", attachment);
-        selObjAttachment = domainObjectDao.save(selObjAttachment, getEventLogAccessToken());
-        createSystemEventLogRecord(EventLogService.DOWNLOAD_ATTACHMENT, true, selSubjUser, selObjAttachment);
-    }
-
-    private boolean isDownloadAttachmentEventEnabled() {
-        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
-        if (eventLogsConfiguration != null && eventLogsConfiguration.getDownloadAttachment() != null) {
-            return eventLogsConfiguration.getDownloadAttachment().isEnable();
+        if (!isDownloadAttachmentEventEnabled()) {
+            return;
         }
-        return false;
+
+        ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
+        if (currentUserAccessor.getCurrentUserId() != null) {
+            accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        } else {
+            accessLogBuilder.setProcessName("system");
+        }
+        accessLogBuilder.setEventType(EventLogType.DOWNLOAD_ATTACHMENT.name());
+        accessLogBuilder.setObjectId(attachment).setDate(new Date()).setSuccess(true);
+
+        saveObjectAccessLog(accessLogBuilder);
     }
 
     @Override
@@ -116,28 +146,73 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     private void logAccessDomainObject(Id objectId, String accessType, boolean success) {
-        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)){
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
             throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
         }
 
-        if (objectId == null) return;
+        if (objectId == null) {
+            return;
+        }
 
-        if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) return;
+        if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) {
+            return;
+        }
 
-        DomainObject selSubjUser = createSelSubjUserRecord(getCurrentUserId(), null, null);
-        DomainObject selObjObjectAccess = createDomainObject("sel_obj_object_access");
-        selObjObjectAccess.setReference("object", objectId);
-        selObjObjectAccess.setString("access_type", accessType);
-        selObjObjectAccess = domainObjectDao.save(selObjObjectAccess, getEventLogAccessToken());
+        ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
+        if (currentUserAccessor.getCurrentUserId() != null) {
+            accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        } else {
+            accessLogBuilder.setProcessName("system");
+        }
+        accessLogBuilder.setEventType(EventLogType.ACCESS_OBJECT.name());
+        accessLogBuilder.setObjectId(objectId).setAccessType(accessType).setDate(new Date()).setSuccess(success);
 
-        createSystemEventLogRecord(EventLogService.ACCESS_OBJECT, success, selSubjUser, selObjObjectAccess);
+        saveObjectAccessLog(accessLogBuilder);
     }
 
+    private DomainObject saveObjectAccessLog(ObjectAccessLogBuilder objectAccessLogBuilder) {
+        DomainObject objectAccessLog = createDomainObject(OBJECT_ACCESS_LOG);
+        objectAccessLog.setString("event_type", objectAccessLogBuilder.getEventType());
+        objectAccessLog.setReference("person", objectAccessLogBuilder.getPerson());
+        objectAccessLog.setString("client_ip_address", objectAccessLogBuilder.getClientIp());
+        objectAccessLog.setString("user_id", objectAccessLogBuilder.getUserId());
+
+        objectAccessLog.setReference("object", objectAccessLogBuilder.getObjectId());
+        objectAccessLog.setString("access_type", objectAccessLogBuilder.getAccessType());
+        objectAccessLog.setTimestamp("date", objectAccessLogBuilder.getDate());
+        objectAccessLog.setBoolean("success", objectAccessLogBuilder.isSuccess());
+        objectAccessLog.setString("process_name", objectAccessLogBuilder.getProcessName());
+
+        objectAccessLog = domainObjectDao.save(objectAccessLog, getSystemAccessToken());
+        return objectAccessLog;
+    }
+
+    private DomainObject saveUserEventLog(UserEventLogBuilder objectAccessLogBuilder) {
+        DomainObject userEventLog = createDomainObject(USER_EVENT_LOG);
+        userEventLog.setString("event_type", objectAccessLogBuilder.getEventType());
+        userEventLog.setReference("person", objectAccessLogBuilder.getPerson());
+        userEventLog.setString("client_ip_address", objectAccessLogBuilder.getClientIp());
+        userEventLog.setString("user_id", objectAccessLogBuilder.getUserId());
+        userEventLog.setTimestamp("date", objectAccessLogBuilder.getDate());
+        userEventLog.setBoolean("success", objectAccessLogBuilder.isSuccess());
+
+        userEventLog = domainObjectDao.save(userEventLog, getSystemAccessToken());
+        return userEventLog;
+    }
+
+    private boolean isDownloadAttachmentEventEnabled() {
+        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
+        if (eventLogsConfiguration != null && eventLogsConfiguration.getDownloadAttachment() != null) {
+            return eventLogsConfiguration.getDownloadAttachment().isEnable();
+        }
+        return false;
+    }
 
     public boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {
         EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
         if (eventLogsConfiguration != null && eventLogsConfiguration.getDomainObjectAccess() != null) {
-            if (!eventLogsConfiguration.getDomainObjectAccess().isEnable()) return false;
+            if (!eventLogsConfiguration.getDomainObjectAccess().isEnable())
+                return false;
 
             String typeName = domainObjectTypeIdCache.getName(objectId);
 
@@ -156,8 +231,9 @@ public class EventLogServiceImpl implements EventLogService {
             }
 
             String accessWasGranted = success ? EventLogService.ACCESS_OBJECT_WAS_GRANTED_YES : EventLogService.ACCESS_OBJECT_WAS_GRANTED_NO;
+            // TODO add support for true/false
             if (!"*".equals(accessEventLogsConfiguration.getAccessWasGranted())
-                    && !accessWasGranted.equals(accessEventLogsConfiguration.getAccessWasGranted())){
+                    && !accessWasGranted.equals(accessEventLogsConfiguration.getAccessWasGranted())) {
                 return false;
             }
 
@@ -166,51 +242,7 @@ public class EventLogServiceImpl implements EventLogService {
         return false;
     }
 
-
-    private DomainObject createSystemEventLogRecord(String type, boolean success, DomainObject subject, DomainObject object) {
-        DomainObject systemEventLog = createDomainObject("system_event_log");
-
-        systemEventLog.setTimestamp("date", new Date());
-        systemEventLog.setReference("type", findSelTypeId(type));
-        systemEventLog.setReference("subject", subject);
-        systemEventLog.setReference("object", object);
-
-        systemEventLog.setBoolean("success", success);
-        return domainObjectDao.save(systemEventLog, getEventLogAccessToken());
-    }
-
-    private DomainObject createSelSubjUserRecord(DomainObject person, String login, String ip) {
-        DomainObject selSubjUser = createDomainObject("sel_subj_user");
-        selSubjUser.setReference("person", person);
-        selSubjUser.setString("user_id", login);
-        selSubjUser.setString("ip_address", ip);
-        selSubjUser = domainObjectDao.save(selSubjUser, getEventLogAccessToken());
-        return selSubjUser;
-    }
-
-
-    private Id findSelTypeId(String type) {
-        Map<String, Value> keyValue = new HashMap<>();
-        keyValue.put("code", new StringValue(type));
-        return domainObjectDao.findByUniqueKey("sel_type", keyValue, getEventLogAccessToken());
-    }
-
-
-    private DomainObject getCurrentUserId() {
-        String currentUser = currentUserAccessor.getCurrentUser();
-        return findPersonByLogin(currentUser);
-    }
-
-    private DomainObject findPersonByLogin(String login) {
-        if (login == null) return null;
-        try {
-            return personServiceDao.findPersonByLogin(login);
-        } catch (Exception ex) {
-            return null;
-        }
-    }
-
-    private AccessToken getEventLogAccessToken() {
+    private AccessToken getSystemAccessToken() {
         return accessControlService.createSystemAccessToken(this.getClass().getName());
     }
 
@@ -223,6 +255,118 @@ public class EventLogServiceImpl implements EventLogService {
         return domainObject;
     }
 
+    /**
+     * Builder для ДО object_access_log.
+     * @author atsvetkov
+     */
+    private class ObjectAccessLogBuilder extends BaseEventLogBuilder {
+        private String accessType;
+        private Id objectId;
+        private String processName;
 
+        public String getAccessType() {
+            return accessType;
+        }
+
+        public ObjectAccessLogBuilder setAccessType(String accessType) {
+            this.accessType = accessType;
+            return this;
+        }
+
+        public Id getObjectId() {
+            return objectId;
+        }
+
+        public ObjectAccessLogBuilder setObjectId(Id object) {
+            this.objectId = object;
+            return this;
+        }
+
+        public String getProcessName() {
+            return processName;
+        }
+
+        public ObjectAccessLogBuilder setProcessName(String processName) {
+            this.processName = processName;
+            return this;
+        }
+
+    }
+
+    /**
+     * Builder для ДО user_event_log.
+     * @author atsvetkov
+     */
+    private class UserEventLogBuilder extends BaseEventLogBuilder {
+
+    }
+
+    /**
+     * @author atsvetkov
+     */
+    private class BaseEventLogBuilder {
+        private Id person;
+        private String clientIp;
+        private String userId;
+
+        private String eventType;
+        private boolean success;
+        private Date date;
+
+        public Id getPerson() {
+            return person;
+        }
+
+        public BaseEventLogBuilder setPerson(Id person) {
+            this.person = person;
+            return this;
+        }
+
+        public String getClientIp() {
+            return clientIp;
+        }
+
+        public BaseEventLogBuilder setClientIp(String clientIp) {
+            this.clientIp = clientIp;
+            return this;
+        }
+
+        public String getEventType() {
+            return eventType;
+        }
+
+        public BaseEventLogBuilder setEventType(String eventType) {
+            this.eventType = eventType;
+            return this;
+        }
+
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public BaseEventLogBuilder setSuccess(boolean success) {
+            this.success = success;
+            return this;
+        }
+
+        public Date getDate() {
+            return date;
+        }
+
+        public BaseEventLogBuilder setDate(Date date) {
+            this.date = date;
+            return this;
+        }
+
+        public String getUserId() {
+            return userId;
+        }
+
+        public BaseEventLogBuilder setUserId(String userId) {
+            this.userId = userId;
+            return this;
+        }
+
+    }
 
 }

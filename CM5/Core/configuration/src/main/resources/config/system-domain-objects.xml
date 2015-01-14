@@ -25,7 +25,6 @@
     <field-group name="user_event_info">
         <reference name="person" type="Person" />
         <string name="client_ip_address" length="20" />
-        <text name="client_info" />
         <string name="user_id" length="128" />        
     </field-group>
 
