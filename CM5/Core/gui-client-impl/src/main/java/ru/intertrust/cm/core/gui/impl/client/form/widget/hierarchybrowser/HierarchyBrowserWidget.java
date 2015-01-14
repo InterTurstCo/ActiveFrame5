@@ -47,13 +47,14 @@ import java.util.Set;
  *         Date: 10.12.13
  *         Time: 13:15
  */
-@ComponentName("hierarchy-browser")
+@ComponentName(HierarchyBrowserWidget.COMPONENT_NAME)
 public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrowserCheckBoxUpdateEventHandler,
         HierarchyBrowserItemClickEventHandler, HierarchyBrowserNodeClickEventHandler,
         HierarchyBrowserRefreshClickEventHandler, HierarchyBrowserSearchClickEventHandler,
         HierarchyBrowserScrollEventHandler, HierarchyBrowserAddItemClickEventHandler,
         HierarchyBrowserHyperlinkStateUpdatedEventHandler, HierarchyBrowserCloseDialogEventHandler,
         HierarchyBrowserShowTooltipEventHandler {
+    public static final String COMPONENT_NAME = "hierarchy-browser";
     private HierarchyBrowserWidgetState currentState;
     private HierarchyBrowserMainPopup mainPopup;
     private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus()) ;
@@ -192,8 +193,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserConfig hierarchyBrowserConfig = currentState.getHierarchyBrowserConfig();
         SelectionStyleConfig selectionStyleConfig = hierarchyBrowserConfig.getSelectionStyleConfig();
         boolean displayAsHyperlinks = HierarchyBrowserUtil.isDisplayingHyperlinks(currentState);
-
-        return new HierarchyBrowserView(selectionStyleConfig, localEventBus, displayAsHyperlinks);
+        HierarchyBrowserView hierarchyBrowserView = new HierarchyBrowserView(selectionStyleConfig, localEventBus, displayAsHyperlinks);
+        return hierarchyBrowserView;
     }
 
     @Override

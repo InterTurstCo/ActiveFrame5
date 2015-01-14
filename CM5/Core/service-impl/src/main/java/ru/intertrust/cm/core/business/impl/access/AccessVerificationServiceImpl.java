@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -83,6 +84,18 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
         String currentUser = currentUserAccessor.getCurrentUser();
         try {
             accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType, null);
+        } catch (AccessException ex) {
+            return false;
+        }
+        return true;
+    }
+    
+    @Override
+    public boolean isCreatePermitted(DomainObject domainObject) {
+
+        String currentUser = currentUserAccessor.getCurrentUser();
+        try {
+            accessControlService.createDomainObjectCreateToken(currentUser, domainObject);
         } catch (AccessException ex) {
             return false;
         }

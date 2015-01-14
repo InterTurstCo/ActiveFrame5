@@ -93,7 +93,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         String collectionName = config.getCollectionRefConfig() == null ? null : config.getCollectionRefConfig().getName();
         RepresentationRequest request = new RepresentationRequest(ids, config.getSelectionPatternConfig().getValue(),
                 collectionName, config.getFormattingConfig());
-        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
+        Command command = new Command("getRepresentationForOneItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
@@ -122,7 +122,7 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
 
     @Override
     protected String getTooltipHandlerName() {
-        return "linked-domain-object-hyperlink";
+        return getName();
     }
 
     @Override

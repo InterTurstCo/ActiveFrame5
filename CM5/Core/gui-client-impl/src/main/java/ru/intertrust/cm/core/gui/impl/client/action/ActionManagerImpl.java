@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
  */
 public class ActionManagerImpl implements ActionManager {
 
-    final PluginPanel workplace;
+    final private PluginPanel workplace;
 
     public ActionManagerImpl(final PluginPanel workplace) {
         this.workplace = workplace;

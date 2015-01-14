@@ -6,23 +6,25 @@ import com.google.gwt.event.dom.client.BlurEvent;
 import com.google.gwt.event.dom.client.BlurHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.api.client.WidgetNavigator;
 import ru.intertrust.cm.core.gui.impl.client.event.tooltip.WidgetItemRemoveEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.WidgetNavigatorImpl;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.AbstractWidgetDelegatedKeyDownHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkEditingNavigationHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.WidgetDelegatedKeyDownHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.panel.IdentifiedPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.panel.WidgetCollectionPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.DisplayStyleBuilder;
 
 import java.util.LinkedHashMap;
@@ -39,7 +41,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
 
     private Style.Display displayStyle;
     protected TextBox filter;
-    protected AbsolutePanel root;
+    protected WidgetCollectionPanel root;
     protected Button openTooltip;
     private EventBus eventBus;
     private Map<String, PopupTitlesHolder> typeTitleMap;
@@ -55,10 +57,18 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         this.typeTitleMap = typeTitleMap;
         this.widget = widget;
         this.parent = parent;
-        root = new AbsolutePanel();
-        root.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
-        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
+
+        init(selectionStyleConfig);
         initWidget(root);
+    }
+    private void init(SelectionStyleConfig selectionStyleConfig){
+        root = new WidgetCollectionPanel();
+        root.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+        WidgetNavigator<IdentifiedPanel> widgetNavigator =
+                new WidgetNavigatorImpl<IdentifiedPanel>(root.getChildren(), IdentifiedPanel.class);
+        WidgetDelegatedKeyDownHandler<IdentifiedPanel> widgetDelegatedKeyDownHandler = new TableBrowserKeyDownHandler(widgetNavigator, eventBus);
+        new LinkEditingNavigationHandler().handleNavigation(root, widgetDelegatedKeyDownHandler);
+        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
     }
 
     public void addFocusedFilter() {
@@ -114,13 +124,14 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     }
 
     private void displayChosenRowItemAsHyperlink(Map.Entry<Id, String> entry) {
-        final AbsolutePanel element = new AbsolutePanel();
+        final Id id = entry.getKey();
+        final AbsolutePanel element = new IdentifiedPanel(id);
 
         element.setStyleName("facebook-element");
         Label label = new Label(entry.getValue());
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        final Id id = entry.getKey();
+
         label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, typeTitleMap, widget));
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
@@ -206,6 +217,7 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         root.clear();
         root.add(filter);
     }
+
     public void display(LinkedHashMap<Id, String> listValues, boolean drawTooltipButton, boolean displayAsHyperlinks){
         if (displayAsHyperlinks) {
             displayHyperlinks(listValues, drawTooltipButton);
@@ -220,6 +232,28 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     public void removeTooltipButton(){
         if(openTooltip != null){
             openTooltip.removeFromParent();
+        }
+    }
+
+    private class TableBrowserKeyDownHandler extends AbstractWidgetDelegatedKeyDownHandler<IdentifiedPanel> {
+        public TableBrowserKeyDownHandler(WidgetNavigator<IdentifiedPanel> widgetNavigator, EventBus eventBus) {
+            super(widgetNavigator, eventBus);
+        }
+
+        @Override
+        public void handleBackspaceOrDeleteDown() {
+            if (widgetNavigator.getCurrent() != null) {
+                IdentifiedPanel lastSelectionItem = widgetNavigator.getCurrent();
+                Id id = lastSelectionItem.getId();
+                eventBus.fireEvent(new WidgetItemRemoveEvent(id, false));
+            }
+            widgetNavigator.back();
+            changeHighlighting(true);
+
+        }
+
+        public boolean shouldHandle(){
+            return BusinessUniverseConstants.EMPTY_VALUE.equalsIgnoreCase(getFilterValue());
         }
     }
 

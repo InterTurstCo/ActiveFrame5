@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.AccessType;
 
@@ -68,4 +69,5 @@ public interface DatabaseAccessAgent {
      */
     boolean isAllowedToCreateByStaticGroups(Id userId, String objectType);
 
+    boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject);
 }

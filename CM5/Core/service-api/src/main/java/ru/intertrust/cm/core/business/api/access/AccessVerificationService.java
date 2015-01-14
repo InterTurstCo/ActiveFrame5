@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.access;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
@@ -38,8 +39,17 @@ public interface AccessVerificationService {
      * @param domainObjectType тип доменного объекта
      * @return
      */
+    @Deprecated
     boolean isCreatePermitted(String domainObjectType);
 
+    /**
+     * Проверка прав на создание ДО. Учитываются права на создание, данные в косвенной матрице. Для правильного
+     * оределения родительского типа, на который ссылается косвенная матрица, передается доменный объект. 
+     * Родительский тип определяется по типу ссылки, а не по конфигурации ссылочного поля на родителя.
+     * @param domainObject
+     * @return
+     */
+    boolean isCreatePermitted(DomainObject domainObject);
     /**
      * Проверка прав на создание дочернего ДО для указанного родительского ДО. Если родительский объект не указан,
      * выполняется проверка прав на создание по типу ДО (разрешение указывается в теге <create> в матрице доступа).

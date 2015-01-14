@@ -17,6 +17,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
@@ -29,10 +30,13 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
@@ -52,20 +56,26 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private static final String ALL_PERSONS_GROUP = "*";
 
     @Autowired
-    private DomainObjectTypeIdCache domainObjetcTypeIdCache;
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired    
     private ConfigurationExplorer configurationExplorer;
     
+    @Autowired
+    private DomainObjectDao domainObjectDao;
+
+    @Autowired
+    private AccessControlService accessControlService;
+ 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     public void setDomainObjetcTypeIdCache(DomainObjectTypeIdCache domainObjetcTypeIdCache) {
-        this.domainObjetcTypeIdCache = domainObjetcTypeIdCache;
+        this.domainObjectTypeIdCache = domainObjetcTypeIdCache;
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
-    }
+    }        
     
     /**
      * Устанавливает источник данных, который будет использоваться для выполнения запросов.
@@ -81,7 +91,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         RdbmsId id = (RdbmsId) objectId;
         
         //В случае наличия заимствования прав меняется проверяемый тип доступа
-        List<AccessType> checkAccessType = getMatrixReferencePermission(domainObjetcTypeIdCache.getName(id.getTypeId()), type);
+        List<AccessType> checkAccessType = getMatrixReferencePermission(domainObjectTypeIdCache.getName(id.getTypeId()), type);
         
         List<String> opCode = new ArrayList<String>();
         boolean opRead = false;
@@ -260,7 +270,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
         String domainObjectAclTable = getAclTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
-                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTypeIdCache.getName(id.getTypeId()))); 
 
         
         StringBuilder query = new StringBuilder();
@@ -282,7 +292,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckDomainObjectReadAccess(RdbmsId id) {
         String domainObjectAclReadTable = getAclReadTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
-                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTypeIdCache.getName(id.getTypeId()))); 
         
         StringBuilder query = new StringBuilder();
         
@@ -316,7 +326,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
             List<Id> idsOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
             //В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами получаем по каждому идентификатору результат отдельно
-            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjetcTypeIdCache.getName(domainObjectTypeId));
+            String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjectTypeIdCache.getName(domainObjectTypeId));
             if (matrixRefType == null){
                 List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
                 idsWithAllowedAccess.addAll(checkedIds);
@@ -342,7 +352,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      */
     private List<Id> getIdsWithAllowedAccessByType(int userId, String opCode, IdSorterByType sorterByType,
             final Integer domainObjectType) {
-        String query = getQueryForCheckMultiDomainObjectAccess(domainObjetcTypeIdCache.getName(domainObjectType));
+        String query = getQueryForCheckMultiDomainObjectAccess(domainObjectTypeIdCache.getName(domainObjectType));
 
         List<Long> listIds = AccessControlUtility.convertRdbmsIdsToLongIds(sorterByType.getIdsOfType(domainObjectType));
 
@@ -409,7 +419,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private String getQueryForCheckDomainObjectMultiAccess(RdbmsId id) {
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
-                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjetcTypeIdCache.getName(id.getTypeId()))); 
+                ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTypeIdCache.getName(id.getTypeId()))); 
         String domainObjectAclTable = getAclTableName(id);
 
         StringBuilder query = new StringBuilder();
@@ -431,7 +441,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getAclTableName(RdbmsId id) {
-        String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
+        String domainObjectTable = domainObjectTypeIdCache.getName(id.getTypeId());
         
         domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
         
@@ -450,7 +460,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getAclReadTableName(RdbmsId id) {
-        String domainObjectTable = domainObjetcTypeIdCache.getName(id.getTypeId());
+        String domainObjectTable = domainObjectTypeIdCache.getName(id.getTypeId());
         domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
         return AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectTable);
     }
@@ -480,7 +490,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 				return rs.getInt("id_type");
 			}});
         
-        return domainObjetcTypeIdCache.getName(typeId);
+        return domainObjectTypeIdCache.getName(typeId);
     }
     
     public static String makeAccessTypeCode(AccessType type) {
@@ -555,10 +565,79 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
         String checkType = configurationExplorer.getMatrixReferenceTypeName(objectType);
-        if (checkType == null){
+        if (checkType == null) {
             checkType = objectType;
         }
-        
+
+        return isAllowedToCreateObjectType(userId, checkType);
+    }
+    
+    @Override
+    public boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject) {
+        String objectType = domainObject.getTypeName();
+        String checkType = getMatrixReferenceActualFieldType(domainObject);
+        if (checkType == null) {
+            checkType = objectType;
+        }
+
+        return isAllowedToCreateObjectType(userId, checkType);
+    }
+
+    /**
+     * Получение имени типа доменного объекта, который необходимо использовать при вычислении прав на доменный объект в
+     * случае использования заимствования прав у связанного объекта. Важно: метод возвращает ссылку на непосредственно
+     * объект конфигурации. Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
+     * @param domainObject
+     * @return
+     */
+    public String getMatrixReferenceActualFieldType(DomainObject domainObject) {
+        String childTypeName = domainObject.getTypeName();
+        // Получаем матрицу и смотрим атрибут matrix_reference_field
+        AccessMatrixConfig matrixConfig = null;
+        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
+        if (childDomainObjectTypeConfig == null) {
+            return null;
+        }
+
+        String result = null;
+
+        // Ищим матрицу для типа с учетом иерархии типов
+        while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
+            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+
+        if (matrixConfig != null && matrixConfig.getMatrixReference() != null) {
+            // Получаем имя типа на которого ссылается martix-reference-field
+            String matrixReferenceField = matrixConfig.getMatrixReference();
+            Id parentId = domainObject.getReference(matrixReferenceField);
+            if (parentId == null) {
+                throw new RuntimeException("Matrix referenece field: " + matrixReferenceField + " is not a reference field in " + childTypeName);
+            }
+
+            // Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено
+            // поле martix-reference-field
+
+            String parentTypeName = domainObjectTypeIdCache.getName(parentId);
+            AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(parentTypeName);
+            
+            if (parentMatrixConfig != null && parentMatrixConfig.getMatrixReference() != null) {
+                AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());
+                DomainObject parentDomainObject = domainObjectDao.find(parentId, systemAccessToken);
+                result = getMatrixReferenceActualFieldType(parentDomainObject);
+            }
+            
+            // В случае если у родителя не заполнен атрибут martix-reference-field то возвращаем имя родителя
+            if (result == null) {
+                result = parentTypeName;
+            }
+
+
+        }
+        return result;
+    }
+    
+    private boolean isAllowedToCreateObjectType(Id userId, String checkType) {
         List<String> userGroups = configurationExplorer.getAllowedToCreateUserGroups(checkType);
 
         if (userGroups.size() == 0) {
@@ -574,8 +653,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }
 
         String query = "select gm.person_id, gm.person_id_type from group_member gm " +
-        		"inner join group_group gg on (gg.child_group_id = gm.usergroup) " +
-        		"inner join user_group ug on gg.parent_group_id = ug.id where ug.group_name in (:groups)";
+                "inner join group_group gg on (gg.child_group_id = gm.usergroup) " +
+                "inner join user_group ug on gg.parent_group_id = ug.id where ug.group_name in (:groups)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("groups", userGroups);
 

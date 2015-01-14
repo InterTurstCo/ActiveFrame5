@@ -4,35 +4,15 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.dom.client.ScrollEvent;
-import com.google.gwt.event.dom.client.ScrollHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CellPanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.user.client.ui.WidgetCollection;
+import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -40,6 +20,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.WidgetNavigator;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEventHandler;
@@ -52,7 +33,11 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.Toolti
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkDisplay;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.AbstractWidgetDelegatedKeyDownHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkCreatorWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.LinkEditingNavigationHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkediting.WidgetDelegatedKeyDownHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.panel.IdentifiedPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.suggestbox.SuggestTextBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.MultiWordIdentifiableSuggestion;
@@ -62,29 +47,12 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
-import ru.intertrust.cm.core.gui.model.form.widget.LazyLoadState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
-import ru.intertrust.cm.core.gui.model.form.widget.SuggestionRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
 import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipButton;
@@ -97,6 +65,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private static final int HEIGHT_OFFSET_UP = 20;
     private static final int INPUT_MARGIN = 35;
     private static final int ONE_SUGGESTION_HEIGHT = 18;
+    private static final int MINIMAL_SUGGEST_INPUT_WIDTH = 25;
     private SuggestBox suggestBox;
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
     private SuggestBoxConfig suggestBoxConfig;
@@ -105,10 +74,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private SuggestBoxState currentState;
     private Set<Id> initiallySelectedIds = new HashSet<>();
 
-
     @Override
     public void setCurrentState(WidgetState state) {
-        currentState = (SuggestBoxState)state;
+        currentState = (SuggestBoxState) state;
         initiallySelectedIds.clear();
         if (currentState.getSelectedIds() != null) {
             initiallySelectedIds.addAll(currentState.getSelectedIds());
@@ -192,7 +160,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 : suggestBoxConfig.getCollectionRefConfig().getName();
         RepresentationRequest request = new RepresentationRequest(ids,
                 suggestBoxConfig.getSelectionPatternConfig().getValue(), collectionName, suggestBoxConfig.getFormattingConfig());
-        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
+        Command command = new Command("getRepresentationForOneItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
@@ -270,36 +238,20 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             @Override
             public void onBlur(BlurEvent event) {
                 validate();
-                if(display.isNotShown()){
-                suggestBox.setText(EMPTY_VALUE);
+                if (display.isNotShown()) {
+                    suggestBox.setText(EMPTY_VALUE);
                 }
             }
         }, BlurEvent.getType());
-
-        suggestBox.addKeyDownHandler(new KeyDownHandler() {
-            @Override
-            public void onKeyDown(KeyDownEvent event) {
-                lazyLoadState = null; //all events cause suggest popup closing or reopening, so state should be reseted
-                int eventKeyCode = event.getNativeEvent().getKeyCode();
-                switch (eventKeyCode) {
-                    case KeyCodes.KEY_BACKSPACE:
-                        presenter.handleBackspaceDown();
-                        break;
-                    case KeyCodes.KEY_ESCAPE:
-                        presenter.resetUserInteraction();
-                        break;
-                    default:
-                        presenter.changeLastElementHighlightingTo(false);
-                }
-
-            }
-        });
+        WidgetNavigator<SelectedItemComposite> widgetNavigator = new WidgetNavigatorImpl<>(presenter.getChildren(), SelectedItemComposite.class);
+        WidgetDelegatedKeyDownHandler<SelectedItemComposite> widgetDelegatedKeyDownHandler = new SuggestBoxKeyDownHandler(widgetNavigator, eventBus);
+        new LinkEditingNavigationHandler().handleNavigation(suggestBox, widgetDelegatedKeyDownHandler);
 
         display.setPositionRelativeTo(presenter);
         return presenter;
     }
 
-    private void insertItem(Id id, String representation){
+    private void insertItem(Id id, String representation) {
         SuggestPresenter presenter = (SuggestPresenter) impl;
         if (shouldDrawTooltipButton(currentState, 1)) {
             insertInTooltipContent(id, representation);
@@ -407,7 +359,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         return result;
 
     }
-    private ComplicatedFiltersParams createFiltersParams(String requestQuery){
+
+    private ComplicatedFiltersParams createFiltersParams(String requestQuery) {
         Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
         String filterName = suggestBoxConfig.getInputTextFilterConfig().getName();
         WidgetsContainer container = getContainer();
@@ -450,12 +403,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private class SuggestPresenter extends CellPanel {
 
         private final Map<Id, String> selectedSuggestions;
-
         private Element container;
         private Element arrowBtn;
         private Element clearAllButton;
         private SuggestBox suggestBox;
-        private boolean lastElementWasHighlighted;
 
         private SuggestPresenter(LinkCreatorWidgetState state) {
             Element row = DOM.createTR();
@@ -491,9 +442,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             DOM.sinkEvents(container, Event.ONCLICK | Event.ONFOCUS);
 
         }
-        private void addCreateButton(LinkCreatorWidgetState state, Element row){
+
+        private void addCreateButton(LinkCreatorWidgetState state, Element row) {
             final ConfiguredButton button = getCreateButton(state);
-            if(button != null){
+            if (button != null) {
                 Element createButtonContainer = DOM.createTD();
                 Element createButtonElement = button.getElement();
                 DOM.appendChild(createButtonContainer, createButtonElement);
@@ -509,37 +461,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             }
         }
 
-        private void handleBackspaceDown() {
-            if (!suggestBox.getText().equalsIgnoreCase(EMPTY_VALUE)) {
-                return;
-            }
-            if (lastElementWasHighlighted) {
-                SelectedItemComposite lastSelectionItem = getLastItem();
-                if (lastSelectionItem != null) {
-                    tryToPoolFromTooltipContent();
-                    lastSelectionItem.removeFromParent();
-                    Id id = lastSelectionItem.getItemId();
-                    removeSuggestItemFromStates(id);
-                }
-            }
-
-            changeLastElementHighlightingTo(true);
-        }
-
-        private void resetUserInteraction() {
-            ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay()).hideSuggestions();
-            suggestBox.setText(EMPTY_VALUE);
-            changeLastElementHighlightingTo(false);
-        }
-
-        private void changeLastElementHighlightingTo(boolean wasHighlighted) {
-            SelectedItemComposite lastSelectionItem = getLastItem();
-            if (lastSelectionItem != null) {
-                String styleName = wasHighlighted ? "highlightedFacebookElement" : "facebook-element";
-                lastSelectionItem.setStyleName(styleName);
-                lastElementWasHighlighted = wasHighlighted;
-            }
-
+        public WidgetCollection getChildren() {
+            return super.getChildren();
         }
 
         private void removeSuggestItemFromStates(Id id) {
@@ -571,13 +494,17 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         }
 
         private void changeSuggestionsPopupSize() {
-            SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
+            final SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
             int screenAvailableHeight = getScreenAvailableHeight();
             int suggestionsHeight = getSuggestionsHeight();
             int lazyLoadPanelHeight = screenAvailableHeight >= suggestionsHeight ? suggestionsHeight : screenAvailableHeight;
-            display.setLazyLoadPanelHeight(lazyLoadPanelHeight);
+            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
+            int suggestionsSize = suggestions.size();
+            boolean scrollable = suggestionsSize >= pageSize;
+            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, scrollable);
+
         }
 
         public int getScreenAvailableHeight() {
@@ -629,7 +556,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         }
 
-        private void addClearButton(SuggestBoxState state){
+        private void addClearButton(SuggestBoxState state) {
             if (state.getSuggestBoxConfig().getClearAllButtonConfig() != null) {
                 FocusPanel focusPanel = new FocusPanel();
                 ButtonForm clearButton = new ButtonForm(focusPanel,
@@ -672,7 +599,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         suggestWidth = "100%";
                     } else {
                         int width = container.getAbsoluteRight() - lastWidget.getElement().getAbsoluteRight() - INPUT_MARGIN;
-                        suggestWidth = width > 0 ? width + "px" : "100%";
+                        suggestWidth = width > MINIMAL_SUGGEST_INPUT_WIDTH ? width + "px" : "100%";
                     }
                     suggestBox.setWidth(suggestWidth);
 
@@ -699,10 +626,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             return lastItem;
         }
 
-        private void clearAll(){
+        private void clearAll() {
             clearAllItems();
             Widget widget = getTooltipButton();
-            if(widget != null){
+            if (widget != null) {
                 widget.removeFromParent();
             }
         }
@@ -758,7 +685,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 @Override
                 public void onBrowserEvent(Event event) {
                     remove(itemComposite);
-                    Id id = itemComposite.getItemId();
+                    Id id = itemComposite.getId();
                     tryToPoolFromTooltipContent();
                     removeSuggestItemFromStates(id);
                     changeSuggestInputWidth();
@@ -772,7 +699,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 @Override
                 public void onBrowserEvent(Event event) {
 
-                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getItemId(), null,
+                    HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getId(), null,
                             localEventBus, false, currentState.getTypeTitleMap(), SuggestBoxWidget.this);
                     clickHandler.processClick();
                 }
@@ -782,14 +709,15 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     }
 
     private class SelectedItemComposite extends Composite {
-        private final SimplePanel wrapper;
+        private final Panel wrapper;
         private final Element closeBtn;
-        private final Id itemId;
+        private Id id;
         private Element label;
 
-        private SelectedItemComposite(final Id itemId, final String itemName) {
-            this.itemId = itemId;
-            wrapper = new SimplePanel();
+        private SelectedItemComposite(final Id id, final String itemName) {
+            this.id = id;
+            wrapper = new IdentifiedPanel(id);
+            wrapper.getElement().getStyle().clearOverflow();
             wrapper.setStyleName("facebook-element");
             label = DOM.createSpan();
             label.setInnerText(itemName);
@@ -800,10 +728,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             closeBtn.setClassName("suggest-choose-close");
             DOM.appendChild(wrapper.getElement(), closeBtn);
             initWidget(wrapper);
+
         }
 
-        public Id getItemId() {
-            return itemId;
+        public Id getId() {
+            return id;
         }
 
         public void setCloseBtnListener(final EventListener listener) {
@@ -820,6 +749,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     }
 
     class ScrollLazyLoadHandler implements ScrollHandler {
+        private static final int ZOOM_SCROLL_INACCURACY = 1;
         private ScrollPanel lazyLoadPanel;
 
         public void setLazyLoadPanel(ScrollPanel lazyLoadPanel) {
@@ -840,16 +770,15 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 return;
             }
 
-            if (lastScrollPos >= maxScrollTop) {
+            if (lastScrollPos + ZOOM_SCROLL_INACCURACY >= maxScrollTop && lazyLoadState != null) {
                 if (suggestBox.getText().isEmpty()) {
                     suggestBox.setText(ALL_SUGGESTIONS);
                 }
-
                 lazyLoadState.onNextPage();
 
                 suggestBox.showSuggestionList();
-                if(suggestBox.getText().equalsIgnoreCase(ALL_SUGGESTIONS)){
-                suggestBox.setText(EMPTY_VALUE);
+                if (suggestBox.getText().equalsIgnoreCase(ALL_SUGGESTIONS)) {
+                    suggestBox.setText(EMPTY_VALUE);
                 }
 
             }
@@ -882,7 +811,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     private void fetchSuggestions(String requestQuery, final SuggestOracle.Request request, final SuggestOracle.Callback callback) {
         SuggestionRequest suggestionRequest = createSuggestionRequest(requestQuery);
-        Command command = new Command("obtainSuggestions", SuggestBoxWidget.this.getName(), suggestionRequest);
+        Command command = new Command("obtainSuggestions", getName(), suggestionRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
@@ -902,12 +831,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                             suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
                 }
                 SuggestPresenter presenter = (SuggestPresenter) impl;
-                presenter.changeSuggestionsPopupSize();
+                ((SuggestBoxDisplay)suggestBox.getSuggestionDisplay()).clearScrollHeight();//clearing previous height lets gwt to calculate
                 SuggestOracle.Response response = new SuggestOracle.Response();
                 response.setSuggestions(suggestions);
                 callback.onSuggestionsReady(request, response);
-                ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay())
-                        .setScrollPosition(lastScrollPos);
+                presenter.changeSuggestionsPopupSize();
             }
 
             @Override
@@ -918,4 +846,38 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         GWT.log("suggestion requested " + request.getQuery());
     }
 
+    private class SuggestBoxKeyDownHandler extends AbstractWidgetDelegatedKeyDownHandler<SelectedItemComposite> {
+
+        public SuggestBoxKeyDownHandler(WidgetNavigator<SelectedItemComposite> widgetNavigator, EventBus eventBus) {
+            super(widgetNavigator, eventBus);
+        }
+
+        public void preHandle() {
+            lazyLoadState = null; //all events cause suggest popup closing or reopening, so state should be reseted
+        }
+
+        public void resetUserInteraction() {
+            suggestBox.setText(EMPTY_VALUE);
+            super.resetUserInteraction();
+
+        }
+
+        public void handleBackspaceOrDeleteDown() {
+            if (widgetNavigator.getCurrent() != null) {
+                SelectedItemComposite lastSelectionItem = widgetNavigator.getCurrent();
+                Id id = lastSelectionItem.getId();
+                lastSelectionItem.removeFromParent();
+                tryToPoolFromTooltipContent();
+                SuggestPresenter presenter = (SuggestPresenter) impl;
+                presenter.removeSuggestItemFromStates(id);
+                presenter.changeSuggestInputWidth();
+            }
+            widgetNavigator.back();
+            changeHighlighting(true);
+        }
+
+        public boolean shouldHandle() {
+            return EMPTY_VALUE.equalsIgnoreCase(suggestBox.getText());
+        }
+    }
 }

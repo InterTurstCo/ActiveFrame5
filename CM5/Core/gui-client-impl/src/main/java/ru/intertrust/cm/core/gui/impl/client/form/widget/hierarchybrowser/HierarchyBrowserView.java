@@ -23,7 +23,6 @@ import java.util.List;
 public class HierarchyBrowserView extends Composite implements HierarchyBrowserDisplay {
 
     private HierarchyBrowserItemsView widgetChosenContent;
-
     private Panel widgetContainer;
     private FocusPanel openPopupButton;
     private FocusPanel clearButton;
@@ -37,6 +36,7 @@ public class HierarchyBrowserView extends Composite implements HierarchyBrowserD
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
         widgetContainer = new HorizontalPanel();
+
         initWidget(widgetContainer);
     }
 
@@ -51,6 +51,7 @@ public class HierarchyBrowserView extends Composite implements HierarchyBrowserD
         widgetChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         widgetChosenContent.asWidget().setStyleName("hierarh-browser-inline hierarchyBrowserBorder");
         widgetContainer.add(widgetChosenContent);
+
         initAddButton(config.getAddButtonConfig());
         initClearButtonIfItIs(config.getClearAllButtonConfig(), clearHandler);
 

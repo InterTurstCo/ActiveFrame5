@@ -20,6 +20,52 @@
             <field name="Name"/>
         </uniqueKey>
     </domain-object-type>
+
+    <!--Доменные объекты для протоколирования системных событий (Login/Logout/Download Attachment/DO Access) -->
+    <field-group name="user_event_info">
+        <reference name="person" type="Person" />
+        <string name="client_ip_address" length="20" />
+        <text name="client_info" />
+        <string name="user_id" length="128" />        
+    </field-group>
+
+    <!-- Протоколирование входа/выхода пользователя -->
+    <domain-object-type name="user_event_log" audit-log="false">
+        <fields>
+            <string name="event_type" length="64" not-null="true" />
+            <!--Поля для субъекта Персоны -->
+            <include-group name="user_event_info" />
+            <!-- Поле date необходимо, т.к. дата в created_date может не совпадать с датой протоколирования в случае асинхронного 
+                логирования. -->
+            <date-time name="date" not-null="true" />
+            <!-- Успешный/неуспешный логин -->
+            <boolean name="success" />
+        </fields>
+    </domain-object-type>
+
+    <!--Протоколирование доступа к объектам и вложениям -->
+    <domain-object-type name="object_access_log" audit-log="false">
+        <fields>
+            <string name="event_type" length="64" not-null="true" />
+            <!--Поля для субъекта Персоны -->
+            <include-group name="user_event_info" />
+
+            <!-- Поле для системного процесса. Возможно это поле не нужно. Если person пустое, значит, выполняется от имени 
+                системы. -->
+            <string name="process_name" length="128" />
+            <!-- Ссылка на бизнес-ДО или на вложение. Отличить вложение можно по типу события DOWNLOAD_ATTACHMENT -->
+            <reference name="object" type="*" not-null="true" />
+            <string name="access_type" length="1" /> <!-- R|W -->
+
+            <!-- Поле date необходимо, т.к. дата в created_date может не совпадать с датой протоколирования в случае асинхронного 
+                логирования. -->
+            <date-time name="date" not-null="true" />
+            <!-- Содержит результат предоставления доступа (в случае AccessException и ObjectNotFoundException записывается 
+                false) и результат получения вложения (в случае FileNotFoundException записывается false) -->
+            <boolean name="success" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="bu_user_settings" initial-status="Active">
         <fields>
             <reference name="person" type="person"/>

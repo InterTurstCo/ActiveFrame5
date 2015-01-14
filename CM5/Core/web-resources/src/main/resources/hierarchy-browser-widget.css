@@ -97,7 +97,7 @@ table.hierarh-browser-inline td {
 .popup-chosen-content {
     background: #fff;
     border-bottom: 1px solid gray;
-    margin: 40px 8px 0 6px;
+    margin: 0px 8px 0 6px;
     overflow-x: hidden;
 }
 
@@ -341,9 +341,37 @@ table.hierarh-browser-inline td {
     border-radius: 5px;
     border: 1px solid #f1f1f1;
     cursor: pointer;
-    cursor: hand;
+}
+
+.highlightedHierarchyBrowserElement .hierarchyBrowserLabel {
+    color: white;
+    padding: 5px 25px 5px 7px;
+    margin: 5px;
+    background: deepskyblue;
+    display: inline-block;
+    border-radius: 5px;
+    border: 1px solid #f1f1f1;
+    cursor: pointer;
 }
 .hierarchyBrowserElement .facebook-btn {
+    background-attachment: scroll;
+    background-clip: border-box;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-image: url(css/icons/icons.png);
+    background-origin: padding-box;
+    background-position: left top;
+    background-repeat: no-repeat;
+    background-size: auto auto;
+    cursor: pointer;
+    display: inline-block;
+    height: 15px;
+    padding: 0 !important;
+    position: relative;
+    vertical-align: middle;
+    width: 15px;
+
+}
+.highlightedHierarchyBrowserElement .facebook-btn {
     background-attachment: scroll;
     background-clip: border-box;
     background-color: rgba(0, 0, 0, 0) !important;

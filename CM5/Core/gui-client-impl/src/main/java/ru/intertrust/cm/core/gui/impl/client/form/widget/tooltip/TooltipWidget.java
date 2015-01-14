@@ -36,7 +36,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
             handleItemsForTooltipContent(previousTooltipValues);
         } else {
             WidgetItemsRequest widgetItemsRequest = createRequest();
-            Command command = new Command("fetchWidgetItems", getTooltipHandlerName(), widgetItemsRequest);
+            Command command = new Command("fetchWidgetItems", getName(), widgetItemsRequest);
             BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                 @Override
                 public void onSuccess(Dto result) {
@@ -96,7 +96,7 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         TooltipWidgetState state = getInitialData();
         return state.isDisplayingAsHyperlinks();
     }
-
+    @Deprecated //never used anymore
     protected abstract String getTooltipHandlerName();
 
     @Override

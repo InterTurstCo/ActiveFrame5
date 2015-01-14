@@ -4,14 +4,26 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.UIObject;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.CheckBoxInabilityManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
@@ -23,6 +35,7 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActio
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,15 +57,16 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     private int displayedWidth;
     private int otherWidgetsDelta;
     private boolean filtersVisibility;
+    private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
 
     public CollectionColumnHeaderController(final String collectionViewName,
                                             final CollectionDataGrid dataGrid, int displayedWidth, EventBus eventBus) {
         this.collectionViewName = collectionViewName;
         this.dataGrid = dataGrid;
         this.displayedWidth = displayedWidth;
-        eventBus.addHandler(ComponentWidthChangedEvent.TYPE, this);
-        eventBus.addHandler(ComponentOrderChangedEvent.TYPE, this);
-        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
+        handlerRegistrations.add(eventBus.addHandler(ComponentWidthChangedEvent.TYPE, this));
+        handlerRegistrations.add(eventBus.addHandler(ComponentOrderChangedEvent.TYPE, this));
+        handlerRegistrations.add(eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this));
     }
 
 
@@ -362,6 +376,12 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         updateFilterValues();
     }
 
+    public void clearHandlers() {
+        for (HandlerRegistration registration : handlerRegistrations) {
+            registration.removeHandler();
+        }
+    }
+
     private class ColumnSelectorPopup extends PopupPanel {
         private ColumnSelectorPopup() {
             super(true);
@@ -449,7 +469,9 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         context.setCollectionViewName(collectionViewName);
         context.setActionConfig(UserSettingsUtil.createActionConfig());
         for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
-            context.addOrder(columnHeaderBlock.getColumn().getFieldName());
+            if (columnHeaderBlock.getColumn().getFieldName() != null) {
+                context.addOrder(columnHeaderBlock.getColumn().getFieldName());
+            }
         }
         final Action action = ComponentRegistry.instance.get(CollectionColumnOrderActionContext.COMPONENT_NAME);
         action.setInitialContext(context);

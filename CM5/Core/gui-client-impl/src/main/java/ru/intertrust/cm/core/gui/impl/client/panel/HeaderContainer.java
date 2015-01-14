@@ -207,7 +207,8 @@ public class HeaderContainer extends SimplePanel {
     }
 
     public void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
-        dialogBox = new InformationDialogBox(currentUserInfo.getCurrentLogin(), currentUserInfo.getFirstName(), currentUserInfo.getLastName(), currentUserInfo.getMail());
+        dialogBox = new InformationDialogBox(currentUserInfo.getFirstName(), currentUserInfo.getLastName(),
+                currentUserInfo.getCurrentLogin(),currentUserInfo.getMail());
     }
 
     public void setInfoPage(final String pagePath){

@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.service.it;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -17,15 +18,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import javax.validation.constraints.AssertTrue;
 
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.internal.runners.statements.Fail;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -48,6 +48,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -134,7 +135,35 @@ public class CrudServiceIT extends IntegrationTestBase {
         assertNotNull(savedPersonObject.getId());
         assertNotNull(savedPersonObject.getString("Login"));
     }
-    
+
+    @Test
+    public void testCreateWithReferenceAccessMatrix() throws LoginException {
+        DomainObject organizationDomainObject = createOrganizationTestDomainObject();
+        organizationDomainObject = crudService.save(organizationDomainObject);
+        DomainObject departmentTestObject = createDepartmentTestDomainObject(organizationDomainObject);
+        DomainObject savedDepartmentTestObject = crudService.save(departmentTestObject);
+        
+        DomainObject departmentTest2Object = createDepartmentTest2DomainObject(organizationDomainObject);
+        DomainObject savedDepartmentTest2Object = crudService.save(departmentTest2Object);
+
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        DomainObject employee = createEmployeeTestDomainObject(savedDepartmentTestObject);        
+        DomainObject savedEmployee = crudService.save(employee);
+
+        try {
+            employee = createEmployeeTestDomainObject(savedDepartmentTest2Object);
+            savedEmployee = crudService.save(employee);
+            fail("Exception should be thrown. There is no permission to create object department_test2");
+        } catch (EJBException ex) {
+            if (!(ex.getCause() instanceof AccessException)) {
+                fail("Cause exception should be AccessException");
+            }
+        }
+        lc.logout();
+    }
+
     @Test
     public void testFindDelete() {
         DomainObject organization1 = createOrganizationDomainObject();
@@ -498,6 +527,53 @@ public class CrudServiceIT extends IntegrationTestBase {
         departmentDomainObject.setString("Name", "department1");
         departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
         return departmentDomainObject;
+    }
+
+    private DomainObject createDepartmentTestDomainObject(DomainObject organizationDomainObject) {
+        
+        DomainObject departmentDomainObject = crudService.createDomainObject("department_test");
+        departmentDomainObject.setString("Name", "Departmment");
+        departmentDomainObject.setLong("Number1", new Long(1));
+        departmentDomainObject.setLong("Number2", new Long(2));
+        
+        departmentDomainObject.setTimestamp("Date1", new Date());
+        departmentDomainObject.setTimestamp("Date2", new Date());
+
+        departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
+        return departmentDomainObject;
+    }
+
+    private DomainObject createDepartmentTest2DomainObject(DomainObject organizationDomainObject) {
+        
+        DomainObject departmentDomainObject = crudService.createDomainObject("department_test2");
+        departmentDomainObject.setString("Name", "Departmment");
+        departmentDomainObject.setLong("Number1", new Long(1));
+        departmentDomainObject.setLong("Number2", new Long(2));
+        
+        departmentDomainObject.setTimestamp("Date1", new Date());
+        departmentDomainObject.setTimestamp("Date2", new Date());
+
+        departmentDomainObject.setReference("Organization", organizationDomainObject.getId());
+        return departmentDomainObject;
+    }
+
+    private DomainObject createEmployeeTestDomainObject(DomainObject departmentObject) {
+        DomainObject employeeDomainObject = crudService.createDomainObject("employee_test_ref_matrix");
+        
+        employeeDomainObject.setString("Name", "Name " + System.currentTimeMillis());
+        employeeDomainObject.setString("Position", "Position " + System.currentTimeMillis());
+        employeeDomainObject.setString("Phone", "" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("Login", "Login" + System.currentTimeMillis()); 
+        employeeDomainObject.setString("EMail", "Email" + System.currentTimeMillis()); 
+        
+        employeeDomainObject.setReference("Department", departmentObject.getId());
+        
+        return employeeDomainObject;
+    }
+    private DomainObject createOrganizationTestDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("organization_test");
+        organizationDomainObject.setString("Name", "Organization");
+        return organizationDomainObject;
     }
 
     @Test

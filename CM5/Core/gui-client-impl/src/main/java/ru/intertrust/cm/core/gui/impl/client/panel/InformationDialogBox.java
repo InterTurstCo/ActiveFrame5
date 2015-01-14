@@ -3,7 +3,12 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,9 +23,9 @@ public class InformationDialogBox implements IsWidget{
 
     public InformationDialogBox(String name, String lastName, String login, String email){
         dialogBox = new DialogBox();
-        dialogBox.getElement().getStyle().setZIndex(10);
+        dialogBox.addStyleName("infoDialogBox");
         verticalPanel = new VerticalPanel();
-        addUserInfo(login, name, lastName, email);
+        addUserInfo(name, lastName, login, email);
         addButton();
         dialogBox.add(verticalPanel);
     }
@@ -32,7 +37,6 @@ public class InformationDialogBox implements IsWidget{
     }
 
     private void addUserInfo(String name, String lastName, String login, String email){
-
         verticalPanel.add(new Label("Логин: " + login));
         verticalPanel.add(new Label("Имя: " + name));
         verticalPanel.add(new Label("Фамилия: " + lastName));

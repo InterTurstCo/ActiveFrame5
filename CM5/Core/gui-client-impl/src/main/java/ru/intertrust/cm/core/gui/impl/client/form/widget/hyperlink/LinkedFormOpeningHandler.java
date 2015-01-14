@@ -149,6 +149,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         SaveActionContext saveActionContext = new SaveActionContext();
         saveActionContext.setRootObjectId(rootObjectId);
         final ActionConfig actionConfig = new ActionConfig("save.action");
+        actionConfig.setDirtySensitivity(false);
         saveActionContext.setActionConfig(actionConfig);
 
         final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());

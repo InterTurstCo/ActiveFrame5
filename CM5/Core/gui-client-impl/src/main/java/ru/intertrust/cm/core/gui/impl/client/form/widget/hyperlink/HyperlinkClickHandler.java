@@ -5,7 +5,10 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.gui.api.client.ActionManager;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
@@ -47,8 +50,21 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         createEditableFormDialogBox(widget);
     }
 
-    protected void editableOnCancelClick(FormPlugin formPlugin, FormDialogBox dialogBox) {
-        dialogBox.hide();
+    protected void editableOnCancelClick(FormPlugin formPlugin, final FormDialogBox dialogBox) {
+        ActionManager actionManager =new ActionManagerImpl(formPlugin.getOwner());
+        actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
+            @Override
+            public void onAffirmative() {
+                dialogBox.hide();
+            }
+
+            @Override
+            public void onCancel() {
+                //nothing to do
+            }
+        });
+
+
     }
 
     protected void editableOnChangeClick(FormPlugin formPlugin, final FormDialogBox dialogBox) {

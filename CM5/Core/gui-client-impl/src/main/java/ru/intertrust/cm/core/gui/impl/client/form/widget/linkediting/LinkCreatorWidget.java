@@ -170,7 +170,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
         String collectionName = config.getCollectionRefConfig() == null ? null : config.getCollectionRefConfig().getName();
         List<Id> ids = Arrays.asList(identifiableObject.getId());
         RepresentationRequest request = new RepresentationRequest(ids, selectionPattern, collectionName, config.getFormattingConfig());
-        Command command = new Command("getRepresentationForOneItem", "representation-updater", request);
+        Command command = new Command("getRepresentationForOneItem", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {

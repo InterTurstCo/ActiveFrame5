@@ -1,9 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server.widget;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -26,5 +23,6 @@ public interface FormatHandler extends ComponentHandler {
     String format(Value value, Matcher matcher, FormattingConfig formattingConfig);
     String format(DateBoxState state, Matcher matcher, FormattingConfig formattingConfig);
     String format(String selectionPattern, List<Id> ids, FormattingConfig formattingConfig);
+    Dto getRepresentationForOneItem(Dto inputParams);
 
 }

@@ -452,6 +452,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 cancelTimer();
             }
             mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
+            submitForm.reset();
         }
     }
 
@@ -485,8 +486,9 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 dontShowNewRow = true;
                 setUpProgressOfUpload(true);
                 cancelTimer();
-                reinitSubmitForm();
-                submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
+//                reinitSubmitForm();
+//               submitForm.addSubmitCompleteHandler(new FormSubmitCompleteHandler());
+                submitForm.reset();
             }
         }
     }

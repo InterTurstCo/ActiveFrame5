@@ -1,7 +1,18 @@
 package ru.intertrust.cm.core.config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -9,18 +20,11 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.ObjectCloner;
-
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -193,6 +197,7 @@ public class ConfigurationStorageBuilder {
             }
         }
 
+        // TODO Discuss - need to delete
         //В случае если не найдена матрица, то возможно это абстракный тип и надо поискать матрицы для потомков.
         if (matrixConfig == null) {
             //Получаем все потомки

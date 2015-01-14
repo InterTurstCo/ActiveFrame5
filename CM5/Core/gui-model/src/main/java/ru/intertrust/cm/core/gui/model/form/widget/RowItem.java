@@ -4,12 +4,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class RowItem implements Dto {
 
     HashMap<String, String> values = new HashMap<String, String>();
     HashMap<String, String> additionalParams = new HashMap<String, String>();
     private Id objectId;
+    private Map<String, Boolean> accessMatrix;
 
     public String getValueByKey(String key) {
         return values.get(key);
@@ -74,5 +76,13 @@ public class RowItem implements Dto {
                 ", additionalParams=" + additionalParams +
                 ", objectId=" + objectId +
                 '}';
+    }
+
+    public void setAccessMatrix(Map<String, Boolean> accessMatrix) {
+        this.accessMatrix = accessMatrix;
+    }
+
+    public Map<String, Boolean> getAccessMatrix() {
+        return accessMatrix;
     }
 }
