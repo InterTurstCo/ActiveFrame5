@@ -1,20 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.extension;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.interceptor.Interceptors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -28,6 +15,12 @@ import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExten
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHandler;
+
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Stateless(name = "AfterCommitExtensionPointService")
 @Local(AfterCommitExtensionPointService.class)
@@ -45,8 +38,8 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjects, List<Id> createdDomainObjectIds,
-            Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjects) {
+    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjectMap, List<Id> createdDomainObjectIds,
+            Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjectIds) {
         AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
         List<DomainObject> createdObjects = domainObjectDao.find(createdDomainObjectIds, sysAccessTocken);
@@ -64,11 +57,9 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             }
         }
 
-        for (Id id : changeStatusDomainObjects) {
-            DomainObject domainObject = domainObjectDao.find(id, sysAccessTocken);
-
+        List<DomainObject> changeStatusDomainObjects = domainObjectDao.find(changeStatusDomainObjectIds, sysAccessTocken);
+        for (DomainObject domainObject : changeStatusDomainObjects) {
             if (domainObject != null) {
-
                 // Вызов точки расширения после смены статуса после коммита
                 List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
                 //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
@@ -81,8 +72,8 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             }
         }
 
-        for (Id id : savedDomainObjects.keySet()) {
-            DomainObject domainObject = domainObjectDao.find(id, sysAccessTocken);
+        List<DomainObject> savedDomainObjects = domainObjectDao.find(new ArrayList<>(savedDomainObjectMap.keySet()), sysAccessTocken);
+        for (DomainObject domainObject : savedDomainObjects) {
             if (domainObject != null) {
 
                 // Вызов точки расширения после сохранения после коммита
@@ -92,7 +83,7 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 for (String typeName : parentTypes) {
                     AfterSaveAfterCommitExtensionHandler extension = extensionService
                             .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
-                    extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjects.get(id)));
+                    extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjectMap.get(domainObject.getId())));
                 }
             }
         }
