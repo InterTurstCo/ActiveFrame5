@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.rpc.StatusCodeException;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -65,7 +66,13 @@ public abstract class Plugin extends BaseComponent {
 
     public void onDataLoadFailure(Throwable cause) {
         Application.getInstance().hideLoadingIndicator();
-        ApplicationWindow.errorAlert("Ошибка инициализации плагина " + this.getName() + ". " + cause.getMessage());
+        String message;
+        if (cause instanceof StatusCodeException) {
+            message = "Невозможно подключиться к серверу.";
+        } else {
+            message = cause.getMessage();
+        }
+        ApplicationWindow.errorAlert("Ошибка инициализации плагина " + this.getName() + ": " + message);
     }
 
     /**

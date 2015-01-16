@@ -3,14 +3,25 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.rpc.StatusCodeException;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PasswordTextBox;
+import com.google.gwt.user.client.ui.TextBox;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.ProductTitleConfig;
@@ -19,6 +30,8 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
+
+import java.util.logging.Logger;
 
 /**
  * @author Denis Mitavskiy
@@ -43,6 +56,8 @@ public class LoginWindow  implements Component{
     private String coreVersionPrefix = "";
     private String productVersionPrefix = "";
     private String initialToken;
+
+    private static Logger log = Logger.getLogger("LoginWindow logger");
 
     public String getVersion() {
         return coreVersion;
@@ -251,6 +266,7 @@ public class LoginWindow  implements Component{
         return $doc.activeElement.id;
     }-*/;
 
+
     protected void checkEnterKey(KeyDownEvent event) {
         if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
             login();
@@ -286,8 +302,11 @@ public class LoginWindow  implements Component{
             public void onFailure(Throwable caught) {
                 if (caught instanceof AuthenticationException) {
                     message.setText("Ошибка авторизации. Проверте правильность введенных данных.");
+                } else if (caught instanceof StatusCodeException) {
+                    message.setText("Ошибка авторизации. Невозможно подключиться к серверу.");
                 } else {
-                    message.setText("No way. " + caught.getMessage());
+                    log.info("Login exception: " + caught);
+                    message.setText("Ошибка авторизации. " + caught.getMessage());
                 }
             }
         };
