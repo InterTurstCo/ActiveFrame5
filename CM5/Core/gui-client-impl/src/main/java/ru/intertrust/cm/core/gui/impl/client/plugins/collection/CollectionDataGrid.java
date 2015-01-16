@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.dom.client.NativeEvent;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
@@ -22,10 +24,11 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
  *         Date: 05/03/15
  *         Time: 12:05 PM
  */
-public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
+public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     private HeaderPanel panel;
     private EventBus eventBus;
     private CollectionPlugin plugin;
+    private boolean displayCheckBoxes;
 
     public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
         super(pageNumber, resources);
@@ -37,17 +40,14 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
         setHeaderBuilder(new HeaderBuilder<>(this, false));
         addStyleName("collection-plugin-view collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
-        sinkEvents(Event.ONDBLCLICK | Event.ONCLICK);
+        sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
         setEmptyTableMessage();
+
+
     }
 
     public ScrollPanel getScrollPanel() {
         return (ScrollPanel) panel.getContentWidget();
-    }
-
-    @Override
-    protected boolean resetFocusOnCell() {
-        return  true;
     }
 
     private void setEmptyTableMessage() {
@@ -57,29 +57,67 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
 
     }
 
+    public void setDisplayCheckBoxes(boolean displayCheckBoxes) {
+        this.displayCheckBoxes = displayCheckBoxes;
+    }
+
     private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
         private int countClick = 0;
-        private Id earlierClickedId;
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
             final Id id = event.getValue().getId();
-            if (Event.getTypeInt(event.getNativeEvent().getType()) == Event.ONCLICK) {
-                if (checkDirtiness()) {
-                    Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
-                        @Override
-                        public void onAffirmative() {
-                            handleClick(id);
-                        }
+            int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
+            switch (nativeEventType) {
+                case Event.ONCLICK:
+                    handleClickEvent(id);
+                    break;
+                case Event.ONKEYDOWN:
+                    handleKeyEvents(event);
+                    break;
 
-                        @Override
-                        public void onCancel() {
-                            countClick = 0;
-                        }
-                    });
-                } else {
-                    handleClick(id);
-                }
+            }
+
+        }
+
+        private void handleKeyEvents(CellPreviewEvent<CollectionRowItem> event) {
+            NativeEvent nativeEvent = event.getNativeEvent();
+            int keyCode = nativeEvent.getKeyCode();
+            switch (keyCode) {
+                case KeyCodes.KEY_UP:
+                case KeyCodes.KEY_DOWN:
+                    handleKeyArrowUpAndDown();
+                    break;
+
+            }
+
+        }
+
+        private void handleKeyArrowUpAndDown() {
+            if (displayCheckBoxes) {
+                return;
+            }
+            int rowIndex = getKeyboardSelectedRow();
+            CollectionRowItem item = getVisibleItem(rowIndex);
+            getSelectionModel().setSelected(item, true);
+            eventBus.fireEvent(new CollectionRowSelectedEvent(item.getId()));
+        }
+
+        private void handleClickEvent(final Id id) {
+            if (checkDirtiness()) {
+                Application.getInstance().getActionManager().checkChangesBeforeExecution(new ConfirmCallback() {
+                    @Override
+                    public void onAffirmative() {
+                        handleClick(id);
+                    }
+
+                    @Override
+                    public void onCancel() {
+                        countClick = 0;
+                    }
+                });
+            } else {
+                handleClick(id);
             }
         }
 
@@ -119,4 +157,6 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem>{
             return parentSurfer != null && !parentSurfer.getPluginState().isToggleEdit();
         }
     }
+
+
 }
