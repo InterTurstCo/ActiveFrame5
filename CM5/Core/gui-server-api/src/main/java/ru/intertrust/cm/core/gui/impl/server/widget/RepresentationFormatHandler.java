@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
@@ -199,7 +200,7 @@ public class RepresentationFormatHandler implements FormatHandler {
                     ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, false, formattingConfig)
                     : getDisplayValue(fieldName, identifiableObject, formattingConfig);
 
-            matcher.appendReplacement(replacement, displayValue);
+            matcher.appendReplacement(replacement, WidgetRepresentationUtil.escapeSpecialCharacters(displayValue));
         }
         matcher.appendTail(replacement);
         matcher.reset();
@@ -242,7 +243,6 @@ public class RepresentationFormatHandler implements FormatHandler {
         }
         return displayValue.toString();
     }
-
 
 }
 

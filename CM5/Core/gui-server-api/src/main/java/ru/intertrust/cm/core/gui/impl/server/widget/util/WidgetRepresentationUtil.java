@@ -19,6 +19,8 @@ import java.util.List;
  *         Time: 12:33
  */
 public class WidgetRepresentationUtil {
+    private static final char ESCAPE_CHAR = '\\';
+
     public static String getDisplayValue(String fieldName, Value value, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         if (value != null) {
@@ -31,25 +33,25 @@ public class WidgetRepresentationUtil {
                     DateValueConverter<DateTimeValue> dateTimeValueDateValueConverter = new DateTimeValueConverter();
                     String timeZoneId = getTimeZoneId(fieldName, formattingConfig);
                     DateTimeContext dateTimeContext = dateTimeValueDateValueConverter
-                            .valueToContext((DateTimeValue)value, timeZoneId, dateFormatter);
+                            .valueToContext((DateTimeValue) value, timeZoneId, dateFormatter);
                     displayValue.append(dateTimeContext.getDateTime());
                 } else if (value instanceof TimelessDateValue) {
 
                     DateValueConverter<TimelessDateValue> dateValueConverter = new TimelessDateValueConverter();
                     String timeZoneId = getTimeZoneId(fieldName, formattingConfig);
-                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((TimelessDateValue)value,
+                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((TimelessDateValue) value,
                             timeZoneId, dateFormatter);
                     displayValue.append(dateTimeContext.getDateTime());
                 } else if (value instanceof DateTimeWithTimeZoneValue) {
                     DateValueConverter<DateTimeWithTimeZoneValue> dateValueConverter = new DateTimeWithTimezoneValueConverter();
                     String timeZoneId = getTimeZoneId(fieldName, formattingConfig);
-                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((DateTimeWithTimeZoneValue)value,
+                    DateTimeContext dateTimeContext = dateValueConverter.valueToContext((DateTimeWithTimeZoneValue) value,
                             timeZoneId, dateFormatter);
                     displayValue.append(dateTimeContext.getDateTime());
 
-                } else if(value instanceof BooleanValue){
-                    displayValue.append(getBooleanDisplayValue(fieldName, (BooleanValue)value, formattingConfig));
-                } else if(value instanceof ReferenceValue) {
+                } else if (value instanceof BooleanValue) {
+                    displayValue.append(getBooleanDisplayValue(fieldName, (BooleanValue) value, formattingConfig));
+                } else if (value instanceof ReferenceValue) {
                     ReferenceValue idValue = (ReferenceValue) value;
                     displayValue.append(idValue.get().toStringRepresentation());
                 } else {
@@ -61,17 +63,17 @@ public class WidgetRepresentationUtil {
         return displayValue.toString();
     }
 
-    private static String getTimeZoneId(String field, FormattingConfig formattingConfig){
-        if(formattingConfig == null || formattingConfig.getDateFormatConfig() == null
+    private static String getTimeZoneId(String field, FormattingConfig formattingConfig) {
+        if (formattingConfig == null || formattingConfig.getDateFormatConfig() == null
                 || formattingConfig.getDateFormatConfig().getTimeZoneConfig() == null
                 || !isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
-            return  ModelUtil.DEFAULT_TIME_ZONE_ID;
+            return ModelUtil.DEFAULT_TIME_ZONE_ID;
         }
         return formattingConfig.getDateFormatConfig().getTimeZoneConfig().getId();
     }
 
     private static SimpleDateFormat prepareSimpleDateFormat(String field, FormattingConfig formattingConfig) {
-        if(formattingConfig != null && formattingConfig.getDateFormatConfig() != null &&
+        if (formattingConfig != null && formattingConfig.getDateFormatConfig() != null &&
                 isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
             return new SimpleDateFormat(formattingConfig.getDateFormatConfig().getPattern());
         }
@@ -86,7 +88,7 @@ public class WidgetRepresentationUtil {
     }
 
     private static String getNumberDisplayValueProbablyWithFormatting(String field, Object primitiveValue,
-                                                               NumberFormatConfig numberFormatConfig) {
+                                                                      NumberFormatConfig numberFormatConfig) {
         String value = isFormatterUsedForCurrentField(field, numberFormatConfig.getFieldsPathConfig()) ?
                 getNumberDisplayWithFormatting(primitiveValue, numberFormatConfig) :
                 getNumberDisplayWithoutFormatter(primitiveValue);
@@ -112,7 +114,7 @@ public class WidgetRepresentationUtil {
     }
 
     private static String getBooleanDisplayValueProbablyWithFormatting(String field, BooleanValue primitiveValue,
-                                                                BooleanFormatConfig booleanFormatConfig) {
+                                                                       BooleanFormatConfig booleanFormatConfig) {
         return isFormatterUsedForCurrentField(field, booleanFormatConfig.getFieldsPathConfig())
                 ? getBooleanDisplayWithFormatting(primitiveValue, booleanFormatConfig)
                 : getBooleanDisplayWithoutFormatter(primitiveValue);
@@ -123,16 +125,18 @@ public class WidgetRepresentationUtil {
         return primitiveValue == null ? "не указано" : getInitializedBooleanDefaultDisplayValue(primitiveValue);
 
     }
-    private static String getInitializedBooleanDefaultDisplayValue(BooleanValue primitiveValue){
+
+    private static String getInitializedBooleanDefaultDisplayValue(BooleanValue primitiveValue) {
         return primitiveValue.get() ? "да" : "нет";
     }
 
     private static String getBooleanDisplayWithFormatting(BooleanValue primitiveValue, BooleanFormatConfig booleanFormatConfig) {
         String value = primitiveValue == null ? booleanFormatConfig.getNullText()
-                :getInitializedBooleanDisplayValue(primitiveValue, booleanFormatConfig);
+                : getInitializedBooleanDisplayValue(primitiveValue, booleanFormatConfig);
         return value;
     }
-    private static String getInitializedBooleanDisplayValue(BooleanValue primitiveValue, BooleanFormatConfig booleanFormatConfig){
+
+    private static String getInitializedBooleanDisplayValue(BooleanValue primitiveValue, BooleanFormatConfig booleanFormatConfig) {
         return primitiveValue.get() ? booleanFormatConfig.getTrueText() : booleanFormatConfig.getFalseText();
     }
 
@@ -151,5 +155,20 @@ public class WidgetRepresentationUtil {
         return getDisplayValue(fieldName, value, formattingConfig);
 
     }
+
+    public static String escapeSpecialCharacters(String displayValue) {
+        StringBuilder sb = new StringBuilder();
+        if (displayValue != null) {
+            for (int i = 0; i < displayValue.length(); i++) {
+                char c = displayValue.charAt(i);
+                if (c == ESCAPE_CHAR) {
+                    sb.append(ESCAPE_CHAR);
+                }
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
 
 }
