@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api.util;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,12 +18,12 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class ThreadSafeDateFormat {
 
-    private static Map<Pair, ThreadLocal<DateFormat>> dateFormatcCache = new HashMap<>();
+    private static Map<Pair, ThreadLocal<SimpleDateFormat>> dateFormatcCache = new HashMap<>();
 
     public static String format(Date date, String pattern) {
         final Pair<String, Locale> pair = new Pair<>(pattern, null);
 
-        DateFormat dateFormat = getDateFormat(pair, null);
+        SimpleDateFormat dateFormat = getDateFormat(pair, null);
         return dateFormat.format(date);
     }
 
@@ -34,22 +33,22 @@ public class ThreadSafeDateFormat {
      * @param timeZone временная зона
      * @return закешированный объект DateFormat.
      */
-    private static DateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
+    private static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
         if (dateFormatcCache.get(pair) != null) {
-            DateFormat dateFormat = dateFormatcCache.get(pair).get();
+            SimpleDateFormat dateFormat = dateFormatcCache.get(pair).get();
             setTimeZone(timeZone, dateFormat);
             return dateFormat;
         } else {
-            ThreadLocal<DateFormat> dateFormatThreadLocal = null;
+            ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = null;
             if (pair.getSecond() != null) {
-                dateFormatThreadLocal = new ThreadLocal<DateFormat>() {
+                dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
                     @Override
                     protected SimpleDateFormat initialValue() {
                         return new SimpleDateFormat(pair.getFirst(), pair.getSecond());
                     }
                 };
             } else {
-                dateFormatThreadLocal = new ThreadLocal<DateFormat>() {
+                dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
                     @Override
                     protected SimpleDateFormat initialValue() {
                         return new SimpleDateFormat(pair.getFirst());
@@ -57,7 +56,7 @@ public class ThreadSafeDateFormat {
                 };
 
             }
-            DateFormat dateFormat = dateFormatThreadLocal.get();
+            SimpleDateFormat dateFormat = dateFormatThreadLocal.get();
             setTimeZone(timeZone, dateFormat);
             dateFormatcCache.put(pair, dateFormatThreadLocal);
             return dateFormat;
@@ -70,7 +69,7 @@ public class ThreadSafeDateFormat {
      * @param timeZone
      * @param dateFormat
      */
-    private static void setTimeZone(TimeZone timeZone, DateFormat dateFormat) {
+    private static void setTimeZone(TimeZone timeZone, SimpleDateFormat dateFormat) {
         if (timeZone != null) {
             dateFormat.setTimeZone(timeZone);
         } else {
@@ -80,25 +79,25 @@ public class ThreadSafeDateFormat {
 
     public static String format(Date date, String pattern, Locale locale) {
         final Pair<String, Locale> pair = new Pair<>(pattern, locale);
-        DateFormat dateFormat = getDateFormat(pair, null);
+        SimpleDateFormat dateFormat = getDateFormat(pair, null);
         return dateFormat.format(date);
     }
 
     public static String format(Date date, String pattern, Locale locale, TimeZone timeZone) {
         final Pair<String, Locale> pair = new Pair<>(pattern, locale);
-        DateFormat dateFormat = getDateFormat(pair, timeZone);
+        SimpleDateFormat dateFormat = getDateFormat(pair, timeZone);
         return dateFormat.format(date);
     }
 
     public static String format(Date date, String pattern, TimeZone timeZone) {
         final Pair<String, Locale> pair = new Pair<>(pattern, null);
-        DateFormat dateFormat = getDateFormat(pair, timeZone);
+        SimpleDateFormat dateFormat = getDateFormat(pair, timeZone);
         return dateFormat.format(date);
     }
 
     public static Date parse(String stringDate, String pattern, TimeZone timeZone) {
         final Pair<String, Locale> pair = new Pair<>(pattern, null);
-        DateFormat dateFormat = getDateFormat(pair, timeZone);
+        SimpleDateFormat dateFormat = getDateFormat(pair, timeZone);
         try {
             return dateFormat.parse(stringDate);
         } catch (ParseException e) {
@@ -109,7 +108,7 @@ public class ThreadSafeDateFormat {
 
     public static Date parse(String stringDate, String pattern, Locale locale, TimeZone timeZone) {
         final Pair<String, Locale> pair = new Pair<>(pattern, locale);
-        DateFormat dateFormat = getDateFormat(pair, timeZone);
+        SimpleDateFormat dateFormat = getDateFormat(pair, timeZone);
         try {
             return dateFormat.parse(stringDate);
         } catch (ParseException e) {
@@ -120,7 +119,7 @@ public class ThreadSafeDateFormat {
 
     public static Date parse(String stringDate, String pattern) {
         final Pair<String, Locale> pair = new Pair<>(pattern, null);
-        DateFormat dateFormat = getDateFormat(pair, null);
+        SimpleDateFormat dateFormat = getDateFormat(pair, null);
         try {
             return dateFormat.parse(stringDate);
         } catch (ParseException e) {
@@ -130,7 +129,7 @@ public class ThreadSafeDateFormat {
 
     public static Date parse(String stringDate, String pattern, Locale locale) {
         final Pair<String, Locale> pair = new Pair<>(pattern, locale);
-        DateFormat dateFormat = getDateFormat(pair, null);
+        SimpleDateFormat dateFormat = getDateFormat(pair, null);
         try {
             return dateFormat.parse(stringDate);
         } catch (ParseException e) {

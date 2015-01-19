@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
-
-import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 /**
  * @deprecated Устаревший фильтр, используйте вместо него {@link TimeIntervalFilter}.
@@ -16,8 +15,6 @@ import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
  */
 @Deprecated
 public class DatePeriodFilter extends SearchFilterBase {
-
-    private static final String DATE_PATTERN = "yyyy-MM-dd";
 
     private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
@@ -124,9 +121,10 @@ public class DatePeriodFilter extends SearchFilterBase {
     }
 
     @Override
-    public String toString() {        
-        return "from " + (startDate == null ? "antiquity" : ThreadSafeDateFormat.format(startDate.toDate(), DATE_PATTERN))
-                + " to " + (endDate == null ? "eternity" : ThreadSafeDateFormat.format(endDate.toDate(), DATE_PATTERN));
+    public String toString() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        return "from " + (startDate == null ? "antiquity" : format.format(startDate.toDate()))
+                + " to " + (endDate == null ? "eternity" : format.format(endDate.toDate()));
     }
 
 }

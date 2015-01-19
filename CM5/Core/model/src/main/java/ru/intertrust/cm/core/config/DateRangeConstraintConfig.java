@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * @author Lesia Puhova
@@ -24,8 +24,8 @@ public class DateRangeConstraintConfig extends RangeConstraintConfig {
             return null;
         }
         try {
-            Date dateStart = ThreadSafeDateFormat.parse(start, DEFAULT_FORMAT);
-            Date dateEnd = ThreadSafeDateFormat.parse(end, DEFAULT_FORMAT);
+            Date dateStart = new SimpleDateFormat(DEFAULT_FORMAT).parse(start);
+            Date dateEnd = new SimpleDateFormat(DEFAULT_FORMAT).parse(end);
             HashMap<String, String> params = new HashMap<String, String>();
             params.put(Constraint.PARAM_RANGE_START_DATE_MS, dateStart.getTime() + ""); //number of milliseconds as a string
             params.put(Constraint.PARAM_RANGE_END_DATE_MS, dateEnd.getTime() + "");
@@ -34,7 +34,7 @@ public class DateRangeConstraintConfig extends RangeConstraintConfig {
             params.put(Constraint.PARAM_RANGE_END, end);
 
             return new Constraint(getType(), params);
-        } catch (FatalException e) {
+        } catch (ParseException e) {
             // TODO: [validation] report error in config?
             return null;
         }
