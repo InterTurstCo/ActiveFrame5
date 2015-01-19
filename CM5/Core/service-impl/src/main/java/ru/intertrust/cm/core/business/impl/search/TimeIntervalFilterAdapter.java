@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -9,9 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilter> {
 
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
     protected Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -32,12 +32,10 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         return str.toString();
     }
 
-    private static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
-
     private static String dateToString(Date time) {
         if (time == null) {
             return "*";
         }
-        return formatter.format(time);
+        return ThreadSafeDateFormat.format(time, DATE_PATTERN);
     }
 }

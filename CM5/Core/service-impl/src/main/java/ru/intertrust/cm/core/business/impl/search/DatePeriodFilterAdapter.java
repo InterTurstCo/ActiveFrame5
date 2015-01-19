@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import org.slf4j.Logger;
@@ -10,10 +8,12 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 @Deprecated
 public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> {
 
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
     protected Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
@@ -34,8 +34,6 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
         return str.toString();
     }
 
-    private static final DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
-
     private static String dateToString(TimelessDate date, boolean start) {
         if (date == null) {
             return "*";
@@ -46,6 +44,6 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
         time.set(Calendar.MINUTE, start ? 0 : 59);
         time.set(Calendar.SECOND, start ? 0 : 59);
         time.set(Calendar.MILLISECOND, start ? 0 : 999);
-        return formatter.format(time.getTime());
+        return ThreadSafeDateFormat.format(time.getTime(), DATE_PATTERN);
     }
 }

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -33,6 +31,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.search.IndexedDomainObjectConfig;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -61,6 +60,8 @@ import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 @ExtensionPoint
 public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
+    private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
+
     protected Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -83,8 +84,6 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
 
     @Autowired
     private AttachmentContentDao attachmentContentDao;
-
-    private static final DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss:SSS'Z'");
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
@@ -154,7 +153,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             request.setParam("literal." + SolrFields.AREA, config.getAreaName());
             request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
             request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            request.setParam("literal." + SolrFields.MODIFIED, dateFormatter.format(object.getModifiedDate()));
+            request.setParam("literal." + SolrFields.MODIFIED, ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
             addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
             addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
             addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);

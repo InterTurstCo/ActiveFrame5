@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import java.util.Date;
+
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 /**
  * Created by andrey on 16.01.14.
@@ -31,7 +31,6 @@ class DateFormatter implements FieldFormatter {
     }
 
     private String formatWithDatePattern(Date value, String formatPattern) {
-        SimpleDateFormat sdf = new SimpleDateFormat(formatPattern);
-        return sdf.format(value);
+        return ThreadSafeDateFormat.format(value, formatPattern);
     }
 }

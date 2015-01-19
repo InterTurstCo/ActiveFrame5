@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.validation.validators;
 
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * @author Lesia Puhova
@@ -21,10 +21,9 @@ public class DateRangeValidator extends RangeValidator<Date> {
 
     @Override
     Date convert(String s) {
-        SimpleDateFormat format = new SimpleDateFormat(DEFAULT_FORMAT);
         try {
-            return format.parse(s);
-        } catch (ParseException e) {
+            return ThreadSafeDateFormat.parse(s, DEFAULT_FORMAT);
+        } catch (FatalException e) {
             return null;
         }
     }
