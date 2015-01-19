@@ -4,15 +4,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.EventListener;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -31,6 +30,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     private List<CheckBox> checkboxes = new ArrayList<>();
     private List<AttachmentItem> tmpSelectedAttachments = new ArrayList<>();
     private AttachmentElementPresenterFactory presenterFactory;
+    private Button cancelButton;
 
     public PopupSelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
         super(state, eventBus, parent);
@@ -84,7 +84,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
                 selectionDialog.hide();
             }
         });
-        Button cancelButton = new Button("Отменить");
+        cancelButton = new Button("Отменить");
         cancelButton.getElement().setClassName("darkButton");
         cancelButton.addClickHandler(new ClickHandler() {
             @Override
@@ -100,6 +100,22 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
         selectionDialog.setWidget(panel);
         selectionDialog.setStyleName("popupWindow");
         selectionDialog.setStyleName("popupWindow imageSelection");
+        initCaption();
+    }
+
+
+    private void initCaption(){
+        HTML caption = (HTML) selectionDialog.getCaption();
+        CaptionCloseButton captionCloseButton = new CaptionCloseButton();
+        captionCloseButton.addClickListener(new EventListener() {
+            @Override
+            public void onBrowserEvent(Event event) {
+                cancelButton.click();
+            }
+        });
+
+        caption.getElement().appendChild(captionCloseButton.getElement());
+
     }
 
     private void showItemsInPopup() {
