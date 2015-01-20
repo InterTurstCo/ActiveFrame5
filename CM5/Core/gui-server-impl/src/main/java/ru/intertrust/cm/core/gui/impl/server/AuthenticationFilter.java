@@ -5,11 +5,17 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
@@ -20,7 +26,8 @@ import java.io.IOException;
 public class AuthenticationFilter implements Filter {
     private static Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-    public static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
+    private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
+    private static final String REMOTE = "/remote";
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -76,8 +83,21 @@ public class AuthenticationFilter implements Filter {
     }
 
     private void forwardToLogin(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
-        String loginPath = ((HttpServletRequest) servletRequest).getContextPath() + "/Login.html";
-        ((HttpServletResponse) servletResponse).sendRedirect(loginPath);
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        StringBuilder loginPath = new StringBuilder(request.getContextPath()).append("/Login.html");
+        String requestURI = request.getRequestURI();
+        if (!requestURI.contains(REMOTE)) {
+            String targetPage = request.getRequestURI().substring(request.getContextPath().length());
+            Map<String, String[]> parameterMap = servletRequest.getParameterMap();
+            loginPath.append("?targetPage=").append(targetPage);
+            for (String paramName : parameterMap.keySet()) {
+                String[] paramValues = parameterMap.get(paramName);
+                for (String value : paramValues) {
+                    loginPath.append("&").append(paramName).append("=").append(value);
+                }
+            }
+        }
+        ((HttpServletResponse) servletResponse).sendRedirect(loginPath.toString());
     }
 
     @Override

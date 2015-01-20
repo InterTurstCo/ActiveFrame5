@@ -54,13 +54,15 @@ public class GenerateReportServlet {
             response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
             bufferOut.write(reportResult.getReport());
         } catch (Exception e) {
-            logger.error("Ошибка при генерации отчета " + reportName, e.getCause());
+            logger.error("Ошибка при генерации отчета " + reportName, e);
             response.setHeader("Content-Disposition", "attachment; filename=REPORT_GENERATION_ERROR_" + reportName);
             bufferOut.write("Ошибка при генерации отчета ".getBytes());
             bufferOut.write(reportName.getBytes());
             bufferOut.write("\r\n".getBytes());
             bufferOut.write(e.getMessage().getBytes());
-            bufferOut.write(Arrays.asList(e.getCause().getStackTrace()).toString().getBytes());
+            if (e.getCause().getStackTrace() != null && e.getCause().getStackTrace().length > 0) {
+                bufferOut.write(Arrays.asList(e.getCause().getStackTrace()).toString().getBytes());
+            }
         }
         bufferOut.flush();
         bufferOut.close();
@@ -72,23 +74,29 @@ public class GenerateReportServlet {
             if (REPORT_NAME.equals(paramName)) {
                 continue;
             }
-            String requestParamValue = requestParams.get(paramName)[0];
+            String requestParamValue = (requestParams.get(paramName) != null && requestParams.get(paramName).length > 0)
+                    ? requestParams.get(paramName)[0] : null;
             if (requestParamValue != null && !requestParamValue.isEmpty()) {
-                reportParams.put(paramName, getParamValue(requestParamValue));
+                Object value =  getParamValue(requestParamValue);
+                if (value != null) {
+                    reportParams.put(paramName, value);
+                }
             }
         }
         return reportParams;
     }
 
     private Object getParamValue(String requestParamValue) {
-        String[]parts = requestParamValue.split(SEPARATOR);
-        String paramValue = parts[0];
-        String paramType = parts[1];
-        if (paramValue != null && !"null".equals(paramValue)) {
-            Value value = ValueUtil.stringValueToObject(paramValue, paramType);
-            return value.get();
-        } else if ("LIST".equals(paramType)) {
-            return new ArrayList<Serializable>();
+        if (requestParamValue.contains(SEPARATOR)) {
+            String[] parts = requestParamValue.split(SEPARATOR);
+            String paramValue = parts[0];
+            String paramType = parts[1];
+            if (paramValue != null && !"null".equals(paramValue)) {
+                Value value = ValueUtil.stringValueToObject(paramValue, paramType);
+                return value.get();
+            } else if ("LIST".equals(paramType)) {
+                return new ArrayList<Serializable>();
+            }
         }
         return null;
     }

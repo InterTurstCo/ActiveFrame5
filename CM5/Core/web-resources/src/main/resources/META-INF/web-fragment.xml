@@ -62,6 +62,7 @@
         <url-pattern>/attachment-upload</url-pattern>
         <url-pattern>/generate-report/*</url-pattern>
         <url-pattern>/json-export-to-csv/*</url-pattern>
+        <url-pattern>/BusinessUniverse.html/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>CharacterEncodingFilter</filter-name>

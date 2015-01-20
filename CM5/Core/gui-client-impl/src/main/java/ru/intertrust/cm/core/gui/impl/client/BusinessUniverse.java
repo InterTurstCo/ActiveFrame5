@@ -84,16 +84,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
             @Override
             public void onFailure(Throwable caught) {
-                if (caught.getMessage() != null && caught.getMessage().contains("LoginPage")) {
-                    String initialToken = History.getToken();
-                    String queryString = Window.Location.getQueryString() == null ? "" : Window.Location.getQueryString();
-                    final StringBuilder loginPathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                            .append(BusinessUniverseConstants.LOGIN_PAGE).append(queryString);
-                    if (initialToken != null && !initialToken.isEmpty()) {
-                        loginPathBuilder.append('#').append(initialToken);
-                    }
-                    Window.Location.assign(loginPathBuilder.toString());
-                }
+                //do nothing
             }
         };
 

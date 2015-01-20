@@ -290,8 +290,12 @@ public class LoginWindow  implements Component{
 
             @Override
             public void onSuccess(Void result) {
+                String targetPage = Window.Location.getParameter("targetPage");
+                if (targetPage == null || targetPage.isEmpty()) {
+                    targetPage = "BusinessUniverse.html";
+                }
                 final StringBuilder pathBuilder = new StringBuilder(GWT.getHostPageBaseURL())
-                        .append("BusinessUniverse.html").append(getQueryStringWithLocalization());
+                        .append(targetPage).append(getQueryStringWithLocalization());
                 if (initialToken != null && !initialToken.isEmpty()) {
                     pathBuilder.append('#').append(initialToken);
                 }
