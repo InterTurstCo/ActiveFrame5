@@ -478,6 +478,7 @@
         </uniqueKey>
     </domain-object-type>
 
+    <!--TODO Delete start -->
     <!-- типы доменных объектов для системного журнала событий -->
     <domain-object-type name="system_event_log" audit-log="false">
         <fields>
@@ -550,6 +551,8 @@
             <reference name="object" type="*" not-null="true"/>
         </fields>
     </domain-object-type>
+
+    <!--TODO Delete end -->
 
     <domain-object-type name="email_message" initial-status="Active">
         <fields>
