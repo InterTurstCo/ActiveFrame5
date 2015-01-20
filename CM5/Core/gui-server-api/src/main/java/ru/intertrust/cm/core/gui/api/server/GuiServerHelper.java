@@ -2,8 +2,11 @@ package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
@@ -122,12 +125,10 @@ public final class GuiServerHelper {
             return null;
         }
         List<String> initialFilterValues = new ArrayList<>();
-        final SimpleDateFormat timelessDateFormat = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
-        final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
         for (ParamConfig paramConfig : paramConfigs) {
             String paramValue = paramConfig.getValue();
             try {
-                initialFilterValues.add(convertToUserFormat(paramValue, properties, timelessDateFormat, dateTimeFormat));
+                initialFilterValues.add(convertToUserFormat(paramValue, properties));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -136,13 +137,16 @@ public final class GuiServerHelper {
         return initialFilterValues;
     }
 
-    private static String convertToUserFormat(String value, CollectionColumnProperties properties, DateFormat timelessDateFormat, DateFormat dateTimeFormat) throws ParseException {
+    private static String convertToUserFormat(String value, CollectionColumnProperties properties) throws ParseException {
+        final SimpleDateFormat timelessDateFormat = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
+        final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
+
         String type = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
         FieldType fieldType = FieldType.forTypeName(type);
 
         switch (fieldType) {
             case TIMELESSDATE:
-                Date timelessDate = timelessDateFormat.parse(value);
+                Date timelessDate = ThreadSafeDateFormat.parse(value, GuiConstants.TIMELESS_DATE_FORMAT);
                 return getUserDateFormatter(properties).format(timelessDate);
 
             case DATETIME:
@@ -177,7 +181,7 @@ public final class GuiServerHelper {
     }
     public static DateFormat getDateFormat(String datePattern, String timePattern) {
         String formatDatePattern = prepareDatePattern(datePattern, timePattern);
-        return formatDatePattern == null ? null : new SimpleDateFormat(formatDatePattern);
+        return formatDatePattern == null ? null : ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(formatDatePattern, null), null);
     }
 
     public static String prepareDatePattern(String datePattern, String timePattern){

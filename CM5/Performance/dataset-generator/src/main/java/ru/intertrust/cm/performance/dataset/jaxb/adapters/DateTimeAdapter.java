@@ -1,9 +1,8 @@
 
 package ru.intertrust.cm.performance.dataset.jaxb.adapters;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 import org.simpleframework.xml.transform.Transform;
 
@@ -16,12 +15,12 @@ public class DateTimeAdapter
     implements Transform<Date>
 {
 
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public Date read(String value) {
         Date date = null;
         try {
-            date = format.parse(value);
-        } catch (ParseException e) {
+            date = ThreadSafeDateFormat.parse(value, DATE_TIME_PATTERN);
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return date;
@@ -31,7 +30,7 @@ public class DateTimeAdapter
         if (value == null) {
             return null;
         }
-        return format.format(value);
+        return ThreadSafeDateFormat.format(value, DATE_TIME_PATTERN);
     }
 
 }

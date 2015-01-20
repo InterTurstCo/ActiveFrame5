@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.doel.DoelFunction;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
@@ -96,6 +97,6 @@ public class FormatFunction implements DoelFunctionImplementation {
     }
 
     private String formatDate(String pattern, Date date) {
-        return new SimpleDateFormat(pattern).format(date);
+        return ThreadSafeDateFormat.format(date, pattern);
     }
 }

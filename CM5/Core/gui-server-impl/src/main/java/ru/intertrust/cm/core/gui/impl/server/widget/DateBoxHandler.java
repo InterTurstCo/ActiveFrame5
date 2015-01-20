@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
@@ -15,6 +17,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * @author Denis Mitavskiy
@@ -38,7 +41,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
                 && fieldType == FieldType.DATETIMEWITHTIMEZONE;
         state.setDisplayTimeZoneChoice(displayTimeZoneChoice);
         final DateValueConverter converter = getConverter(fieldType);
-        final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
+        final DateFormat dateFormat = ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(ModelUtil.DTO_PATTERN, null), null);
         Value value = FormConfig.TYPE_REPORT.equals(widgetContext.getFormType()) ? null : widgetContext.getValue();
         final DateTimeContext context = converter.valueToContext(value, config.getTimeZoneId(), dateFormat);
         context.setTimeZoneId(config.getTimeZoneId());

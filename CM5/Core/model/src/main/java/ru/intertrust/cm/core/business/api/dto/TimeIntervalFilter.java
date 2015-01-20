@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 /**
  * Фильтр расширенного поиска, позволяющий искать документ по факту того, что значение определённого поля
@@ -16,6 +17,7 @@ import java.util.TimeZone;
  */
 public class TimeIntervalFilter extends SearchFilterBase {
 
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
     private Date startTime;
     private Date endTime;
 
@@ -106,8 +108,7 @@ public class TimeIntervalFilter extends SearchFilterBase {
 
     @Override
     public String toString() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return "from " + (startTime == null ? "antiquity" : format.format(startTime))
-                + " to " + (endTime == null ? "eternity" : format.format(endTime));
+        return "from " + (startTime == null ? "antiquity" : ThreadSafeDateFormat.format(startTime, DATE_PATTERN))
+                + " to " + (endTime == null ? "eternity" : ThreadSafeDateFormat.format(endTime, DATE_PATTERN));
     }
 }

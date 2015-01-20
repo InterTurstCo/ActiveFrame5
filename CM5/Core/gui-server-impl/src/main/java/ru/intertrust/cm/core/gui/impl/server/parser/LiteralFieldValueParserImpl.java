@@ -1,19 +1,28 @@
 package ru.intertrust.cm.core.gui.impl.server.parser;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.TimeZone;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.IdService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FieldValueConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.util.GuiConstants;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -107,11 +116,9 @@ public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
             return new DateTimeWithTimeZoneValue();
         }
         try {
-            final SimpleDateFormat formatter = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
-            formatter.setTimeZone(usedTimeZone);
-            final Date date = formatter.parse(value);
+            final Date date = ThreadSafeDateFormat.parse(value, GuiConstants.DATE_TIME_FORMAT, usedTimeZone);
             return new DateTimeWithTimeZoneValue(date, usedTimeZone);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException("Invalid text: " + value);
         }
     }
@@ -125,11 +132,9 @@ public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
         }
         try {
             final TimeZone usedTimeZone = timeZoneId == null ? TimeZone.getDefault() : TimeZone.getTimeZone(timeZoneId);
-            final SimpleDateFormat formatter = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
-            formatter.setTimeZone(usedTimeZone);
-            final Date date = formatter.parse(value);
+            final Date date = ThreadSafeDateFormat.parse(value, GuiConstants.DATE_TIME_FORMAT, usedTimeZone);
             return new DateTimeValue(date);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
@@ -143,11 +148,9 @@ public class LiteralFieldValueParserImpl implements LiteralFieldValueParser {
             return new TimelessDateValue();
         }
         try { // default time zone for parsing - it's ok
-            final SimpleDateFormat formatter = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
-            formatter.setTimeZone(usedTimeZone);
-            final Date date = formatter.parse(value);
+            final Date date = ThreadSafeDateFormat.parse(value, GuiConstants.TIMELESS_DATE_FORMAT, usedTimeZone);
             return new TimelessDateValue(date, usedTimeZone);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }

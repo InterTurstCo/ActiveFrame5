@@ -47,6 +47,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -74,6 +75,8 @@ import ru.intertrust.cm.core.model.FatalException;
  * 
  */
 public class ImportData {
+    private static final String TIMELESS_DATE_PATTERN = "dd.MM.yyyy";
+    private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss";
     //Имя спринг бина для работы под системными правами
     public static final String SYSTEM_IMPORT_BEAN = "system-import-data";
     //Имя спринг бина для работы под пользовательскими правами
@@ -98,8 +101,6 @@ public class ImportData {
     private boolean deleteOther;
     private String[] keys;
     private String[] fields;
-    private SimpleDateFormat dateFofmat = new SimpleDateFormat("dd.MM.yyyy");
-    private SimpleDateFormat timeFofmat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     private String login;
     private Hashtable<String, Integer> fieldIndex;
     private String emptyStringSymbol;
@@ -391,11 +392,11 @@ public class ImportData {
                 }
             } else if (fieldConfig.getFieldType() == FieldType.DATETIME) {
                 if (fieldValue.length() != 0) {
-                    newValue = new DateTimeValue(timeFofmat.parse(fieldValue));
+                    newValue = new DateTimeValue(ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN));
                 }
             } else if (fieldConfig.getFieldType() == FieldType.DATETIMEWITHTIMEZONE) {
                 if (fieldValue.length() != 0) {
-                    Date date = timeFofmat.parse(fieldValue);
+                    Date date = ThreadSafeDateFormat.parse(fieldValue, DATE_TIME_PATTERN);
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(date);
                     DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone(TimeZone.getDefault().getID(),
@@ -423,7 +424,7 @@ public class ImportData {
                 if (fieldValue.length() != 0) {
                     TimelessDate date = new TimelessDate();
                     Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(dateFofmat.parse(fieldValue));
+                    calendar.setTime(ThreadSafeDateFormat.parse(fieldValue, TIMELESS_DATE_PATTERN));
                     date.setYear(calendar.get(Calendar.YEAR));
                     date.setMonth(calendar.get(Calendar.MONTH));
                     date.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
