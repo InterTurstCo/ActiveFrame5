@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,7 +17,6 @@ import java.util.concurrent.Future;
 import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -44,13 +42,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.config.model.ReportParameterData;
 import ru.intertrust.cm.core.config.model.ReportParametersData;
@@ -74,6 +71,8 @@ import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 @Remote(ReportService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ReportServiceImpl extends ReportServiceBase implements ReportService {
+
+    private static final String DATE_PATTERN = "dd_MM_yyyy HH_mm_ss";
 
     private static final Logger logger = LoggerFactory.getLogger(ReportServiceImpl.class);
 
@@ -310,10 +309,8 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
 
             File resultFolder = getResultFolder();
 
-            SimpleDateFormat dateFormat = new SimpleDateFormat(
-                    "dd_MM_yyyy HH_mm_ss");
             String reportName = reportMetadata.getName() + " ";
-            reportName += dateFormat.format(new Date()) + "." + extension;
+            reportName += ThreadSafeDateFormat.format(new Date(), DATE_PATTERN) + "." + extension;
 
             /*if (HTML_FORMAT.equalsIgnoreCase(format)) {
                 exporter.setParameter(

@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Formatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +20,7 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.TransactionTrace;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
@@ -28,6 +32,8 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
  */
 @Aspect
 public class SqlLogger {
+    private static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
+
     private static final String PARAMETER_PATTERN = ":\\w";
 
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
@@ -294,9 +300,8 @@ public class SqlLogger {
             queryWithParameters.append("'").append(value.toString().replace("'", "''")).append("'");
         } else if (value instanceof Calendar) {
             Calendar calendarValue = (Calendar) value;
-            DateFormat dateFormatter = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            dateFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-            queryWithParameters.append("'").append(dateFormatter.format(calendarValue.getTime())).append("'");
+            TimeZone timeZone = TimeZone.getTimeZone("GMT");
+            queryWithParameters.append("'").append(ThreadSafeDateFormat.format(calendarValue.getTime(), DATE_PATTERN, timeZone)).append("'");
         } else {
             queryWithParameters.append(value.toString());
         }

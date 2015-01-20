@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
@@ -13,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
@@ -43,10 +42,8 @@ public class DateTimeWithTimezoneValueConverter extends AbstractDateValueConvert
     public DateTimeWithTimeZoneValue contextToValue(final DateTimeContext context) {
         if (context.getDateTime() != null) {
             final String userTimeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
-            final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
-            dateFormat.setTimeZone(TimeZone.getTimeZone(userTimeZoneId));
             try {
-                final Date date = dateFormat.parse(context.getDateTime());
+                final Date date = ThreadSafeDateFormat.parse(context.getDateTime(), ModelUtil.DTO_PATTERN, TimeZone.getTimeZone(userTimeZoneId));
                 final String rawTimeZoneId = context.getTimeZoneId();
                 final String timeZoneId = getTimeZoneId(rawTimeZoneId);
                 final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
@@ -66,7 +63,7 @@ public class DateTimeWithTimezoneValueConverter extends AbstractDateValueConvert
                     dateTimeWithTimeZone.setTimeZoneContext(new OlsonTimeZoneContext(timeZoneId));
                 }
                 return new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
-            } catch (ParseException ignored) {
+            } catch (Exception ignored) {
                 ignored.printStackTrace(); // for developers only
             }
         }

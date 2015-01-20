@@ -10,12 +10,14 @@ import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 /**
  * Потокобезопасный DateFormat. Кеширует по ключу {pattern, local} объекты ThreadLocal, содержащиие форматировщик даты
  * (DateFormat).
  * @author atsvetkov
  */
+@GwtIncompatible
 public class ThreadSafeDateFormat {
 
     private static Map<Pair, ThreadLocal<SimpleDateFormat>> dateFormatcCache = new HashMap<>();
@@ -33,7 +35,7 @@ public class ThreadSafeDateFormat {
      * @param timeZone временная зона
      * @return закешированный объект DateFormat.
      */
-    private static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
+    public static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
         if (dateFormatcCache.get(pair) != null) {
             SimpleDateFormat dateFormat = dateFormatcCache.get(pair).get();
             setTimeZone(timeZone, dateFormat);

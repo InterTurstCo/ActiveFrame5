@@ -4,7 +4,6 @@ import java.util.Date;
 
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * @author Lesia Puhova
@@ -23,7 +22,7 @@ public class DateRangeValidator extends RangeValidator<Date> {
     Date convert(String s) {
         try {
             return ThreadSafeDateFormat.parse(s, DEFAULT_FORMAT);
-        } catch (FatalException e) {
+        } catch (Exception e) {
             return null;
         }
     }

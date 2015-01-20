@@ -1,17 +1,32 @@
 package ru.intertrust.cm.core.gui.impl.server.widget.util;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
+
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+import ru.intertrust.cm.core.config.gui.form.widget.BooleanFormatConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NumberFormatConfig;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeWithTimezoneValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -75,9 +90,9 @@ public class WidgetRepresentationUtil {
     private static SimpleDateFormat prepareSimpleDateFormat(String field, FormattingConfig formattingConfig) {
         if (formattingConfig != null && formattingConfig.getDateFormatConfig() != null &&
                 isFormatterUsedForCurrentField(field, formattingConfig.getDateFormatConfig().getFieldsPathConfig())) {
-            return new SimpleDateFormat(formattingConfig.getDateFormatConfig().getPattern());
+            return ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(formattingConfig.getDateFormatConfig().getPattern(), null), null);
         }
-        return new SimpleDateFormat(ModelUtil.DEFAULT_DATE_PATTERN);
+        return ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(ModelUtil.DEFAULT_DATE_PATTERN, null), null);
     }
 
     private static String getNumberDisplayValue(String field, Object primitiveValue, FormattingConfig formattingConfig) {

@@ -1,24 +1,28 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Date;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * User: vlad
@@ -28,8 +32,8 @@ import java.util.Date;
  */
 public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao {
 
+    private static final String DATE_PATTERN = "yyyy/MM/dd";
     final private static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
-    private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
     final static private String PATH_NAME = "Path";
     
     @org.springframework.beans.factory.annotation.Value("${attachment.storage}")
@@ -125,7 +129,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private String getAbsoluteDirPath() {
-        return Paths.get(attachmentSaveLocation, formatter.format(new Date())).toAbsolutePath().toString();
+        return Paths.get(attachmentSaveLocation, ThreadSafeDateFormat.format(new Date(), DATE_PATTERN)).toAbsolutePath().toString();
     }
 
     private String newAbsoluteFilePath(String absDirPath) {
