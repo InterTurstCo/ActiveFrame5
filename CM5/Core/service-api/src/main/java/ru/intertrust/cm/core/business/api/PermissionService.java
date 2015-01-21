@@ -45,5 +45,17 @@ public interface PermissionService {
     /**
      * Производит пересчет всех ACL, которые должны пересчитатся в конце транзакции, не дожидаясь окончания транзакции
      */
-    void refreshAcls();    
+    void refreshAcls();
+    
+    /**
+     * Пересчет ACL для доменного обьекта с переданным идентификатором 
+     * @param domainObjectId
+     */
+    void refreshAclFor(Id domainObjectId);    
+    
+    /**
+     * Пересчет состава динамической группы по ее идентификатору
+     * @param groupId
+     */
+    void recalcGroup(Id groupId);    
 }

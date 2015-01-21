@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
@@ -47,6 +48,9 @@ public class PermissionServiceImpl implements PermissionService {
     
     @Autowired
     private PersonServiceDao personServiceDao;
+
+    @Autowired
+    private DynamicGroupService dynamicGroupService;
     
     
     @Override
@@ -100,5 +104,14 @@ public class PermissionServiceImpl implements PermissionService {
     public void refreshAcls() {
         permissionServiceDao.refreshAcls();        
     }
-    
+
+    @Override
+    public void refreshAclFor(Id domainObjectId) {
+        permissionServiceDao.refreshAclFor(domainObjectId);        
+    }
+
+    @Override
+    public void recalcGroup(Id groupId) {
+        dynamicGroupService.recalcGroup(groupId);        
+    }    
 }

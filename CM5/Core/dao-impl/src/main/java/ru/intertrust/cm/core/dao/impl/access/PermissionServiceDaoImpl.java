@@ -131,7 +131,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
     }
 
-    private void refreshAclFor(Id invalidContextId) {
+    @Override
+    public void refreshAclFor(Id invalidContextId) {
         RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
         String status = getStatusFor(invalidContextId);
@@ -1175,4 +1176,5 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             }
         }
     }
+
 }

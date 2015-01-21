@@ -101,7 +101,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param domainObject
      * @param groupId
      */
-    private void recalcGroup(Id groupId) {
+    @Override
+    public void recalcGroup(Id groupId) {
         // Получаем группу
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());

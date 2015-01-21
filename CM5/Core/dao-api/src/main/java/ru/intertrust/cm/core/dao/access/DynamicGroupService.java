@@ -67,4 +67,10 @@ public interface DynamicGroupService {
      * @return
      */
     List<Id> getPersons(Id contextId, String groupName);
+
+    /**
+     * Пересчет состава динамической группы по ее идентификатору
+     * @param groupId
+     */
+    void recalcGroup(Id groupId);
 }
