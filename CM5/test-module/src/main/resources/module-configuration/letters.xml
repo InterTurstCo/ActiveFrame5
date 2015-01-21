@@ -308,7 +308,11 @@
                 <text>Тема:</text>
             </label>
             <text-box id="subject">
-                <field-path value="subject"/>
+                <field-path value="subject">
+                    <default-value>
+                        <field value="Тема по умолчанию (из widget-config)"/>
+                    </default-value>
+                </field-path>
             </text-box>
             <label id="password_label">
                 <field-path/>
@@ -636,7 +640,11 @@
             </linked-domain-object-hyperlink>
 
             <enumeration-box id="letter_priority">
-                <field-path value="priority"/>
+                <field-path value="priority">
+                    <default-value>
+                        <field name="priority" value="2"/>
+                    </default-value>
+                </field-path>
                 <mapping>
                     <map value="1" display-text="низкий"/>
                     <map value="2" display-text="обычный"/>

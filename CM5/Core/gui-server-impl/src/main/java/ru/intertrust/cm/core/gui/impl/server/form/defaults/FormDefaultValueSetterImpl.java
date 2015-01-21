@@ -6,8 +6,25 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.*;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.DefaultValueConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ComboBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DecimalBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldValueConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.IntegerBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ListBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.RadioButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TextAreaConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.TextBoxConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.impl.server.form.FieldValueConfigToValueResolver;
@@ -15,7 +32,11 @@ import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by andrey on 17.09.14.
@@ -43,6 +64,7 @@ public class FormDefaultValueSetterImpl implements FormDefaultValueSetter {
 
     @PostConstruct
     private void initCaches() {
+        initCachesFromWidgetConfigs(formConfig);
         if (mappingConfig != null) {
             initCaches(mappingConfig);
         } else {
@@ -164,6 +186,15 @@ public class FormDefaultValueSetterImpl implements FormDefaultValueSetter {
     private void initCaches(FormMappingConfig mappingConfig) {
         for (FieldPathConfig fieldPathConfig : mappingConfig.getFieldPathConfigs()) {
             putToCaches(fieldPathConfig);
+        }
+    }
+
+    private void initCachesFromWidgetConfigs(FormConfig formConfig) {
+        List<WidgetConfig> widgetConfigs = formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            if (widgetConfig.getFieldPathConfig() != null) {
+                putToCaches(widgetConfig.getFieldPathConfig());
+            }
         }
     }
 
