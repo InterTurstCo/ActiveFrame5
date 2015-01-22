@@ -88,12 +88,17 @@ public class AuthenticationFilter implements Filter {
         String requestURI = request.getRequestURI();
         if (!requestURI.contains(REMOTE)) {
             String targetPage = request.getRequestURI().substring(request.getContextPath().length());
-            Map<String, String[]> parameterMap = servletRequest.getParameterMap();
+            if (targetPage.startsWith("/")) {
+                targetPage = targetPage.substring(1);
+            }
             loginPath.append("?targetPage=").append(targetPage);
+            Map<String, String[]> parameterMap = servletRequest.getParameterMap();
             for (String paramName : parameterMap.keySet()) {
-                String[] paramValues = parameterMap.get(paramName);
-                for (String value : paramValues) {
-                    loginPath.append("&").append(paramName).append("=").append(value);
+                if (!"targetPage".equals(paramName)) {
+                    String[] paramValues = parameterMap.get(paramName);
+                    for (String value : paramValues) {
+                        loginPath.append("&").append(paramName).append("=").append(value);
+                    }
                 }
             }
         }

@@ -31,6 +31,8 @@ import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
 
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -274,11 +276,25 @@ public class LoginWindow  implements Component{
     }
 
     private String getQueryStringWithLocalization() {
-        StringBuilder queryParam = new StringBuilder(Window.Location.getQueryString());
-        if (queryParam.length() == 0) {
-            queryParam.append("?locale=ru");
-        } else if (!queryParam.toString().contains("locale")) {
-            queryParam.append("&locale=ru");
+        StringBuilder queryParam = new StringBuilder();
+        Map<String, List<String>> parameterMap = Window.Location.getParameterMap();
+
+        if (!parameterMap.containsKey("locale")) {
+            queryParam.append("locale=ru");
+        }
+        for (String paramName : parameterMap.keySet()) {
+            if (!"targetPage".equals(paramName)) {
+                List<String> paramValues = parameterMap.get(paramName);
+                for (String value : paramValues) {
+                    if (queryParam.length() > 0) {
+                        queryParam.append("&");
+                    }
+                    queryParam.append(paramName).append("=").append(value);
+                }
+            }
+        }
+        if (queryParam.length() > 0) {
+            queryParam.insert(0, "?");
         }
         return queryParam.toString();
     }
