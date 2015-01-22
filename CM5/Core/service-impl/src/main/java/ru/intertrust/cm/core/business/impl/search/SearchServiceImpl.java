@@ -176,7 +176,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     continue;
                 }
 
-                Collection<String> types = findApplicableTypes(filter.getFieldName(), query.getAreas());
+                Collection<String> types = findApplicableTypes(filter.getFieldName(), query.getAreas(),
+                        query.getTargetObjectType());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
                 }
@@ -199,17 +200,17 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             filterString.append(filterValue);
         }
 
-        private Collection<String> findApplicableTypes(String fieldName, List<String> areaNames) {
+        private Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, String targetType) {
             Set<String> types;
             if (SearchFilter.EVERYWHERE.equals(fieldName)) {
-                types = configHelper.findAllObjectTypes(areaNames);
+                types = configHelper.findAllObjectTypes(areaNames, targetType);
             } else if (SearchFilter.CONTENT.equals(fieldName)) {
-                types = configHelper.findObjectTypesWithContent(areaNames);
+                types = configHelper.findObjectTypesWithContent(areaNames, targetType);
             } else {
-                types = configHelper.findObjectTypesContainingField(fieldName, areaNames);
+                types = configHelper.findObjectTypesContainingField(fieldName, areaNames, targetType);
             }
             if (isAttachmentObjectField(fieldName)) {
-                types.addAll(configHelper.findObjectTypesWithContent(areaNames));
+                types.addAll(configHelper.findObjectTypesWithContent(areaNames, targetType));
             }
             return types;
         }
@@ -337,6 +338,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         // Соединение списков
         SolrDocumentList combined = new SolrDocumentList();
         combined.ensureCapacity(totalSize);
+        combined.setMaxScore(scores.lastKey());
         while (lists.size() > 0) {
             // Вытаскиваем список номеров списков, имеющих следующий элемент с наибольшим рейтингом
             Float maxScore = scores.lastKey();
@@ -366,6 +368,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
             scores.remove(maxScore);
         }
+        combined.setNumFound(combined.size());
         return combined;
     }
 /*

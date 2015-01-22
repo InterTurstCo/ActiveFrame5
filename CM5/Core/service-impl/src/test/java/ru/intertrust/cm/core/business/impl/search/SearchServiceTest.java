@@ -197,7 +197,7 @@ public class SearchServiceTest {
                 .thenReturn("<date filter>");
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
-        when(configHelper.findObjectTypesContainingField(anyString(), anyList())).thenReturn(
+        when(configHelper.findObjectTypesContainingField(anyString(), anyList(), anyString())).thenReturn(
                 Collections.singleton("TargetType"));
 /*        when(configHelper.findObjectConfigsContainingField(anyString(), anyList())).thenReturn(Arrays.asList(
                 new SearchConfigHelper.SearchAreaDetailsConfig(configMock, "Area1", "TargetType"),
@@ -258,9 +258,9 @@ public class SearchServiceTest {
         when(targetObjectFieldConfig.getType()).thenReturn("TargetType");
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
-        when(configHelper.findObjectTypesContainingField(eq("RootField"), anyList())).thenReturn(
+        when(configHelper.findObjectTypesContainingField(eq("RootField"), anyList(), anyString())).thenReturn(
                 Collections.singleton("TargetType"));
-        when(configHelper.findObjectTypesContainingField(eq("LinkedField"), anyList())).thenReturn(
+        when(configHelper.findObjectTypesContainingField(eq("LinkedField"), anyList(), anyString())).thenReturn(
                 Collections.singleton("LinkedType"));
 
         QueryResponse response = mock(QueryResponse.class);

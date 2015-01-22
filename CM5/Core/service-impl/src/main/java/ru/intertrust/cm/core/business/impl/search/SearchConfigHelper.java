@@ -156,24 +156,28 @@ public class SearchConfigHelper {
     /**
      * Возвращает все типы объектов в заданных областях поиска.
      * @param areaNames имена областей поиска
+     * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов
      */
-    public Set<String> findAllObjectTypes(List<String> areaNames) {
-        return findObjectTypesContainingField(null, areaNames);
+    public Set<String> findAllObjectTypes(List<String> areaNames, String targetObjectType) {
+        return findObjectTypesContainingField(null, areaNames, targetObjectType);
     }
 
     /**
      * Возвращает все типы объектов в областях поиска, содержащие поле с заданным именем.
      * @param field имя поля; null - любое поле
      * @param areaNames имена областей поиска
+     * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов (пустой, если поле не найдено)
      */
-    public Set<String> findObjectTypesContainingField(String field, List<String> areaNames) {
+    public Set<String> findObjectTypesContainingField(String field, List<String> areaNames, String targetObjectType) {
         HashSet<String> configs = new HashSet<>();
         for (String area : areaNames) {
             SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
             for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
-                addAllObjectTypesContainingField(field, targetConfig, configs);
+                if (targetObjectType == null || targetObjectType.equalsIgnoreCase(targetConfig.getType())) {
+                    addAllObjectTypesContainingField(field, targetConfig, configs);
+                }
             }
         }
         return configs;
@@ -194,24 +198,28 @@ public class SearchConfigHelper {
     /**
      * Возвращает все типы объектов в областях поиска, содержащие вложения.
      * @param areaNames список имён областей поиска
+     * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов (пустой, если вложения не найдены)
      */
-    public Set<String> findObjectTypesWithContent(List<String> areaNames) {
-        return findObjectTypesWithContent(null, areaNames);
+    public Set<String> findObjectTypesWithContent(List<String> areaNames, String targetObjectType) {
+        return findObjectTypesWithContent(null, areaNames, targetObjectType);
     }
 
     /**
      * Возвращает все типы объектов в областях поиска, содержащие вложения заданного типа.
      * @param type имя типа вложений; null - любой тип
      * @param areaNames список имён областей поиска
+     * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов (пустой, если вложения не найдены)
      */
-    public Set<String> findObjectTypesWithContent(String type, List<String> areaNames) {
+    public Set<String> findObjectTypesWithContent(String type, List<String> areaNames, String targetObjectType) {
         HashSet<String> configs = new HashSet<>();
         for (String area : areaNames) {
             SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
             for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
-                addAllObjectTypesWithContent(type, targetConfig, configs);
+                if (targetObjectType == null || targetObjectType.equalsIgnoreCase(targetConfig.getType())) {
+                    addAllObjectTypesWithContent(type, targetConfig, configs);
+                }
             }
         }
         return configs;
