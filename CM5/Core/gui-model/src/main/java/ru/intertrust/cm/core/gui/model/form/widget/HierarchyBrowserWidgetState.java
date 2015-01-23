@@ -201,32 +201,46 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
         while (iterator.hasNext()){
             HierarchyBrowserItem chosenItem = iterator.next();
+            if(chosenItem.isSingleChoice() == null || chosenItem.isSingleChoice()){
             iterator.remove();
-            postItemRemove(chosenItem);
+            postTempItemRemove(chosenItem);
+            }
         }
         if (item.isChosen()) {
-            temporarySelectedIds.add(item.getId());
-            temporaryChosenItems.add(item);
+            handleAddingToTempSate(item);
 
         }
     }
-    private void postItemRemove(HierarchyBrowserItem item){
+
+    private void postTempItemRemove(HierarchyBrowserItem item){
         temporarySelectedIds.remove(item.getId());
-        decrementCountOfType(item.getNodeCollectionName());
+        decrementTempCountOfType(item.getNodeCollectionName());
 
     }
 
     public void handleNodeSingleChoice(HierarchyBrowserItem item) {
         if (item.isChosen()) {
-            temporarySelectedIds.add(item.getId());
-            temporaryChosenItems.add(item);
+            removeSameCollectionItemIfExist(item);
+            handleAddingToTempSate(item);
 
         } else {
-            temporarySelectedIds.remove(item.getId());
             temporaryChosenItems.remove(item);
-            decrementCountOfType(item.getNodeCollectionName());
+            postTempItemRemove(item);
 
         }
+    }
+
+    private void removeSameCollectionItemIfExist(HierarchyBrowserItem item){
+        Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
+        while (iterator.hasNext()){
+            HierarchyBrowserItem itemToRemove = iterator.next();
+            if(itemToRemove.getNodeCollectionName().equalsIgnoreCase(item.getNodeCollectionName())){
+                iterator.remove();
+                postTempItemRemove(itemToRemove);
+
+            }
+        }
+
     }
 
 
@@ -251,8 +265,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     private void handleRemovingFromTempSate(HierarchyBrowserItem item) {
         temporaryChosenItems.remove(item);
-        temporarySelectedIds.remove(item.getId());
-        decrementTempCountOfType(item.getNodeCollectionName());
+        postTempItemRemove(item);
     }
 
     private void decrementTempCountOfType(String collectionName) {
@@ -261,10 +274,12 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         temporaryCountOfType.put(collectionName, newValue);
     }
 
+    @Deprecated //not used anymore
     public int getRecursiveDeepness() {
         return recursiveDeepness;
     }
 
+    @Deprecated //not used anymore
     public void setRecursiveDeepness(int recursiveDeepness) {
         this.recursiveDeepness = recursiveDeepness;
     }

@@ -244,11 +244,11 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private boolean handleAsSingleChoice(HierarchyBrowserCheckBoxUpdateEvent event) {
         boolean result = false;
         HierarchyBrowserItem item = event.getItem();
-        if ((item.isSingleChoice() == null && currentState.isSingleChoice()) || item.isSingleChoice()) {
+        if ((item.isSingleChoice() == null && currentState.isSingleChoice())) {
             result = true;
             currentState.handleCommonSingleChoice(item);
             refreshViewForSingleChoice(item, false);
-        } else if (item.isSingleChoice()) {
+        } else if (item.isSingleChoice() != null && item.isSingleChoice()) {
             result = true;
             currentState.handleNodeSingleChoice(item);
             refreshViewForSingleChoice(item, true);
