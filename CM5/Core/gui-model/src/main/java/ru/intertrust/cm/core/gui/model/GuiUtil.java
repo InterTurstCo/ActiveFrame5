@@ -17,6 +17,9 @@ public class GuiUtil {
 
     @GwtIncompatible
     public static String humanReadableByteCount(Long bytes) {
+        if (bytes == null) {
+            return "undefined";
+        }
         int unit = 1024;
         if (bytes < unit) {
             return bytes + " B";

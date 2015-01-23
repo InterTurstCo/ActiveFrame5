@@ -24,29 +24,6 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
     private FileNetAdapter fileNetAdapter;
 
     @Override
-    public String saveContent(InputStream inputStream) {
-        ByteArrayOutputStream output = null;
-        try {
-            output = new ByteArrayOutputStream();
-
-            byte[] buffer = new byte[1024];
-            int read = 0;
-
-            while ((read = inputStream.read(buffer)) > 0) {
-                output.write(buffer, 0, read);
-            }
-            return fileNetAdapter.save(output.toByteArray());
-        } catch (Exception ex) {
-            throw new DaoException("Error save content", ex);
-        } finally {
-            try {
-                output.close();
-            } catch (Exception ignoreEx) {
-            }
-        }
-    }
-    
-    @Override
     public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         ByteArrayOutputStream output = null;

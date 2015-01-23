@@ -69,26 +69,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
     
     @Override
-    public String saveContent(InputStream inputStream) {
-        String absDirPath = getAbsoluteDirPath();
-        File dir = new File(absDirPath);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-        String absFilePath = newAbsoluteFilePath(absDirPath);
-        userTransactionService.addListenerForSaveFile(absFilePath);
-        try {
-            //не заменяет файл
-            Files.copy(inputStream, Paths.get(absFilePath));
-
-        } catch (IOException ex) {
-            throw new DaoException(ex);
-        }
-
-        return toRelativeFromAbsPathFile(absFilePath);
-    }
-
-    @Override
     public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
         AttachmentInfo attachmentInfo = new AttachmentInfo();
         String absDirPath = getAbsoluteDirPath();

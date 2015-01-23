@@ -13,15 +13,6 @@ import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 public interface AttachmentContentDao {
 
     /**
-     * Сохраняет Вложение в хранилище на файловой системе. Путь к хранилищу указывается в настройках разворачивания приложения.
-     * @param inputStream поток с Вложением
-     * @param attachmentDomainObject доменный объект Вложение
-     * @return относительный путь к сохраненному Вложению
-     */
-    @Deprecated
-    String saveContent(InputStream  inputStream);
-
-    /**
      * Сохраняет Вложение в хранилище на файловой системе. Путь к хранилищу указывается в настройках разворачивания приложения. 
      * Для правильного определения mimiType нужно передать имя файла вложения в параметре fileName.
      * @param inputStream поток с вложением
