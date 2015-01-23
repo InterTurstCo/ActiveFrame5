@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -32,7 +33,7 @@ import java.util.Map;
  * Created by andrey on 25.04.14.
  */
 public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService {
-    final static public String PATH_NAME = "Path";
+  
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(RemoteAttachmentServiceImpl.class);
 
     @Autowired
@@ -85,14 +86,19 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         DomainObject savedDoaminObject = null;
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
-            String newFilePath = attachmentContentDao.saveContent(contentStream);
-            //если newFilePath is null или empty не обрабатываем
+            String fileName = attachmentDomainObject.getString(NAME);
+            AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(contentStream, fileName);
+            String newFilePath = attachmentInfo.getRelativePath();
+
+            attachmentDomainObject.setString(MIME_TYPE, attachmentInfo.getMimeType());
+            attachmentDomainObject.setLong(CONTENT_LENGTH, attachmentInfo.getContentLength());
+            
             if (newFilePath == null || newFilePath.isEmpty()) {
                 throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
             }
             newFilePathValue = new StringValue(newFilePath);
-            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
-            attachmentDomainObject.setValue(PATH_NAME, new StringValue(newFilePath));
+            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(PATH);
+            attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
             AccessToken accessToken = createSystemAccessToken();
 
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
@@ -100,14 +106,14 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue(PATH_NAME, oldFilePathValue);
+                attachmentDomainObject.setValue(PATH, oldFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             savedDoaminObject.setValue("path", newFilePathValue);
             return savedDoaminObject;
         } catch (IOException ex) {
             if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue(PATH_NAME, newFilePathValue);
+                attachmentDomainObject.setValue(PATH, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             logger.error("Unexpected exception caught in saveAttachment", ex);

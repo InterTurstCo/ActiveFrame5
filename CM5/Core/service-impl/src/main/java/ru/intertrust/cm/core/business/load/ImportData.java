@@ -29,6 +29,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
@@ -66,6 +67,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -504,6 +506,7 @@ public class ImportData {
             if (attachment.isNew() || !contentEquals(filePath, attachment)) {
 
                 //Установка контента вложения
+                //TODO Delete
                 long contentLength = getContentLength(filePath);
                 try (InputStream stream = getAttachmentStream(filePath)) {
                     result = saveAttachment(stream, attachment, contentLength);
@@ -821,30 +824,32 @@ public class ImportData {
         StringValue newFilePathValue = null;
         DomainObject savedDoaminObject = null;
         try {
-            String newFilePath = attachmentContentDao.saveContent(inputStream);
-            //если newFilePath is null или empty не обрабатываем
+            String fileName = attachmentDomainObject.getString(BaseAttachmentService.NAME);
+            AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(inputStream, fileName);
+            String newFilePath = attachmentInfo.getRelativePath();
             if (newFilePath == null || newFilePath.isEmpty()) {
                 throw new DaoException("File isn't created");
             }
             newFilePathValue = new StringValue(newFilePath);
-            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue("path");
-            attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, new StringValue(newFilePath));
+            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(BaseAttachmentService.PATH);
+            attachmentDomainObject.setValue(BaseAttachmentService.PATH, new StringValue(newFilePath));
 
-            attachmentDomainObject.setLong("ContentLength", contentLength);
-
+            attachmentDomainObject.setLong(BaseAttachmentService.CONTENT_LENGTH, attachmentInfo.getContentLength());
+            attachmentDomainObject.setString(BaseAttachmentService.MIME_TYPE, attachmentInfo.getMimeType());
+            
             savedDoaminObject = domainObjectDao.save(attachmentDomainObject, getWriteAccessToken(attachmentDomainObject));
 
             //предыдущий файл удаляем
             if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
                 //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, oldFilePathValue);
+                attachmentDomainObject.setValue(BaseAttachmentService.PATH, oldFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             savedDoaminObject.setValue("path", newFilePathValue);
             return savedDoaminObject;
         } catch (Exception ex) {
             if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue(BaseAttachmentServiceImpl.PATH_NAME, newFilePathValue);
+                attachmentDomainObject.setValue(BaseAttachmentService.PATH, newFilePathValue);
                 attachmentContentDao.deleteContent(attachmentDomainObject);
             }
             throw new FatalException("Error save attachment", ex);

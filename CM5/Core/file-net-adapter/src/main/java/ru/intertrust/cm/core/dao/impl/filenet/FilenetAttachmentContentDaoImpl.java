@@ -9,6 +9,7 @@ import com.filenet.api.exception.EngineRuntimeException;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.filenet.ws.FaultResponse;
 
@@ -35,6 +36,32 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
                 output.write(buffer, 0, read);
             }
             return fileNetAdapter.save(output.toByteArray());
+        } catch (Exception ex) {
+            throw new DaoException("Error save content", ex);
+        } finally {
+            try {
+                output.close();
+            } catch (Exception ignoreEx) {
+            }
+        }
+    }
+    
+    @Override
+    public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
+        AttachmentInfo attachmentInfo = new AttachmentInfo();
+        ByteArrayOutputStream output = null;
+        try {
+            output = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[1024];
+            int read = 0;
+
+            while ((read = inputStream.read(buffer)) > 0) {
+                output.write(buffer, 0, read);
+            }
+            String relativePath = fileNetAdapter.save(output.toByteArray());
+            attachmentInfo.setRelativePath(relativePath);            
+            return attachmentInfo;
         } catch (Exception ex) {
             throw new DaoException("Error save content", ex);
         } finally {

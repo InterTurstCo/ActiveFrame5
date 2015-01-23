@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.api;
 import java.io.InputStream;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 
 /**
  * Предоставляет операции для сохранения/загрузки/удаления Вложений на файловой системе.
@@ -16,8 +17,18 @@ public interface AttachmentContentDao {
      * @param inputStream поток с Вложением
      * @param attachmentDomainObject доменный объект Вложение
      * @return относительный путь к сохраненному Вложению
-     */    
+     */
+    @Deprecated
     String saveContent(InputStream  inputStream);
+
+    /**
+     * Сохраняет Вложение в хранилище на файловой системе. Путь к хранилищу указывается в настройках разворачивания приложения. 
+     * Для правильного определения mimiType нужно передать имя файла вложения в параметре fileName.
+     * @param inputStream поток с вложением
+     * @param fileName имя файла вложения.
+     * @return информация о вложении
+     */
+    AttachmentInfo saveContent(InputStream  inputStream, String fileName);
 
     /**
      * Загружает Вложение по относительному пути в хранилище.

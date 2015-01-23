@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 /**
@@ -79,6 +80,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         try {
             //не заменяет файл
             Files.copy(inputStream, Paths.get(absFilePath));
+
         } catch (IOException ex) {
             throw new DaoException(ex);
         }
@@ -86,6 +88,51 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return toRelativeFromAbsPathFile(absFilePath);
     }
 
+    @Override
+    public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
+        AttachmentInfo attachmentInfo = new AttachmentInfo();
+        String absDirPath = getAbsoluteDirPath();
+        File dir = new File(absDirPath);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        String absFilePath = newAbsoluteFilePath(absDirPath);
+        String fileExtension = getFileExtension(fileName);
+        if (fileExtension != null) {
+            absFilePath += fileExtension;
+        }
+        userTransactionService.addListenerForSaveFile(absFilePath);
+        try {
+            //не заменяет файл
+            Files.copy(inputStream, Paths.get(absFilePath));
+            File attachment = new File(absFilePath);
+            Long contentLength = attachment.length();
+            String mimeType = Files.probeContentType(Paths.get(absFilePath));
+            String relativePath = toRelativeFromAbsPathFile(absFilePath);
+            attachmentInfo.setContentLength(contentLength);
+            attachmentInfo.setMimeType(mimeType);
+            attachmentInfo.setRelativePath(relativePath);
+            
+        } catch (IOException ex) {
+            throw new DaoException(ex);
+        }
+
+        return attachmentInfo;
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName == null) {
+            return null;
+        }
+        String fileExtension = null;
+        Integer dropIndex = fileName.lastIndexOf(".");
+        if (dropIndex > 0) {
+            fileExtension = fileName.substring(dropIndex);
+
+        }
+        return fileExtension;
+    }
+    
     @Override
     public InputStream loadContent(DomainObject domainObject) {
         try {

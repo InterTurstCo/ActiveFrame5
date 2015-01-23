@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
 /**
@@ -63,7 +64,8 @@ public class FileSystemAttachmentContentDaoImplTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
-        String path = contentDao.saveContent(bis);
+        AttachmentInfo attachmentInfo = contentDao.saveContent(bis, "test_file.jpg");
+        String path = attachmentInfo.getRelativePath();
         Files.copy(Paths.get(TEST_OUT_DIR, path), bos);
         Assert.assertArrayEquals(expBytes, bos.toByteArray());
     }

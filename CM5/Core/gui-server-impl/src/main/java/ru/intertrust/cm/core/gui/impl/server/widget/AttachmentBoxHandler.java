@@ -42,6 +42,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.intertrust.cm.core.business.api.BaseAttachmentService.*;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 23.10.13
@@ -167,14 +169,9 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                                   String attachmentType, String filePath, long contentLength) throws IOException {
         DomainObject attachmentDomainObject = attachmentService.
                 createAttachmentDomainObjectFor(parentDomainObject.getId(), attachmentType);
-        attachmentDomainObject.setValue(ATTACHMENT_NAME, new StringValue(attachmentItem.getName()));
-        attachmentDomainObject.setValue(ATTACHMENT_DESCRIPTION, new StringValue(attachmentItem.
+        attachmentDomainObject.setValue(NAME, new StringValue(attachmentItem.getName()));
+        attachmentDomainObject.setValue(DESCRIPTION, new StringValue(attachmentItem.
                 getDescription()));
-        String mimeType = Files.probeContentType(Paths.get(filePath));
-        mimeType = mimeType == null ? "undefined" : mimeType;
-        attachmentDomainObject.setValue(ATTACHMENT_MIME_TYPE, new StringValue(mimeType));
-        attachmentDomainObject.setValue(ATTACHMENT_CONTENT_LENGTH, new LongValue(contentLength));
-
         return attachmentDomainObject;
     }
 
@@ -227,11 +224,13 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
 
     private AttachmentItem createAttachmentItem(DomainObject object) {
         AttachmentItem attachmentItem = new AttachmentItem();
-        attachmentItem.setName(object.getString(ATTACHMENT_NAME));
-        attachmentItem.setDescription(object.getString(ATTACHMENT_DESCRIPTION));
-        Long contentLength = object.getLong(ATTACHMENT_CONTENT_LENGTH);
-        String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);
-        attachmentItem.setContentLength(humanReadableContentLength);
+        attachmentItem.setName(object.getString(NAME));
+        attachmentItem.setDescription(object.getString(DESCRIPTION));
+        Long contentLength = object.getLong(CONTENT_LENGTH);
+        if (contentLength != null) {
+            String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);
+            attachmentItem.setContentLength(humanReadableContentLength);
+        }
         attachmentItem.setId(object.getId());
 
         return attachmentItem;

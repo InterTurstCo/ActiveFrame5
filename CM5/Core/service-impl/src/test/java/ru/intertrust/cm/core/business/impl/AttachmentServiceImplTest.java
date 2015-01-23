@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -182,9 +183,10 @@ public class AttachmentServiceImplTest {
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     InputStream inputStream = (InputStream) invocation.getArguments()[0];
-                    return saveContent(inputStream);
+                    return saveContent(inputStream, "Test_File.jpg");
                 }
-            }).when(attachmentContentDao).saveContent(any(InputStream.class));
+            }).when(attachmentContentDao).saveContent(any(InputStream.class), any(String.class));
+            
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
@@ -516,6 +518,18 @@ public class AttachmentServiceImplTest {
         }
     }
 
+    private static AttachmentInfo saveContent(InputStream inputStream, String fileName) {
+        AttachmentInfo attachmentInfo = new AttachmentInfo();
+        Path path = Paths.get(absDirPath, (suffix++).toString());
+        try {
+            Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
+            attachmentInfo.setRelativePath(path.subpath(Paths.get(absDirPath).getNameCount(), path.getNameCount()).toString());
+            return attachmentInfo;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    
     private static void deleteContent(DomainObject domainObject) {
         String fileName = ((StringValue) domainObject.getValue("path")).get();
         try {
