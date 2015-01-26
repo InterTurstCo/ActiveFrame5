@@ -7,14 +7,14 @@ import ru.intertrust.cm.core.business.api.dto.Constraint;
  *         Date: 03.03.14
  *         Time: 14:56
  */
-public class IntRangeValidator extends  RangeValidator<Long> {
+public class IntRangeValidator extends RangeValidator<Long> {
 
     public IntRangeValidator(Constraint constraint) {
         super(constraint);
     }
 
     @Override
-    Long convert(String s) {
+    protected Long convert(String s) {
         if (s == null) {
             return null;
         }

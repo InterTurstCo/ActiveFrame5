@@ -148,8 +148,8 @@ public class DecoratedDateTimeBox extends Composite {
         return result;
     }
 
-    public Date getValue() {
-        return dateBox.getValue();
+    public Object getValue() {
+        return dateBox.getTextBox().getValue();
     }
 
     public DateBox getDateBox() {

@@ -2,9 +2,6 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 
 /**
@@ -14,8 +11,6 @@ import java.util.HashMap;
  */
 public class DateRangeConstraintConfig extends RangeConstraintConfig {
 
-    private static final String DEFAULT_FORMAT = "dd.MM.yyyy";
-
     @Override
     public Constraint getConstraint() {
         String start = getStart();
@@ -23,21 +18,12 @@ public class DateRangeConstraintConfig extends RangeConstraintConfig {
         if (start == null && end == null) {
             return null;
         }
-        try {
-            Date dateStart = new SimpleDateFormat(DEFAULT_FORMAT).parse(start);
-            Date dateEnd = new SimpleDateFormat(DEFAULT_FORMAT).parse(end);
-            HashMap<String, String> params = new HashMap<String, String>();
-            params.put(Constraint.PARAM_RANGE_START_DATE_MS, dateStart.getTime() + ""); //number of milliseconds as a string
-            params.put(Constraint.PARAM_RANGE_END_DATE_MS, dateEnd.getTime() + "");
+        HashMap<String, String> params = new HashMap<>();
 
-            params.put(Constraint.PARAM_RANGE_START, start);
-            params.put(Constraint.PARAM_RANGE_END, end);
+        params.put(Constraint.PARAM_RANGE_START, start);
+        params.put(Constraint.PARAM_RANGE_END, end);
 
-            return new Constraint(getType(), params);
-        } catch (ParseException e) {
-            // TODO: [validation] report error in config?
-            return null;
-        }
+        return new Constraint(getType(), params);
     }
 
     @Override

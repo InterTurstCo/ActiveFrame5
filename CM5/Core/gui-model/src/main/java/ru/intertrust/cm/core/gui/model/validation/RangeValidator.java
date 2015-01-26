@@ -9,21 +9,23 @@ import ru.intertrust.cm.core.business.api.dto.Constraint;
  *         Time: 13:17
  */
 public abstract class RangeValidator<T extends Comparable> extends AbstractValidator {
-    private final T rangeStart;
-    private final T rangeEnd;
+    private final String rangeStartStr;
+    private final String rangeEndStr;
 
     public RangeValidator(Constraint constraint) {
         this(constraint, Constraint.PARAM_RANGE_START, Constraint.PARAM_RANGE_END);
     }
 
     public RangeValidator(Constraint constraint, String paramNameStart, String paramNameEnd) {
-        this.rangeStart = convert(constraint.param(paramNameStart));
-        this.rangeEnd = convert(constraint.param(paramNameEnd));
+        rangeStartStr = constraint.param(paramNameStart);
+        rangeEndStr = constraint.param(paramNameEnd);
     }
 
     @Override
     void doValidation(CanBeValidated canBeValidated, ValidationResult validationResult) {
         Comparable value = convert((String) canBeValidated.getValue());
+        T rangeStart = convert(rangeStartStr);
+        T rangeEnd = convert(rangeEndStr);
         if (value != null) {
             if (rangeStart != null && rangeStart.compareTo(value) > 0) {
                 validationResult.addError("validate.range.too-small");
@@ -34,12 +36,12 @@ public abstract class RangeValidator<T extends Comparable> extends AbstractValid
         }
     }
 
-     abstract T convert(String s);
+    abstract protected T convert(String s);
 
     @Override
     public String toString() {
         return "Client range validator: "
-                + rangeStart != null ? "rangeStart = " + rangeStart : ""
-                + rangeEnd != null ? "rangeEnd = " + rangeEnd : "";
+                + rangeStartStr != null ? "rangeStart = " + rangeStartStr : ""
+                + rangeEndStr != null ? "rangeEnd = " + rangeEndStr : "";
     }
 }

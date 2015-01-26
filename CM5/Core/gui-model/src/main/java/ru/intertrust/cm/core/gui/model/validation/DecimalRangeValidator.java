@@ -16,7 +16,7 @@ public class DecimalRangeValidator extends RangeValidator<BigDecimal> {
     }
 
     @Override
-    BigDecimal convert(String s) {
+    protected BigDecimal convert(String s) {
         if (s == null) {
             return null;
         }

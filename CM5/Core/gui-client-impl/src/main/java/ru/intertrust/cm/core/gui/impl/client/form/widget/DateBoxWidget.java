@@ -4,6 +4,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.HasText;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
@@ -12,13 +13,17 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DecoratedDateTimeBox;
+import ru.intertrust.cm.core.gui.impl.client.validation.DateRangeValidator;
+import ru.intertrust.cm.core.gui.impl.client.validation.DateValidator;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
+import ru.intertrust.cm.core.gui.model.validation.Validator;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -106,10 +111,26 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
 
     @Override
     public Object getValue() {
-        Date value = ((DecoratedDateTimeBox) impl).getValue();
-        return value != null ? value.getTime() + "" : ""; //return "" rather than null to be able to validate for non-emptiness
+        Object value = ((DecoratedDateTimeBox) impl).getValue();
+        return value != null ? value : ""; //return "" rather than null to be able to validate for non-emptiness
     }
 
+    @Override
+    public List<Validator> getValidators() {
+        List<Validator> validators = super.getValidators();
+
+        for (Constraint constraint : getInitialData().getConstraints()) {
+            if (constraint.getType() == Constraint.Type.DATE) {
+                constraint.addParam(Constraint.PARAM_DATE_PATTERN, dbState.getPattern());
+                validators.add(new DateValidator(constraint));
+            }
+            if (constraint.getType() == Constraint.Type.DATE_RANGE) {
+                constraint.addParam(Constraint.PARAM_DATE_PATTERN, dbState.getPattern());
+                validators.add(new DateRangeValidator(constraint));
+            }
+        }
+        return validators;
+    }
 
     @Override
     public void showErrors(ValidationResult errors) {

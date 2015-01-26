@@ -11,7 +11,15 @@ import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
-import ru.intertrust.cm.core.gui.model.validation.*;
+import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
+import ru.intertrust.cm.core.gui.model.validation.DecimalRangeValidator;
+import ru.intertrust.cm.core.gui.model.validation.IntRangeValidator;
+import ru.intertrust.cm.core.gui.model.validation.LengthValidator;
+import ru.intertrust.cm.core.gui.model.validation.ScaleAndPrecisionValidator;
+import ru.intertrust.cm.core.gui.model.validation.SimpleValidator;
+import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
+import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
+import ru.intertrust.cm.core.gui.model.validation.Validator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -139,9 +147,6 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
                     break;
                 case DECIMAL_RANGE:
                     validators.add(new DecimalRangeValidator(constraint));
-                    break;
-                case DATE_RANGE:
-                    validators.add(new DateRangeValidator(constraint));
                     break;
                 case SCALE_PRECISION:
                     validators.add(new ScaleAndPrecisionValidator(constraint));

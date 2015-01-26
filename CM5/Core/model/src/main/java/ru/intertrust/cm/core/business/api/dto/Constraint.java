@@ -20,7 +20,8 @@ public class Constraint implements Dto {
         INT_RANGE,
         DECIMAL_RANGE,
         DATE_RANGE,
-        SCALE_PRECISION;
+        SCALE_PRECISION,
+        DATE;
     }
 
     // названия параметров валидации
@@ -30,11 +31,10 @@ public class Constraint implements Dto {
     public static final String PARAM_MAX_LENGTH = "max-length";
     public static final String PARAM_RANGE_START = "range-start";
     public static final String PARAM_RANGE_END = "range-end";
-    public static final String PARAM_RANGE_START_DATE_MS = "range-start-date-ms";
-    public static final String PARAM_RANGE_END_DATE_MS = "range-end-date-ms";
     public static final String PARAM_SCALE = "scale";
     public static final String PARAM_PRECISION = "precision";
     public static final String PARAM_FIELD_NAME = "field-name";
+    public static final String PARAM_DATE_PATTERN = "date-pattern";
 
     // ключевые слова, используемые при простой валидации (SimpleValidator)
     public static final String KEYWORD_NOT_EMPTY = "not-empty";
