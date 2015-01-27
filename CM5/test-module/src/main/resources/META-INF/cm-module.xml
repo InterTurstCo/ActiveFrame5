@@ -184,6 +184,7 @@
     </import-reports>
     <deploy-processes>
         <process-definition>workflow/SimpleProcess.bpmn</process-definition>
+        <process-definition>workflow/InternalDoc.bpmn</process-definition>
     </deploy-processes>
 
     <localization-files>

@@ -104,42 +104,43 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                 List<DomainObject> tasks = processService.getUserDomainObjectTasks(domainObject.getId());
                 for (DomainObject task : tasks) {
                     ActionConfig actConfig = getActionConfig(task.getString("ActivityId"));
-                    final boolean hasHandler = applicationContext.containsBean(actConfig.getComponentName());
-                    final ActionContext actionContext;
-                    if (hasHandler) {
-                        final ActionHandler handler =
-                                (ActionHandler) applicationContext.getBean(actConfig.getComponentName());
-                        actionContext = handler.getActionContext(actConfig) ;
-                    } else {
-                        actionContext = new CompleteTaskActionContext(actConfig);
-                    }
-                    actionContext.setRootObjectId(domainObject.getId());
+                    if (actConfig != null) {
+                        final boolean hasHandler = applicationContext.containsBean(actConfig.getComponentName());
+                        final ActionContext actionContext;
+                        if (hasHandler) {
+                            final ActionHandler handler =
+                                    (ActionHandler) applicationContext.getBean(actConfig.getComponentName());
+                            actionContext = handler.getActionContext(actConfig);
+                        } else {
+                            actionContext = new CompleteTaskActionContext(actConfig);
+                        }
+                        actionContext.setRootObjectId(domainObject.getId());
 
-                    String taskAction = task.getString("Actions");
-                    if (taskAction != null && taskAction.length() > 0) {
-                        String[] taskActionArray = taskAction.split(";");
-                        for (String taskActionAndName : taskActionArray) {
-                            String[] taskActionAndNameArr = taskActionAndName.split("=");
-                            String taskActionItem = taskActionAndNameArr[0];
-                            String taskActionName = taskActionAndNameArr[1];
+                        String taskAction = task.getString("Actions");
+                        if (taskAction != null && taskAction.length() > 0) {
+                            String[] taskActionArray = taskAction.split(";");
+                            for (String taskActionAndName : taskActionArray) {
+                                String[] taskActionAndNameArr = taskActionAndName.split("=");
+                                String taskActionItem = taskActionAndNameArr[0];
+                                String taskActionName = taskActionAndNameArr[1];
+                                //Проверка прав на задачи процесса
+                                String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
+                                if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)) {
+                                    fillCompleteTaskContext(actionContext, taskActionItem, taskActionName, task);
+                                    //                                list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                                    list.add(actionContext);
+                                }
+                            }
+                        } else {
                             //Проверка прав на задачи процесса
-                            String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId") + "." + taskActionItem;
-                            if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
-                                fillCompleteTaskContext(actionContext, taskActionItem, taskActionName, task);
-//                                list.add(getCompleteTaskActionContext(taskActionItem, taskActionName, domainObject.getId(), actConfig, task));
+                            String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
+                            if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)) {
+                                fillCompleteTaskContext(actionContext, null, task.getString("Name"), task);
                                 list.add(actionContext);
+                                //                            list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
                             }
                         }
-                    } else {
-                        //Проверка прав на задачи процесса
-                        String matrixAction = task.getString("ProcessId") + "." + task.getString("ActivityId");
-                        if (userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId()) || !hasActionInAccessMatrix(domainObject, matrixAction) || hasActionPermission(domainObjectId, matrixAction)){
-                            fillCompleteTaskContext(actionContext, null, task.getString("Name"), task);
-                            list.add(actionContext);
-//                            list.add(getCompleteTaskActionContext(null, task.getString("Name"), domainObject.getId(), actConfig, task));
-                        }
                     }
-
                 }
             }
             return list;
