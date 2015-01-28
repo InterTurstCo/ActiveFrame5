@@ -8,7 +8,6 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
 import com.google.gwt.event.dom.client.ScrollHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
@@ -19,6 +18,7 @@ import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -399,7 +399,6 @@ public class CollectionPluginView extends PluginView {
         filterButton.setValue(false);
         columnHeaderController.clearFilters();
         columnHeaderController.changeFiltersInputsVisibility(false);
-        lastScrollPos = 0;
         filtersMap.clear();
         InitialFiltersConfig initialFiltersConfig = getPluginData().getInitialFiltersConfig();
         if (initialFiltersConfig != null) {
@@ -465,7 +464,6 @@ public class CollectionPluginView extends PluginView {
     private void clearAllTableData() {
         items.clear();
         listCount = 0;
-        lastScrollPos = 0;
         fetchData();
 
     }
@@ -749,7 +747,6 @@ public class CollectionPluginView extends PluginView {
     }
 
     public void clearScrollHandler() {
-        lastScrollPos = 0;
         scrollHandlerRegistration.removeHandler();
     }
 
@@ -785,36 +782,41 @@ public class CollectionPluginView extends PluginView {
             insertMoreRows(collectionRowItems);
         }
         tableBody.flush();
-        setUpScrollSelection();
+        setUpScrollSelection( );
         columnHeaderController.updateFilterValues();
         columnHeaderController.setFocus();
     }
 
-    private void setUpScrollSelection() {
+    private void setUpScrollSelection( ) {
         Set<Id> selectedItems = prepareSelectedIds();
         if (WidgetUtil.containsOneElement(selectedItems)) {
             Id selectedId = selectedItems.iterator().next();
             int index = getIndex(selectedId);
-            if (index != -1) {
-                selectionModel.setSelected(items.get(index), true); //element is visible, so should be highlighted
-            }
-            setUpScroll(index);
+            if (index != -1 && index <= items.size() - 1) {
+                CollectionRowItem item = items.get(index);
+                if (!selectionModel.isSelected(item)) {
+                    selectionModel.setSelected(items.get(index), true); //element is visible, so should be highlighted
+                }
 
+            }
         }
+        setScrollPosition(lastScrollPos);
+        scrollHandlerRegistration = tableBody.getScrollPanel().addScrollHandler(new ScrollLazyLoadHandler());
 
     }
 
-    public void setUpScroll(int index) {
-        ScrollPanel scroll = tableBody.getScrollPanel();
-        if (CollectionDataGridUtils.shouldChangeScrollPosition(sortCollectionState)) {
-            if (index == -1) { //element was not found, so move scroll to the top
-                scroll.scrollToTop();
-            } else {
-                tableBody.getRowElement(index).scrollIntoView();
+    public void setScrollPosition(final int position) {
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                tableBody.getScrollPanel().setVerticalScrollPosition(position);
             }
-        }
+        });
 
-        scrollHandlerRegistration = scroll.addScrollHandler(new ScrollLazyLoadHandler());
+    }
+    @Deprecated
+    public void setUpScroll(){
+
     }
 
 
@@ -859,6 +861,7 @@ public class CollectionPluginView extends PluginView {
         private ScrollPanel scroll;
 
         private ScrollLazyLoadHandler() {
+            lastScrollPos = 0;
             this.scroll = tableBody.getScrollPanel();
         }
 
