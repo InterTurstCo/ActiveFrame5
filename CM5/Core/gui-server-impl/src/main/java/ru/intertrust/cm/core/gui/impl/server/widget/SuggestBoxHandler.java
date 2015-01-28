@@ -110,7 +110,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         ComplicatedFiltersParams filtersParams = suggestionRequest.getComplicatedFiltersParams();
         filterBuilder.prepareExtraFilters(suggestionRequest.getCollectionExtraFiltersConfig(), filtersParams, filters);
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
-        SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
+        SortOrder sortOrder = SortOrderBuilder.getNotNullSimpleSortOrder(sortCriteriaConfig);
         LazyLoadState lazyLoadState = suggestionRequest.getLazyLoadState();
         String collectionName = suggestionRequest.getCollectionName();
         boolean isRequestForMoreItems = lazyLoadState.getOffset() != 0;

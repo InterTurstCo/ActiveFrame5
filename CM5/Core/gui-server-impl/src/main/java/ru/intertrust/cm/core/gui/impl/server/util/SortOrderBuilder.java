@@ -18,6 +18,7 @@ import java.util.List;
  *         Time: 13:15
  */
 public class SortOrderBuilder {
+    private static final String DEFAULT_SORT_FIELD = "id";
 
     public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                              CollectionDisplayConfig collectionDisplayConfig) {
@@ -45,27 +46,37 @@ public class SortOrderBuilder {
         return sortOrder;
     }
 
-     public static SortOrder getComplexSortOrder(SortCriteriaConfig sortCriteriaConfig){
-         if (sortCriteriaConfig == null){
-             return null;
-         }
-         SortOrder sortOrder = new SortOrder();
-         List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
-         for (SortCriterionConfig sortCriterionConfig : sortCriterionList){
-             SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
-             sortOrder.add(sortCriterion);
+    public static SortOrder getNotNullSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        SortOrder result = getSimpleSortOrder(defaultSortCriteriaConfig);
+        if (result == null) {
+            result = new SortOrder();
+            SortCriterion defaultSortCriterion = new SortCriterion(DEFAULT_SORT_FIELD, SortCriterion.Order.ASCENDING);
+            result.add(defaultSortCriterion);
+        }
+        return result;
+    }
 
-         }
-         return sortOrder;
-     }
-
-    public static SortOrder getSelectionSortOrder(SelectionSortCriteriaConfig sortCriteriaConfig){
-        if (sortCriteriaConfig == null){
+    public static SortOrder getComplexSortOrder(SortCriteriaConfig sortCriteriaConfig) {
+        if (sortCriteriaConfig == null) {
             return null;
         }
         SortOrder sortOrder = new SortOrder();
         List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
-        for (SortCriterionConfig sortCriterionConfig : sortCriterionList){
+        for (SortCriterionConfig sortCriterionConfig : sortCriterionList) {
+            SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
+            sortOrder.add(sortCriterion);
+
+        }
+        return sortOrder;
+    }
+
+    public static SortOrder getSelectionSortOrder(SelectionSortCriteriaConfig sortCriteriaConfig) {
+        if (sortCriteriaConfig == null) {
+            return null;
+        }
+        SortOrder sortOrder = new SortOrder();
+        List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
+        for (SortCriterionConfig sortCriterionConfig : sortCriterionList) {
             SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
             sortOrder.add(sortCriterion);
 
@@ -81,7 +92,7 @@ public class SortOrderBuilder {
     }
 
     private static SortCriteriaConfig getSortCriteriaIfExists(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
-                                                              CollectionDisplayConfig collectionDisplayConfig){
+                                                              CollectionDisplayConfig collectionDisplayConfig) {
         SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
         String field = defaultSortCriteriaConfig.getColumnField();
         CollectionColumnConfig columnConfig = getColumnConfig(field, collectionDisplayConfig);
@@ -95,8 +106,8 @@ public class SortOrderBuilder {
 
     }
 
-    private static CollectionColumnConfig getColumnConfig (String field, CollectionDisplayConfig collectionDisplayConfig) {
-        List<CollectionColumnConfig> columnConfigLists =  collectionDisplayConfig.getColumnConfig();
+    private static CollectionColumnConfig getColumnConfig(String field, CollectionDisplayConfig collectionDisplayConfig) {
+        List<CollectionColumnConfig> columnConfigLists = collectionDisplayConfig.getColumnConfig();
         for (CollectionColumnConfig columnConfig : columnConfigLists) {
             if (field.equalsIgnoreCase(columnConfig.getField())) {
                 return columnConfig;
@@ -105,7 +116,7 @@ public class SortOrderBuilder {
         throw new GuiException("Couldn't find sorting " + field + "'");
     }
 
-    public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend ) {
+    public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend) {
         SortOrder sortOrder = getComplexSortOrder(sortCriteriaConfig);
         if (sortOrder == null) {
             sortOrder = new SortOrder();
