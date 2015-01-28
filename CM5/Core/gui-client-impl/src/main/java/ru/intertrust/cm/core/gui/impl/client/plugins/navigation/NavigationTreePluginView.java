@@ -2,14 +2,25 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.MouseMoveEvent;
+import com.google.gwt.event.dom.client.MouseMoveHandler;
+import com.google.gwt.event.dom.client.MouseOutEvent;
+import com.google.gwt.event.dom.client.MouseOutHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Tree;
+import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -38,7 +49,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_ACTIVE_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_ACTIVE_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG;
 
 
 public class NavigationTreePluginView extends PluginView {
@@ -51,7 +68,6 @@ public class NavigationTreePluginView extends PluginView {
     private TreeItem currentSelectedItem;
     private FocusPanel navigationTreesPanel = new FocusPanel();
     private SidebarView sideBarView;
-    private Timer mouseOutTimer;
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private List<CounterDecorator> rootCounterDecorators = new ArrayList<>();
     private static long lastCountersUpdateTime;
@@ -60,8 +76,8 @@ public class NavigationTreePluginView extends PluginView {
     private FocusPanel navigationTreeContainer;
     private Timer mouseHoldTimer;
     private Integer navigationTreeOpeningTime;
-    private boolean animatedTreePanelIsOpened;
-    private boolean openPanelMarker = false;
+    private boolean animatedTreePanelIsOpened; //is opened or is opening
+    private ResizeTreeAnimation resizeTreeAnimation;
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
@@ -109,8 +125,19 @@ public class NavigationTreePluginView extends PluginView {
                 if (!pinButtonClick) {
                     pinButtonClick = true;
                     pinButton.setStyleName("icon pin-pressed");
-                    eventBus.fireEvent(new SideBarResizeEvent(END_WIDGET_WIDTH, LEFT_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_ACTIVE_STYLE));
+                    // in case tree panel is in process of hiding, reopen it
+                    if (mouseHoldTimer != null ) {
+                        mouseHoldTimer.cancel();
+                        mouseHoldTimer = null;
+                    }
+                    if (resizeTreeAnimation != null) {
+                        resizeTreeAnimation.cancel();
+                    }
+                    navigationTreesPanel.getElement().getStyle().setDisplay(Style.Display.BLOCK);
+                    navigationTreesPanel.setWidth(END_WIDGET_WIDTH + "px");
                     navigationTreesPanel.setStyleName("navigation-dynamic-panel-expanded");
+                    eventBus.fireEvent(new SideBarResizeEvent(END_WIDGET_WIDTH, LEFT_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_ACTIVE_STYLE));
+
                 } else {
                     pinButtonClick = false;
                     pinButton.setStyleName("icon pin-normal");
@@ -157,12 +184,12 @@ public class NavigationTreePluginView extends PluginView {
                 mouseHoldTimer.cancel();
                 mouseHoldTimer = null;
             }
-            openPanelMarker = false;
+            animatedTreePanelIsOpened = false;
             hideTreePanel();
         }
     }
 
-    private void openTheAnimatedTreePanel() {
+    private void openTreePanel() {
         mouseHoldTimer = new Timer() {
             @Override
             public void run() {
@@ -172,14 +199,13 @@ public class NavigationTreePluginView extends PluginView {
                 SideBarResizeEvent sideBarResizeEvent =
                         new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
                 Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
-                final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
+                resizeTreeAnimation = new ResizeTreeAnimation(END_WIDGET_WIDTH,
                         navigationTreesPanel);
                 resizeTreeAnimation.run(DURATION);
 
                 navigationTreesPanel.getElement().getStyle().setDisplay(Style.Display.BLOCK);
             }
         };
-        animatedTreePanelIsOpened = true;
         mouseHoldTimer.schedule(navigationTreeOpeningTime);
     }
 
@@ -187,7 +213,7 @@ public class NavigationTreePluginView extends PluginView {
         mouseHoldTimer = new Timer() {
             @Override
             public void run() {
-                final ResizeTreeAnimation resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
+                resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
                 Application.getInstance().getEventBus()
                         .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                 resizeTreeAnimation.run(DURATION);
@@ -197,7 +223,6 @@ public class NavigationTreePluginView extends PluginView {
             }
         };
         mouseHoldTimer.schedule(navigationTreeOpeningTime);
-        animatedTreePanelIsOpened = false;
     }
 
     private void activateCollectionCountersUpdateTimer(final int collectionCountersUpdatePeriodMillis) {
@@ -417,9 +442,9 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
                 public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
-                    if (!openPanelMarker && (mouseMoveEvent.getClientX() < LEFT_PART_WIDTH) && !pinButtonClick) {
-                        openPanelMarker = true;
-                        openTheAnimatedTreePanel();
+                    if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < LEFT_PART_WIDTH) && !pinButtonClick) {
+                        animatedTreePanelIsOpened = true;
+                        openTreePanel();
                     }
                 }
             }, MouseMoveEvent.getType());
