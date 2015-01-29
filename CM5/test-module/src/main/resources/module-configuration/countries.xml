@@ -101,6 +101,7 @@
             <decimal name="latitude" precision="9" scale="2"/>
             <decimal name="longitude" precision="9" scale="2"/>
             <decimal name="square" precision="9" scale="2"/>
+            <long name="category"/>
         </fields>
     </domain-object-type>
 
@@ -631,7 +632,7 @@
             <label id="test">
                 <text>TEST</text>
             </label>
-            <date-box id="10">
+            <date-box id="10" >
                 <field-path value="independence_day"/>
                 <time-zone-id>GMT-4</time-zone-id>
                 <pattern>dd.MM.yyyy HH:mm:ss</pattern>
@@ -837,6 +838,9 @@
                     <summary-table-column header="Население" widget-id="4">
                         <pattern value="{population}"/>
                     </summary-table-column>
+                    <summary-table-column header="Категория" widget-id="city_category">
+                        <pattern value="{category}"/>
+                    </summary-table-column>
                 </summary-table>
                 <selection-sort-criteria>
                     <sort-criterion field="name" order="asc"/>
@@ -942,6 +946,14 @@
                                     </td>
                                     <!-- date-box (Год основания) -->
                                 </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="city_category_label"/>
+                                    </td>
+                                    <td colspan="3" h-align="left">
+                                        <widget id="city_category"/>
+                                    </td>
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -1027,6 +1039,18 @@
             <integer-box id="6" read-only="true">
                 <field-path value="year_of_foundation"/>
             </integer-box>
+
+            <label id="city_category_label">
+                <text>Категория:</text>
+            </label>
+            <enumeration-box id="city_category">
+                <field-path value="category"/>
+                <mapping>
+                    <map value="1" display-text="Туристический"/>
+                    <map value="2" display-text="Захолустье"/>
+                    <map value="3" display-text="Промышленный"/>
+                </mapping>
+            </enumeration-box>
 
             <label id="7">
                 <text>Площадь:</text>

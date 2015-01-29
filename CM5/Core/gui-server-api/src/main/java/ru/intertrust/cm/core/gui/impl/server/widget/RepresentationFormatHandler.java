@@ -5,21 +5,27 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.EnumBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
+import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.EnumBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 
 import static ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil.getDisplayValue;
@@ -162,7 +168,6 @@ public class RepresentationFormatHandler implements FormatHandler {
         return format((IdentifiableObject) domainObject, matcher, formattingConfig);
     }
 
-
     @Override
     public String format(WidgetContext context, Matcher matcher, FormattingConfig formattingConfig) {
         StringBuffer replacement = new StringBuffer();
@@ -190,15 +195,29 @@ public class RepresentationFormatHandler implements FormatHandler {
     }
 
     public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig) {
+        return format(identifiableObject, matcher, formattingConfig, null);
+    }
+
+    public String format(IdentifiableObject identifiableObject, Matcher matcher, FormattingConfig formattingConfig, Map<String, EnumBoxConfig> enumBoxConfigsByFieldPath) {
 
         StringBuffer replacement = new StringBuffer();
 
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
-            String displayValue = fieldName.contains(".") || fieldName.contains("|")
-                    ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, false, formattingConfig)
-                    : getDisplayValue(fieldName, identifiableObject, formattingConfig);
+            final EnumBoxConfig enumBoxConfig = enumBoxConfigsByFieldPath == null ? null : enumBoxConfigsByFieldPath.get(fieldName);
+            String displayValue;
+            if (enumBoxConfig != null) {
+                final SingleObjectNode node = new SingleObjectNode((DomainObject) identifiableObject);
+                FormObjects virtualFormObjects = new FormObjects();
+                virtualFormObjects.setRootNode(node);
+                final EnumBoxState initialState = ((WidgetHandler) applicationContext.getBean("enumeration-box")).getInitialState(new WidgetContext(enumBoxConfig, virtualFormObjects));
+                displayValue = initialState.getSelectedText();
+            } else {
+                displayValue = fieldName.contains(".") || fieldName.contains("|")
+                        ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, false, formattingConfig)
+                        : getDisplayValue(fieldName, identifiableObject, formattingConfig);
+            }
 
             matcher.appendReplacement(replacement, WidgetRepresentationUtil.escapeSpecialCharacters(displayValue));
         }

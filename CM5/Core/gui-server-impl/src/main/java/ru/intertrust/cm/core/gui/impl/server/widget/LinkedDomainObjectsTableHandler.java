@@ -2,28 +2,28 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.action.access.AccessChecker;
+import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -52,14 +52,26 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     @Autowired
     private GuiService guiService;
 
+    @Autowired
+    private FormResolver formResolver;
+
+    @Autowired
+    protected PersonService personService;
+
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
     private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
 
+    private LinkedDomainObjectsTableConfig widgetConfig;
+    private HashMap<String, FormConfig> formConfigByDomainObjectType = new HashMap<>();
+    private HashMap<String, HashMap<String, EnumBoxConfig>> enumBoxConfigsByDomainObjectType = new HashMap<>();
+    private String currentPersonUid;
+
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
+        this.widgetConfig = context.getWidgetConfig();
+        this.currentPersonUid = personService.getCurrentPersonUid();
 
         LinkedDomainObjectsTableState state = new LinkedDomainObjectsTableState();
-        LinkedDomainObjectsTableConfig widgetConfig = context.getWidgetConfig();
         state.setLinkedDomainObjectTableConfig(widgetConfig);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoiceConfig();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
@@ -74,8 +86,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         String linkedFormName = widgetConfig.getLinkedFormConfig().getName();
         if (linkedFormName != null && !linkedFormName.isEmpty()) {
-            FormConfig formConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
-            state.setObjectTypeName(formConfig.getDomainObjectType());
+            FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
+            state.setObjectTypeName(defaultFormConfig.getDomainObjectType());
         }
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
@@ -218,9 +230,16 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return FieldPath.createPaths(fieldPathConfig.getValue())[0].isOneToManyReference();
     }
 
+    // Column -> Pattern -> Domain Object Type
     public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
         RowItem rowItem = new RowItem();
         Map<String, Boolean> rowAccessMatrix = new HashMap<>();
+        AccessChecker defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_EDIT_ACCESS_CHECKER);
+        rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+        defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_DELETE_ACCESS_CHECKER);
+        rowAccessMatrix.put(DEFAULT_DELETE_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+
+        HashMap<String, EnumBoxConfig> enumBoxConfigsByFieldPath = getEnumBoxConfigs(domainObject.getTypeName());
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
             SummaryTableActionColumnConfig summaryTableActionColumnConfig = columnConfig.getSummaryTableActionColumnConfig();
             if (summaryTableActionColumnConfig != null) {
@@ -236,10 +255,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
                 }
             }
-            AccessChecker defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_EDIT_ACCESS_CHECKER);
-            rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
-            defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_DELETE_ACCESS_CHECKER);
-            rowAccessMatrix.put(DEFAULT_DELETE_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
 
             String displayValue;
             String valueGeneratorComponentName = columnConfig.getValueGeneratorComponent();
@@ -250,13 +265,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 LinkedTablePatternConfig patternConfig = findSuitablePatternForObjectType(columnConfig, domainObject.getTypeName());
                 String columnPattern = patternConfig.getValue();
                 FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
-                displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig);
-
-                String enumBoxDisplayText = getEnumBoxDisplayText(domainObject, columnConfig.getWidgetId());
-                if (enumBoxDisplayText != null) {
-                    displayValue = formatHandler.format(new StringValue(enumBoxDisplayText),
-                            fieldPatternMatcher(columnPattern), formattingConfig);
-                }
+                displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig, enumBoxConfigsByFieldPath);
             }
             rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
             rowItem.setAccessMatrix(rowAccessMatrix);
@@ -264,16 +273,47 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return rowItem;
     }
 
-    private String getEnumBoxDisplayText(DomainObject domainObject, String mappedWidgetId) {
-        if (mappedWidgetId != null) {
-            UserInfo userInfo = GuiContext.get().getUserInfo();
-            FormDisplayData linkedFormDisplayData = guiService.getForm(domainObject.getId(), userInfo, null);
-            WidgetState linkedWidgetState = linkedFormDisplayData.getFormState().getWidgetState(mappedWidgetId);
-            if (linkedWidgetState instanceof EnumBoxState) {
-                return ((EnumBoxState) linkedWidgetState).getSelectedText();
+    private HashMap<String, EnumBoxConfig> getEnumBoxConfigs(String domainObjectType) {
+        HashMap<String, EnumBoxConfig> result = enumBoxConfigsByDomainObjectType.get(domainObjectType);
+        if (result != null) {
+            return result;
+        }
+
+        FormConfig formConfig = getFormConfig(domainObjectType);
+        HashMap<String, EnumBoxConfig> configs = new HashMap<>();
+        for (WidgetConfig config : formConfig.getWidgetConfigsById().values()) {
+            if (config instanceof EnumBoxConfig) {
+                configs.put(config.getFieldPathConfig().getValue(), (EnumBoxConfig) config);
             }
         }
-        return null;
+        enumBoxConfigsByDomainObjectType.put(domainObjectType, configs);
+        return configs;
+    }
+
+    private FormConfig getFormConfig(String domainObjectType) {
+        final FormConfig formConfig = formConfigByDomainObjectType.get(domainObjectType);
+        if (formConfig != null) {
+            return formConfig;
+        }
+        String formName = null;
+        final LinkedFormMappingConfig linkedFormMappingConfig = widgetConfig.getLinkedFormMappingConfig();
+        if (linkedFormMappingConfig != null && linkedFormMappingConfig.getLinkedFormConfigs() != null) {
+            final List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();
+            for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+                if (linkedFormConfig.getDomainObjectType().equals(domainObjectType)) {
+                    formName = linkedFormConfig.getName();
+                    break;
+                }
+            }
+        }
+        FormConfig config;
+        if (formName == null) {
+            config = formResolver.findFormConfig(domainObjectType, FormConfig.TYPE_EDIT, currentPersonUid);
+        } else {
+            config = configurationService.getConfig(FormConfig.class, formName);
+        }
+        formConfigByDomainObjectType.put(domainObjectType, config);
+        return config;
     }
 
     private LinkedTablePatternConfig findSuitablePatternForObjectType(SummaryTableColumnConfig columnConfig, String domainObjectType) {
