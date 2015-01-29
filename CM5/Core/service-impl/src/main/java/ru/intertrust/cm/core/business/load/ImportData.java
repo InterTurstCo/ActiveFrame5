@@ -531,7 +531,7 @@ public class ImportData {
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] buffer = new byte[1024];
         //Получаем HASH сохраняемого файла
-        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(filePath)) {
+        try (InputStream is = getAttachmentStream(filePath)) {
             DigestInputStream dis = new DigestInputStream(is, md);
             while (dis.read(buffer) != -1)
                 ;
