@@ -256,7 +256,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 filters = addInputTextFilter(inputTextFilterName, inputText, filters);
             }
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
-            SortOrder sortOrder = SortOrderBuilder.getSimpleSortOrder(sortCriteriaConfig);
+            SortOrder sortOrder = SortOrderBuilder.getNotNullSimpleSortOrder(sortCriteriaConfig);
 
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);

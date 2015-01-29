@@ -22,16 +22,18 @@ public class SortOrderBuilder {
 
     public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                              CollectionDisplayConfig collectionDisplayConfig) {
-        if (!defaultSortCriteriaConfig.isEmpty()) {
+        SortOrder result = null;
+        if (defaultSortCriteriaConfig.isEmpty()) {
+            result = getSortOderByDefaultField();
+        } else {
             SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
-
             if (sortCriteriaConfig == null) {
-                return getSimpleSortOrder(defaultSortCriteriaConfig);
+                result = getSimpleSortOrder(defaultSortCriteriaConfig);
             } else {
-                return getComplexSortOrder(sortCriteriaConfig);
+                result = getComplexSortOrder(sortCriteriaConfig);
             }
         }
-        return null;
+        return result;
     }
 
     public static SortOrder getSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
@@ -49,9 +51,7 @@ public class SortOrderBuilder {
     public static SortOrder getNotNullSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         SortOrder result = getSimpleSortOrder(defaultSortCriteriaConfig);
         if (result == null) {
-            result = new SortOrder();
-            SortCriterion defaultSortCriterion = new SortCriterion(DEFAULT_SORT_FIELD, SortCriterion.Order.ASCENDING);
-            result.add(defaultSortCriterion);
+            result = getSortOderByDefaultField();
         }
         return result;
     }
@@ -71,17 +71,19 @@ public class SortOrderBuilder {
     }
 
     public static SortOrder getSelectionSortOrder(SelectionSortCriteriaConfig sortCriteriaConfig) {
+        SortOrder result = null;
         if (sortCriteriaConfig == null) {
-            return null;
-        }
-        SortOrder sortOrder = new SortOrder();
-        List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
-        for (SortCriterionConfig sortCriterionConfig : sortCriterionList) {
-            SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
-            sortOrder.add(sortCriterion);
+            result = getSortOderByDefaultField();
+        } else {
+            result = new SortOrder();
+            List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
+            for (SortCriterionConfig sortCriterionConfig : sortCriterionList) {
+                SortCriterion sortCriterion = getSortCriterion(sortCriterionConfig);
+                result.add(sortCriterion);
 
+            }
         }
-        return sortOrder;
+        return result;
     }
 
     private static SortCriterion getSortCriterion(SortCriterionConfig sortCriterionConfig) {
@@ -127,5 +129,12 @@ public class SortOrderBuilder {
             }
         }
         return sortOrder;
+    }
+
+    private static SortOrder getSortOderByDefaultField() {
+        SortOrder result = new SortOrder();
+        SortCriterion defaultSortCriterion = new SortCriterion(DEFAULT_SORT_FIELD, SortCriterion.Order.ASCENDING);
+        result.add(defaultSortCriterion);
+        return result;
     }
 }
