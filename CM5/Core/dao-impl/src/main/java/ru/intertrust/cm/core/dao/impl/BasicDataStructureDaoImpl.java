@@ -51,8 +51,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     
     private BasicQueryHelper queryHelper;
 
-    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, ConfigurationExplorer configurationExplorer,
-            MD5Service md5Service);
+    protected abstract BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service);
 
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createSequence(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
@@ -83,7 +82,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      * isTemplate = true) не отображается в базе данных
      */
     @Override
-    public void createTable(DomainObjectTypeConfig config) {
+    public void createTable(DomainObjectTypeConfig config, boolean isParentType) {
         if (config.isTemplate()) {
             return;
         }
@@ -91,23 +90,10 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         Integer id = domainObjectTypeIdDao.insert(config);
         config.setId(id);       
         
-        jdbcTemplate.update(getQueryHelper().generateCreateTableQuery(config));
+        jdbcTemplate.update(getQueryHelper().generateCreateTableQuery(config, isParentType));
 
-        createAutoIndices(config);
+        createAutoIndices(config, isParentType);
         createExplicitIndexes(config, config.getIndicesConfig().getIndices());
-    }
-
-    /**
-     * Создание таблицы для хранения информации AuditLog
-     */
-    @Override
-    public void createAuditLogTable(DomainObjectTypeConfig config) {
-        if (config.isTemplate()) {
-            return;
-        }
-        jdbcTemplate.update(getQueryHelper().generateCreateAuditTableQuery(config));
-
-        createAutoIndices(config, config.getFieldConfigs(), true, false);
     }
 
     /**
@@ -139,7 +125,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override
-    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList) {
+    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isParent) {
         if (config == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
@@ -147,7 +133,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), false), fieldConfigList);
         jdbcTemplate.update(query);
 
-        createAutoIndices(config, fieldConfigList, false, true);
+        createAutoIndices(config, fieldConfigList, false, true, isParent);
     }
 
     @Override
@@ -248,7 +234,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = createQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
+            queryHelper = createQueryHelper(domainObjectTypeIdDao, md5Service);
         }
 
         return queryHelper;
@@ -281,11 +267,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         }
     }
 
-    private void createAutoIndices(DomainObjectTypeConfig config) {
-        createAutoIndices(config, config.getFieldConfigs(), false, false);
+    private void createAutoIndices(DomainObjectTypeConfig config, boolean isParentType) {
+        createAutoIndices(config, config.getFieldConfigs(), false, false, isParentType);
     }
 
-    private void createAutoIndices(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigs, boolean isAl, boolean update) {
+    private void createAutoIndices(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigs, boolean isAl, boolean update, boolean isParentType) {
 
         if (fieldConfigs == null || fieldConfigs.isEmpty()) {
             return;
@@ -300,9 +286,8 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig)fieldConfig, index, isAl));
             index++;
         }
-
         // Создание индексов для системных полей.
-        if (hasSystemFields(config)) {
+        if (isParentType) {
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     if (SystemField.id.name().equals(fieldConfig.getName())) {
@@ -312,7 +297,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                     index++;
                 }
             }
-
             createIndexForAccessObjectId(config, index, isAl);
 
         }
@@ -325,14 +309,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, accessObjectIdConfig, index, isAl));
     }
 
-    private boolean hasSystemFields(DomainObjectTypeConfig config) {
-        // Для аудит объектов наличие системных полей определяется по соотв. родительским ДО. Если родительский ДО
-        // является самым верхним в иерархии - то системные колонки содержатся в аудит лог объекте и индексы для них создаются.
-        String relevantType = getRelevantType(config.getName());
-        config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, relevantType);
-        return config.getExtendsAttribute() == null
-                && (!config.isTemplate());
-    }
 
     private String getRelevantType(String typeName) {
         if (configurationExplorer.isAuditLogType(typeName)) {

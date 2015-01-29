@@ -113,7 +113,7 @@ public class ConfigurationLoadServiceImplTest {
         configurationService.updateConfiguration();
 
         verify(dataStructureDao, never()).createServiceTables();
-        verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class), any(Boolean.class));
         verify(dataStructureDao, never()).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao, never()).save(anyString());
     }
@@ -123,7 +123,7 @@ public class ConfigurationLoadServiceImplTest {
         configurationService.loadConfiguration();
 
         verify(dataStructureDao).createServiceTables();
-        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class));
+        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class), any(Boolean.class));
         verify(dataStructureDao, times(4)).createSequence(any(DomainObjectTypeConfig.class));
         verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(configuration));
     }

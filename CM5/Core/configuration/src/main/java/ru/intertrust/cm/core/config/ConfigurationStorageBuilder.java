@@ -275,11 +275,12 @@ public class ConfigurationStorageBuilder {
     }
 
     public void updateAuditLogConfigs(DomainObjectTypeConfig oldConfig, DomainObjectTypeConfig newConfig) {
-        DomainObjectTypeConfig oldAuditLogConfig = createAuditLogConfig(oldConfig);
-        removeTopLevelConfigFromMap(oldAuditLogConfig);
-        removeDomainObjectFieldConfigsFromMap(oldAuditLogConfig);
-        configurationStorage.auditLogTypes.remove(oldAuditLogConfig.getName());
-        
+        if (oldConfig != null) {
+            DomainObjectTypeConfig oldAuditLogConfig = createAuditLogConfig(oldConfig);
+            removeTopLevelConfigFromMap(oldAuditLogConfig);
+            removeDomainObjectFieldConfigsFromMap(oldAuditLogConfig);
+            configurationStorage.auditLogTypes.remove(oldAuditLogConfig.getName());
+        }
         fillAuditLogConfigMap(newConfig);
     }
     

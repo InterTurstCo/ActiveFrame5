@@ -23,7 +23,7 @@ public interface DataStructureDao {
      * Создает таблицу по конфигурации доменного объекта
      * @param config конфигурация доменного объекта
      */
-    void createTable(DomainObjectTypeConfig config);
+    void createTable(DomainObjectTypeConfig config, boolean isParentType);
 
     /**
      * Создает таблицы прав доступа для доменного объекта (таблицы _ACL и _READ)
@@ -36,7 +36,7 @@ public interface DataStructureDao {
      * @param config конфигурация доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
      */
-    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList);
+    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isParent);
 
     /**
      * Создает новые индексы для доменного объекта
@@ -79,12 +79,6 @@ public interface DataStructureDao {
      * @return true если существует, иначе false
      */
     boolean doesTableExists(String tableName);
-
-    /**
-     * Создание таблицы для хранения информации сервиса AuditLog
-     * @param config
-     */
-    void createAuditLogTable(DomainObjectTypeConfig config);
 
     /**
      * Создание последовательности для таблицы аудита типа, переданного в параметре

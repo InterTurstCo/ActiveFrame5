@@ -133,7 +133,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
+            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
         }
 
         return queryHelper;

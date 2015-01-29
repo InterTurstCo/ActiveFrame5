@@ -50,7 +50,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
+        queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
         initDomainObjectConfig();
         when(configurationExplorer.isAuditLogType(anyString())).thenReturn(false);
     }
@@ -101,7 +101,7 @@ public class PostgreSqlQueryHelperTest {
 
     @Test
     public void testGenerateCreateTableQuery() throws Exception {
-        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig, false);
         String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN +
                 "\" integer, \"registration_number\" varchar(128), " +
                 "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
@@ -129,7 +129,7 @@ public class PostgreSqlQueryHelperTest {
                 "references \"domain_object_type_id\" (\"id\"))";
         domainObjectTypeConfig.setExtendsAttribute(null);
         when(domainObjectTypeIdDao.findIdByName("outgoing_document")).thenReturn(10);
-        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig);
+        String query = queryHelper.generateCreateTableQuery(domainObjectTypeConfig, true);
         assertEquals(checkQuery, query);
     }
 

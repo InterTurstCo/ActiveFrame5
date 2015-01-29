@@ -137,7 +137,8 @@ class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader 
         }
 
         if (!newFieldConfigs.isEmpty()) {
-            dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs);
+            boolean isParent = isParentObject(domainObjectTypeConfig);
+            dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
         }
 
         List<IndexConfig> newIndices = new ArrayList<>();

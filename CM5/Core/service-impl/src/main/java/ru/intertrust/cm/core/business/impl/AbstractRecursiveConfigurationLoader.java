@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import java.util.*;
@@ -122,9 +123,27 @@ abstract class AbstractRecursiveConfigurationLoader {
 
     private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (!domainObjectTypeConfig.isTemplate()) {
-            dataStructureDao.createTable(domainObjectTypeConfig);
+            boolean isParentType = isParentObject(domainObjectTypeConfig);
+            dataStructureDao.createTable(domainObjectTypeConfig, isParentType);
             dataStructureDao.createSequence(domainObjectTypeConfig);
         }
+    }
+
+    protected boolean isParentObject(DomainObjectTypeConfig config) {
+        boolean isParent = false;
+        if (configurationExplorer.isAuditLogType(config.getName())) {
+            String parentDomainObjectName = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
+            DomainObjectTypeConfig parentObjectConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentDomainObjectName);
+            if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null && (!parentObjectConfig.isTemplate())) {
+                isParent = false;
+            } else {
+                isParent = true;
+            }
+
+        } else {
+            isParent = config.getExtendsAttribute() == null;
+        }
+        return isParent;
     }
 
     private boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {

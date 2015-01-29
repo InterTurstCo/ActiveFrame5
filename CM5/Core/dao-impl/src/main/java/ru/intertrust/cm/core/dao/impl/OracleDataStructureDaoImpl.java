@@ -15,8 +15,8 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     private static final Logger logger = LoggerFactory.getLogger(OracleDataStructureDaoImpl.class);
 
     @Override
-    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, ConfigurationExplorer configurationExplorer, MD5Service md5Service) {
-        return new OracleQueryHelper(domainObjectTypeIdDao, configurationExplorer, md5Service);
+    protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
+        return new OracleQueryHelper(domainObjectTypeIdDao, md5Service);
     }
 
     @Override

@@ -16,8 +16,8 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
  */
 public class OracleQueryHelper extends BasicQueryHelper {
 
-    protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, ConfigurationExplorer configurationExplorer, MD5Service md5Service) {
-        super(domainObjectTypeIdDao, configurationExplorer, md5Service);
+    protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
+        super(domainObjectTypeIdDao, md5Service);
     }
 
     @Override

@@ -5,7 +5,6 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.List;
 
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
@@ -16,8 +15,8 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
  */
 public class PostgreSqlQueryHelper extends BasicQueryHelper {
 
-    protected PostgreSqlQueryHelper(DomainObjectTypeIdDao DomainObjectTypeIdDao, ConfigurationExplorer configurationExplorer, MD5Service md5Service) {
-        super(DomainObjectTypeIdDao, configurationExplorer, md5Service);
+    protected PostgreSqlQueryHelper(DomainObjectTypeIdDao DomainObjectTypeIdDao, MD5Service md5Service) {
+        super(DomainObjectTypeIdDao, md5Service);
     }
 
     @Override
