@@ -76,7 +76,7 @@ public class FormPluginView extends PluginView {
                     WidgetState state = deepClone ? widget.getFullClientStateCopy() : widget.getCurrentState();
                     result.put(id, state);
                 } catch (GuiException e) {
-                    ApplicationWindow.errorAlert(e.getMessage()); // todo something more interesting
+                    ApplicationWindow.errorAlert("Ошибка при получении состояния виджетов: " + e.getMessage()); // todo something more interesting
                 }
             }
         }

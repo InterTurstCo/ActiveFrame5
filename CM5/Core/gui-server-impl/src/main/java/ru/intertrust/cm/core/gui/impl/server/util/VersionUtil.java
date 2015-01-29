@@ -46,7 +46,7 @@ public class VersionUtil {
                         return mainAttribs.getValue("Implementation-Version");
                     }
                 } catch (Throwable e) {
-                    throw new GuiException(e);
+                    throw new GuiException("Ошибка получения версии: ", e);
                 } finally {
                     if (is != null) {
                         is.close();

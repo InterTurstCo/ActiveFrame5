@@ -37,7 +37,7 @@ public class OneDateFilterHeaderWidget extends DateFilterHeaderWidget {
             date = filterValuesRepresentation == null || filterValuesRepresentation.isEmpty() ? null
                     : userDateTimeFormat.parse(filterValuesRepresentation);
         } catch (IllegalArgumentException ex) {
-            ApplicationWindow.errorAlert(getErrorMessage());
+            ApplicationWindow.errorAlert("Ошибка в формате даты: " + getErrorMessage());
         }
         boolean showSeconds = TimeUtil.showSeconds(userDateTimeFormat.getPattern());
         popupDatePicker = new CollectionDatePicker(date, eventBus, isShowTime(), showSeconds);

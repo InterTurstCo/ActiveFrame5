@@ -390,9 +390,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             Application.getInstance().hideLoadingIndicator();
             final String message;
             ex = unwrap(ex);
-            if (ex instanceof HistoryException || ex.getCause() instanceof HistoryException) {
-                message = ex.getCause().getMessage();
-            } else if (ex instanceof GuiException) {
+            if (ex instanceof HistoryException) {
+                message = "Ошибка поддержки истории: " + ex.getMessage();
+            } else if (ex.getCause() instanceof HistoryException) {
+                message = "Ошибка поддержки истории: " + ex.getCause().getMessage();
+            }
+            else if (ex instanceof GuiException) {
                 message = ex.getMessage();
             } else {
                 GWT.log("Uncaught exception escaped", ex);

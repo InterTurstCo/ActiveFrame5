@@ -49,7 +49,7 @@ public abstract class SimpleServerAction extends Action {
                         throw ((GuiException) caught);
 //                    }
                 } else {
-                    throw new GuiException(caught.getMessage(), caught);
+                    throw new GuiException("Ошибка выполнения действия: " + caught.getMessage(), caught);
                 }
             }
         };
@@ -62,7 +62,7 @@ public abstract class SimpleServerAction extends Action {
             }
             BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, true);
         } catch (GuiException e) {
-            ApplicationWindow.errorAlert(e.getMessage());
+            ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + e.getMessage());
         }
     }
 

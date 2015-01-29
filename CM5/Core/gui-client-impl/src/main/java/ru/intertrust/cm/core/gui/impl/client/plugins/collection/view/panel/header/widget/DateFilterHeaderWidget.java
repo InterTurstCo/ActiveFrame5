@@ -104,15 +104,15 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
     }
 
     protected String convertUserDateStringToGuiDateString(String userDateString) {
-        if(WidgetUtil.isStringEmpty(userDateString)){
+        if (WidgetUtil.isStringEmpty(userDateString)) {
             return EMPTY_VALUE;
         }
-        try{
-        Date userDate = userDateTimeFormat.parse(userDateString);
-        return guiDateTimeFormat.format(userDate);
-        }catch (IllegalArgumentException ex) {
-            ApplicationWindow.errorAlert(getErrorMessage());
-            throw new GuiException(getErrorMessage());
+        try {
+            Date userDate = userDateTimeFormat.parse(userDateString);
+            return guiDateTimeFormat.format(userDate);
+        } catch (IllegalArgumentException ex) {
+            ApplicationWindow.errorAlert("Ошибка в формате даты: " + getErrorMessage());
+            throw new GuiException("Ошибка в формате даты: " + getErrorMessage());
         }
 
 

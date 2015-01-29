@@ -57,7 +57,7 @@ public class RangeDateHeaderWidget extends DateFilterHeaderWidget {
 
                 }
             } catch (IllegalArgumentException ex) {
-                ApplicationWindow.errorAlert(getErrorMessage());
+                ApplicationWindow.errorAlert("Ошибка в формате даты: " + getErrorMessage());
             }
             popupDatePicker = new CollectionRangeDatePicker(startDate, endDate, eventBus, isShowTime(), showSeconds);
         }

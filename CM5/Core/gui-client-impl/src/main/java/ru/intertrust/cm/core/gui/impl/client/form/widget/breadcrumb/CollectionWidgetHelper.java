@@ -54,7 +54,7 @@ public class CollectionWidgetHelper {
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(caught.getMessage());
+                ApplicationWindow.errorAlert("Ошибка получения данных иерархической коллекции: " + caught.getMessage());
             }
 
             @Override

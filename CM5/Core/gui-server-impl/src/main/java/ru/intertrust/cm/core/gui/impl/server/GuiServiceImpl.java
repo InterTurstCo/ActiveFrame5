@@ -76,17 +76,17 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
-            throw new GuiException("No command + " + command.getName() + " implemented");
+            throw new GuiException("Команда " + command.getName() + " не найдена");
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
             log.error(e.getMessage(), e);
-            throw new GuiException(e.getTargetException());
+            throw new GuiException("Ошибка вызова команды: " + e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            throw new GuiException("Command can't be executed: " + command.getName(), e);
+            throw new GuiException("Команда не может быть выполнена: " + command.getName(), e);
         }
     }
 
