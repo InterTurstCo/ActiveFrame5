@@ -583,7 +583,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         Id organizationId = employeeTestUniqueKey.getReference("referenceField");
 
         Map<String, Value> paramsSimpleKey = new HashMap<>();
-        paramsSimpleKey.put("newField", new StringValue(employeeTestUniqueKey.getString("key2")));
+        paramsSimpleKey.put("newField", new StringValue(employeeTestUniqueKey.getString("newField")));
 
         DomainObject do1 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
         assertEquals(employeeTestUniqueKey.getId(), do1.getId());
