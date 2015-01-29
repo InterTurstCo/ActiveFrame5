@@ -338,7 +338,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         // Соединение списков
         SolrDocumentList combined = new SolrDocumentList();
         combined.ensureCapacity(totalSize);
-        combined.setMaxScore(scores.lastKey());
+        combined.setMaxScore(scores.size() > 0 ? scores.lastKey() : 0.0f);
         while (lists.size() > 0) {
             // Вытаскиваем список номеров списков, имеющих следующий элемент с наибольшим рейтингом
             Float maxScore = scores.lastKey();
