@@ -213,7 +213,7 @@ public class ProcessServiceImpl implements ProcessService {
             
             //Проверка на то что задача дейцствительно есть у текущего пользователя
             if (!hasUserTask(personId, taskDomainObjectId)){
-                throw new ProcessException("Person " + personLogin + " not has task with id=" + taskDomainObjectId.toStringRepresentation());
+                throw new ProcessException("Person " + personLogin + " does not have task with id=" + taskDomainObjectId.toStringRepresentation());
             }
 
             /**
