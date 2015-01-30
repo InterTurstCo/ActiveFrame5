@@ -1,15 +1,5 @@
 package ru.intertrust.cm.core.jdbc;
 
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.api.dto.util.ListValue;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
@@ -33,6 +23,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
+
+import org.exolab.castor.types.DateTime;
+
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
     private Hashtable<Integer, Object> parameters = new Hashtable<Integer, Object>();
@@ -79,6 +83,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
                 parameter = new DateTimeValue((Date)value);
+            } else if (value instanceof Value) {
+                parameter = (Value)value;
             } else if (value instanceof Id) {
                 parameter = new ReferenceValue((Id)value);
             } else if (value instanceof List) {
