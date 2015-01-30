@@ -24,8 +24,6 @@ import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 
-import org.exolab.castor.types.DateTime;
-
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -83,8 +81,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
                 parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
                 parameter = new DateTimeValue((Date)value);
-            } else if (value instanceof Value) {
-                parameter = (Value)value;
+            } else if (value instanceof TimelessDate) {
+                parameter = new TimelessDateValue((TimelessDate)value);
             } else if (value instanceof Id) {
                 parameter = new ReferenceValue((Id)value);
             } else if (value instanceof List) {
