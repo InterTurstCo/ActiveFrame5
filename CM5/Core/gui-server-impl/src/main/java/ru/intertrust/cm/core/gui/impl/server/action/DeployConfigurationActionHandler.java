@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionContext;
 import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -48,7 +47,8 @@ public class DeployConfigurationActionHandler
             ConfigurationDeployedItem  configurationDeployedItem = new ConfigurationDeployedItem();
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
-                String configAsString = readFileAsString(filePath, StandardCharsets.UTF_8);
+                Charset charset = (filePath.endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
+                String configAsString = readFileAsString(filePath, charset);
                 configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
                 configurationDeployedItem.setSuccess(true);
             } catch (EJBException ejbException){
