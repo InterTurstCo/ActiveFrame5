@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
@@ -35,7 +34,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
 
 
         FieldType fieldType = FormConfig.TYPE_REPORT.equals(widgetContext.getFormType()) ?
-                FieldType.DATETIME : getFieldType(widgetContext);
+                getFieldTypeForReportForm(config) : getFieldType(widgetContext);
 
         final boolean displayTimeZoneChoice = config.isDisplayTimeZoneChoice()
                 && fieldType == FieldType.DATETIMEWITHTIMEZONE;
@@ -70,7 +69,7 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
             final FieldConfig fieldConfig = configurationService.getFieldConfig(
                     domainObjectName, context.getWidgetConfig().getFieldPathConfig().getValue());
             if (fieldConfig == null) {
-                fieldType = FieldType.DATETIME; //FIXME: [report-plugin] temporary fix, to avoid NPE for in case of report form
+                fieldType = FieldType.DATETIME;
             } else {
                 fieldType = fieldConfig.getFieldType();
             }
@@ -79,6 +78,22 @@ public class DateBoxHandler extends ValueEditingWidgetHandler {
         }
         return fieldType;
     }
+
+    private FieldType getFieldTypeForReportForm(DateBoxConfig config) {
+        String unmanagedType = config.getUnmanagedType();
+        if (unmanagedType != null) {
+            switch (unmanagedType) {
+                case "date-time":
+                    return FieldType.DATETIME;
+                case "date-time-with-time-zone":
+                    return FieldType.DATETIMEWITHTIMEZONE;
+                case "timeless-date":
+                    return FieldType.TIMELESSDATE;
+            }
+        }
+        return FieldType.DATETIME;
+    }
+
 
     private static DateValueConverter getConverter(final FieldType fieldType) {
         switch (fieldType) {

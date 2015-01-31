@@ -18,12 +18,16 @@ import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * @author Lesia Puhova
@@ -81,10 +85,12 @@ public class ValueUtil {
         }
     }
 
+    @GwtIncompatible
     public static Value stringValueToObject(String string, String fieldType) {
         return stringValueToObject(string, FieldType.valueOf(fieldType));
     }
 
+    @GwtIncompatible
     public static Value stringValueToObject(String string, FieldType fieldType) {
         switch (fieldType) {
             case STRING:
@@ -212,15 +218,17 @@ public class ValueUtil {
         return sb.toString();
     }
 
+    @GwtIncompatible
     private static Value parseTimelessDate(String string) {
         String[] date = string.split("/");
         int day = Integer.parseInt(date[0]);
         int month = Integer.parseInt(date[1]) - 1; // month is 0-based in timelessDate
         int year = Integer.parseInt(date[2]);
-
-        return new TimelessDateValue(new TimelessDate(year, month, day));
+        TimelessDate timelessDate = new TimelessDate(year, month, day);
+        return new DateTimeValue(timelessDate.toDate());
     }
 
+    @GwtIncompatible
     private static Value parseDateTimeWithTimezone(String string) {
         DateTimeWithTimeZone dateTimeZone;
         String[] parts = string.split(" "); // [context type id, date, time, offset or timezone id]
@@ -243,7 +251,13 @@ public class ValueUtil {
         } else {
             throw new IllegalArgumentException("Cannot parse string: " + string + ". Unsupported TimeZoneContext id: " + parts[0]);
         }
-        return new DateTimeWithTimeZoneValue(dateTimeZone);
+
+        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(dateTimeZone.getTimeZoneContext().getTimeZoneId()));
+        cal.set(dateTimeZone.getYear(), dateTimeZone.getMonth(), dateTimeZone.getDayOfMonth(), dateTimeZone.getHours(),
+                dateTimeZone.getMinutes(), dateTimeZone.getSeconds());
+        cal.set(Calendar.MILLISECOND, dateTimeZone.getMilliseconds());
+
+        return new DateTimeValue(cal.getTime());
     }
 
 }

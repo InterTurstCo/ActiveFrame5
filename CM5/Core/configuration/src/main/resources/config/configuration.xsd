@@ -1873,6 +1873,7 @@
                     <xs:element type="xs:boolean" name="display-time-box" minOccurs="0" maxOccurs="1"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="optional"/>
+                <xs:attribute type="con:unmananagedType" name="unmanaged-type" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -1883,6 +1884,14 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:simpleType name="unmananagedType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="date-time"/>
+            <xs:enumeration value="date-time-with-time-zone"/>
+            <xs:enumeration value="timeless-date"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:element type="con:comboBoxType" name="combo-box" substitutionGroup="con:widget"/>
     <xs:complexType name="comboBoxType">

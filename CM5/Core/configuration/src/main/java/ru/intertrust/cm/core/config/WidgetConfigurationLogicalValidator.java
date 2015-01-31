@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ public class WidgetConfigurationLogicalValidator {
     private static final String WIDGET_RADIO_BUTTON = "radio-button";
     private static final String WIDGET_LABEL = "label";
     private static final String WIDGET_ENUM_BOX = "enumeration-box";
+    private static final String WIDGET_DATE_BOX = "date-box";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
@@ -241,8 +243,9 @@ public class WidgetConfigurationLogicalValidator {
             validateLabelWidget(widget, logicalErrors);
         } else if (thisIsEnumBoxWidget(componentName)) {
             validateEnumBoxWidget(widget, logicalErrors);
+        } else if (thisIsDateBoxWidget(componentName)) {
+            validateDateBoxWidget(widget, logicalErrors);
         }
-
     }
 
     private void validateCheckBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -343,6 +346,15 @@ public class WidgetConfigurationLogicalValidator {
                     logicalErrors.addError(error);
                 }
             }
+        }
+    }
+
+    private void validateDateBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        DateBoxConfig config = (DateBoxConfig)widget.getWidgetConfig();
+        if (config.getUnmanagedType() != null) {
+            String error = String.format("Attribute 'unmanaged-type' is only allowed for report form", config.getId());
+            logger.error(error);
+            logicalErrors.addError(error);
         }
     }
 
@@ -560,5 +572,9 @@ public class WidgetConfigurationLogicalValidator {
 
     private boolean thisIsEnumBoxWidget(String componentName) {
         return WIDGET_ENUM_BOX.equalsIgnoreCase(componentName);
+    }
+
+    private boolean thisIsDateBoxWidget(String componentName) {
+        return WIDGET_DATE_BOX.equalsIgnoreCase(componentName);
     }
 }

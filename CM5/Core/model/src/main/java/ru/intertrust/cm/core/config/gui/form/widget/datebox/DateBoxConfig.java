@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget.datebox;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
@@ -13,6 +14,9 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
  */
 @Root(name = "date-box")
 public class DateBoxConfig extends WidgetConfig implements Dto {
+
+    @Attribute(name = "unmanaged-type", required = false)
+    private String unmanagedType;
 
     @Element(name = "time-zone-id", required = false)
     private String timeZoneId;
@@ -68,6 +72,10 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
         this.displayTimeBox = displayTimeBox;
     }
 
+    public String getUnmanagedType() {
+        return unmanagedType;
+    }
+
     @Override
     public String getComponentName() {
         return "date-box";
@@ -98,6 +106,9 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
         if (displayTimeBox != other.displayTimeBox) {
             return false;
         }
+        if (unmanagedType != null ? !unmanagedType.equals(other.unmanagedType) : other.unmanagedType != null) {
+            return false;
+        }
         return true;
     }
 
@@ -109,6 +120,7 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
         result = 31 * result + (displayTimeZoneChoice ? 0 : 1);
         result = 31 * result + (rangeStartConfig != null ? rangeStartConfig.hashCode() : 0);
         result = 31 * result + (rangeEndConfig != null ? rangeEndConfig.hashCode() : 0);
+        result = 31 * result + (unmanagedType != null ? unmanagedType.hashCode() : 0);
         return result;
     }
 }
