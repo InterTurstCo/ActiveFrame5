@@ -178,7 +178,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
         HierarchyBrowserWidgetState state = new HierarchyBrowserWidgetState();
         state.setChosenItems(currentState.getChosenItems());
-
+        state.setSelectedIds(currentState.getIds());
         state.setSingleChoice(currentState.isSingleChoice());
         state.setCollectionNameNodeMap(currentState.getCollectionNameNodeMap());
         state.setHierarchyBrowserConfig(currentState.getHierarchyBrowserConfig());
