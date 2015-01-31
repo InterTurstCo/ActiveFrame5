@@ -147,4 +147,10 @@ public class HierarchyBrowserUtil {
         }
     }
 
+    public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith,
+                                                  boolean commonSingleChoice){
+        return  item.getId() != compareWith.getId()
+                && (item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
+                ||(commonSingleChoice && (item.isSingleChoice() == null || item.isSingleChoice())));
+    }
 }

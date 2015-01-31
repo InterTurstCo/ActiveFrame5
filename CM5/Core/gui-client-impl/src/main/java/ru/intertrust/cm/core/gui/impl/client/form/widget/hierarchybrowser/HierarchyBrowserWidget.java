@@ -247,19 +247,20 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         if ((item.isSingleChoice() == null && currentState.isSingleChoice())) {
             result = true;
             currentState.handleCommonSingleChoice(item);
-            refreshViewForSingleChoice(item, false);
+            refreshViewForSingleChoice(item);
         } else if (item.isSingleChoice() != null && item.isSingleChoice()) {
             result = true;
             currentState.handleNodeSingleChoice(item);
-            refreshViewForSingleChoice(item, true);
+            refreshViewForSingleChoice(item);
 
         }
+
         return result;
 
     }
 
-    private void refreshViewForSingleChoice(HierarchyBrowserItem item, boolean handledOnlyNode) {
-        localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, handledOnlyNode));
+    private void refreshViewForSingleChoice(HierarchyBrowserItem item) {
+        localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item,currentState.isSingleChoice()));
         refreshView();
     }
 
@@ -269,7 +270,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         if (chosen) {
             currentState.handleAddingItem(item);
         } else {
-            localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, false));
+            localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, currentState.isSingleChoice()));
             currentState.handleRemovingItem(item);
         }
         refreshView();

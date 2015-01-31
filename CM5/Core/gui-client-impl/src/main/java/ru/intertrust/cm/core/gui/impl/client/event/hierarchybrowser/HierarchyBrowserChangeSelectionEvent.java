@@ -13,10 +13,11 @@ public class HierarchyBrowserChangeSelectionEvent extends GwtEvent<HierarchyBrow
     public static GwtEvent.Type<HierarchyBrowserChangeSelectionEventHandler> TYPE = new GwtEvent.Type<HierarchyBrowserChangeSelectionEventHandler>();
     private HierarchyBrowserItem item;
     private boolean handleOnlyNode;
+    private boolean commonSingleChoice;
 
-    public HierarchyBrowserChangeSelectionEvent(HierarchyBrowserItem item, boolean handleOnlyNode) {
+    public HierarchyBrowserChangeSelectionEvent(HierarchyBrowserItem item, boolean commonSingleChoice) {
         this.item = item;
-        this.handleOnlyNode = handleOnlyNode;
+        this.commonSingleChoice = commonSingleChoice;
     }
 
     @Override
@@ -32,8 +33,12 @@ public class HierarchyBrowserChangeSelectionEvent extends GwtEvent<HierarchyBrow
     public HierarchyBrowserItem getItem() {
         return item;
     }
-
+    @Deprecated //returns false always
     public boolean isHandleOnlyNode() {
         return handleOnlyNode;
+    }
+
+    public boolean isCommonSingleChoice() {
+        return commonSingleChoice;
     }
 }

@@ -220,7 +220,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public void handleNodeSingleChoice(HierarchyBrowserItem item) {
         if (item.isChosen()) {
-            removeSameCollectionItemIfExist(item);
+            removeSingleChoiceItems(item);
             handleAddingToTempSate(item);
 
         } else {
@@ -230,11 +230,11 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         }
     }
 
-    private void removeSameCollectionItemIfExist(HierarchyBrowserItem item){
+    private void removeSingleChoiceItems(HierarchyBrowserItem item){
         Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
         while (iterator.hasNext()){
             HierarchyBrowserItem itemToRemove = iterator.next();
-            if(itemToRemove.getNodeCollectionName().equalsIgnoreCase(item.getNodeCollectionName())){
+            if(HierarchyBrowserUtil.isOtherItemSingleChoice(itemToRemove, item, isSingleChoice()) ){
                 iterator.remove();
                 postTempItemRemove(itemToRemove);
 

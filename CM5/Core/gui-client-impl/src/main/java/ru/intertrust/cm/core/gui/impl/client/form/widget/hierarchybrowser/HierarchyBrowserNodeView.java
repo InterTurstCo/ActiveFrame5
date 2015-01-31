@@ -64,6 +64,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     public void redrawNode(List<HierarchyBrowserItem> items) {
+        checkBoxesWrappers.clear();
         scroll.setHorizontalScrollPosition(0);
         this.items = items;
         currentNodePanel.clear();

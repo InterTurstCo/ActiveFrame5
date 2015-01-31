@@ -1,15 +1,15 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserChangeSelectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -18,7 +18,6 @@ import java.util.Map;
  */
 public class HierarchyCheckBoxesManager {
     private List<HierarchyCheckBoxesWrapper> hierarchyCheckBoxesWrappers;
-    private Map<String, HierarchyBrowserItem> previousChosenItems;
     private EventBus eventBus;
 
     public HierarchyCheckBoxesManager(List<HierarchyCheckBoxesWrapper> hierarchyCheckBoxesWrappers, EventBus eventBus) {
@@ -27,31 +26,33 @@ public class HierarchyCheckBoxesManager {
     }
 
     public void activate() {
-        previousChosenItems = new HashMap<String, HierarchyBrowserItem>();
         eventBus.addHandler(HierarchyBrowserChangeSelectionEvent.TYPE, new HierarchyBrowserChangeSelectionEventHandler() {
             @Override
             public void onChangeSelectionEvent(HierarchyBrowserChangeSelectionEvent event) {
                 HierarchyBrowserItem handledItem = event.getItem();
-                String handledItemCollectionName = handledItem.getNodeCollectionName();
                 boolean handledItemIsChosen = handledItem.isChosen();
                 if (handledItemIsChosen) {
-                    if (event.isHandleOnlyNode()) {
-                        HierarchyBrowserItem itemFromPreviousMap = previousChosenItems.get(handledItemCollectionName);
-                        if (itemFromPreviousMap != null) {
-                            findAndDeselectItem(itemFromPreviousMap);
-                        }
-                    } else {
-                        handleCommonSingleChoice(handledItem);
-
-                    }
-                    previousChosenItems.put(handledItemCollectionName, handledItem);
+                   handleAdding(handledItem, event.isCommonSingleChoice());
                 } else {
-                    previousChosenItems.remove(handledItemCollectionName);
-                    findAndDeselectItem(handledItem);
+                    handleRemoving(handledItem);
                 }
 
             }
         });
+    }
+
+    private void handleAdding(HierarchyBrowserItem handledItem, boolean commonSingleChoice){
+        if (handledItem.isSingleChoice() != null && handledItem.isSingleChoice()) {
+            deselectAllOthersSingleChoiceItems(handledItem, commonSingleChoice);
+        } else {
+            handleCommonSingleChoice(handledItem);
+
+        }
+
+    }
+
+    private void handleRemoving(HierarchyBrowserItem handledItem){
+        findAndDeselectItem(handledItem);
     }
 
     private void findAndDeselectItem(HierarchyBrowserItem item){
@@ -62,13 +63,28 @@ public class HierarchyCheckBoxesManager {
         item.setChosen(false);
     }
 
+    private void deselectAllOthersSingleChoiceItems(HierarchyBrowserItem compareWith, boolean commonSingleChoice){
+        for (HierarchyCheckBoxesWrapper hierarchyCheckBoxesWrapper : hierarchyCheckBoxesWrappers) {
+            CheckBox checkBox= hierarchyCheckBoxesWrapper.getCheckBox();
+            if(checkBox.getValue()){
+            HierarchyBrowserItem item = hierarchyCheckBoxesWrapper.getItem();
+                if(HierarchyBrowserUtil.isOtherItemSingleChoice(item, compareWith, commonSingleChoice)) {
+                    checkBox.setValue(false);
+                    item.setChosen(false);
+                }
+            }
+        }
+    }
+
     private void handleCommonSingleChoice(HierarchyBrowserItem handledItem) {
 
         for (HierarchyCheckBoxesWrapper hierarchyCheckBoxesWrapper : hierarchyCheckBoxesWrappers) {
             HierarchyBrowserItem item = hierarchyCheckBoxesWrapper.getItem();
-            if (!item.equals(handledItem)) {
+            CheckBox checkBox = hierarchyCheckBoxesWrapper.getCheckBox();
+            if (!item.equals(handledItem) && checkBox.getValue()
+                    && (item.isSingleChoice() == null || item.isSingleChoice())) {
                 item.setChosen(false);
-                hierarchyCheckBoxesWrapper.getCheckBox().setValue(false);
+                checkBox.setValue(false);
             }
         }
     }
