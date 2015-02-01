@@ -12,13 +12,15 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.HierarchyConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.BROWSER_INACCURACY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -66,6 +68,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     public void redrawNode(List<HierarchyBrowserItem> items) {
         checkBoxesWrappers.clear();
         scroll.setHorizontalScrollPosition(0);
+        scroll.setVerticalScrollPosition(0);
         this.items = items;
         currentNodePanel.clear();
         for (HierarchyBrowserItem item : items) {
@@ -97,8 +100,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
         scroll.addScrollHandler(new ScrollHandler() {
             @Override
             public void onScroll(ScrollEvent event) {
-
-                if (scroll.getVerticalScrollPosition() == scroll.getMaximumVerticalScrollPosition()) {
+                if (scroll.getVerticalScrollPosition() >= scroll.getMaximumVerticalScrollPosition() - BROWSER_INACCURACY) {
                     factor++;
                     eventBus.fireEvent(new HierarchyBrowserScrollEvent(parentId, parentCollectionName,
                             factor, textBox.getText(), recursionDeepness));
@@ -218,7 +220,8 @@ public class HierarchyBrowserNodeView implements IsWidget {
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName, recursionDeepness));
+                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName,
+                        textBox.getText(),recursionDeepness));
                 factor = 0;
             }
         });
@@ -268,8 +271,9 @@ public class HierarchyBrowserNodeView implements IsWidget {
         result.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                textBox.setText(BusinessUniverseConstants.EMPTY_VALUE);
-                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName, recursionDeepness));
+                textBox.setText(EMPTY_VALUE);
+                eventBus.fireEvent(new HierarchyBrowserRefreshClickEvent(parentId, parentCollectionName,
+                        textBox.getText(),recursionDeepness));
                 result.removeFromParent();
                 factor = 0;
             }
@@ -286,7 +290,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
             public void onValueChange(ValueChangeEvent event) {
                 Style style = resetButton.getElement().getStyle();
                 String inputText = textBox.getText();
-                if (BusinessUniverseConstants.EMPTY_VALUE.equalsIgnoreCase(inputText)) {
+                if (EMPTY_VALUE.equalsIgnoreCase(inputText)) {
                     style.setDisplay(Style.Display.NONE);
                 } else {
                     style.clearDisplay();

@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -93,8 +94,19 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         state.setHierarchyBrowserConfig(widgetConfig);
         state.setChosenItems(new ArrayList<HierarchyBrowserItem>(chosenItems));
         state.setRootNodeLinkConfig(nodeConfig.getRootNodeLinkConfig());
-
+        state.setWidgetIdComponentNames(getWidgetIdComponentNames(nodeConfigs, context.getWidgetConfigsById()));
         return state;
+    }
+
+    private Collection<WidgetIdComponentName> getWidgetIdComponentNames(Collection<NodeCollectionDefConfig> nodeDefConfigs,
+                                                                        Map<String, WidgetConfig> widgetConfigMap) {
+        Set<WidgetIdComponentName> result = new HashSet<>();
+        for (NodeCollectionDefConfig nodeDefConfig : nodeDefConfigs) {
+            Collection<WidgetIdComponentName> widgetIdComponentNames =
+                    WidgetUtil.getWidgetIdsComponentsNamesForFilters(nodeDefConfig.getCollectionExtraFiltersConfig(), widgetConfigMap);
+            result.addAll(widgetIdComponentNames);
+        }
+        return result;
     }
 
     private void generateChosenItems(NodeCollectionDefConfig nodeConfig,
@@ -125,7 +137,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
         for (IdentifiableObject identifiableObject : collection) {
             String representation = formatHandler.format(identifiableObject, matcher, formattingConfig);
-            HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation, true,false);
+            HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation, true, false);
             items.add(item);
         }
 
@@ -241,6 +253,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
 
         DomainObject parent = parentId == null ? null : crudService.find(parentId);
+        ComplicatedFiltersParams complicatedFiltersParams = nodeContentRequest.getComplicatedFiltersParams();
         for (NodeCollectionDefConfig nodeConfig : nodeCollectionDefConfigs) {
 
             String collectionName = nodeConfig.getCollection();
@@ -255,6 +268,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 String inputTextFilterName = nodeConfig.getInputTextFilterConfig().getName();
                 filters = addInputTextFilter(inputTextFilterName, inputText, filters);
             }
+            filterBuilder.prepareExtraFilters(nodeConfig.getCollectionExtraFiltersConfig(), complicatedFiltersParams, filters);
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = SortOrderBuilder.getNotNullSimpleSortOrder(sortCriteriaConfig);
 
@@ -262,7 +276,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
             Boolean singleChoice = isSingleChoice(parent, nodeConfig.getSingleChoiceConfig());
-            if(rootNodeCollectionDefConfig.isChildrenRecursive() && !nodeConfig.isChildrenRecursive()){
+            if (rootNodeCollectionDefConfig.isChildrenRecursive() && !nodeConfig.isChildrenRecursive()) {
                 nodeConfig.setRecursiveDeepness(nodeConfig.getRecursiveDeepness() + 1);
             }
             for (IdentifiableObject identifiableObject : collection) {
@@ -283,7 +297,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return nodeContent;
     }
 
-    public Dto getRepresentationForOneItem(Dto inputParams){
+    public Dto getRepresentationForOneItem(Dto inputParams) {
         return formatHandler.getRepresentationForOneItem(inputParams);
     }
 

@@ -3,9 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -20,7 +24,9 @@ public abstract class NodeContentManager {
     protected HierarchyBrowserMainPopup mainPopup;
     protected Id parentId;
     private ArrayList<Id> chosenIds = new ArrayList<Id>();
-
+    private WidgetsContainer widgetsContainer;
+    private Collection<WidgetIdComponentName> widgetIdComponentNames;
+    @Deprecated
     public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds,
                               Id parentId, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
         this.config = config;
@@ -30,6 +36,18 @@ public abstract class NodeContentManager {
         this.collectionNameNodeMap = collectionNameNodeMap;
     }
 
+    public NodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup, ArrayList<Id> chosenIds,
+                              Id parentId, Map<String, NodeCollectionDefConfig> collectionNameNodeMap,
+                              WidgetsContainer widgetsContainer, Collection<WidgetIdComponentName> widgetIdComponentNames) {
+        this.config = config;
+        this.mainPopup = mainPopup;
+        this.chosenIds = chosenIds;
+        this.parentId = parentId;
+        this.collectionNameNodeMap = collectionNameNodeMap;
+        this.widgetsContainer = widgetsContainer;
+        this.widgetIdComponentNames = widgetIdComponentNames;
+    }
+
     protected NodeContentRequest createRequestDataFromNodeConfig(NodeCollectionDefConfig nodeConfig) {
         NodeContentRequest nodeContentRequest = new NodeContentRequest();
         nodeContentRequest.setNumberOfItemsToDisplay(config.getPageSize());
@@ -37,6 +55,7 @@ public abstract class NodeContentManager {
         nodeContentRequest.setParentId(parentId);
         nodeContentRequest.setNodeCollectionDefConfig(nodeConfig);
         nodeContentRequest.setFormattingConfig(config.getFormattingConfig());
+        nodeContentRequest.setComplicatedFiltersParams(GuiUtil.createComplicatedFiltersParams(widgetsContainer, widgetIdComponentNames));
         return nodeContentRequest;
     }
 

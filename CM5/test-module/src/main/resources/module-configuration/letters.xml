@@ -783,15 +783,20 @@
                     <input-text-filter name="byName"/>
                     <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
+                    <collection-extra-filters>
+                        <extra-filter name="byBossName">
+                            <param name="0" type="string" value="Сотрудник 1"/>
+                        </extra-filter>
+                    </collection-extra-filters>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <selection-filters >
+                    <!--<selection-filters >
                         <selection-filter name="byNames">
                             <param name="0" value="Организация 9" type="string"/>
                             <param name="1" value="Организация 10" type="string"/>
                             <param name="2" value="Организация 2" type="string"/>
                             <param name="3" value="Организация 22" type="string"/>
                         </selection-filter>
-                    </selection-filters>
+                    </selection-filters>-->
                     <selection-sort-criteria>
                         <sort-criterion field="name" order="asc"/>
                     </selection-sort-criteria>
@@ -806,8 +811,8 @@
                     </linked-form-mapping>
                     <!--<selection-filters row-limit="1"></selection-filters>-->
                     <node-collection-def collection="departments" parent-filter="byOrganization"
-                                         title="Департамент" display-create-button="true">
-                        <single-choice value="false"/>
+                                         title="Департамент" display-create-button="false">
+                        <single-choice value="true"/>
                         <fill-parent-on-add field-to-fill="organization"/>
                         <linked-form-mapping>
                             <linked-form name="department_form" domain-object-type="department">
@@ -838,8 +843,8 @@
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name}"/>
                         <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
-                        <node-collection-def collection="employees" parent-filter="byDepartment" selective="false">
-
+                        <node-collection-def collection="employees" parent-filter="byDepartment" >
+                            <single-choice value="true"/>
                             <!-- название фильтра по тексту, введённому пользователем -->
                             <fill-parent-on-add field-to-fill="department"/>
                             <input-text-filter name="byName"/>
@@ -854,7 +859,7 @@
                                          title="Сотрудника">
                         <create-new-button text="Создать"/>
                         <fill-parent-on-add field-to-fill="organization"/>
-                        <input-text-filter name="byName"/>
+                        <input-text-filter name="byText"/>
                         <!-- паттерн отображения уже выбранных значений -->
                         <selection-pattern value="{name} {position}"/>
                         <created-objects>
@@ -870,7 +875,7 @@
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->
                 <page-size>10</page-size>
-                <single-choice value="true"/>
+                <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Добавить"/>
                 <display-values-as-links value="true"/>
@@ -1189,8 +1194,24 @@
                         </td>
                     </tr>
                 </table>
+
             </header>
             <body display-single-tab="false">
+                <tab name="hierarchy">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="hierarchy" width="1200px"/>
+
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -1346,6 +1367,60 @@
                 </selection-sort-criteria>
 
             </suggest-box>
+            <hierarchy-browser id="hierarchy">
+                <field-path
+                        value="department^organization"/>
+
+                <!-- Определение списка/таблицы, выпадающего при раскрытии узла -->
+                <!-- Уже выбранные элементы показываются помеченными галочками -->
+                <!-- collection - название коллекции для отображения списка значений узла -->
+
+
+                    <!--<selection-filters row-limit="1"></selection-filters>-->
+                    <node-collection-def collection="departments" parent-filter="byOrganization"
+                                         title="Департамент" display-create-button="true">
+                        <single-choice value="false"/>
+
+                        <linked-form-mapping>
+                            <linked-form name="department_form" domain-object-type="department">
+                                <title>
+                                    <existing-object>
+                                        <pattern value="{id}, {created_date}"/>
+                                        <formatting>
+                                            <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                                <time-zone id="Europe/Kiev"/>
+                                                <field-paths>
+                                                    <field-path value="created_date"/>
+                                                </field-paths>
+                                            </date-format>
+                                        </formatting>
+                                    </existing-object>
+                                    <new-object>
+                                        <pattern value="new form "/>
+
+                                    </new-object>
+                                </title>
+
+                            </linked-form>
+                        </linked-form-mapping>
+                        <create-new-button text="Department" image="images/icons/arrow-down.png"/>
+
+                        <display-values-as-links value="false"/>
+                        <input-text-filter name="byName"/>
+                        <!-- паттерн отображения уже выбранных значений -->
+                        <selection-pattern value="{name}"/>
+                        <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
+
+                </node-collection-def>
+
+                <!-- количество элементов, показываемых в данном узле дерева изначально -->
+                <page-size>10</page-size>
+                <single-choice value="true"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="true"/>
+
+            </hierarchy-browser>
         </widget-config>
     </form>
 

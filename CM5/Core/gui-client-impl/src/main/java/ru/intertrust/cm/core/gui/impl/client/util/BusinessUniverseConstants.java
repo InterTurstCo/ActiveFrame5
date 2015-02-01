@@ -103,6 +103,7 @@ public class BusinessUniverseConstants {
     public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT = "300px";
     public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH = "800px";
 
+    public static final int BROWSER_INACCURACY = 1;
     private BusinessUniverseConstants() {
     }
 }

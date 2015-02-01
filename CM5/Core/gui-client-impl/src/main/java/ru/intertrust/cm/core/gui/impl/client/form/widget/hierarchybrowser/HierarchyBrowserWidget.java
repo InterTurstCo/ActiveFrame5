@@ -134,8 +134,14 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                         disposeOfMainPopup();
                     }
                 });
-                final NodeContentManager nodeContentManager = new FirstNodeContentManager(config,
-                        mainPopup, currentState.getIds(), currentState.getCollectionNameNodeMap());
+                final NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                        .withConfig(config)
+                        .withMainPopup(mainPopup)
+                        .withChosenIds(currentState.getIds())
+                        .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                        .withWidgetsContainer(getContainer())
+                        .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                        .buildFirstNodeContentManager();
                 mainPopup.addLinkClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
@@ -370,8 +376,16 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         handleRecursionDeepness(collectionName, event.getRecursionDeepness(), 0);
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
-        NodeContentManager nodeContentManager = new NewNodeContentManager(config, mainPopup, chosenIds,
-                collectionName, parentId, currentState.getCollectionNameNodeMap());
+        NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                .withConfig(config)
+                .withMainPopup(mainPopup)
+                .withChosenIds(chosenIds)
+                .withCollectionName(collectionName)
+                .withParentId(parentId)
+                .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                .withWidgetsContainer(getContainer())
+                .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                .buildNewNodeContentManager();
         nodeContentManager.fetchNodeContent();
     }
 
@@ -382,8 +396,17 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         Id parentId = event.getParentId();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
-        NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
-                parentCollectionName, parentId, "", currentState.getCollectionNameNodeMap());
+        NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                .withConfig(config)
+                .withMainPopup(mainPopup)
+                .withChosenIds(chosenIds)
+                .withCollectionName(parentCollectionName)
+                .withParentId(parentId)
+                .withInputText(event.getFilterText())
+                .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                .withWidgetsContainer(getContainer())
+                .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                .buildRefreshNodeContentManager();
         nodeContentManager.fetchNodeContent();
     }
 
@@ -395,8 +418,17 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
-        NodeContentManager nodeContentManager = new RefreshNodeContentManager(config, mainPopup, chosenIds,
-                parentCollectionName, parentId, inputText, currentState.getCollectionNameNodeMap());
+        NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                .withConfig(config)
+                .withMainPopup(mainPopup)
+                .withChosenIds(chosenIds)
+                .withCollectionName(parentCollectionName)
+                .withParentId(parentId)
+                .withInputText(inputText)
+                .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                .withWidgetsContainer(getContainer())
+                .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                .buildRefreshNodeContentManager();
         nodeContentManager.fetchNodeContent();
     }
 
@@ -410,9 +442,19 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String inputText = event.getInputText();
         ArrayList<Id> chosenIds = currentState.getTemporarySelectedIds();
         handleRecursionDeepness(parentCollectionName, event.getRecursionDeepness(), 1);
-        NodeContentManager nodeContentManager = new ScrollNodeContentManager(config, mainPopup,
-                chosenIds, parentCollectionName, parentId, inputText, offset,
-                currentState.getCollectionNameNodeMap());
+        NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                .withConfig(config)
+                .withMainPopup(mainPopup)
+                .withChosenIds(chosenIds)
+                .withCollectionName(parentCollectionName)
+                .withParentId(parentId)
+                .withInputText(inputText)
+                .withOffset(offset)
+                .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                .withWidgetsContainer(getContainer())
+                .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                .buildScrollNodeContentManager();
+
         nodeContentManager.fetchNodeContent();
     }
 

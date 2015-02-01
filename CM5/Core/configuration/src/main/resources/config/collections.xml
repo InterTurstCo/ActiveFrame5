@@ -167,12 +167,12 @@
             </criteria>
         </filter>
         <filter name="byEmployee">
-            <criteria placeholder="where-clause">
-                <![CDATA[
+        <criteria placeholder="where-clause">
+            <![CDATA[
                     o.boss  = {0}
                 ]]>
-            </criteria>
-        </filter>
+        </criteria>
+    </filter>
         <filter name="byStatus">
             <criteria placeholder="where-clause">
                 <![CDATA[
@@ -196,7 +196,13 @@
                 ]]>
             </criteria>
         </filter>
-
+        <filter name="byBossName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    e.name  = {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection name="OrganizationsDepartmentsEmployees" idField="id">
         <prototype>

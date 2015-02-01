@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class NodeContentRequest implements Dto {
     private boolean openChildren = true;
     private FormattingConfig formattingConfig;
     private Map<String, PopupTitlesHolder> titlesHolderMap;
-
+    private ComplicatedFiltersParams complicatedFiltersParams;
     public int getNumberOfItemsToDisplay() {
         return numberOfItemsToDisplay;
     }
@@ -105,5 +106,13 @@ public class NodeContentRequest implements Dto {
 
     public void setTitlesHolderMap(Map<String, PopupTitlesHolder> titlesHolderMap) {
         this.titlesHolderMap = titlesHolderMap;
+    }
+
+    public ComplicatedFiltersParams getComplicatedFiltersParams() {
+        return complicatedFiltersParams;
+    }
+
+    public void setComplicatedFiltersParams(ComplicatedFiltersParams complicatedFiltersParams) {
+        this.complicatedFiltersParams = complicatedFiltersParams;
     }
 }

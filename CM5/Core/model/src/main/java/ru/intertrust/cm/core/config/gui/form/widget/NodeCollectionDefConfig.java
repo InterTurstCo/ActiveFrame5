@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.hierarchybrowser.CreateNewButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -77,6 +78,9 @@ public class NodeCollectionDefConfig implements Dto {
 
     @Element(name = "created-objects", required = false)
     private CreatedObjectsConfig createdObjectsConfig;
+
+    @Element(name = "collection-extra-filters",required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
    // params not be persisted
     private int elementsCount;
     private int recursionDeepness;
@@ -238,6 +242,14 @@ public class NodeCollectionDefConfig implements Dto {
         this.createdObjectsConfig = createdObjectsConfig;
     }
 
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
+    }
+
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+    }
+
     public Map<String, PopupTitlesHolder> getDoTypeTitlesMap() {
         return doTypeTitlesMap;
     }
@@ -345,6 +357,10 @@ public class NodeCollectionDefConfig implements Dto {
                 that.createdObjectsConfig != null) {
             return false;
         }
+        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) :
+                that.collectionExtraFiltersConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -367,6 +383,7 @@ public class NodeCollectionDefConfig implements Dto {
         result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
+        result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (displayCreateButton ? 1 : 0);
         return result;
     }

@@ -6,13 +6,16 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.NodeContentResponse;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +25,18 @@ import java.util.Map;
  *         Time: 11:15
  */
 public class FirstNodeContentManager extends NodeContentManager {
+    @Deprecated
     public FirstNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
-                                   ArrayList<Id> chosenIds,
-                                   Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
-        super(config, mainPopup, chosenIds, null,collectionNameNodeMap);
+                                   ArrayList<Id> chosenIds, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+
+        super(config, mainPopup, chosenIds, null, collectionNameNodeMap);
+    }
+
+    public FirstNodeContentManager(HierarchyBrowserConfig config, HierarchyBrowserMainPopup mainPopup,
+                                   ArrayList<Id> chosenIds, Map<String, NodeCollectionDefConfig> collectionNameNodeMap,
+                                   WidgetsContainer widgetsContainer, Collection<WidgetIdComponentName> widgetIdComponentNames) {
+
+        super(config, mainPopup, chosenIds, null, collectionNameNodeMap, widgetsContainer, widgetIdComponentNames);
     }
 
     private NodeContentRequest prepareRequestDataForFirstNodeOpening() {
@@ -46,7 +57,7 @@ public class FirstNodeContentManager extends NodeContentManager {
                 List<NodeCollectionDefConfig> nodeCollectionDefConfigs = nodeContent.getNodeCollectionDefConfigs();
                 Id parentId = nodeContent.getParentId();
                 String parentCollectionName = nodeContent.getParentCollectionName();
-                mainPopup.drawNewNode(parentId, parentCollectionName,items, nodeCollectionDefConfigs);
+                mainPopup.drawNewNode(parentId, parentCollectionName, items, nodeCollectionDefConfigs);
 
             }
 
