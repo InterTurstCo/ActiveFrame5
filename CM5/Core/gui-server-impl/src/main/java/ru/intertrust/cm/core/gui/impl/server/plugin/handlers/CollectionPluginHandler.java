@@ -13,8 +13,12 @@ import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
-import ru.intertrust.cm.core.gui.impl.server.util.*;
+import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
+import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -59,6 +63,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
+    @Autowired
+    private SortOrderHelper sortOrderHelper;
+
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         final String link = collectionViewerConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
@@ -98,7 +105,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
         pluginData.setFilterPanelConfig(collectionViewerConfig.getFilterPanelConfig());
         CollectionDisplayConfig collectionDisplayConfig = collectionViewConfig.getCollectionDisplayConfig();
-        SortOrder order = SortOrderBuilder.getInitSortOrder(sortCriteriaConfig, collectionDisplayConfig);
+        SortOrder order = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig, collectionDisplayConfig);
 
         CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
         int initRowsNumber = collectionViewerConfig.getRowsChunk() >=0 ? collectionViewerConfig.getRowsChunk() : WidgetConstants.UNBOUNDED_LIMIT;
@@ -298,14 +305,16 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         ArrayList<CollectionRowItem> list;
         String collectionName = request.getCollectionName();
         if (request.isSortable()) {
-            list = getRows(collectionName, offset, limit, filters, CollectionPluginHelper.getSortOrder(request), properties);
+            SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
+            list = getRows(collectionName, offset, limit, filters, sortOrder, properties);
         } else {
             if (request.getSimpleSearchQuery().length() > 0) {
                 list = getSimpleSearchRows(collectionName, offset, limit, filters,
                         request.getSimpleSearchQuery(), request.getSearchArea(),
                         properties);
             } else {
-                list = getRows(collectionName, offset, limit, filters, null, properties);
+                SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+                list = getRows(collectionName, offset, limit, filters, sortOrder, properties);
 
             }
 

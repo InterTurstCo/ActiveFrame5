@@ -113,7 +113,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         filters.add(includedIds);
 
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
-        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
+        SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, widgetConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
         if (tooltipContent) {
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);

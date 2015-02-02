@@ -8,10 +8,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionPatternConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
@@ -40,6 +40,9 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
 
     @Autowired
     private FilterBuilder filterBuilder;
+
+    @Autowired
+    private SortOrderHelper sortOrderHelper;
 
     public LinkedHashMap<Id, String> generateWidgetItemsFromCollection(SelectionPatternConfig selectionPatternConfig,
                                                                        FormattingConfig formattingConfig,
@@ -80,7 +83,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
         filters.add(includeIds);
         String collectionName = widgetItemsRequest.getCollectionName();
         SelectionSortCriteriaConfig selectionSortCriteriaConfig = widgetItemsRequest.getSelectionSortCriteriaConfig();
-        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(selectionSortCriteriaConfig);
+        SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, selectionSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
         ComplicatedFiltersParams filtersParams = widgetItemsRequest.getComplicatedFiltersParams();
         boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);

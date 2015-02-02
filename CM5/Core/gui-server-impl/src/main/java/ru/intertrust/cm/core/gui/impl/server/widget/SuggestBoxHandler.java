@@ -17,7 +17,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
@@ -66,8 +65,8 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         state.setSelectedIds(new LinkedHashSet<>(selectedIds));
         if (!selectedIds.isEmpty()) {
             SelectionSortCriteriaConfig sortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
-            SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
             String collectionName = widgetConfig.getCollectionRefConfig().getName();
+            SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig);
             List<Filter> filters = new ArrayList<Filter>();
             filterBuilder.prepareIncludedIdsFilter(selectedIds, filters);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
@@ -110,9 +109,9 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         ComplicatedFiltersParams filtersParams = suggestionRequest.getComplicatedFiltersParams();
         filterBuilder.prepareExtraFilters(suggestionRequest.getCollectionExtraFiltersConfig(), filtersParams, filters);
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
-        SortOrder sortOrder = SortOrderBuilder.getNotNullSimpleSortOrder(sortCriteriaConfig);
         LazyLoadState lazyLoadState = suggestionRequest.getLazyLoadState();
         String collectionName = suggestionRequest.getCollectionName();
+        SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig);
         boolean isRequestForMoreItems = lazyLoadState.getOffset() != 0;
         IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters,
                 lazyLoadState.getOffset(), lazyLoadState.getPageSize());

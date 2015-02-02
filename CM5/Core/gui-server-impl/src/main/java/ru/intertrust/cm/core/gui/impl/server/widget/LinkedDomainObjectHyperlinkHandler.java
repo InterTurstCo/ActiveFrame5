@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -17,11 +16,15 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsCo
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.TitleBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.*;
+import ru.intertrust.cm.core.gui.impl.server.util.DomainObjectsSorter;
+import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -39,8 +42,6 @@ import java.util.regex.Matcher;
  */
 @ComponentName("linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
-    @Autowired
-    ConfigurationService configurationService;
 
     @Autowired
     private CrudService crudService;
@@ -56,6 +57,9 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
 
     @Autowired
     private AccessVerificationService accessVerificationService;
+
+    @Autowired
+    protected SortOrderHelper sortOrderHelper;
 
     @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
@@ -119,7 +123,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         filters.add(includedIds);
         String collectionName = widgetConfig.getCollectionRefConfig().getName();
 
-        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(widgetConfig.getSelectionSortCriteriaConfig());
+        SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName,widgetConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
         if (tooltipContent) {
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);

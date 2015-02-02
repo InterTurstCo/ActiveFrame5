@@ -15,8 +15,9 @@ import java.util.List;
 public class DomainObjectsSorter {
     public static void sort(SelectionSortCriteriaConfig selectionSortCriteriaConfig, List<DomainObject> domainObjects) {
         SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(selectionSortCriteriaConfig);
-        if (sortOrder != null) {
-            ModelUtil.sort(domainObjects, sortOrder);
+        if (sortOrder == null) {
+           sortOrder = SortOrderBuilder.getSortOderByDefaultField();
         }
+        ModelUtil.sort(domainObjects, sortOrder);
     }
 }

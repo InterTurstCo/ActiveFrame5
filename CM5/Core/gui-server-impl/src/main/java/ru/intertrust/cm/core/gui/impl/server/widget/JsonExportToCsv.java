@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
+import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
@@ -56,6 +57,9 @@ public class JsonExportToCsv {
     @Autowired
     private FilterBuilder filterBuilder;
 
+    @Autowired
+    private SortOrderHelper sortOrderHelper;
+
     private static final String DEFAULT_ENCODING = "ANSI-1251";
     private static final int CHUNK_SIZE = 1000;
 
@@ -76,12 +80,14 @@ public class JsonExportToCsv {
             JsonSortCriteria sortCriteria = csvRequest.getSortCriteria();
             SortCriteriaConfig sortCriteriaConfig = JsonUtil.convertToSortCriteriaConfig(sortCriteria);
             sortOrder = SortOrderBuilder.getSortOrder(sortCriteriaConfig, columnName, ascend);
+        } else {
+            sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
         }
         List<JsonColumnProperties> columnParams = csvRequest.getColumnProperties();
         Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
         JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
         JsonInitialFilters jsonHierarchicalFilters = csvRequest.getJsonHierarchicalFilters();
-        List<Filter> filters = prepareFilters(columnParams, columnPropertiesMap, jsonInitialFilters, jsonHierarchicalFilters);
+        List<Filter> filters = prepareFilters(columnPropertiesMap, jsonInitialFilters, jsonHierarchicalFilters);
 
         response.setHeader("Content-Disposition", "attachment; filename=" + collectionName + ".csv");
         response.setContentType("application/csv");
@@ -152,43 +158,12 @@ public class JsonExportToCsv {
         writer.flush();
     }
 
-    private boolean areFilterValuesValid(List<String> filterValues) {
-        if (filterValues == null) {
-            return false;
-        }
-        boolean valid = true;
-        for (String filterValue : filterValues) {
-            if (filterValue.isEmpty()) {
-                valid = false;
-                break;
-            }
-        }
-        return valid;
-    }
-
-    public List<Filter> prepareFilters(List<JsonColumnProperties> jsonPropertiesList,
-                                       Map<String, CollectionColumnProperties> columnPropertiesMap,
-                                       JsonInitialFilters jsonInitialFilters,
-                                       JsonInitialFilters jsonHierarchicalFilters) throws ParseException {
+    public List<Filter> prepareFilters( Map<String, CollectionColumnProperties> columnPropertiesMap,
+                                        JsonInitialFilters jsonInitialFilters,
+                                        JsonInitialFilters jsonHierarchicalFilters) throws ParseException {
         List<Filter> filters = new ArrayList<>();
         List<String> excludedFilterFields = new ArrayList<>();
-/*
-        for (JsonColumnProperties jsonProperties : jsonPropertiesList) {
-            List<String> filterValues = jsonProperties.getFilterValues();
-            String fieldName = jsonProperties.getFieldName();
-            CollectionColumnProperties columnProperties = columnPropertiesMap.get(fieldName);
-            if (areFilterValuesValid(filterValues)) {
-                Filter filter = FilterBuilderUtil.prepareColumnFilter(filterValues, columnProperties, null);
-                filters.add(filter);
-                excludedFilterFields.add(filter.getFilter());//TODO: is it filter name??
-            } else {
-                List<String> initialFilterValues = (List<String>) columnProperties.
-                        getProperty(CollectionColumnProperties.INITIAL_FILTER_VALUES);
-                if (initialFilterValues != null) {
-                    excludedFilterFields.add(fieldName);
-                }
-            }
-        }*/
+
         InitialFiltersConfig initialFiltersConfig = JsonUtil.convertToInitialFiltersConfig(jsonInitialFilters);
         CollectionExtraFiltersConfig hierarchicalFiltersConfig = JsonUtil.
                 convertToCollectionExtraFiltersConfig(jsonHierarchicalFilters);
@@ -198,7 +173,6 @@ public class JsonExportToCsv {
         filterBuilder.prepareInitialFilters(initialFiltersConfig, simpleFiltersParams, filters);
         ComplicatedFiltersParams hierarchyFiltersParams = new ComplicatedFiltersParams();
         filterBuilder.prepareExtraFilters(hierarchicalFiltersConfig, hierarchyFiltersParams, filters);
-     //   filterBuilder.prepareSelectionFilters(hierarchicalFiltersConfig, null, filters); //TODO check
         return filters;
     }
 

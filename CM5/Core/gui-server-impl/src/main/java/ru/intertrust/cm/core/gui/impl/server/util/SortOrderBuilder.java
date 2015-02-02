@@ -23,9 +23,7 @@ public class SortOrderBuilder {
     public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                              CollectionDisplayConfig collectionDisplayConfig) {
         SortOrder result = null;
-        if (defaultSortCriteriaConfig.isEmpty()) {
-            result = getSortOderByDefaultField();
-        } else {
+        if (!defaultSortCriteriaConfig.isEmpty()) {
             SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
             if (sortCriteriaConfig == null) {
                 result = getSimpleSortOrder(defaultSortCriteriaConfig);
@@ -48,6 +46,7 @@ public class SortOrderBuilder {
         return sortOrder;
     }
 
+    @Deprecated
     public static SortOrder getNotNullSimpleSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         SortOrder result = getSimpleSortOrder(defaultSortCriteriaConfig);
         if (result == null) {
@@ -56,7 +55,7 @@ public class SortOrderBuilder {
         return result;
     }
 
-    public static SortOrder getComplexSortOrder(SortCriteriaConfig sortCriteriaConfig) {
+    public static SortOrder getComplexSortOrder(SortCriteriaConfig sortCriteriaConfig) { //should be private
         if (sortCriteriaConfig == null) {
             return null;
         }
@@ -72,9 +71,7 @@ public class SortOrderBuilder {
 
     public static SortOrder getSelectionSortOrder(SelectionSortCriteriaConfig sortCriteriaConfig) {
         SortOrder result = null;
-        if (sortCriteriaConfig == null) {
-            result = getSortOderByDefaultField();
-        } else {
+        if (sortCriteriaConfig != null) {
             result = new SortOrder();
             List<SortCriterionConfig> sortCriterionList = sortCriteriaConfig.getSortCriterionConfigs();
             for (SortCriterionConfig sortCriterionConfig : sortCriterionList) {
@@ -131,9 +128,16 @@ public class SortOrderBuilder {
         return sortOrder;
     }
 
-    private static SortOrder getSortOderByDefaultField() {
+    public static SortOrder getSortOderByDefaultField() {
         SortOrder result = new SortOrder();
         SortCriterion defaultSortCriterion = new SortCriterion(DEFAULT_SORT_FIELD, SortCriterion.Order.ASCENDING);
+        result.add(defaultSortCriterion);
+        return result;
+    }
+
+    public static SortOrder getSortOderByFieldName(String fieldName) {
+        SortOrder result = new SortOrder();
+        SortCriterion defaultSortCriterion = new SortCriterion(fieldName, SortCriterion.Order.ASCENDING);
         result.add(defaultSortCriterion);
         return result;
     }

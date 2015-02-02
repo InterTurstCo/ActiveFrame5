@@ -18,7 +18,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
-import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -118,7 +117,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         List<Filter> filters = new ArrayList<Filter>();
         filters = addIncludeIdsFilter(selectedIds, filters);
         filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
-        SortOrder sortOrder = SortOrderBuilder.getSelectionSortOrder(nodeConfig.getSelectionSortCriteriaConfig());
+        SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, nodeConfig.getSelectionSortCriteriaConfig());
         IdentifiableObjectCollection collection = null;
         if (tooltipContent) {
             if (limit != -1) {
@@ -270,7 +269,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             }
             filterBuilder.prepareExtraFilters(nodeConfig.getCollectionExtraFiltersConfig(), complicatedFiltersParams, filters);
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
-            SortOrder sortOrder = SortOrderBuilder.getNotNullSimpleSortOrder(sortCriteriaConfig);
+            SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig);
 
             IdentifiableObjectCollection collection = collectionsService.
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
