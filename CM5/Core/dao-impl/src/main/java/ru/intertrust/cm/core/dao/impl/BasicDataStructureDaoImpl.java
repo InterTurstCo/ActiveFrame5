@@ -309,14 +309,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, accessObjectIdConfig, index, isAl));
     }
 
-
-    private String getRelevantType(String typeName) {
-        if (configurationExplorer.isAuditLogType(typeName)) {
-            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
-        }
-        return typeName;
-    }
-
     protected abstract String generateDoesTableExistQuery();
 
     protected abstract String generateSelectTableIndexes();

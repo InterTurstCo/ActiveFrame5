@@ -72,7 +72,9 @@ public class BasicRowMapper extends ValueReader {
             result =  new LongFieldConfig();
         } else if (columnTypeName.equals("timestamp")) {
             result = new DateTimeFieldConfig();
-        } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
+        } else if (columnTypeName.equals("date")) {
+            result = new TimelessDateFieldConfig();
+        }else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
                 || columnTypeName.equals("text")) {
             result = new StringFieldConfig();
         } else if (columnTypeName.equals("bool")) {

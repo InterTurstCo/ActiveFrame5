@@ -197,6 +197,17 @@ public class CollectionsIT extends IntegrationTestBase {
 
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
+        
+        query = "select date(CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END) AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+
+        query = "select (CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END)::date AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+
+        collection = collectionService.findCollectionByQuery(query);
+        assertNotNull(collection);
+
     }
     
     @Test
@@ -880,7 +891,10 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, 0, 2);
         collection = collectionService.findCollectionByQuery(query, 2, 0);
 
-        collection = collectionService.findCollection("Test_Union_Limit", null, null, 2, 2);
+        SortOrder sortOrder = new SortOrder();
+        sortOrder.add(new SortCriterion("id", Order.ASCENDING));
+        
+        collection = collectionService.findCollection("Test_Union_Limit", sortOrder, null, 2, 2);
         assertNotNull(collection);
         assertTrue(collection.size() == 2);
     }

@@ -175,6 +175,17 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="time_field_test" initial-status="Active">
+        <fields>
+            <string name="name" length="128"/>
+            <timelessDate name="timelessDateField1"/>
+            <timelessDate name="timelessDateField2"/>
+            <date-time name="dateTimeField1"/>
+            <date-time name="dateTimeField2"/>
+            <long name="population"/>
+        </fields>        
+    </domain-object-type>
+    
     <domain-object-type name="test_type_1" initial-status="Active">
         <fields>
             <string name="name" length="128" />
