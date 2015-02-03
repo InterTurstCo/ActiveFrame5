@@ -68,7 +68,10 @@ public class SqlLogger {
         int rows = countSqlRows(returnValue, query);
 
         boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
-        if (logWarn && logger.isWarnEnabled()) {
+        if (query.startsWith("create") || query.startsWith("drop") || query.startsWith("alter")) {
+            query = resolveParameters(query, joinPoint, true);
+            logger.info(formatLogEntry(query, timing, rows));
+        } else if (logWarn && logger.isWarnEnabled()) {
             query = resolveParameters(query, joinPoint);
             logger.warn(formatLogEntry(query, timing, rows));
         } else if (logger.isTraceEnabled()){
@@ -156,7 +159,11 @@ public class SqlLogger {
 
 
     private String resolveParameters(String query, ProceedingJoinPoint joinPoint) {
-        if (resolveParams) {
+        return resolveParameters(query, joinPoint, resolveParams);
+    }
+
+    private String resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
+        if (isResolve) {
             if (joinPoint.getThis() instanceof JdbcOperations) {
                 Object[] parameters = getParametersArray(joinPoint.getArgs());
                 query = (parameters == null ? query : fillParameters(query, parameters));

@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -14,9 +12,8 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.EJBContext;
 
@@ -34,10 +31,6 @@ public class ConfigurationLoadServiceImplTest {
     @InjectMocks
     private ConfigurationLoadServiceImpl configurationService = new ConfigurationLoadServiceImpl();
     @Mock
-    private DataStructureDao dataStructureDao;
-    @Mock
-    private DomainObjectTypeIdDao domainObjectTypeIdDao;
-    @Mock
     private InitializationLockDao initializationLockDao;
     @Mock
     private ConfigurationDao configurationDao;
@@ -47,18 +40,20 @@ public class ConfigurationLoadServiceImplTest {
     private ConfigurationSerializer configurationSerializer;
     @Mock
     private EJBContext ejbContext;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+    @Mock
+    private RecursiveConfigurationLoader recursiveConfigurationLoader;
+    @Mock
+    private RecursiveConfigurationMerger recursiveConfigurationMerger;
 
     @Mock
     private ApplicationContext context;
 
-    private ConfigurationExplorerImpl configExplorer;
     private Configuration configuration;
 
     @Before
     public void setUp() throws Exception {
+        new SpringApplicationContext().setApplicationContext(context);
+
         ConfigurationClassesCache.getInstance().build();
 
         configuration = createConfiguration();
@@ -73,7 +68,7 @@ public class ConfigurationLoadServiceImplTest {
         when(configurationSerializer.deserializeLoadedConfiguration(configurationString)).thenReturn(configuration);
 
         Configuration updatedConfiguration = createConfiguration();
-        configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
+        ConfigurationExplorerImpl configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
 
         // Вносим изменения в конфигурацию
         DomainObjectTypeConfig domainObjectTypeConfig =
@@ -101,6 +96,7 @@ public class ConfigurationLoadServiceImplTest {
         configExplorer = new ConfigurationExplorerImpl(updatedConfiguration);
         configurationService.setConfigurationExplorer(configExplorer);
 
+        when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);
         configurationService.loadConfiguration();
     }
 
@@ -109,22 +105,21 @@ public class ConfigurationLoadServiceImplTest {
         String configurationString = ConfigurationSerializer.serializeConfiguration(configuration);
         when(configurationDao.readLastSavedConfiguration()).thenReturn(configurationString);
         when(configurationSerializer.deserializeLoadedConfiguration(configurationString)).thenReturn(configuration);
+        when(context.getBean("recursiveConfigurationMerger")).thenReturn(recursiveConfigurationMerger);
 
         configurationService.updateConfiguration();
 
-        verify(dataStructureDao, never()).createServiceTables();
-        verify(dataStructureDao, never()).createTable(any(DomainObjectTypeConfig.class), any(Boolean.class));
-        verify(dataStructureDao, never()).createSequence(any(DomainObjectTypeConfig.class));
+        verify(recursiveConfigurationMerger, never()).merge(any(ConfigurationExplorer.class), any((ConfigurationExplorer.class)));
         verify(configurationDao, never()).save(anyString());
     }
 
     @Test
     public void testLoadConfigurationFirstTime() throws Exception {
+        when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);
+
         configurationService.loadConfiguration();
 
-        verify(dataStructureDao).createServiceTables();
-        verify(dataStructureDao, times(4)).createTable(any(DomainObjectTypeConfig.class), any(Boolean.class));
-        verify(dataStructureDao, times(4)).createSequence(any(DomainObjectTypeConfig.class));
+        verify(recursiveConfigurationLoader).load(any(ConfigurationExplorer.class));
         verify(configurationDao).save(ConfigurationSerializer.serializeConfiguration(configuration));
     }
 

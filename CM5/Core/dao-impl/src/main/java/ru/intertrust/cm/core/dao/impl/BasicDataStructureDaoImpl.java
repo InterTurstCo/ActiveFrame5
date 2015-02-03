@@ -15,6 +15,8 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
+import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
+import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -30,6 +32,8 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -38,9 +42,6 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
 public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
 
     @Autowired
     private JdbcOperations jdbcTemplate;
@@ -62,7 +63,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             return; // Для таблиц дочерхних доменных объектов индекс не создается - используется индекс родителя
         }
 
-        String createSequenceQuery = getQueryHelper().generateSequenceQuery(config);;
+        String createSequenceQuery = getQueryHelper().generateSequenceQuery(config);
         
         jdbcTemplate.update(createSequenceQuery);
     }
