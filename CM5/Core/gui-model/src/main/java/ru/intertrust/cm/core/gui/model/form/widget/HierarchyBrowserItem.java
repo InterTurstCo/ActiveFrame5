@@ -20,6 +20,7 @@ public class HierarchyBrowserItem implements Dto {
     private String popupTitle;
     private String domainObjectType;
     private boolean selective;
+    private Id parentId;
 
     public HierarchyBrowserItem() {
     }
@@ -37,6 +38,13 @@ public class HierarchyBrowserItem implements Dto {
         this.displayAsHyperlinks = displayAsHyperlinks;
         this.popupTitle = popupTitle;
         this.selective = selective;
+    }
+    public HierarchyBrowserItem(String stringRepresentation, Id id, String nodeCollectionName, String domainObjectType,
+                                boolean chosen, boolean mayHaveChildren, Boolean singleChoice,
+                                Boolean displayAsHyperlinks, String popupTitle, boolean selective, Id parentId) {
+        this(stringRepresentation, id, nodeCollectionName, domainObjectType, chosen, mayHaveChildren, singleChoice,
+                displayAsHyperlinks, popupTitle, selective);
+        this.parentId = parentId;
     }
 
     public Id getId() {
@@ -116,6 +124,10 @@ public class HierarchyBrowserItem implements Dto {
         this.selective = selective;
     }
 
+    public Id getParentId() {
+        return parentId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -152,6 +164,7 @@ public class HierarchyBrowserItem implements Dto {
                 .setDisplayAsHyperlinks(displayAsHyperlinks)
                 .setDomainObjectType(domainObjectType)
                 .setSelective(selective)
+                .setParentId(parentId)
                 .createHierarchyBrowserItem();
         return result;
 

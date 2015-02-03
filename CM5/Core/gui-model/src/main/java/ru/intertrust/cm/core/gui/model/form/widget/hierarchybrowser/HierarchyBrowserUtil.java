@@ -150,7 +150,8 @@ public class HierarchyBrowserUtil {
     public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith,
                                                   boolean commonSingleChoice){
         return  item.getId() != compareWith.getId()
-                && (item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
+                && ((item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
+                && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId())))
                 ||(commonSingleChoice && (item.isSingleChoice() == null || item.isSingleChoice())));
     }
 }

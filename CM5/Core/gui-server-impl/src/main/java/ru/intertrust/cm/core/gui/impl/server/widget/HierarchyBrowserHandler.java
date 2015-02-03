@@ -136,14 +136,14 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
         for (IdentifiableObject identifiableObject : collection) {
             String representation = formatHandler.format(identifiableObject, matcher, formattingConfig);
-            HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation, true, false);
+            HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation, true, false, null);
             items.add(item);
         }
 
     }
 
     private HierarchyBrowserItem createItem(IdentifiableObject identifiableObject, NodeCollectionDefConfig nodeConfig,
-                                            String representation, boolean chosen, Boolean singleChoice) {
+                                            String representation, boolean chosen, Boolean singleChoice, Id parentId) {
         Id id = identifiableObject.getId();
         String domainObjectType = crudService.getDomainObjectType(id);
         PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectType);
@@ -163,6 +163,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 .setMayHaveChildren(mayHaveChildren)
                 .setDisplayAsHyperlinks(displayAsHyperlinks)
                 .setSelective(nodeConfig.isSelective())
+                .setParentId(parentId)
                 .createHierarchyBrowserItem();
         return item;
     }
@@ -282,7 +283,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 boolean chosen = chosenIds.contains(identifiableObject.getId());
                 String representation = formatHandler.format(identifiableObject, selectionMatcher, formattingConfig);
                 HierarchyBrowserItem item = createItem(identifiableObject, nodeConfig, representation,
-                        chosen, singleChoice);
+                        chosen, singleChoice,parentId);
                 items.add(item);
 
             }

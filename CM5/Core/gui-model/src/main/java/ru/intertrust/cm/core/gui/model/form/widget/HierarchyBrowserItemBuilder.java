@@ -13,6 +13,7 @@ public class HierarchyBrowserItemBuilder {
     private String popupTitle;
     private String domainObjectType;
     private boolean selective;
+    private Id parentId;
 
     public HierarchyBrowserItemBuilder() {
     }
@@ -66,9 +67,13 @@ public class HierarchyBrowserItemBuilder {
         this.selective = selective;
         return this;
     }
+    public HierarchyBrowserItemBuilder setParentId(Id parentId) {
+        this.parentId = parentId;
+        return this;
+    }
 
     public HierarchyBrowserItem createHierarchyBrowserItem() {
         return new HierarchyBrowserItem(stringRepresentation, id, nodeCollectionName, domainObjectType, chosen, mayHaveChildren,
-                singleChoice, displayAsHyperlinks, popupTitle, selective);
+                singleChoice, displayAsHyperlinks, popupTitle, selective, parentId);
     }
 }
