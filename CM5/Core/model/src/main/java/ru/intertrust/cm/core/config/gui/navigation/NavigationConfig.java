@@ -27,6 +27,9 @@ public class NavigationConfig implements TopLevelConfig {
     @Attribute(name = "side-bar-opening-time", required = false)
     private Integer sideBarOpeningTime;
 
+    @Attribute(name = "merge", required = false)
+    private boolean merge;
+
     @Override
     public String getName() {
         return name;
@@ -68,6 +71,10 @@ public class NavigationConfig implements TopLevelConfig {
         this.sideBarOpeningTime = sideBarOpeningTime;
     }
 
+    public boolean isMerge() {
+        return merge;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,7 +90,8 @@ public class NavigationConfig implements TopLevelConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
         if (sideBarOpeningTime != null ? !sideBarOpeningTime.equals(that.sideBarOpeningTime) : that.sideBarOpeningTime != null)
             return false;
-
+        if (merge != that.merge)
+            return false;
         return true;
     }
 
@@ -94,7 +102,7 @@ public class NavigationConfig implements TopLevelConfig {
         result = 31 * result + (isDefault ? 1 : 0);
         result = 31 * result + (sideBarOpeningTime != null ? sideBarOpeningTime.hashCode() : 0);
         result = 31 * result + (hierarchicalLinkList != null ? hierarchicalLinkList.hashCode() : 0);
+        result = 31 * result + (merge ? 1 : 0);
         return result;
     }
 }
-

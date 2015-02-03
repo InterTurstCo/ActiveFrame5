@@ -1,14 +1,14 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.Collections;
-import java.util.List;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Sergey.Okolot
@@ -83,5 +83,50 @@ public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ToolBarConfig that = (ToolBarConfig) o;
+
+        if (useDefault != that.useDefault) {
+            return false;
+        }
+        if (actions != null ? !actions.equals(that.actions) : that.actions != null) {
+            return false;
+        }
+        if (componentName != null ? !componentName.equals(that.componentName) : that.componentName != null) {
+            return false;
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (plugin != null ? !plugin.equals(that.plugin) : that.plugin != null) {
+            return false;
+        }
+        if (rightFacetConfig != null ? !rightFacetConfig.equals(that.rightFacetConfig) : that.rightFacetConfig !=
+                null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (componentName != null ? componentName.hashCode() : 0);
+        result = 31 * result + (plugin != null ? plugin.hashCode() : 0);
+        result = 31 * result + (useDefault ? 1 : 0);
+        result = 31 * result + (actions != null ? actions.hashCode() : 0);
+        result = 31 * result + (rightFacetConfig != null ? rightFacetConfig.hashCode() : 0);
+        return result;
     }
 }

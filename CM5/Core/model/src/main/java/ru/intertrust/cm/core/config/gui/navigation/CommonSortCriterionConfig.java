@@ -47,8 +47,7 @@ public class CommonSortCriterionConfig implements Dto {
         }
 
         CommonSortCriterionConfig that = (CommonSortCriterionConfig) o;
-
-        if (order != null ? !order.equals(that.getOrder()) : that.getOrder() != null) {
+        if (this.getOrder() != null ? !this.getOrder().equals(that.getOrder()) : that.getOrder() != null) {
             return false;
         }
 
