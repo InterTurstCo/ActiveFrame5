@@ -59,4 +59,20 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
         return "create index " + wrap(indexName) + " on " + wrap(getSqlName(config)) +
                 " USING " + indexType + " (" + indexFieldsPart + ")";
     }
+
+    @Override
+    protected String generateIsTableExistQuery() {
+        return "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
+    }
+
+    @Override
+    protected String generateGetSchemaTablesQuery() {
+        return COLUMNS_QUERY;
+    }
+
+    @Override
+    protected String generateGetForeignKeysQuery() {
+        return FOREIGN_KEYS_QUERY;
+    }
+
 }
