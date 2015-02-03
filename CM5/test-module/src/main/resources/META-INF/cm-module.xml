@@ -81,6 +81,8 @@
         <configuration-path>contacts-module/configuration/collection/Qual_Group_Qualifier_collection.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/Qual_DO_Qualifier_collection.xml</configuration-path>
         <configuration-path>contacts-module/configuration/collection/Qualifier_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/all_qualifiers_collection.xml</configuration-path>
+        <configuration-path>contacts-module/configuration/collection/qualifier_groups_collection.xml</configuration-path>
         <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_DO_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/form/Qualifier_form.xml</configuration-path>

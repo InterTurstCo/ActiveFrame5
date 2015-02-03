@@ -403,28 +403,62 @@
 
             </linked-domain-objects-table> -->
 
+            <!--<hierarchy-browser id="classifiers_value">-->
+                <!--<field-path value="Cont_Qualifier_CPerson^contact_person" on-root-delete="unlink"/>-->
+                <!--<node-collection-def collection="col_person_group_qualifier"  title="Группы">-->
+                    <!--<selection-pattern value="{name}"/>-->
+                    <!--<default-sort-criteria column-field="name" order="asc"/>-->
+                    <!--<linked-form-mapping>-->
+                        <!--<linked-form name="Qual_Group_Qualifier_form"  domain-object-type="Qual_Group_Qualifier"/>-->
+                    <!--</linked-form-mapping>-->
+                    <!--<node-collection-def collection="col_person_qualifiers" title="Классификаторы">-->
+                        <!--<root-node-link title="Группы классификаторов -> "/>-->
+                        <!--<selection-pattern value="{name}"/>-->
+                        <!--<linked-form-mapping>-->
+                            <!--<linked-form name="Qualifier_form"  domain-object-type="Qualifier"/>-->
+                        <!--</linked-form-mapping>-->
+                    <!--</node-collection-def>-->
+                <!--</node-collection-def>-->
+                <!--<page-size>20</page-size>-->
+                <!--<selection-style name="inline"/>-->
+                <!--<single-choice value="false"/>-->
+                <!--<clear-all-button text="Очистить"/>-->
+                <!--<add-button image="..." text="Добавить"/>-->
+                <!--<display-values-as-links value="true"/>-->
+            <!--</hierarchy-browser>-->
+
             <hierarchy-browser id="classifiers_value">
-                <field-path value="Cont_Qualifier_CPerson^contact_person" on-root-delete="unlink"/>
-                <node-collection-def collection="col_person_group_qualifier"  title="Группы">
+                <field-path
+                        value="Cont_Qualifier_CPerson^contact_person.classifier"/>
+                <node-collection-def collection="col_qualifier_groups"
+                                     title="Группы классификаторов" display-create-button="false" selective="false">
+                    <root-node-link title="Классификаторы"/>
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <!-- паттерн отображения уже выбранных значений -->
                     <selection-pattern value="{name}"/>
                     <default-sort-criteria column-field="name" order="asc"/>
-                    <linked-form-mapping>
-                        <linked-form name="Qual_Group_Qualifier_form"  domain-object-type="Qual_Group_Qualifier"/>
-                    </linked-form-mapping>
-                    <node-collection-def collection="col_person_qualifiers" title="Классификаторы">
-                        <root-node-link title="Группы классификаторов -> "/>
-                        <selection-pattern value="{name}"/>
-                        <linked-form-mapping>
-                            <linked-form name="Qualifier_form"  domain-object-type="Qualifier"/>
-                        </linked-form-mapping>
+                    <selection-sort-criteria>
+                        <sort-criterion field="name" order="asc"/>
+                    </selection-sort-criteria>
+
+                    <node-collection-def collection="all_qualifiers_collection" parent-filter="byQualifierGroup"
+                                         title="Классификатор" display-create-button="false">
+                        <fill-parent-on-add field-to-fill="classifier_group"/>
+                        <single-choice>
+                            <parent-object-field name="One_OfThe_Groups" value="true"/>
+                        </single-choice>
+                        <display-values-as-links value="false"/>
+                        <selection-pattern value="{qualifierName}"/>
                     </node-collection-def>
+
+                    <display-values-as-links value="false"/>
                 </node-collection-def>
-                <page-size>20</page-size>
-                <selection-style name="inline"/>
+                <page-size>10</page-size>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Добавить"/>
-                <display-values-as-links value="true"/>
+                <display-values-as-links value="false"/>
             </hierarchy-browser>
 
 
