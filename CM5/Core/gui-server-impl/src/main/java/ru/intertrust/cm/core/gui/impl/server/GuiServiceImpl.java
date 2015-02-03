@@ -82,8 +82,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
-            log.error(e.getMessage(), e);
-            throw new GuiException("Ошибка вызова команды: " + e.getTargetException());
+            log.error("Ошибка вызова команды: " + e.getMessage(), e);
+            throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             throw new GuiException("Команда не может быть выполнена: " + command.getName(), e);
