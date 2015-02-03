@@ -17,6 +17,14 @@
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
           depends-on="springApplicationContext"/>
 
+    <bean id="recursiveConfigurationLoader" class="ru.intertrust.cm.core.business.impl.RecursiveConfigurationLoader"
+          scope="prototype"/>
+
+    <bean id="recursiveConfigurationMerger" class="ru.intertrust.cm.core.business.impl.RecursiveConfigurationMerger"
+          scope="prototype"/>
+
+    <bean id="fieldConfigChangeHandler" class="ru.intertrust.cm.core.business.impl.FieldConfigChangeHandler" />
+
     <jee:local-slsb id="configurationLoadService"
                     jndi-name="java:module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>

@@ -609,6 +609,10 @@ public abstract class BasicQueryHelper {
         return expression.toString();
     }
 
+    protected abstract String generateIsTableExistQuery();
+
+    protected abstract String generateGetSchemaTablesQuery();
+
     protected void appendParentFKConstraintsQueryPart(StringBuilder query, String tableName,
             DomainObjectTypeConfig config) {
         query.append(", ");
@@ -817,4 +821,5 @@ public abstract class BasicQueryHelper {
 
     protected abstract String getTextType();
 
+    protected abstract String generateGetForeignKeysQuery();
 }

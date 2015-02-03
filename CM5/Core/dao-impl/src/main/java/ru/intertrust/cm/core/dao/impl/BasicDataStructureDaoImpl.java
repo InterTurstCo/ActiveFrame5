@@ -224,12 +224,22 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри @see ru.intertrust.cm.core.dao.api.DataStructureDao#doesTableExists(java.lang.String)
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#isTableExist(String)}
      */
     @Override
-    public boolean doesTableExists(String tableName) {
-        int total = jdbcTemplate.queryForObject(generateDoesTableExistQuery(), Integer.class, tableName);
+    public boolean isTableExist(String tableName) {
+        int total = jdbcTemplate.queryForObject(getQueryHelper().generateIsTableExistQuery(), Integer.class, tableName);
         return total > 0;
+    }
+
+    @Override
+     public Map<String, Map<String, ColumnInfo>> getSchemaTables() {
+        return jdbcTemplate.query(getQueryHelper().generateGetSchemaTablesQuery(), new SchemaTablesRowMapper());
+    }
+
+    @Override
+    public Map<String, Map<String, ForeignKeyInfo>> getForeignKeys() {
+        return jdbcTemplate.query(getQueryHelper().generateGetForeignKeysQuery(), new ForeignKeysRowMapper());
     }
 
     protected BasicQueryHelper getQueryHelper() {
@@ -286,6 +296,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig)fieldConfig, index, isAl));
             index++;
         }
+
         // Создание индексов для системных полей.
         if (isParentType) {
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
@@ -297,6 +308,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                     index++;
                 }
             }
+
             createIndexForAccessObjectId(config, index, isAl);
 
         }
@@ -308,8 +320,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         //тип ссылочного поля не должен быть типа *, т.к. нет поля access_object_id_type и оно не будет указвано в DDL для индекса.
         jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, accessObjectIdConfig, index, isAl));
     }
-
-    protected abstract String generateDoesTableExistQuery();
 
     protected abstract String generateSelectTableIndexes();
 

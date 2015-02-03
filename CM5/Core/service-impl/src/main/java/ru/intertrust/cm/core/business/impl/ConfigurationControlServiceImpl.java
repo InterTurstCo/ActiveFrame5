@@ -10,11 +10,10 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.ObjectCloner;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -42,8 +41,6 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationControlServiceImpl.class);
 
     @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
-    @Autowired private DataStructureDao dataStructureDao;
-    @Autowired private DomainObjectTypeIdDao domainObjectTypeIdDao;
     @Autowired private ConfigurationDao configurationDao;
     @Autowired private ConfigurationExplorer configurationExplorer;
     @Autowired private ConfigurationSerializer configurationSerializer;
@@ -160,7 +157,7 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         Configuration newConfiguration = buildNewConfiguration(configuration);
         ConfigurationExplorer newConfigurationExplorer = new ConfigurationExplorerImpl(newConfiguration);
 
-        RecursiveConfigurationMerger recursiveMerger = new RecursiveConfigurationMerger(dataStructureDao, domainObjectTypeIdDao);
+        RecursiveConfigurationMerger recursiveMerger = createRecursiveConfigurationMerger();
         recursiveMerger.merge(configurationExplorer, newConfigurationExplorer);
 
         saveConfiguration(newConfiguration);
@@ -179,6 +176,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
 
         throw new ConfigurationException("Unresolved configuration type for file " + fileName);
+    }
+
+    private RecursiveConfigurationMerger createRecursiveConfigurationMerger() {
+        return (RecursiveConfigurationMerger) SpringApplicationContext.getContext().getBean("recursiveConfigurationMerger");
     }
 
 }

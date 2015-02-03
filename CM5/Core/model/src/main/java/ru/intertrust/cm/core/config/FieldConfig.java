@@ -66,7 +66,7 @@ public abstract class FieldConfig implements Serializable {
 
     public abstract FieldType getFieldType();
 
-    public boolean equals(Object o, boolean ignoreNonDataStructureFields) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -80,27 +80,11 @@ public abstract class FieldConfig implements Serializable {
             return false;
         }
 
-        if (!ignoreNonDataStructureFields) {
-            if (immutable != that.immutable) {
-                return false;
-            }
-
-            if (constraintsConfig != null ? !constraintsConfig.equals(that.constraintsConfig) : that
-                    .constraintsConfig != null) {
-                return false;
-            }
-        }
-
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
 
         return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return equals(o, false);
     }
 
     @Override

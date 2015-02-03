@@ -2,18 +2,13 @@ package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import java.util.Collection;
 
 /**
 * Recursively loads configuration
 */
-class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader {
-
-    public RecursiveConfigurationLoader(DataStructureDao dataStructureDao) {
-        setDataStructureDao(dataStructureDao);
-    }
+public class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader {
 
     /**
      * Recursively loads configuration from {@code ConfigurationExplorer}

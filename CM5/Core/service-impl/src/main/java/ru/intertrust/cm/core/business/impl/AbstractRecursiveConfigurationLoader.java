@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
@@ -11,14 +12,11 @@ import java.util.*;
 */
 abstract class AbstractRecursiveConfigurationLoader {
 
+    @Autowired
     protected DataStructureDao dataStructureDao;
+
     protected ConfigurationExplorer configurationExplorer;
-
     private final Set<String> processedConfigs = new HashSet<>();
-
-    protected void setDataStructureDao(DataStructureDao dataStructureDao) {
-        this.dataStructureDao = dataStructureDao;
-    }
 
     public ConfigurationExplorer getConfigurationExplorer() {
         return configurationExplorer;

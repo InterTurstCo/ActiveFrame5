@@ -20,11 +20,6 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     }
 
     @Override
-    protected String generateDoesTableExistQuery() {
-        return "select count(*) FROM user_tables WHERE table_name = ?";
-    }
-
-    @Override
     protected String generateSelectTableIndexes() {
         return "select i.index_name, i.column_name from all_ind_columns i where i.table_name = ?";
     }

@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
+import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
+import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexConfig;
@@ -7,6 +9,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * DAO для работы со структурой базы данных (создание таблиц, колонок, индексов и т.п.)
@@ -78,11 +81,15 @@ public interface DataStructureDao {
      * @param tableName имя таблицы
      * @return true если существует, иначе false
      */
-    boolean doesTableExists(String tableName);
+    boolean isTableExist(String tableName);
 
     /**
      * Создание последовательности для таблицы аудита типа, переданного в параметре
      * @param config
      */
     void createAuditSequence(DomainObjectTypeConfig config);
+
+    Map<String, Map<String, ColumnInfo>> getSchemaTables();
+
+    Map<String, Map<String, ForeignKeyInfo>> getForeignKeys();
 }

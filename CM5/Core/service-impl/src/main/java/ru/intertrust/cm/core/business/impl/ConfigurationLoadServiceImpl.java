@@ -7,9 +7,8 @@ import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -32,14 +31,9 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
-    private DataStructureDao dataStructureDao;
-    @Autowired
-    private DomainObjectTypeIdDao domainObjectTypeIdDao;
-    @Autowired
     private ConfigurationDao configurationDao;
     @Autowired
     private ConfigurationSerializer configurationSerializer;
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -50,7 +44,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Override
     public void loadConfiguration() throws ConfigurationException {
         try {
-            RecursiveConfigurationLoader recursiveLoader = new RecursiveConfigurationLoader(dataStructureDao);
+            RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
         } catch (ConfigurationException e) {
@@ -88,7 +82,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                 return;
             }
 
-            RecursiveConfigurationMerger recursiveMerger = new RecursiveConfigurationMerger(dataStructureDao, domainObjectTypeIdDao);
+            RecursiveConfigurationMerger recursiveMerger = createRecursiveConfigurationMerger();
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             recursiveMerger.merge(oldConfigurationExplorer, configurationExplorer);
 
@@ -105,6 +99,14 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
         String configurationString =
                 ConfigurationSerializer.serializeConfiguration(configurationExplorer.getConfiguration());
         configurationDao.save(configurationString);
+    }
+
+    private RecursiveConfigurationLoader createRecursiveConfigurationLoader() {
+        return (RecursiveConfigurationLoader) SpringApplicationContext.getContext().getBean("recursiveConfigurationLoader");
+    }
+
+    private RecursiveConfigurationMerger createRecursiveConfigurationMerger() {
+        return (RecursiveConfigurationMerger) SpringApplicationContext.getContext().getBean("recursiveConfigurationMerger");
     }
 
 }

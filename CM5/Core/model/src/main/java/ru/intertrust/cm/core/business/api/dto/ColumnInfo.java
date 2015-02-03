@@ -1,0 +1,116 @@
+package ru.intertrust.cm.core.business.api.dto;
+
+/**
+ * Представляет метаданные колонки в таблице
+ * Created by vmatsukevich on 27.1.15.
+ */
+public class ColumnInfo {
+
+    private String name;
+    private boolean notNull;
+    private int length;
+    private int precision;
+    private int scale;
+
+    /**
+     * Возвращает имя колонки
+     * @return имя колонки
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Устанавливает имя колонки
+     * @param name имя колонки
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Возвращает not-null ограничение колонки
+     * @return not-null ограничение колонки
+     */
+    public boolean isNotNull() {
+        return notNull;
+    }
+
+    /**
+     * Устанавливает not-null ограничение колонки
+     * @param notNull not-null ограничение колонки
+     */
+    public void setNotNull(boolean notNull) {
+        this.notNull = notNull;
+    }
+
+    /**
+     * Возвращает длину текстовой колонки
+     * @return длина текстовой колонки
+     */
+    public int getLength() {
+        return length;
+    }
+
+    /**
+     * Устанавливает длину текстовой колонки
+     * @param length длина текстовой колонки
+     */
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    /**
+     * Возвращает кол-во знаков десятичного числа в колонке соотв. типа
+     * @return кол-во знаков десятичного числа
+     */
+    public int getPrecision() {
+        return precision;
+    }
+
+    /**
+     * Устанавливает кол-во знаков десятичного числа
+     * @param precision кол-во знаков десятичного числа
+     */
+    public void setPrecision(int precision) {
+        this.precision = precision;
+    }
+
+
+    /**
+     * Возвращает кол-во знаков после запятой десятичного числа в колонке воотв. типа
+     * @return кол-во знаков после запятой десятичного числа
+     */
+    public int getScale() {
+        return scale;
+    }
+
+    /**
+     * Устанавливает кол-во знаков после запятой десятичного числа
+     * @param scale кол-во знаков после запятой десятичного числа
+     */
+    public void setScale(int scale) {
+        this.scale = scale;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ColumnInfo that = (ColumnInfo) o;
+
+        if (length != that.length) return false;
+        if (notNull != that.notNull) return false;
+        if (precision != that.precision) return false;
+        if (scale != that.scale) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+}

@@ -105,6 +105,9 @@
     <bean id="domainObjectTypeIdCache"
           class="ru.intertrust.cm.core.dao.impl.DomainObjectTypeIdCacheImpl" />
 
+    <bean id="schemaCache"
+          class="ru.intertrust.cm.core.dao.impl.SchemaCacheImpl" lazy-init="true"/>
+
     <bean id="domainObjectCacheService"
           class="ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl" />
 

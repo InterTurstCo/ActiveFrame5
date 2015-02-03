@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
@@ -18,11 +17,6 @@ public class PostgreSqlDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     @Override
     protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         return new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
-    }
-
-    @Override
-    protected String generateDoesTableExistQuery() {
-        return "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
     }
 
     @Override

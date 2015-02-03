@@ -44,14 +44,14 @@ public class StringFieldConfig extends FieldConfig {
     }
 
     @Override
-    public boolean equals(Object o, boolean ignoreNonDataStructureFields) {
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        if (!super.equals(o, ignoreNonDataStructureFields)) {
+        if (!super.equals(o)) {
             return false;
         }
 
@@ -66,11 +66,6 @@ public class StringFieldConfig extends FieldConfig {
         }
 
         return true;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        return equals(o, false);
     }
 
     @Override

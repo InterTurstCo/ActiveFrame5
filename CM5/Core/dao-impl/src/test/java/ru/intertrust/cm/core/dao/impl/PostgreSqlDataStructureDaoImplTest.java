@@ -56,7 +56,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
     @Test
     public void testCreateTable() throws Exception {
-        when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(Integer.valueOf(7)); // ID
+        when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(7); // ID
         // конфигурации доменного объекта
         dataStructureDao.createTable(domainObjectTypeConfig, true);
 
@@ -129,25 +129,25 @@ public class PostgreSqlDataStructureDaoImplTest {
     }
 
     @Test
-    public void testDoesTableExistsWhenFalse() throws Exception {
+    public void testIsTableExistsWhenFalse() throws Exception {
         String tableName = "DOCUMENT";
 
         when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(0);
-        boolean tableExists = dataStructureDao.doesTableExists(tableName);
+        boolean tableExists = dataStructureDao.isTableExist(tableName);
 
         assertFalse(tableExists);
-        verify(jdbcTemplate).queryForObject(new PostgreSqlDataStructureDaoImpl().generateDoesTableExistQuery(), Integer.class, tableName);
+        verify(jdbcTemplate).queryForObject(queryHelper.generateIsTableExistQuery(), Integer.class, tableName);
     }
 
     @Test
-    public void testDoesTableExistsWhenTrue() throws Exception {
+    public void testIsTableExistsWhenTrue() throws Exception {
         String tableName = "DOCUMENT";
 
         when(jdbcTemplate.queryForObject(anyString(), any(Class.class), anyString())).thenReturn(1);
-        boolean tableExists = dataStructureDao.doesTableExists(tableName);
+        boolean tableExists = dataStructureDao.isTableExist(tableName);
 
         assertTrue(tableExists);
-        verify(jdbcTemplate).queryForObject(new PostgreSqlDataStructureDaoImpl().generateDoesTableExistQuery(), Integer.class, tableName);
+        verify(jdbcTemplate).queryForObject(queryHelper.generateIsTableExistQuery(), Integer.class, tableName);
     }
 
     private void initDomainObjectConfig() {

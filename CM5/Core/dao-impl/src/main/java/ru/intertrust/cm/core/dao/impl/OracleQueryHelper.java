@@ -16,6 +16,20 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
  */
 public class OracleQueryHelper extends BasicQueryHelper {
 
+    private static final String FOREIGN_KEYS_QUERY =
+            "select columns.constraint_name, columns.table_name, columns.column_name, " +
+                    "constraints2.table_name foreign_table_name, constraints2.constraint_name foreign_column_name " +
+            "from all_cons_columns columns " +
+            "join all_constraints constraints on columns.owner = constraints.owner " +
+                "and columns.constraint_name = constraints.constraint_name " +
+            "join all_constraints constraints2 on constraints.r_owner = constraints2.owner " +
+                "and constraints.r_constraint_name = constraints2.constraint_name " +
+            "where constraints.constraint_type = 'R'";
+
+    private static final String COLUMNS_QUERY =
+            "select table_name, column_name, nullable, char_length length, data_precision numeric_precision, " +
+                    "data_scale numeric_precision from user_tab_columns";
+
     protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         super(domainObjectTypeIdDao, md5Service);
     }

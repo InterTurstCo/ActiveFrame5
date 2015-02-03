@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
@@ -12,18 +14,19 @@ import java.util.List;
 /**
 * Recursively merges configurations
 */
-class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader {
+public class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader {
 
     private static final String COMMON_ERROR_MESSAGE = "It's only allowed to add some new configuration " +
             "but not to modify or delete the existing one.";
 
+    @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
-    private ConfigurationExplorer oldConfigExplorer;
+    @Autowired
+    private SchemaCache schemaCache;
+    @Autowired
+    private FieldConfigChangeHandler fieldConfigChangeHandler;
 
-    public RecursiveConfigurationMerger(DataStructureDao dataStructureDao, DomainObjectTypeIdDao domainObjectTypeIdDao) {
-        setDataStructureDao(dataStructureDao);
-        this.domainObjectTypeIdDao = domainObjectTypeIdDao;
-    }
+    private ConfigurationExplorer oldConfigExplorer;
 
     /**
      * Recursively merges configurations from two instances of {@code ConfigurationExplorer}
@@ -40,6 +43,7 @@ class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader 
             return;
         }
 
+        schemaCache.reset();
         validateForDeletedConfigurations();
         processConfigs(configList);
     }
@@ -129,10 +133,9 @@ class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader 
 
             if (oldFieldConfig == null) {
                 newFieldConfigs.add(fieldConfig);
-            } else if (!fieldConfig.equals(oldFieldConfig, true)) {
-                throw new ConfigurationException("Configuration loading aborted: FieldConfig '" +
-                        domainObjectTypeConfig.getName() + "." + fieldConfig.getName() + " was changed. " +
-                        COMMON_ERROR_MESSAGE);
+            } else if (!fieldConfig.equals(oldFieldConfig) &&
+                    !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
+                fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig);
             }
         }
 
@@ -171,17 +174,22 @@ class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader 
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, oldDOTypeConfig.getName());
             if (domainObjectTypeConfig == null) {
+                if (!schemaCache.isTableExist(oldDOTypeConfig)) {
+                    return;
+                }
                 throw new ConfigurationException("Configuration loading aborted: DomainObject configuration '" +
                         oldDOTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
             }
 
-            for (FieldConfig oldFieldConfig : oldDOTypeConfig.getFieldConfigs()) {
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDOTypeConfig.getName(),
-                        oldFieldConfig.getName(), false);
-                if (fieldConfig == null) {
-                    throw new ConfigurationException("Configuration loading aborted: Field " +
-                            "Configuration DomainObject '" + oldDOTypeConfig.getName() + "." +
-                            oldFieldConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+            if (!oldDOTypeConfig.getName().endsWith(Configuration.AUDIT_LOG_SUFFIX)) {
+                for (FieldConfig oldFieldConfig : oldDOTypeConfig.getFieldConfigs()) {
+                    FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDOTypeConfig.getName(),
+                            oldFieldConfig.getName(), false);
+                    if (fieldConfig == null && schemaCache.isColumnExist(oldDOTypeConfig, oldFieldConfig)) {
+                        throw new ConfigurationException("Configuration loading aborted: Field " +
+                                "Configuration DomainObject '" + oldDOTypeConfig.getName() + "." +
+                                oldFieldConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+                    }
                 }
             }
 
