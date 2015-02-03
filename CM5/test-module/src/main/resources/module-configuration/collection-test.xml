@@ -11,7 +11,7 @@
             (select p3.login from person p3 where p3.id = 1) as login 
             from  person p1
                 ::from-clause
-            where 1=1 ::where-clause
+            where 1=1 ::where-clause order by id
             ]]>
         </prototype>
 
@@ -185,7 +185,7 @@
              (select c1.id from country c1) c WHERE 1 = 1 ::where-clause 
              union 
              select id from 
-             (select c2.id from department c2) d WHERE 1 = 1 ::where-clause
+             (select c2.id from department c2) d WHERE 1 = 1 ::where-clause order by id
             ]]>
         </prototype>
 

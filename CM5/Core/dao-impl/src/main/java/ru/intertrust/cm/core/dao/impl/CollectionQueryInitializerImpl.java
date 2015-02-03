@@ -12,12 +12,16 @@ import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
@@ -311,9 +315,12 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     private String applySortOrder(SortOrder sortOrder, String query) {
+
         StringBuilder prototypeQuery = new StringBuilder(query);
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
+            query = clearOrderByExpression(query);
+
             for (SortCriterion criterion : sortOrder) {
                 if (!hasSortEntry) {
                     prototypeQuery.append(" order by ");
@@ -325,6 +332,17 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             }
         }
         return prototypeQuery.toString();
+    }
+
+    private String clearOrderByExpression(String query) {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+        if (selectBody instanceof PlainSelect) {
+            PlainSelect plainSelect = (PlainSelect) selectBody;
+            if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0)
+                plainSelect.getOrderByElements().clear();
+        }
+        return selectBody.toString();
     }
 
     private String getSqlSortOrder(SortCriterion.Order order) {
