@@ -23,11 +23,8 @@ import ru.intertrust.cm.core.model.GwtIncompatible;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.SimpleTimeZone;
-import java.util.TimeZone;
 
 /**
  * @author Lesia Puhova
@@ -225,7 +222,7 @@ public class ValueUtil {
         int month = Integer.parseInt(date[1]) - 1; // month is 0-based in timelessDate
         int year = Integer.parseInt(date[2]);
         TimelessDate timelessDate = new TimelessDate(year, month, day);
-        return new DateTimeValue(timelessDate.toDate());
+        return new TimelessDateValue(timelessDate);
     }
 
     @GwtIncompatible
@@ -252,12 +249,7 @@ public class ValueUtil {
             throw new IllegalArgumentException("Cannot parse string: " + string + ". Unsupported TimeZoneContext id: " + parts[0]);
         }
 
-        final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(dateTimeZone.getTimeZoneContext().getTimeZoneId()));
-        cal.set(dateTimeZone.getYear(), dateTimeZone.getMonth(), dateTimeZone.getDayOfMonth(), dateTimeZone.getHours(),
-                dateTimeZone.getMinutes(), dateTimeZone.getSeconds());
-        cal.set(Calendar.MILLISECOND, dateTimeZone.getMilliseconds());
-
-        return new DateTimeValue(cal.getTime());
+        return new DateTimeWithTimeZoneValue(dateTimeZone);
     }
 
 }

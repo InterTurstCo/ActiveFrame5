@@ -367,7 +367,8 @@
                 <field-path/>
                 <text>Начало:</text>
             </label>
-            <date-box id="startInput" unmanaged-type="date-time-with-time-zone">
+            <!--date-box id="startInput" unmanaged-type="timeless-date"-->
+            <date-box id="startInput" unmanaged-type="date-time">
                 <field-path value="paramStart"/>
             </date-box>
             <label id="endLabel">
@@ -376,7 +377,8 @@
                 <field-path/>
                 <text>Конец:</text>
             </label>
-            <date-box id="endInput" unmanaged-type="date-time-with-time-zone">
+            <!--date-box id="endInput" unmanaged-type="timeless-date"-->
+            <date-box id="endInput" unmanaged-type="date-time">
                 <field-path value="paramEnd"/>
             </date-box>
         </widget-config>

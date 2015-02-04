@@ -8,11 +8,16 @@
 			<style mode="Opaque" backcolor="#F9DCBD"/>
 		</conditionalStyle>
 	</style>
-	<parameter name="paramStart" class="java.util.Date"/>
-	<parameter name="paramEnd" class="java.util.Date"/>
+	<!--parameter name="paramStart" class="java.lang.Object" />
+	<parameter name="paramEnd" class="java.lang.Object" /-->
+	<parameter name="paramStart" class="java.util.Date" />
+    <parameter name="paramEnd" class="java.util.Date" />
 	<queryString language="SQL">
 		<![CDATA[select t.login from Person t where login is not null and t.created_date >=$P{paramStart} and t.created_date <=$P{paramEnd}]]>
 	</queryString>
+	<!--queryString language="SQL">
+    		<![CDATA[select t.login from Person t where login is not null and t.test_date >=$P{paramStart} and t.test_date <=$P{paramEnd}]]>
+    	</queryString-->
 	<field name="login" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
