@@ -175,6 +175,12 @@ select.gwt-ListBox::-ms-expand {
     color: #ffffff;
 }
 
+.gwt-TextBox,
+.gwt-ListBox,
+.gwt-TextArea {
+    min-width: 150px;
+}
+
 .facebook-element .gwt-Label {
     padding: 1px 7px;
     margin: 5px;
