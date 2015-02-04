@@ -111,6 +111,7 @@
             <string name="LastName" length="128" />
             <string name="EMail" length="128" />
             <reference name="profile" type="person_profile"/>
+            <!--timelessDate name="test_date"/-->
         </fields>
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Login"/>
