@@ -206,7 +206,7 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
                 if (linkConfig.getPluginDefinition() == null && linkToAdd.getPluginDefinition() != null ||
                         linkConfig.getPluginDefinition() != null
                                 && !linkConfig.getPluginDefinition().equals(linkToAdd.getPluginDefinition())) {
-                    throw new ConfigurationException("Ошибка в конфигурации навигационых панелей");
+                    throw new ConfigurationException("Ошибка при объединении навигационых панелей");
                 }
                 mergeChildLinks(linkConfig.getChildLinksConfigList(), linkToAdd.getChildLinksConfigList());
                 nameToLink.remove(linkConfig.getName());
