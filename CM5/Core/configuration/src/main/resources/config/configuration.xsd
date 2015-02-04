@@ -1064,6 +1064,7 @@
         <xs:attribute name="is-default" type="xs:string"
                       use="optional"/>
         <xs:attribute name="side-bar-opening-time" type="xs:integer" use="optional"/>
+        <xs:attribute name="merge" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <!-- Конфигурация области поиска  -->

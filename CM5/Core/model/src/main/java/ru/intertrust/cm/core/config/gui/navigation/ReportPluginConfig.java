@@ -35,4 +35,30 @@ public class ReportPluginConfig extends PluginConfig {
     public String getComponentName() {
         return "report.plugin";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ReportPluginConfig that = (ReportPluginConfig) o;
+
+        if (formName != null ? !formName.equals(that.formName) : that.formName != null) {
+            return false;
+        }
+        if (reportName != null ? !reportName.equals(that.reportName) : that.reportName != null) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = reportName != null ? reportName.hashCode() : 0;
+        result = 31 * result + (formName != null ? formName.hashCode() : 0);
+        return result;
+    }
 }

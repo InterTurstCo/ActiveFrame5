@@ -27,11 +27,12 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
         LinkConfig rootLinkConfig = takeFirstRootLinkConfig(navigationConfig.getLinkConfigList());
 
-        String childToOpen = rootLinkConfig.getChildToOpen();
-        navigationTreePluginData.setChildToOpen(childToOpen);
+        if (rootLinkConfig != null) {
+            String childToOpen = rootLinkConfig.getChildToOpen();
+            navigationTreePluginData.setChildToOpen(childToOpen);
 
-        navigationTreePluginData.setRootLinkConfig(rootLinkConfig);
-
+            navigationTreePluginData.setRootLinkConfig(rootLinkConfig);
+        }
         return navigationTreePluginData;
     }
 
@@ -60,7 +61,11 @@ public class NavigationTreePluginHandler extends PluginHandler {
     }
 
     private LinkConfig takeFirstRootLinkConfig(List<LinkConfig> linkConfigList) {
-        return linkConfigList.iterator().next();
+        if (!linkConfigList.isEmpty()) {
+            return linkConfigList.iterator().next();
+        } else {
+            return null;
+        }
     }
 
 }

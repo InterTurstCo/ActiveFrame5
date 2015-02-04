@@ -369,7 +369,7 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="Employee">
+    <access-matrix type="Employee" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
@@ -393,15 +393,12 @@
     </access-matrix>
 
 
-    <access-matrix type="Department">
+    <access-matrix type="Department" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
         <status name="Active">
-            <read>
-                <permit-group name="Administrators" />
-                <permit-group name="Administrators_Read_Only" />
-            </read>
+
             <write>
                 <permit-group name="Administrators" />
             </write>
