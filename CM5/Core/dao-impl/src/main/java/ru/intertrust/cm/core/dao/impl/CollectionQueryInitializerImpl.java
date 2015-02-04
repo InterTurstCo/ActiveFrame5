@@ -1,5 +1,19 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SetOperationList;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion.Order;
@@ -15,16 +29,6 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
-
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectBody;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
 
 /**
  * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
@@ -315,11 +319,11 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     private String applySortOrder(SortOrder sortOrder, String query) {
-
         StringBuilder prototypeQuery = new StringBuilder(query);
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
             query = clearOrderByExpression(query);
+            prototypeQuery = new StringBuilder(query);
 
             for (SortCriterion criterion : sortOrder) {
                 if (!hasSortEntry) {
@@ -339,8 +343,23 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SelectBody selectBody = sqlParser.getSelectBody();
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
-            if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0)
+            if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
                 plainSelect.getOrderByElements().clear();
+            }
+        } else if (selectBody instanceof SetOperationList) {
+            SetOperationList union = (SetOperationList) selectBody;
+            if (union.getOrderByElements() != null && union.getOrderByElements().size() > 0) {
+                union.getOrderByElements().clear();
+            }
+            List plainSelects = union.getPlainSelects();
+            for (Object subSelect : plainSelects) {
+                if (subSelect instanceof PlainSelect) {
+                    PlainSelect plainSelect = (PlainSelect) subSelect;
+                    if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
+                        plainSelect.getOrderByElements().clear();
+                    }
+                }
+            }
         }
         return selectBody.toString();
     }
