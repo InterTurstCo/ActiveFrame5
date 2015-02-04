@@ -5,7 +5,6 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.List;
 
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
@@ -25,7 +24,7 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                     "join information_schema.key_column_usage column_usage2 " +
                     "    on column_usage2.ordinal_position = column_usage.position_in_unique_constraint " +
                     "    and column_usage2.constraint_name = constr.unique_constraint_name " +
-                    "where column_usage.table_schema = 'public'";
+                    "where constr.constraint_schema = current_schema() and constr.constraint_catalog = current_catalog";
 
     private static final String COLUMNS_QUERY =
             "select table_name, column_name, is_nullable nullable, character_maximum_length length, " +
