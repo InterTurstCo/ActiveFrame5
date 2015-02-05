@@ -2,9 +2,21 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
-import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.gui.action.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.MenuItemSeparator;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
+import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
+import ru.intertrust.cm.core.config.gui.action.BaseAttributeConfig;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -130,7 +142,9 @@ public abstract class PluginView implements IsWidget {
         } else {
             toolbarContext = initialData.getToolbarContext();
         }
-        toolbarContext.addContexts(getDefaultSystemContexts(), ToolbarContext.FacetName.RIGHT);
+        List<ActionContext> rightContexts = new ArrayList<>(toolbarContext.getContexts(ToolbarContext.FacetName.RIGHT));
+        rightContexts.addAll(getDefaultSystemContexts());
+
         toolbarContext.sortActionContexts();
         final MenuBarExt leftMenuBar = new MenuBarExt();
         leftMenuBar.setStyleName("decorated-action-link");
@@ -140,7 +154,7 @@ public abstract class PluginView implements IsWidget {
         actionToolBar.add(leftMenuBar);
         final MenuBarExt rightMenuBar = new MenuBarExt();
         rightMenuBar.setStyleName("action-bar-right-side");
-        for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.RIGHT)) {
+        for (ActionContext context : rightContexts) {
             rightMenuBar.addActionItem(context);
         }
         actionToolBar.add(rightMenuBar);
