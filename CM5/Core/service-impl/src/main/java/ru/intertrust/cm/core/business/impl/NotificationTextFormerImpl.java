@@ -30,16 +30,16 @@ import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
 
 public class NotificationTextFormerImpl implements NotificationTextFormer {
-    private static final Logger logger = LoggerFactory.getLogger(NotificationTextFormerImpl.class);
+    protected static final Logger logger = LoggerFactory.getLogger(NotificationTextFormerImpl.class);
 
     @Autowired
-    private CollectionsService collectionsService;
+    protected CollectionsService collectionsService;
 
     @Autowired
-    private ApplicationContext applicationContext;
+    protected ApplicationContext applicationContext;
 
     @Autowired
-    private Environment environment;
+    protected Environment environment;
 
     @Override
     public String format(String notificationType, String notificationPart, Id addressee, Id locale, String channel, NotificationContext context) {
@@ -83,7 +83,7 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
         return ret;
     }
 
-    private IdentifiableObjectCollection findNotificationTextCollection(String notificationType, Id locale, String channel) {
+    protected IdentifiableObjectCollection findNotificationTextCollection(String notificationType, Id locale, String channel) {
         Filter filter = new Filter();
         filter.setFilter("byParams");
         filter.addStringCriterion(0, notificationType);
@@ -98,7 +98,7 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
         return collection;
     }
 
-    private String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context) {
+    protected String formatTemplate(String notificationTextTemplate, Id addressee, NotificationContext context) {
 
         Set<String> contextNames = context.getContextNames();
         if (contextNames == null)
@@ -125,19 +125,24 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
 
     }
 
-    private void injectBeans(Map<String, Object> model) {
-        String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
+    protected void injectBeans(Map<String, Object> model) {
+        ApplicationContext context = getInjectedApplicationContext();
+        String[] beanDefinitionNames = context.getBeanDefinitionNames();
 
         for (String beanDefinitionName : beanDefinitionNames) {
-            if (applicationContext.isSingleton(beanDefinitionName) && 
-                    !((AbstractApplicationContext)applicationContext).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
-                Object bean = applicationContext.getBean(beanDefinitionName);
+            if (context.isSingleton(beanDefinitionName) && 
+                    !((AbstractApplicationContext)context).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
+                Object bean = context.getBean(beanDefinitionName);
                 model.put(beanDefinitionName, bean);
             }
         }
 
         //Добавляем переменные из server.properties
         model.put("environment", environment);
+    }
+    
+    protected ApplicationContext getInjectedApplicationContext(){
+        return applicationContext;
     }
 
     @Override
