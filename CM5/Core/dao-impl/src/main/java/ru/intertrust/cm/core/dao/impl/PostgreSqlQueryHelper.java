@@ -16,15 +16,13 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
 public class PostgreSqlQueryHelper extends BasicQueryHelper {
 
     private static final String FOREIGN_KEYS_QUERY =
-            "select constr.constraint_name, column_usage.table_name, column_usage.column_name, " +
-                    "column_usage2.table_name foreign_table_name, column_usage2.column_name foreign_column_name " +
-                    "from information_schema.referential_constraints constr " +
-                    "join information_schema.key_column_usage column_usage " +
-                        "on column_usage.constraint_name = constr.constraint_name " +
-                    "join information_schema.key_column_usage column_usage2 " +
-                    "    on column_usage2.ordinal_position = column_usage.position_in_unique_constraint " +
-                    "    and column_usage2.constraint_name = constr.unique_constraint_name " +
-                    "where constr.constraint_schema = current_schema() and constr.constraint_catalog = current_catalog";
+            "select conname constraint_name, conrelid::regclass table_name, a.attname column_name, " +
+                    "confrelid::regclass foreign_table_name, af.attname foreign_column_name " +
+                    "from (select conname, conrelid, confrelid, unnest(confkey) as column_index from pg_constraint) c " +
+                    "join pg_attribute a on c.conrelid = a.attrelid and c.column_index = a.attnum " +
+                    "join pg_attribute af on c.confrelid = af.attrelid and c.column_index = af.attnum " +
+                    "join pg_tables t on c.confrelid::regclass::varchar = t.tablename " +
+                    "where t.schemaname !~ '^pg_' and t.schemaname != 'information_schema' order by c.conname";
 
     private static final String COLUMNS_QUERY =
             "select table_name, column_name, is_nullable nullable, character_maximum_length length, " +
