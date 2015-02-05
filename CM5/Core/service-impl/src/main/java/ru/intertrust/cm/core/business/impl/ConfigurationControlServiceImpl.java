@@ -19,6 +19,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,7 +113,11 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private void processDataImport(String importDataString) {
-        importDataService.importData(importDataString.getBytes(), null, true);
+        try {
+            importDataService.importData(importDataString.getBytes("Windows-1251"), null, true);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace(); //should not happen
+        }
     }
 
     private Configuration deserializeConfiguration(String configurationString) {
