@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
+import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     private SchemaCache schemaCache;
     @Autowired
     private FieldConfigChangeHandler fieldConfigChangeHandler;
+    @Autowired
+    private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     private ConfigurationExplorer oldConfigExplorer;
 
@@ -45,7 +48,10 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         schemaCache.reset();
         validateForDeletedConfigurations();
+
+        sqlLoggerEnforcer.forceSqlLogging();
         processConfigs(configList);
+        sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
     }
 
     @Override

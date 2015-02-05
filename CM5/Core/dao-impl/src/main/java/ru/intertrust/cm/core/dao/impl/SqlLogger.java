@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.TransactionTrace;
+import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 
 /**
@@ -46,10 +47,13 @@ public class SqlLogger {
     private Boolean resolveParams;
 
     @Autowired
-    UserTransactionService userTransactionService;
+    private UserTransactionService userTransactionService;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
@@ -68,7 +72,7 @@ public class SqlLogger {
         int rows = countSqlRows(returnValue, query);
 
         boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
-        if (query.startsWith("create") || query.startsWith("drop") || query.startsWith("alter")) {
+        if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             query = resolveParameters(query, joinPoint, true);
             logger.info(formatLogEntry(query, timing, rows));
         } else if (logWarn && logger.isWarnEnabled()) {

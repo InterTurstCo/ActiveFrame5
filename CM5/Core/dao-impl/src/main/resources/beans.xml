@@ -136,6 +136,8 @@
 
     <bean id="md5Service" class="ru.intertrust.cm.core.dao.impl.MD5ServiceImpl"/>
 
+    <bean id="sqlLoggerEnforcer" class="ru.intertrust.cm.core.dao.impl.SqlLoggerEnforcerImpl"/>
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
