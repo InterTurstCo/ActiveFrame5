@@ -197,7 +197,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         return popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
     }
 
-    private void handleRemoving(HierarchyBrowserItem item) {
+    public void handleRemoving(HierarchyBrowserItem item) {
         chosenItems.remove(item);
         selectedIds.remove(item.getId());
         decrementCountOfType(item.getNodeCollectionName());
@@ -207,10 +207,8 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
         Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
         while (iterator.hasNext()){
             HierarchyBrowserItem chosenItem = iterator.next();
-            if(chosenItem.isSingleChoice() == null || chosenItem.isSingleChoice()){
             iterator.remove();
             postTempItemRemove(chosenItem);
-            }
         }
         if (item.isChosen()) {
             handleAddingToTempSate(item);
@@ -226,7 +224,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
     public void handleNodeSingleChoice(HierarchyBrowserItem item) {
         if (item.isChosen()) {
-            removeSingleChoiceItems(item);
             handleAddingToTempSate(item);
 
         } else {
@@ -235,20 +232,6 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
 
         }
     }
-
-    private void removeSingleChoiceItems(HierarchyBrowserItem item){
-        Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
-        while (iterator.hasNext()){
-            HierarchyBrowserItem itemToRemove = iterator.next();
-            if(HierarchyBrowserUtil.isOtherItemSingleChoice(itemToRemove, item, isSingleChoice()) ){
-                iterator.remove();
-                postTempItemRemove(itemToRemove);
-
-            }
-        }
-
-    }
-
 
     private void handleAddingToTempSate(HierarchyBrowserItem item) {
         temporaryChosenItems.add(item);

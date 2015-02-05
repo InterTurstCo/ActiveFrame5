@@ -12,9 +12,15 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
 
     public static Type<HierarchyBrowserCheckBoxUpdateEventHandler> TYPE = new Type<HierarchyBrowserCheckBoxUpdateEventHandler>();
     private HierarchyBrowserItem item;
+    private boolean removeItemOnly;
 
     public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item) {
         this.item = item;
+    }
+
+    public HierarchyBrowserCheckBoxUpdateEvent(HierarchyBrowserItem item, boolean removeItemOnly) {
+        this.item = item;
+        this.removeItemOnly = removeItemOnly;
     }
 
     @Override
@@ -31,4 +37,7 @@ public class HierarchyBrowserCheckBoxUpdateEvent extends GwtEvent<HierarchyBrows
         return item;
     }
 
+    public boolean isRemoveItemOnly() {
+        return removeItemOnly;
+    }
 }

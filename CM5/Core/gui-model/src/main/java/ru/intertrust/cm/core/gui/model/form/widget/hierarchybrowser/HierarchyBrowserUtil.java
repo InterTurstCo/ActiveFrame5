@@ -146,12 +146,19 @@ public class HierarchyBrowserUtil {
             config.setElementsCount(count);
         }
     }
-
+    @Deprecated
     public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith,
                                                   boolean commonSingleChoice){
         return  item.getId() != compareWith.getId()
                 && ((item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
                 && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId())))
                 ||(commonSingleChoice && (item.isSingleChoice() == null || item.isSingleChoice())));
+    }
+
+    public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith){
+        return  item.getId() != compareWith.getId()
+                && ((item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
+                && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId()))));
+
     }
 }

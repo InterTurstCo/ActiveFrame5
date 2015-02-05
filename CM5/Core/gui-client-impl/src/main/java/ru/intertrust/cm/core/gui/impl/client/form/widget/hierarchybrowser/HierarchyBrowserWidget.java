@@ -57,7 +57,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     public static final String COMPONENT_NAME = "hierarchy-browser";
     private HierarchyBrowserWidgetState currentState;
     private HierarchyBrowserMainPopup mainPopup;
-    private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus()) ;
+    private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus());
     private HandlerRegistration handlerRegistration;
     private Set<Id> initiallySelectedIds = new HashSet<>();
 
@@ -227,11 +227,19 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     @Override
     public void onHierarchyBrowserCheckBoxUpdate(HierarchyBrowserCheckBoxUpdateEvent event) {
+        final HierarchyBrowserItem item = event.getItem();
+        if (event.isRemoveItemOnly()) {
+            if (item != null) {
+                currentState.handleRemovingItem(event.getItem());
+            }
+            refreshView();
+            return;
+        }
         boolean singleChoiceCase = handleAsSingleChoice(event);
         if (singleChoiceCase) {
             return;
         }
-        final HierarchyBrowserItem item = event.getItem();
+
         int delta = item.isChosen() ? 1 : 0;
         if (HierarchyBrowserUtil.shouldInitializeTooltip(currentState, delta)) {
             fetchWidgetItems(new TooltipCallback() {
@@ -250,26 +258,21 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
     private boolean handleAsSingleChoice(HierarchyBrowserCheckBoxUpdateEvent event) {
         boolean result = false;
         HierarchyBrowserItem item = event.getItem();
-        if ((item.isSingleChoice() == null && currentState.isSingleChoice())) {
+        if ((currentState.isSingleChoice())) {
             result = true;
             currentState.handleCommonSingleChoice(item);
-            refreshViewForSingleChoice(item);
+            localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, currentState.isSingleChoice()));
+            refreshView();
         } else if (item.isSingleChoice() != null && item.isSingleChoice()) {
             result = true;
             currentState.handleNodeSingleChoice(item);
-            refreshViewForSingleChoice(item);
+            localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item, currentState.isSingleChoice()));
 
         }
 
         return result;
 
     }
-
-    private void refreshViewForSingleChoice(HierarchyBrowserItem item) {
-        localEventBus.fireEvent(new HierarchyBrowserChangeSelectionEvent(item,currentState.isSingleChoice()));
-        refreshView();
-    }
-
 
     private void handleItemChangeState(HierarchyBrowserItem item) {
         boolean chosen = item.isChosen();
@@ -291,6 +294,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             view.displayChosenItems(currentState.getChosenItems(), currentState.isTooltipAvailable());
         }
     }
+
     //TODO make method more simpler and verbose
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
@@ -308,7 +312,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         LinkedFormMappingConfig linkedFormMappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
         final String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, null);
         final String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, null);
-        final String title = currentState.getHyperlinkPopupTitle(collectionName,domainObjectType);
+        final String title = currentState.getHyperlinkPopupTitle(collectionName, domainObjectType);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
@@ -527,7 +531,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         hyperlinkContentManager.updateHyperlink();
     }
 
-    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta){
+    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta) {
         NodeCollectionDefConfig nodeDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
         if (nodeDefConfig.isChildrenRecursive()) {
             List<NodeCollectionDefConfig> nodeDefConfigs = nodeDefConfig.getNodeCollectionDefConfigs();

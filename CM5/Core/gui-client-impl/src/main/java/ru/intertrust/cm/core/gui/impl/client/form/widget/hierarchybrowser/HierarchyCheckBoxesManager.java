@@ -5,6 +5,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserChangeSelectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserCheckBoxUpdateEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
@@ -42,10 +43,10 @@ public class HierarchyCheckBoxesManager {
     }
 
     private void handleAdding(HierarchyBrowserItem handledItem, boolean commonSingleChoice){
-        if (handledItem.isSingleChoice() != null && handledItem.isSingleChoice()) {
-            deselectAllOthersSingleChoiceItems(handledItem, commonSingleChoice);
-        } else {
+        if (commonSingleChoice) {
             handleCommonSingleChoice(handledItem);
+        } else if(handledItem.isSingleChoice() != null && handledItem.isSingleChoice()) {
+            deselectSingleChoiceItem(handledItem);
 
         }
 
@@ -63,26 +64,27 @@ public class HierarchyCheckBoxesManager {
         item.setChosen(false);
     }
 
-    private void deselectAllOthersSingleChoiceItems(HierarchyBrowserItem compareWith, boolean commonSingleChoice){
+    private void deselectSingleChoiceItem(HierarchyBrowserItem compareWith){
+        HierarchyBrowserItem itemToRemoveFromState = null;
         for (HierarchyCheckBoxesWrapper hierarchyCheckBoxesWrapper : hierarchyCheckBoxesWrappers) {
             CheckBox checkBox= hierarchyCheckBoxesWrapper.getCheckBox();
             if(checkBox.getValue()){
             HierarchyBrowserItem item = hierarchyCheckBoxesWrapper.getItem();
-                if(HierarchyBrowserUtil.isOtherItemSingleChoice(item, compareWith, commonSingleChoice)) {
+                if(HierarchyBrowserUtil.isOtherItemSingleChoice(item, compareWith)) {
                     checkBox.setValue(false);
                     item.setChosen(false);
+                    itemToRemoveFromState = item;
                 }
             }
         }
+        eventBus.fireEvent(new HierarchyBrowserCheckBoxUpdateEvent(itemToRemoveFromState, true));
     }
 
     private void handleCommonSingleChoice(HierarchyBrowserItem handledItem) {
-
         for (HierarchyCheckBoxesWrapper hierarchyCheckBoxesWrapper : hierarchyCheckBoxesWrappers) {
             HierarchyBrowserItem item = hierarchyCheckBoxesWrapper.getItem();
             CheckBox checkBox = hierarchyCheckBoxesWrapper.getCheckBox();
-            if (!item.equals(handledItem) && checkBox.getValue()
-                    && (item.isSingleChoice() == null || item.isSingleChoice())) {
+            if (!item.equals(handledItem)) {
                 item.setChosen(false);
                 checkBox.setValue(false);
             }
