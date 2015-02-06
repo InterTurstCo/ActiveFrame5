@@ -181,11 +181,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, oldDOTypeConfig.getName());
             if (domainObjectTypeConfig == null) {
-                if (!schemaCache.isTableExist(oldDOTypeConfig)) {
-                    return;
-                }
-                throw new ConfigurationException("Configuration loading aborted: DomainObject configuration '" +
-                        oldDOTypeConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+                continue;
             }
 
             if (!oldDOTypeConfig.getName().endsWith(Configuration.AUDIT_LOG_SUFFIX)) {
