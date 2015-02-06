@@ -731,7 +731,7 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="locale">
+    <access-matrix type="locale" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
