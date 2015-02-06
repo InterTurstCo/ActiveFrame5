@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
@@ -47,7 +48,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
         }
 
         schemaCache.reset();
-        validateForDeletedConfigurations();
+        processDeletedConfigurations();
 
         sqlLoggerEnforcer.forceSqlLogging();
         processConfigs(configList);
@@ -175,7 +176,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
     }
 
-    private void validateForDeletedConfigurations() {
+    private void processDeletedConfigurations() {
         for (DomainObjectTypeConfig oldDOTypeConfig : oldConfigExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             DomainObjectTypeConfig domainObjectTypeConfig =
                     configurationExplorer.getConfig(DomainObjectTypeConfig.class, oldDOTypeConfig.getName());
@@ -191,10 +192,11 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 for (FieldConfig oldFieldConfig : oldDOTypeConfig.getFieldConfigs()) {
                     FieldConfig fieldConfig = configurationExplorer.getFieldConfig(oldDOTypeConfig.getName(),
                             oldFieldConfig.getName(), false);
-                    if (fieldConfig == null && schemaCache.isColumnExist(oldDOTypeConfig, oldFieldConfig)) {
-                        throw new ConfigurationException("Configuration loading aborted: Field " +
-                                "Configuration DomainObject '" + oldDOTypeConfig.getName() + "." +
-                                oldFieldConfig.getName() + "' was deleted. " + COMMON_ERROR_MESSAGE);
+                    if (fieldConfig == null) {
+                        ColumnInfo columnInfo = schemaCache.getColumnInfo(oldDOTypeConfig, oldFieldConfig);
+                        if (columnInfo != null && columnInfo.isNotNull()) {
+                            dataStructureDao.setColumnNullable(oldDOTypeConfig, oldFieldConfig);
+                        }
                     }
                 }
             }

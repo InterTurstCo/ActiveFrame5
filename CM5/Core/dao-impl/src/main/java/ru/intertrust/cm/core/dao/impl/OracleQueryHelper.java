@@ -1,11 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.List;
 
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 
@@ -54,6 +59,25 @@ public class OracleQueryHelper extends BasicQueryHelper {
         // имя индекса формируется из MD5 хеша DDL выражения
         String indexName = createExplicitIndexName(config, indexFields, indexExpressions);
         return "create index " + wrap(indexName) + " on " + wrap(getSqlName(config)) + " (" + indexFieldsPart + ")";
+    }
+
+    @Override
+    public String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        StringBuilder query = new StringBuilder();
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+                append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig)).append(" null;");
+
+        if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+            query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+                    append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" ").
+                    append(getReferenceTypeSqlType()).append(" null;");
+        } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+            query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+                    append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
+                    append(getTimeZoneIdSqlType()).append(" null;");
+        }
+
+        return query.toString();
     }
 
     @Override

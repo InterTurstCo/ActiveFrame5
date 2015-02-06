@@ -549,6 +549,8 @@ public abstract class BasicQueryHelper {
                 " primary key (" + wrap(InitializationLockDao.ID_COLUMN) + "))";
     }
 
+    public abstract String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
     private void appendDeleteIndexQueryPart(StringBuilder query, String indexName) {
         query.append("drop index if exists ").append(wrap(indexName)).append(";\n");
     }
@@ -707,7 +709,8 @@ public abstract class BasicQueryHelper {
                 if (isAlterQuery) {
                     query.append("add column ");
                 }
-                query.append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" integer");
+                query.append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" ").
+                        append(getReferenceTypeSqlType());
                 if (fieldConfig.isNotNull()) {
                     query.append(" not null");
                 }
@@ -757,8 +760,12 @@ public abstract class BasicQueryHelper {
                 append(fieldsList).append(")");
     }
 
-    private String getTimeZoneIdSqlType() {
+    protected String getTimeZoneIdSqlType() {
         return "varchar(50)";
+    }
+
+    protected String getReferenceTypeSqlType() {
+        return "integer";
     }
 
     private Integer getDOTypeConfigId(DomainObjectTypeConfig config) {
@@ -769,7 +776,7 @@ public abstract class BasicQueryHelper {
         }
     }
 
-    private String getSqlType(FieldConfig fieldConfig) {
+    protected String getSqlType(FieldConfig fieldConfig) {
         if (DateTimeFieldConfig.class.equals(fieldConfig.getClass()) ||
                 DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass()) ||
                 TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {

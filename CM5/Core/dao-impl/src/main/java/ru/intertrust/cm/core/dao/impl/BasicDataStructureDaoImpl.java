@@ -243,6 +243,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         return jdbcTemplate.query(getQueryHelper().generateGetForeignKeysQuery(), new ForeignKeysRowMapper());
     }
 
+    @Override
+    public void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        jdbcTemplate.update(getQueryHelper().generateSetColumnNullableQuery(config, fieldConfig));
+    }
+
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
             queryHelper = createQueryHelper(domainObjectTypeIdDao, md5Service);

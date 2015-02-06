@@ -92,4 +92,6 @@ public interface DataStructureDao {
     Map<String, Map<String, ColumnInfo>> getSchemaTables();
 
     Map<String, Map<String, ForeignKeyInfo>> getForeignKeys();
+
+    void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 }
