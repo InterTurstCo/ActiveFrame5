@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 /**
@@ -13,6 +14,9 @@ public class FieldConfigChangeHandler {
 
     @Autowired
     private SchemaCache schemaCache;
+
+    @Autowired
+    protected DataStructureDao dataStructureDao;
 
     /**
      * Обрабатывает изменение конфигурации поля типа доменного объекта
@@ -86,8 +90,12 @@ public class FieldConfigChangeHandler {
         if (newFieldConfig.isNotNull() != oldFieldConfig.isNotNull()) {
             boolean isNotNull = schemaCache.isColumnNotNull(domainObjectTypeConfig, newFieldConfig);
             if (isNotNull != newFieldConfig.isNotNull()) {
-                throw new ConfigurationException("Configuration loading aborted: unsupported not-null attribute " +
-                        "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                if (!newFieldConfig.isNotNull()) {
+                    dataStructureDao.setColumnNullable(domainObjectTypeConfig, newFieldConfig);
+                } else {
+                    throw new ConfigurationException("Configuration loading aborted: unsupported not-null attribute " +
+                            "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                }
             }
         }
     }
