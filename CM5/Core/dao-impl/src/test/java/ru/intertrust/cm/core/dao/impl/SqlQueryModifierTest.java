@@ -8,6 +8,8 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
 
 import java.util.Arrays;
 
+import net.sf.jsqlparser.statement.select.SelectBody;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
@@ -135,6 +138,7 @@ public class SqlQueryModifierTest {
         configuration.getConfigurationList().add(globalSettings);
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+
         String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_TYPE, modifiedQuery);
@@ -182,10 +186,13 @@ public class SqlQueryModifierTest {
         idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
-        String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
+        SqlQueryParser sqlParser = new SqlQueryParser(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
 
-        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, modifiedQuery);
+        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, selectBody.toString());
     }
 
     @Test
@@ -200,10 +207,13 @@ public class SqlQueryModifierTest {
         idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
-        String modifiedQuery = collectionQueryModifier.addIdBasedFilters(PLAIN_SELECT_QUERY_WITHOUT_WHERE,
+        SqlQueryParser sqlParser = new SqlQueryParser(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
                 Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
 
-        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, modifiedQuery);
+        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, selectBody.toString());
     }
 
 }

@@ -205,16 +205,22 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             AccessToken accessToken, String query) {
 
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+
         query = sqlQueryModifier.addServiceColumns(query);
-        query = sqlQueryModifier.addIdBasedFilters(query, filterValues, collectionConfig.getIdField());
+
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        selectBody = sqlQueryModifier.addIdBasedFilters(selectBody, filterValues, collectionConfig.getIdField());
 
         if (accessToken.isDeferred()) {
-            query = sqlQueryModifier.addAclQuery(query);
+            selectBody = sqlQueryModifier.addAclQuery(selectBody);
         }
 
-        sqlQueryModifier.checkDuplicatedColumns(query);
+        sqlQueryModifier.checkDuplicatedColumns(selectBody);
 
-        query = applySortOrder(sortOrder, query);
+        query = applySortOrder(sortOrder, selectBody);
+
         return applyOffsetAndLimit(query, offset, limit);
     }
 
@@ -228,13 +234,16 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
         query = sqlQueryModifier.addServiceColumns(query);
 
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
         if (accessToken.isDeferred()) {
-            query = sqlQueryModifier.addAclQuery(query);
+            selectBody = sqlQueryModifier.addAclQuery(selectBody);
         }
 
-        sqlQueryModifier.checkDuplicatedColumns(query);
+        sqlQueryModifier.checkDuplicatedColumns(selectBody);
 
-        query = applyOffsetAndLimit(query, offset, limit);
+        query = applyOffsetAndLimit(selectBody.toString(), offset, limit);
         return query;
     }
 
@@ -338,6 +347,26 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return prototypeQuery.toString();
     }
 
+    private String applySortOrder(SortOrder sortOrder, SelectBody selectBody) {
+        StringBuilder prototypeQuery = new StringBuilder(selectBody.toString());
+        boolean hasSortEntry = false;
+        if (sortOrder != null && sortOrder.size() > 0) {
+            selectBody = clearOrderByExpression(selectBody);
+            prototypeQuery = new StringBuilder(selectBody.toString());
+
+            for (SortCriterion criterion : sortOrder) {
+                if (!hasSortEntry) {
+                    prototypeQuery.append(" order by ");
+                } else {
+                    prototypeQuery.append(", ");
+                }
+                prototypeQuery.append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
+                hasSortEntry = true;
+            }
+        }
+        return prototypeQuery.toString();
+    }
+   
     private String clearOrderByExpression(String query) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
@@ -362,6 +391,30 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             }
         }
         return selectBody.toString();
+    }
+
+    private SelectBody clearOrderByExpression(SelectBody selectBody) {
+        if (selectBody instanceof PlainSelect) {
+            PlainSelect plainSelect = (PlainSelect) selectBody;
+            if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
+                plainSelect.getOrderByElements().clear();
+            }
+        } else if (selectBody instanceof SetOperationList) {
+            SetOperationList union = (SetOperationList) selectBody;
+            if (union.getOrderByElements() != null && union.getOrderByElements().size() > 0) {
+                union.getOrderByElements().clear();
+            }
+            List plainSelects = union.getPlainSelects();
+            for (Object subSelect : plainSelects) {
+                if (subSelect instanceof PlainSelect) {
+                    PlainSelect plainSelect = (PlainSelect) subSelect;
+                    if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
+                        plainSelect.getOrderByElements().clear();
+                    }
+                }
+            }
+        }
+        return selectBody;
     }
 
     private String getSqlSortOrder(SortCriterion.Order order) {

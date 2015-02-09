@@ -104,7 +104,7 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
 
     private DomainObject createCountryDomainObject() {
         DomainObject organizationDomainObject = crudService.createDomainObject("country_test");
-        organizationDomainObject.setString("Name", "Country" + System.currentTimeMillis());
+        organizationDomainObject.setString("name", "Country" + System.currentTimeMillis());
         return organizationDomainObject;
     }
 

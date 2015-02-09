@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.jsqlparser.statement.select.SelectBody;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
@@ -33,6 +35,7 @@ import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
 import ru.intertrust.cm.core.dao.exception.CollectionConfigurationException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
+import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 /**
@@ -122,9 +125,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
         String collectionQuery =
                 getFindCollectionQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken);
 
+        SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
+        SelectBody selectBody = sqlParser.getSelectBody();
+        
         Map<String, FieldConfig> columnToConfigMap =
-                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForParameters(collectionQuery);
-        Map<String, FieldConfig> columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForParameters(selectBody);
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(selectBody);
 
         columnToConfigMap.putAll(columnToConfigMapForSelectItems);
         
@@ -204,8 +210,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
+        SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
         Map<String, FieldConfig> columnToConfigMapForSelectItems =
-                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(collectionQuery);
+                new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(selectBody);
 
         collectionQuery = wrapAndLowerCaseNames(collectionQuery);
 
@@ -233,10 +242,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
             fillAclParameters(accessToken, parameters);
         }
 
+        SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
+        SelectBody selectBody = sqlParser.getSelectBody();
+      
         SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
 
-        Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(collectionQuery);
-        Map<String, FieldConfig> columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(collectionQuery);
+        Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(selectBody);
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(selectBody);
         
         // нужно объединить конфигурации колонок из Select части запроса и и для параметров для случая, когда в
         // параметре указывается алиса колонки из подзапроса

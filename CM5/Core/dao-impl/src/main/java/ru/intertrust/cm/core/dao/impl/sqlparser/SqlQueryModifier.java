@@ -84,7 +84,11 @@ public class SqlQueryModifier {
      * @return запрос с добавленным полем Тип Объекта идентификатора
      */
     public String addServiceColumns(String query) {
-        return processQuery(query, new AddServiceColumnsQueryProcessor());
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        SelectBody modifiedSelectBody = processQuery(selectBody, new AddServiceColumnsQueryProcessor());
+        return modifiedSelectBody.toString();
     }
 
     /**
@@ -127,27 +131,27 @@ public class SqlQueryModifier {
         return plainSelect.toString();
     }
 
-    public String addIdBasedFilters(String query, final List<? extends Filter> filterValues, final String idField) {
-        return processQuery(query, new QueryProcessor() {
+    public SelectBody addIdBasedFilters(SelectBody selectBody, final List<? extends Filter> filterValues, final String idField) {
+        return processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 addIdBasedFiltersInPlainSelect(plainSelect, filterValues, idField);
             }
         });
-    }
+    }    
 
-    public Map<String, FieldConfig> buildColumnToConfigMapForParameters(String query) {
+    public Map<String, FieldConfig> buildColumnToConfigMapForParameters(SelectBody selectBody) {
         final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
         //TODO перенести всю логику поиска конфигурации колонок в CollectingColumnConfigVisitor
-        processQuery(query, new QueryProcessor() {
+        processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 buildColumnToConfigMapInPlainSelect(plainSelect, columnToTableMapping);
             }
         });
 
-        processQuery(query, new QueryProcessor() {
+        processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 buildColumnToConfigMapUsingVisitor(plainSelect, columnToTableMapping);
@@ -156,7 +160,7 @@ public class SqlQueryModifier {
         
         return columnToTableMapping;
     }
-
+    
     private void buildColumnToConfigMapUsingVisitor(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
         CollectingColumnConfigVisitor collectColumnConfigVisitor = new CollectingColumnConfigVisitor(configurationExplorer, plainSelect);        
 
@@ -170,16 +174,16 @@ public class SqlQueryModifier {
         }
     }
 
-    public Map<String, FieldConfig> buildColumnToConfigMapForSelectItems(String query) {
+    public Map<String, FieldConfig> buildColumnToConfigMapForSelectItems(SelectBody selectBody) {
         final Map<String, FieldConfig> columnToTableMapping = new HashMap<>();
 
-        processQuery(query, new QueryProcessor() {
+        processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 buildColumnToConfigMapInPlainSelect(plainSelect, columnToTableMapping);
             }
         });
-        processQuery(query, new QueryProcessor() {
+        processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 buildSelectItemConfigMapUsingVisitor(plainSelect, columnToTableMapping);
@@ -188,7 +192,7 @@ public class SqlQueryModifier {
         
         return columnToTableMapping;
     }
-
+    
     private void buildSelectItemConfigMapUsingVisitor(PlainSelect plainSelect, final Map<String, FieldConfig> columnToTableMapping) {        
         CollectingSelectItemConfigVisitor collectSelectItemConfigVisitor = new CollectingSelectItemConfigVisitor(configurationExplorer, plainSelect);        
 
@@ -243,7 +247,10 @@ public class SqlQueryModifier {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
-        String modifiedQuery = processQuery(query, new QueryProcessor() {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        SelectBody selectBody = sqlParser.getSelectBody();
+
+        selectBody = processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues, columnToConfigMap);
@@ -254,6 +261,7 @@ public class SqlQueryModifier {
             }
         });
 
+        String modifiedQuery = selectBody.toString();
         for (Map.Entry<String, String> entry : replaceExpressions.entrySet()) {
             modifiedQuery = modifiedQuery.replaceAll(Pattern.quote(entry.getKey()), Matcher.quoteReplacement(entry.getValue()));
         }
@@ -269,6 +277,7 @@ public class SqlQueryModifier {
     public String addAclQuery(String query) {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
+        
         AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
@@ -277,8 +286,17 @@ public class SqlQueryModifier {
 
     }
 
-    public void checkDuplicatedColumns(String query) {
-        processQuery(query, new QueryProcessor() {
+    public SelectBody addAclQuery(SelectBody selectBody) {
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer);
+        selectBody.accept(aclVistor);
+        String modifiedQuery = selectBody.toString();
+        modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
+        SqlQueryParser sqlParser = new SqlQueryParser(modifiedQuery);
+        return sqlParser.getSelectBody();
+    }
+
+    public void checkDuplicatedColumns(SelectBody selectBody) {
+        processQuery(selectBody, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect) {
                 checkDuplicatedColumnsInPlainSelect(plainSelect);
@@ -311,7 +329,7 @@ public class SqlQueryModifier {
 
     private void addServiceColumnsInPlainSelect(PlainSelect plainSelect) {
 
-        Map<String, FieldConfig> columnToConfigMapForSelectItems = buildColumnToConfigMapForSelectItems(plainSelect.toString());
+        Map<String, FieldConfig> columnToConfigMapForSelectItems = buildColumnToConfigMapForSelectItems(plainSelect);
         
         if (plainSelect.getFromItem() instanceof SubSelect) {
             SubSelect subSelect = (SubSelect) plainSelect.getFromItem();
@@ -668,8 +686,9 @@ public class SqlQueryModifier {
      * @return
      */
     public static String getDOTypeName(PlainSelect plainSelect, Column column, boolean forSubSelect) {
+        Column clonedColumn = new Column(column.getTable(), column.getColumnName());
         
-        if (hasEvaluatedExpressionWithSameAliasInPlainSelect(plainSelect, column)) {
+        if (hasEvaluatedExpressionWithSameAliasInPlainSelect(plainSelect, clonedColumn)) {
             return null;
         }
 
@@ -678,17 +697,17 @@ public class SqlQueryModifier {
             PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
             // если название таблицы у колонки совпадает с алиасом подзапроса, то таблица данной колоки - первая таблица
             // из From выражения подзапроса.
-            if (column.getTable() != null && column.getTable().getName() != null && subSelect.getAlias() != null
-                    && column.getTable().getName().equals(subSelect.getAlias().getName())) {
-                column.setTable(null);
-                return getDOTypeName(plainSubSelect, column, true);
+            if (clonedColumn.getTable() != null && clonedColumn.getTable().getName() != null && subSelect.getAlias() != null
+                    && clonedColumn.getTable().getName().equals(subSelect.getAlias().getName())) {
+                clonedColumn.setTable(null);
+                return getDOTypeName(plainSubSelect, clonedColumn, true);
             }
 
-            String resultType = processJoins(plainSelect, column);
+            String resultType = processJoins(plainSelect, clonedColumn);
             if (resultType != null) {
                 return resultType;
             } else {
-                return getDOTypeName(plainSubSelect, column, true);
+                return getDOTypeName(plainSubSelect, clonedColumn, true);
             }
         } else if (plainSelect.getFromItem() instanceof Table) {
             Table fromItem = (Table) plainSelect.getFromItem();
@@ -702,12 +721,12 @@ public class SqlQueryModifier {
             }
             
             // если колока колока не имеет названия таблицы - берется перая таблица из from выражения
-            if ((column.getTable() == null || column.getTable().getName() == null)) {
+            if ((clonedColumn.getTable() == null || clonedColumn.getTable().getName() == null)) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
-            if ((fromItem.getAlias() != null && column.getTable().getName().equals(fromItem.getAlias().getName())) ||
-                    column.getTable().getName().equals(fromItem.getName())) {
+            if ((fromItem.getAlias() != null && clonedColumn.getTable().getName().equals(fromItem.getAlias().getName())) ||
+                    clonedColumn.getTable().getName().equals(fromItem.getName())) {
                 return DaoUtils.unwrap(fromItem.getName());
             }
 
@@ -719,17 +738,17 @@ public class SqlQueryModifier {
 
                     if (join.getRightItem() instanceof SubSelect) {
                         SubSelect subSelect = (SubSelect) join.getRightItem();
-                        if (column.getTable() != null && column.getTable().getName() != null) {
-                            if (subSelect.getAlias() != null && column.getTable().getName().equalsIgnoreCase(subSelect.getAlias().getName())) {
+                        if (clonedColumn.getTable() != null && clonedColumn.getTable().getName() != null) {
+                            if (subSelect.getAlias() != null && clonedColumn.getTable().getName().equalsIgnoreCase(subSelect.getAlias().getName())) {
                                 PlainSelect plainSubSelect = getPlainSelect(subSelect.getSelectBody());
-                                return getDOTypeName(plainSubSelect, column, true);
+                                return getDOTypeName(plainSubSelect, clonedColumn, true);
                             }
                         }
                     } else if (join.getRightItem() instanceof Table) {
                         Table joinTable = (Table) join.getRightItem();
                         if (joinTable.getAlias() != null
-                                && column.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
-                                column.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
+                                && clonedColumn.getTable().getName().equalsIgnoreCase(joinTable.getAlias().getName()) ||
+                                clonedColumn.getTable().getName().equalsIgnoreCase(joinTable.getName())) {
                             return DaoUtils.unwrap(joinTable.getName());
                         }
 
@@ -985,6 +1004,18 @@ public class SqlQueryModifier {
 
         selectBody = processor.process(selectBody);
         return selectBody.toString();
+    }
+
+    /**
+     * Метод создан для уменьшения количества раз распраршивания SQL запроса. Принимает распаршенный запрос в качестве
+     * параметра.
+     * @param selectBody
+     * @param processor
+     * @return
+     */
+    private SelectBody processQuery(SelectBody selectBody, QueryProcessor processor) {
+        selectBody = processor.process(selectBody);
+        return selectBody;
     }
 
     private SelectBody processSelectBody(SelectBody selectBody, QueryProcessor processor) {

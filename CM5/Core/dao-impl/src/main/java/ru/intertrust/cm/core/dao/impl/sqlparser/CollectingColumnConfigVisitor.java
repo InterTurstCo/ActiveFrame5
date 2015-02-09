@@ -10,6 +10,7 @@ import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
@@ -45,8 +46,22 @@ public class CollectingColumnConfigVisitor extends BaseParamProcessingVisitor im
 
     public CollectingColumnConfigVisitor(ConfigurationExplorer configurationExplorer, PlainSelect plainSelect) {
         this.configurationExplorer = configurationExplorer;
-        this.plainSelect = plainSelect;
+        this.plainSelect = clonePlainSelect(plainSelect);
         this.plainSelectQuery = plainSelect.toString();
+    }
+
+    /**
+     * PlainSelect может модифицироваться в визиторе. Поэтому создается копия переданного plainSelect.
+     * @param plainSelect
+     * @return
+     */
+    private PlainSelect clonePlainSelect(PlainSelect plainSelect) {
+        SqlQueryParser sqlParser = new SqlQueryParser(plainSelect.toString());
+        SelectBody selectBody = sqlParser.getSelectBody();
+        if (selectBody instanceof PlainSelect) {
+            return (PlainSelect) selectBody;
+        }
+        return null;
     }
 
     @Override
