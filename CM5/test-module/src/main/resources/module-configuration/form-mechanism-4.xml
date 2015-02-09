@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+        >
+    <!-- Test 3 - mixed references 1:1 -->
+    <domain-object-type name="a4">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+            <reference name="b4" type="b4" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="b4">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="b4_1" extends="b4">
+        <fields>
+            <string name="custom_b4_1" length="128" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="b4_2" extends="b4">
+        <fields>
+            <string name="custom_b4_2" length="128" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <form name="a4_form" domain-object-type="a4" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="a_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="a_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="a_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="a_name2"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b4_table_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_table"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="a_name1_label">
+                <field-path/>
+                <text>A4. Name 1:</text>
+            </label>
+            <text-box id="a_name1">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="a_name2_label">
+                <field-path/>
+                <text>A4. Name 2:</text>
+            </label>
+            <text-box id="a_name2">
+                <field-path value="name2"/>
+            </text-box>
+
+            <label id="b4_table_label">
+                <field-path/>
+                <text>B4 Table:</text>
+            </label>
+            <linked-domain-objects-table id="b4_table">
+                <field-path value="b4"/>
+                <linked-form name="b4_form"/>
+                <linked-form-mapping>
+                    <linked-form name="b4_form" domain-object-type="b4" modal-height="400px" modal-width="800px"/>
+                    <linked-form name="b4_1_form" domain-object-type="b4_1"/>
+                    <linked-form name="b4_2_form" domain-object-type="b4_2"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="b4" domain-object-type="b4"/>
+                    <created-object text="b4_1" domain-object-type="b4_1"/>
+                    <created-object text="b4_2" domain-object-type="b4_2"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name 1" widget-id="name1">
+                        <pattern value="{name1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Name 2" widget-id="name1">
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Custom">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="b4"/> <!-- todo drop this definition at all -->
+                            <widget-id-mapping linked-form-name="b4_1" widget-id="custom_b4_1"/>
+                            <widget-id-mapping linked-form-name="b4_2" widget-id="custom_b4_2"/>
+                        </widget-id-mappings>
+                        <pattern value="b4: no custom field">
+                            <domain-object-types>
+                                <domain-object-type name="b4"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="b4_1 custom: {custom_b4_1}">
+                            <domain-object-types>
+                                <domain-object-type name="b4_1"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="b4_2 custom: {custom_b4_2}">
+                            <domain-object-types>
+                                <domain-object-type name="b4_2"/>
+                            </domain-object-types>
+                        </pattern>
+                    </summary-table-column>
+                </summary-table>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+
+    <form name="b4_form" domain-object-type="b4" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="b4_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="b4_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b4_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_name2"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="b4_name1_label">
+                <field-path/>
+                <text>B4. Name 1:</text>
+            </label>
+            <text-box id="b4_name1">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="b4_name2_label">
+                <field-path/>
+                <text>B4. Name 2:</text>
+            </label>
+            <text-box id="b4_name2">
+                <field-path value="name2"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form name="b4_1_form" domain-object-type="b4_1" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="b4_1_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="b4_1_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b4_1_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_1_name2"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="b4_1_custom_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_1_custom"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="b4_1_name1_label">
+                <field-path/>
+                <text>B4_1. Name 1:</text>
+            </label>
+            <text-box id="b4_1_name1">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="b4_1_name2_label">
+                <field-path/>
+                <text>B4_1. Name 2:</text>
+            </label>
+            <text-box id="b4_1_name2">
+                <field-path value="name2"/>
+            </text-box>
+            <label id="b4_1_custom_label">
+                <field-path/>
+                <text>B4_1. Custom1:</text>
+            </label>
+            <text-box id="b4_1_custom">
+                <field-path value="custom_b4_1"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form name="b4_2_form" domain-object-type="b4_2" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td width="100px" h-align="right">
+                            <widget id="b4_2_name1_label"/>
+                        </td>
+                        <td width="100%" h-align="left">
+                            <widget id="b4_2_name1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b4_2_name2_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_2_name2"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="b4_2_custom_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_2_custom"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="b4_2_name1_label">
+                <field-path/>
+                <text>B4_2. Name 1:</text>
+            </label>
+            <text-box id="b4_2_name1">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="b4_2_name2_label">
+                <field-path/>
+                <text>B4_2. Name 2:</text>
+            </label>
+            <text-box id="b4_2_name2">
+                <field-path value="name2"/>
+            </text-box>
+            <label id="b4_2_custom_label">
+                <field-path/>
+                <text>B4_2. Custom1:</text>
+            </label>
+            <text-box id="b4_2_custom">
+                <field-path value="custom_b4_2"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <collection name="a4_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select a4.id, a4.name1 a_name1, a4.name2 a_name2, b4.name1 b_name1, b4.name2 b_name2, b4_1.custom_b4_1 b_custom1, b4_2.custom_b4_2 b_custom2
+                from a4
+                left outer join b4 on a4.b4 = b4.id
+                left outer join b4_1 on b4.id = b4_1.id
+                left outer join b4_2 on b4.id = b4_2.id
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from a4 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection-view name="a4_collection_default_view" collection="a4_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="a_name1" name="a_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="a_name2" name="a_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_name1" name="b_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_name2" name="b_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_custom1" name="b_custom1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="b_custom2" name="b_custom2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+
+</configuration>

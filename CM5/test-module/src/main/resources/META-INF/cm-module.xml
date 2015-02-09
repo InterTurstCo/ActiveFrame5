@@ -38,6 +38,7 @@
         <configuration-path>module-configuration/form-mechanism-1.xml</configuration-path>
         <configuration-path>module-configuration/form-mechanism-2.xml</configuration-path>
         <configuration-path>module-configuration/form-mechanism-3.xml</configuration-path>
+        <configuration-path>module-configuration/form-mechanism-4.xml</configuration-path>
         <configuration-path>module-configuration/collection-test.xml</configuration-path>
         <configuration-path>module-configuration/agent_esd.xml</configuration-path>
         <configuration-path>module-configuration/numerator.xml</configuration-path>

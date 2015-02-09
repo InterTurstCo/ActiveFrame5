@@ -58,7 +58,7 @@ public class FormPluginView extends PluginView {
         return formPanel;
     }
 
-    public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter, boolean deepClone) {
+    public Map<String, WidgetState> getWidgetsState(IWidgetStateFilter widgetStateFilter, boolean deepClone) { //deepClone indicates LinkedTable request
         List<BaseWidget> widgets = formPanel.getWidgets();
         HashMap<String, WidgetState> result = new HashMap<String, WidgetState>(widgets.size());
         IWidgetStateFilter filter = defaultWidgetStateFilter;
@@ -69,19 +69,27 @@ public class FormPluginView extends PluginView {
             if (filter.exclude(widget)) {
                 continue;
             }
-            String id = widget.getDisplayConfig().getId();
-            if (widget.isEditable()) {
-
-                try {
-                    WidgetState state = deepClone ? widget.getFullClientStateCopy() : widget.getCurrentState();
-                    result.put(id, state);
-                } catch (GuiException e) {
-                    ApplicationWindow.errorAlert("Ошибка при получении состояния виджетов: " + e.getMessage()); // todo something more interesting
-                }
-            }
+           putWidgetStateInMap(widget, deepClone, result);
         }
 
         return result;
+    }
+
+    private void putWidgetStateInMap(BaseWidget widget, boolean deepClone,  HashMap<String, WidgetState> stateMap){
+        String id = widget.getDisplayConfig().getId();
+            try {
+                WidgetState state = null;
+                if(deepClone){
+                    state = widget.getFullClientStateCopy();
+                    stateMap.put(id, state);
+                } else if(widget.isEditable()){
+                    state = widget.getCurrentState();
+                    stateMap.put(id, state);
+                }
+            } catch (GuiException e) {
+                ApplicationWindow.errorAlert("Ошибка при получении состояния виджетов: " + e.getMessage()); // todo something more interesting
+            }
+
     }
 
     public boolean isDirty() {

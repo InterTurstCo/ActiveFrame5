@@ -239,6 +239,16 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="FormsTest4" display-text="Механизм форм 4">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a4">
+                            <collection-viewer>
+                                <collection-ref name="a4_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

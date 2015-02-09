@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class WidgetIdMappingConfig implements Dto {
     @Attribute(name = "linked-form-name")
     private String linkedFormName;
-    @Attribute(name = "widget-id")
+    @Attribute(name = "widget-id", required = false)
     private String widgetId;
 
     public String getLinkedFormName() {
