@@ -1,39 +1,23 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.ResultSetExtractor;
-
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
-import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.IndexConfig;
-import ru.intertrust.cm.core.config.IndexExpressionConfig;
-import ru.intertrust.cm.core.config.IndexFieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.SystemField;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -233,19 +217,36 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         return total > 0;
     }
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#getSchemaTables()}
+     */
     @Override
      public Map<String, Map<String, ColumnInfo>> getSchemaTables() {
         return jdbcTemplate.query(getQueryHelper().generateGetSchemaTablesQuery(), new SchemaTablesRowMapper());
     }
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#getForeignKeys()}
+     */
     @Override
     public Map<String, Map<String, ForeignKeyInfo>> getForeignKeys() {
         return jdbcTemplate.query(getQueryHelper().generateGetForeignKeysQuery(), new ForeignKeysRowMapper());
     }
 
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNullable(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
+     */
     @Override
     public void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
         jdbcTemplate.update(getQueryHelper().generateSetColumnNullableQuery(config, fieldConfig));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#updateColumnType(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
+     */
+    @Override
+    public void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        jdbcTemplate.update(getQueryHelper().generateUpdateColumnTypeQuery(config, fieldConfig));
     }
 
     protected BasicQueryHelper getQueryHelper() {

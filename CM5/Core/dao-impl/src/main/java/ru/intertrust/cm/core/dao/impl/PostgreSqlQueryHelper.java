@@ -80,6 +80,21 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     }
 
     @Override
+    public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
+                append(wrap(getSqlName(fieldConfig))).append(" set data type ").append(getSqlType(fieldConfig));
+
+        return query.toString();
+    }
+
+    @Override
+    public String generateGetForeignKeysQuery() {
+        return FOREIGN_KEYS_QUERY;
+    }
+
+    @Override
     protected String generateIsTableExistQuery() {
         return "select count(*) FROM information_schema.tables WHERE table_schema = 'public' and table_name = ?";
     }
@@ -87,11 +102,6 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     @Override
     protected String generateGetSchemaTablesQuery() {
         return COLUMNS_QUERY;
-    }
-
-    @Override
-    protected String generateGetForeignKeysQuery() {
-        return FOREIGN_KEYS_QUERY;
     }
 
 }

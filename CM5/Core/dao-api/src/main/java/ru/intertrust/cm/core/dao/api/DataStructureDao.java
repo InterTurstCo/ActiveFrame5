@@ -89,9 +89,29 @@ public interface DataStructureDao {
      */
     void createAuditSequence(DomainObjectTypeConfig config);
 
+    /**
+     * Извлекает метаданные схемы о таблицах и их колонках
+     * @return метаданные схемы о таблицах и их колонках
+     */
     Map<String, Map<String, ColumnInfo>> getSchemaTables();
 
+    /**
+     * Извлекает метаданные схемы о внешних ключах
+     * @return метаданные схемы о внешних ключах
+     */
     Map<String, Map<String, ForeignKeyInfo>> getForeignKeys();
 
+    /**
+     * Снимает с колонки not-null ограничение
+     * @param config конфигурация типа доменного объекта
+     * @param fieldConfig конфигурация поля типа доменного объекта
+     */
     void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    /**
+     * Изменяет тип колонки
+     * @param config конфигурация типа доменного объекта
+     * @param fieldConfig конфигурация поля типа доменного объекта
+     */
+    void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 }

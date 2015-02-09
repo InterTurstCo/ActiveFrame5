@@ -94,6 +94,12 @@ public abstract class BasicQueryHelper {
      */
     public abstract String generateCountTablesQuery();
 
+    public abstract String generateGetForeignKeysQuery();
+
+    public abstract String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
     /**
      * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
      * @return запрос, создающий таблицу BUSINESS_OBJECT
@@ -549,8 +555,6 @@ public abstract class BasicQueryHelper {
                 " primary key (" + wrap(InitializationLockDao.ID_COLUMN) + "))";
     }
 
-    public abstract String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
-
     private void appendDeleteIndexQueryPart(StringBuilder query, String indexName) {
         query.append("drop index if exists ").append(wrap(indexName)).append(";\n");
     }
@@ -827,6 +831,4 @@ public abstract class BasicQueryHelper {
     protected abstract String getIdType();
 
     protected abstract String getTextType();
-
-    protected abstract String generateGetForeignKeysQuery();
 }

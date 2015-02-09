@@ -35,8 +35,6 @@ public class FieldConfigChangeHandler {
             handle((ReferenceFieldConfig) newFieldConfig, (ReferenceFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
-        } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
-            handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
     }
 
@@ -44,8 +42,12 @@ public class FieldConfigChangeHandler {
         if (newFieldConfig.getLength() != oldFieldConfig.getLength()) {
             int length = schemaCache.getColumnLength(domainObjectTypeConfig, newFieldConfig);
             if (length != newFieldConfig.getLength()) {
-                throw new ConfigurationException("Configuration loading aborted: unsupported length attribute " +
-                        "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                if (length < newFieldConfig.getLength()) {
+                    dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
+                } else {
+                    throw new ConfigurationException("Configuration loading aborted: cannot decrease length of " +
+                            domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                }
             }
         }
     }
@@ -53,9 +55,11 @@ public class FieldConfigChangeHandler {
     private void handle(PasswordFieldConfig newFieldConfig, PasswordFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
         if (newFieldConfig.getLength() != oldFieldConfig.getLength()) {
             int length = schemaCache.getColumnLength(domainObjectTypeConfig, newFieldConfig);
-            if (length != newFieldConfig.getLength()) {
-                throw new ConfigurationException("Configuration loading aborted: unsupported length attribute " +
-                        "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+            if (length < newFieldConfig.getLength()) {
+                dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
+            } else {
+                throw new ConfigurationException("Configuration loading aborted: cannot decrease length of " +
+                        domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
             }
         }
     }
@@ -93,8 +97,8 @@ public class FieldConfigChangeHandler {
                 if (!newFieldConfig.isNotNull()) {
                     dataStructureDao.setColumnNullable(domainObjectTypeConfig, newFieldConfig);
                 } else {
-                    throw new ConfigurationException("Configuration loading aborted: unsupported not-null attribute " +
-                            "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
+                            domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
                 }
             }
         }

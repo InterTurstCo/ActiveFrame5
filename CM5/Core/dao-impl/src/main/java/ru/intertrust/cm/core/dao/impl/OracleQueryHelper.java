@@ -81,6 +81,21 @@ public class OracleQueryHelper extends BasicQueryHelper {
     }
 
     @Override
+    public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+                append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
+
+        return query.toString();
+    }
+
+    @Override
+    public String generateGetForeignKeysQuery() {
+        return FOREIGN_KEYS_QUERY;
+    }
+
+    @Override
     protected String generateIsTableExistQuery() {
         return "select count(*) FROM user_tables WHERE table_name = ?";
     }
@@ -88,11 +103,6 @@ public class OracleQueryHelper extends BasicQueryHelper {
     @Override
     protected String generateGetSchemaTablesQuery() {
         return COLUMNS_QUERY;
-    }
-
-    @Override
-    protected String generateGetForeignKeysQuery() {
-        return FOREIGN_KEYS_QUERY;
     }
 
 }
