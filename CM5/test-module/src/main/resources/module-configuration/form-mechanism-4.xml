@@ -110,17 +110,27 @@
                     <created-object text="b4_2" domain-object-type="b4_2"/>
                 </created-objects>
                 <summary-table>
-                    <summary-table-column header="Name 1" widget-id="name1">
-                        <pattern value="{name1}"/>
+                    <summary-table-column header="Name 1">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="b4_form" widget-id="b4_name1"/>
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="b4_1_name1"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="b4_2_name1"/>
+                        </widget-id-mappings>
+                        <pattern value="{name1} {name2}"/>
                     </summary-table-column>
-                    <summary-table-column header="Name 2" widget-id="name1">
+                    <summary-table-column header="Name 2" widget-id="name2">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="b4_form" widget-id="b4_name2"/>
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="b4_1_name2"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="b4_2_name2"/>
+                        </widget-id-mappings>
                         <pattern value="{name2}"/>
                     </summary-table-column>
                     <summary-table-column header="Custom">
                         <widget-id-mappings>
-                            <widget-id-mapping linked-form-name="b4"/> <!-- todo drop this definition at all -->
-                            <widget-id-mapping linked-form-name="b4_1" widget-id="custom_b4_1"/>
-                            <widget-id-mapping linked-form-name="b4_2" widget-id="custom_b4_2"/>
+                            <widget-id-mapping linked-form-name="b4_form"/> <!-- todo drop this definition at all -->
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="custom_b4_1"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="custom_b4_2"/>
                         </widget-id-mappings>
                         <pattern value="b4: no custom field">
                             <domain-object-types>

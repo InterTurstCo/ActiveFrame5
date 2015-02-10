@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @ComponentName("linked-domain-objects-table")
 public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
@@ -267,7 +266,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 FormattingConfig formattingConfig = columnConfig.getFormattingConfig();
                 displayValue = formatHandler.format(domainObject, fieldPatternMatcher(columnPattern), formattingConfig, enumBoxConfigsByFieldPath);
             }
-            rowItem.setValueByKey(columnConfig.getWidgetId(), displayValue);
+            rowItem.setValueByKey(columnConfig.getColumnId(), displayValue);
             rowItem.setAccessMatrix(rowAccessMatrix);
         }
         return rowItem;
@@ -355,8 +354,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     private Matcher fieldPatternMatcher(String pattern) {
-        Pattern fieldPlaceholderPattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
-        return fieldPlaceholderPattern.matcher(pattern);
+        return FormatHandler.pattern.matcher(pattern);
     }
 
     public Dto fetchWidgetItems(Dto inputParams) {
@@ -384,19 +382,21 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             item.setObjectId(requestIds.get(0));
         }
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
-            String widgetId;
-            widgetId = findWidgetIdFromMappings(summaryTableColumnConfig, request.getLinkedFormName());
-            if (widgetId == null) {
-                //default widget-id
-                widgetId = summaryTableColumnConfig.getWidgetId();
-            }
+            String widgetId = findWidgetIdFromMappings(summaryTableColumnConfig, request.getLinkedFormName());
+            String columnId = summaryTableColumnConfig.getColumnId();
             WidgetState widgetState = createdObjectState.getFullWidgetsState().get(widgetId);
             StringBuilder representation = new StringBuilder();
             if (summaryTableColumnConfig.getValueGeneratorComponent() != null) {
                 StringValueRenderer valueRenderer = (StringValueRenderer) applicationContext.getBean(summaryTableColumnConfig.getValueGeneratorComponent());
                 representation.append(valueRenderer.render(createdObjectState));
-                item.setValueByKey(widgetId, representation.toString());
+                item.setValueByKey(columnId, representation.toString());
             } else {
+                // todo: fix this parsing
+                // Допустим, паттерн отображения такой: {name} {description}
+                // Алгоритм: если встретили name, то из состояния формы вытаскиваем состояние виджета FormState.getWidgetState("name"),
+                // его форматируем и подставляем. Если встретили {ref.text}, то ищем виджет с field-path==ref.text,
+                // если такого нет - то с field-path == "ref", берём его состояние и если оно не пустое и id != null (не новый объект),
+                // то "раскручиваем" дальше (получаем объект по Id, а у него поле text).
                 String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig, createdObjectState.getRootDomainObjectType()).getValue();
                 Matcher matcher = fieldPatternMatcher(selectionPattern);
                 if (widgetState != null) {
@@ -434,7 +434,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                         String selectedText = enumBoxState.getSelectedText();
                         representation.append(formatHandler.format(new StringValue(selectedText), matcher, formattingConfig));
                     }
-                    item.setValueByKey(widgetId, representation.toString());
+                    item.setValueByKey(columnId, representation.toString());
                 }
             }
 
@@ -451,7 +451,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 }
             }
         }
-        return null;
+        return summaryTableColumnConfig.getWidgetId();
     }
 
 

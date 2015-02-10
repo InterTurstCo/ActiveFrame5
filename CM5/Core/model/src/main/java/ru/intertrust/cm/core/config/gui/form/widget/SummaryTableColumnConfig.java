@@ -107,4 +107,8 @@ public class SummaryTableColumnConfig extends ColumnParentConfig {
     public void setSummaryTableActionColumnConfig(SummaryTableActionColumnConfig summaryTableActionColumnConfig) {
         this.summaryTableActionColumnConfig = summaryTableActionColumnConfig;
     }
+
+    public String getColumnId() {
+        return getWidgetId() + getHeader(); // some sort of hack (convention in fact)
+    }
 }

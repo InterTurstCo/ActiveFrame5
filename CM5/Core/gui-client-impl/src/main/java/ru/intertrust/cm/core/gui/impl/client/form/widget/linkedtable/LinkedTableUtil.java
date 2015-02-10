@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
@@ -399,7 +402,11 @@ public class LinkedTableUtil {
         @Override
         public ColumnContext getValue(RowItem rowItem) {
             ColumnContext columnContext = new ColumnContext();
-            String valueByKey = rowItem.getValueByKey(columnConfig.getWidgetId());
+            final String columnId = columnConfig.getColumnId();
+            String valueByKey = rowItem.getValueByKey(columnId);
+            if (valueByKey == null) {
+                valueByKey = "";
+            }
             columnContext.setObjectId(rowItem.getObjectId());
             columnContext.setValue(valueByKey);
             columnContext.setRowItem(rowItem);
