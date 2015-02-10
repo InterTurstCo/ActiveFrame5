@@ -129,8 +129,8 @@
                     <summary-table-column header="Custom">
                         <widget-id-mappings>
                             <widget-id-mapping linked-form-name="b4_form"/> <!-- todo drop this definition at all -->
-                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="custom_b4_1"/>
-                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="custom_b4_2"/>
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="b4_1_custom"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="b4_2_custom"/>
                         </widget-id-mappings>
                         <pattern value="b4: no custom field">
                             <domain-object-types>

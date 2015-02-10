@@ -397,6 +397,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 // его форматируем и подставляем. Если встретили {ref.text}, то ищем виджет с field-path==ref.text,
                 // если такого нет - то с field-path == "ref", берём его состояние и если оно не пустое и id != null (не новый объект),
                 // то "раскручиваем" дальше (получаем объект по Id, а у него поле text).
+                // Если виджетов для field-path (в общем случае, составного) вообще нет на форме, то нужно попробовать (там тоже может не быть)
+                // вытащить из базы, как это делается при построении таблицы этого виджета на сервере.
                 String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig, createdObjectState.getRootDomainObjectType()).getValue();
                 Matcher matcher = fieldPatternMatcher(selectionPattern);
                 if (widgetState != null) {
