@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <domain-object-type name="c4">
+        <fields>
+            <string name="c4_1" length="128"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="d4">
+        <fields>
+            <string name="d4_1" length="128"/>
+
+            <reference name="c4_reference" type="c4" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="e4">
+        <fields>
+            <reference name="d4_1" type="d4" not-null="true"/>
+
+            <reference name="custom_b4" type="b4" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <form name="c4_form" domain-object-type="c4" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="c4_1_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="c4_1_value"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="d4_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Header</text>
+            </label>
+            <label id="c4_1_label">
+                <text>C4_1. Text:</text>
+            </label>
+            <text-box id="c4_1_value">
+                <field-path value="c4_1"/>
+            </text-box>
+            <linked-domain-objects-table id="d4_value">
+                <field-path value="d4^c4_reference"/>
+                <linked-form name="d4_form" inline="true" modal-width="400px" modal-height="400px"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="d4" name="d4_form"/>
+                </linked-form-mapping>
+
+                <summary-table>
+                    <summary-table-column header="D4 Text" widget-id="d4_1_value">
+                        <pattern value="{d4_1}"/>
+                    </summary-table-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+        </widget-config>
+    </form>
+
+    <form name="d4_form" domain-object-type="d4" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Главная">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="d4_1_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="d4_1_value"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="c4_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="c4_value"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="b4_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="b4_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Header</text>
+            </label>
+            <label id="d4_1_label">
+                <text>D4_1. Text:</text>
+            </label>
+            <text-box id="d4_1_value">
+                <field-path value="d4_1"/>
+            </text-box>
+            <label id="c4_label">
+                <text>C4. Text:</text>
+            </label>
+            <label id="c4_value">
+                <field-path value="c4_reference.id"/>
+                <all-values-empty-message value="Будет присвоен после сохранения"/>
+            </label>
+            <label id="b4_label">
+                <text>B4:</text>
+            </label>
+
+            <suggest-box id="b4_value">
+                <field-path value="e4^d4_1.custom_b4"/>
+                <collection-ref name="b4_collection"/>
+                <drop-down-pattern value="{b_name1}, {b_name2}"/>
+                <selection-pattern value="{b_name1}, {b_name2}"/>
+                <input-text-filter name="byText"/>
+                <display-values-as-links value="true"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="false"/>
+                <created-objects>
+                    <created-object domain-object-type="b4_1" text="b4_1"/>
+                    <created-object domain-object-type="b4_2" text="b4_2"/>
+                </created-objects>
+                <create-new-button display="true" text="Создать"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="b4_1" name="b4_1_form"/>
+                    <linked-form domain-object-type="b4_2" name="b4_2_form"/>
+                </linked-form-mapping>
+            </suggest-box>
+        </widget-config>
+    </form>
+
+    <collection name="b4_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                    b4.id,
+                    b4.name1 b_name1,
+                    b4.name2 b_name2
+                from b4
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+    </collection>
+
+    <collection name="c4_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                    c4.id,
+                    c4.c4_1
+                from c4
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+    </collection>
+
+    <collection-view name="c4_collection_default_view" collection="c4_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="c4_1" name="c4_1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+</configuration>
