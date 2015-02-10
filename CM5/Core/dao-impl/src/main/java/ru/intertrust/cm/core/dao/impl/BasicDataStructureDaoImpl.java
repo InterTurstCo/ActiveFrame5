@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.UniqueKeysRowMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,7 +167,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     private String createIndexFieldsExpression(List<String> indexFields, List<String> indexExpressions) {
         StringBuilder result = new StringBuilder();
-        result.append("(").append(BasicQueryHelper.createIndexFieldsPart(indexFields, indexExpressions)).append(")");
+        result.append("(").append(getQueryHelper().createIndexFieldsPart(indexFields, indexExpressions)).append(")");
         return result.toString();
     }
 
@@ -234,11 +236,27 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#getUniqueKeys()}
+     */
+    @Override
+    public Map<String, Map<String, UniqueKeyInfo>> getUniqueKeys() {
+        return jdbcTemplate.query(getQueryHelper().generateGetUniqueKeysQuery(), new UniqueKeysRowMapper());
+    }
+
+    /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNullable(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
      */
     @Override
     public void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
         jdbcTemplate.update(getQueryHelper().generateSetColumnNullableQuery(config, fieldConfig));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#dropConstraint(ru.intertrust.cm.core.config.DomainObjectTypeConfig, String)}
+     */
+    @Override
+    public void dropConstraint(DomainObjectTypeConfig config, String constraintName) {
+        jdbcTemplate.update(getQueryHelper().generateDropConstraintQuery(config, constraintName));
     }
 
     /**

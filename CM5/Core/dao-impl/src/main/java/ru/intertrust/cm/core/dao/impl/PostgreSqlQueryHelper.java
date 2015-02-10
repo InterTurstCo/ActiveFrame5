@@ -23,11 +23,20 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     private static final String FOREIGN_KEYS_QUERY =
             "select conname constraint_name, conrelid::regclass table_name, a.attname column_name, " +
                     "confrelid::regclass foreign_table_name, af.attname foreign_column_name " +
-                    "from (select conname, conrelid, confrelid, unnest(confkey) as column_index from pg_constraint) c " +
+                    "from (select conname, conrelid, confrelid, unnest(confkey) as column_index from pg_constraint " +
+                            "where contype='f') c " +
                     "join pg_attribute a on c.conrelid = a.attrelid and c.column_index = a.attnum " +
                     "join pg_attribute af on c.confrelid = af.attrelid and c.column_index = af.attnum " +
                     "join pg_tables t on c.confrelid::regclass::varchar = t.tablename " +
                     "where t.schemaname !~ '^pg_' and t.schemaname != 'information_schema' order by c.conname";
+
+    private static final String UNIQUE_KEYS_QUERY =
+            "select conname constraint_name, conrelid::regclass table_name, a.attname column_name " +
+                "from (select conname, conrelid, confrelid, unnest(conkey) as column_index from pg_constraint " +
+                        "where contype='u') c " +
+                "join pg_attribute a on c.conrelid = a.attrelid and c.column_index = a.attnum " +
+                "join pg_tables t on c.conrelid::regclass::varchar = t.tablename " +
+                "where t.schemaname !~ '^pg_' and t.schemaname != 'information_schema' order by c.conname";
 
     private static final String COLUMNS_QUERY =
             "select table_name, column_name, is_nullable nullable, character_maximum_length length, " +
@@ -92,6 +101,11 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     @Override
     public String generateGetForeignKeysQuery() {
         return FOREIGN_KEYS_QUERY;
+    }
+
+    @Override
+    public String generateGetUniqueKeysQuery() {
+        return UNIQUE_KEYS_QUERY;
     }
 
     @Override

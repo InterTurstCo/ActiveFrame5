@@ -197,11 +197,13 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 }
             }
 
-            if (!domainObjectTypeConfig.getUniqueKeyConfigs().containsAll(oldDOTypeConfig
-                    .getUniqueKeyConfigs())) {
-                throw new ConfigurationException("Configuration loading aborted: some unique key " +
-                        "Configuration of DomainObject '" + oldDOTypeConfig.getName() + "' was deleted. " +
-                        COMMON_ERROR_MESSAGE);
+            for (UniqueKeyConfig oldUniqueKeyConfig : oldDOTypeConfig.getUniqueKeyConfigs()) {
+                if (!domainObjectTypeConfig.getUniqueKeyConfigs().contains(oldUniqueKeyConfig)) {
+                    String uniqueKeyName = schemaCache.getUniqueKeyName(oldDOTypeConfig, oldUniqueKeyConfig);
+                    if (uniqueKeyName != null) {
+                        dataStructureDao.dropConstraint(oldDOTypeConfig, uniqueKeyName);
+                    }
+                }
             }
         }
     }

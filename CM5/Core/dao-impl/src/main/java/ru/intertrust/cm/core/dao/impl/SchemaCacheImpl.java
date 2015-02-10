@@ -2,10 +2,9 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
@@ -25,6 +24,7 @@ public class SchemaCacheImpl implements SchemaCache {
 
     private Map<String, Map<String, ColumnInfo>> schemaTables;
     private Map<String, Map<String, ForeignKeyInfo>> foreignKeys;
+    private Map<String, Map<String, UniqueKeyInfo>> uniqueKeys;
 
     /**
      * {@link ru.intertrust.cm.core.dao.api.SchemaCache#reset()}
@@ -33,6 +33,7 @@ public class SchemaCacheImpl implements SchemaCache {
     public synchronized void reset() {
         schemaTables = dataStructureDao.getSchemaTables();
         foreignKeys = dataStructureDao.getForeignKeys();
+        uniqueKeys = dataStructureDao.getUniqueKeys();
     }
 
     /**
@@ -111,5 +112,37 @@ public class SchemaCacheImpl implements SchemaCache {
         }
 
         return false;
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getUniqueKeyName(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.UniqueKeyConfig)}
+     */
+    @Override
+    public String getUniqueKeyName(DomainObjectTypeConfig config, UniqueKeyConfig keyConfig) {
+        Map<String, UniqueKeyInfo> domainObjectTypeKeys = uniqueKeys.get(getSqlName(config.getName()));
+        if (domainObjectTypeKeys == null) {
+            return null;
+        }
+
+        for (UniqueKeyInfo uniqueKeyInfo : domainObjectTypeKeys.values()) {
+            if (uniqueKeyInfo.getColumnNames() == null || keyConfig.getUniqueKeyFieldConfigs() == null ||
+                    uniqueKeyInfo.getColumnNames().size() != keyConfig.getUniqueKeyFieldConfigs().size()) {
+                continue;
+            }
+
+            boolean fieldsMatch = true;
+            for (UniqueKeyFieldConfig fieldConfig : keyConfig.getUniqueKeyFieldConfigs()) {
+                if (!uniqueKeyInfo.getColumnNames().contains(getSqlName(fieldConfig.getName()))) {
+                    fieldsMatch = false;
+                    break;
+                }
+            }
+
+            if (fieldsMatch) {
+                return uniqueKeyInfo.getName();
+            }
+        }
+
+        return null;
     }
 }

@@ -96,6 +96,8 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateGetForeignKeysQuery();
 
+    public abstract String generateGetUniqueKeysQuery();
+
     public abstract String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
     public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
@@ -585,7 +587,7 @@ public abstract class BasicQueryHelper {
      * @param indexExpressions список выражений (функций над полями) 
     * @return
      */
-    public static String createIndexFieldsPart(List<String> indexFields, List<String> indexExpressions) {
+    public String createIndexFieldsPart(List<String> indexFields, List<String> indexExpressions) {
         StringBuilder expression = new StringBuilder();
 
 
@@ -613,6 +615,15 @@ public abstract class BasicQueryHelper {
 
         }
         return expression.toString();
+    }
+
+    public String generateDropConstraintQuery(DomainObjectTypeConfig config, String constraintName) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" drop constraint ").
+                append(wrap(constraintName));
+
+        return query.toString();
     }
 
     protected abstract String generateIsTableExistQuery();

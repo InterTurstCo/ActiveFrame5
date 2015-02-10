@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.IndexConfig;
@@ -102,11 +103,24 @@ public interface DataStructureDao {
     Map<String, Map<String, ForeignKeyInfo>> getForeignKeys();
 
     /**
+     * Извлекает метаданные схемы об уникальных ключах
+     * @return метаданные схемы об уникальных ключах
+     */
+    Map<String, Map<String, UniqueKeyInfo>> getUniqueKeys();
+
+    /**
      * Снимает с колонки not-null ограничение
      * @param config конфигурация типа доменного объекта
      * @param fieldConfig конфигурация поля типа доменного объекта
      */
     void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    /**
+     * Удаляет констрэйнт
+     * @param config конфигурация типа доменного объекта
+     * @param constraintName имя констрэйнта
+     */
+    void dropConstraint(DomainObjectTypeConfig config, String constraintName);
 
     /**
      * Изменяет тип колонки

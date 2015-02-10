@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
 
 /**
  * Сервис, кэширующий метаданные базы данных и предоставляющий доступ к ним
@@ -69,4 +70,12 @@ public interface SchemaCache {
      * @return
      */
     boolean isReferenceFieldForeignKeyExist(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig);
+
+    /**
+     * Находит имя уникального ключа по его конфигурации
+     * @param config конфигурация типа ДО
+     * @param keyConfig конфигурация уникального ключа
+     * @return
+     */
+    String getUniqueKeyName(DomainObjectTypeConfig config, UniqueKeyConfig keyConfig);
 }

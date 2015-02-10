@@ -30,6 +30,13 @@ public class OracleQueryHelper extends BasicQueryHelper {
                 "and constraints.r_constraint_name = constraints2.constraint_name " +
             "where constraints.constraint_type = 'R'";
 
+    private static final String UNIQUE_KEYS_QUERY =
+            "select columns.constraint_name, columns.table_name, columns.column_name " +
+                    "from all_cons_columns columns " +
+                    "join all_constraints constraints on columns.owner = constraints.owner " +
+                    "and columns.constraint_name = constraints.constraint_name " +
+                    "where constraints.constraint_type = 'U'";
+
     private static final String COLUMNS_QUERY =
             "select table_name, column_name, nullable, char_length length, data_precision numeric_precision, " +
                     "data_scale numeric_precision from user_tab_columns";
@@ -93,6 +100,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
     @Override
     public String generateGetForeignKeysQuery() {
         return FOREIGN_KEYS_QUERY;
+    }
+
+    @Override
+    public String generateGetUniqueKeysQuery() {
+        return UNIQUE_KEYS_QUERY;
     }
 
     @Override
