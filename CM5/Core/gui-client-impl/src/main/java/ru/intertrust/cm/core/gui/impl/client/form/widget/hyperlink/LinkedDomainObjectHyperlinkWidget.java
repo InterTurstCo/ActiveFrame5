@@ -64,6 +64,16 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
     }
 
     @Override
+    public WidgetState getFullClientStateCopy() {
+        LinkedDomainObjectHyperlinkState currentState = getInitialData();
+        LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
+        state.setWidgetConfig(config);
+        state.setConfig(currentState.getConfig());
+        state.setSelectedIds(currentState.getIds());
+        return state;
+    }
+
+    @Override
     protected boolean isChanged() {
         return false;
     }
