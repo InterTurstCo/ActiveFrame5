@@ -1,12 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -15,9 +12,15 @@ import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Sergey.Okolot
@@ -48,6 +51,12 @@ public class ResetAllSettingsActionHandler extends ActionHandler<ResetAllSetting
         if (!ids.isEmpty()) {
             crudService.delete(ids);
         }
+
+        final DomainObject domainObject = PluginHandlerHelper.getUserSettingsDomainObject(
+                currentUserAccessor, collectionsService, crudService);
+        domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getDefaultTheme());
+        crudService.save(domainObject);
+
         return null;
     }
 

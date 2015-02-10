@@ -2,7 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -90,9 +95,11 @@ public class SettingsPopup extends PopupPanel{
             final ActionConfig actionConfig = createActionConfig();
             final ResetAllSettingsActionContext actionContext = new ResetAllSettingsActionContext();
             actionContext.setActionConfig(actionConfig);
+            actionContext.setDefaultTheme(GlobalThemesManager.THEME_DEFAULT);
             final Action action = ComponentRegistry.instance.get(ResetAllSettingsActionContext.COMPONENT_NAME);
             action.setInitialContext(actionContext);
             action.perform();
+
             SettingsPopup.this.hide();
         }
     }

@@ -9,4 +9,14 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 public class ResetAllSettingsActionContext extends ActionContext {
 
     public static final String COMPONENT_NAME = "reset.all.settings.action";
+
+    private String defaultTheme;
+
+    public String getDefaultTheme() {
+        return defaultTheme;
+    }
+
+    public void setDefaultTheme(String defaultTheme) {
+        this.defaultTheme = defaultTheme;
+    }
 }
