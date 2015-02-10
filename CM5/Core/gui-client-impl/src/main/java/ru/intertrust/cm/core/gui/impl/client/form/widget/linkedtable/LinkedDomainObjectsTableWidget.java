@@ -59,6 +59,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     @Override
     public void setCurrentState(WidgetState state) {
+        hasRemovedItems = false;
         currentState = (LinkedDomainObjectsTableState) state;
         model = new ListDataProvider<>();
         List<RowItem> rowItems = currentState.getRowItems();
