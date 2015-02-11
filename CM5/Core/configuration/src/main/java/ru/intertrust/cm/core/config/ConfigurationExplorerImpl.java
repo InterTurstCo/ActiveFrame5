@@ -609,4 +609,23 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
     }
 
+    /**
+     * {@link ru.intertrust.cm.core.config.ConfigurationExplorer#isInstanceOf(String, String)}
+     */
+    @Override
+    public boolean isInstanceOf(String domainObjectTypeName, String assumedParentDomainObjectTypeName) {
+        String[] parentTypesHierarchy = getDomainObjectTypesHierarchy(domainObjectTypeName);
+        if (parentTypesHierarchy == null) {
+            return false;
+        }
+
+        for (String name : parentTypesHierarchy) {
+            if (name.equalsIgnoreCase(assumedParentDomainObjectTypeName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 }

@@ -249,5 +249,12 @@ public interface ConfigurationExplorer {
      */
     LogDomainObjectAccessConfig getDomainObjectAccessEventLogsConfiguration(String typeName);
 
-
+    /**
+     * Проверяет является ли {@code assumedParentDomainObjectTypeName} супертипом для {@code domainObjectTypeName}
+     * @param domainObjectTypeName тестируемый тип доменного объекта
+     * @param assumedParentDomainObjectTypeName предполагаемый тип-предок
+     * @return true, если {@code assumedParentDomainObjectTypeName} является предком {@code assumedParentDomainObjectTypeName},
+     * false - в противном случае
+     */
+    boolean isInstanceOf(String domainObjectTypeName, String assumedParentDomainObjectTypeName);
 }

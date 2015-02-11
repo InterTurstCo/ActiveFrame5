@@ -79,7 +79,7 @@ public class FieldConfigChangeHandler {
             } else {
                 String newForeignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, newFieldConfig);
                 if (newForeignKeyName == null) {
-                    if (isSuperType(newFieldConfig.getType(), oldFieldConfig.getType(), configurationExplorer)) {
+                    if (configurationExplorer.isInstanceOf(oldFieldConfig.getType(), newFieldConfig.getType())) {
                         String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
                         if (foreignKeyName != null) {
                             dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
