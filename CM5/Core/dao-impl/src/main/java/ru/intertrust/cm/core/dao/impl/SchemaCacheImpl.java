@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 import java.util.Map;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
@@ -89,29 +90,45 @@ public class SchemaCacheImpl implements SchemaCache {
     }
 
     /**
-     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#isReferenceFieldForeignKeyExist(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.ReferenceFieldConfig)}
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getForeignKeyName(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.ReferenceFieldConfig)}
      */
     @Override
-    public boolean isReferenceFieldForeignKeyExist(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig) {
+    public String getForeignKeyName(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig) {
         Map<String, ForeignKeyInfo> tableForeignKeys = foreignKeys.get(getSqlName(config));
 
         if (tableForeignKeys == null) {
-            return false;
+            return null;
         }
 
         String foreignTableName = getSqlName(fieldConfig.getType());
         for (ForeignKeyInfo foreignKey : tableForeignKeys.values()) {
             if (foreignTableName.equals(foreignKey.getReferencedTableName())) {
+                if (foreignKey.getColumnNames().size() != 2) {
+                    continue;
+                }
+
+                boolean idReferenceFound = false;
+                boolean idTypeReferenceFound = false;
+
                 for (Map.Entry<String, String> columnEntry : foreignKey.getColumnNames().entrySet()) {
                     if (columnEntry.getKey().equals(getSqlName(fieldConfig.getName())) &&
                             columnEntry.getValue().equals(DomainObjectDao.ID_COLUMN)) {
-                        return true;
+                        idReferenceFound = true;
                     }
+
+                    if (columnEntry.getKey().equals(getReferenceTypeColumnName(getSqlName(fieldConfig.getName()))) &&
+                            columnEntry.getValue().equals(DomainObjectDao.TYPE_COLUMN)) {
+                        idTypeReferenceFound = true;
+                    }
+                }
+
+                if (idReferenceFound && idTypeReferenceFound) {
+                    return foreignKey.getName();
                 }
             }
         }
 
-        return false;
+        return null;
     }
 
     /**

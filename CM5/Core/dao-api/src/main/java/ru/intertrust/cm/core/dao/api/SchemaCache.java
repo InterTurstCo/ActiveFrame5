@@ -64,12 +64,12 @@ public interface SchemaCache {
     ColumnInfo getColumnInfo(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
     /**
-     * Определяет существование внещнего ключа для ссылочного поля
+     * Находит имя внешнего ключа для ссылочного поля
      * @param config конфигурация типа ДО
      * @param fieldConfig конфигурация ссылочного поля типа ДО
      * @return
      */
-    boolean isReferenceFieldForeignKeyExist(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig);
+    String getForeignKeyName(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig);
 
     /**
      * Находит имя уникального ключа по его конфигурации

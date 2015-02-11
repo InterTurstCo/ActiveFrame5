@@ -21,14 +21,17 @@ import ru.intertrust.cm.core.dao.api.MD5Service;
 public class PostgreSqlQueryHelper extends BasicQueryHelper {
 
     private static final String FOREIGN_KEYS_QUERY =
-            "select conname constraint_name, conrelid::regclass table_name, a.attname column_name, " +
-                    "confrelid::regclass foreign_table_name, af.attname foreign_column_name " +
-                    "from (select conname, conrelid, confrelid, unnest(confkey) as column_index from pg_constraint " +
-                            "where contype='f') c " +
-                    "join pg_attribute a on c.conrelid = a.attrelid and c.column_index = a.attnum " +
-                    "join pg_attribute af on c.confrelid = af.attrelid and c.column_index = af.attnum " +
-                    "join pg_tables t on c.confrelid::regclass::varchar = t.tablename " +
-                    "where t.schemaname !~ '^pg_' and t.schemaname != 'information_schema' order by c.conname";
+            "select conname constraint_name, conrelid::regclass table_name, a.attname column_name, confrelid::regclass " +
+                    "foreign_table_name, af.attname foreign_column_name " +
+                    "from (select conname, conrelid, confrelid, conkey[i] as conkey, confkey[i] as confkey " +
+                            "from (select conname, conrelid, confrelid, conkey, confkey, generate_series(1, array_upper(conkey, 1)) as i " +
+                                "from pg_constraint join pg_tables on pg_constraint.confrelid::regclass::varchar = pg_tables.tablename " +
+                                "where pg_tables.schemaname !~ '^pg_' and pg_tables.schemaname != 'information_schema' and contype = 'f') " +
+                                "c) " +
+                            "c " +
+                    "join pg_attribute a on c.conrelid = a.attrelid and c.conkey = a.attnum " +
+                    "join pg_attribute af on c.confrelid = af.attrelid and c.confkey = af.attnum " +
+                    "order by c.conname";
 
     private static final String UNIQUE_KEYS_QUERY =
             "select conname constraint_name, conrelid::regclass table_name, a.attname column_name " +

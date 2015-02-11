@@ -142,7 +142,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 newFieldConfigs.add(fieldConfig);
             } else if (!fieldConfig.equals(oldFieldConfig) &&
                     !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
-                fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig);
+                fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
             }
         }
 

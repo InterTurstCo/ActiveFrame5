@@ -6,6 +6,9 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * Обработчик изменения конфигурации поля типа доменного объекта
  * Created by vmatsukevich on 23.1.15.
@@ -24,7 +27,8 @@ public class FieldConfigChangeHandler {
      * @param oldFieldConfig старая конфигурация поля
      * @param domainObjectTypeConfig конфигурация типа доменного объекта
      */
-    public void handle(FieldConfig newFieldConfig, FieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+    public void handle(FieldConfig newFieldConfig, FieldConfig oldFieldConfig,
+                       DomainObjectTypeConfig domainObjectTypeConfig, ConfigurationExplorer configurationExplorer) {
         handleBasicAttributes(newFieldConfig, oldFieldConfig, domainObjectTypeConfig);
 
         if (newFieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof StringFieldConfig) {
@@ -32,7 +36,7 @@ public class FieldConfigChangeHandler {
         } else if (newFieldConfig instanceof PasswordFieldConfig && oldFieldConfig instanceof PasswordFieldConfig) {
             handle((PasswordFieldConfig) newFieldConfig, (PasswordFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof ReferenceFieldConfig && oldFieldConfig instanceof ReferenceFieldConfig) {
-            handle((ReferenceFieldConfig) newFieldConfig, (ReferenceFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+            handle((ReferenceFieldConfig) newFieldConfig, (ReferenceFieldConfig) oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
         } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
@@ -64,14 +68,48 @@ public class FieldConfigChangeHandler {
         }
     }
 
-    private void handle(ReferenceFieldConfig newFieldConfig, ReferenceFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+    private void handle(ReferenceFieldConfig newFieldConfig, ReferenceFieldConfig oldFieldConfig,
+                        DomainObjectTypeConfig domainObjectTypeConfig, ConfigurationExplorer configurationExplorer) {
         if (!newFieldConfig.getType().equals(oldFieldConfig.getType())) {
-            if (!newFieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY) &&
-                    !schemaCache.isReferenceFieldForeignKeyExist(domainObjectTypeConfig, newFieldConfig)) {
-                throw new ConfigurationException("Configuration loading aborted: unsupported type attribute " +
-                        "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+            if (newFieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY)) {
+                String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
+                if (foreignKeyName != null) {
+                    dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
+                }
+            } else {
+                String newForeignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, newFieldConfig);
+                if (newForeignKeyName == null) {
+                    if (isSuperType(newFieldConfig.getType(), oldFieldConfig.getType(), configurationExplorer)) {
+                        String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
+                        if (foreignKeyName != null) {
+                            dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
+                        }
+
+                        dataStructureDao.createForeignKeyAndUniqueConstraints(domainObjectTypeConfig,
+                                Collections.singletonList(newFieldConfig), new ArrayList<UniqueKeyConfig>());
+                    } else {
+                        throw new ConfigurationException("Configuration loading aborted: cannot change reference type " +
+                                "from '" + oldFieldConfig.getType() + "' to '" + newFieldConfig.getType() +
+                                "' in " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
+                    }
+                }
             }
         }
+    }
+
+    private boolean isSuperType(String testParentName, String testChildName, ConfigurationExplorer configurationExplorer) {
+        String[] parentTypesHierarchy = configurationExplorer.getDomainObjectTypesHierarchy(testChildName);
+        if (parentTypesHierarchy == null) {
+            return false;
+        }
+
+        for (String name : parentTypesHierarchy) {
+            if (name.equalsIgnoreCase(testParentName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void handle(DecimalFieldConfig newFieldConfig, DecimalFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
