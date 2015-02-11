@@ -310,6 +310,7 @@ public class FormSaver extends FormProcessor {
             return result;
         }
         for (Id id : ids) {
+            final String domainObjectType = crudService.getDomainObjectType(id);
             for (FieldPath fieldPath : fieldPaths) {
                 String linkedType;
                 String referenceType = fieldPath.getReferenceType();
@@ -322,7 +323,7 @@ public class FormSaver extends FormProcessor {
                     linkedType = referenceFieldConfig.getType();
                 }
 
-                if (crudService.getDomainObjectType(id).equalsIgnoreCase(linkedType)) {
+                if (configurationExplorer.isInstanceOf(domainObjectType, linkedType)) {
                     result.get(fieldPath).add(id);
                     break;
                 }

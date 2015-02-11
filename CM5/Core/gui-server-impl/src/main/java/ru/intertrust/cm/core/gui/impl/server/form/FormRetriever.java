@@ -6,22 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.Localizer;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
@@ -32,24 +23,12 @@ import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
-import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -302,6 +281,7 @@ public class FormRetriever extends FormProcessor {
             // field path config can point to multiple paths
             boolean readOnly = config.isReadOnly();
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
+            final ExactTypesConfig exactTypesConfig = fieldPathConfig.getExactTypesConfig();
             for (FieldPath fieldPath : fieldPaths) {
                 ObjectsNode currentRootNode = ROOT_NODE;
                 for (Iterator<FieldPath> childrenIterator = fieldPath.childrenIterator(); childrenIterator.hasNext(); ) {
@@ -315,7 +295,7 @@ public class FormRetriever extends FormProcessor {
                     }
                     // it's a reference. linked objects can exist only for Single-Object Nodes. class-cast exception will
                     // raise if that's not true
-                    ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) currentRootNode, childPath);
+                    ObjectsNode linkedNode = findLinkedNode((SingleObjectNode) currentRootNode, childPath, exactTypesConfig);
                     if (configurationExplorer.isAuditLogType(linkedNode.getType())) {
                         readOnly = true;
                     }
@@ -494,11 +474,11 @@ public class FormRetriever extends FormProcessor {
         return constraints;
     }
 
-    private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
+    private ObjectsNode findLinkedNode(SingleObjectNode parentNode, FieldPath childPath, ExactTypesConfig exactTypesConfig) {
         if (childPath.isOneToOneDirectReference()) { // direct reference
             return findOneToOneDirectReferenceLinkedNode(parentNode, childPath);
         } else { // back reference
-            return findBackReferenceLinkedNode(parentNode, childPath);
+            return findBackReferenceLinkedNode(parentNode, childPath, exactTypesConfig);
         }
     }
 
@@ -518,16 +498,17 @@ public class FormRetriever extends FormProcessor {
         }
     }
 
-    private ObjectsNode findBackReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath) {
+    private ObjectsNode findBackReferenceLinkedNode(SingleObjectNode parentNode, FieldPath childPath, ExactTypesConfig exactTypesConfig) {
         final String linkedType = childPath.getReferenceType();
         final boolean oneToOneBackReference = childPath.isOneToOneBackReference();
         if (parentNode.isEmpty()) {
             return oneToOneBackReference ? new SingleObjectNode(linkedType) : new MultiObjectNode(linkedType);
         }
         String referenceField = childPath.getLinkToParentName();
-        // todo after cardinality functionality is developed, check cardinality (static-check, not runtime)
-        // todo: limit result rows
         DomainObject parentDomainObject = parentNode.getDomainObject();
+        // it's either a list of intermediate objects (linked objects ids are taken from it) in case of N:M or a list of
+        // linked objects themselves in case of 1:N (it can be optimized later)
+        // todo: exact types support
         List<DomainObject> linkedDomainObjects = parentDomainObject.getId() == null
                 ? new ArrayList<DomainObject>()
                 : crudService.findLinkedDomainObjects(parentDomainObject.getId(), linkedType, referenceField);

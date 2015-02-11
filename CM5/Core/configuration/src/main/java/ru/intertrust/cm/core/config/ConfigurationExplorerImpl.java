@@ -1,19 +1,10 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
-
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -22,6 +13,10 @@ import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -613,14 +608,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * {@link ru.intertrust.cm.core.config.ConfigurationExplorer#isInstanceOf(String, String)}
      */
     @Override
-    public boolean isInstanceOf(String domainObjectTypeName, String assumedParentDomainObjectTypeName) {
-        String[] parentTypesHierarchy = getDomainObjectTypesHierarchy(domainObjectTypeName);
+    public boolean isInstanceOf(String domainObjectType, String assumedDomainObjectType) {
+        if (domainObjectType.equalsIgnoreCase(assumedDomainObjectType)) {
+            return true;
+        }
+        String[] parentTypesHierarchy = getDomainObjectTypesHierarchy(domainObjectType);
         if (parentTypesHierarchy == null) {
             return false;
         }
 
         for (String name : parentTypesHierarchy) {
-            if (name.equalsIgnoreCase(assumedParentDomainObjectTypeName)) {
+            if (name.equalsIgnoreCase(assumedDomainObjectType)) {
                 return true;
             }
         }

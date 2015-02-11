@@ -1666,6 +1666,10 @@
                 <xs:element name="default-values" type="con:defaultValuesType" minOccurs="0" maxOccurs="1"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
+            <xs:choice minOccurs="0" maxOccurs="1">
+                <xs:element name="exact-types" type="con:exactTypesType"
+                            minOccurs="1" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+            </xs:choice>
             <xs:choice minOccurs="0" maxOccurs="2">
                 <xs:element type="con:onUnlinkType" name="on-unlink"
                             minOccurs="0" maxOccurs="unbounded"
@@ -3038,6 +3042,17 @@
         <xs:attribute name="action-name" type="xs:string"/>
     </xs:complexType>
 
+    <xs:complexType name="exactTypeType">
+        <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="exactTypesType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element type="con:exactTypeType" name="exact-type"
+                        minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
     <xs:complexType name="onLinkType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
             <xs:element type="con:updateSectionType" name="update"
@@ -3091,7 +3106,6 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="type" use="required"/>
     </xs:complexType>
-
 
     <xs:complexType name="updateSectionType">
         <xs:sequence>

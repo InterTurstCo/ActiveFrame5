@@ -2,16 +2,12 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.converter.FieldPathOnDeleteActionConverter;
 import ru.intertrust.cm.core.config.gui.form.DefaultValueConfig;
 import ru.intertrust.cm.core.config.gui.form.DefaultValuesConfig;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -72,7 +68,10 @@ public class FieldPathConfig implements Dto {
     private DefaultValueConfig defaultValueConfig;
 
     @Element(name = "default-values", required = false)
-    DefaultValuesConfig defaultValuesConfig;
+    private DefaultValuesConfig defaultValuesConfig;
+
+    @Element(name = "exact-types", required = false)
+    private ExactTypesConfig exactTypesConfig;
 
 
     public String getValue() {
@@ -131,6 +130,14 @@ public class FieldPathConfig implements Dto {
         this.defaultValuesConfig = defaultValuesConfig;
     }
 
+    public ExactTypesConfig getExactTypesConfig() {
+        return exactTypesConfig;
+    }
+
+    public void setExactTypesConfig(ExactTypesConfig exactTypesConfig) {
+        this.exactTypesConfig = exactTypesConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -155,6 +162,9 @@ public class FieldPathConfig implements Dto {
             return false;
         }
         if (value != null ? !value.equals(that.value) : that.value != null) {
+            return false;
+        }
+        if (exactTypesConfig != null ? !exactTypesConfig.equals(that.exactTypesConfig) : that.exactTypesConfig != null) {
             return false;
         }
 

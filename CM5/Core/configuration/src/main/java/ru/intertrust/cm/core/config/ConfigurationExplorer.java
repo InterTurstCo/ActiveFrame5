@@ -1,15 +1,15 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -251,10 +251,10 @@ public interface ConfigurationExplorer {
 
     /**
      * Проверяет является ли {@code assumedParentDomainObjectTypeName} супертипом для {@code domainObjectTypeName}
-     * @param domainObjectTypeName тестируемый тип доменного объекта
-     * @param assumedParentDomainObjectTypeName предполагаемый тип-предок
+     * @param domainObjectType тестируемый тип доменного объекта
+     * @param assumedDomainObjectType предполагаемый тип-предок
      * @return true, если {@code assumedParentDomainObjectTypeName} является предком {@code assumedParentDomainObjectTypeName},
      * false - в противном случае
      */
-    boolean isInstanceOf(String domainObjectTypeName, String assumedParentDomainObjectTypeName);
+    boolean isInstanceOf(String domainObjectType, String assumedDomainObjectType);
 }

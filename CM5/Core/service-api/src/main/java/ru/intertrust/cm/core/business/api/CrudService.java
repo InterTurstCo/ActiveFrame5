@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -188,7 +187,8 @@ public interface CrudService {
      * @param exactType если {@code true}, то метод возвращает только объекты указанного типа,
      *                  в противном случае - также и объекты типов-наследников
      * @return список связанных доменных объектов
-     */     List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+     */
+    List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
                                                boolean exactType);
 
     /**
