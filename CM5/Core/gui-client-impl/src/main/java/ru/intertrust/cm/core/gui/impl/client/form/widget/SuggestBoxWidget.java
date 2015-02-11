@@ -133,6 +133,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         }
         SuggestBoxState state = new SuggestBoxState();
         state.setSelectedIds(currentState.getSelectedIds());
+        state.setListValues(currentState.getListValues());
         state.setSingleChoice(currentState.isSingleChoice());
         state.setSuggestBoxConfig(currentState.getSuggestBoxConfig());
         state.setWidgetProperties(currentState.getWidgetProperties());
