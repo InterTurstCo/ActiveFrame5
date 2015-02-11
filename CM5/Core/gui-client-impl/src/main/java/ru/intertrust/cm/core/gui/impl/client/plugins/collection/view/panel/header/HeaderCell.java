@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header;
 
 import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget.HeaderWidget;
 
 /**
@@ -21,12 +21,7 @@ public class HeaderCell extends AbstractCell<HeaderWidget> {
     public void render(com.google.gwt.cell.client.Cell.Context context,
                        final HeaderWidget value, SafeHtmlBuilder sb) {
         value.init();
-        sb.append(new SafeHtml() {
-            @Override
-            public String asString() {
-                return value.getHtml();
-            }
-        });
+        sb.append(SafeHtmlUtils.fromTrustedString(value.getHtml()));
 
     }
 

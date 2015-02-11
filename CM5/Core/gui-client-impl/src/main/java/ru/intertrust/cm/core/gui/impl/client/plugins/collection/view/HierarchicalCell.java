@@ -23,10 +23,13 @@ public class HierarchicalCell extends TextCell {
     @Override
     public void render(Context context, String text, SafeHtmlBuilder sb) {
         if ("combined-link".equals(drillDownStyle)) {
-            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/><span class=\"expand-arrow\">"
-                    + text + " ►<span></div>"));
+            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/><span class=\"expand-arrow\">"));
+            sb.append(SafeHtmlUtils.fromString(text));
+            sb.append(SafeHtmlUtils.fromTrustedString(" ►<span></div>"));
         } else {
-            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/>" + text + " <span class=\"expand-arrow\">►<span></div>"));
+            sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/>"));
+            sb.append(SafeHtmlUtils.fromString(text));
+            sb.append(SafeHtmlUtils.fromTrustedString(" <span class=\"expand-arrow\">►<span></div>"));
         }
     }
 

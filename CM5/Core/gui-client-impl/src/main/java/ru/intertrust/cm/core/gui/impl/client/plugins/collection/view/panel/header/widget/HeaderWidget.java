@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.widget;
 
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.web.bindery.event.shared.EventBus;
 
 import java.util.List;
@@ -44,12 +45,13 @@ public abstract class HeaderWidget {
     protected String getTitleHtml() {
         StringBuilder titleBuilder = new StringBuilder("<div  class=\"header-label\">");
         titleBuilder.append("<p style=\"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
-        titleBuilder.append(title);
+        String safeTitle = SafeHtmlUtils.fromString(title).asString();
+        titleBuilder.append(safeTitle);
         titleBuilder.append("</p><p style=\"display:none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
-        titleBuilder.append(title);
+        titleBuilder.append(safeTitle);
         titleBuilder.append(ASCEND_ARROW);
         titleBuilder.append("</p><p style=\"display:none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">");
-        titleBuilder.append(title);
+        titleBuilder.append(safeTitle);
         titleBuilder.append(DESCEND_ARROW);
         titleBuilder.append("</p></div>");
         return titleBuilder.toString();

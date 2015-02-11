@@ -18,7 +18,9 @@ public class TextCell extends AbstractCell<String> {
 
     @Override
     public void render(com.google.gwt.cell.client.Cell.Context context, String text, SafeHtmlBuilder sb) {
-        sb.append(SafeHtmlUtils.fromTrustedString("<div " + style + "/>" + text + "</div>"));
+        sb.append(SafeHtmlUtils.fromTrustedString("<div " + style + "/>"));
+        sb.append(SafeHtmlUtils.fromString(text));
+        sb.append(SafeHtmlUtils.fromTrustedString("</div>"));
     }
 
 }
