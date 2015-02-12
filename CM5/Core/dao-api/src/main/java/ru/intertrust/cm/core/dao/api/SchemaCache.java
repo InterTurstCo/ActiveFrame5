@@ -40,6 +40,14 @@ public interface SchemaCache {
     boolean isColumnExist(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
     /**
+     * Проверяет, существует ли колонка для типа указанной конфигурации ссылочного поля доменного объекта
+     * @param config имя конфигурации доменного объекта
+     * @param referenceFieldConfig имя конфигурации ссылочного поля типа доменного объекта
+     * @return true если существует, иначе false
+     */
+    boolean isReferenceColumnExist(DomainObjectTypeConfig config, ReferenceFieldConfig referenceFieldConfig);
+
+    /**
      * Проверяет, имеет ли колонка not-null ограничение для указанной конфигурации поля доменного объекта
      * @param config имя конфигурации доменного объекта
      * @param fieldConfig имя конфигурации поля типа доменного объекта
@@ -62,6 +70,14 @@ public interface SchemaCache {
      * @return метаданные колонки в бд
      */
     ColumnInfo getColumnInfo(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    /**
+     * Возвращает метаданные колонки в бд, соответствующей типу ссылочного поля
+     * @param config конфигурация типа ДО
+     * @param referenceFieldConfig конфигурация ссылочного поля типа ДО
+     * @return метаданные колонки в бд
+     */
+    ColumnInfo getReferenceColumnInfo(DomainObjectTypeConfig config, ReferenceFieldConfig referenceFieldConfig);
 
     /**
      * Находит имя внешнего ключа для ссылочного поля

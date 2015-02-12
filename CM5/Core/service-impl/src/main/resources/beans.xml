@@ -25,6 +25,8 @@
 
     <bean id="fieldConfigChangeHandler" class="ru.intertrust.cm.core.business.impl.FieldConfigChangeHandler" />
 
+    <bean id="fieldConfigDbValidator" class="ru.intertrust.cm.core.business.impl.FieldConfigDbValidator" />
+
     <jee:local-slsb id="configurationLoadService"
                     jndi-name="java:module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
                     business-interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>

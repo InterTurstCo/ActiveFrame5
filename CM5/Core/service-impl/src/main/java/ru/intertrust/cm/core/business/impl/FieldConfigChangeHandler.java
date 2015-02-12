@@ -70,7 +70,7 @@ public class FieldConfigChangeHandler {
 
     private void handle(ReferenceFieldConfig newFieldConfig, ReferenceFieldConfig oldFieldConfig,
                         DomainObjectTypeConfig domainObjectTypeConfig, ConfigurationExplorer configurationExplorer) {
-        if (!newFieldConfig.getType().equals(oldFieldConfig.getType())) {
+        if (!newFieldConfig.getType().equalsIgnoreCase(oldFieldConfig.getType())) {
             if (newFieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY)) {
                 String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
                 if (foreignKeyName != null) {
@@ -95,21 +95,6 @@ public class FieldConfigChangeHandler {
                 }
             }
         }
-    }
-
-    private boolean isSuperType(String testParentName, String testChildName, ConfigurationExplorer configurationExplorer) {
-        String[] parentTypesHierarchy = configurationExplorer.getDomainObjectTypesHierarchy(testChildName);
-        if (parentTypesHierarchy == null) {
-            return false;
-        }
-
-        for (String name : parentTypesHierarchy) {
-            if (name.equalsIgnoreCase(testParentName)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private void handle(DecimalFieldConfig newFieldConfig, DecimalFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {

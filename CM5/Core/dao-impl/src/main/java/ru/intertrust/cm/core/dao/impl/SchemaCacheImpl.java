@@ -59,6 +59,14 @@ public class SchemaCacheImpl implements SchemaCache {
     }
 
     /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#isReferenceColumnExist(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.ReferenceFieldConfig)}
+     */
+    @Override
+    public boolean isReferenceColumnExist(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig) {
+        return getReferenceColumnInfo(config, fieldConfig) != null;
+    }
+
+    /**
      * {@link ru.intertrust.cm.core.dao.api.SchemaCache#isColumnNotNull(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
      */
     @Override
@@ -87,6 +95,19 @@ public class SchemaCacheImpl implements SchemaCache {
         }
 
         return columns.get(getSqlName(fieldConfig));
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getReferenceColumnInfo(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.ReferenceFieldConfig)}
+     */
+    @Override
+    public ColumnInfo getReferenceColumnInfo(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig) {
+        Map<String, ColumnInfo> columns = schemaTables.get(getSqlName(config));
+        if (columns == null) {
+            return null;
+        }
+
+        return columns.get(getReferenceTypeColumnName(fieldConfig.getName()));
     }
 
     /**

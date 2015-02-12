@@ -28,6 +28,8 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     @Autowired
     private FieldConfigChangeHandler fieldConfigChangeHandler;
     @Autowired
+    private FieldConfigDbValidator fieldConfigDbValidator;
+    @Autowired
     private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     private ConfigurationExplorer oldConfigExplorer;
@@ -139,7 +141,12 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                     fieldConfig.getName(), false);
 
             if (oldFieldConfig == null) {
-                newFieldConfigs.add(fieldConfig);
+                ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
+                if (columnInfo == null) {
+                    newFieldConfigs.add(fieldConfig);
+                } else {
+                    fieldConfigDbValidator.validate(fieldConfig, domainObjectTypeConfig, columnInfo);
+                }
             } else if (!fieldConfig.equals(oldFieldConfig) &&
                     !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
                 fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
