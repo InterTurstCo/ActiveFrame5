@@ -11,7 +11,9 @@ import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
+import javax.transaction.Status;
 
 /**
  * @author Denis Mitavskiy
@@ -36,8 +38,40 @@ public class AbstractGuiServiceImpl {
     @EJB
     protected CollectionsService collectionsService;
 
+    @Resource
+    protected EJBContext ejbContext;
+
     protected <T extends ComponentHandler> T obtainHandler(String componentName) {
         boolean containsHandler = applicationContext.containsBean(componentName);
         return containsHandler ? (T) applicationContext.getBean(componentName) : null;
+    }
+
+    /**
+     * Возвращает строковое описание статуса текущей транзакции
+     * @return строковое описание статуса текущей транзакции
+     */
+    public static String getTransactionStatusDescription(int status) {
+        switch (status) {
+            case Status.STATUS_ACTIVE:
+                return "Active";
+            case Status.STATUS_MARKED_ROLLBACK:
+                return "Marked For Rollback";
+            case Status.STATUS_PREPARED:
+                return "Prepared";
+            case Status.STATUS_COMMITTED:
+                return "Committed";
+            case Status.STATUS_ROLLEDBACK:
+                return "Rolled Back";
+            case Status.STATUS_NO_TRANSACTION:
+                return "No Transaction";
+            case Status.STATUS_PREPARING:
+                return "Preparing";
+            case Status.STATUS_COMMITTING:
+                return "Committing";
+            case Status.STATUS_ROLLING_BACK:
+                return "Rolling Back";
+            default:
+                return "Unknown";
+        }
     }
 }

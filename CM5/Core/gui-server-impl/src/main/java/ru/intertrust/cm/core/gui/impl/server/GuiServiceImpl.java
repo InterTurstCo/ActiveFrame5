@@ -26,9 +26,7 @@ import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
@@ -130,6 +128,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo, List<ValidatorConfig>
             validatorConfigs) {
         List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs);
