@@ -42,17 +42,33 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         super();
         this.typeName = typeName;
     }
+
     /**
      * Создаёт копию доменного объекта
      *
      * @param source исходный доменный объект
      */
     public GenericDomainObject(DomainObject source) {
+        this(source, true);
+    }
+
+    /**
+     * Создаёт копию доменного объекта
+     *
+     * @param source исходный доменный объект
+     * @param copyId флаг, определяющий, требуется ли копирование идентификатор объекта. Если не требуется, то системные даты (создания, модификации)
+     *               также не будут скопировано, потому что эти даты могут существовать только у сохранённого объекта, которому Id уже назначен.
+     */
+    public GenericDomainObject(DomainObject source, boolean copyId) {
         super(source);
 
         setTypeName(source.getTypeName());
-        setCreatedDate(source.getCreatedDate());
-        setModifiedDate(source.getModifiedDate());
+        if (copyId) { // см. описание параметра copyId
+            setCreatedDate(source.getCreatedDate());
+            setModifiedDate(source.getModifiedDate());
+        } else {
+            setId(null); // обнуляем скопированный Id
+        }
         setStatus(source.getStatus());
     }
 
