@@ -61,10 +61,11 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.shouldDrawTooltipB
 public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStateChangedEventHandler,
         WidgetItemRemoveEventHandler {
     private static final String ALL_SUGGESTIONS = "*";
-    private static final int HEIGHT_OFFSET_DOWN = 20;
-    private static final int HEIGHT_OFFSET_UP = 20;
+    private static final int HEIGHT_OFFSET = 20;
+
     private static final int INPUT_MARGIN = 35;
-    private static final int ONE_SUGGESTION_HEIGHT = 18;
+    private static final int ONE_SUGGESTION_HEIGHT = 15;
+    private static final int BOTTOM_MARGIN = 10;
     private static final int MINIMAL_SUGGEST_INPUT_WIDTH = 25;
     private SuggestBox suggestBox;
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
@@ -354,11 +355,23 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
         result.setCollectionExtraFiltersConfig(suggestBoxConfig.getCollectionExtraFiltersConfig());
         if (lazyLoadState == null) {
-            lazyLoadState = new LazyLoadState(suggestBoxConfig.getPageSize(), 0);
+            lazyLoadState = new LazyLoadState(getInitPageSize(), 0);
+        } else {
+            lazyLoadState.setPageSize(suggestBoxConfig.getPageSize());
         }
         result.setLazyLoadState(lazyLoadState);
         return result;
 
+    }
+
+    private int getInitPageSize() {
+        SuggestPresenter presenter = (SuggestPresenter) impl;
+        int available = presenter.getAvailableHeight();
+        System.out.println("available " + available);
+        int calculatedPageSize = (available + 2 * HEIGHT_OFFSET) / ONE_SUGGESTION_HEIGHT;
+        System.out.println("calculated " + calculatedPageSize);
+        int pageSizeFromConfig = suggestBoxConfig.getPageSize();
+        return calculatedPageSize >= pageSizeFromConfig ? calculatedPageSize : pageSizeFromConfig;
     }
 
     private ComplicatedFiltersParams createFiltersParams(String requestQuery) {
@@ -498,32 +511,45 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             final SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
-            int screenAvailableHeight = getScreenAvailableHeight();
-            int suggestionsHeight = getSuggestionsHeight();
-            int lazyLoadPanelHeight = screenAvailableHeight >= suggestionsHeight ? suggestionsHeight : screenAvailableHeight;
-            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
             int suggestionsSize = suggestions.size();
+            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
             boolean scrollable = suggestionsSize >= pageSize;
-            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, scrollable);
+            int suggestBottom = suggestBox.getAbsoluteTop() + suggestBox.getOffsetHeight() + BOTTOM_MARGIN;
+            int lazyLoadPanelHeight = scrollable ? getBelowHeight() : getSuggestionsHeight();
+            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, suggestBottom, scrollable);
 
         }
 
-        public int getScreenAvailableHeight() {
+        private int getBelowHeight() {
             int fullHeight = Window.getClientHeight();
+            return fullHeight - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - HEIGHT_OFFSET;
+        }
+
+        private int getAboveHeight() {
             Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
-            int domainObjectHeight = center == null ? HEIGHT_OFFSET_UP : center.getAbsoluteTop();
-            int aboveSuggestBoxHeight = suggestBox.getAbsoluteTop() - domainObjectHeight;
-            int belowSuggestBoxHeight = fullHeight - suggestBox.getAbsoluteTop() - suggestBox.getOffsetHeight() - HEIGHT_OFFSET_DOWN;
-            return aboveSuggestBoxHeight >= belowSuggestBoxHeight ? aboveSuggestBoxHeight : belowSuggestBoxHeight;
+            int domainObjectHeight = center == null ? HEIGHT_OFFSET : center.getAbsoluteTop();
+            return suggestBox.getAbsoluteTop() - domainObjectHeight;
+        }
+
+        private int getAvailableHeight() {
+            int belowHeight = getBelowHeight();
+            int aboveHeight = getAboveHeight();
+            return aboveHeight > belowHeight ? aboveHeight : belowHeight;
         }
 
         public int getSuggestionsHeight() {
-            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
             int suggestionsSize = suggestions.size();
-            boolean scrollable = suggestionsSize >= pageSize;
-            int size = scrollable ? pageSize : suggestionsSize;
-            int result = scrollable ? size * ONE_SUGGESTION_HEIGHT - 2 * HEIGHT_OFFSET_UP : size * ONE_SUGGESTION_HEIGHT;
+            int calculatedHeight = suggestionsSize * ONE_SUGGESTION_HEIGHT + BOTTOM_MARGIN;
+            int aboveHeight = getAboveHeight();
+            int belowHeight = getBelowHeight();
+            int result;
+            if (calculatedHeight <= aboveHeight || calculatedHeight <= belowHeight) {
+                result = calculatedHeight;
+            } else {
+                result = getAvailableHeight();
+            }
             return result;
+
         }
 
         public void initModel(final SuggestBoxState state) {
@@ -832,7 +858,6 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                             suggestionItem.getReplacementText(), suggestionItem.getDisplayText()));
                 }
                 SuggestPresenter presenter = (SuggestPresenter) impl;
-                ((SuggestBoxDisplay)suggestBox.getSuggestionDisplay()).clearScrollHeight();//clearing previous height lets gwt to calculate
                 SuggestOracle.Response response = new SuggestOracle.Response();
                 response.setSuggestions(suggestions);
                 callback.onSuggestionsReady(request, response);

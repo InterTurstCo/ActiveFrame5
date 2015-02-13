@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.suggestbox.SuggestBoxPo
  *         Time: 15:29
  */
 public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
-    private static final int SCROLL_HEIGHT_MARGIN = 40;
     private ScrollPanel lazyLoadPanel;
 
     public SuggestBoxDisplay() {
@@ -39,10 +38,16 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
     }
 
     public void setLazyLoadPanelHeight(int height, int lastScrollPosition, boolean scrollable) {
-        if (scrollable) {
-            makeScrollVisible(height, lastScrollPosition);
-        } else {
-            setScrollHeight(height);
+        setScrollHeight(height);
+        if (scrollable) {this.getSuggestionPopup().getElement().getStyle().setTop(500, Style.Unit.PX);
+           lazyLoadPanel.setVerticalScrollPosition(lastScrollPosition);
+        }
+
+    }
+    public void setLazyLoadPanelHeight(int height, int lastScrollPosition, int topPosition, boolean scrollable) {
+        setScrollHeight(height);
+        if (scrollable) {this.getSuggestionPopup().getElement().getStyle().setTop(topPosition, Style.Unit.PX);
+            lazyLoadPanel.setVerticalScrollPosition(lastScrollPosition);
         }
 
     }
@@ -56,10 +61,6 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         lazyLoadPanel.getElement().getFirstChildElement().getStyle().setHeight(height, Style.Unit.PX);
     }
 
-    public void clearScrollHeight() {
-        lazyLoadPanel.getElement().getFirstChildElement().getStyle().clearHeight();
-    }
-
     @Override
     protected PopupPanel createPopup() {
         PopupPanel p = new SuggestBoxPopup(true, false);
@@ -70,20 +71,6 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
 
     }
 
-    private int getScrollHeight() {
-        return lazyLoadPanel.getElement().getFirstChildElement().getOffsetHeight();
-    }
-
-    public void makeScrollVisible(final int calculatedHeight, final int lastScrollPos) {
-        int scrollHeight = getScrollHeight();
-        if (scrollHeight != 0 && scrollHeight <= calculatedHeight){
-            setScrollHeight(scrollHeight -  SCROLL_HEIGHT_MARGIN);
-        } else {
-            setScrollHeight(calculatedHeight);
-        }
-        lazyLoadPanel.setVerticalScrollPosition(lastScrollPos);
-
-    }
 
     public boolean isNotShown() {
         return !getSuggestionPopup().isShowing();
