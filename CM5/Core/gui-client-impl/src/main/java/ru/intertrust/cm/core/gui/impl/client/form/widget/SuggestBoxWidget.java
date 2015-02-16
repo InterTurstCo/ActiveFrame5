@@ -367,9 +367,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private int getInitPageSize() {
         SuggestPresenter presenter = (SuggestPresenter) impl;
         int available = presenter.getAvailableHeight();
-        System.out.println("available " + available);
         int calculatedPageSize = (available + 2 * HEIGHT_OFFSET) / ONE_SUGGESTION_HEIGHT;
-        System.out.println("calculated " + calculatedPageSize);
         int pageSizeFromConfig = suggestBoxConfig.getPageSize();
         return calculatedPageSize >= pageSizeFromConfig ? calculatedPageSize : pageSizeFromConfig;
     }
