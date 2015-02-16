@@ -72,14 +72,19 @@ public class FieldConfigChangeHandler {
                         DomainObjectTypeConfig domainObjectTypeConfig, ConfigurationExplorer configurationExplorer) {
         if (!newFieldConfig.getType().equalsIgnoreCase(oldFieldConfig.getType())) {
             if (newFieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY)) {
-                String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
-                if (foreignKeyName != null) {
-                    dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
+                if (oldFieldConfig.getType() != null) {
+                    String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
+                    if (foreignKeyName != null) {
+                        dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
+                    }
                 }
             } else {
                 String newForeignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, newFieldConfig);
                 if (newForeignKeyName == null) {
-                    if (configurationExplorer.isInstanceOf(oldFieldConfig.getType(), newFieldConfig.getType())) {
+                    if (oldFieldConfig.getType() == null) {
+                        dataStructureDao.createForeignKeyAndUniqueConstraints(domainObjectTypeConfig,
+                                Collections.singletonList(newFieldConfig), new ArrayList<UniqueKeyConfig>());
+                    } else if (configurationExplorer.isInstanceOf(oldFieldConfig.getType(), newFieldConfig.getType())) {
                         String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
                         if (foreignKeyName != null) {
                             dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);

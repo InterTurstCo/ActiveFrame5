@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
+import ru.intertrust.cm.core.business.api.dto.ColumnInfoConverter;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
@@ -66,7 +67,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     protected void postProcessConfig(DomainObjectTypeConfig config) {
         DomainObjectTypeConfig oldConfig =
                 oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, config.getName());
-        if (oldConfig == null) { // newly created type, nothing to merge, just create form scratch
+        if (oldConfig == null && !schemaCache.isTableExist(config)) { // newly created type, nothing to merge, just create form scratch
             createAllConstraints(config);
             return;
         }
@@ -84,12 +85,15 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                         fieldConfig.getName(), false);
 
                 if (oldFieldConfig == null) {
-                    newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                    if (schemaCache.getForeignKeyName(config, (ReferenceFieldConfig) fieldConfig) == null) {
+                        newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                    }
                 }
             }
 
             for (UniqueKeyConfig uniqueKeyConfig : config.getUniqueKeyConfigs()) {
-                if (!oldConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) {
+                if ((oldConfig != null && !oldConfig.getUniqueKeyConfigs().contains(uniqueKeyConfig)) ||
+                        (oldConfig == null && schemaCache.getUniqueKeyName(config, uniqueKeyConfig) == null)) {
                     newUniqueKeyConfigs.add(uniqueKeyConfig);
                 }
             }
@@ -103,8 +107,28 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     }
 
     protected void loadDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
-        super.loadDomainObjectConfig(domainObjectTypeConfig);
-        createAclTablesFor(domainObjectTypeConfig);
+        if (!schemaCache.isTableExist(domainObjectTypeConfig)) {
+            super.loadDomainObjectConfig(domainObjectTypeConfig);
+            createAclTablesFor(domainObjectTypeConfig);
+        } else {
+            List<FieldConfig> newFieldConfigs = new ArrayList<>();
+
+            for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+                ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
+                if (columnInfo == null) {
+                    newFieldConfigs.add(fieldConfig);
+                } else {
+                    fieldConfigDbValidator.validate(fieldConfig, domainObjectTypeConfig, columnInfo);
+                    fieldConfigChangeHandler.handle(fieldConfig, ColumnInfoConverter.convert(columnInfo, fieldConfig),
+                            domainObjectTypeConfig, configurationExplorer);
+                }
+            }
+
+            if (!newFieldConfigs.isEmpty()) {
+                boolean isParent = isParentObject(domainObjectTypeConfig);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
+            }
+        }
     }
 
     private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
