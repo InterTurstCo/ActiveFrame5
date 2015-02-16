@@ -23,6 +23,14 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="f4">
+        <fields>
+            <reference name="c4_reference" type="c4" not-null="true"/>
+
+            <reference name="custom_b4" type="b4" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
     <form name="c4_form" domain-object-type="c4" is-default="true">
         <markup>
             <header>
@@ -53,6 +61,12 @@
                                         <widget id="d4_value"/>
                                     </td>
                                 </tr>
+
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="f4_value"/>
+                                    </td>
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -81,6 +95,38 @@
                         <pattern value="{d4_1}"/>
                     </summary-table-column>
                 </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+
+            <linked-domain-objects-table id="f4_value">
+                <field-path value="f4^c4_reference.custom_b4"/>
+                <linked-form name="b4_1_form" inline="true" modal-width="400px" modal-height="400px"/>
+                <created-objects>
+                    <created-object domain-object-type="b4_1" text="b4_1"/>
+                    <created-object domain-object-type="b4_2" text="b4_2"/>
+                </created-objects>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="b4_1" name="b4_1_form"/>
+                    <linked-form domain-object-type="b4_2" name="b4_2_form"/>
+                </linked-form-mapping>
+
+                <summary-table>
+                    <summary-table-column header="Name 1">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="b4_1_name1"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="b4_2_name1"/>
+                        </widget-id-mappings>
+                        <pattern value="{name1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Name 2">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="b4_1_form" widget-id="b4_1_name2"/>
+                            <widget-id-mapping linked-form-name="b4_2_form" widget-id="b4_2_name2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+                </summary-table>
+
                 <single-choice value="false"/>
             </linked-domain-objects-table>
         </widget-config>
