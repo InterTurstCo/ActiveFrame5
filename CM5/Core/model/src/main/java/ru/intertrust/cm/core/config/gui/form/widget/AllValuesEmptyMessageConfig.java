@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localize;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class AllValuesEmptyMessageConfig implements Dto {
     @Attribute(name = "value", required = false)
+    @Localize
     private String value;
 
     public String getValue() {

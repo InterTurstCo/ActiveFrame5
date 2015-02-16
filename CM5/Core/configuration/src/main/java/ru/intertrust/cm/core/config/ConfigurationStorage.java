@@ -1,16 +1,18 @@
 package ru.intertrust.cm.core.config;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ConfigurationStorage {
 
@@ -21,6 +23,9 @@ public class ConfigurationStorage {
     public Configuration configuration;
 
     public Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelConfigMap = new HashMap<>();
+
+    public Map<Pair<String, Class<?>>, CaseInsensitiveMap<LocalizableConfig>> localizedConfigMap = new HashMap<>();
+
     public Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     public Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
 
@@ -47,4 +52,5 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<LogDomainObjectAccessConfig> eventLogDomainObjectAccessConfig = new CaseInsensitiveMap<>();
+
 }

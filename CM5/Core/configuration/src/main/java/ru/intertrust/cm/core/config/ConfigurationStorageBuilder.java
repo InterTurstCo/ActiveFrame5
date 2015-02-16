@@ -1,5 +1,23 @@
 package ru.intertrust.cm.core.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
+import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.ObjectCloner;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,22 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
-import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
-import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
-import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
-import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.ObjectCloner;
+import java.util.Set;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -51,6 +54,21 @@ public class ConfigurationStorageBuilder {
             configurationStorage.topLevelConfigMap.put(config.getClass(), typeMap);
         }
         typeMap.put(config.getName(), config);
+    }
+
+    private void fillLocalizedConfigMap(String locale, LocalizableConfig config) {
+        Pair<String, Class<?>> key = new Pair<String, Class<?>>(locale, config.getClass());
+        CaseInsensitiveMap<LocalizableConfig> typeMap = configurationStorage.localizedConfigMap.get(key);
+        if (typeMap == null) {
+            typeMap = new CaseInsensitiveMap<>();
+            configurationStorage.localizedConfigMap.put(key, typeMap);
+        }
+        localize(locale, config);
+        typeMap.put(config.getName(), config);
+    }
+
+    private void localize(String locale, LocalizableConfig config) {
+        //TODO: scan fields recursively and replace @Localized fields value
     }
 
     public void fillGlobalSettingsCache(TopLevelConfig config) {
@@ -372,16 +390,25 @@ public class ConfigurationStorageBuilder {
                     "Configuration is null");
         }
 
-        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {            
+        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {
             fillGlobalSettingsCache(config);
             fillTopLevelConfigMap(config);
-            
+
             if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
                 fillToolbarConfigByPluginMap(toolBarConfig);
+            }
+
+            if (config instanceof LocalizableConfig) {
+                ObjectCloner cloner = new ObjectCloner();
+                Set<String> locales = MessageResourceProvider.getAvailableLocales();
+                for (String locale : locales) {
+                    cloner.cloneObject(config, config.getClass());
+                    fillLocalizedConfigMap(locale, (LocalizableConfig)config);
+                }
             }
         }
 
@@ -392,9 +419,9 @@ public class ConfigurationStorageBuilder {
             fillConfigurationMapsOfAttachmentDomainObjectType(domainObjectTypeConfig);
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
             fillAuditLogConfigMap(domainObjectTypeConfig);
-            
+
             if (domainObjectTypeConfig.getExtendsAttribute() == null) {
-                
+
             }
         }
 

@@ -1,13 +1,17 @@
 package ru.intertrust.cm.core.business.api;
 
-import java.util.Collection;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * @author vmatsukevich
@@ -179,4 +183,8 @@ public interface ConfigurationService {
      * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
      */
     String[] getDomainObjectTypesHierarchy(String typeName);
+
+    <T> T getLocalizedConfig(Class<T> type, String name, String locale);
+
+    <T> Collection<T> getLocalizedConfigs(Class<T> type, String locale);
 }

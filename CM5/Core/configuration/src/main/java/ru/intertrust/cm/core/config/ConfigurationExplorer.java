@@ -257,4 +257,8 @@ public interface ConfigurationExplorer {
      * false - в противном случае
      */
     boolean isInstanceOf(String domainObjectType, String assumedDomainObjectType);
+
+    public <T> T getLocalizedConfig(Class<T> type, String name, String locale);
+
+    public <T> Collection<T> getLocalizedConfigs(Class<T> type, String locale);
 }

@@ -193,6 +193,9 @@
 
     <localization-files>
         <localization-file>text.properties</localization-file>
+        <localization-file locale="en">text_en.properties</localization-file>
+        <localization-file>validationMessages.properties</localization-file>
+        <localization-file locale="en">validationMessages_en.properties</localization-file>
     </localization-files>
 
 </module>

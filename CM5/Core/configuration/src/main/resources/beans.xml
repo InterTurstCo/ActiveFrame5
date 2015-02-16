@@ -19,9 +19,14 @@
     <bean id="configurationSerializer" depends-on="configurationClassesCacheInitializer"
           class="ru.intertrust.cm.core.config.ConfigurationSerializer"/>
 
+    <bean id="localizationLoader" class="ru.intertrust.cm.core.config.localization.LocalizationLoaderImpl">
+        <constructor-arg ref="moduleService"/>
+    </bean>
+
     <bean id="configurationExplorer"
           class="ru.intertrust.cm.core.config.ConfigurationExplorerImpl"
-          init-method="init">
+          init-method="init"
+          depends-on="localizationLoader">
         <constructor-arg>
             <bean class="ru.intertrust.cm.core.config.base.Configuration"
                   factory-bean="configurationSerializer" factory-method="deserializeConfiguration"/>

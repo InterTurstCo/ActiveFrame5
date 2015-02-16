@@ -2,12 +2,24 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.Localizer;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
+import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
+import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -16,6 +28,8 @@ import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.localization.MessageKey;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
@@ -31,12 +45,27 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.TextState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * User: IPetrov
@@ -63,7 +92,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     private GuiService guiService;
 
     @Autowired
-    private Localizer localizer;
+    private ProfileService profileService;
 
     protected ExtendedSearchPluginData extendedSearchPluginData;
 
@@ -116,18 +145,21 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         Map<String, String> result = new HashMap<>();
         for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
             String searchAreaName = areaData.getKey();
-            result.put(searchAreaName, localizer.getDisplayText(searchAreaName, Localizer.SEARCH_AREA));
+            result.put(searchAreaName, MessageResourceProvider.getMessage(new MessageKey(searchAreaName,
+                    MessageResourceProvider.SEARCH_AREA), getCurrentLocale()));
             List<String> domainObjectTypes = areaData.getValue();
             for (String doType : domainObjectTypes) {
-                result.put(doType, localizer.getDisplayText(doType, Localizer.SEARCH_DOMAIN_OBJECT));
+                result.put(doType, MessageResourceProvider.getMessage(new MessageKey(doType, MessageResourceProvider
+                        .SEARCH_DOMAIN_OBJECT), getCurrentLocale()));
             }
         }
         for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
             String doType = fieldsData.getKey();
             for (String field : fieldsData.getValue()) {
                 Map<String, String> context = new HashMap<>();
-                context.put(Localizer.DOMAIN_OBJECT_CONTEXT, doType);
-                result.put(field, localizer.getDisplayText(field, Localizer.SEARCH_FIELD, context));
+                context.put(MessageResourceProvider.DOMAIN_OBJECT_CONTEXT, doType);
+                result.put(field, MessageResourceProvider.getMessage(new MessageKey(field, MessageResourceProvider
+                        .SEARCH_FIELD, context), getCurrentLocale()));
             }
         }
 
@@ -359,5 +391,10 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         } catch (Exception ge) {
             throw new GuiException("Ошибка при поиске: \n" + ge.getMessage());
         }
+    }
+
+    private String getCurrentLocale() {
+        PersonProfile profile = profileService.getPersonProfile();
+        return profile.getString(ProfileService.LOCALE);
     }
 }

@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -18,7 +19,7 @@ import java.util.List;
  *         Time: 15:58
  */
 @Root(name = "form", strict = false)
-public class FormConfig implements Dto, TopLevelConfig {
+public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
 
     public static final String TYPE_EDIT = "edit";
     public static final String TYPE_SEARCH = "search";

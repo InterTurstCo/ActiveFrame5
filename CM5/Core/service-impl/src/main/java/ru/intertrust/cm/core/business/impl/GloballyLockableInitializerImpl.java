@@ -6,20 +6,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
-import ru.intertrust.cm.core.business.api.Localizer;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
+import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.annotation.Resource;
-import javax.ejb.*;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.EJBContext;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-import javax.transaction.*;
+import javax.transaction.NotSupportedException;
+import javax.transaction.Status;
+import javax.transaction.SystemException;
+import javax.transaction.TransactionManager;
+import javax.transaction.UserTransaction;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * {@inheritDoc}
@@ -43,7 +55,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ImportSystemData importSystemData;
     @Autowired private ImportReportsData importReportsData;
     @Autowired private ScheduleTaskLoader scheduleTaskLoader;
-    @Autowired private Localizer localizer;
+    @Autowired private LocalizationLoader localizationLoader;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -107,6 +119,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new LockUpdaterTask());
 
+          //  MessageResourceProvider.setLocaleToResource(localizer.load());
+
             configurationLoader.update();
             executeInitialLoadingTasks();
 
@@ -137,7 +151,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         importSystemData.load();
         importReportsData.load();
         scheduleTaskLoader.load();
-        localizer.load();
+        localizationLoader.load();
     }
 
     private UserTransaction startTransaction() throws SystemException, NotSupportedException {

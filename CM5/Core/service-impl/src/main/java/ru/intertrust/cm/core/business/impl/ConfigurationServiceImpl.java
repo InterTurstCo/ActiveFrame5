@@ -1,24 +1,28 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.Collection;
-import java.util.List;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.model.UnexpectedException;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * {@link ConfigurationExplorer}
@@ -251,5 +255,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
             throw new UnexpectedException("ConfigurationService", "getDomainObjectTypesHierarchy",
                     "typeName:" + typeName, ex);
         }
+    }
+
+    @Override
+    public <T> T getLocalizedConfig(Class<T> type, String name, String locale) {
+        return configurationExplorer.getLocalizedConfig(type, name, locale);
+    }
+
+    @Override
+    public <T> Collection<T> getLocalizedConfigs(Class<T> type, String locale) {
+        return configurationExplorer.getLocalizedConfigs(type, locale);
     }
 }
