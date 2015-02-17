@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
@@ -16,6 +17,8 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.AnnotationScanCallback;
+import ru.intertrust.cm.core.util.AnnotationScanner;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +72,20 @@ public class ConfigurationStorageBuilder {
     }
 
     private void localize(String locale, LocalizableConfig config) {
-        //TODO: scan fields recursively and replace @Localized fields value
+
+        try {
+            AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
+                @Override
+                public void onAnnotationFound(Object object, Field field) throws IllegalAccessException {
+                    if (field.get(object) != null) {
+                        //field.set(object, field.get(object) + " Changed!");
+                        //TODO:  Localize fields value
+                    }
+                }
+            });
+        } catch (IllegalAccessException e) {
+            e.printStackTrace(); //TODO: handle exception
+        }
     }
 
     public void fillGlobalSettingsCache(TopLevelConfig config) {
@@ -406,8 +423,8 @@ public class ConfigurationStorageBuilder {
                 ObjectCloner cloner = new ObjectCloner();
                 Set<String> locales = MessageResourceProvider.getAvailableLocales();
                 for (String locale : locales) {
-                    cloner.cloneObject(config, config.getClass());
-                    fillLocalizedConfigMap(locale, (LocalizableConfig)config);
+                    Object clonedConfig = cloner.cloneObject(config, config.getClass());
+                    fillLocalizedConfigMap(locale, (LocalizableConfig)clonedConfig);
                 }
             }
         }

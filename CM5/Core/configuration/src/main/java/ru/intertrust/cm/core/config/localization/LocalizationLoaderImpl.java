@@ -30,7 +30,6 @@ public class LocalizationLoaderImpl implements LocalizationLoader, LocalizationL
     }
 
     private Map<String, Map<String, String>> propertiesByLocale = new HashMap<>();
-    private static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
 
     @Override
     public Map<String, Map<String, String>> load() {
@@ -39,7 +38,7 @@ public class LocalizationLoaderImpl implements LocalizationLoader, LocalizationL
                 URL moduleUrl = moduleConfiguration.getModuleUrl();
                 for (LocalizationFileConfiguration config : moduleConfiguration.getLocalisationFiles().getLocalizationFiles()) {
                     Map moduleProps = loadProperties(moduleUrl.toString() + config.getFilePath());
-                    String locale = config.getLocale() != null ? config.getLocale() : DEFAULT_LOCALE;
+                    String locale = config.getLocale() != null ? config.getLocale() : MessageResourceProvider.DEFAULT_LOCALE;
                     Map<String, String> properties = propertiesByLocale.get(locale);
                     if (properties == null) {
                         properties = new HashMap<>();

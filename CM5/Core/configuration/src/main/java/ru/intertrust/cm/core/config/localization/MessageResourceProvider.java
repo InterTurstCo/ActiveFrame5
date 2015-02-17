@@ -19,7 +19,7 @@ public class MessageResourceProvider {
 
     public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 
-    private static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
+    public static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
 
     private static Map<String, Map<String, String>> localeToResource = new HashMap<String, Map<String, String>>();
 
@@ -65,7 +65,12 @@ public class MessageResourceProvider {
         }
         String displayText = (String)properties.get(createKey(messageKey.getKey(), messageKey.getClassifier(),
                 messageKey.getContext()));
-        return displayText != null ? displayText : messageKey.getKey();
+
+        if (displayText == null) {
+            return messageKey.getKey();
+        }
+        //localize displayText itself
+        return getMessage(displayText);
     }
 
     public static Set<String> getAvailableLocales() {
