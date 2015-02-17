@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService.COLLECTION_CACHE_CATEGORY;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
@@ -60,11 +61,19 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonsInGroup(Id groupId) {
-        String typeName = "Person";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
+        List<DomainObject> personsInGroup =
+                domainObjectCacheService.getObjectCollectionFromCache(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
+        if (personsInGroup != null) {
+            return personsInGroup;
+        } else {
+            String typeName = "Person";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
 
-        return findMultipleDomainObjects(query, typeName, groupId, accessToken);
+            personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
+            domainObjectCacheService.putObjectCollectionToCache(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
+            return personsInGroup;
+        }
     }
 
     /**
@@ -72,11 +81,19 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
-        String typeName = "Person";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
+        List<DomainObject> personsInGroup =
+                domainObjectCacheService.getObjectCollectionFromCache(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
+        if (personsInGroup != null) {
+            return personsInGroup;
+        } else {
+            String typeName = "Person";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
 
-        return findMultipleDomainObjects(query, typeName, groupId, accessToken);
+            personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
+            domainObjectCacheService.putObjectCollectionToCache(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
+            return personsInGroup;
+        }
     }
 
     /**
@@ -107,11 +124,18 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonGroups(Id personId) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
 
-        return findMultipleDomainObjects(query, typeName, personId, accessToken);
+        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(personId, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
+        if (personGroups != null) {
+            return personGroups;
+        } else {
+            String typeName = "User_Group";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
+            personGroups = findMultipleDomainObjects(query, typeName, personId, accessToken);
+            domainObjectCacheService.putObjectCollectionToCache(personId, personGroups, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
+            return personGroups;
+        }
     }
 
     /**
@@ -164,27 +188,48 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllParentGroup(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+        if (personGroups != null) {
+            return personGroups;
+        } else {
+            String typeName = "User_Group";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
+            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
+            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+            return personGroups;
+        }
     }
 
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
-
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+        if (personGroups != null) {
+            return personGroups;
+        } else {
+            String typeName = "User_Group";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
+            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
+            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+            return personGroups;
+        }
     }
 
     @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
-        String typeName = "User_Group";
-        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
-        return findMultipleDomainObjects(query, typeName, parent, accessToken);
+        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+        if (personGroups != null) {
+            return personGroups;
+        } else {
+            String typeName = "User_Group";
+            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+            String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
+            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
+
+            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+            return personGroups;
+        }
     }
 
     @Override

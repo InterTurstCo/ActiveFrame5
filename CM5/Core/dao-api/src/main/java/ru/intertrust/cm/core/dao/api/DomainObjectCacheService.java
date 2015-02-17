@@ -29,6 +29,20 @@ import ru.intertrust.cm.core.dao.exception.DaoException;
 public interface DomainObjectCacheService {
 
     /**
+     * Категории кеширования коллекций. Категоории нужны для формирования уникального ключа в кеше. Так одному ДО могут
+     * сопоставляться разные коллекции, уникально определяемые категорией в кеше.
+     * @author atsvetkov
+     */
+    public enum COLLECTION_CACHE_CATEGORY {
+        GROUP_FOR_PERSON,
+        PERSON_IN_GROUP,
+        PERSON_IN_GROUP_AND_SUBGROUP,
+        CHILD_GROUPS,
+        ALL_CHILD_GROUPS,
+        ALL_PARENT_GROUPS
+    }
+    
+    /**
      * Кеширование DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
      * @param dobj кешируемый объект
@@ -79,6 +93,31 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      */
     public List<Id> putObjectsToCache(List<DomainObject> dobjs, AccessToken accessToken, String... key);
+
+    /**
+     * Кеширование коллекции объектов в транзакционном кеше. Кеш сохраняет в своей внутренней структуре клон
+     * передаваемой коллекции. Коллекции кешируются по Id родительского объекта и категории тестирования, т.к. с одним
+     * Id могут быть связаны разные коллекции (с разными категориями).
+     * @param parentId Id родительского объекта
+     * @param dobjs кешируемая коллекция
+     * @param key категория тестирования
+     * @return
+     */
+    public List<Id> putObjectCollectionToCache(Id parentId, List<DomainObject> dobjs, String... key);
+
+    /**
+     * Возвращает клонированную коллекцию доменных объектов из кеша.
+     * @param parentId Id родительского объекта
+     * @param key категория тестирования
+     * @return
+     */
+    public List<DomainObject> getObjectCollectionFromCache(Id parentId, String... key);
+
+    /**
+     * Очищает коллекционный кеш по категории.
+     * @param key
+     */
+    public void clearObjectCollectionByKey(String... key);
 
     /**
      * Возвращает клон доменного объекта из кеш

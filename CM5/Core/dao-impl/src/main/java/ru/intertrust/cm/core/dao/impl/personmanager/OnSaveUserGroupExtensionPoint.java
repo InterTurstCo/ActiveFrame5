@@ -16,8 +16,10 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -29,7 +31,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
  * 
  */
 @ExtensionPoint(filter = "User_Group")
-public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler, BeforeDeleteExtensionHandler {
+public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler, BeforeDeleteExtensionHandler, AfterDeleteExtensionHandler {
 
     @Autowired
     private PersonManagementServiceDao personManagementService;
@@ -43,6 +45,9 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
     @Autowired
     private CollectionsDao collectionsDao;
 
+    @Autowired
+    private DomainObjectCacheService domainObjectCacheService; 
+
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         if (!personManagementService.isGroupInGroup(domainObject.getId(), domainObject.getId(), true)) {
@@ -52,6 +57,7 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
             AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
             domainObjectDao.save(groupGroup, accessToken);
         }
+        clearCollectionCache();
     }
 
     /**
@@ -77,6 +83,11 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
         domainObjectDao.delete(groupGroupId, accessToken);
+    }
+
+    @Override
+    public void onAfterDelete(DomainObject deletedDomainObject) {
+        clearCollectionCache();
     }
 
     /**
@@ -108,6 +119,13 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
             result = collection.get(0).getId();
         }
         return result;
+    }
+
+    private void clearCollectionCache() {
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.name());
+
     }
 
 }

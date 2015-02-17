@@ -40,6 +40,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
     private static final String LIMITATION_TYPE_MAP_KEY = "AccessLimitationTypeCacheMap";
 
+    private static final String OBJECT_COLLECTION_MAP_KEY = "ObjectsCollectionCacheMap";
+
     /**
      * позволяет отключить кэш
      */
@@ -65,10 +67,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         private void setDomainObject(DomainObject domainObject) {
             //deep clone
-            this.domainObject = domainObject == null
-                    ? null
-                    : (DomainObject) SerializationUtils.deserialize(SerializationUtils.serialize(domainObject));
+            this.domainObject = deepClone(domainObject);
         }
+        
 
         private void setChildDoNodeIds(List<Id> ids, String... key) {
             //key - список ключевых слов, см. выше
@@ -155,6 +156,11 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
     }
 
+    private static DomainObject deepClone(DomainObject domainObject) {
+        return domainObject == null
+                ? null
+                : (DomainObject) SerializationUtils.deserialize(SerializationUtils.serialize(domainObject));
+    }
     /**
      * Кеширование DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
@@ -249,6 +255,102 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         if (!isCacheEnabled()) return null;
 
         return putObjectsToCache(GLOBAL_PSEUDO_ID, dobjs, accessToken, key);
+    }
+    
+    @Override
+    public List<Id> putObjectCollectionToCache(Id parentId, List<DomainObject> dobjs, String... key) {
+        if (getTxReg().getTransactionKey() == null || dobjs == null) {
+            return null;
+        }
+
+        if (!isCacheEnabled()) {
+            return null;
+        }
+
+        if (key == null || key.length == 0) {
+            throw new DaoException("Can't find key.");
+        }
+
+        Map<String, List<DomainObject>> objectCollectionMap = getObjectCollectionMap();
+
+        String objectCollectionKey = generateObjectCollectionKey(parentId, key);
+
+        List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
+
+        if (domainObjects == null) {
+            domainObjects = new ArrayList<>();
+            getObjectCollectionMap().put(objectCollectionKey, domainObjects);
+        } else {
+            domainObjects.clear();
+        }
+
+        List<Id> ids = new ArrayList<Id>();
+        for (DomainObject object : dobjs) {
+            DomainObject clonedObject = deepClone(object);
+            ids.add(clonedObject.getId());
+            domainObjects.add(clonedObject);
+        }
+
+        // TODO Do we need to put objects to cache individually?
+
+        return ids;
+    }
+
+    private String generateObjectCollectionKey(Id parentId, String... key) {
+        return DomainObjectNode.generateKey(key) + parentId.toStringRepresentation();
+    }
+
+    @Override
+    public void clearObjectCollectionByKey(String... key) {
+        if (getTxReg().getTransactionKey() == null) {
+            return;
+        }
+        
+        if (key == null || key.length == 0) {
+            throw new DaoException("Can't find key.");
+        }
+        Map<String, List<DomainObject>> objectCollectionMap = getObjectCollectionMap();
+        Iterator<String> keyIterator = objectCollectionMap.keySet().iterator();
+        
+        while (keyIterator.hasNext()) {
+            String collectionKey = keyIterator.next();
+            if (collectionKey != null && collectionKey.startsWith(DomainObjectNode.generateKey(key))) {
+                keyIterator.remove();
+            }
+
+        }
+    }
+    
+    @Override
+    public List<DomainObject> getObjectCollectionFromCache(Id parentId, String... key) {
+        if (getTxReg().getTransactionKey() == null) {
+            return null;
+        }
+
+        if (!isCacheEnabled()) {
+            return null;
+        }
+
+        if (key == null || key.length == 0) {
+            throw new DaoException("Can't find key.");
+        }
+        Map<String, List<DomainObject>> objectCollectionMap = getObjectCollectionMap();
+
+        String objectCollectionKey = generateObjectCollectionKey(parentId, key);
+
+        List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
+        return cloneObjects(domainObjects);
+    }
+
+    private List<DomainObject> cloneObjects(List<DomainObject> domainObjects) {
+        if (domainObjects == null) {
+            return null;
+        }
+        List<DomainObject> ret = new ArrayList<>();
+        for (DomainObject object : domainObjects) {
+            ret.add(deepClone(object));
+        }
+        return ret;
     }
 
     /**
@@ -378,6 +480,10 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
     }
 
+    public void removeChildNodesByKey(Id id, String... rey){
+        
+    }
+    
     @Override
     public void clear() {
         if (getTxReg().getTransactionKey() == null) {
@@ -530,6 +636,16 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         return accessTypeMap;
+    }
+
+    private Map<String, List<DomainObject>> getObjectCollectionMap() {
+        Map<String, List<DomainObject>> objectCollectionMap = (Map) getTxReg().getResource(OBJECT_COLLECTION_MAP_KEY);
+        if (objectCollectionMap == null) {
+            objectCollectionMap = new HashMap<>();
+            getTxReg().putResource(OBJECT_COLLECTION_MAP_KEY, objectCollectionMap);
+        }
+
+        return objectCollectionMap;
     }
 
     private boolean isCacheEnabled() {
