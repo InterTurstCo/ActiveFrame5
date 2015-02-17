@@ -58,4 +58,10 @@ public interface ProfileService {
      * @param profile
      */
     void setPersonProfile(PersonProfile profile);
+
+    /**
+     * Получение локали из профиля текущего пользователя
+     * @return
+     */
+    String getPersonLocale();
 }

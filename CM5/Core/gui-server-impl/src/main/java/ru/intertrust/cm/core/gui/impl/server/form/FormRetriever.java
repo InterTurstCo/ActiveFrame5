@@ -11,7 +11,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -563,11 +562,11 @@ public class FormRetriever extends FormProcessor {
             //localize domain object name:
             String domainObjectName = params.get(Constraint.PARAM_DOMAIN_OBJECT_TYPE);
             String localizedDomainObjectName = MessageResourceProvider.getMessage(new MessageKey(domainObjectName,
-                    domainObjectKey), getCurrentLocale());
+                    domainObjectKey), profileService.getPersonLocale());
             //localize field name:
             String fieldName = params.get(Constraint.PARAM_FIELD_NAME);
             String localizedFieldName = MessageResourceProvider.getMessage(new MessageKey(fieldName, fieldKey, params),
-                    getCurrentLocale());
+                    profileService.getPersonLocale());
 
             params.put(Constraint.PARAM_DOMAIN_OBJECT_TYPE, localizedDomainObjectName);
             params.put(Constraint.PARAM_FIELD_NAME, localizedFieldName);
@@ -576,8 +575,4 @@ public class FormRetriever extends FormProcessor {
         return props;
     }
 
-    private String getCurrentLocale() {
-        PersonProfile profile = profileService.getPersonProfile();
-        return profile.getString(ProfileService.LOCALE);
-    }
 }

@@ -266,6 +266,12 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    @Override
+    public String getPersonLocale() {
+        PersonProfile profile = getPersonProfile();
+        return (profile != null) ? profile.getString(ProfileService.LOCALE) : null;
+    }
+
     private void cleanProfileAttributes(Id profileId) {
         IdentifiableObjectCollection profileValues = getProfileValuesByProfileId(profileId);
         if (profileValues.size() > 0) {

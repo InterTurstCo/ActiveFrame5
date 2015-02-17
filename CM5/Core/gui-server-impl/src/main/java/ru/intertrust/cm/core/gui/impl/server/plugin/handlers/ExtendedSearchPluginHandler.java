@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
 import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
@@ -146,11 +145,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
             String searchAreaName = areaData.getKey();
             result.put(searchAreaName, MessageResourceProvider.getMessage(new MessageKey(searchAreaName,
-                    MessageResourceProvider.SEARCH_AREA), getCurrentLocale()));
+                    MessageResourceProvider.SEARCH_AREA), profileService.getPersonLocale()));
             List<String> domainObjectTypes = areaData.getValue();
             for (String doType : domainObjectTypes) {
                 result.put(doType, MessageResourceProvider.getMessage(new MessageKey(doType, MessageResourceProvider
-                        .SEARCH_DOMAIN_OBJECT), getCurrentLocale()));
+                        .SEARCH_DOMAIN_OBJECT), profileService.getPersonLocale()));
             }
         }
         for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
@@ -159,7 +158,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 Map<String, String> context = new HashMap<>();
                 context.put(MessageResourceProvider.DOMAIN_OBJECT_CONTEXT, doType);
                 result.put(field, MessageResourceProvider.getMessage(new MessageKey(field, MessageResourceProvider
-                        .SEARCH_FIELD, context), getCurrentLocale()));
+                        .SEARCH_FIELD, context), profileService.getPersonLocale()));
             }
         }
 
@@ -393,8 +392,4 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
     }
 
-    private String getCurrentLocale() {
-        PersonProfile profile = profileService.getPersonProfile();
-        return profile.getString(ProfileService.LOCALE);
-    }
 }

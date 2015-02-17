@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
@@ -14,12 +15,25 @@ import ru.intertrust.cm.core.config.gui.GroupConfig;
 import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
-import ru.intertrust.cm.core.config.gui.form.*;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
+import ru.intertrust.cm.core.config.gui.form.FormWidgetAccessConfig;
+import ru.intertrust.cm.core.config.gui.form.HideWidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
+import ru.intertrust.cm.core.config.gui.form.WidgetRefConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
 import javax.annotation.PostConstruct;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Denis Mitavskiy
@@ -34,6 +48,9 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Autowired
     private PersonManagementService personManagementService;
+
+    @Autowired
+    private ProfileService profileService;
 
     private FormsCache editingFormsCache;
     private FormsCache searchFormsCache;
@@ -67,22 +84,23 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         // в конечном итоге получаем FormConfig
         final FormsCache cache = findCache(formType);
 
-        List<FormConfig> userFormConfigs = cache.getUserFormConfigs(userUid, targetTypeName);
+        List<String> userFormConfigs = cache.getUserFormConfigs(userUid, targetTypeName);
         if (userFormConfigs != null && userFormConfigs.size() != 0) {
             if (userFormConfigs.size() > 1) {
                 log.warn("There's " + userFormConfigs.size()
                         + " forms defined for Domain Object Type: " + targetTypeName + " and User: " + userUid);
             }
-            return userFormConfigs.get(0);
+            String formName = userFormConfigs.get(0);
+            return getLocalizedFormConfig(formName);
         }
 
         // todo define strategy of finding a form by role. which role? context role? or may be a static group?
         List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(userUid));
-        Pair<FormConfig, Integer> maxPriorityPair = new Pair(null, Integer.MIN_VALUE);
+        Pair<String, Integer> maxPriorityPair = new Pair(null, Integer.MIN_VALUE);
         for (DomainObject userGroup : userGroups) {
-            List<Pair<FormConfig, Integer>> groupFormConfigs = cache.getRoleFormConfigs(userGroup.getString("group_name"), targetTypeName);
+            List<Pair<String, Integer>> groupFormConfigs = cache.getRoleFormConfigs(userGroup.getString("group_name"), targetTypeName);
             if (groupFormConfigs != null && groupFormConfigs.size() != 0) {
-                for (Pair<FormConfig, Integer> pair : groupFormConfigs) {
+                for (Pair<String, Integer> pair : groupFormConfigs) {
                     Integer priority = pair.getSecond();
                     if (priority > maxPriorityPair.getSecond()) {
                         maxPriorityPair = pair;
@@ -91,15 +109,17 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             }
         }
         if (maxPriorityPair.getFirst() != null) {
-            return maxPriorityPair.getFirst();
+            String formName = maxPriorityPair.getFirst();
+            return getLocalizedFormConfig(formName);
         }
-        List<FormConfig> allFormConfigs = cache.getAllFormConfigs(targetTypeName);
+        List<String> allFormConfigs = cache.getAllFormConfigs(targetTypeName);
         if (allFormConfigs == null || allFormConfigs.size() == 0) {
             log.warn("There's no default form defined for Domain Object Type: " + targetTypeName);
             return null;
         }
 
-        FormConfig firstMetForm = allFormConfigs.get(0);
+        String firstMetFormName = allFormConfigs.get(0);
+        FormConfig firstMetForm = getLocalizedFormConfig(firstMetFormName);
         if (allFormConfigs.size() == 1) {
             return firstMetForm;
         }
@@ -163,11 +183,15 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         reportFormsCache = null;
     }
 
+    private FormConfig getLocalizedFormConfig(String formName) {
+        return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+    }
+
     private class FormsCache {
-        private CaseInsensitiveHashMap<FormConfig> defaultFormByDomainObjectType;
-        private CaseInsensitiveHashMap<List<FormConfig>> allFormsByDomainObjectType;
-        private HashMap<Pair<String, String>, List<Pair<FormConfig, Integer>>> formsByRoleAndDomainObjectType;
-        private HashMap<Pair<String, String>, List<FormConfig>> formsByUserAndDomainObjectType;
+        private CaseInsensitiveHashMap<String> defaultFormByDomainObjectType; // <DO type, config name>
+        private CaseInsensitiveHashMap<List<String>> allFormsByDomainObjectType; //<DO type, List<config name>>
+        private HashMap<Pair<String, String>, List<Pair<String, Integer>>> formsByRoleAndDomainObjectType; //<<Role, DO type>, List<config name, priority>>
+        private HashMap<Pair<String, String>, List<String>> formsByUserAndDomainObjectType; // <<User, DO type> , List<config name>>
         private Map<Pair<String, String>, List<String>> widgetsByFormAndUser;
         private Map<Pair<String, String>, List<String>> widgetsByFormAndGroup;
 
@@ -206,15 +230,15 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
                         throw new GuiException("There's more than 1 default form for type: " + domainObjectType);
                     }
-                    defaultFormByDomainObjectType.put(domainObjectTypeInLowerCase, formConfig);
+                    defaultFormByDomainObjectType.put(domainObjectTypeInLowerCase, formConfig.getName());
                 }
 
-                List<FormConfig> domainObjectTypeForms = allFormsByDomainObjectType.get(domainObjectType);
+                List<String> domainObjectTypeForms = allFormsByDomainObjectType.get(domainObjectType);
                 if (domainObjectTypeForms == null) {
                     domainObjectTypeForms = new ArrayList<>();
                     allFormsByDomainObjectType.put(domainObjectTypeInLowerCase, domainObjectTypeForms);
                 }
-                domainObjectTypeForms.add(formConfig);
+                domainObjectTypeForms.add(formConfig.getName());
 
                 if (formConfig.getWidgetGroupsConfig() != null) {
                     for (WidgetGroupConfig widgetGroupConfig : formConfig.getWidgetGroupsConfig().getWidgetGroupConfigList()) {
@@ -267,18 +291,19 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
         }
 
         public FormConfig getDefaultFormConfig(String targetTypeName) {
-            return defaultFormByDomainObjectType.get(targetTypeName);
+            String formConfigName = defaultFormByDomainObjectType.get(targetTypeName);
+            return getLocalizedFormConfig(formConfigName);
         }
 
-        public List<FormConfig> getAllFormConfigs(String targetTypeName) {
+        public List<String> getAllFormConfigs(String targetTypeName) {
             return allFormsByDomainObjectType.get(targetTypeName);
         }
 
-        private List<Pair<FormConfig, Integer>> getRoleFormConfigs(String roleName, String domainObjectType) {
+        private List<Pair<String, Integer>> getRoleFormConfigs(String roleName, String domainObjectType) {
             return formsByRoleAndDomainObjectType.get(new Pair<>(roleName, domainObjectType));
         }
 
-        public List<FormConfig> getUserFormConfigs(String userUid, String targetTypeName) {
+        public List<String> getUserFormConfigs(String userUid, String targetTypeName) {
             return formsByUserAndDomainObjectType.get(new Pair<>(userUid, targetTypeName));
         }
 
@@ -324,12 +349,12 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             for (GroupConfig groupConfig : groupConfigs) {
                 String roleName = groupConfig.getName();
                 Pair<String, String> roleAndDomainObjectType = new Pair<>(roleName, domainObjectType);
-                List<Pair<FormConfig, Integer>> roleFormConfigs = formsByRoleAndDomainObjectType.get(roleAndDomainObjectType);
+                List<Pair<String, Integer>> roleFormConfigs = formsByRoleAndDomainObjectType.get(roleAndDomainObjectType);
                 if (roleFormConfigs == null) {
                     roleFormConfigs = new ArrayList<>();
                     formsByRoleAndDomainObjectType.put(roleAndDomainObjectType, roleFormConfigs);
                 }
-                roleFormConfigs.add(new Pair<>(formConfig, (groupConfig.getPriority() != null ? groupConfig.getPriority() : 0)));
+                roleFormConfigs.add(new Pair<>(formConfig.getName(), (groupConfig.getPriority() != null ? groupConfig.getPriority() : 0)));
             }
         }
 
@@ -345,12 +370,12 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             for (UserConfig userConfig : userConfigs) {
                 String userUid = userConfig.getUid();
                 Pair<String, String> userAndDomainObjectType = new Pair<>(userUid, domainObjectType);
-                List<FormConfig> userFormConfigs = formsByUserAndDomainObjectType.get(userAndDomainObjectType);
+                List<String> userFormConfigs = formsByUserAndDomainObjectType.get(userAndDomainObjectType);
                 if (userFormConfigs == null) {
                     userFormConfigs = new ArrayList<>();
                     formsByUserAndDomainObjectType.put(userAndDomainObjectType, userFormConfigs);
                 }
-                userFormConfigs.add(formConfig);
+                userFormConfigs.add(formConfig.getName());
             }
         }
 

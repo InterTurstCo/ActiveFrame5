@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -43,6 +44,9 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
 
     @Autowired
     private PersonManagementService personManagementService;
+
+    @Autowired
+    private ProfileService profileService;
 
     private NavigationPanelsCache navigationPanelsCache;
 
@@ -184,7 +188,8 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     }
 
     private NavigationConfig getNavigationConfig(List<Pair<String, Integer>> navigationPanelPairs, int i) {
-        return configurationExplorer.getConfig(NavigationConfig.class, navigationPanelPairs.get(i).getFirst());
+        return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navigationPanelPairs.get(i).getFirst
+                (), profileService.getPersonLocale());
     }
 
     private NavigationConfig mergeNavigationPanels(List<Pair<String, Integer>> navigationPanelPairs) {
@@ -249,8 +254,8 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     public NavigationConfig getNavigationPanel(String currentUser) {
         NavigationConfig navConfig = null;
         if (currentUser != null && !currentUser.isEmpty()) {
-            navConfig = configurationExplorer.getConfig(NavigationConfig.class,
-                    navigationPanelsCache.navigationsByUser.get(currentUser));
+            navConfig = configurationExplorer.getLocalizedConfig(NavigationConfig.class,
+                    navigationPanelsCache.navigationsByUser.get(currentUser), profileService.getPersonLocale());
         }
         if (navConfig == null) {
             List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(currentUser));
