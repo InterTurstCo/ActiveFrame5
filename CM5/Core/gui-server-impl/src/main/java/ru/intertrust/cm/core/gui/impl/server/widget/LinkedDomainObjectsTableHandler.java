@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -13,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -36,6 +39,8 @@ import java.util.regex.Matcher;
 
 @ComponentName("linked-domain-objects-table")
 public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
+    private static Logger log = LoggerFactory.getLogger(LinkedDomainObjectsTableHandler.class);
+
     @Autowired
     CrudService crudService;
 
@@ -56,6 +61,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     protected PersonService personService;
+
+    @Autowired
+    protected FieldPathHelper fieldPathHelper;
 
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
     private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
@@ -162,6 +170,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
             FormState formState = entry.getValue();
             DomainObject savedObject = null;
+            String savedObjectType = formState.getRootDomainObjectType();
 
             List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext);
             if (!validationResult.isEmpty()) {
@@ -169,24 +178,22 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             }
             FieldPath[] paths = FieldPath.createPaths(fieldPath.getPath());
             for (FieldPath path : paths) {
-                String rootDomainObjectType = formState.getRootDomainObjectType();
+                if (!fieldPathHelper.typeMatchesFieldPath(savedObjectType, rootDomainObject.getTypeName(), path, false)) {
+                    continue;
+                }
                 if (path.isOneToManyReference()) {
-                    if (path.getLinkedObjectType().equalsIgnoreCase(rootDomainObjectType)) {
-                        final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
-                        rootObjectValues.put(new FieldPath(path.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
-                        FormSaver formSaver = getFormSaver(formState, rootObjectValues);
-                        savedObject = formSaver.saveForm();
-                    }
+                    final HashMap<FieldPath, Value> rootObjectValues = new HashMap<>();
+                    rootObjectValues.put(new FieldPath(path.getLinkToParentName()), new ReferenceValue(rootDomainObject.getId()));
+                    FormSaver formSaver = getFormSaver(formState, rootObjectValues);
+                    savedObject = formSaver.saveForm();
                 } else if (path.isManyToManyReference()) {
-                    if (path.getLinkToChildrenName().equalsIgnoreCase(rootDomainObjectType)) {
-                        FormSaver formSaver = getFormSaver(formState, null);
-                        savedObject = formSaver.saveForm();
-                        String referenceType = path.getReferenceType();
-                        DomainObject referencedObject = crudService.createDomainObject(referenceType);
-                        referencedObject.setReference(path.getLinkToChildrenName(), savedObject);
-                        referencedObject.setReference(path.getLinkToParentName(), rootDomainObject);
-                        crudService.save(referencedObject);
-                    }
+                    FormSaver formSaver = getFormSaver(formState, null);
+                    savedObject = formSaver.saveForm();
+                    String referenceType = path.getReferenceType();
+                    DomainObject referencedObject = crudService.createDomainObject(referenceType);
+                    referencedObject.setReference(path.getLinkToChildrenName(), savedObject);
+                    referencedObject.setReference(path.getLinkToParentName(), rootDomainObject);
+                    crudService.save(referencedObject);
                 } else { // one-to-one reference
                     // todo: not-null constraint will fail!
                     FormSaver formSaver = getFormSaver(formState, null);
@@ -196,7 +203,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 }
                 if (savedObject != null) {
                     newObjects.add(savedObject);
+                    break; // same object can not be saved to different field-paths
                 }
+            }
+            if (savedObject == null) {
+                log.error("Object not saved. Type: " + savedObjectType + " doesn't match field-path: " + fieldPath);
             }
         }
         return newObjects;

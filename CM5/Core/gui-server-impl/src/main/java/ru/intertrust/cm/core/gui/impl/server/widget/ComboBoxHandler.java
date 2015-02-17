@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -25,8 +24,6 @@ public class ComboBoxHandler extends ListWidgetHandler {
 
     @Autowired
     protected CrudService crudService;
-    @Autowired
-    protected ConfigurationService configurationService;
 
     @Override
     public ComboBoxState getInitialState(WidgetContext context) {

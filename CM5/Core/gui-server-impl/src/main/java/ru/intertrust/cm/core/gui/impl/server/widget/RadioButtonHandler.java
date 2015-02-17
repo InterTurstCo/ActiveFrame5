@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -11,7 +10,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.SingleSelectionWidgetConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.widget.ComboBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.RadioButtonState;
 
 import java.util.LinkedHashMap;
@@ -27,8 +25,6 @@ public class RadioButtonHandler extends ListWidgetHandler {
 
     @Autowired
     protected CrudService crudService;
-    @Autowired
-    protected ConfigurationService configurationService;
 
     @Override
     public RadioButtonState getInitialState(WidgetContext context) {

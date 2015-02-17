@@ -2,19 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontSizeConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FontWeightConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.ForceRequiredAsteriskConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LabelRenderer;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
@@ -34,9 +25,6 @@ import java.util.regex.Pattern;
  */
 @ComponentName("label")
 public class LabelHandler extends ValueEditingWidgetHandler {
-
-    @Autowired
-    protected ConfigurationService configurationService;
 
     @Autowired
     private ApplicationContext applicationContext;

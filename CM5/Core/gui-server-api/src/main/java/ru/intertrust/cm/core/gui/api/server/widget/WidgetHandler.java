@@ -2,17 +2,16 @@ package ru.intertrust.cm.core.gui.api.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,8 +25,9 @@ import java.util.regex.Pattern;
  */
 public abstract class WidgetHandler implements ComponentHandler {
 
-    @Inject
-    protected ConfigurationService configurationService;
+    @Autowired
+    protected ConfigurationExplorer configurationService;
+
     @Autowired
     protected FormatHandler formatHandler;
 

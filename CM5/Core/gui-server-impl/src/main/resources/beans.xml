@@ -38,6 +38,8 @@
 
     <bean id="defaultFormObjectsRemover" class="ru.intertrust.cm.core.gui.impl.server.form.DefaultFormObjectsRemover" scope="prototype"/>
 
+    <bean id="fieldPathHelper" class="ru.intertrust.cm.core.gui.impl.server.form.FieldPathHelperImpl" scope="singleton"/>
+
     <bean id="formDefaultValueSetter" class="ru.intertrust.cm.core.gui.impl.server.form.defaults.FormDefaultValueSetterImpl" scope="prototype"/>
 
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
