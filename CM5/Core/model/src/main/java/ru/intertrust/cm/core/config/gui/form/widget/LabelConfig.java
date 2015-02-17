@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.base.Localize;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.config.base.Localize;
  */
 @Root(name = "label")
 public class LabelConfig extends WidgetConfig implements Dto {
-    @Localize
+    @Localizable
     @Element(name = "text", required = false)
     private String text;
 
