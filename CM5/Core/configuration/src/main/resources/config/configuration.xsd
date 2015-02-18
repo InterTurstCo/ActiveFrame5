@@ -479,7 +479,8 @@
                         maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="import-settings" type="con:importSettings"
                         maxOccurs="unbounded" minOccurs="0"/>
-
+            <xs:element name="migration-script" type="con:migration-scriptType"
+                        maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>
 
@@ -3472,4 +3473,119 @@
             <xs:enumeration value="delete"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="delete-typesTypeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="change-field-classType">
+        <xs:sequence>
+            <xs:element type="con:change-field-classFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type"/>
+    </xs:complexType>
+    <xs:complexType name="delete-typesType">
+        <xs:sequence>
+            <xs:element type="con:delete-typesTypeType" name="type" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="executeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="component-name"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="migration-scriptType">
+        <xs:sequence>
+            <xs:element type="con:before-auto-migrationType" name="before-auto-migration"/>
+            <xs:element type="con:after-auto-migrationType" name="after-auto-migration"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="sequence-number" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="autoMigrationEventType">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element type="con:rename-fieldType" name="rename-field" minOccurs="0"/>
+            <xs:element type="con:change-field-classType" name="change-field-class" minOccurs="0"/>
+            <xs:element type="con:executeType" name="execute" minOccurs="0"/>
+            <xs:element type="xs:string" name="native-command" minOccurs="0"/>
+            <xs:element type="con:create-unique-keyType" name="create-unique-key" minOccurs="0"/>
+            <xs:element type="con:make-not-nullType" name="make-not-null" minOccurs="0"/>
+            <xs:element type="con:delete-typesType" name="delete-types" minOccurs="0"/>
+            <xs:element type="con:delete-fieldsType" name="delete-fields" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+    <xs:complexType name="before-auto-migrationType">
+        <xs:complexContent>
+            <xs:extension base="con:autoMigrationEventType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="after-auto-migrationType">
+        <xs:complexContent>
+            <xs:extension base="con:autoMigrationEventType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="make-not-nullType">
+        <xs:sequence>
+            <xs:element type="con:make-not-nullFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type"/>
+    </xs:complexType>
+    <xs:complexType name="rename-fieldFieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+                <xs:attribute type="xs:string" name="new-name" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="change-field-classFieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="make-not-nullFieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="delete-fieldsFieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="create-unique-keyFieldType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="delete-fieldsType">
+        <xs:sequence>
+            <xs:element type="con:delete-fieldsFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type"/>
+    </xs:complexType>
+    <xs:complexType name="rename-fieldType">
+        <xs:sequence>
+            <xs:element type="con:rename-fieldFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type"/>
+    </xs:complexType>
+    <xs:complexType name="create-unique-keyType">
+        <xs:sequence>
+            <xs:element type="con:create-unique-keyFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="type"/>
+    </xs:complexType>
 </xs:schema>

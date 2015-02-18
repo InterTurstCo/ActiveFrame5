@@ -1,0 +1,39 @@
+package ru.intertrust.cm.core.config.migration;
+
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.ElementList;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Java модель конфигурации объявления not-null при миграции
+ */
+public class MakeNotNullConfig {
+
+    @Attribute
+    private String type;
+
+    @ElementList(entry="field", inline=true)
+    private List<MakeNotNullFieldConfig> fields = new ArrayList<>();
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public List<MakeNotNullFieldConfig> getFields() {
+        return fields;
+    }
+
+    public void setFields(List<MakeNotNullFieldConfig> fields) {
+        if (fields == null) {
+            this.fields.clear();
+        } else {
+            this.fields = fields;
+        }
+    }
+}
