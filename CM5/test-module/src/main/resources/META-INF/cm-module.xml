@@ -192,10 +192,13 @@
     </deploy-processes>
 
     <localization-files>
-        <localization-file>text.properties</localization-file>
-        <localization-file locale="en">text_en.properties</localization-file>
-        <localization-file>validationMessages.properties</localization-file>
-        <localization-file locale="en">validationMessages_en.properties</localization-file>
+        <localization-file>localization/text.properties</localization-file>
+        <localization-file locale="en">localization/text_en.properties</localization-file>
+        <localization-file>localization/validationMessages.properties</localization-file>
+        <localization-file locale="en">localization/validationMessages_en.properties</localization-file>
+        <localization-file locale="en">localization/form_city_en.properties</localization-file>
+        <localization-file locale="en">localization/navPanel_en.properties</localization-file>
+        <localization-file locale="en">localization/actions_en.properties</localization-file>
     </localization-files>
 
 </module>

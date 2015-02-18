@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  *         Time: 12:05 PM
  */
 @Root(name = "navigation", strict = false)
-public class NavigationConfig implements TopLevelConfig {
+public class NavigationConfig implements LocalizableConfig {
     @ElementList(name = "link", required = false, inline = true)
     private List<LinkConfig> linkConfigList = new ArrayList<LinkConfig>();
 

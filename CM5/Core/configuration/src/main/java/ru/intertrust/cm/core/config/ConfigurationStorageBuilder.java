@@ -71,20 +71,21 @@ public class ConfigurationStorageBuilder {
         typeMap.put(config.getName(), config);
     }
 
-    private void localize(String locale, LocalizableConfig config) {
+    private void localize(final String locale, LocalizableConfig config) {
 
         try {
             AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
                 @Override
                 public void onAnnotationFound(Object object, Field field) throws IllegalAccessException {
                     if (field.get(object) != null) {
-                        //field.set(object, field.get(object) + " Changed!");
-                        //TODO:  Localize fields value
+                        String originalValue = (String) field.get(object);
+                        String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
+                        field.set(object, localizedValue);
                     }
                 }
             });
         } catch (IllegalAccessException e) {
-            e.printStackTrace(); //TODO: handle exception
+            throw new ConfigurationException(e);
         }
     }
 

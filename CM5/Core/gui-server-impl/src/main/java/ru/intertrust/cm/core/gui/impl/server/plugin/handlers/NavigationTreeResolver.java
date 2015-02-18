@@ -188,8 +188,7 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     }
 
     private NavigationConfig getNavigationConfig(List<Pair<String, Integer>> navigationPanelPairs, int i) {
-        return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navigationPanelPairs.get(i).getFirst
-                (), profileService.getPersonLocale());
+        return getLocalizedNavigationConfig(navigationPanelPairs.get(i).getFirst());
     }
 
     private NavigationConfig mergeNavigationPanels(List<Pair<String, Integer>> navigationPanelPairs) {
@@ -254,8 +253,7 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     public NavigationConfig getNavigationPanel(String currentUser) {
         NavigationConfig navConfig = null;
         if (currentUser != null && !currentUser.isEmpty()) {
-            navConfig = configurationExplorer.getLocalizedConfig(NavigationConfig.class,
-                    navigationPanelsCache.navigationsByUser.get(currentUser), profileService.getPersonLocale());
+            navConfig = getLocalizedNavigationConfig(navigationPanelsCache.navigationsByUser.get(currentUser));
         }
         if (navConfig == null) {
             List<DomainObject> userGroups = personManagementService.getPersonGroups(personManagementService.getPersonId(currentUser));
@@ -265,5 +263,9 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
             navConfig = navigationPanelsCache.getDefaultNavigationPanel();
         }
         return navConfig;
+    }
+
+    private NavigationConfig getLocalizedNavigationConfig(String navConfigName) {
+        return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navConfigName, profileService.getPersonLocale());
     }
 }

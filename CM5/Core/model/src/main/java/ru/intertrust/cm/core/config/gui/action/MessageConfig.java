@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.io.Serializable;
 import org.simpleframework.xml.Attribute;
+import ru.intertrust.cm.core.config.base.Localizable;
+
+import java.io.Serializable;
 
 /**
  * @author Sergey.Okolot
@@ -10,6 +12,7 @@ import org.simpleframework.xml.Attribute;
 public class MessageConfig implements Serializable {
 
     @Attribute
+    @Localizable
     private String text;
 
     public String getText() {

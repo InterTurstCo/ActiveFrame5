@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 
 import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.navigation.counters.CounterType;
 
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ public class  LinkConfig implements Dto {
     private String name;
 
     @Attribute(name = "display-text", required = false)
+    @Localizable
     private String displayText;
 
     @Attribute(name = "image", required = false)

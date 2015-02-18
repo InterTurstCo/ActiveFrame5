@@ -2,13 +2,17 @@ package ru.intertrust.cm.core.util;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Lesia Puhova
@@ -19,15 +23,20 @@ public class AnnotationScanner {
 
     public static void scanAnnotation(Object object, Class annotationClass, AnnotationScanCallback callback) throws IllegalAccessException {
         Class clazz = object.getClass();
-        Field[] fields = clazz.getDeclaredFields();
+        List<Field> allFields = new ArrayList<>();
 
-        for (Field field : fields) {
+
+        while (Dto.class.isAssignableFrom(clazz)) {
+            Field[] fields = clazz.getDeclaredFields();
+            allFields.addAll(Arrays.asList(fields));
+            clazz = clazz.getSuperclass();
+        }
+
+        for (Field field : allFields) {
             if (!field.getType().isPrimitive()) {
                 field.setAccessible(true);
                 if (field.getAnnotation(annotationClass) != null) {
-
                     callback.onAnnotationFound(object, field);
-
 
                 } else if (Collection.class.isAssignableFrom(field.getType())
                         && field.getAnnotation(ElementList.class) != null) {
