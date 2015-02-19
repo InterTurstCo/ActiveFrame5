@@ -21,6 +21,7 @@ public class RepresentationRequest implements Dto {
     private FormState createdObjectState;
     private String linkedFormName;
     private String collectionName;
+    private Id rootId;
 
     public RepresentationRequest() {
     }
@@ -98,5 +99,13 @@ public class RepresentationRequest implements Dto {
 
     public String getCollectionName() {
         return collectionName;
+    }
+
+    public Id getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(Id rootId) {
+        this.rootId = rootId;
     }
 }

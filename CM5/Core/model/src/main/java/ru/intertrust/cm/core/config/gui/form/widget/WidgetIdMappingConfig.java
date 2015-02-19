@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 /**
  * Created by andrey on 07.11.14.
  */
+@Deprecated
 public class WidgetIdMappingConfig implements Dto {
     @Attribute(name = "linked-form-name")
     private String linkedFormName;

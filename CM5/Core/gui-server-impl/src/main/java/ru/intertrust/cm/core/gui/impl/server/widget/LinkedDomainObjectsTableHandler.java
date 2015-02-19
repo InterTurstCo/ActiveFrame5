@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
+import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.action.access.AccessChecker;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
@@ -36,6 +37,8 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.regex.Matcher;
+
+import static ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil.getDisplayValue;
 
 @ComponentName("linked-domain-objects-table")
 public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
@@ -393,80 +396,117 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             item.setObjectId(requestIds.get(0));
         }
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
-            String widgetId = findWidgetIdFromMappings(summaryTableColumnConfig, request.getLinkedFormName());
             String columnId = summaryTableColumnConfig.getColumnId();
-            WidgetState widgetState = createdObjectState.getFullWidgetsState().get(widgetId);
-            StringBuilder representation = new StringBuilder();
+
+            StringBuffer replacement = new StringBuffer();
             if (summaryTableColumnConfig.getValueGeneratorComponent() != null) {
                 StringValueRenderer valueRenderer = (StringValueRenderer) applicationContext.getBean(summaryTableColumnConfig.getValueGeneratorComponent());
-                representation.append(valueRenderer.render(createdObjectState));
-                item.setValueByKey(columnId, representation.toString());
+                replacement.append(valueRenderer.render(createdObjectState));
+                item.setValueByKey(columnId, replacement.toString());
             } else {
-                // todo: fix this parsing
-                // Допустим, паттерн отображения такой: {name} {description}
-                // Алгоритм: если встретили name, то из состояния формы вытаскиваем состояние виджета FormState.getWidgetState("name"),
-                // его форматируем и подставляем. Если встретили {ref.text}, то ищем виджет с field-path==ref.text,
-                // если такого нет - то с field-path == "ref", берём его состояние и если оно не пустое и id != null (не новый объект),
-                // то "раскручиваем" дальше (получаем объект по Id, а у него поле text).
-                // Если виджетов для field-path (в общем случае, составного) вообще нет на форме, то нужно попробовать (там тоже может не быть)
-                // вытащить из базы, как это делается при построении таблицы этого виджета на сервере.
+
                 String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig, createdObjectState.getRootDomainObjectType()).getValue();
                 Matcher matcher = fieldPatternMatcher(selectionPattern);
-                if (widgetState != null) {
-                    FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
-                    if (widgetState instanceof TextState) {
-                        TextState textBoxState = (TextState) widgetState;
-                        String text = textBoxState.getText();
-                        representation.append(formatHandler.format(new StringValue(text), matcher, formattingConfig));
-                    } else if (widgetState instanceof IntegerBoxState) {
-                        IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
-                        Long number = integerBoxState.getNumber();
-                        representation.append(formatHandler.format(new LongValue(number), matcher, formattingConfig));
+                FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
+                while (matcher.find()) {
+                    String group = matcher.group();
 
-                    } else if (widgetState instanceof DecimalBoxState) {
-                        DecimalBoxState decimalBoxState = (DecimalBoxState) widgetState;
-                        BigDecimal number = decimalBoxState.getNumber();
-                        representation.append(formatHandler.format(new DecimalValue(number), matcher, formattingConfig));
-
-                    } else if (widgetState instanceof CheckBoxState) {
-                        CheckBoxState checkBoxState = (CheckBoxState) widgetState;
-                        Boolean checked = checkBoxState.isSelected();
-                        representation.append(formatHandler.format(new BooleanValue(checked), matcher, formattingConfig));
-
-                    } else if (widgetState instanceof DateBoxState) {
-                        DateBoxState dateBoxState = (DateBoxState) widgetState;
-                        representation.append(formatHandler.format(dateBoxState, matcher, formattingConfig));
-
-                    } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
-                        LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
-                        List<Id> ids = linkEditingWidgetState.getIds();
-                        representation.append(formatHandler.format(selectionPattern, ids, formattingConfig));
-
-                    } else if (widgetState instanceof EnumBoxState) {
-                        EnumBoxState enumBoxState = (EnumBoxState) widgetState;
-                        String selectedText = enumBoxState.getSelectedText();
-                        representation.append(formatHandler.format(new StringValue(selectedText), matcher, formattingConfig));
+                    String fieldPathValue = group.substring(1, group.length() - 1);
+                    /**
+                     * 1) если виджета с field-path == main_street или с field-path == main_street.name на форме нет,
+                     * то берём из базы, как обычно (если объект-город уже существует)
+                     * 2) если есть виджет с field-path == main_street, то значение ссылки вытаскиваем из виджета, а main_street - из базы
+                     * 3) если есть виджет с field-path == main_street.name, то значение вытаскиваем из виджета
+                     */
+                    WidgetState widgetState = createdObjectState.getWidgetStateByFieldPath(fieldPathValue);
+                    String displayValue = widgetState == null ? findWidgetStateAndFormat(fieldPathValue, createdObjectState, formattingConfig)
+                            : formatFromWidgetState(fieldPathValue, widgetState, formattingConfig);
+                    if("".equals(displayValue)){
+                        displayValue = formatFromDb(fieldPathValue, request.getRootId(), formattingConfig);
                     }
-                    item.setValueByKey(columnId, representation.toString());
-                }
-            }
+                    matcher.appendReplacement(replacement, displayValue);
 
+                }
+                matcher.appendTail(replacement);
+                matcher.reset();
+                item.setValueByKey(columnId, replacement.toString());
+            }
         }
         return item;
     }
-
-    private String findWidgetIdFromMappings(SummaryTableColumnConfig summaryTableColumnConfig, String linkedFormName) {
-        if (summaryTableColumnConfig.getWidgetIdMappingsConfig() != null) {
-            for (WidgetIdMappingConfig widgetIdMappingConfig :
-                    summaryTableColumnConfig.getWidgetIdMappingsConfig().getWidgetIdMappingConfigs()) {
-                if (widgetIdMappingConfig.getLinkedFormName().equalsIgnoreCase(linkedFormName)) {
-                    return widgetIdMappingConfig.getWidgetId();
-                }
-            }
+    private String formatFromDb(String fieldPathValue, Id id, FormattingConfig formattingConfig){
+        if(id == null){
+            return "";
         }
-        return summaryTableColumnConfig.getWidgetId();
+
+        return formatHandler.format(Arrays.asList(id), formattingConfig, fieldPathValue, false);
+
     }
 
+    private String findWidgetStateAndFormat(String fieldPathValue, FormState createdObjectState, FormattingConfig formattingConfig){
+        StringBuilder displayValue = new StringBuilder();
+        PatternIterator patternIterator = new PatternIterator(fieldPathValue);
+        patternIterator.moveToNext();
+        WidgetState widgetState = null;
+        if(PatternIterator.ReferenceType.DIRECT_REFERENCE.equals(patternIterator.getType())){
+            widgetState = createdObjectState.getWidgetStateByFieldPath(patternIterator.getValue());
+
+        } else if(PatternIterator.ReferenceType.BACK_REFERENCE_ONE_TO_ONE.equals(patternIterator.getType())){
+            patternIterator.moveToNext();
+            widgetState = createdObjectState.getWidgetStateByFieldPath(patternIterator.getValue());
+        }
+        if (widgetState != null && widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
+            LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
+            List<Id> ids = linkEditingWidgetState.getIds();
+            displayValue.append(formatHandler.format(ids, formattingConfig, fieldPathValue, true));
+        }
+
+        return displayValue.toString();
+    }
+
+
+    private String formatFromWidgetState(String fieldPathValue,WidgetState widgetState, FormattingConfig formattingConfig){
+        StringBuilder displayValue = new StringBuilder();
+        if (widgetState != null) {
+            if (widgetState instanceof TextState) {
+                TextState textBoxState = (TextState) widgetState;
+                String text = textBoxState.getText();
+                displayValue.append(getDisplayValue(fieldPathValue, new StringValue(text), formattingConfig));
+            } else if (widgetState instanceof IntegerBoxState) {
+                IntegerBoxState integerBoxState = (IntegerBoxState) widgetState;
+                Long number = integerBoxState.getNumber();
+                displayValue.append(getDisplayValue(fieldPathValue, new LongValue(number), formattingConfig));
+
+            } else if (widgetState instanceof DecimalBoxState) {
+                DecimalBoxState decimalBoxState = (DecimalBoxState) widgetState;
+                BigDecimal number = decimalBoxState.getNumber();
+                displayValue.append(getDisplayValue(fieldPathValue, new DecimalValue(number), formattingConfig));
+
+            } else if (widgetState instanceof CheckBoxState) {
+                CheckBoxState checkBoxState = (CheckBoxState) widgetState;
+                Boolean checked = checkBoxState.isSelected();
+                displayValue.append(getDisplayValue(fieldPathValue, new BooleanValue(checked), formattingConfig));
+
+            } else if (widgetState instanceof DateBoxState) {
+                DateBoxState dateBoxState = (DateBoxState) widgetState;
+                ValueEditingWidgetHandler valueEditingWidgetHandler = (ValueEditingWidgetHandler) applicationContext.getBean("date-box");
+                Value value = valueEditingWidgetHandler.getValue(dateBoxState);
+                displayValue.append(getDisplayValue(fieldPathValue, value, formattingConfig));
+
+            } else if (widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
+                LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
+                List<Id> ids = linkEditingWidgetState.getIds();
+                displayValue.append(formatHandler.format(ids, formattingConfig, fieldPathValue, true));
+
+            } else if (widgetState instanceof EnumBoxState) {
+                EnumBoxState enumBoxState = (EnumBoxState) widgetState;
+                String selectedText = enumBoxState.getSelectedText();
+                displayValue.append(getDisplayValue(fieldPathValue, new StringValue(selectedText), formattingConfig));
+            }
+
+        }
+        return displayValue.toString();
+    }
 
 }
 

@@ -1,32 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.server.widget.util;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Locale;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.config.gui.form.widget.BooleanFormatConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathsConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NumberFormatConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateTimeWithTimezoneValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.DateValueConverter;
 import ru.intertrust.cm.core.gui.impl.server.widget.TimelessDateValueConverter;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -35,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.DateTimeContext;
  */
 public class WidgetRepresentationUtil {
     private static final char ESCAPE_CHAR = '\\';
+    private static final char BUCKS_CHAR = '$';
 
     public static String getDisplayValue(String fieldName, Value value, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
@@ -75,7 +63,7 @@ public class WidgetRepresentationUtil {
             }
         }
 
-        return displayValue.toString();
+        return escapeSpecialCharacters(displayValue.toString());
     }
 
     private static String getTimeZoneId(String field, FormattingConfig formattingConfig) {
@@ -176,7 +164,7 @@ public class WidgetRepresentationUtil {
         if (displayValue != null) {
             for (int i = 0; i < displayValue.length(); i++) {
                 char c = displayValue.charAt(i);
-                if (c == ESCAPE_CHAR) {
+                if (c == ESCAPE_CHAR || c == BUCKS_CHAR) {
                     sb.append(ESCAPE_CHAR);
                 }
                 sb.append(c);

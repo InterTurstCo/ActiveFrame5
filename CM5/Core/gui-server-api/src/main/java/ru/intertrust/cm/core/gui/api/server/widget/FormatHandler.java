@@ -25,7 +25,9 @@ public interface FormatHandler extends ComponentHandler {
     String format(WidgetContext context, Matcher matcher, FormattingConfig formattingConfig);
     String format(Value value, Matcher matcher, FormattingConfig formattingConfig);
     String format(DateBoxState state, Matcher matcher, FormattingConfig formattingConfig);
+    @Deprecated //not used anymore
     String format(String selectionPattern, List<Id> ids, FormattingConfig formattingConfig);
+    String format(List<Id> ids, FormattingConfig formattingConfig, String fieldName, boolean skipFirstElement);
     Dto getRepresentationForOneItem(Dto inputParams);
 
 }

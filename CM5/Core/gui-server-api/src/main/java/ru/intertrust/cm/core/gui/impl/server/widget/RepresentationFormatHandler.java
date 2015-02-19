@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresentationUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
@@ -88,6 +87,26 @@ public class RepresentationFormatHandler implements FormatHandler {
         return sb.toString();
     }
 
+    @Override
+    public String format(List<Id> ids, FormattingConfig formattingConfig, String fieldName, boolean skipFirstElement) {
+        Iterator<Id> iterator = ids.iterator();
+        StringBuilder sb = new StringBuilder();
+        while (iterator.hasNext()) {
+            Id id = iterator.next();
+            DomainObject domainObject = crudService.find(id);
+            String representation = fieldName.contains(".") || fieldName.contains("|")
+                    ? getFormattedReferenceValueByFieldPath(fieldName, domainObject, skipFirstElement, formattingConfig)
+                    : getDisplayValue(fieldName, domainObject, formattingConfig);
+            sb.append(representation);
+            if (iterator.hasNext()) {
+                sb.append("; ");
+            }
+        }
+
+        return sb.toString();
+    }
+
+
     public RepresentationResponse getRepresentationForOneItem(Dto inputParams) {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         String selectionPattern = request.getPattern();
@@ -124,7 +143,8 @@ public class RepresentationFormatHandler implements FormatHandler {
         while (matcher.find()) {
             String group = matcher.group();
             String fieldName = group.substring(1, group.length() - 1);
-            String displayValue = fieldName.contains(".") || fieldName.contains("|") ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, true, formattingConfig) :
+            String displayValue = fieldName.contains(".") || fieldName.contains("|")
+                    ? getFormattedReferenceValueByFieldPath(fieldName, identifiableObject, true, formattingConfig) :
                     getDisplayValue(fieldName, identifiableObject, formattingConfig);
             matcher.appendReplacement(replacement, displayValue);
         }
@@ -175,17 +195,17 @@ public class RepresentationFormatHandler implements FormatHandler {
             String group = matcher.group();
 
             FieldPath fieldPath = new FieldPath(group.substring(1, group.length() - 1));
-            final String displayValueUnescaped;
+            final String displayValue;
             if ("id".equals(fieldPath.getFieldName())) {
                 final DomainObject rootObject = context.getFormObjects().getRootDomainObject();
-                displayValueUnescaped = (rootObject == null || rootObject.getId() == null)
+                displayValue = (rootObject == null || rootObject.getId() == null)
                         ? ""
                         : rootObject.getId().toStringRepresentation();
             } else {
                 Value value = context.getValue(fieldPath);
-                displayValueUnescaped = getDisplayValue(fieldPath.getFieldName(), value, formattingConfig);
+                displayValue = getDisplayValue(fieldPath.getFieldName(), value, formattingConfig);
             }
-            String displayValue = displayValueUnescaped.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\$", "\\\\\\$");
+
             matcher.appendReplacement(replacement, displayValue);
         }
 
@@ -219,7 +239,7 @@ public class RepresentationFormatHandler implements FormatHandler {
                         : getDisplayValue(fieldName, identifiableObject, formattingConfig);
             }
 
-            matcher.appendReplacement(replacement, WidgetRepresentationUtil.escapeSpecialCharacters(displayValue));
+            matcher.appendReplacement(replacement, displayValue);
         }
         matcher.appendTail(replacement);
         matcher.reset();

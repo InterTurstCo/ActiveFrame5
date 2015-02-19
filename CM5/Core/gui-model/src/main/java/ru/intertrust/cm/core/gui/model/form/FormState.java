@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,6 +23,8 @@ public class FormState implements Dto {
     private Map<String, String> messages;
     private Map<String, FieldPath> widgetFieldPaths;
     private Map<String, String> widgetComponents;
+    private transient Map<String, WidgetState> widgetStatesByFieldPath = new HashMap<>();
+    private List<WidgetConfig> widgetConfigs;
 
     /**
      * Конструктор по умолчанию.
@@ -104,5 +109,39 @@ public class FormState implements Dto {
 
     public String getRootDomainObjectType() {
         return getObjects().getRootDomainObject().getTypeName();
+    }
+
+    public void setWidgetConfigs(List<WidgetConfig> widgetConfigs) {
+        this.widgetConfigs = widgetConfigs;
+    }
+
+    public List<WidgetConfig> getWidgetConfigs() {
+        return widgetConfigs;
+    }
+
+    public void setWidgetStatesByFieldPath(){
+        widgetStatesByFieldPath.clear();
+    }
+    public void setWidgetStateByFieldPath(String fieldPathValue, WidgetState widgetState){
+        widgetStatesByFieldPath.put(fieldPathValue, widgetState);
+    }
+
+    public WidgetState getWidgetStateByFieldPath(String fieldPathValue){
+        if(fieldPathValue == null){
+            return null;
+        }
+        if(widgetConfigs != null && widgetStatesByFieldPath.isEmpty()){
+            for (WidgetConfig widgetConfig : widgetConfigs) {
+                String widgetId = widgetConfig.getId();
+                WidgetState state = widgetStateMap.get(widgetId);
+                String fpv = widgetConfig.getFieldPathConfig() == null ? null : widgetConfig.getFieldPathConfig().getValue();
+                if(state != null && fpv != null){
+                    widgetStatesByFieldPath.put(fpv.toLowerCase(), state);
+                }
+
+            }
+        }
+        return widgetStatesByFieldPath.get(fieldPathValue.toLowerCase());
+
     }
 }

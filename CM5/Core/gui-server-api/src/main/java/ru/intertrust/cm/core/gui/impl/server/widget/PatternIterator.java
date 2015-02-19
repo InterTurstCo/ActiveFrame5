@@ -21,7 +21,20 @@ public class PatternIterator {
     public enum ReferenceType {
         FIELD,
         DIRECT_REFERENCE,
-        BACK_REFERENCE_ONE_TO_ONE
+        BACK_REFERENCE_ONE_TO_ONE;
+
+        public static String getSeparator(ReferenceType referenceType) {
+            String result = "";
+            switch (referenceType) {
+                case DIRECT_REFERENCE:
+                    result = ".";
+                    break;
+                case BACK_REFERENCE_ONE_TO_ONE:
+                    result = "|";
+                    break;
+            }
+            return result;
+        }
     }
 
     public PatternIterator(String fieldPath) {
@@ -50,9 +63,11 @@ public class PatternIterator {
 
                 for (int i = 0; i < length; i++) {
                     String partOfOrSplit = splitByOr[i];
-
-                    fieldPathMap.put(partOfOrSplit, ReferenceType.BACK_REFERENCE_ONE_TO_ONE);
-
+                    if (i + 1 == length) {
+                        fieldPathMap.put(partOfOrSplit, ReferenceType.DIRECT_REFERENCE);
+                    } else {
+                        fieldPathMap.put(partOfOrSplit, ReferenceType.BACK_REFERENCE_ONE_TO_ONE);
+                    }
                     parts.add(partOfOrSplit);
                 }
             }
@@ -76,6 +91,35 @@ public class PatternIterator {
 
     public ReferenceType getType() {
         return fieldPathMap.get(parts.get(index));
+    }
+
+    public String getTraversed() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i <= index; i++) {
+            String part = parts.get(i);
+            ReferenceType referenceType = fieldPathMap.get(part);
+            String separator = ReferenceType.getSeparator(referenceType);
+            sb.append(part);
+            if(i != index){
+                sb.append(separator);
+            }
+        }
+        return sb.toString();
+    }
+
+    public String getNotTraversed() {
+        StringBuilder sb = new StringBuilder();
+        int nextPartIndex = index + 1;
+        for (int i = nextPartIndex; i < parts.size(); i++) {
+            String part = parts.get(i);
+            ReferenceType referenceType = fieldPathMap.get(part);
+            String separator = ReferenceType.getSeparator(referenceType);
+            sb.append(part);
+            if(i + 1 != parts.size()){
+            sb.append(separator);
+            }
+        }
+        return sb.toString();
     }
 }
 

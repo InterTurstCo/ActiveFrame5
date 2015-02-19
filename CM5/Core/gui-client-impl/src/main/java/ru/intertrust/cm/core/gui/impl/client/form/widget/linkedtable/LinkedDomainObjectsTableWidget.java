@@ -333,6 +333,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
         final RepresentationRequest request = new RepresentationRequest(formState, summaryTableConfig);
         request.setLinkedFormName(findLinkedFormName(formState, currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig()));
+        request.setRootId(oldRowItem.getObjectId());
         if (index != null && currentState.getIds().size() > index) {
             List<Id> ids = Arrays.asList(currentState.getIds().get(index));
             request.setIds(ids);

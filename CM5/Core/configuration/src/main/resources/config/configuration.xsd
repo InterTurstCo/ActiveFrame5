@@ -3378,7 +3378,7 @@
         </xs:sequence>
         <xs:attribute name="value" type="xs:string"/>
     </xs:complexType>
-    <xs:complexType name="widgetIdMappingsType">
+    <xs:complexType name="widgetIdMappingsType"><!--Not used-->
         <xs:sequence>
             <xs:element type="con:widgetIdMappingType" name="widget-id-mapping" minOccurs="1" maxOccurs="unbounded"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
