@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
 
@@ -41,6 +43,10 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "application-help", required = false)
     private ApplicationHelpConfig applicationHelpConfig;
 
+    @Element(name = "crypto-settings", required = false)
+    private CryptoSettingsConfig cryptoSettingsConfig;
+    
+    
     public ApplicationHelpConfig getApplicationHelpConfig() {
         return applicationHelpConfig;
     }
@@ -101,6 +107,14 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         this.eventLogsConfig = eventLogsConfig;
     }
 
+    public CryptoSettingsConfig getCryptoSettingsConfig() {
+        return cryptoSettingsConfig;
+    }
+
+    public void setCryptoSettingsConfig(CryptoSettingsConfig cryptoSettingsConfig) {
+        this.cryptoSettingsConfig = cryptoSettingsConfig;
+    }
+
     public boolean validateGui() {
         return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateGui();
     }
@@ -145,6 +159,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
             return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
+        if (cryptoSettingsConfig != null ? !cryptoSettingsConfig.equals(that.cryptoSettingsConfig) : that.cryptoSettingsConfig != null)
+            return false;
 
         return true;
     }
@@ -159,6 +175,7 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         result = 31 * result + (developmentMode != null ? developmentMode.hashCode() : 0);
         result = 31 * result + (eventLogsConfig != null ? eventLogsConfig.hashCode() : 0);
         result = 31 * result + (applicationHelpConfig != null ? applicationHelpConfig.hashCode() : 0);
+        result = 31 * result + (cryptoSettingsConfig != null ? cryptoSettingsConfig.hashCode() : 0);
         return result;
     }
 

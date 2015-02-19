@@ -88,6 +88,9 @@
         <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/form/Qual_Group_Qualifier_DO_form.xml</configuration-path>
         <configuration-path>contacts-module/configuration/form/Qualifier_form.xml</configuration-path>
+        
+        <!-- Настройки криптопровайдера -->
+        <configuration-path>module-configuration/crypto.xml</configuration-path>        
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">

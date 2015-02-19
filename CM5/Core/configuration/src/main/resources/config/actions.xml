@@ -58,4 +58,9 @@
         <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false"/>
         <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
     </act:tool-bar>
+    
+    <act:action name="aDigitalSignature" componentName="digital.signature.action"
+                text="ЭЦП" tooltip="Подписать документ с помощью ЭЦП" order="100"
+                dirtySensitivity="true" permissions="Read"/>
+    
 </configuration>

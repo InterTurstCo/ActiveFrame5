@@ -50,4 +50,12 @@
         </fields>
     </domain-object-type>
 
+     <domain-object-type name="digital_signature" initial-status="Active">
+		<fields>
+            <reference name="signed_object" type="*" not-null="true"/>
+            <text name="signature" not-null="true"/>
+        </fields>
+     </domain-object-type>
+
+
 </configuration>

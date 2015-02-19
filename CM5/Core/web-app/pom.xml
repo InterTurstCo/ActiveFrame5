@@ -1,90 +1,135 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <artifactId>web-app</artifactId>
-    <packaging>war</packaging>
-    <name>web-app</name>
+	<artifactId>web-app</artifactId>
+	<packaging>war</packaging>
+	<name>web-app</name>
 
-    <parent>
-        <groupId>ru.intertrust.cm-sochi</groupId>
-        <artifactId>core</artifactId>
-        <version>0.5.13-41-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<groupId>ru.intertrust.cm-sochi</groupId>
+		<artifactId>core</artifactId>
+		<version>0.5.13-41-SNAPSHOT</version>
+	</parent>
 
-    <properties>
-        <root.basedir>${project.parent.parent.basedir}</root.basedir>
-    </properties>
+	<properties>
+		<root.basedir>${project.parent.parent.basedir}</root.basedir>
+	</properties>
 
-    <dependencies>
+	<dependencies>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>dao-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>dao-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>service-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>service-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>gui-client-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>gui-client-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>gui-server-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>gui-server-impl</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>test-module</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>test-module</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>dataset-generator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>dataset-generator</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>web-business-universe</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-    </dependencies>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>web-business-universe</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
-    <build>
-    </build>
+		<dependency>
+			<groupId>ru.intertrust.cm-sochi</groupId>
+			<artifactId>crypto-pro-service</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
 
-    <profiles>
-        <profile>
-            <id>filenet</id>
-            <dependencies>
-                <dependency>
-                    <groupId>ru.intertrust.cm-sochi</groupId>
-                    <artifactId>filenet-adapter</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>gwt-maven-plugin</artifactId>
+					<version>${gwt.version}</version>
+					<configuration>
+						<modules>
+							<module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
+							<module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
+						</modules>
+						<compileSourcesArtifacts>
+							<artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
+							<artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
+							<artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
+							<artifact>ru.intertrust.cm-sochi:configuration</artifact>
+							<artifact>ru.intertrust.cm-sochi:model</artifact>
+							<artifact>ru.intertrust.cm-sochi:gui-model</artifact>
+						</compileSourcesArtifacts>
+						<runTarget>BusinessUniverse.html</runTarget>
+						<noServer>true</noServer>
+						<hostedWebapp>${project.build.directory}/gwt-devmode</hostedWebapp>
+						<extraJvmArgs>-Xmx1024m</extraJvmArgs>
+						<debugSuspend>false</debugSuspend>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>filenet</id>
+			<dependencies>
+				<dependency>
+					<groupId>ru.intertrust.cm-sochi</groupId>
+					<artifactId>filenet-adapter</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+		<profile>
+			<id>gwt-dev</id>
+			<dependencies>
+				<dependency>
+		            <groupId>com.google.gwt</groupId>
+		            <artifactId>gwt-dev</artifactId>
+		            <scope>runtime</scope>
+				</dependency>
+			</dependencies>
+		</profile>				
+	</profiles>
 </project>

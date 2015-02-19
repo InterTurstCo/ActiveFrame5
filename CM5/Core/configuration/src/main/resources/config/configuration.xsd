@@ -479,6 +479,8 @@
                         maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="import-settings" type="con:importSettings"
                         maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="type-crypto-settings" type="con:typeCryptoSettings"
+                        maxOccurs="unbounded" minOccurs="0"/>
             <xs:element name="migration-script" type="con:migration-scriptType"
                         maxOccurs="unbounded" minOccurs="0"/>
         </xs:choice>
@@ -688,6 +690,15 @@
             <xs:element name="application-help" type="con:applicationHelpType"
                         maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+			<xs:element name="crypto-settings" minOccurs="0" maxOccurs="1">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="provider-settings" minOccurs="0" maxOccurs="1" type="con:typeSettingsExtension"/>
+					</xs:sequence>
+					<xs:attribute name="gui-component-name" use="required" type="xs:string" />
+					<xs:attribute name="server-signature-verifier-bean-name" use="required" type="xs:string" />
+				</xs:complexType>
+			</xs:element>
         </xs:sequence>
     </xs:complexType>
 
@@ -2792,6 +2803,23 @@
         <xs:attribute type="con:drillDownStyleType" name="drill-down-style" use="optional"/>
 
     </xs:complexType>
+
+    <xs:complexType name="typeCryptoSettings">
+        <xs:sequence>
+            <xs:element name="get-content-bean-settings" type="con:typeSettingsExtension" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="save-signature-bean-settings" type="con:typeSettingsExtension" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="get-content-bean-name" type="xs:string" use="required"/>
+        <xs:attribute name="save-signature-bean-name" type="xs:string" use="required"/>
+    </xs:complexType>
+
+	<xs:complexType name="typeSettingsExtension">
+		<xs:sequence>
+			<xs:any minOccurs="1" maxOccurs="1" processContents="skip" />
+		</xs:sequence>
+	</xs:complexType>    
+    
     <xs:simpleType name="columnFieldTypeEnum">
         <xs:restriction base="xs:string">
             <xs:enumeration value="integer"/>

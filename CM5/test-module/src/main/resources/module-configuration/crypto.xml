@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+	<type-crypto-settings name="country"
+		get-content-bean-name="allAttachmentSignatureDataService"
+		save-signature-bean-name="domainObjectStoreSignatureResultService">
+		<save-signature-bean-settings>
+			<domain-object-store-signature
+				signature-store-type-name="digital_signature" 
+				signed-attachment-field-name="signed_object" 
+				signature-field-name="signature"/>
+		</save-signature-bean-settings>
+	</type-crypto-settings>
+
+</configuration>

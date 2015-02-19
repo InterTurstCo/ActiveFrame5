@@ -235,5 +235,12 @@
             <permission map-from="read" map-to="read" />
         </matrix-reference-mapping>
     </access-matrix>
+
+	<access-matrix type="digital_signature" read-everybody="true">
+		<create>
+			<permit-group name="AllPersons" />
+		</create>
+	</access-matrix>
+    
     
 </configuration>

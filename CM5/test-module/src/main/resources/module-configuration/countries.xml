@@ -28,7 +28,7 @@
             <attachment-type name="fauna_attachment"/>
         </attachment-types>
     </domain-object-type>
-
+    
     <domain-object-type name="superCountry" initial-status="Active" extends="country"/>
 
     <domain-object-type name="country_best_friend" initial-status="Active">
@@ -196,6 +196,8 @@
                 </act:validators-->
             </act:simple-action>
             <act:action-ref name-ref="aSimpleAction2"/>
+            <act:action-ref name-ref="aDigitalSignature"/>
+            
         </act:tool-bar>
         <markup>
             <header>
