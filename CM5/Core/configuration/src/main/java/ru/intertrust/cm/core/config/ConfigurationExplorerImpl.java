@@ -507,16 +507,16 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (currentLocale == null) {
                 currentLocale = MessageResourceProvider.DEFAULT_LOCALE;
             }
-            CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.toolbarConfigByPluginMap.get(currentLocale);
+            CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.localizedToolbarConfigMap.get(currentLocale);
             if (toolbarMap != null) {
                 ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
                 return getReturnObject(toolBarConfig, ToolBarConfig.class);
             }
+            ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
+            return getReturnObject(toolBarConfig, ToolBarConfig.class);
         } finally {
             readLock.unlock();
         }
-        throw new ConfigurationException("Конфигурация панели действий не найдена! Плагин: " +
-                pluginName + ", локаль: " + currentLocale);
     }
 
     @Override

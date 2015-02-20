@@ -30,7 +30,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -118,17 +120,30 @@ public class ConfigurationStorageBuilder {
     public void updateToolbarConfigByPluginMap(ToolBarConfig oldConfig, ToolBarConfig newConfig) {
         if (oldConfig != null) {
             configurationStorage.toolbarConfigByPluginMap.remove(oldConfig.getPlugin());
+            for (String locale : MessageResourceProvider.getAvailableLocales()) {
+                CaseInsensitiveMap<ToolBarConfig> toolbarMap =  configurationStorage.localizedToolbarConfigMap.get(locale);
+                if (toolbarMap != null) {
+                    toolbarMap.remove(oldConfig.getPlugin());
+                }
+            }
         }
+        fillToolbarConfigByPluginMap(newConfig);
         for (String locale : MessageResourceProvider.getAvailableLocales()) {
-            fillToolbarConfigByPluginMap(newConfig, locale);
+            fillLocalizedToolbarConfigMap(newConfig, locale);
         }
     }
 
-    public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig, String locale) {
-        CaseInsensitiveMap<ToolBarConfig> toolbarMap = configurationStorage.toolbarConfigByPluginMap.get(locale);
+    public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
+        if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
+            configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+        }
+    }
+
+    public void fillLocalizedToolbarConfigMap(ToolBarConfig toolBarConfig, String locale) {
+        CaseInsensitiveMap<ToolBarConfig> toolbarMap = configurationStorage.localizedToolbarConfigMap.get(locale);
         if (toolbarMap == null) {
             toolbarMap = new CaseInsensitiveMap<>();
-            configurationStorage.toolbarConfigByPluginMap.put(locale, toolbarMap);
+            configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
         }
         if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
             localize(locale, toolBarConfig);
@@ -422,8 +437,9 @@ public class ConfigurationStorageBuilder {
                 fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
+                fillToolbarConfigByPluginMap(toolBarConfig);
                 for (String locale : MessageResourceProvider.getAvailableLocales()) {
-                    fillToolbarConfigByPluginMap(toolBarConfig, locale);
+                    fillLocalizedToolbarConfigMap(toolBarConfig, locale);
                 }
             }
 
