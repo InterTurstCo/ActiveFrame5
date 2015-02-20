@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Sergey.Okolot
@@ -14,6 +15,7 @@ public class ActionRefConfig extends BaseActionConfig {
     private String nameRef;
 
     @Attribute(name = "text", required = false)
+    @Localizable
     private String text;
 
     @Attribute(name = "showText", required = false)

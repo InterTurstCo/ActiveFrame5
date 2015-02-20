@@ -128,7 +128,7 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getReportForm(String reportName, String formName) {
         FormConfig formConfig = null;
         if (formName != null) {
-            formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+            formConfig = getLocalizedFormConfig(formName);
         }
         boolean formIsInvalid = (formConfig == null) ||
                 !FormConfig.TYPE_REPORT.equals(formConfig.getType()) ||
@@ -415,7 +415,7 @@ public class FormRetriever extends FormProcessor {
             for (FormMappingConfig mappingConfig : formViewerConfig.getFormMappingConfigList()) {
                 if (root.getTypeName().equals(mappingConfig.getDomainObjectType())) {
                     String formName = mappingConfig.getForm();
-                    formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+                    formConfig = getLocalizedFormConfig(formName);
                 }
             }
         }
@@ -431,7 +431,7 @@ public class FormRetriever extends FormProcessor {
             List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();
             LinkedFormConfig result = findLinkedFormConfig(linkedFormConfigs, domainObjectType);
             if (result != null) {
-                return configurationExplorer.getConfig(FormConfig.class, result.getName());
+                return getLocalizedFormConfig(result.getName());
             }
         }
         return null;
@@ -575,4 +575,7 @@ public class FormRetriever extends FormProcessor {
         return props;
     }
 
+    private FormConfig getLocalizedFormConfig(String formName) {
+        return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+    }
 }

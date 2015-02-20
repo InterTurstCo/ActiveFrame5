@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
@@ -41,6 +42,7 @@ public class CalendarPluginHandler extends ActivePluginHandler {
     @Autowired private ApplicationContext applicationContext;
     @Autowired private CollectionsService collectionsService;
     @Autowired private FormatHandler formatHandler;
+    @Autowired private ProfileService profileService;
 
     private DateValueConverter dateValueConverter;
 
@@ -165,7 +167,8 @@ public class CalendarPluginHandler extends ActivePluginHandler {
                 : pluginConfig.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig = null;
         if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
-            defaultToolbarConfig = actionService.getDefaultToolbarConfig(CalendarConfig.COMPONENT_NAME);
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(CalendarConfig.COMPONENT_NAME,
+                    profileService.getPersonLocale());
         }
         if (defaultToolbarConfig == null) {
             defaultToolbarConfig = new ToolBarConfig();

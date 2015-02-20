@@ -197,9 +197,10 @@ public interface ConfigurationExplorer {
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
      * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
      * @param pluginName componentName of plugin.
+     * @param currentLocale локаль текущего пользователя
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
-    ToolBarConfig getDefaultToolbarConfig(String pluginName);
+    ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale);
     
 
     /**

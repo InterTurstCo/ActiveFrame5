@@ -208,9 +208,9 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     /**
      * {@inheritDoc}
      */
-    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
         try {
-            return configurationExplorer.getDefaultToolbarConfig(pluginName);
+            return configurationExplorer.getDefaultToolbarConfig(pluginName, currentLocale);
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getDefaultToolbarConfig", ex);
             throw new UnexpectedException("ConfigurationService", "getDefaultToolbarConfig",

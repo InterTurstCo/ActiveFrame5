@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -72,7 +71,6 @@ public class ConfigurationStorageBuilder {
     }
 
     private void localize(final String locale, LocalizableConfig config) {
-
         try {
             AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
                 @Override
@@ -121,13 +119,20 @@ public class ConfigurationStorageBuilder {
         if (oldConfig != null) {
             configurationStorage.toolbarConfigByPluginMap.remove(oldConfig.getPlugin());
         }
-
-        fillToolbarConfigByPluginMap(newConfig);
+        for (String locale : MessageResourceProvider.getAvailableLocales()) {
+            fillToolbarConfigByPluginMap(newConfig, locale);
+        }
     }
 
-    public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
-        if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
-            configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+    public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig, String locale) {
+        CaseInsensitiveMap<ToolBarConfig> toolbarMap = configurationStorage.toolbarConfigByPluginMap.get(locale);
+        if (toolbarMap == null) {
+            toolbarMap = new CaseInsensitiveMap<>();
+            configurationStorage.toolbarConfigByPluginMap.put(locale, toolbarMap);
+        }
+        if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
+            localize(locale, toolBarConfig);
+            toolbarMap.put(toolBarConfig.getPlugin(), toolBarConfig);
         }
     }
 
@@ -417,13 +422,14 @@ public class ConfigurationStorageBuilder {
                 fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
-                fillToolbarConfigByPluginMap(toolBarConfig);
+                for (String locale : MessageResourceProvider.getAvailableLocales()) {
+                    fillToolbarConfigByPluginMap(toolBarConfig, locale);
+                }
             }
 
             if (config instanceof LocalizableConfig) {
                 ObjectCloner cloner = new ObjectCloner();
-                Set<String> locales = MessageResourceProvider.getAvailableLocales();
-                for (String locale : locales) {
+                for (String locale : MessageResourceProvider.getAvailableLocales()) {
                     Object clonedConfig = cloner.cloneObject(config, config.getClass());
                     fillLocalizedConfigMap(locale, (LocalizableConfig)clonedConfig);
                 }
@@ -496,7 +502,7 @@ public class ConfigurationStorageBuilder {
         }
 
         DomainObjectTypeConfig auditLogDomainObjectConfig = createAuditLogConfig(domainObjectTypeConfig);
-        
+
         fillTopLevelConfigMap(auditLogDomainObjectConfig);
         fillFieldsConfigMap(auditLogDomainObjectConfig);
         configurationStorage.auditLogTypes.put(auditLogDomainObjectConfig.getName(), auditLogDomainObjectConfig.getName());

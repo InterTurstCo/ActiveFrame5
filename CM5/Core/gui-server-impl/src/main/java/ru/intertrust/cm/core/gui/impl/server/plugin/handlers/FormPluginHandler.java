@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
@@ -43,7 +44,8 @@ public class FormPluginHandler extends ActivePluginHandler {
     private ActionConfigBuilder actionConfigBuilder;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-
+    @Autowired
+    private ProfileService profileService;
 
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
@@ -101,7 +103,7 @@ public class FormPluginHandler extends ActivePluginHandler {
                 formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;
         if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
-            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME);
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, profileService.getPersonLocale());
         } else {
             defaultToolbarConfig = null;
         }

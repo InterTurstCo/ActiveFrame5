@@ -501,14 +501,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * @inheritDoc
      */
     @Override
-    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
         readLock.lock();
         try {
-            ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
-            return getReturnObject(toolBarConfig, ToolBarConfig.class);
+            if (currentLocale == null) {
+                currentLocale = MessageResourceProvider.DEFAULT_LOCALE;
+            }
+            CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.toolbarConfigByPluginMap.get(currentLocale);
+            if (toolbarMap != null) {
+                ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
+                return getReturnObject(toolBarConfig, ToolBarConfig.class);
+            }
         } finally {
             readLock.unlock();
         }
+        throw new ConfigurationException("Конфигурация панели действий не найдена! Плагин: " +
+                pluginName + ", локаль: " + currentLocale);
     }
 
     @Override

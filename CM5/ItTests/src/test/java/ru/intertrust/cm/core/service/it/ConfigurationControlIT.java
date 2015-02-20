@@ -70,7 +70,7 @@ public class ConfigurationControlIT extends IntegrationTestBase {
         assertNotNull(configurationService.getDynamicGroupConfigsByTrackDO("Person", "Draft"));
 
         // Check that toolbar config is updated
-        ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin");
+        ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin", "DEFAULT_LOCALE");
         ActionSeparatorConfig actionSeparatorConfig = (ActionSeparatorConfig) toolBarConfig.getActions().get(1);
         assertEquals(Integer.valueOf(200), (Integer) actionSeparatorConfig.getOrder());
     }
