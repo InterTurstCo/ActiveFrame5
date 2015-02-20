@@ -30,9 +30,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -68,8 +66,10 @@ public class ConfigurationStorageBuilder {
             typeMap = new CaseInsensitiveMap<>();
             configurationStorage.localizedConfigMap.put(key, typeMap);
         }
-        localize(locale, config);
-        typeMap.put(config.getName(), config);
+        ObjectCloner cloner = new ObjectCloner();
+        LocalizableConfig clonedConfig = cloner.cloneObject(config, config.getClass());
+        localize(locale, clonedConfig);
+        typeMap.put(config.getName(), clonedConfig);
     }
 
     private void localize(final String locale, LocalizableConfig config) {
@@ -146,8 +146,10 @@ public class ConfigurationStorageBuilder {
             configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
         }
         if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
-            localize(locale, toolBarConfig);
-            toolbarMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+            ObjectCloner cloner = new ObjectCloner();
+            ToolBarConfig clonedConfig = cloner.cloneObject(toolBarConfig, toolBarConfig.getClass());
+            localize(locale, clonedConfig);
+            toolbarMap.put(clonedConfig.getPlugin(), clonedConfig);
         }
     }
 
@@ -444,10 +446,8 @@ public class ConfigurationStorageBuilder {
             }
 
             if (config instanceof LocalizableConfig) {
-                ObjectCloner cloner = new ObjectCloner();
                 for (String locale : MessageResourceProvider.getAvailableLocales()) {
-                    Object clonedConfig = cloner.cloneObject(config, config.getClass());
-                    fillLocalizedConfigMap(locale, (LocalizableConfig)clonedConfig);
+                    fillLocalizedConfigMap(locale, (LocalizableConfig)config);
                 }
             }
         }

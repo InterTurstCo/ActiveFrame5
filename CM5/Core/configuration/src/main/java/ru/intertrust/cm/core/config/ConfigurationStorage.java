@@ -32,7 +32,7 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> directChildDomainObjectTypesMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> indirectChildDomainObjectTypesMap = new CaseInsensitiveMap<>();
 
-    public Map<String, CaseInsensitiveMap<ToolBarConfig>> toolbarConfigByPluginMap = new HashMap<>(); //<Locale, Map<plugin name, toolbarConfig>>
+    public CaseInsensitiveMap<ToolBarConfig> toolbarConfigByPluginMap = new CaseInsensitiveMap<>();
     public Map<String, CaseInsensitiveMap<ToolBarConfig>> localizedToolbarConfigMap = new HashMap<>(); //<Locale, Map<plugin name, toolbarConfig>>
 
     public CaseInsensitiveMap<List<DynamicGroupConfig>> dynamicGroupConfigByContextMap = new CaseInsensitiveMap<>();
