@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.collection.view;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  *         Time: 12:05 PM
  */
 @Root(name = "collection-view")
-public class CollectionViewConfig implements TopLevelConfig {
+public class CollectionViewConfig implements LocalizableConfig {
     @Attribute(name = "name")
     private String name;
 

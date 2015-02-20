@@ -6,6 +6,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ public class CollectionColumnConfig implements Dto {
     private String field;
 
     @Attribute(name = "name", required = true)
+    @Localizable
     private String name;
 
     @Attribute(name = "hidden", required = false)

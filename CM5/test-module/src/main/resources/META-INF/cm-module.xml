@@ -199,6 +199,7 @@
         <localization-file locale="en">localization/form_city_en.properties</localization-file>
         <localization-file locale="en">localization/navPanel_en.properties</localization-file>
         <localization-file locale="en">localization/actions_en.properties</localization-file>
+        <localization-file locale="en">localization/collection_city_en.properties</localization-file>
     </localization-files>
 
 </module>

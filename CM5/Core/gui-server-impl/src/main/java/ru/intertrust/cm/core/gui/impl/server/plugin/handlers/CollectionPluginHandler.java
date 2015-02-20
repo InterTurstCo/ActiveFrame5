@@ -204,7 +204,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         return PluginHandlerHelper.findCollectionViewConfig(collectionName, viewName,
                 currentUserAccessor.getCurrentUser(),
-                link, configurationService, collectionsService);
+                link, configurationService, collectionsService, profileService.getPersonLocale());
     }
 
 
