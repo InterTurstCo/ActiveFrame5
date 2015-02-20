@@ -21,10 +21,10 @@ public class FormState implements Dto {
     private Map<String, WidgetState> widgetStateMap;
     private FormObjects objects;
     private Map<String, String> messages;
-    private Map<String, FieldPath> widgetFieldPaths;
+    private transient Map<String, FieldPath> widgetFieldPaths;
     private Map<String, String> widgetComponents;
     private transient Map<String, WidgetState> widgetStatesByFieldPath = new HashMap<>();
-    private List<WidgetConfig> widgetConfigs;
+    private transient List<WidgetConfig> widgetConfigs;
 
     /**
      * Конструктор по умолчанию.
@@ -50,6 +50,7 @@ public class FormState implements Dto {
 
     public void setWidgetStateMap(Map<String, WidgetState> widgetStateMap) {
         this.widgetStateMap = widgetStateMap;
+        this.widgetStatesByFieldPath.clear();
     }
 
     /**
@@ -67,6 +68,7 @@ public class FormState implements Dto {
      * @return данные виджета
      */
     public WidgetState getWidgetState(String widgetId) {
+        widgetStatesByFieldPath.clear();
         return widgetStateMap.get(widgetId);
     }
 
@@ -122,6 +124,7 @@ public class FormState implements Dto {
     public void setWidgetStatesByFieldPath(){
         widgetStatesByFieldPath.clear();
     }
+
     public void setWidgetStateByFieldPath(String fieldPathValue, WidgetState widgetState){
         widgetStatesByFieldPath.put(fieldPathValue, widgetState);
     }
