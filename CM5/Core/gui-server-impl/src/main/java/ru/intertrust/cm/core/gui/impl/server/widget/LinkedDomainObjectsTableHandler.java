@@ -392,9 +392,12 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
         RowItem item = new RowItem();
         List<Id> requestIds = request.getIds();
+
         if (requestIds != null && !requestIds.isEmpty()) {
             item.setObjectId(requestIds.get(0));
         }
+        Map<String, WidgetState> fieldPathWidgetStateMap = createWidgetStateByFieldPath(createdObjectState.getName(),
+                createdObjectState.getFullWidgetsState());
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
             String columnId = summaryTableColumnConfig.getColumnId();
 
@@ -418,10 +421,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                      * 2) если есть виджет с field-path == main_street, то значение ссылки вытаскиваем из виджета, а main_street - из базы
                      * 3) если есть виджет с field-path == main_street.name, то значение вытаскиваем из виджета
                      */
-                    WidgetState widgetState = createdObjectState.getWidgetStateByFieldPath(fieldPathValue);
-                    String displayValue = widgetState == null ? findWidgetStateAndFormat(fieldPathValue, createdObjectState, formattingConfig)
+                    WidgetState widgetState = fieldPathWidgetStateMap.get(fieldPathValue);
+                    String displayValue = widgetState == null ? findWidgetStateAndFormat(fieldPathValue, fieldPathWidgetStateMap, formattingConfig)
                             : formatFromWidgetState(fieldPathValue, widgetState, formattingConfig);
-                    if("".equals(displayValue)){
+                    if ("".equals(displayValue)) {
                         displayValue = formatFromDb(fieldPathValue, request.getRootId(), formattingConfig);
                     }
                     matcher.appendReplacement(replacement, displayValue);
@@ -434,8 +437,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         }
         return item;
     }
-    private String formatFromDb(String fieldPathValue, Id id, FormattingConfig formattingConfig){
-        if(id == null){
+
+    private String formatFromDb(String fieldPathValue, Id id, FormattingConfig formattingConfig) {
+        if (id == null) {
             return "";
         }
 
@@ -443,17 +447,17 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     }
 
-    private String findWidgetStateAndFormat(String fieldPathValue, FormState createdObjectState, FormattingConfig formattingConfig){
+    private String findWidgetStateAndFormat(String fieldPathValue, Map<String, WidgetState> fieldPathWidgetStateMap, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         PatternIterator patternIterator = new PatternIterator(fieldPathValue);
         patternIterator.moveToNext();
         WidgetState widgetState = null;
-        if(PatternIterator.ReferenceType.DIRECT_REFERENCE.equals(patternIterator.getType())){
-            widgetState = createdObjectState.getWidgetStateByFieldPath(patternIterator.getValue());
+        if (PatternIterator.ReferenceType.DIRECT_REFERENCE.equals(patternIterator.getType())) {
+            widgetState = fieldPathWidgetStateMap.get(patternIterator.getValue());
 
-        } else if(PatternIterator.ReferenceType.BACK_REFERENCE_ONE_TO_ONE.equals(patternIterator.getType())){
+        } else if (PatternIterator.ReferenceType.BACK_REFERENCE_ONE_TO_ONE.equals(patternIterator.getType())) {
             patternIterator.moveToNext();
-            widgetState = createdObjectState.getWidgetStateByFieldPath(patternIterator.getValue());
+            widgetState = fieldPathWidgetStateMap.get(patternIterator.getValue());
         }
         if (widgetState != null && widgetState instanceof LinkEditingWidgetState && !(widgetState instanceof AttachmentBoxState)) {
             LinkEditingWidgetState linkEditingWidgetState = (LinkEditingWidgetState) widgetState;
@@ -465,7 +469,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
 
-    private String formatFromWidgetState(String fieldPathValue,WidgetState widgetState, FormattingConfig formattingConfig){
+    private String formatFromWidgetState(String fieldPathValue, WidgetState widgetState, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         if (widgetState != null) {
             if (widgetState instanceof TextState) {
@@ -506,6 +510,27 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         }
         return displayValue.toString();
+    }
+
+    private Map<String, WidgetState> createWidgetStateByFieldPath(String formName, Map<String, WidgetState> widgetStateMap) {
+        Map<String, WidgetState> fieldPathMap = new HashMap<>();
+        List<WidgetConfig> widgetConfigs = getWidgetConfigs(formName);
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            String widgetId = widgetConfig.getId();
+            WidgetState state = widgetStateMap.get(widgetId);
+            String fpv = widgetConfig.getFieldPathConfig() == null ? null : widgetConfig.getFieldPathConfig().getValue();
+            if (state != null && fpv != null) {
+                fieldPathMap.put(fpv.toLowerCase(), state);
+            }
+
+        }
+        return fieldPathMap;
+
+    }
+
+    private List<WidgetConfig> getWidgetConfigs(String formName) {
+        FormConfig formConfig = configurationService.getConfig(FormConfig.class, formName);
+        return formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
     }
 
 }
