@@ -11,6 +11,7 @@ import org.springframework.core.type.classreading.CachingMetadataReaderFactory;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
 
+import ru.intertrust.cm.core.business.api.MigrationComponent;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -26,6 +27,7 @@ public class ConfigurationClassesCache {
 
     private static ConfigurationClassesCache instance = new ConfigurationClassesCache();
     private Map<String, Class> tagToClassMap = new ConcurrentHashMap<>();
+    private Map<String, Class> migrationComponentNameToClassMap = new ConcurrentHashMap<>();
 
     /**
      * Возврящает экземпляр {@link ConfigurationClassesCache}
@@ -67,6 +69,15 @@ public class ConfigurationClassesCache {
         return tagToClassMap.get(tagName);
     }
 
+    /**
+     * Возвращает класс, представляющий миграционный компонент с именем migrationComponentName
+     * @param migrationComponentName имя миграционного компонента
+     * @return класс, представляющий миграционный компонент
+     */
+    public Class getClassByMigrationComponentName(String migrationComponentName) {
+        return migrationComponentNameToClassMap.get(migrationComponentName);
+    }
+
     private Resource[] readResources(ResourcePatternResolver resourcePatternResolver) {
         try {
             return resourcePatternResolver.getResources(SEARCH_CLASS_PATH);
@@ -79,7 +90,8 @@ public class ConfigurationClassesCache {
                                  ClassLoader classLoader) {
         try {
             MetadataReader metadataReader = metadataReaderFactory.getMetadataReader(resource);
-            if (!metadataReader.getAnnotationMetadata().hasAnnotation(Root.class.getName())) {
+            if (!metadataReader.getAnnotationMetadata().hasAnnotation(Root.class.getName()) &&
+                    !metadataReader.getAnnotationMetadata().hasAnnotation(MigrationComponent.class.getName())) {
                 return;
             }
 
@@ -93,6 +105,12 @@ public class ConfigurationClassesCache {
                     char first = Character.toLowerCase(defaultTagName.charAt(0));
                     defaultTagName = first + defaultTagName.substring(1);
                     tagToClassMap.put(defaultTagName, clazz);
+                }
+            } else {
+                MigrationComponent migrationComponentAnnotation =
+                        (MigrationComponent) clazz.getAnnotation(MigrationComponent.class);
+                if (migrationComponentAnnotation != null) {
+                    migrationComponentNameToClassMap.put(migrationComponentAnnotation.name(), clazz);
                 }
             }
         } catch (ClassNotFoundException e) {

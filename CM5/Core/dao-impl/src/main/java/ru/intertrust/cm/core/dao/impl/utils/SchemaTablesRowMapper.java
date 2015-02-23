@@ -40,6 +40,7 @@ public class SchemaTablesRowMapper implements ResultSetExtractor<Map<String, Map
             columns.put(columnName, columnInfo);
 
             columnInfo.setName(columnName);
+            columnInfo.setDataType(rs.getString("data_type"));
 
             String nullable = rs.getString("nullable");
             columnInfo.setNotNull(nullable != null && (nullable.equals("N") || nullable.equals("NO")));

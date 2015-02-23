@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
@@ -13,7 +13,7 @@ import java.util.Collections;
  * Обработчик изменения конфигурации поля типа доменного объекта
  * Created by vmatsukevich on 23.1.15.
  */
-public class FieldConfigChangeHandler {
+public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
 
     @Autowired
     private SchemaCache schemaCache;
@@ -27,6 +27,7 @@ public class FieldConfigChangeHandler {
      * @param oldFieldConfig старая конфигурация поля
      * @param domainObjectTypeConfig конфигурация типа доменного объекта
      */
+    @Override
     public void handle(FieldConfig newFieldConfig, FieldConfig oldFieldConfig,
                        DomainObjectTypeConfig domainObjectTypeConfig, ConfigurationExplorer configurationExplorer) {
         handleBasicAttributes(newFieldConfig, oldFieldConfig, domainObjectTypeConfig);
@@ -119,11 +120,19 @@ public class FieldConfigChangeHandler {
     }
 
     private void handleBasicAttributes(FieldConfig newFieldConfig, FieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
+
+        if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
+                !dataStructureDao.getSqlType(newFieldConfig).equals(columnInfo.getDataType())) {
+            throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
+                    domainObjectTypeConfig.getName() + " from " +
+                    oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());
+        }
+
         if (newFieldConfig.isNotNull() != oldFieldConfig.isNotNull()) {
-            boolean isNotNull = schemaCache.isColumnNotNull(domainObjectTypeConfig, newFieldConfig);
-            if (isNotNull != newFieldConfig.isNotNull()) {
+            if (columnInfo.isNotNull() != newFieldConfig.isNotNull()) {
                 if (!newFieldConfig.isNotNull()) {
-                    dataStructureDao.setColumnNullable(domainObjectTypeConfig, newFieldConfig);
+                    dataStructureDao.setColumnNotNull(domainObjectTypeConfig, newFieldConfig, false);
                 } else {
                     throw new ConfigurationException("Configuration loading aborted: cannot set not-null on " +
                             domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());

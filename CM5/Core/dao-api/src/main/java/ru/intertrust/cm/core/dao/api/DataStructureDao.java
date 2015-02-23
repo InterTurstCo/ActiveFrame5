@@ -109,11 +109,12 @@ public interface DataStructureDao {
     Map<String, Map<String, UniqueKeyInfo>> getUniqueKeys();
 
     /**
-     * Снимает с колонки not-null ограничение
+     * Устанавливает/снимает с колонки not-null ограничение
      * @param config конфигурация типа доменного объекта
      * @param fieldConfig конфигурация поля типа доменного объекта
+     * @param notNull указывает установить или снять not-null ограничение
      */
-    void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+    void setColumnNotNull(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull);
 
     /**
      * Удаляет констрэйнт
@@ -128,4 +129,38 @@ public interface DataStructureDao {
      * @param fieldConfig конфигурация поля типа доменного объекта
      */
     void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    /**
+     * Физически удаляет колонку типа ДО
+     * @param config конфигурация типа доменного объекта
+     * @param fieldConfig конфигурация поля типа доменного объекта
+     */
+    void deleteColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+
+    /**
+     * Переименовывает поле типа доменного объекта
+     * @param config конфигурация типа доменного объекта
+     * @param fieldConfig конфигурация поля типа доменного объекта
+     * @param newName новое имя поля типа доменного объекта
+     */
+    void renameColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName);
+
+    /**
+     * Физически удаляет тип ДО
+     * @param config конфигурация типа доменного объекта
+     */
+    void deleteTable(DomainObjectTypeConfig config);
+
+    /**
+     * Выполняет произвольный sql-запрос
+     * @param sqlQuery sql-запрос
+     */
+    void executeSqlQuery(String sqlQuery);
+
+    /**
+     * Возвращает тип данных колонки в бд
+     * @param fieldConfig конфигурация поля типа доменного объекта
+     * @return тип данных колонки в бд
+     */
+    String getSqlType(FieldConfig fieldConfig);
 }

@@ -42,7 +42,7 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                 "where t.schemaname !~ '^pg_' and t.schemaname != 'information_schema' order by c.conname";
 
     private static final String COLUMNS_QUERY =
-            "select table_name, column_name, is_nullable nullable, character_maximum_length length, " +
+            "select table_name, column_name, data_type, is_nullable nullable, character_maximum_length length, " +
                     "numeric_precision, numeric_scale " +
                     "from information_schema.columns where table_schema = 'public'";
 
@@ -75,21 +75,38 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     }
 
     @Override
-    public String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+     public String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull) {
         StringBuilder query = new StringBuilder();
         query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
-                append(wrap(getSqlName(fieldConfig))).append(" drop not null;");
+                append(wrap(getSqlName(fieldConfig)));
+        if (notNull) {
+            query.append(" set not null;");
+        } else {
+            query.append(" drop not null;");
+        }
 
         if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
-                    append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" drop not null;");
+                    append(wrap(getReferenceTypeColumnName(fieldConfig.getName())));
+            if (notNull) {
+                query.append(" set not null;");
+            } else {
+                query.append(" drop not null;");
+            }
         } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
-                    append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" drop not null;");
+                    append(wrap(getTimeZoneIdColumnName(fieldConfig.getName())));
+            if (notNull) {
+                query.append(" set not null;");
+            } else {
+                query.append(" drop not null;");
+            }
         }
 
         return query.toString();
     }
+
+
 
     @Override
     public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {

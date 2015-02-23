@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
+import ru.intertrust.cm.core.dao.impl.FieldConfigChangeHandler;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
@@ -222,7 +223,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                     if (fieldConfig == null) {
                         ColumnInfo columnInfo = schemaCache.getColumnInfo(oldDOTypeConfig, oldFieldConfig);
                         if (columnInfo != null && columnInfo.isNotNull()) {
-                            dataStructureDao.setColumnNullable(oldDOTypeConfig, oldFieldConfig);
+                            dataStructureDao.setColumnNotNull(oldDOTypeConfig, oldFieldConfig, false);
                         }
                     }
                 }

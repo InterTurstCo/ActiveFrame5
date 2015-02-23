@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.AuthenticationService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
@@ -44,6 +46,8 @@ public class ConfigurationLoadServiceImplTest {
     private RecursiveConfigurationLoader recursiveConfigurationLoader;
     @Mock
     private RecursiveConfigurationMerger recursiveConfigurationMerger;
+    @Mock
+    private CrudService crudService;
 
     @Mock
     private ApplicationContext context;
@@ -97,6 +101,7 @@ public class ConfigurationLoadServiceImplTest {
         configurationService.setConfigurationExplorer(configExplorer);
 
         when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);
+        when(crudService.createDomainObject(anyString())).thenReturn(new GenericDomainObject());
         configurationService.loadConfiguration();
     }
 
@@ -116,6 +121,7 @@ public class ConfigurationLoadServiceImplTest {
     @Test
     public void testLoadConfigurationFirstTime() throws Exception {
         when(context.getBean("recursiveConfigurationLoader")).thenReturn(recursiveConfigurationLoader);
+        when(crudService.createDomainObject(anyString())).thenReturn(new GenericDomainObject());
 
         configurationService.loadConfiguration();
 

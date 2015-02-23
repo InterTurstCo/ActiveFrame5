@@ -23,7 +23,7 @@
     <bean id="recursiveConfigurationMerger" class="ru.intertrust.cm.core.business.impl.RecursiveConfigurationMerger"
           scope="prototype"/>
 
-    <bean id="fieldConfigChangeHandler" class="ru.intertrust.cm.core.business.impl.FieldConfigChangeHandler" />
+    <bean id="migrationService" class="ru.intertrust.cm.core.business.impl.MigrationService"/>
 
     <bean id="fieldConfigDbValidator" class="ru.intertrust.cm.core.business.impl.FieldConfigDbValidator" />
 

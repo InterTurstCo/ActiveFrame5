@@ -98,7 +98,7 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateGetUniqueKeysQuery();
 
-    public abstract String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+    public abstract String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull);
 
     public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
@@ -622,6 +622,32 @@ public abstract class BasicQueryHelper {
 
         query.append("alter table ").append(wrap(getSqlName(config))).append(" drop constraint ").
                 append(wrap(constraintName));
+
+        return query.toString();
+    }
+
+    public String generateDeleteColumnQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" drop column ").
+                append(wrap(getSqlName(fieldConfig)));
+
+        return query.toString();
+    }
+
+    public String generateRenameColumnQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" rename column ").
+                append(wrap(getSqlName(fieldConfig))).append(" to ").append(wrap(getSqlName(newName)));
+
+        return query.toString();
+    }
+
+    public String generateDeleteTableQuery(DomainObjectTypeConfig config) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("drop table ").append(wrap(getSqlName(config)));
 
         return query.toString();
     }

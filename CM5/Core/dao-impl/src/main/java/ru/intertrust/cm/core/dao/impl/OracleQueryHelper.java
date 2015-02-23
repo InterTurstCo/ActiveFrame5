@@ -38,7 +38,7 @@ public class OracleQueryHelper extends BasicQueryHelper {
                     "where constraints.constraint_type = 'U'";
 
     private static final String COLUMNS_QUERY =
-            "select table_name, column_name, nullable, char_length length, data_precision numeric_precision, " +
+            "select table_name, column_name, data_type, nullable, char_length length, data_precision numeric_precision, " +
                     "data_scale numeric_precision from user_tab_columns";
 
     protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
@@ -69,19 +69,34 @@ public class OracleQueryHelper extends BasicQueryHelper {
     }
 
     @Override
-    public String generateSetColumnNullableQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+    public String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull) {
         StringBuilder query = new StringBuilder();
         query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
-                append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig)).append(" null;");
+                append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
+        if (notNull) {
+            query.append(" not null;");
+        } else {
+            query.append(" null;");
+        }
 
         if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
                     append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" ").
-                    append(getReferenceTypeSqlType()).append(" null;");
+                    append(getReferenceTypeSqlType());
+            if (notNull) {
+                query.append(" not null;");
+            } else {
+                query.append(" null;");
+            }
         } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
                     append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
-                    append(getTimeZoneIdSqlType()).append(" null;");
+                    append(getTimeZoneIdSqlType());
+            if (notNull) {
+                query.append(" not null;");
+            } else {
+                query.append(" null;");
+            }
         }
 
         return query.toString();

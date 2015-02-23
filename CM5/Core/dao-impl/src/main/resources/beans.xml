@@ -132,6 +132,8 @@
 
     <bean id="domainObjectFinderService" class="ru.intertrust.cm.core.dao.impl.DomainObjectFinderServiceImpl" />
 
+    <bean id="fieldConfigChangeHandler" class="ru.intertrust.cm.core.dao.impl.FieldConfigChangeHandlerImpl" />
+
     <bean id="serverComponentService" class="ru.intertrust.cm.core.dao.impl.ServerComponentServiceImpl"/>
 
     <bean id="md5Service" class="ru.intertrust.cm.core.dao.impl.MD5ServiceImpl"/>

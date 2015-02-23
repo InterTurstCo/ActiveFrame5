@@ -44,6 +44,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ImportReportsData importReportsData;
     @Autowired private ScheduleTaskLoader scheduleTaskLoader;
     @Autowired private Localizer localizer;
+    @Autowired
+    private MigrationService migrationService;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -138,6 +140,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         importReportsData.load();
         scheduleTaskLoader.load();
         localizer.load();
+        migrationService.writeMigrationLog(migrationService.getMaxMigrationSequenceNumberFromConfiguration());
     }
 
     private UserTransaction startTransaction() throws SystemException, NotSupportedException {

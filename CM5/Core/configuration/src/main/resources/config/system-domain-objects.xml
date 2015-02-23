@@ -83,6 +83,18 @@
             <long name="collection_count"/>
         </fields>
     </domain-object-type>
+    <domain-object-type name="migration_log">
+        <fields>
+            <long name="sequence_number"/>
+        </fields>
+    </domain-object-type>
+    <collection name="last_migration_log" idField="id">
+        <prototype>
+            <![CDATA[
+                    select * from migration_log where sequence_number = (select max(sequence_number) from migration_log)
+            ]]>
+        </prototype>
+    </collection>
     <collection name="bu_user_settings_collection" idField="id">
         <prototype>
             <![CDATA[

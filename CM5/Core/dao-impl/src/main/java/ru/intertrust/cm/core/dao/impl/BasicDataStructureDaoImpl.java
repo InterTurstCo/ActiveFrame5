@@ -244,11 +244,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNullable(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNotNull(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig, boolean)}
      */
     @Override
-    public void setColumnNullable(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
-        jdbcTemplate.update(getQueryHelper().generateSetColumnNullableQuery(config, fieldConfig));
+    public void setColumnNotNull(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull) {
+        jdbcTemplate.update(getQueryHelper().generateSetColumnNotNullQuery(config, fieldConfig, notNull));
     }
 
     /**
@@ -265,6 +265,46 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Override
     public void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
         jdbcTemplate.update(getQueryHelper().generateUpdateColumnTypeQuery(config, fieldConfig));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#deleteColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig)}
+     */
+    @Override
+    public void deleteColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        jdbcTemplate.update(getQueryHelper().generateDeleteColumnQuery(config, fieldConfig));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#renameColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig, String)}
+     */
+    @Override
+    public void renameColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName) {
+        jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, fieldConfig, newName));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#deleteTable(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public void deleteTable(DomainObjectTypeConfig config) {
+        jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(config));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#executeSqlQuery(String)}
+     */
+    @Override
+    public void executeSqlQuery(String sqlQuery) {
+        jdbcTemplate.update(sqlQuery);
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#getSqlType(ru.intertrust.cm.core.config.FieldConfig)}
+     */
+    @Override
+    public String getSqlType(FieldConfig fieldConfig) {
+        return getQueryHelper().getSqlType(fieldConfig);
     }
 
     protected BasicQueryHelper getQueryHelper() {
