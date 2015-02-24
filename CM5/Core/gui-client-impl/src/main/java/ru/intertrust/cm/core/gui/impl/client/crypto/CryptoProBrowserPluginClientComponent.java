@@ -30,39 +30,55 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
     public void init(DigitalSignatureConfig config, final DigitalSignatureComponentInitHandler handler) {
         this.config = config;
         this.extendedConfig = (ExtendedCryptoSettingsConfig)config.getCryptoSettingsConfig().getSettings();
-        JsArrayString allCerts = nativeInit(this.extendedConfig.getTsAddress());
+        nativeInit(this.extendedConfig.getTsAddress());
         
-        if (allCerts.length() > 1){
-            ArrayList<String> validCertificates = new ArrayList<String>();
-            for (int i=0; i<allCerts.length(); i++) {
-                validCertificates.add(allCerts.get(i));
-            }
+        if (nativeCheckInstall()){
+            JsArrayString allCerts = nativeGetCertificates();
             
-            final SelectCertificateDialog dialog = new SelectCertificateDialog(validCertificates);
-            dialog.addCloseHandler(new CloseHandler<PopupPanel>() {
-                
-                @Override
-                public void onClose(CloseEvent<PopupPanel> event) {
-                    if (dialog.getResult() > -1){
-                        nativeSetCertificateIndex(dialog.getResult());
-                        handler.onInit();
-                    }else{
-                        handler.onCancel();
-                    }
+            if (allCerts.length() > 1){
+                ArrayList<String> validCertificates = new ArrayList<String>();
+                for (int i=0; i<allCerts.length(); i++) {
+                    validCertificates.add(allCerts.get(i));
                 }
-            });
-            dialog.show();
+                
+                final SelectCertificateDialog dialog = new SelectCertificateDialog(validCertificates);
+                dialog.addCloseHandler(new CloseHandler<PopupPanel>() {
+                    
+                    @Override
+                    public void onClose(CloseEvent<PopupPanel> event) {
+                        if (dialog.getResult() > -1){
+                            nativeSetCertificateIndex(dialog.getResult());
+                            handler.onInit();
+                        }else{
+                            handler.onCancel();
+                        }
+                    }
+                });
+                dialog.show();
+            }else{
+                handler.onInit();
+            }
         }else{
-            handler.onInit();
+            handler.onCancel();
+            InstallPluginDialog installPluginDialog = new InstallPluginDialog();
+            installPluginDialog.show();            
         }
     }
+    
     private native void nativeSetCertificateIndex(int certNo)
     /*-{
         var cryptoTool = this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool;
         return cryptoTool.setCertificate(certNo+1);
     }-*/;
+
+    private native boolean nativeCheckInstall()
+    /*-{
+        var cryptoTool = this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool;
+        return cryptoTool.checkInstall();
+    }-*/;
     
-    private native JsArrayString nativeInit(String tsAddress)
+    
+    private native void nativeInit(String tsAddress)
     /*-{
         var cryptoTool = {
             CADESCOM_CADES_X_LONG_TYPE_1: 0x5d,
@@ -72,21 +88,44 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
             CAPICOM_CERTIFICATE_FIND_SUBJECT_NAME: 1,
             CAPICOM_CERTIFICATE_FIND_SHA1_HASH: 0,
             CAPICOM_CERTIFICATE_FIND_TIME_VALID: 9,
+            CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY: 6,
+            CAPICOM_PROPID_KEY_PROV_INFO: 2,
+            CADESCOM_BASE64_TO_BINARY: 1,
+            
+            checkInstall: function(){
+                try{
+                    var oAbout = this.objCreator("CAdESCOM.About");
+                    var Version = oAbout.Version;
+
+                    return true;
+                }catch(err){
+                    return false;
+                }            
+            },
             
             init: function (tsAddress) {
                 this.tsAddress = tsAddress;
-                var oStore = this.objCreator("CAPICOM.store");
-                oStore.Open(this.CAPICOM_CURRENT_USER_STORE, this.CAPICOM_MY_STORE, this.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED);
-        
-                this.oCertificates = oStore.Certificates.Find(this.CAPICOM_CERTIFICATE_FIND_TIME_VALID);
-                if (this.oCertificates.Count == 0) {
-                    throw "Certificates not found";
-                }
-                
-                oStore.Close();                
             },
             
             getCertificates: function () {
+            
+                var oStore = this.objCreator("CAPICOM.store");
+                oStore.Open(this.CAPICOM_CURRENT_USER_STORE, this.CAPICOM_MY_STORE, this.CAPICOM_STORE_OPEN_MAXIMUM_ALLOWED);
+        
+                //Получаем сертификаты
+                this.oCertificates = oStore.Certificates;
+                
+                // Из них не рассматриваются сертификаты, в которых отсутствует закрытый ключ.
+                this.oCertificates = this.oCertificates.Find(this.CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY, this.CAPICOM_PROPID_KEY_PROV_INFO);
+                
+                // Из них выбираются только сертификаты, действительные в настоящее время.
+                this.oCertificates = this.oCertificates.Find(this.CAPICOM_CERTIFICATE_FIND_TIME_VALID);
+                
+                if (this.oCertificates.Count == 0) {
+                    throw "Actual valid certificates not found";
+                }
+                oStore.Close();                
+            
                 var result = [];
                 for (var i=0; i<this.oCertificates.Count; i++){
                     result.push(this.oCertificates.Item(i+1).SubjectName + " действителен до " + this.oCertificates.Item(i+1).ValidToDate);
@@ -127,8 +166,8 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                 oSigner.TSAAddress = this.tsAddress;
         
                 var oSignedData = this.objCreator("CAdESCOM.CadesSignedData");
+                oSignedData.ContentEncoding = this.CADESCOM_BASE64_TO_BINARY;
                 oSignedData.Content = base64Content;
-                oSignedData.ContentEncoding = 1; //CADESCOM_BASE64_TO_BINARY=1, Данные будут перекодированы из Base64 в бинарный массив
         
                 try {
                     var sSignedMessage = oSignedData.SignCades(oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1, true);
@@ -142,18 +181,23 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
         
         cryptoTool.init(tsAddress);
         this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool = cryptoTool;
-        return cryptoTool.getCertificates();
     }-*/; 
-    
     
     @Override
     public String sign(String base64Content) {        
         return nativeSign(base64Content);
-    }
-
+    }    
+    
     private native String nativeSign(String base64Content) 
     /*-{
         var cryptoTool = this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool;
         return cryptoTool.sign(base64Content);
     }-*/;
+    
+    private native JsArrayString nativeGetCertificates() 
+    /*-{
+        var cryptoTool = this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool;
+        return cryptoTool.getCertificates();
+    }-*/;
+    
 }

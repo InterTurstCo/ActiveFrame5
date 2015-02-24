@@ -84,10 +84,10 @@
             <artifactId>activiti-spring</artifactId>
         </dependency>
 
-        <dependency>    
-            <groupId>net.sf.jasperreports</groupId>
-            <artifactId>jasperreports</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>net.sf.jasperreports</groupId>
+			<artifactId>jasperreports</artifactId>
+		</dependency>
 
         <!-- Added for Unit tests-->
         <dependency>

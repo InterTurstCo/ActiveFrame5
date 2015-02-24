@@ -48,7 +48,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
 
     @PostConstruct
     private void init() {
-        if (configurationExplorer.getGlobalSettings() != null) {
+        if (configurationExplorer.getGlobalSettings() != null &&
+                configurationExplorer.getGlobalSettings().getCryptoSettingsConfig() != null) {
             String serverSignatureVerifierBeanName = configurationExplorer.getGlobalSettings().getCryptoSettingsConfig().getServerSignatureVerifierBeanName();
             cryptoBean = (CryptoBean) context.getBean(serverSignatureVerifierBeanName);
         }

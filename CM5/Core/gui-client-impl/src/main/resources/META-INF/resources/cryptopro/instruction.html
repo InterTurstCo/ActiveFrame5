@@ -1,0 +1,41 @@
+<html>
+<head>
+<title>Инструкция по установке CryptoPro Browser Plugin</title>
+</head>
+<body>
+	<p>Для функционирования веб-страниц, использующих КриптоПро ЭЦП
+		Browser plug-in, он должен быть установлен на стороне клиента.</p>
+	<p>
+	<h1>Установка плагина на Windows-платформы</h1>
+	<ol>
+		<li>Скачайте программу установки и запустите исполняемый файл <a
+			href="cadesplugin.exe">CadesPlugIn.exe</a>.
+	</ol>
+	<h1 class="heading">Установка плагина на Unix-платформы</h1>
+	<ol>
+		<li>Скачайте и распакуйте архив <a href="cades_linux_ia32.tar.gz">cades_linux_ia32.tar.gz</a>
+			или <a href="cades_linux_amd64.tar.gz">cades_linux_amd64.tar.gz</a>
+		<li>Установите пакеты lsb-cprocsp-tsp-util,
+			lsb-cprocsp-ocsp-util, lsb-cprocsp-cades, cprocsp-npcades из архива.
+			В дистрибутивах семейства Debian необходимо конвертировать пакеты из
+			формата rpm в deb. Для этого можно использовать утилиту alien.
+		<li>Скопируйте файлы libnpcades.so* из
+			/opt/cprocsp/lib/&lt;ia32/amd64&gt;/ в
+			/usr/lib(&lt;32/64&gt;)/mozilla/plugins/ для 32-битных или 64-битных
+			платформ соответственно.
+		<li>Выполните от пользователя root команду /sbin/ldconfig.
+		<li>Перезапустите браузер.
+	</ol>
+
+	<p>
+		<b>Поддерживаемые</b> браузеры: FireFox версии 3.6 и выше, Opera
+		версии 11.x, Google Chrome и Google Chromium.
+	</p>
+
+	<p>
+		<b>Обратите внимание</b>, что если вы используете как 64-битный, так и
+		32-битный браузер, то вам необходимо установить и 64-битную и
+		32-битную версию плагина.
+	</p>
+</body>
+<html>

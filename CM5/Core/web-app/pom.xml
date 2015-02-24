@@ -78,37 +78,6 @@
 		</dependency>
 	</dependencies>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.codehaus.mojo</groupId>
-					<artifactId>gwt-maven-plugin</artifactId>
-					<version>${gwt.version}</version>
-					<configuration>
-						<modules>
-							<module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
-							<module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
-						</modules>
-						<compileSourcesArtifacts>
-							<artifact>ru.intertrust.cm-sochi:gui-client-api</artifact>
-							<artifact>ru.intertrust.cm-sochi:gui-client-impl</artifact>
-							<artifact>ru.intertrust.cm-sochi:gui-rpc</artifact>
-							<artifact>ru.intertrust.cm-sochi:configuration</artifact>
-							<artifact>ru.intertrust.cm-sochi:model</artifact>
-							<artifact>ru.intertrust.cm-sochi:gui-model</artifact>
-						</compileSourcesArtifacts>
-						<runTarget>BusinessUniverse.html</runTarget>
-						<noServer>true</noServer>
-						<hostedWebapp>${project.build.directory}/gwt-devmode</hostedWebapp>
-						<extraJvmArgs>-Xmx1024m</extraJvmArgs>
-						<debugSuspend>false</debugSuspend>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
-
 	<profiles>
 		<profile>
 			<id>filenet</id>

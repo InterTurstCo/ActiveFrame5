@@ -3,55 +3,163 @@ package ru.intertrust.cm.crypto;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.bouncycastle.tsp.TimeStampToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import ru.CryptoPro.CAdES.CAdESSignature;
+import ru.CryptoPro.CAdES.CAdESSigner;
+import ru.CryptoPro.CAdES.CAdESType;
 import ru.intertrust.cm.core.business.api.crypto.CryptoBean;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.crypto.SignerInfo;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
+import ru.intertrust.cm.core.model.FatalException;
 
 public class CryptoProCryptoBean implements CryptoBean {
-    private static final String TAG = "***";
+    private static final Logger logger = LoggerFactory.getLogger(CryptoProCryptoBean.class);
 
     @Override
     public VerifyResult verify(InputStream document) {
-        // TODO Auto-generated method stub
-        return null;
+        try {
+            VerifyResult result = new VerifyResult();
+            byte[] documentAsByteArray = readStream(document);
+            CAdESSignature cAdESSignature = new CAdESSignature(documentAsByteArray, null, null);
+
+            for (CAdESSigner signer : cAdESSignature.getCAdESSignerInfos()) {
+                SignerInfo signerInfo = getSignerInfo(signer);
+                result.getSignerInfos().add(signerInfo);
+            }
+            return result;
+
+        } catch (Exception ex) {
+            throw new FatalException("Error on verify signature", ex);
+        }
     }
 
     @Override
     public VerifyResult verify(InputStream document, byte[] signature) {
-        /*try {
+        try {
+            VerifyResult result = new VerifyResult();
             byte[] documentAsByteArray = readStream(document);
-            CAdESSignature cAdESSignature = new CAdESSignature(signature, documentAsByteArray, CAdESType.CAdES_X_Long_Type_1);
-            
-            int signerIndex=0;
+            CAdESSignature cAdESSignature = new CAdESSignature(signature, documentAsByteArray, null);
+
             for (CAdESSigner signer : cAdESSignature.getCAdESSignerInfos()) {
-                printSignerInfo(signer, signerIndex++, "");
+                SignerInfo signerInfo = getSignerInfo(signer);
+                result.getSignerInfos().add(signerInfo);
             }
-            
-            cAdESSignature.verify(null);
-            return null;
+            return result;
+
         } catch (Exception ex) {
-            throw new FatalException("Error verify signature", ex);
-        }*/
-        return null;
+            throw new FatalException("Error on verify signature", ex);
+        }
+    }
+
+    protected SignerInfo getSignerInfo(CAdESSigner signer) {
+        SignerInfo signerInfo = new SignerInfo();
+        try {
+            signer.verify(null, null, null, true);
+            verifyTimestamp(signer);
+            X509Certificate cer = signer.getSignerCertificate();
+            //Формируем имя
+            signerInfo.setName(getName(cer.getSubjectDN().getName()));
+            signerInfo.setCertificateId(cer.getSerialNumber().toString());
+            signerInfo.setCertificateValidFrom(cer.getNotBefore());
+            signerInfo.setCertificateValidTo(cer.getNotAfter());
+            signerInfo.setValid(true);
+            TimeStampToken tst = signer.getSignatureTimestampToken();
+            signerInfo.setSignDate(tst.getTimeStampInfo().getGenTime());
+        } catch (Exception ex) {
+            signerInfo.setValid(false);
+            signerInfo.setError(ex.toString());
+            logger.error("Error verify signature", ex);
+        }
+        return signerInfo;
+    }
+
+    protected String getName(String subjectDN) throws IOException {
+        Map<String, String> subjectDnMap = new HashMap<String, String>();
+        String[] subjectDNArray = subjectDN.split(",");
+        for (String subjectItem : subjectDNArray) {
+            String[] subjectItemArray = subjectItem.split("=");
+            subjectDnMap.put(subjectItemArray[0].toUpperCase().trim(), subjectItemArray[1].trim());
+        }
+
+        String result = "";
+        //Пытаемся вытащить фамилию и имя
+        if (subjectDnMap.get("SURNAME") != null) {
+            result += (String) subjectDnMap.get("SURNAME");
+        }
+        if (subjectDnMap.get("GIVENNAME") != null) {
+            if (!result.isEmpty()) {
+                result += " ";
+            }
+            result += (String) subjectDnMap.get("GIVENNAME");
+        }
+
+        //Если нет фасмилии и имени выраскиваем CN
+        if (result.isEmpty()) {
+            result += (String) subjectDnMap.get("CN");
+        }
+        return result;
+    }
+
+    protected void verifyTimestamp(CAdESSigner signer) {
+        if (signer.getSignatureType().equals(CAdESType.CAdES_X_Long_Type_1)) {
+
+            TimeStampToken signTimestamp = signer.getSignatureTimestampToken();
+            if (signTimestamp == null) {
+                throw new FatalException("Signature timestamp is null");
+            } // if
+
+            TimeStampToken cdsCTimestamp = signer.getCAdESCTimestampToken();
+            if (cdsCTimestamp == null) {
+                throw new FatalException("CAdES-C timestamp is null");
+            } // if
+
+            Collection<TimeStampToken> signTimestampList = signer.getSignatureTimestampTokenList();
+            if (signTimestampList == null) {
+                throw new FatalException("Signature timestamp list is null");
+            } // if
+
+            int sz = signTimestampList.size();
+            if (sz != 1) {
+                throw new FatalException("It is weird... Size of signature timestamp " +
+                        "list is more than 1 (" + sz + ")");
+            } // if
+
+            Collection<TimeStampToken> cdsCTimestampList = signer.getCAdESCTimestampTokenList();
+            if (cdsCTimestampList == null) {
+                throw new FatalException("CAdES-C timestamp list is null");
+            } // if
+
+            sz = cdsCTimestampList.size();
+            if (sz != 1) {
+                throw new FatalException("It is weird... Size of CAdES-C timestamp " +
+                        "list is more than 1 (" + sz + ")");
+            } // if
+
+        }
     }
 
     @Override
     public VerifyResult verify(InputStream document, byte[] signature, byte[] signerSertificate) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public VerifyResult verify(InputStream document, byte[] signature, Id personId) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public VerifyResult verify(Id documrntId) {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -69,92 +177,5 @@ public class CryptoProCryptoBean implements CryptoBean {
         }
         return out.toByteArray();
     }
-    
-    /**
-     * Вывод информации об отдельной подписи.
-     * 
-     * @param signer Подпись.
-     * @param index Индекс подписи.
-     * @param tab Отступ для удобства печати.
-     */
-    /*private void printSignerInfo(CAdESSigner signer, int index, String tab) {
-        
-        X509Certificate signerCert = signer.getSignerCertificate();
-        
-        System.out.println(tab + " Signature #" + index + " (" + 
-            CAdESType.getSignatureTypeName(signer.getSignatureType()) + ")" + 
-            (signerCert != null ? (" verified by " + signerCert.getSubjectDN()) : "" ));
-
-        if ( signer.getSignatureType().equals(CAdESType.CAdES_X_Long_Type_1) ) {
-                            
-            TimeStampToken signatureTimeStamp = signer.getSignatureTimestampToken();
-            TimeStampToken cadesCTimeStamp = signer.getCAdESCTimestampToken();
-            
-            if (signatureTimeStamp != null) {
-                System.out.println(tab + TAG + " Signature timestamp set: " + 
-                    signatureTimeStamp.getTimeStampInfo().getGenTime());
-            } // if
-            
-            if (cadesCTimeStamp != null) {
-                System.out.println(tab + TAG + " CAdES-C timestamp set: " + 
-                    cadesCTimeStamp.getTimeStampInfo().getGenTime());
-            } // if
-
-        } // if
-
-        printSignerAttributeTableInfo(index,
-            signer.getSignerSignedAttributes(), "signed");
-
-        printSignerAttributeTableInfo(index,
-            signer.getSignerUnsignedAttributes(), "unsigned");
-
-        printCountersignerInfos(signer.getCAdESCountersignerInfos());
-    }*/
-    
-    /**
-     * Вывод содержимого таблицы аттрибутов.
-     *
-     * @param i Номер подписанта.
-     * @param table Таблица с аттрибутами.
-     * @param type Тип таблицы: "signed" или "unsigned".
-     */
-    /*public  void printSignerAttributeTableInfo(int i, AttributeTable table,
-        String type) {
-
-        if (table == null) {
-            return;
-        } // if
-
-        System.out.println("Signer #" + i + " has " + table.size() + " " +
-            type + " attributes.");
-
-        Hashtable attributes = table.toHashtable();
-        Enumeration attributesEnum = attributes.elements();
-
-        while (attributesEnum.hasMoreElements()) {
-
-            Attribute attribute = Attribute.getInstance(attributesEnum.nextElement());
-            System.out.println(" Attribute" +
-                "\n\ttype : " + attribute.getAttrType().getId() +
-                "\n\tvalue: " + attribute.getAttrValues());
-
-        } // while
-    }*/
-    
-    /**
-     * Вывод информации о заверителях отдельной подписи.
-     * 
-     * @param countersigners Список заверителей.
-     */
-    /*private void printCountersignerInfos(CAdESSigner[] countersigners) {
-
-        System.out.println("$$$ Print counter signature information $$$");
-
-        // Заверяющие подписи.
-        int countersignerIndex = 1;
-        for (CAdESSigner countersigner : countersigners) {
-            printSignerInfo(countersigner, countersignerIndex++, TAG);
-        }
-    }*/
 
 }
