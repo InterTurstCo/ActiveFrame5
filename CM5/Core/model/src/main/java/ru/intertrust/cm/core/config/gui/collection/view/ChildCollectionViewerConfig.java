@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 
 /**
@@ -24,6 +25,7 @@ public class ChildCollectionViewerConfig implements Dto {
     private String domainObjectTypeToCreate;
 
     @Attribute(name="bread-crumb", required = false)
+    @Localizable
     private String breadCrumb;
 
     @Element(name = "collection-viewer")

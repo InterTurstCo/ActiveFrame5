@@ -2,8 +2,8 @@ package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 
 /**
@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 public class LinkedDomainObjectConfig implements Dto {
 
     @Attribute(name = "title")
+    @Localizable
     private String title;
 
     @Element(name = "form-mapping")

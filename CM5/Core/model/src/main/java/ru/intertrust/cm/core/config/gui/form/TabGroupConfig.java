@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Denis Mitavskiy
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "tab-group")
 public class TabGroupConfig implements Dto {
     @Attribute(name = "name", required = false)
+    @Localizable
     private String name;
 
     @Attribute(name = "initial-state", required = false)
