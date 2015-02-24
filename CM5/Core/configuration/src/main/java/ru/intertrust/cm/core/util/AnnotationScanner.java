@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.util;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
+import org.simpleframework.xml.ElementUnion;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -50,7 +51,7 @@ public class AnnotationScanner {
                             scanAnnotation(element, annotationClass, callback);
                         }
                     }
-                } else if (field.getAnnotation(Element.class) != null) { //may be also Attribute ?
+                } else if (field.getAnnotation(Element.class) != null || field.getAnnotation(ElementUnion.class) != null) { //may be also Attribute ?
                     Object obj = field.get(object);
                     if (obj != null) {
                         scanAnnotation(obj, annotationClass, callback);

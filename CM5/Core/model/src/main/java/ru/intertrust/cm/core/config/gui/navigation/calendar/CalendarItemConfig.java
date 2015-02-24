@@ -2,9 +2,7 @@ package ru.intertrust.cm.core.config.gui.navigation.calendar;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
 
 /**
@@ -17,7 +15,6 @@ public class CalendarItemConfig implements Dto {
     private String type;
 
     @Element(name = "pattern")
-    @Localizable
     private PatternConfig pattern;
 
     public boolean isLink() {
