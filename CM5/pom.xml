@@ -142,7 +142,7 @@
                 <version>${spring.version}</version>
                 <scope>test</scope>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.springframework.integration</groupId>
                 <artifactId>spring-integration-mail</artifactId>
@@ -152,7 +152,7 @@
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-context-support</artifactId>
                     </exclusion>
-                </exclusions>                
+                </exclusions>
             </dependency>
 
             <!-- AspectJ -->
@@ -177,19 +177,35 @@
 
             <!-- JasperReports -->
 
-            <dependency>	
+            <dependency>
                 <groupId>net.sf.jasperreports</groupId>
                 <artifactId>jasperreports</artifactId>
                 <version>5.5.1</version>
-                <exclusions> 
-                    <exclusion> 
-                        <artifactId>jdtcore</artifactId> 
-                        <groupId>eclipse</groupId> 
+                <exclusions>
+                    <exclusion>
+                        <artifactId>jdtcore</artifactId>
+                        <groupId>eclipse</groupId>
                     </exclusion>
-					<exclusion>
-						<groupId>org.bouncycastle</groupId>
-						<artifactId>bcprov-jdk14</artifactId>
-					</exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk14</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>
+                        <artifactId>bcprov-jdk14</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcmail-jdk14</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>
+                        <artifactId>bcmail-jdk14</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bctsp-jdk14</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             
@@ -269,7 +285,7 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.jboss.shrinkwrap.descriptors</groupId>
                 <artifactId>shrinkwrap-descriptors-bom</artifactId>
@@ -302,6 +318,16 @@
                 <groupId>org.apache.solr</groupId>
                 <artifactId>solr-cell</artifactId>
                 <version>${solr.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcmail-jdk15</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.solr</groupId>
@@ -329,13 +355,18 @@
                 <artifactId>commons-io</artifactId>
                 <version>2.4</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-csv</artifactId>
                 <version>1.0</version>
             </dependency>
             
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.9</version>
+            </dependency>
 
             <!-- Google Web Toolkit -->
 
@@ -419,6 +450,25 @@
                 <version>3.1.0.Final</version>
             </dependency>
 
+            <!-- Bouncycastle -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcmail-jdk16</artifactId>
+                <version>1.46</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bctsp-jdk16</artifactId>
+                <version>1.46</version>
+            </dependency>
+            
+            <!-- Библиотеки CryptoPro -->
+            <dependency>
+                <groupId>ru.cryptopro</groupId>
+                <artifactId>cades</artifactId>
+                <version>2.0.37985</version>
+            </dependency>            
+
         </dependencies>
     </dependencyManagement>
 
@@ -475,7 +525,7 @@
                         </archive>
                     </configuration>
                 </plugin>
-                                
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -612,7 +662,7 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -742,7 +792,7 @@
         <repository>
             <id>intertrust.releases</id>
             <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
-        </repository>   
+        </repository>
 
     </repositories>
 
@@ -755,7 +805,7 @@
         <pluginRepository>
             <id>intertrust.releases</id>
             <url>https://nexus.inttrust.ru/nexus/content/groups/public/</url>
-        </pluginRepository>        
+        </pluginRepository>
     </pluginRepositories>
 
     <distributionManagement>
