@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "pattern")
 public class PatternConfig implements Dto{
     @Attribute(name = "value")
+    @Localizable
     private String value;
 
     public String getValue() {
