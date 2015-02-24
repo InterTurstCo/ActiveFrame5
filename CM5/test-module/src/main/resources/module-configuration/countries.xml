@@ -1376,7 +1376,7 @@
                     <sort-criterion field="name" order="asc"/>
                 </desc-sort-criteria>
             </column>
-            <column field="year_of_foundation" name="Год основания " type="integer" editable="false" sortable="true"/>
+            <column field="year_of_foundation" name="Год основания" type="integer" editable="false" sortable="true"/>
             <column field="latitude" name="Широта" type="string" editable="false" sortable="true"/>
             <column field="longitude" name="Долгота" type="string" editable="false" sortable="true"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"/>

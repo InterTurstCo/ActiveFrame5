@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Lesia Puhova
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class EnumMapConfig implements Dto {
 
     @Attribute(name="display-text", required = false)
+    @Localizable
     private String displayText;
 
     @Attribute(name="value", required = false)

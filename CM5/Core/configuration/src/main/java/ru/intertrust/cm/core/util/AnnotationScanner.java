@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +28,7 @@ public class AnnotationScanner {
         List<Field> allFields = new ArrayList<>();
 
 
-        while (Dto.class.isAssignableFrom(clazz)) {
+        while (Dto.class.isAssignableFrom(clazz) || Serializable.class.isAssignableFrom(clazz)) {
             Field[] fields = clazz.getDeclaredFields();
             allFields.addAll(Arrays.asList(fields));
             clazz = clazz.getSuperclass();

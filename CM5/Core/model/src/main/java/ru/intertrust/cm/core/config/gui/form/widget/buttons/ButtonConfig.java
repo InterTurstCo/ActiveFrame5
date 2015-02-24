@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.buttons;
 
 import org.simpleframework.xml.Attribute;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,6 +14,7 @@ public class ButtonConfig implements Dto {
     private String image;
 
     @Attribute(name = "text", required = false)
+    @Localizable
     private String text;
 
     @Attribute(name = "display", required = false)
