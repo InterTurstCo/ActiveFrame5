@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.report;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,8 +43,6 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
-
-import com.ibm.icu.util.Calendar;
 
 @ScheduleTask(name = "TestScheduleMultiple", minute = "0", hour = "1", type = SheduleType.Multipliable)
 public class ReportShcedule implements ScheduleTaskHandle {
