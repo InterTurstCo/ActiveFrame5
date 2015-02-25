@@ -105,7 +105,7 @@ public class PostgreSqlQueryHelperTest {
         String checkQuery = "create table \"outgoing_document\" ( \"id\" bigint not null, \"" + TYPE_COLUMN +
                 "\" integer, \"registration_number\" varchar(128), " +
                 "\"registration_date\" timestamp, \"author\" bigint, \"author_type\" integer, " +
-                "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
+                "\"long_field\" bigint, \"decimal_field_1\" numeric(10, 2), \"decimal_field_2\" numeric(10), " +
                 "constraint \"pk_10\" primary key (\"id\"), " +
                 "constraint \"u_10_0\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
                 "constraint \"fk_10_0\"" + " foreign key (\"id\") references " +
@@ -122,7 +122,7 @@ public class PostgreSqlQueryHelperTest {
                 "\"status_type\" integer, \"access_object_id\" bigint, " +
                 "\"registration_number\" varchar(128), \"registration_date\" timestamp, \"author\" bigint, " +
                 "\"author_type\" integer, " +
-                "\"long_field\" bigint, \"decimal_field_1\" decimal(10, 2), \"decimal_field_2\" decimal(10), " +
+                "\"long_field\" bigint, \"decimal_field_1\" numeric(10, 2), \"decimal_field_2\" numeric(10), " +
                 "constraint \"pk_10\" primary key (\"id\"), " +
                 "constraint \"u_10_0\" unique (\"id\", \"" + TYPE_COLUMN + "\"), " +
                 "constraint \"fk_10_0\" foreign key (\"" + TYPE_COLUMN + "\") " +

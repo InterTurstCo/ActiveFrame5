@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.IndexesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.UniqueKeysRowMapper;
 
@@ -244,6 +246,14 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#getIndexes()}
+     */
+    @Override
+    public Map<String, Map<String, IndexInfo>> getIndexes() {
+        return jdbcTemplate.query(getQueryHelper().generateGetIndexesQuery(), new IndexesRowMapper());
+    }
+
+    /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNotNull(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig, boolean)}
      */
     @Override
@@ -276,11 +286,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#renameColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig, String)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#renameColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, String, String)}
      */
     @Override
-    public void renameColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName) {
-        jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, fieldConfig, newName));
+    public void renameColumn(DomainObjectTypeConfig config, String oldName, String newName) {
+        jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, oldName, newName));
     }
 
     /**

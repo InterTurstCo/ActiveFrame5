@@ -3,21 +3,18 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.migration.MigrationScriptConfig;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import java.util.*;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService}
@@ -34,21 +31,16 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationLoadServiceImpl.class);
 
-    private static final String MIGRATION_LOG_DO_TYPE_NAME = "migration_log";
-    private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequence_number";
-
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private ConfigurationDao configurationDao;
     @Autowired
-    private CrudService crudService;
-    @Autowired
-    private CollectionsService collectionsService;
-    @Autowired
     private ConfigurationSerializer configurationSerializer;
     @Autowired
     private MigrationService migrationService;
+    @Autowired
+    private ConfigurationDbValidator configurationDbValidator;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -99,12 +91,16 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             }
 
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
-            migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
+            boolean beforeAutoMigrationDone = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
             createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
             saveConfiguration();
 
-            migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
+            boolean afterAutoMigrationDone = migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
+
+            if (beforeAutoMigrationDone || afterAutoMigrationDone) {
+                configurationDbValidator.validate();
+            }
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {

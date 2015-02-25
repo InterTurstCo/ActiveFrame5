@@ -3528,10 +3528,10 @@
         </xs:simpleContent>
     </xs:complexType>
     <xs:complexType name="migration-scriptType">
-        <xs:sequence>
+        <xs:choice minOccurs="1" maxOccurs="2">
             <xs:element type="con:before-auto-migrationType" name="before-auto-migration"/>
             <xs:element type="con:after-auto-migrationType" name="after-auto-migration"/>
-        </xs:sequence>
+        </xs:choice>
         <xs:attribute type="xs:string" name="sequence-number" use="required"/>
     </xs:complexType>
     <xs:complexType name="autoMigrationEventType">

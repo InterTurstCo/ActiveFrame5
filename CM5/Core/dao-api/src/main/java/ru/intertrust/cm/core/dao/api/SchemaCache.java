@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.*;
 
 /**
  * Сервис, кэширующий метаданные базы данных и предоставляющий доступ к ним
@@ -94,4 +91,12 @@ public interface SchemaCache {
      * @return
      */
     String getUniqueKeyName(DomainObjectTypeConfig config, UniqueKeyConfig keyConfig);
+
+    /**
+     * Находит имя индекса по его конфигурации
+     * @param config конфигурация типа ДО
+     * @param indexConfig конфигурация индекса
+     * @return имя индекса
+     */
+    String getIndexName(DomainObjectTypeConfig config, IndexConfig indexConfig);
 }

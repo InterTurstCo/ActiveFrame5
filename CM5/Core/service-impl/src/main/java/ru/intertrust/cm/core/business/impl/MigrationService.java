@@ -36,15 +36,15 @@ public class MigrationService {
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
      */
-    public void executeBeforeAutoMigration(ConfigurationExplorer oldConfigurationExplorer) {
-        executeScriptMigration(oldConfigurationExplorer, true);
+    public boolean executeBeforeAutoMigration(ConfigurationExplorer oldConfigurationExplorer) {
+        return executeScriptMigration(oldConfigurationExplorer, true);
     }
 
     /**
      * Выполняет скриптовую миграцию после автоматической конфигурации
      */
-    public void executeAfterAutoMigration(ConfigurationExplorer oldConfigurationExplorer) {
-        executeScriptMigration(oldConfigurationExplorer, false);
+    public boolean executeAfterAutoMigration(ConfigurationExplorer oldConfigurationExplorer) {
+        return executeScriptMigration(oldConfigurationExplorer, false);
     }
 
     /**
@@ -91,16 +91,18 @@ public class MigrationService {
         return collection.get(collection.size() - 1).getLong(SEQUENCE_NUMBER_FIELD_NAME);
     }
 
-    private void executeScriptMigration(ConfigurationExplorer oldConfigurationExplorer, boolean beforeAutoMigration) {
+    private boolean executeScriptMigration(ConfigurationExplorer oldConfigurationExplorer, boolean beforeAutoMigration) {
         Collection<MigrationScriptConfig> migrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
         if (migrationConfigs == null) {
-            return;
+            return false;
         }
 
         List<MigrationScriptConfig> migrationScriptConfigList = new ArrayList<>(migrationConfigs);
         Collections.sort(migrationScriptConfigList, new MigrationScriptSequenceComparator());
 
         long lastSavedMigrationSequence = getMaxSavedMigrationSequenceNumber();
+
+        boolean migrationDone = false;
 
         for (MigrationScriptConfig migrationScriptConfig : migrationScriptConfigList) {
             if (migrationScriptConfig.getSequenceNumber() <= lastSavedMigrationSequence) {
@@ -112,7 +114,11 @@ public class MigrationService {
             } else {
                 executeAutoMigrationEvent(migrationScriptConfig.getAfterAutoMigrationConfig(), oldConfigurationExplorer);
             }
+
+            migrationDone = true;
         }
+
+        return migrationDone;
     }
 
     private void executeAutoMigrationEvent(AutoMigrationEventConfig autoMigrationEventConfig,
@@ -122,13 +128,13 @@ public class MigrationService {
         }
 
         processMakeNotNull(autoMigrationEventConfig);
-        processCreateUniqueKeys(autoMigrationEventConfig);
         processChangeFieldTypes(autoMigrationEventConfig, oldConfigurationExplorer);
-        processDeleteFields(autoMigrationEventConfig);
-        processDeleteDOTypes(autoMigrationEventConfig);
         processMigrationComponents(autoMigrationEventConfig);
         processNativeCommands(autoMigrationEventConfig);
+        processCreateUniqueKeys(autoMigrationEventConfig);
         processRenameFields(autoMigrationEventConfig);
+        processDeleteFields(autoMigrationEventConfig, oldConfigurationExplorer);
+        processDeleteDOTypes(autoMigrationEventConfig, oldConfigurationExplorer);
     }
 
     private void processChangeFieldTypes(AutoMigrationEventConfig autoMigrationEventConfig,
@@ -167,7 +173,8 @@ public class MigrationService {
                             "." + changeFieldClassFieldConfig.getName() + " type because it doesn't exist");
                 }
 
-                if (!((fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
+                if (!fieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
+                        !((fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
                         (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  TextFieldConfig) ||
                         (fieldConfig instanceof TextFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
                         (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  BooleanFieldConfig) ||
@@ -254,7 +261,8 @@ public class MigrationService {
         }
     }
 
-    private void processDeleteFields(AutoMigrationEventConfig autoMigrationEventConfig) {
+    private void processDeleteFields(AutoMigrationEventConfig autoMigrationEventConfig,
+                                     ConfigurationExplorer oldConfigurationExplorer) {
         if (autoMigrationEventConfig.getDeleteFieldsConfigs() == null) {
             return;
         }
@@ -265,7 +273,7 @@ public class MigrationService {
             }
 
             DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getDomainObjectTypeConfig(deleteFieldsConfig.getType());
+                    oldConfigurationExplorer.getDomainObjectTypeConfig(deleteFieldsConfig.getType());
 
             if (domainObjectTypeConfig == null) {
                 throw new ConfigurationException("Failed to delete fields of DO type " + deleteFieldsConfig.getType() +
@@ -274,7 +282,7 @@ public class MigrationService {
 
             for (DeleteFieldsFieldConfig deleteFieldsFieldConfig : deleteFieldsConfig.getFields()) {
                 FieldConfig fieldConfig =
-                        configurationExplorer.getFieldConfig(deleteFieldsConfig.getType(), deleteFieldsFieldConfig.getName());
+                        oldConfigurationExplorer.getFieldConfig(deleteFieldsConfig.getType(), deleteFieldsFieldConfig.getName());
 
                 if (fieldConfig == null) {
                     throw new ConfigurationException("Failed to delete DO type field " + deleteFieldsConfig.getType() +
@@ -306,19 +314,21 @@ public class MigrationService {
 
             for (RenameFieldFieldConfig renameFieldFieldConfig : renameFieldConfig.getFields()) {
                 FieldConfig fieldConfig =
-                        configurationExplorer.getFieldConfig(renameFieldConfig.getType(), renameFieldFieldConfig.getName());
+                        configurationExplorer.getFieldConfig(renameFieldConfig.getType(), renameFieldFieldConfig.getNewName());
 
                 if (fieldConfig == null) {
                     throw new ConfigurationException("Failed to rename field " + renameFieldConfig.getType() +
-                            "." + renameFieldFieldConfig.getName() + " because it doesn't exist");
+                            "." + renameFieldFieldConfig.getNewName() + " because it doesn't exist");
                 }
 
-                dataStructureDao.renameColumn(domainObjectTypeConfig, fieldConfig, renameFieldFieldConfig.getNewName());
+                dataStructureDao.renameColumn(domainObjectTypeConfig, renameFieldFieldConfig.getName(),
+                        renameFieldFieldConfig.getNewName());
             }
         }
     }
 
-    private void processDeleteDOTypes(AutoMigrationEventConfig autoMigrationEventConfig) {
+    private void processDeleteDOTypes(AutoMigrationEventConfig autoMigrationEventConfig,
+                                      ConfigurationExplorer oldConfigurationExplorer) {
         if (autoMigrationEventConfig.getDeleteTypesConfigs() == null) {
             return;
         }
@@ -330,7 +340,7 @@ public class MigrationService {
 
             for (DeleteTypesTypeConfig deleteTypesTypeConfig : deleteTypesConfig.getTypes()) {
                 DomainObjectTypeConfig domainObjectTypeConfig =
-                        configurationExplorer.getDomainObjectTypeConfig(deleteTypesTypeConfig.getName());
+                        oldConfigurationExplorer.getDomainObjectTypeConfig(deleteTypesTypeConfig.getName());
 
                 if (domainObjectTypeConfig == null) {
                     throw new ConfigurationException("Failed to delete DO type " + deleteTypesTypeConfig.getName() +

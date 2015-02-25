@@ -98,6 +98,8 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateGetUniqueKeysQuery();
 
+    public abstract String generateGetIndexesQuery();
+
     public abstract String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull);
 
     public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
@@ -635,11 +637,11 @@ public abstract class BasicQueryHelper {
         return query.toString();
     }
 
-    public String generateRenameColumnQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName) {
+    public String generateRenameColumnQuery(DomainObjectTypeConfig config, String oldName, String newName) {
         StringBuilder query = new StringBuilder();
 
         query.append("alter table ").append(wrap(getSqlName(config))).append(" rename column ").
-                append(wrap(getSqlName(fieldConfig))).append(" to ").append(wrap(getSqlName(newName)));
+                append(wrap(getSqlName(oldName))).append(" to ").append(wrap(getSqlName(newName)));
 
         return query.toString();
     }
@@ -825,7 +827,7 @@ public abstract class BasicQueryHelper {
         }
 
         if (DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
-            StringBuilder sqlType = new StringBuilder("decimal");
+            StringBuilder sqlType = new StringBuilder(getDecimalType());
             DecimalFieldConfig decimalFieldConfig = (DecimalFieldConfig) fieldConfig;
 
             if (decimalFieldConfig.getPrecision() != null && decimalFieldConfig.getScale() != null) {
@@ -868,4 +870,6 @@ public abstract class BasicQueryHelper {
     protected abstract String getIdType();
 
     protected abstract String getTextType();
+
+    protected abstract String getDecimalType();
 }

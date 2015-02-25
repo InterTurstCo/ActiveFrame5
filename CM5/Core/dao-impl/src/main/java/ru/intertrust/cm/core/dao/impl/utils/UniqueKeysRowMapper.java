@@ -28,19 +28,19 @@ public class UniqueKeysRowMapper implements ResultSetExtractor<Map<String, Map<S
 
         while (rs.next()) {
             String tableName = rs.getString("table_name");
-            Map<String, UniqueKeyInfo> foreignKeys = result.get(tableName);
+            Map<String, UniqueKeyInfo> uniqueKeys = result.get(tableName);
 
-            if (foreignKeys == null) {
-                foreignKeys = new HashMap<>();
-                result.put(tableName, foreignKeys);
+            if (uniqueKeys == null) {
+                uniqueKeys = new HashMap<>();
+                result.put(tableName, uniqueKeys);
             }
 
             String constraintName = rs.getString("constraint_name");
-            UniqueKeyInfo uniqueKeyInfo = foreignKeys.get(constraintName);
+            UniqueKeyInfo uniqueKeyInfo = uniqueKeys.get(constraintName);
 
             if (uniqueKeyInfo == null) {
                 uniqueKeyInfo = new UniqueKeyInfo();
-                foreignKeys.put(constraintName, uniqueKeyInfo);
+                uniqueKeys.put(constraintName, uniqueKeyInfo);
 
                 uniqueKeyInfo.setName(constraintName);
                 uniqueKeyInfo.setTableName(tableName);

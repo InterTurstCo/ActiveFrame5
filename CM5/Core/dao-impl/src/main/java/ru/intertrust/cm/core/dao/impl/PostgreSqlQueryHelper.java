@@ -46,6 +46,16 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                     "numeric_precision, numeric_scale " +
                     "from information_schema.columns where table_schema = 'public'";
 
+    private static final String INDEXES_QUERY =
+            "select table_class.relname as table_name, index_class.relname as index_name, attr.attname as column_name " +
+                    "from pg_index join pg_class table_class on table_class.oid = pg_index.indrelid " +
+                        "join pg_class index_class on index_class.oid = pg_index.indexrelid " +
+                        "join pg_attribute attr on attr.attrelid = table_class.oid " +
+                        "join pg_tables tables on table_class.relname = tables.tablename " +
+                    "where attr.attnum = ANY(pg_index.indkey) and table_class.relkind = 'r' and " +
+                        "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
+                    "order by table_class.relname, index_class.relname;";
+
     protected PostgreSqlQueryHelper(DomainObjectTypeIdDao DomainObjectTypeIdDao, MD5Service md5Service) {
         super(DomainObjectTypeIdDao, md5Service);
     }
@@ -63,6 +73,11 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     @Override
     protected String getTextType() {
         return "text";
+    }
+
+    @Override
+    protected String getDecimalType() {
+        return "numeric";
     }
 
     @Override
@@ -126,6 +141,11 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     @Override
     public String generateGetUniqueKeysQuery() {
         return UNIQUE_KEYS_QUERY;
+    }
+
+    @Override
+    public String generateGetIndexesQuery() {
+        return INDEXES_QUERY;
     }
 
     @Override

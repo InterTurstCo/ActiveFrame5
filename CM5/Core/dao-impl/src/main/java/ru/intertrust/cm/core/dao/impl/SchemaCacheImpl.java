@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
@@ -26,6 +27,7 @@ public class SchemaCacheImpl implements SchemaCache {
     private Map<String, Map<String, ColumnInfo>> schemaTables;
     private Map<String, Map<String, ForeignKeyInfo>> foreignKeys;
     private Map<String, Map<String, UniqueKeyInfo>> uniqueKeys;
+    private Map<String, Map<String, IndexInfo>> indexes;
 
     /**
      * {@link ru.intertrust.cm.core.dao.api.SchemaCache#reset()}
@@ -35,6 +37,7 @@ public class SchemaCacheImpl implements SchemaCache {
         schemaTables = dataStructureDao.getSchemaTables();
         foreignKeys = dataStructureDao.getForeignKeys();
         uniqueKeys = dataStructureDao.getUniqueKeys();
+        indexes = dataStructureDao.getIndexes();
     }
 
     /**
@@ -182,5 +185,57 @@ public class SchemaCacheImpl implements SchemaCache {
         }
 
         return null;
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getIndexName(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.IndexConfig)}
+     */
+    @Override
+    public String getIndexName(DomainObjectTypeConfig config, IndexConfig indexConfig) {
+        Map<String, IndexInfo> domainObjectTypeIndexes = indexes.get(getSqlName(config.getName()));
+        if (domainObjectTypeIndexes == null) {
+            return null;
+        }
+
+        for (IndexInfo indexInfo : domainObjectTypeIndexes.values()) {
+            if (indexInfo.getColumnNames() == null || indexConfig.getIndexFieldConfigs() == null ||
+                    indexInfo.getColumnNames().size() != getIndexFieldsNumber(indexConfig)) {
+                continue;
+            }
+
+            boolean fieldsMatch = true;
+            for (BaseIndexExpressionConfig baseIndexExpressionConfig : indexConfig.getIndexFieldConfigs()) {
+                if (!(baseIndexExpressionConfig instanceof IndexFieldConfig)) {
+                    continue;
+                }
+
+                IndexFieldConfig fieldConfig = (IndexFieldConfig) baseIndexExpressionConfig;
+
+                if (!indexInfo.getColumnNames().contains(getSqlName(fieldConfig.getName()))) {
+                    fieldsMatch = false;
+                    break;
+                }
+            }
+
+            if (fieldsMatch) {
+                return indexInfo.getName();
+            }
+        }
+
+        return null;
+    }
+
+    private int getIndexFieldsNumber(IndexConfig indexConfig) {
+        int fieldsNumber = 0;
+
+        for (BaseIndexExpressionConfig baseIndexExpressionConfig : indexConfig.getIndexFieldConfigs()) {
+            if (!(baseIndexExpressionConfig instanceof IndexFieldConfig)) {
+                continue;
+            }
+
+            fieldsNumber++;
+        }
+
+        return fieldsNumber;
     }
 }

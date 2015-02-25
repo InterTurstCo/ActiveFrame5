@@ -123,7 +123,7 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
 
         if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
-                !dataStructureDao.getSqlType(newFieldConfig).equals(columnInfo.getDataType())) {
+                !dataStructureDao.getSqlType(newFieldConfig).startsWith(columnInfo.getDataType())) {
             throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
                     domainObjectTypeConfig.getName() + " from " +
                     oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());

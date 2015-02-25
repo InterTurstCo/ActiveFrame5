@@ -41,6 +41,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
             "select table_name, column_name, data_type, nullable, char_length length, data_precision numeric_precision, " +
                     "data_scale numeric_precision from user_tab_columns";
 
+    private static final String INDEXES_QUERY =
+            "select columns.table_name, columns.index_name, columns.column_name " +
+                    "from all_ind_columns columns join all_indexes indexes on columns.index_name = indexes.index_name " +
+                    "order by columns.table_name, columns.index_name, columns.column_position";
+
     protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         super(domainObjectTypeIdDao, md5Service);
     }
@@ -58,6 +63,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
     @Override
     protected String getTextType() {
         return "clob";
+    }
+
+    @Override
+    protected String getDecimalType() {
+        return "decimal";
     }
 
     @Override
@@ -120,6 +130,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
     @Override
     public String generateGetUniqueKeysQuery() {
         return UNIQUE_KEYS_QUERY;
+    }
+
+    @Override
+    public String generateGetIndexesQuery() {
+        return INDEXES_QUERY;
     }
 
     @Override

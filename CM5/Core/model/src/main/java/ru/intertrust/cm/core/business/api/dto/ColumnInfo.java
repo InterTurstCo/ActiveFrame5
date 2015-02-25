@@ -8,9 +8,9 @@ public class ColumnInfo {
 
     private String name;
     private boolean notNull;
-    private int length;
-    private int precision;
-    private int scale;
+    private Integer length;
+    private Integer precision;
+    private Integer scale;
     private String dataType;
 
     /**
@@ -49,7 +49,7 @@ public class ColumnInfo {
      * Возвращает длину текстовой колонки
      * @return длина текстовой колонки
      */
-    public int getLength() {
+    public Integer getLength() {
         return length;
     }
 
@@ -57,7 +57,7 @@ public class ColumnInfo {
      * Устанавливает длину текстовой колонки
      * @param length длина текстовой колонки
      */
-    public void setLength(int length) {
+    public void setLength(Integer length) {
         this.length = length;
     }
 
@@ -65,7 +65,7 @@ public class ColumnInfo {
      * Возвращает кол-во знаков десятичного числа в колонке соотв. типа
      * @return кол-во знаков десятичного числа
      */
-    public int getPrecision() {
+    public Integer getPrecision() {
         return precision;
     }
 
@@ -73,7 +73,7 @@ public class ColumnInfo {
      * Устанавливает кол-во знаков десятичного числа
      * @param precision кол-во знаков десятичного числа
      */
-    public void setPrecision(int precision) {
+    public void setPrecision(Integer precision) {
         this.precision = precision;
     }
 
@@ -82,7 +82,7 @@ public class ColumnInfo {
      * Возвращает кол-во знаков после запятой десятичного числа в колонке воотв. типа
      * @return кол-во знаков после запятой десятичного числа
      */
-    public int getScale() {
+    public Integer getScale() {
         return scale;
     }
 
@@ -90,7 +90,7 @@ public class ColumnInfo {
      * Устанавливает кол-во знаков после запятой десятичного числа
      * @param scale кол-во знаков после запятой десятичного числа
      */
-    public void setScale(int scale) {
+    public void setScale(Integer scale) {
         this.scale = scale;
     }
 

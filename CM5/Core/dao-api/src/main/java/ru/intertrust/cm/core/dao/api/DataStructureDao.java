@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
+import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -109,6 +110,12 @@ public interface DataStructureDao {
     Map<String, Map<String, UniqueKeyInfo>> getUniqueKeys();
 
     /**
+     * Извлекает метаданные схемы о индексах
+     * @return метаданные схемы о индексах
+     */
+    Map<String, Map<String, IndexInfo>> getIndexes();
+
+    /**
      * Устанавливает/снимает с колонки not-null ограничение
      * @param config конфигурация типа доменного объекта
      * @param fieldConfig конфигурация поля типа доменного объекта
@@ -140,10 +147,10 @@ public interface DataStructureDao {
     /**
      * Переименовывает поле типа доменного объекта
      * @param config конфигурация типа доменного объекта
-     * @param fieldConfig конфигурация поля типа доменного объекта
+     * @param oldName имя поля типа доменного объекта
      * @param newName новое имя поля типа доменного объекта
      */
-    void renameColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig, String newName);
+    void renameColumn(DomainObjectTypeConfig config, String oldName, String newName);
 
     /**
      * Физически удаляет тип ДО
