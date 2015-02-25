@@ -1,17 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
-import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.ActionContext;
-import ru.intertrust.cm.core.gui.model.action.DeployReportActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.ReportUploadPluginData;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * @author Lesia Puhova
@@ -21,14 +22,21 @@ import java.util.List;
 @ComponentName("report.upload.plugin")
 public class ReportUploadPluginHandler extends PluginHandler {
 
+    @Autowired
+    private ActionService actionService;
+    @Autowired
+    private ActionConfigBuilder actionConfigBuilder;
+    @Autowired
+    private ProfileService profileService;
+
     public PluginData initialize(Dto config) {
         ReportUploadPluginData pluginData = new ReportUploadPluginData();
-
-        List<ActionContext> activeContexts = new ArrayList<>();
-        activeContexts.add(new DeployReportActionContext(PluginHandlerHelper.createActionConfig(
-                "deploy-report.action", "deploy-report.action", "Загрузить шаблон отчёта",
-                "images/icons/favorite-panel-off.png")));
-        pluginData.getToolbarContext().setContexts(activeContexts, ToolbarContext.FacetName.LEFT);
+        ToolbarContext toolbarContext = new ToolbarContext();
+        ToolBarConfig defaultToolbarConfig = actionService.getDefaultToolbarConfig("report.upload.plugin",
+                profileService.getPersonLocale());
+        actionConfigBuilder.appendConfigs(defaultToolbarConfig.getActions(), new HashMap<String, Object>());
+        toolbarContext.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.LEFT);
+        pluginData.setToolbarContext(toolbarContext);
         return pluginData;
     }
 }

@@ -86,7 +86,7 @@ public class BusinessUniverseConstants {
     //alert messages
     public static final String TASK_COMPLETE_MESSAGE = "Задача успешно завершена";
     public static final String ROW_IS_DELETED_MESSAGE = "Строка удалена";
-    public static final String REPORT_IS_UPLOADED_MESSAGE = "Репорт успешно загружен";
+    public static final String REPORT_IS_UPLOADED_MESSAGE = "Отчет успешно загружен";
     public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE = "Поля на форме не заполнены или заполнены некорректно.\nИсправьте ошибки заполнения перед сохранением.";
     public static final String SAVED_MESSAGE = "Успешно сохранено";
     public static final String EVENT_IS_SENT_MESSAGE = "Событие отправлно";
