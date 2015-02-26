@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.business.impl.notification;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.impl.EventTriggerImpl;
+import ru.intertrust.cm.core.business.impl.EventType;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 */
 public class SendNotificationInfo implements Dto {
     private DomainObject domainObject;
-    private EventTriggerImpl.EventType eventType;
+    private EventType eventType;
     private List<FieldModification> changedFields;
 
     public DomainObject getDomainObject() {
@@ -25,11 +25,11 @@ public class SendNotificationInfo implements Dto {
         this.domainObject = domainObject;
     }
 
-    public EventTriggerImpl.EventType getEventType() {
+    public EventType getEventType() {
         return eventType;
     }
 
-    public void setEventType(EventTriggerImpl.EventType eventType) {
+    public void setEventType(EventType eventType) {
         this.eventType = eventType;
     }
 

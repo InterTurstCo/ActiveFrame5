@@ -27,7 +27,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
-import ru.intertrust.cm.core.business.impl.EventTriggerImpl.EventType;
+import ru.intertrust.cm.core.business.impl.EventType;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FindObjectsConfig;
 import ru.intertrust.cm.core.config.NotificationConfig;
