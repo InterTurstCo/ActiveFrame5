@@ -17,6 +17,7 @@
         <module>Client</module>
         <module>test-module</module>
         <module>crypto-pro-service</module>
+        <module>bouncycastle-crypto-service</module>
         <module>ItTests</module>
     </modules>
 
