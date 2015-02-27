@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 
 import java.util.*;
 
@@ -32,6 +33,9 @@ public class MigrationService {
 
     @Autowired
     private CrudService crudService;
+
+    @Autowired
+    private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
@@ -103,6 +107,7 @@ public class MigrationService {
         long lastSavedMigrationSequence = getMaxSavedMigrationSequenceNumber();
 
         boolean migrationDone = false;
+        sqlLoggerEnforcer.forceSqlLogging();
 
         for (MigrationScriptConfig migrationScriptConfig : migrationScriptConfigList) {
             if (migrationScriptConfig.getSequenceNumber() <= lastSavedMigrationSequence) {
@@ -118,6 +123,7 @@ public class MigrationService {
             migrationDone = true;
         }
 
+        sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
         return migrationDone;
     }
 

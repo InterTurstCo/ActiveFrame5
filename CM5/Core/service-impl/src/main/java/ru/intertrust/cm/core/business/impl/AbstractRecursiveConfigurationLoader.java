@@ -9,6 +9,7 @@ import java.util.*;
 
 /**
 * Abstract class that contains common logic for recursive configuration processing
+* Designed as prototype, not thread-safe, instances are not reusable!!!
 */
 abstract class AbstractRecursiveConfigurationLoader {
 
@@ -16,7 +17,11 @@ abstract class AbstractRecursiveConfigurationLoader {
     protected DataStructureDao dataStructureDao;
 
     protected ConfigurationExplorer configurationExplorer;
+
+    private boolean schemaUpdateDone = false;
+
     private final Set<String> processedConfigs = new HashSet<>();
+
 
     public ConfigurationExplorer getConfigurationExplorer() {
         return configurationExplorer;
@@ -52,6 +57,7 @@ abstract class AbstractRecursiveConfigurationLoader {
     protected void createAclTablesFor(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (!domainObjectTypeConfig.isTemplate() && !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
             dataStructureDao.createAclTables(domainObjectTypeConfig);
+            setSchemaUpdateDone();
         }
     }
 
@@ -73,6 +79,7 @@ abstract class AbstractRecursiveConfigurationLoader {
         if (!referenceFieldConfigs.isEmpty() || !config.getUniqueKeyConfigs().isEmpty()) {
             dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,
                     config.getUniqueKeyConfigs());
+            setSchemaUpdateDone();
         }
 
 
@@ -109,6 +116,7 @@ abstract class AbstractRecursiveConfigurationLoader {
         }
         dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,
                 uniqueKeyConfigs);
+        setSchemaUpdateDone();
     }
 
     private void processConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -124,6 +132,7 @@ abstract class AbstractRecursiveConfigurationLoader {
             boolean isParentType = isParentObject(domainObjectTypeConfig);
             dataStructureDao.createTable(domainObjectTypeConfig, isParentType);
             dataStructureDao.createSequence(domainObjectTypeConfig);
+            setSchemaUpdateDone();
         }
     }
 
@@ -150,5 +159,17 @@ abstract class AbstractRecursiveConfigurationLoader {
 
     private void setAsProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {
         processedConfigs.add(domainObjectTypeConfig.getName());
+    }
+
+    protected boolean isSchemaUpdateDone() {
+        return schemaUpdateDone;
+    }
+
+    protected void setSchemaUpdateDone() {
+        this.schemaUpdateDone = true;
+    }
+
+    protected void setSchemaUpdateDone(boolean sheUpdateDone) {
+        this.schemaUpdateDone = sheUpdateDone;
     }
 }

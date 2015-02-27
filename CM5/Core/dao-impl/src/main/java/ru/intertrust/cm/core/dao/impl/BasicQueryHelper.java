@@ -104,6 +104,8 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
+    public abstract String generateGatherStatisticsQuery();
+
     /**
      * Генерирует запрос, создающий таблицу BUSINESS_OBJECT
      * @return запрос, создающий таблицу BUSINESS_OBJECT

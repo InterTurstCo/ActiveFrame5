@@ -56,6 +56,8 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                         "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
                     "order by table_class.relname, index_class.relname;";
 
+    private static final String STATISTICS_QUERY = "analyze";
+
     protected PostgreSqlQueryHelper(DomainObjectTypeIdDao DomainObjectTypeIdDao, MD5Service md5Service) {
         super(DomainObjectTypeIdDao, md5Service);
     }
@@ -131,6 +133,11 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                 append(wrap(getSqlName(fieldConfig))).append(" set data type ").append(getSqlType(fieldConfig));
 
         return query.toString();
+    }
+
+    @Override
+    public String generateGatherStatisticsQuery() {
+        return STATISTICS_QUERY;
     }
 
     @Override

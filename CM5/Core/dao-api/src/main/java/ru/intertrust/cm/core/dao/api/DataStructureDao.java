@@ -170,4 +170,9 @@ public interface DataStructureDao {
      * @return тип данных колонки в бд
      */
     String getSqlType(FieldConfig fieldConfig);
+
+    /**
+     * Выполняет сбор статистики базы данных
+     */
+    void gatherStatistics();
 }

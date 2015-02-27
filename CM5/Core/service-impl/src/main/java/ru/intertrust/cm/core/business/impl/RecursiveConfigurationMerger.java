@@ -17,6 +17,7 @@ import java.util.List;
 
 /**
 * Recursively merges configurations
+* Designed as prototype, not thread-safe, instances are not reusable!!!
 */
 public class RecursiveConfigurationMerger extends AbstractRecursiveConfigurationLoader {
 
@@ -41,22 +42,26 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
      * @param oldConfigExplorer {@code ConfigurationExplorer} with old configuration
      * @param newConfigExplorer {@code ConfigurationExplorer} with new configuration
      */
-    public void merge(ConfigurationExplorer oldConfigExplorer, ConfigurationExplorer newConfigExplorer) {
+    public boolean merge(ConfigurationExplorer oldConfigExplorer, ConfigurationExplorer newConfigExplorer) {
         this.oldConfigExplorer = oldConfigExplorer;
         setConfigurationExplorer(newConfigExplorer);
+        setSchemaUpdateDone(false);
 
         Collection<DomainObjectTypeConfig> configList =
                 configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         if(configList.isEmpty())  {
-            return;
+            return false;
         }
 
         schemaCache.reset();
-        processDeletedConfigurations();
-
         sqlLoggerEnforcer.forceSqlLogging();
+
+        processDeletedConfigurations();
         processConfigs(configList);
+
         sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
+
+        return isSchemaUpdateDone();
     }
 
     @Override
@@ -102,6 +107,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             if (!newReferenceFieldConfigs.isEmpty() || !newUniqueKeyConfigs.isEmpty()) {
                 dataStructureDao.createForeignKeyAndUniqueConstraints(config,
                         newReferenceFieldConfigs, newUniqueKeyConfigs);
+                setSchemaUpdateDone();
             }
         }
 
@@ -128,6 +134,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             if (!newFieldConfigs.isEmpty()) {
                 boolean isParent = isParentObject(domainObjectTypeConfig);
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
+                setSchemaUpdateDone();
             }
         }
     }
@@ -181,6 +188,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
         if (!newFieldConfigs.isEmpty()) {
             boolean isParent = isParentObject(domainObjectTypeConfig);
             dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
+            setSchemaUpdateDone();
         }
 
         List<IndexConfig> newIndices = new ArrayList<>();
@@ -193,6 +201,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         if (!newIndices.isEmpty()) {
             dataStructureDao.createIndices(domainObjectTypeConfig, newIndices);
+            setSchemaUpdateDone();
         }
 
         List<IndexConfig> indicesToDelete = new ArrayList<>();
@@ -204,6 +213,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         if (!indicesToDelete.isEmpty()) {
             dataStructureDao.deleteIndices(domainObjectTypeConfig, indicesToDelete);
+            setSchemaUpdateDone();
         }
 
     }
@@ -224,6 +234,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                         ColumnInfo columnInfo = schemaCache.getColumnInfo(oldDOTypeConfig, oldFieldConfig);
                         if (columnInfo != null && columnInfo.isNotNull()) {
                             dataStructureDao.setColumnNotNull(oldDOTypeConfig, oldFieldConfig, false);
+                            setSchemaUpdateDone();
                         }
                     }
                 }
@@ -234,6 +245,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                     String uniqueKeyName = schemaCache.getUniqueKeyName(oldDOTypeConfig, oldUniqueKeyConfig);
                     if (uniqueKeyName != null) {
                         dataStructureDao.dropConstraint(oldDOTypeConfig, uniqueKeyName);
+                        setSchemaUpdateDone();
                     }
                 }
             }

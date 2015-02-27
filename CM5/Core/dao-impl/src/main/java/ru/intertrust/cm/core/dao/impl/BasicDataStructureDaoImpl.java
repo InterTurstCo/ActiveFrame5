@@ -7,10 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.IndexesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
@@ -30,6 +27,9 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
 public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
+
+    @Autowired
+    private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     @Autowired
     private JdbcOperations jdbcTemplate;
@@ -315,6 +315,16 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Override
     public String getSqlType(FieldConfig fieldConfig) {
         return getQueryHelper().getSqlType(fieldConfig);
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#gatherStatistics()}
+     */
+    @Override
+    public void gatherStatistics() {
+        sqlLoggerEnforcer.forceSqlLogging();
+        jdbcTemplate.update(getQueryHelper().generateGatherStatisticsQuery());
+        sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
     }
 
     protected BasicQueryHelper getQueryHelper() {

@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -41,6 +42,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private MigrationService migrationService;
     @Autowired
     private ConfigurationDbValidator configurationDbValidator;
+    @Autowired
+    private DataStructureDao dataStructureDao;
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -55,6 +58,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
+            dataStructureDao.gatherStatistics();
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {
@@ -91,15 +95,22 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             }
 
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
-            boolean beforeAutoMigrationDone = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
+            boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
-            createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+            boolean schemaUpdatedByAutoMigration = schemaUpdatedByScriptMigration ||
+                    createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+
             saveConfiguration();
 
-            boolean afterAutoMigrationDone = migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
+            schemaUpdatedByScriptMigration = schemaUpdatedByScriptMigration ||
+                    migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
 
-            if (beforeAutoMigrationDone || afterAutoMigrationDone) {
+            if (schemaUpdatedByScriptMigration) {
                 configurationDbValidator.validate();
+            }
+
+            if (schemaUpdatedByScriptMigration || schemaUpdatedByAutoMigration) {
+                dataStructureDao.gatherStatistics();
             }
         } catch (ConfigurationException e) {
             throw e;

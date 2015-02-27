@@ -46,6 +46,8 @@ public class OracleQueryHelper extends BasicQueryHelper {
                     "from all_ind_columns columns join all_indexes indexes on columns.index_name = indexes.index_name " +
                     "order by columns.table_name, columns.index_name, columns.column_position";
 
+    private static final String STATISTICS_QUERY = "EXEC dbms_stats.gather_schema_stats(user(), cascade=>TRUE)";
+
     protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         super(domainObjectTypeIdDao, md5Service);
     }
@@ -120,6 +122,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
                 append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
 
         return query.toString();
+    }
+
+    @Override
+    public String generateGatherStatisticsQuery() {
+        return STATISTICS_QUERY;
     }
 
     @Override

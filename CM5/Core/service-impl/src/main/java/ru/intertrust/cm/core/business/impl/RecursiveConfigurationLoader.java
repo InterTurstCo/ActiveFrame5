@@ -7,6 +7,7 @@ import java.util.Collection;
 
 /**
 * Recursively loads configuration
+* Designed as prototype, not thread-safe, instances are not reusable!!!
 */
 public class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader {
 
