@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
+//import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Resource;
 import javax.ejb.AsyncResult;
@@ -67,8 +67,8 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
     @Autowired
     private DomainObjectCacheService domainObjectCacheService;
 
-    @Resource
-    private AtomicBoolean cancalFlag;
+    //@Resource
+    //private AtomicBoolean cancalFlag;
 
     /**
      * Метод который непосредственно выполняет задачу
