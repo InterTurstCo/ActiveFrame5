@@ -161,7 +161,7 @@
             </label>
             <linked-domain-object-hyperlink id="5"> <!-- для единичного связанного объекта -->
                 <field-path value="name"/> <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_default_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
+                <linked-form name="organization_form"/> <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name}, {short_name}"/> <!-- в паттерне ссылки задаются относительно field-path -->
             </linked-domain-object-hyperlink>
 
@@ -169,7 +169,7 @@
             <!-- это отдельный виджет, а не частный случай виджета с редактируемой связанной формой в таблице. последняя ограничивает нас тем, что в таблица-резюме (summary-table) ограничена лишь теми значениями, которые есть в редактируемой дочерней таблице -->
             <linked-domain-objects-table id="5">
                 <field-path value="correspondent"/>
-                <linked-form name="organization_default_form" inline="true"/>
+                <linked-form name="organizationt_form" inline="true"/>
                 <summary-table>
                     <summary-table-column header="Название">
                         <pattern value="{name}, {short_name}"/> <!-- пути задаются относительно базового field-path (correspondent) -->
@@ -194,7 +194,7 @@
             </linked-domain-objects-table>
             <linked-domain-objects-editable-table id="5">
                 <field-path value="correspondent"/>
-                <linked-form name="organization_default_form" inline="true"/>
+                <linked-form name="organization_form" inline="true"/>
                 <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
                     <form-table-column header="Название" widget-id="name"/>
                     <form-table-column header="Описание" widget-id="description"/>
@@ -209,7 +209,7 @@
         <linked-domain-objects-editable-table> <!-- Если тэг виджета находится внутри widget-template, то field-path не обязателен -->
             <!-- форма, на основании которой строится виджеты в таблице связанных объектов -->
             <!-- inline необязательный параметр, по умолчанию false (то есть в новом окне открывается). Если форма inline, то на месте текущего плагина открывается дочерний -->
-            <linked-form name="organization_default_form" inline="true"/>
+            <linked-form name="organization_form" inline="true"/>
             <form-table form-name="some_form"> <!-- у этой формы базовый объект должен быть такого же типа, как correspondent -->
                 <form-table-column header="Название" widget-id="name"/>
                 <form-table-column header="Описание" widget-id="description"/>

@@ -10,33 +10,16 @@ import ru.intertrust.cm.core.config.gui.form.DefaultValueConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.ComboBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.DecimalBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldValueConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.IntegerBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.ListBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.RadioButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TextAreaConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TextBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.impl.server.form.FieldValueConfigToValueResolver;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by andrey on 17.09.14.
@@ -94,10 +77,47 @@ public class FormDefaultValueSetterImpl implements FormDefaultValueSetter {
 
     }
 
+    @Override
+    public Value[] getDefaultValues(FormState formState, FieldPath fieldPath) {
+        List<Value> values = new ArrayList<>();
+        List<DefaultValueConfig> defaultValueConfigList = defaultValueConfigsCache.get(fieldPath.getPath());
+        if (defaultValueConfigList != null) {
+            for (DefaultValueConfig defaultValueConfig : defaultValueConfigList) {
+                values.add(resolveValue(formState, defaultValueConfig, fieldPath));
+            }
+        }
+        return values.toArray(new Value[values.size()]);
+    }
+
+    @Override
+    public Value getDefaultValue(FormState formState, FieldPath fieldPath) {
+        DefaultValueConfig defaultValueConfig = defaultValueConfigCache.get(fieldPath.getPath());
+        if (defaultValueConfig == null) {
+            return null;
+        }
+        return resolveValue(formState, defaultValueConfig, fieldPath);
+    }
+
     private Value resolveValue(FormObjects formObjects, DefaultValueConfig defaultValueConfig, FieldPath fieldPath) {
         FieldValueConfig fieldValueConfig = defaultValueConfig.getFieldValueConfig();
         FieldValueConfigToValueResolver resolver = (FieldValueConfigToValueResolver)
                 applicationContext.getBean("fieldValueConfigToValueResolver", fieldPath.getFieldName(), fieldValueConfig, formObjects.getRootDomainObjectType(), null);
+        if (formConfig.getType().equals(FormConfig.TYPE_REPORT)) {
+            for (WidgetConfig widgetConfig : formConfig.getWidgetConfigurationConfig().getWidgetConfigList()) {
+                String value = widgetConfig.getFieldPathConfig().getValue();
+                if (value != null && value.equals(fieldPath.getPath())) {
+                    FieldConfig fieldConfig = createFieldConfigBasedOnWidgetType(widgetConfig);
+                    return resolver.resolve(fieldConfig);
+                }
+            }
+        }
+        return resolver.resolve();
+    }
+
+    private Value resolveValue(FormState formState, DefaultValueConfig defaultValueConfig, FieldPath fieldPath) {
+        FieldValueConfig fieldValueConfig = defaultValueConfig.getFieldValueConfig();
+        FieldValueConfigToValueResolver resolver = (FieldValueConfigToValueResolver)
+                applicationContext.getBean("fieldValueConfigToValueResolver", fieldPath.getFieldName(), fieldValueConfig, formState);
         if (formConfig.getType().equals(FormConfig.TYPE_REPORT)) {
             for (WidgetConfig widgetConfig : formConfig.getWidgetConfigurationConfig().getWidgetConfigList()) {
                 String value = widgetConfig.getFieldPathConfig().getValue();

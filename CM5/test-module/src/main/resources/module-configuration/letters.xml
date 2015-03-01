@@ -356,11 +356,7 @@
                                 <text value="Скачать"/>
                             </display>
                         </action>
-                        <widget-id-mappings>
-                            <widget-id-mapping linked-form-name="organization_form" widget-id="Name"/>
-                            <widget-id-mapping linked-form-name="employee_form" widget-id="Name"/>
-                            <widget-id-mapping linked-form-name="department_form" widget-id="Name"/>
-                        </widget-id-mappings>
+
                         <pattern value="{name} {description} - Organization">
                             <domain-object-types>
                                 <domain-object-type name="Organization"/>
@@ -448,9 +444,9 @@
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_linked_form" domain-object-type="Organization"/>
-                    <linked-form name="department_linked_form" domain-object-type="Department"/>
-                    <linked-form name="employee_linked_form" domain-object-type="Employee">
+                    <linked-form name="organization_form" domain-object-type="Organization"/>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                    <linked-form name="employee_form" domain-object-type="Employee">
                         <title>
                             <existing-object>
                                 <pattern value="{id}, {created_date}"/>
@@ -536,9 +532,9 @@
                 <display-values-as-links value="true"/>
 
                 <linked-form-mapping>
-                    <linked-form name="organization_linked_form" domain-object-type="Organization" modal-height="300px" modal-width="700px"/>
-                    <linked-form name="department_linked_form" domain-object-type="Department"/>
-                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px" modal-width="700px"/>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                    <linked-form name="employee_form" domain-object-type="Employee"/>
                     <linked-form name="developer_form2" domain-object-type="Developer">
                         <title>
                             <existing-object>
@@ -619,11 +615,11 @@
             <linked-domain-object-hyperlink id="l_hyperlink">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
-                <linked-form name="organization_default_form"/>
+                <linked-form name="organization_form"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_linked_form" domain-object-type="Organization"/>
-                    <linked-form name="department_linked_form" domain-object-type="Department"/>
-                    <linked-form name="employee_linked_form" domain-object-type="Employee"/>
+                    <linked-form name="organization_form" domain-object-type="Organization"/>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                    <linked-form name="employee_form" domain-object-type="Employee"/>
                     <linked-form name="developer_form2" domain-object-type="Developer"/>
                 </linked-form-mapping>
                 <collection-ref name="Organizations"/>
@@ -1046,6 +1042,11 @@
     </form>
 
     <form name="department_form" domain-object-type="Department" is-default="true">
+        <default-value-setter>
+            <widget-states>
+                <editable/>
+            </widget-states>
+        </default-value-setter>
         <markup>
             <header>
                 <table>
@@ -1140,6 +1141,11 @@
     </form>
 
     <form name="organization_form" domain-object-type="Organization" is-default="true">
+        <default-value-setter>
+            <widget-states>
+                <widgets ids="letter_priority,subject"/>
+            </widget-states>
+        </default-value-setter>
         <markup>
             <title>
                 <new-object label-widget-id="titleNew"/>
@@ -1193,6 +1199,11 @@
                             <widget id="boss"/>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <widget id="dep_table"/>
+                        </td>
+                    </tr>
                 </table>
 
             </header>
@@ -1239,7 +1250,7 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department^organization"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_default_form">
+                <linked-form name="organization_form">
                 </linked-form>
                 <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name} {created_date}"/>
@@ -1421,6 +1432,43 @@
                 <display-values-as-links value="true"/>
 
             </hierarchy-browser>
+            <linked-domain-objects-table id="dep_table">
+                <field-path
+                        value="department^organization"/>
+                <linked-form name="organization_form" inline="true"/>
+                <linked-form-mapping>
+                    <linked-form name="department_form" domain-object-type="Department"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="Отдел" domain-object-type="Department"/>
+                </created-objects>
+
+                <summary-table>
+                    <summary-table-column header="Название" widget-id="Name">
+                        <action component-name="default.linked.table.action"
+                                access-checker="attachment.read.access.checker"
+                                new-objects-access-checker="attachment.write.access.checker"
+                                tooltip="Скачать">
+                            <display position="before" tooltip="Скачать">
+                                <image url="/images/icons/ico-save.gif"/>
+                                <text value="Скачать"/>
+                            </display>
+                        </action>
+
+                        <pattern value="{name} - Department">
+                            <domain-object-types>
+                                <domain-object-type name="Department"/>
+                            </domain-object-types>
+                        </pattern>
+                        <pattern value="{name}"/>
+                        <!-- пути задаются относительно базового field-path (correspondent) -->
+
+                    </summary-table-column>
+
+                </summary-table>
+                <collection-ref name="Departments"/>
+
+            </linked-domain-objects-table>
         </widget-config>
     </form>
 
@@ -1643,7 +1691,7 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="department_default_form">
+                <linked-form name="department_form">
                     <title>
                         <existing-object>
                             <pattern value="{id}, {created_date}"/>
@@ -1765,7 +1813,7 @@
             <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="department_default_form">
+                <linked-form name="department_form">
                     <title>
                         <existing-object>
                             <pattern value="{id}, {created_date}"/>

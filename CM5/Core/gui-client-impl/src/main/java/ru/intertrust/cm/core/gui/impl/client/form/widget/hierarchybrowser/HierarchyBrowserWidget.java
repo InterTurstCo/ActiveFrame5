@@ -470,7 +470,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         String domainObjectTypeToCreate = event.getDomainObjectType();
         final String parentCollectionName = event.getParentCollectionName();
         final int recursionDeepness = event.getRecursionDeepness();
-        FormPluginConfig config = GuiUtil.createFormPluginConfig(null, nodeConfig, domainObjectTypeToCreate, true);
+        FormPluginConfig config = GuiUtil.createNewFormPluginConfig(domainObjectTypeToCreate,
+                nodeConfig.getLinkedFormMappingConfig(), getContainer(), nodeConfig.getParentWidgetIdsForNewFormMap());
         FillParentOnAddConfig fillParentOnAddConfig = nodeConfig.getFillParentOnAddConfig();
         if (fillParentOnAddConfig != null) {
             HierarchyBrowserUpdaterContext hierarchyBrowserUpdaterContext = new HierarchyBrowserUpdaterContext(fillParentOnAddConfig,
@@ -478,13 +479,13 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             config.setUpdaterContext(hierarchyBrowserUpdaterContext);
             config.setDomainObjectUpdatorComponent("hierarchy-browser-do-updater");
         }
-        PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectTypeToCreate);
+        PopupTitlesHolder popupTitlesHolder = nodeConfig.getDoTypeTitlesMap().get(domainObjectTypeToCreate.toLowerCase());
         String newObjectTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
         LinkedFormMappingConfig linkedFormMappingConfig = nodeConfig.getLinkedFormMappingConfig();
         final String modalHeight = GuiUtil.getModalHeight(domainObjectTypeToCreate, linkedFormMappingConfig, null);
         final String modalWidth = GuiUtil.getModalWidth(domainObjectTypeToCreate, linkedFormMappingConfig, null);
         final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight);
-        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
+        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus, getContainer());
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {

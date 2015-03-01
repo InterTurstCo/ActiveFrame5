@@ -45,7 +45,8 @@ public class TitleBuilderImpl implements TitleBuilder {
             if (WidgetUtil.isNotEmpty(linkedFormConfigs)) {
                 for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
                     PopupTitlesHolder popupTitlesHolder = buildPopupTitles(linkedFormConfig, root);
-                    result.put(linkedFormConfig.getDomainObjectType(), popupTitlesHolder);
+                    String domainObjectType = linkedFormConfig.getDomainObjectType().toLowerCase();
+                    result.put(domainObjectType, popupTitlesHolder);
                 }
             }
         }

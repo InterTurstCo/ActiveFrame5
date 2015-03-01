@@ -47,7 +47,6 @@ public abstract class Plugin extends BaseComponent {
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
     private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
     private boolean lockScreenImmediately = true;
-
     static Logger logger = Logger.getLogger("plugin logger");
     private NavigationConfig navigationConfig;
 

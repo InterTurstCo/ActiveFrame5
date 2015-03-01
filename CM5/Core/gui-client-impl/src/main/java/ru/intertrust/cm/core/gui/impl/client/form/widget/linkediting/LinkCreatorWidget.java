@@ -22,7 +22,6 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButto
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.LinkCreatingButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
-import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
@@ -32,8 +31,12 @@ import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createNewFormPluginConfig;
+import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createSaveAction;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -59,11 +62,12 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
             if (createdObjectConfigs.size() == 1) {
                 CreatedObjectConfig createdObjectConfig = createdObjectConfigs.get(0);
                 String domainObjectType = createdObjectConfig.getDomainObjectType();
-                PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType);
+                PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType.toLowerCase());
                 String title = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
-                createSimpleClickAction(title, domainObjectType, linkedFormMappingConfig);
+                createSimpleClickAction(title, domainObjectType, linkedFormMappingConfig, state.getParentWidgetIdsForNewFormMap());
             } else {
-                createPopupShowingClickAction(createdObjectsConfig, typeTitleMap, linkedFormMappingConfig, button);
+                createPopupShowingClickAction(createdObjectsConfig, typeTitleMap, linkedFormMappingConfig, button,
+                        state.getParentWidgetIdsForNewFormMap());
 
             }
             localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
@@ -85,11 +89,12 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
     }
 
     private void createSimpleClickAction(final String title, final String domainObjectType,
-                                         final LinkedFormMappingConfig mappingConfig) {
+                                         final LinkedFormMappingConfig mappingConfig,
+                                         final Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
         clickAction = new ClickAction() {
             @Override
             public void perform() {
-                createAndShowFormDialogBox(title, domainObjectType, mappingConfig);
+                createAndShowFormDialogBox(title, domainObjectType, mappingConfig, parentWidgetIdsForNewFormMap);
             }
         };
 
@@ -98,7 +103,8 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
     private void createPopupShowingClickAction(final CreatedObjectsConfig createdObjectsConfig,
                                                final Map<String, PopupTitlesHolder> typeTitleMap,
                                                final LinkedFormMappingConfig linkedFormMappingConfig,
-                                               final UIObject uiObject) {
+                                               final UIObject uiObject,
+                                               final Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
         clickAction = new ClickAction() {
             @Override
             public void perform() {
@@ -110,7 +116,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
                             String domainObjectType = event.getDomainObjectType();
                             PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType);
                             String title = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
-                            createAndShowFormDialogBox(title, domainObjectType, linkedFormMappingConfig);
+                            createAndShowFormDialogBox(title, domainObjectType, linkedFormMappingConfig, parentWidgetIdsForNewFormMap);
                         }
                     }
                 });
@@ -122,17 +128,20 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
     }
 
     private void createAndShowFormDialogBox(final String title, final String domainObjectType,
-                                            final LinkedFormMappingConfig mappingConfig) {
-        FormPluginConfig config = GuiUtil.createFormPluginConfig(mappingConfig, domainObjectType);
+                                            final LinkedFormMappingConfig mappingConfig,
+                                            Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+
+        FormPluginConfig config = createNewFormPluginConfig(domainObjectType, mappingConfig, getContainer(),
+                parentWidgetIdsForNewFormMap);
         LinkedFormConfig linkedFormConfig = getLinkedFormConfig(domainObjectType, mappingConfig);
         String width = linkedFormConfig != null ? linkedFormConfig.getModalWidth() : null;
         String height = linkedFormConfig != null ? linkedFormConfig.getModalHeight() : null;
         final FormDialogBox createItemDialogBox = new FormDialogBox(title, width, height);
-        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, localEventBus);
+        final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, localEventBus, getContainer());
         createItemDialogBox.initButton("Cохранить", new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, null, false);
+                final SaveAction action = createSaveAction(createFormPlugin, null, false);
                 action.addActionSuccessListener(new ActionSuccessListener() {
                     @Override
                     public void onSuccess() {

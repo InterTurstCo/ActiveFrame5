@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
@@ -17,6 +18,8 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     private LinkedHashMap<String, FormState> newFormStates = new LinkedHashMap<>();
     private LinkedHashMap<String, FormState> editedFormStates = new LinkedHashMap<>();
     private int filteredItemsNumber;
+    private Map<String, PopupTitlesHolder> typeTitleMap;
+    private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -59,10 +62,26 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return objectTypeName;
     }
 
+    public Map<String, Collection<String>> getParentWidgetIdsForNewFormMap() {
+        return parentWidgetIdsForNewFormMap;
+    }
+
+    public void setParentWidgetIdsForNewFormMap(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
+    }
+
     public String addNewFormState(FormState formState) {
         String key = Long.toHexString(new Random().nextLong());
         newFormStates.put(key, formState);
         return key;
+    }
+
+    public Map<String, PopupTitlesHolder> getTypeTitleMap() {
+        return typeTitleMap;
+    }
+
+    public void setTypeTitleMap(Map<String, PopupTitlesHolder> typeTitleMap) {
+        this.typeTitleMap = typeTitleMap;
     }
 
     public void rewriteNewFormState(String key, FormState formState) {

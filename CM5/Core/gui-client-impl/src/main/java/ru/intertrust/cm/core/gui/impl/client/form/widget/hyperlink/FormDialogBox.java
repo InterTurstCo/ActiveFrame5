@@ -8,9 +8,11 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.DialogBoxUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -80,8 +82,12 @@ public class FormDialogBox extends DialogBox {
         buttonsPanel.add(button);
 
     }
+    public FormPlugin createFormPlugin(FormPluginConfig config, EventBus eventBus){
+        return createFormPlugin(config, eventBus, null);
+    }
 
-    public FormPlugin createFormPlugin(final FormPluginConfig config, final EventBus eventBus) {
+    public FormPlugin createFormPlugin(final FormPluginConfig config, final EventBus eventBus,
+                                       final WidgetsContainer parentWidgetsContainer) {
         final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
         formPlugin.setLocalEventBus(eventBus);
         formPlugin.setConfig(config);
@@ -93,6 +99,11 @@ public class FormDialogBox extends DialogBox {
                 FormDialogBox.this.getCaption().setText(resultTitle);
                 DialogBoxUtils.addCaptionCloseButton(FormDialogBox.this);
                 setTitle(resultTitle);
+                if(parentWidgetsContainer != null){
+                FormPluginView formPluginView = (FormPluginView) formPlugin.getView();
+                WidgetsContainer widgetContainer = (WidgetsContainer) formPluginView.getViewWidget();
+                widgetContainer.setParentWidgetsContainer(parentWidgetsContainer);
+                }
                 showDialogBox();
 
             }

@@ -1460,6 +1460,8 @@
     </xs:complexType>
     <xs:complexType name="formType">
         <xs:sequence>
+            <xs:element type="con:defaultValueSetterType" name="default-value-setter" minOccurs="0" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="act:action"/>
             </xs:choice>
@@ -3126,6 +3128,7 @@
         <xs:attribute type="xs:string" name="set-null" use="optional"/>
         <xs:attribute type="xs:string" name="set-current-moment" use="optional"/>
         <xs:attribute type="xs:string" name="time-zone-id" use="optional"/>
+        <xs:attribute type="xs:boolean" name="set-parent-object" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyValueType">
@@ -3616,4 +3619,34 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="type"/>
     </xs:complexType>
+
+    <xs:complexType name="defaultValueSetterType">
+        <xs:sequence>
+            <xs:element type="con:widgetsStateType" name="widget-states" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="component"/>
+    </xs:complexType>
+
+    <xs:complexType name="widgetsStateType">
+        <xs:choice maxOccurs="1" minOccurs="0">
+            <xs:element type="con:allWidgetsIndicationType" name="all" maxOccurs="1" minOccurs="0"/>
+            <xs:element type="con:editableWidgetsIndicationType" name="editable" maxOccurs="1" minOccurs="0"/>
+            <xs:element type="con:widgetsIndicationType" name="widgets" maxOccurs="1" minOccurs="0"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="allWidgetsIndicationType"/>
+
+    <xs:complexType name="editableWidgetsIndicationType"/>
+
+    <xs:complexType name="widgetsIndicationType">
+        <xs:attribute  name="ids">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:pattern value="[a-zA-Z0-9_-]+[,a-zA-Z0-9_-]*"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+    </xs:complexType>
+
 </xs:schema>

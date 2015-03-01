@@ -97,6 +97,8 @@ public class SuggestBoxHandler extends ListWidgetHandler {
                 getWidgetIdsComponentsNamesForFilters(widgetConfig.getCollectionExtraFiltersConfig(), context.getWidgetConfigsById()));
         boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
         state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
+        state.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
+                context.getWidgetConfigsById().values()));
         return state;
     }
 

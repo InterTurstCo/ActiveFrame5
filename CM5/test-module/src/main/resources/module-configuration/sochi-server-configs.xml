@@ -514,7 +514,7 @@
                     <selection-pattern value="{shortname}"/>
                     <default-sort-criteria column-field="shortname" order="asc"/>
                     <linked-form-mapping>
-                        <linked-form name="SO_StructureUnit_form"  domain-object-type="SO_StructureUnit"/>
+                        <linked-form name="SO_Department_newForm"  domain-object-type="SO_StructureUnit"/>
                     </linked-form-mapping>
                 </node-collection-def>
 

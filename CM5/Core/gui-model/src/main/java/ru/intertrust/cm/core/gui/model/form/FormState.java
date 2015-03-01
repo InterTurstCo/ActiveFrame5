@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Map;
@@ -20,7 +21,8 @@ public class FormState implements Dto {
     private Map<String, String> messages;
     private transient Map<String, FieldPath> widgetFieldPaths;
     private Map<String, String> widgetComponents;
-
+    private FormState parentState;
+    private Id parentId;
     /**
      * Конструктор по умолчанию.
      */
@@ -106,4 +108,24 @@ public class FormState implements Dto {
         return getObjects().getRootDomainObject().getTypeName();
     }
 
+    public FormState getParentState() {
+        return parentState;
+    }
+
+    public void setParentState(FormState parentState) {
+        this.parentState = parentState;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
+    }
+
+    public void clearParentStateAndId(){
+        parentState = null;
+        parentId = null;
+    }
 }

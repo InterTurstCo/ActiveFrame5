@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  *         Time: 21:34
  */
 //TODO make higher abstraction
-public abstract class LinkEditingWidgetConfig extends WidgetConfig {
+public abstract class LinkEditingWidgetConfig extends WidgetConfig implements HasLinkedFormMappings {
 
     @Element(name = "create-new-button",required = false)
     protected CreateNewButtonConfig createNewButtonConfig;

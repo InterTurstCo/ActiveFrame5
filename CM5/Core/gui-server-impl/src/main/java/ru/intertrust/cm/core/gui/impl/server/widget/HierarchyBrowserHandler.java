@@ -64,7 +64,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         collectionNameNodeMap.put(firstCollectionName, nodeConfig);
         fillCollectionNameNodeMap(nodeConfig, collectionNameNodeMap);
         DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
-        fillNodeConfigs(root, collectionNameNodeMap);
+        fillNodeConfigs(root, collectionNameNodeMap, context.getWidgetConfigsById().values());
         FormattingConfig formattingConfig = widgetConfig.getFormattingConfig();
         Set<HierarchyBrowserItem> chosenItems = new LinkedHashSet<HierarchyBrowserItem>();
         boolean hasSelectionFilters = false;
@@ -192,21 +192,23 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         return realValue.equals(parsedValue);
     }
 
-    private void fillNodeConfigs(DomainObject root, Map<String, NodeCollectionDefConfig> collectionNameNodeMap) {
+    private void fillNodeConfigs(DomainObject root, Map<String, NodeCollectionDefConfig> collectionNameNodeMap,
+                                 Collection<WidgetConfig> parentWidgetConfigs) {
         for (Map.Entry<String, NodeCollectionDefConfig> entry : collectionNameNodeMap.entrySet()) {
             NodeCollectionDefConfig nodeCollectionDefConfig = entry.getValue();
-            fillNodeConfig(root, nodeCollectionDefConfig);
+            fillNodeConfig(root, nodeCollectionDefConfig, parentWidgetConfigs);
             if (nodeCollectionDefConfig.isChildrenRecursive()) {
                 List<NodeCollectionDefConfig> nodeDefConfigs = nodeCollectionDefConfig.getNodeCollectionDefConfigs();
                 for (NodeCollectionDefConfig nodeDefConfig : nodeDefConfigs) {
-                    fillNodeConfig(root, nodeDefConfig);
+                    fillNodeConfig(root, nodeDefConfig, parentWidgetConfigs);
                 }
             }
         }
 
     }
 
-    private void fillNodeConfig(DomainObject root, NodeCollectionDefConfig nodeCollectionDefConfig) {
+    private void fillNodeConfig(DomainObject root, NodeCollectionDefConfig nodeCollectionDefConfig,
+                                Collection<WidgetConfig> parentWidgetConfigs) {
         LinkedFormMappingConfig mappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
         Map<String, PopupTitlesHolder> doTypeTitlesMap = titleBuilder.buildTypeTitleMap(mappingConfig, root);
         nodeCollectionDefConfig.setDoTypeTitlesMap(doTypeTitlesMap);
@@ -215,6 +217,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         boolean hasCreateAccess = abandonAccessed(root, createdObjectsConfig, fillParentOnAddConfig);
         boolean displayingCreateButton = nodeCollectionDefConfig.isDisplayingCreateButton();
         nodeCollectionDefConfig.setDisplayCreateButton(displayingCreateButton && hasCreateAccess);
+        nodeCollectionDefConfig.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(nodeCollectionDefConfig,
+                parentWidgetConfigs));
     }
 
     private void correctChosenItems(List<Id> selectedIds, Set<HierarchyBrowserItem> chosenItems) {

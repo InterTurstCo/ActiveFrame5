@@ -11,6 +11,7 @@ public class RowItem implements Dto {
     HashMap<String, String> values = new HashMap<String, String>();
     HashMap<String, String> additionalParams = new HashMap<String, String>();
     private Id objectId;
+    private String domainObjectType;
     private Map<String, Boolean> accessMatrix;
 
     public String getValueByKey(String key) {
@@ -37,6 +38,14 @@ public class RowItem implements Dto {
         return additionalParams.get(key);
     }
 
+    public String getDomainObjectType() {
+        return domainObjectType;
+    }
+
+    public void setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -55,6 +64,9 @@ public class RowItem implements Dto {
             return false;
         }
         if (values != null ? !values.equals(rowItem.values) : rowItem.values != null) {
+            return false;
+        }
+        if (domainObjectType != null ? !domainObjectType.equals(rowItem.domainObjectType) : rowItem.domainObjectType != null) {
             return false;
         }
 

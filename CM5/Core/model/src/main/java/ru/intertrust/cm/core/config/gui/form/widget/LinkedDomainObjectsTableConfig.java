@@ -15,7 +15,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
  *         Time: 12:05 PM
  */
 @Root(name = "linked-domain-objects-table")
-public class LinkedDomainObjectsTableConfig extends WidgetConfig {
+public class LinkedDomainObjectsTableConfig extends WidgetConfig implements HasLinkedFormMappings {
 
     @Attribute(name = "modal-width",required = false)
     private String modalWidth;

@@ -89,6 +89,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         state.setSingleChoice(singleChoice);
         ArrayList<Id> ids = context.getAllObjectIds();
         DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+        Map<String, PopupTitlesHolder> typeTitleMap = titleBuilder.buildTypeTitleMap(widgetConfig.getLinkedFormMappingConfig(), root);
+        state.setTypeTitleMap(typeTitleMap);
         PopupTitlesHolder popupTitlesHolder = titleBuilder.buildPopupTitles(widgetConfig
                 .getLinkedFormConfig(), root);
         state.setPopupTitlesHolder(popupTitlesHolder);
@@ -109,7 +111,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
         List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating);
         state.setRowItems(rowItems);
-
+        state.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
+                context.getWidgetConfigsById().values()));
         return state;
     }
 
@@ -246,6 +249,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     // Column -> Pattern -> Domain Object Type
     public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
         RowItem rowItem = new RowItem();
+        rowItem.setDomainObjectType(domainObject.getTypeName());
         Map<String, Boolean> rowAccessMatrix = new HashMap<>();
         AccessChecker defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_EDIT_ACCESS_CHECKER);
         rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
@@ -391,6 +395,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         FormState createdObjectState = request.getCreatedObjectState();
         SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
         RowItem item = new RowItem();
+        item.setDomainObjectType(createdObjectState.getRootDomainObjectType());
         List<Id> requestIds = request.getIds();
 
         if (requestIds != null && !requestIds.isEmpty()) {
@@ -532,6 +537,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         FormConfig formConfig = configurationService.getConfig(FormConfig.class, formName);
         return formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
     }
+
 
 }
 

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.FieldValueConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.UniqueKeyValueConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.LiteralFieldValueParser;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,6 +43,7 @@ public class FieldValueConfigToValueResolver {
     private String linkedObjectType;
     private DomainObject baseObject;
     private String fieldName;
+    private Id parentId;
 
     public FieldValueConfigToValueResolver() {
     }
@@ -51,6 +54,14 @@ public class FieldValueConfigToValueResolver {
         this.linkedObjectType = linkedObjectType;
         this.baseObject = baseObject;
     }
+    public FieldValueConfigToValueResolver(String fieldName, FieldValueConfig fieldValueConfig, FormState formState) {
+        this.fieldName = fieldName;
+        this.fieldValueConfig = fieldValueConfig;
+        this.linkedObjectType = formState.getRootDomainObjectType();
+        this.baseObject = formState.getObjects().getRootDomainObject();
+        this.parentId = formState.getParentId();
+    }
+
 
     public Value resolve() {
         final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(linkedObjectType, fieldName);
@@ -73,6 +84,9 @@ public class FieldValueConfigToValueResolver {
         if (fieldValueConfig.getUniqueKeyValueConfig() != null) {
             DomainObject domainObjectByUniqueKey = findDomainObjectByUniqueKey(fieldValueConfig.getUniqueKeyValueConfig());
             return new ReferenceValue(domainObjectByUniqueKey.getId());
+        }
+        if(fieldValueConfig.isSetParentObject()){
+            return parentId != null ? null : new ReferenceValue(parentId);
         }
         return literalFieldValueParser.textToValue(fieldValueConfig, fieldConfig);
     }

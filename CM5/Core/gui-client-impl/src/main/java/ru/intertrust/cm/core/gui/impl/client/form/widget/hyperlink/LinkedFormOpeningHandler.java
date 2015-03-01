@@ -82,7 +82,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
             public void onSuccess(Dto result) {
                StringValue value = (StringValue) result;
                domainObjectType = value.get();
-               PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(domainObjectType);
+               PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(domainObjectType.toLowerCase());
                popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
                createNonEditableFormDialogBox(widget);
 

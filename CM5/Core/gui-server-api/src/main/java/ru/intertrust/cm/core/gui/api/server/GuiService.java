@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,8 @@ public interface GuiService {
     FormDisplayData getForm(Id domainObjectId, UserInfo userInfo, FormViewerConfig formViewerConfig);
 
     FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo, FormViewerConfig formViewerConfig);
+
+    FormDisplayData getForm(UserInfo userInfo, FormPluginConfig formPluginConfig);
 
     // получение формы расширенного поиска
     FormDisplayData getSearchForm(String domainObjectType, HashSet<String> formFields, UserInfo userInfo);

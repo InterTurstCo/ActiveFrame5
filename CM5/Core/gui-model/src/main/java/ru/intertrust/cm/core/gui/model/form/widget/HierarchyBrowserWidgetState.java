@@ -193,7 +193,8 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     }
 
     public String getHyperlinkPopupTitle(String collectionName, String domainObjectType) {
-        PopupTitlesHolder popupTitlesHolder = collectionNameNodeMap.get(collectionName).getDoTypeTitlesMap().get(domainObjectType);
+        PopupTitlesHolder popupTitlesHolder = collectionNameNodeMap.get(collectionName).getDoTypeTitlesMap()
+                .get(domainObjectType.toLowerCase());
         return popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
     }
 

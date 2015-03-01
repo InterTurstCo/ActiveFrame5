@@ -8,22 +8,23 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
+import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetConfigUtil;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -43,6 +44,7 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
 
     @Autowired
     protected SortOrderHelper sortOrderHelper;
+
     @Override
     public Value getValue(WidgetState state) {
         ArrayList<Id> ids = ((LinkEditingWidgetState) state).getIds();
@@ -80,20 +82,21 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
     /**
      * Метод возвращает true, если при разрыве связи со связанными объектами, сами связанные объекты удаляются. Если false,
      * то разрывается связь, а бывшие связанные объекты остаются в системе.
-     * @return true, если при разрыве связи со связанными объекты, сами связанные объекты удаляются, false - в противном случае
+     *
      * @param config
+     * @return true, если при разрыве связи со связанными объекты, сами связанные объекты удаляются, false - в противном случае
      */
     public boolean deleteEntriesOnLinkDrop(WidgetConfig config) {
         return false;
     }
 
-    protected void fillTypeTitleMap(DomainObject root, LinkedFormMappingConfig mappingConfig, LinkCreatorWidgetState state){
+    protected void fillTypeTitleMap(DomainObject root, LinkedFormMappingConfig mappingConfig, LinkCreatorWidgetState state) {
         Map<String, PopupTitlesHolder> typeTitleMap = titleBuilder.buildTypeTitleMap(mappingConfig, root);
         state.setTypeTitleMap(typeTitleMap);
     }
 
     protected boolean abandonAccessed(DomainObject root, CreatedObjectsConfig createdObjectsConfig,
-                                   FillParentOnAddConfig fillParentOnAddConfig) {
+                                      FillParentOnAddConfig fillParentOnAddConfig) {
         if (createdObjectsConfig != null) {
             List<CreatedObjectConfig> createdObjectConfigs = createdObjectsConfig.getCreateObjectConfigs();
             if (WidgetUtil.isNotEmpty(createdObjectConfigs)) {
@@ -109,13 +112,37 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
                         iterator.remove();
                     }
                 }
-                if(!createdObjectConfigs.isEmpty()){
-                    return  true;
+                if (!createdObjectConfigs.isEmpty()) {
+                    return true;
                 }
             }
         }
         return false;
 
+    }
+
+    protected Map<String, Collection<String>> createParentWidgetIdsForNewFormMap(HasLinkedFormMappings config,
+                                                                                 Collection<WidgetConfig> parentWidgetConfigs) {
+        Map<String, Collection<String>> result = new HashMap<>();
+        if (config.getLinkedFormMappingConfig() != null) {
+            List<LinkedFormConfig> linkedFormConfigs = config.getLinkedFormMappingConfig().getLinkedFormConfigs();
+            for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+                String domainObjectType = linkedFormConfig.getDomainObjectType().toLowerCase();
+                result.put(domainObjectType, getRequiredWidgetIdsFromForm(linkedFormConfig.getName(), parentWidgetConfigs));
+
+            }
+        } else if (config.getLinkedFormConfig() != null && config.getLinkedFormConfig().getDomainObjectType() != null) {
+            String domainObjectType = config.getLinkedFormConfig().getDomainObjectType().toLowerCase();
+            result.put(domainObjectType, getRequiredWidgetIdsFromForm(config.getLinkedFormConfig().getName(),
+                    parentWidgetConfigs));
+
+        }
+        return result;
+    }
+
+    private Collection<String> getRequiredWidgetIdsFromForm(String formName, Collection<WidgetConfig> parentWidgetConfigs) {
+        FormConfig formConfig = configurationService.getConfig(FormConfig.class, formName);
+        return WidgetConfigUtil.getRequiredWidgetIdsFromForm(formConfig, parentWidgetConfigs);
     }
 
 }

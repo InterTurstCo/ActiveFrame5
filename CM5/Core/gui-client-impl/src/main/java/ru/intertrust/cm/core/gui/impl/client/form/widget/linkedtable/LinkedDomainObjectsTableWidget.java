@@ -243,7 +243,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 .withWidth(getModalWidth(domainObjectType))
                 .withObjectType(domainObjectType)
                 .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
-                .withPopupTitlesHolder(currentState.getPopupTitlesHolder()).buildDialogBox();
+                .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
+                .withParentWidgetIds(currentState.getParentWidgetIdsForNewFormMap())
+                .withWidgetsContainer(getContainer())
+                .withTypeTitleMap(currentState.getTypeTitleMap())
+                .buildDialogBox();
 
         lfb.display();
 
@@ -592,6 +596,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withWidth(getModalWidth(pooledEditedFormState.getRootDomainObjectType()))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
+                        .withTypeTitleMap(currentState.getTypeTitleMap())
                         .buildDialogBox();
 
             } else {
@@ -603,6 +608,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withWidth(getModalWidth(null))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
+                        .withTypeTitleMap(currentState.getTypeTitleMap())
+                        .withObjectType(object.getDomainObjectType())
                         .buildDialogBox();
             }
             lfb.display();

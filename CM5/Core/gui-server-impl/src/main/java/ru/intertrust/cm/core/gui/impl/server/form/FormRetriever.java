@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
@@ -37,7 +38,6 @@ import java.util.*;
  */
 public class FormRetriever extends FormProcessor {
     private static Logger log = LoggerFactory.getLogger(FormRetriever.class);
-
 
     @Autowired
     private FormResolver formResolver;
@@ -51,6 +51,16 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
         return getForm(domainObjectType, null, null, formViewerConfig);
     }
+    public FormDisplayData getForm(FormPluginConfig formPluginConfig) {
+        DomainObject root = crudService.createDomainObject(formPluginConfig.getDomainObjectTypeToCreate());
+        if (formPluginConfig.getDomainObjectUpdatorComponent() != null) {
+            DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext
+                    .getBean(formPluginConfig.getDomainObjectUpdatorComponent());
+            domainObjectUpdater.updateDomainObject(root, formPluginConfig.getUpdaterContext());
+        }
+        return buildDomainObjectForm(root, formPluginConfig.getFormViewerConfig(), formPluginConfig.getParentFormState(),
+                formPluginConfig.getParentId());
+    }
 
     public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.createDomainObject(domainObjectType);
@@ -58,7 +68,7 @@ public class FormRetriever extends FormProcessor {
             DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
             domainObjectUpdater.updateDomainObject(root, updaterContext);
         }
-        return buildDomainObjectForm(root, formViewerConfig);
+        return buildDomainObjectForm(root, formViewerConfig, null, null);
     }
 
     public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {
@@ -74,7 +84,7 @@ public class FormRetriever extends FormProcessor {
             DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
             domainObjectUpdater.updateDomainObject(root, updaterContext);
         }
-        return buildDomainObjectForm(root, formViewerConfig);
+        return buildDomainObjectForm(root, formViewerConfig, null , null);
     }
 
 
@@ -94,10 +104,13 @@ public class FormRetriever extends FormProcessor {
         DomainObject root = crudService.createDomainObject(domainObjectType);
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
-        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
+        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
+        fillWidgetStatesMap(widgetConfigs, formState, formConfig);
+
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
     }
@@ -133,23 +146,25 @@ public class FormRetriever extends FormProcessor {
         root.setTypeName(reportName);
         ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
-        HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
+        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
                 MessageResourceProvider.getMessages());
+        fillWidgetStatesMap(widgetConfigs, formState, formConfig);
+
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
     }
 
 
-    private HashMap<String, WidgetState> buildWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormObjects formObjects,
-                                                              FormConfig formConfig) {
-        HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
+    private void fillWidgetStatesMap(List<WidgetConfig> widgetConfigs, FormState formState,
+                                                             FormConfig formConfig) {
+        Map<String, WidgetState> widgetStateMap = formState.getFullWidgetsState();
         HashMap<String, WidgetConfig> widgetConfigsById = buildWidgetConfigsById(widgetConfigs);
         for (WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
 
-            WidgetContext widgetContext = new WidgetContext(config, formObjects, widgetConfigsById);
+            WidgetContext widgetContext = new WidgetContext(config, formState.getObjects(), widgetConfigsById);
             widgetContext.setFormType(formConfig.getType());
             WidgetHandler componentHandler = getWidgetHandler(config);
             if (config.getFieldPathConfig() != null) {
@@ -158,11 +173,11 @@ public class FormRetriever extends FormProcessor {
                     FieldPath[] paths = FieldPath.createPaths(fieldPathValue);
                     FormDefaultValueSetter formDefaultValueSetter;
                     formDefaultValueSetter = obtainFormDefaultValueSetter(formConfig, null);
-                    applyDefaultValuesToFormObjects(formObjects, paths, formDefaultValueSetter);
+                    applyDefaultValuesToFormObjects(formState, paths, formDefaultValueSetter);
                 }
             }
             WidgetState initialState = componentHandler.getInitialState(widgetContext);
-            WidgetContext context = new WidgetContext(config, formObjects, widgetConfigsById); // why don't we re-use widgetContext?
+            WidgetContext context = new WidgetContext(config, formState.getObjects(), widgetConfigsById); // why don't we re-use widgetContext?
 
             context.setFormType(formConfig.getType());
             List<Constraint> constraints = buildConstraints(context);
@@ -173,8 +188,8 @@ public class FormRetriever extends FormProcessor {
             widgetStateMap.put(widgetId, initialState);
         }
         removeNotApplicableConstraints(widgetStateMap);
-        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
-        return widgetStateMap;
+        buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formState.getObjects());
+
     }
 
     private void removeNotApplicableConstraints(Map<String, WidgetState> widgetStateMap) {
@@ -221,10 +236,15 @@ public class FormRetriever extends FormProcessor {
 
     private FormDefaultValueSetter obtainFormDefaultValueSetter(FormConfig formConfig, FormMappingConfig formViewerMappingConfig) {
         FormDefaultValueSetter formDefaultValueSetter;
-        String initialValueSetter = formConfig.getDefaultValueSetter();
-        if (initialValueSetter != null && !initialValueSetter.isEmpty()) {
-            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(initialValueSetter);
-        } else {
+        String lowerPriorityUserValueSetter = formConfig.getDefaultValueSetter();
+        String higherPriorityUserValueSetter = formConfig.getDefaultValueSetterConfig() == null ? null
+                : formConfig.getDefaultValueSetterConfig().getComponent();
+        if (higherPriorityUserValueSetter != null && !higherPriorityUserValueSetter.isEmpty()) {
+            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(higherPriorityUserValueSetter);
+        } else if(lowerPriorityUserValueSetter != null && !lowerPriorityUserValueSetter.isEmpty()){
+            formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean(lowerPriorityUserValueSetter);
+        }
+        else {
             formDefaultValueSetter = (FormDefaultValueSetter) applicationContext.getBean("formDefaultValueSetter", formConfig, formViewerMappingConfig);
         }
         return formDefaultValueSetter;
@@ -239,7 +259,7 @@ public class FormRetriever extends FormProcessor {
         return widgetComponents;
     }
 
-    private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig) {
+    private FormDisplayData buildDomainObjectForm(DomainObject root, FormViewerConfig formViewerConfig, FormState parentFormState, Id parentId) {
         // todo validate that constructions like A^B.C.D aren't allowed or A.B^C
         // allowed are such definitions only:
         // a.b.c.d - direct links
@@ -256,7 +276,10 @@ public class FormRetriever extends FormProcessor {
         final FormObjects formObjects = new FormObjects();
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
-
+        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
+                MessageResourceProvider.getMessages());
+        formState.setParentState(parentFormState);
+        formState.setParentId(parentId);
         for (final WidgetConfig config : widgetConfigs) {
             String widgetId = config.getId();
             WidgetHandler widgetHandler = getWidgetHandler(config);
@@ -303,9 +326,10 @@ public class FormRetriever extends FormProcessor {
                     currentRootNode = linkedNode;
                 }
             }
+
             //apply default values
             if (root.isNew()) {
-                applyDefaultValuesToFormObjects(formObjects, fieldPaths, formDefaultValueSetter);
+                applyDefaultValuesToFormObjects(formState, fieldPaths, formDefaultValueSetter);
             }
 
             WidgetState initialState = widgetHandler.getInitialState(widgetContext);
@@ -318,26 +342,26 @@ public class FormRetriever extends FormProcessor {
         }
         buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
 
-        FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+        formState.clearParentStateAndId(); //no need to send parentState for client
         final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
         result.setToolBarConfig(formConfig.getToolbarConfig());
         return result;
     }
 
-    private void applyDefaultValuesToFormObjects(FormObjects formObjects, FieldPath[] fieldPaths, FormDefaultValueSetter formDefaultValueSetter) {
+    private void applyDefaultValuesToFormObjects(FormState formState, FieldPath[] fieldPaths, FormDefaultValueSetter formDefaultValueSetter) {
         if (formDefaultValueSetter != null) {
+            FormObjects formObjects = formState.getObjects();
             for (FieldPath fieldPath : fieldPaths) {
                 if (fieldPath.isField() || fieldPath.isOneToOneReference()) {
-                    Value defaultValue = formDefaultValueSetter.getDefaultValue(formObjects, fieldPath);
+                    Value defaultValue = formDefaultValueSetter.getDefaultValue(formState, fieldPath);
                     if (defaultValue != null) {
                         if (formObjects.getFieldValue(fieldPath) == null) {
                             formObjects.setFieldValue(fieldPath, defaultValue);
                         }
                     }
                 } else if (fieldPath.isManyToManyReference() || fieldPath.isOneToManyReference()) {
-                    Value[] defaultValues = formDefaultValueSetter.getDefaultValues(formObjects, fieldPath);
+                    Value[] defaultValues = formDefaultValueSetter.getDefaultValues(formState, fieldPath);
                     if (defaultValues == null || defaultValues.length == 0) {
                         return;
                     }

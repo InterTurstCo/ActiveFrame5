@@ -35,6 +35,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -86,7 +87,7 @@ public final class GuiUtil {
         AbstractTitleRepresentationConfig config = isNewObjectForm ? titleConfig.getNewObjectConfig()
                 : titleConfig.getExistingObjectConfig();
         LabelState labelState = (LabelState) displayData.getFormState().getWidgetState(config.getLabelWidgetId());
-        return labelState.getLabel();
+        return labelState == null ? BusinessUniverseConstants.EMPTY_VALUE : labelState.getLabel();
 
     }
 
@@ -122,6 +123,16 @@ public final class GuiUtil {
         return result;
     }
 
+    public static FormPluginConfig createNewFormPluginConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig,
+                                                    WidgetsContainer container,
+                                                    Map<String, Collection<String>> parentWidgetIdsForNewFormMap){
+        FormPluginConfig config = GuiUtil.createFormPluginConfig(mappingConfig, domainObjectType);
+        Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(domainObjectType.toLowerCase());
+        config.setParentFormState(GuiUtil.createParentFormStatesHierarchy(container, widgetIds));
+        config.setParentId(GuiUtil.getParentId(container));
+        return config;
+    }
+
     public static SaveAction createSaveAction(final FormPlugin formPlugin, final Id rootObjectId, boolean dirtySensitivity) {
         SaveActionContext saveActionContext = new SaveActionContext();
         saveActionContext.setRootObjectId(rootObjectId);
@@ -149,16 +160,21 @@ public final class GuiUtil {
 
     public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container){
         ComplicatedFiltersParams params = new ComplicatedFiltersParams();
-        Plugin plugin = container.getPlugin();
-        if (plugin != null ) {
-            FormPluginData pluginData = plugin.getInitialData();
-            Id id = pluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject().getId();
-            params.setRootId(id);
-        }
+        params.setRootId(getParentId(container));
         return params;
     }
+    public static Id getParentId(WidgetsContainer container){
+        Id id = null;
+        Plugin plugin = container == null ? null : container.getPlugin();
+        if (plugin != null ) {
+            FormPluginData pluginData = plugin.getInitialData();
+            id = pluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject().getId();
+        }
+        return id;
+    }
 
-    private static Map<WidgetIdComponentName, WidgetState> getOtherWidgetsValues(WidgetsContainer container,Collection<WidgetIdComponentName> widgetsIds){
+    private static Map<WidgetIdComponentName, WidgetState> getOtherWidgetsValues(WidgetsContainer container,
+                                                                                 Collection<WidgetIdComponentName> widgetsIds){
         if(WidgetUtil.isEmpty(widgetsIds)){
             return null;
         }
@@ -283,5 +299,58 @@ public final class GuiUtil {
             }
         }
         return null;
+    }
+
+    public static FormState createParentFormStatesHierarchy(WidgetsContainer container, Collection<String> widgetsIds){
+        if(WidgetUtil.isEmpty(widgetsIds)){
+            return null;
+        }
+        FormState formState = createParentFormState(container, widgetsIds);
+        fillFormStateWithParentsFormStates(formState, container);
+        return formState;
+    }
+
+    private static void fillFormStateWithParentsFormStates(FormState formState, WidgetsContainer container){
+        FormState nestedFormState = formState;
+        WidgetsContainer parentWidgetContainer = container;
+        do {
+            parentWidgetContainer = parentWidgetContainer.getParentWidgetsContainer();
+            FormState parentFormState = createParentFormState(parentWidgetContainer);
+            Id parentId = getParentId(parentWidgetContainer);
+            if(parentFormState != null){
+                parentFormState.setParentId(parentId);
+                nestedFormState.setParentState(parentFormState);
+                nestedFormState = parentFormState;
+            }
+        }
+        while(parentWidgetContainer != null);
+    }
+
+    private static FormState createParentFormState(WidgetsContainer container, Collection<String> widgetsIds){
+        Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
+        for (String widgetId : widgetsIds) {
+            BaseWidget widget = container.getWidget(widgetId);
+            WidgetState widgetState = widget.getCurrentState();
+            widgetStateMap.put(widgetId, widgetState);
+        }
+        FormState formState = new FormState();
+        formState.setWidgetStateMap(widgetStateMap);
+        return formState;
+    }
+
+    private static FormState createParentFormState(WidgetsContainer container){
+        if(container == null){
+            return null;
+        }
+        Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
+        for (BaseWidget widget : container.getWidgets()) {
+            if(widget.isEditable()){
+            WidgetState widgetState = widget.getCurrentState();
+            widgetStateMap.put(widget.getDisplayConfig().getId(), widgetState);
+            }
+        }
+        FormState formState = new FormState();
+        formState.setWidgetStateMap(widgetStateMap);
+        return formState;
     }
 }

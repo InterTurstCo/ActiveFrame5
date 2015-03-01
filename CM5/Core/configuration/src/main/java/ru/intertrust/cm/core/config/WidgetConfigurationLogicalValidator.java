@@ -6,19 +6,8 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.EnumBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.EnumMapConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.EnumMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.RadioButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SuggestBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 
 import java.math.BigDecimal;
@@ -46,6 +35,8 @@ public class WidgetConfigurationLogicalValidator {
     private static final String WIDGET_LABEL = "label";
     private static final String WIDGET_ENUM_BOX = "enumeration-box";
     private static final String WIDGET_DATE_BOX = "date-box";
+    private static final String WIDGET_LINKED_DOMAIN_OBJECTS_TABLE = "linked-domain-objects-table";
+    private static final String WIDGET_LINKED_DOMAIN_OBJECT_HYPERLINK = "linked-domain-object-hyperlink";
     private static final String REFERENCE_FIELD_CONFIG_FULL_QUALIFIED_NAME =
             "ru.intertrust.cm.core.config.ReferenceFieldConfig";
 
@@ -245,7 +236,12 @@ public class WidgetConfigurationLogicalValidator {
             validateEnumBoxWidget(widget, logicalErrors);
         } else if (thisIsDateBoxWidget(componentName)) {
             validateDateBoxWidget(widget, logicalErrors);
+        } else if (thisIsLinkedDomainObjectsTableWidget(componentName)) {
+            validateLinkedDomainObjectsTableWidget(widget, logicalErrors);
+        } else if (thisIsLinkedDomainObjectHyperlinkWidget(componentName)) {
+            validateLinkedDomainObjectHyperlinkWidget(widget, logicalErrors);
         }
+
     }
 
     private void validateCheckBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
@@ -263,6 +259,19 @@ public class WidgetConfigurationLogicalValidator {
         SuggestBoxConfig config = (SuggestBoxConfig) widget.getWidgetConfig();
         String collectionName = config.getCollectionRefConfig().getName();
         validateIfCollectionExists(widget, collectionName, logicalErrors);
+        validateIfFormsExist(widget, config,logicalErrors);
+
+    }
+
+    private void validateLinkedDomainObjectsTableWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        HasLinkedFormMappings config = (HasLinkedFormMappings) widget.getWidgetConfig();
+        validateIfFormsExist(widget, config,logicalErrors);
+
+    }
+
+    private void validateLinkedDomainObjectHyperlinkWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
+        HasLinkedFormMappings config = (HasLinkedFormMappings) widget.getWidgetConfig();
+        validateIfFormsExist(widget, config,logicalErrors);
 
     }
 
@@ -312,7 +321,7 @@ public class WidgetConfigurationLogicalValidator {
 
     private void validateEnumBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
         String fieldType = widget.getFieldConfigToValidate().getFieldType().name();
-        EnumBoxConfig config = (EnumBoxConfig)widget.getWidgetConfig();
+        EnumBoxConfig config = (EnumBoxConfig) widget.getWidgetConfig();
         if (!fieldTypeIsString(fieldType) && !fieldTypeIsBoolean(fieldType) &&
                 !fieldTypeIsLong(fieldType) && !fieldTypeIsDecimal(fieldType)) {
             String error = String.format("Invalid field type '%s' for enumeration-box with id '%s'." +
@@ -350,7 +359,7 @@ public class WidgetConfigurationLogicalValidator {
     }
 
     private void validateDateBoxWidget(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
-        DateBoxConfig config = (DateBoxConfig)widget.getWidgetConfig();
+        DateBoxConfig config = (DateBoxConfig) widget.getWidgetConfig();
         if (config.getUnmanagedType() != null) {
             String error = String.format("Attribute 'unmanaged-type' is only allowed for report form", config.getId());
             logger.error(error);
@@ -375,7 +384,7 @@ public class WidgetConfigurationLogicalValidator {
                 }
             } else if (fieldTypeIsBoolean(fieldType)) {
                 if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value)) {
-                   wrongType = true;
+                    wrongType = true;
                 }
             }
 
@@ -454,6 +463,7 @@ public class WidgetConfigurationLogicalValidator {
         validateIfCollectionExists(widget, collectionName, logicalErrors);
         String collectionViewName = config.getCollectionViewRefConfig().getName();
         validateIfCollectionViewExists(widget, collectionViewName, logicalErrors);
+        validateIfFormsExist(widget, config, logicalErrors);
     }
 
     private void validateIfCollectionViewExists(WidgetConfigurationToValidate widget,
@@ -468,6 +478,31 @@ public class WidgetConfigurationLogicalValidator {
 
     }
 
+    private void validateIfFormsExist(WidgetConfigurationToValidate widget, HasLinkedFormMappings config, LogicalErrors logicalErrors) {
+        if (!widget.isMethodValidated("validateExistingForms")) {
+            widget.addValidatedMethod("validateExistingForms");
+            String widgetId = widget.getWidgetConfig().getId();
+            if (config.getLinkedFormMappingConfig() != null) {
+                List<LinkedFormConfig> linkedFormConfigs = config.getLinkedFormMappingConfig().getLinkedFormConfigs();
+                for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+                    validateIfFormExist(widgetId, linkedFormConfig.getName(), logicalErrors);
+                }
+            }
+            if (config.getLinkedFormConfig() != null) {
+                validateIfFormExist(widgetId, config.getLinkedFormConfig().getName(), logicalErrors);
+            }
+        }
+    }
+
+    private void validateIfFormExist(String widgetId, String formName, LogicalErrors logicalErrors) {
+        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+        if (formConfig == null) {
+            String error = String.format("Linked form '%s' for widget with id '%s' wasn't found", formName, widgetId);
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+    }
+
     private void validateHierarchyBrowserNode(WidgetConfigurationToValidate widget,
                                               NodeCollectionDefConfig nodeConfig, LogicalErrors logicalErrors) {
         String collectionName = nodeConfig.getCollection();
@@ -479,6 +514,7 @@ public class WidgetConfigurationLogicalValidator {
         for (NodeCollectionDefConfig childNodeConfig : childNodeConfigs) {
             validateHierarchyBrowserNode(widget, childNodeConfig, logicalErrors);
         }
+        validateIfFormsExist(widget, nodeConfig, logicalErrors);
 
     }
 
@@ -576,5 +612,13 @@ public class WidgetConfigurationLogicalValidator {
 
     private boolean thisIsDateBoxWidget(String componentName) {
         return WIDGET_DATE_BOX.equalsIgnoreCase(componentName);
+    }
+
+    private boolean thisIsLinkedDomainObjectsTableWidget(String componentName) {
+        return WIDGET_LINKED_DOMAIN_OBJECTS_TABLE.equalsIgnoreCase(componentName);
+    }
+
+    private boolean thisIsLinkedDomainObjectHyperlinkWidget(String componentName) {
+        return WIDGET_LINKED_DOMAIN_OBJECT_HYPERLINK.equalsIgnoreCase(componentName);
     }
 }

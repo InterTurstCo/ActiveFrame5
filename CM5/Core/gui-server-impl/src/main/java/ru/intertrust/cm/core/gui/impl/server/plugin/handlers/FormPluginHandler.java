@@ -68,7 +68,7 @@ public class FormPluginHandler extends ActivePluginHandler {
         final Dto updaterContext = config.getUpdaterContext();
         final FormViewerConfig formViewerConfig = config.getFormViewerConfig();
         if (domainObjectToCreate != null) {
-            return guiService.getForm(domainObjectToCreate, domainObjectUpdaterName, updaterContext, userInfo, formViewerConfig);
+            return guiService.getForm(userInfo, config);
         } else {
             return guiService.getForm(config.getDomainObjectId(), domainObjectUpdaterName, updaterContext, userInfo, formViewerConfig);
         }

@@ -11,10 +11,12 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewer
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -24,6 +26,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -33,7 +36,6 @@ public class LinkedFormDialogBoxBuilder {
 
     private DialogBoxAction saveAction;
     private DialogBoxAction cancelAction;
-//    private DialogBoxAction closeAction;
     private FormState formState;
     private Id id;
     private String objectTypeName;
@@ -42,7 +44,10 @@ public class LinkedFormDialogBoxBuilder {
     private String width = "1000px";
     private DialogBox dialogBox;
     private PopupTitlesHolder popupTitlesHolder;
+    private Map<String, PopupTitlesHolder> typeTitleMap;
     private LinkedFormMappingConfig linkedFormMappingConfig;
+    private WidgetsContainer parentWidgetsContainer;
+    private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -58,11 +63,6 @@ public class LinkedFormDialogBoxBuilder {
         return this;
     }
 
-//    public LinkedFormDialogBoxBuilder setCloseAction(DialogBoxAction closeAction) {
-//        this.closeAction = closeAction;
-//        return this;
-//    }
-
     public LinkedFormDialogBoxBuilder withFormState(FormState formState) {
         this.formState = formState;
         return this;
@@ -75,6 +75,21 @@ public class LinkedFormDialogBoxBuilder {
 
     public LinkedFormDialogBoxBuilder withObjectType(String objectTypeName) {
         this.objectTypeName = objectTypeName;
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder withTypeTitleMap(Map<String, PopupTitlesHolder> typeTitleMap) {
+        this.typeTitleMap = typeTitleMap;
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder withParentWidgetIds(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder withWidgetsContainer(WidgetsContainer widgetsContainer) {
+        this.parentWidgetsContainer = widgetsContainer;
         return this;
     }
 
@@ -93,9 +108,7 @@ public class LinkedFormDialogBoxBuilder {
     }
 
     public LinkedFormDialogBoxBuilder withPopupTitlesHolder(PopupTitlesHolder popupTitlesHolder) {
-        if (popupTitlesHolder != null) {
-            this.popupTitlesHolder = popupTitlesHolder;
-        }
+        this.popupTitlesHolder = popupTitlesHolder;
         return this;
     }
 
@@ -110,6 +123,7 @@ public class LinkedFormDialogBoxBuilder {
         }
         this.formPlugin = buildLinkedFormPlugin(linkedFormPluginConfig);
         final PluginPanel formPluginPanel = new PluginPanel();
+
         dialogBox = buildLinkedFormDialogBox(formPluginPanel);
         this.formPlugin.addViewCreatedListener(new PluginViewCreatedEventListener() {
             @Override
@@ -119,7 +133,12 @@ public class LinkedFormDialogBoxBuilder {
                     formPlugin.setFormState(formState);
 
                 }
-                setTitle(id);
+                if (parentWidgetsContainer != null) {
+                    FormPluginView formPluginView = (FormPluginView) formPlugin.getView();
+                    WidgetsContainer widgetContainer = (WidgetsContainer) formPluginView.getViewWidget();
+                    widgetContainer.setParentWidgetsContainer(parentWidgetsContainer);
+                }
+                setTitle();
             }
         });
 
@@ -127,13 +146,15 @@ public class LinkedFormDialogBoxBuilder {
         return this;
     }
 
-    private void setTitle(Id id) {
+    private void setTitle() {
+        String domainObjectType = this.objectTypeName == null ? null : this.objectTypeName.toLowerCase();
+        PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? this.popupTitlesHolder : typeTitleMap.get(domainObjectType);
         String title = popupTitlesHolder == null ? (GuiUtil.getConfiguredTitle(formPlugin, id == null))
-                : getTitleFromHolder(id);
+                : getTitleFromHolder(popupTitlesHolder);
         dialogBox.getCaption().setText(title);
     }
 
-    private String getTitleFromHolder(Id id) {
+    private String getTitleFromHolder(PopupTitlesHolder popupTitlesHolder) {
         return id == null ? popupTitlesHolder.getTitleNewObject() : popupTitlesHolder.getTitleExistingObject();
     }
 
@@ -187,19 +208,6 @@ public class LinkedFormDialogBoxBuilder {
                 }
             });
         }
-//        Button closeButton = new Button();
-//        closeButton.setStyleName("linkedFormClosePanel");
-//        decorateButton(closeButton);
-//        closeButton.addClickHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                if (closeAction != null) {
-//                    closeAction.execute(formPlugin);
-//                }
-//                db.clear();
-//                db.hide();
-//            }
-//        });
 
         Panel buttons = new FlowPanel();
         buttons.addStyleName("linkedFormButtonsPanel");
@@ -216,7 +224,6 @@ public class LinkedFormDialogBoxBuilder {
         container.add(buttons);
         bodyPanel.add(container);
         Panel panel = new AbsolutePanel();
-//        panel.add(closeButton);
         panel.add(bodyPanel);
         panel.add(buttons);
         db.setWidget(panel);
@@ -245,10 +252,10 @@ public class LinkedFormDialogBoxBuilder {
     }
 
     private FormPluginConfig createLinkedFormPluginConfig(String objectTypeName, LinkedFormMappingConfig linkedFormMappingConfig) {
-        FormPluginConfig config;
-        config = new FormPluginConfig(objectTypeName);
+        FormPluginConfig config = new FormPluginConfig(objectTypeName);
         addLinkedFormViewer(linkedFormMappingConfig, config);
         addPluginStateToConfig(config);
+        addParentStateToConfig(objectTypeName, config);
         return config;
     }
 
@@ -256,6 +263,14 @@ public class LinkedFormDialogBoxBuilder {
         FormPluginState formPluginState = new FormPluginState();
         formPluginState.setEditable(true);
         config.setPluginState(formPluginState);
+    }
+
+    private void addParentStateToConfig(String objectType, FormPluginConfig config) {
+        if (parentWidgetIdsForNewFormMap != null) {
+            Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(objectType.toLowerCase());
+            config.setParentFormState(GuiUtil.createParentFormStatesHierarchy(parentWidgetsContainer, widgetIds));
+        }
+        config.setParentId(GuiUtil.getParentId(parentWidgetsContainer));
     }
 
     public void display() {

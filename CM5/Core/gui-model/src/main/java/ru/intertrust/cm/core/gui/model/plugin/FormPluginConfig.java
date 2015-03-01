@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * @author Denis Mitavskiy
@@ -17,7 +18,8 @@ public class FormPluginConfig extends PluginConfig {
     private String domainObjectUpdatorComponent;
     private Dto updaterContext;
     private FormViewerConfig formViewerConfig;
-
+    private FormState parentFormState;
+    private Id parentId;
     public FormPluginConfig() {
     }
 
@@ -78,6 +80,22 @@ public class FormPluginConfig extends PluginConfig {
 
     public void setFormViewerConfig(FormViewerConfig formViewerConfig) {
         this.formViewerConfig = formViewerConfig;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
+    }
+
+    public FormState getParentFormState() {
+        return parentFormState;
+    }
+
+    public void setParentFormState(FormState parentFormState) {
+        this.parentFormState = parentFormState;
     }
 
     @Override

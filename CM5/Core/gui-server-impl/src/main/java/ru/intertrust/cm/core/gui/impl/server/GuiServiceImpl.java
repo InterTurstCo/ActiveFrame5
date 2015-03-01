@@ -24,6 +24,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
 import javax.ejb.*;
@@ -113,6 +114,12 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
                                    FormViewerConfig formViewerConfig) {
         FormRetriever formRetriever = getFormRetriever(userInfo);
         return formRetriever.getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
+    }
+
+    @Override
+    public FormDisplayData getForm(UserInfo userInfo, FormPluginConfig formPluginConfig) {
+        FormRetriever formRetriever = getFormRetriever(userInfo);
+        return formRetriever.getForm(formPluginConfig);
     }
 
     @Override

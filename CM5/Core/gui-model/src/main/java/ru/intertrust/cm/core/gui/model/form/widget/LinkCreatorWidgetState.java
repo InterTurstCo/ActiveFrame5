@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -11,13 +12,21 @@ import java.util.Map;
  */
 public abstract class LinkCreatorWidgetState<T> extends ListWidgetState {
     private Map<String, PopupTitlesHolder> typeTitleMap;
-
+    private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
     public Map<String, PopupTitlesHolder> getTypeTitleMap() {
         return typeTitleMap;
     }
 
     public void setTypeTitleMap(Map<String, PopupTitlesHolder> typeTitleMap) {
         this.typeTitleMap = typeTitleMap;
+    }
+
+    public Map<String, Collection<String>> getParentWidgetIdsForNewFormMap() {
+        return parentWidgetIdsForNewFormMap;
+    }
+
+    public void setParentWidgetIdsForNewFormMap(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
     }
 
     public abstract T getWidgetConfig();

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -31,6 +30,9 @@ public class FieldValueConfig implements Dto {
 
     @Attribute(name = "time-zone-id", required = false)
     private String timeZoneId;
+
+    @Attribute(name = "set-parent-object", required = false)
+    private boolean setParentObject;
 
     @Element(name = "unique-key-value", required = false)
     private UniqueKeyValueConfig uniqueKeyValueConfig;
@@ -99,6 +101,14 @@ public class FieldValueConfig implements Dto {
         this.uniqueKeyValueConfig = uniqueKeyValueConfig;
     }
 
+    public boolean isSetParentObject() {
+        return setParentObject;
+    }
+
+    public void setSetParentObject(boolean setParentObject) {
+        this.setParentObject = setParentObject;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -130,6 +140,9 @@ public class FieldValueConfig implements Dto {
             return false;
         }
         if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
+            return false;
+        }
+        if (setParentObject != that.setParentObject) {
             return false;
         }
         return true;

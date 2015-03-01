@@ -88,7 +88,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         state.setSingleChoice(singleChoice);
         boolean displayingAsHyperlinks = WidgetUtil.isDisplayingAsHyperlinks(widgetConfig.getDisplayValuesAsLinksConfig());
         state.setDisplayingAsHyperlinks(displayingAsHyperlinks);
-
+        state.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig, context.getWidgetConfigsById().values()));
         return state;
     }
 

@@ -787,9 +787,6 @@
                     <fill-parent-on-add field-to-fill="contact_name"/>
                     <selection-pattern value="{content}"/>
                     <default-sort-criteria column-field="content" order="asc"/>
-                    <linked-form-mapping>
-                        <linked-form name="address_form"  domain-object-type="address"/>
-                    </linked-form-mapping>
                 </node-collection-def>
 
                 <!-- количество элементов, показываемых в данном узле дерева изначально -->

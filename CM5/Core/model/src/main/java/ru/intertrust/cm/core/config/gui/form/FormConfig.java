@@ -67,6 +67,9 @@ public class FormConfig implements Dto, TopLevelConfig {
     @Element(name = "widget-groups", required = false)
     private WidgetGroupsConfig widgetGroupsConfig;
 
+    @Element(name = "default-value-setter", required = false)
+    private DefaultValueSetterConfig defaultValueSetterConfig;
+
     public String getType() {
         return type != null ? type : TYPE_EDIT;
     }
@@ -164,6 +167,14 @@ public class FormConfig implements Dto, TopLevelConfig {
         this.defaultValueSetter = defaultValueSetter;
     }
 
+    public DefaultValueSetterConfig getDefaultValueSetterConfig() {
+        return defaultValueSetterConfig;
+    }
+
+    public void setDefaultValueSetterConfig(DefaultValueSetterConfig defaultValueSetterConfig) {
+        this.defaultValueSetterConfig = defaultValueSetterConfig;
+    }
+
     public CaseInsensitiveHashMap<WidgetConfig> getWidgetConfigsById() {
         if (widgetConfigurationConfig == null) {
             return new CaseInsensitiveHashMap<>(0);
@@ -226,6 +237,10 @@ public class FormConfig implements Dto, TopLevelConfig {
         }
         if (formSaveExtensionConfig != null ? !formSaveExtensionConfig.equals(that.formSaveExtensionConfig) :
                 that.formSaveExtensionConfig != null) {
+            return false;
+        }
+        if (defaultValueSetterConfig != null ? !defaultValueSetterConfig.equals(that.defaultValueSetterConfig) :
+                that.defaultValueSetterConfig != null) {
             return false;
         }
         return true;

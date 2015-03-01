@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCri
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +25,7 @@ import java.util.Map;
  *         Time: 11:40
  */
 @Root(name = "node-collection-def")
-public class NodeCollectionDefConfig implements Dto {
+public class NodeCollectionDefConfig implements Dto, HasLinkedFormMappings {
     @Attribute(name = "collection")
     private String collection;
 
@@ -87,6 +88,7 @@ public class NodeCollectionDefConfig implements Dto {
     private boolean childrenRecursive;
 
     private Map<String, PopupTitlesHolder> doTypeTitlesMap;
+    private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
 
     public SelectionPatternConfig getSelectionPatternConfig() {
         return selectionPatternConfig;
@@ -222,6 +224,11 @@ public class NodeCollectionDefConfig implements Dto {
         return linkedFormMappingConfig;
     }
 
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return null;
+    }
+
     public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
         this.linkedFormMappingConfig = linkedFormMappingConfig;
     }
@@ -273,6 +280,14 @@ public class NodeCollectionDefConfig implements Dto {
 
     public boolean isChildrenRecursive() {
         return childrenRecursive;
+    }
+
+    public Map<String, Collection<String>> getParentWidgetIdsForNewFormMap() {
+        return parentWidgetIdsForNewFormMap;
+    }
+
+    public void setParentWidgetIdsForNewFormMap(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
     }
 
     @Override
