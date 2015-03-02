@@ -9,11 +9,13 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureDataService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.CollectorSettings;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.crypto.ExtendedCryptoSettingsConfig;
 import ru.intertrust.cm.core.config.crypto.SignedData;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
 import ru.intertrust.cm.core.model.FatalException;
@@ -32,6 +34,8 @@ public class AllAttachmentSignatureDataService implements SignatureDataService {
     private AttachmentService attachmentService;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private CryptoService cryptoService;
 
     @Override
     public SignedData getSignedData(CollectorSettings settings, Id rootId) {
@@ -90,6 +94,17 @@ public class AllAttachmentSignatureDataService implements SignatureDataService {
         return Base64.encodeBase64String(getAttachmentContent(id));
     }
 
+    private boolean isHashOnServer() {
+        boolean result = false;
+        if (configurationExplorer.getGlobalSettings().getCryptoSettingsConfig() != null
+                && configurationExplorer.getGlobalSettings().getCryptoSettingsConfig().getSettings() != null) {
+            ExtendedCryptoSettingsConfig config =
+                    (ExtendedCryptoSettingsConfig) configurationExplorer.getGlobalSettings().getCryptoSettingsConfig().getSettings();
+            result = config.getHashOnServer() != null && config.getHashOnServer();
+        }
+        return result;
+    }
+
     protected byte[] getAttachmentContent(Id attachmentId) throws IOException {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
@@ -98,10 +113,15 @@ public class AllAttachmentSignatureDataService implements SignatureDataService {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
             ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
 
-            int read = 0;
-            byte[] buffer = new byte[1024];
-            while ((read = contentStream.read(buffer)) > 0) {
-                attachmentBytes.write(buffer, 0, read);
+            if (isHashOnServer()) {
+                byte[] hash = cryptoService.hash(contentStream);
+                attachmentBytes.write(hash);
+            } else {
+                int read = 0;
+                byte[] buffer = new byte[1024];
+                while ((read = contentStream.read(buffer)) > 0) {
+                    attachmentBytes.write(buffer, 0, read);
+                }
             }
             return attachmentBytes.toByteArray();
         } finally {

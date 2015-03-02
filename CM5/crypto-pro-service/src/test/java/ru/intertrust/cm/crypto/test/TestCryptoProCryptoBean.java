@@ -1,5 +1,6 @@
 package ru.intertrust.cm.crypto.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -47,6 +48,16 @@ public class TestCryptoProCryptoBean {
             assertFalse(result.getSignerInfos().get(0).isValid());
         }
     }
+
+    @Test
+    @Ignore
+    public void testHash() throws IOException {
+        CryptoProCryptoBean bean = new CryptoProCryptoBean();
+        try (InputStream document = getClass().getClassLoader().getResourceAsStream("document.png");) {
+            byte[] hash = bean.hash(document);
+            assertEquals(Base64.encodeBase64String(hash), "xu15NuPCbh5q4p77Kzlp6/1SpGLdsrlSGiKT/69Ro30=");
+        }
+    }    
     
     /**
      * Получение файла в виде массива байт

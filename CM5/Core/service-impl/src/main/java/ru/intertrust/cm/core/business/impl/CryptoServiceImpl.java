@@ -30,7 +30,7 @@ import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
 
-@Stateless
+@Stateless(name="CryptoService")
 @Local(CryptoService.class)
 @Remote(CryptoService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -152,6 +152,11 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
         //Очищаем кэш
         typeCryptoConfigs.clear();
 
+    }
+
+    @Override
+    public byte[] hash(InputStream document) {
+        return cryptoBean.hash(document);
     }
 
 }

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 public class SignedDataItem implements Dto {
+    private static final long serialVersionUID = -3132225111239223064L;
     private Id id;
     private String name;
     private String content;

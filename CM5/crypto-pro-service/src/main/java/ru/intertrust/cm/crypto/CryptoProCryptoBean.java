@@ -3,6 +3,8 @@ package ru.intertrust.cm.crypto;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +25,7 @@ import ru.intertrust.cm.core.model.FatalException;
 
 public class CryptoProCryptoBean implements CryptoBean {
     private static final Logger logger = LoggerFactory.getLogger(CryptoProCryptoBean.class);
+    public static final String DIGEST_ALG_2001 = "GOST3411";
 
     @Override
     public VerifyResult verify(InputStream document) {
@@ -176,6 +179,25 @@ public class CryptoProCryptoBean implements CryptoBean {
             out.write(buffer, 0, read);
         }
         return out.toByteArray();
+    }
+
+    @Override
+    public byte[] hash(InputStream document) {
+        try {
+            // создание объекта хеширования данных
+            final MessageDigest digest = MessageDigest.getInstance(DIGEST_ALG_2001);
+
+            // обработка хешируемых данных
+            final DigestInputStream digestStream = new DigestInputStream(document, digest);
+            while (digestStream.available() != 0) {
+                digestStream.read();
+            }
+
+            // вычисление значения хеша
+            return digest.digest();
+        } catch (Exception ex) {
+            throw new FatalException("Error claculate document hash", ex);
+        }
     }
 
 }

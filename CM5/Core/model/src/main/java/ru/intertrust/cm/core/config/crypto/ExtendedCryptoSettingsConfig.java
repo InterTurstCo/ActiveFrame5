@@ -12,12 +12,23 @@ public class ExtendedCryptoSettingsConfig implements CollectorSettings{
     @Attribute(name = "ts-address", required=true)
     private String tsAddress;
 
+    @Attribute(name = "hash-on-server", required=false)
+    private Boolean hashOnServer;
+    
     public String getTsAddress() {
         return tsAddress;
     }
 
     public void setTsAddress(String tsAddress) {
         this.tsAddress = tsAddress;
+    }
+    
+    public Boolean getHashOnServer() {
+        return hashOnServer;
+    }
+
+    public void setHashOnServer(Boolean hashOnServer) {
+        this.hashOnServer = hashOnServer;
     }
 
     @Override

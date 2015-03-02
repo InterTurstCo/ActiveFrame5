@@ -51,4 +51,11 @@ public interface CryptoTool {
      * @return
      */
     VerifyResult verify(Id documrntId);
+
+    /**
+     * Формирование hash переданного документа
+     * @param document
+     * @return
+     */
+    byte[] hash(InputStream document);
 }

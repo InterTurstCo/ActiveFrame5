@@ -4,10 +4,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.bouncycastle.crypto.Digest;
+import org.bouncycastle.crypto.digests.GOST3411Digest;
+import org.bouncycastle.crypto.io.DigestInputStream;
 import org.bouncycastle.tsp.TimeStampToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +154,28 @@ public class BouncycastleCryptoBean implements CryptoBean {
             result += (String) subjectDnMap.get("CN");
         }
         return result;
+    }
+
+    @Override
+    public byte[] hash(InputStream document) {
+        try {
+            // создание объекта хеширования данных
+            final Digest digest = new GOST3411Digest();
+
+            // обработка хешируемых данных
+            final DigestInputStream digestStream = new DigestInputStream(document, digest);
+            while (digestStream.available() != 0) {
+                digestStream.read();
+            }
+
+            // вычисление значения хеша
+            byte[]  resBuf = new byte[digest.getDigestSize()];
+            digest.doFinal(resBuf, 0);
+            return resBuf;
+        } catch (Exception ex) {
+            throw new FatalException("Error claculate document hash", ex);
+        }
+        
     }
 
 }
