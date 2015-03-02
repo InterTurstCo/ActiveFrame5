@@ -71,7 +71,7 @@ public class ThemePopup extends PopupPanel {
         AbsolutePanel buttonPanel = new AbsolutePanel();
         buttonPanel.setStyleName("button-panel");
         buttonPanel.getElement().getStyle().clearPosition();
-        Button select = new Button(LocalizeUtil.get(TEXT_KEY_CHANGE));
+        Button select = new Button(LocalizeUtil.get(CHANGE_BUTTON));
         select.setStyleName("lightButton");
         select.addClickHandler(new ClickHandler() {
             @Override
@@ -88,7 +88,7 @@ public class ThemePopup extends PopupPanel {
             }
         });
         buttonPanel.add(select);
-        Button cancel = new Button(LocalizeUtil.get(TEXT_KEY_CANCEL));
+        Button cancel = new Button(LocalizeUtil.get(CANCEL_BUTTON));
         cancel.setStyleName("darkButton");
         cancel.addClickHandler(new ClickHandler() {
             @Override

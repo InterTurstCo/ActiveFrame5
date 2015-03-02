@@ -105,21 +105,47 @@ public class BusinessUniverseConstants {
 
     public static final int BROWSER_INACCURACY = 1;
 
-    public static final String TEXT_KEY_CHOOSE_THEME = "Выбрать тему";
-    public static final String TEXT_KEY_RESET = "Сбросить настройки";
-    public static final String TEXT_KEY_RESET_ALL = "Сбросить все настройки";
-    public static final String TEXT_KEY_CHANGE = "Изменить";
-    public static final String TEXT_KEY_CANCEL = "Отменить";
-    public static final String TEXT_KEY_EXIT = "Выход";
-    public static final String TEXT_KEY_CORE_VERSION = "Версия платформы:";
-    public static final String TEXT_KEY_VERSION = "Версия:";
-    public static final String TEXT_KEY_HELP = "Справка";
-    public static final String TEXT_KEY_LOGIN = "Логин:";
-    public static final String TEXT_KEY_FIRST_NAME = "Имя:";
-    public static final String TEXT_KEY_LAST_NAME = "Фамилия:";
-    public static final String TEXT_KEY_EMAIL = "EMail:";
-    public static final String TEXT_KEY_CLOSE = "Закрыть";
-    public static final String TEXT_KEY_ADMIN = "Администратор";
+    public static final String CHOOSE_THEME = "Выбрать тему";
+    public static final String RESET_SETTINGS = "Сбросить настройки";
+    public static final String RESET_ALL_SETTINGS = "Сбросить все настройки";
+    public static final String EXIT = "Выход";
+    public static final String CORE_VERSION = "Версия платформы:";
+    public static final String VERSION = "Версия:";
+    public static final String INFO = "Справка";
+    public static final String LOGIN = "Логин:";
+    public static final String FIRST_NAME = "Имя:";
+    public static final String LAST_NAME = "Фамилия:";
+    public static final String EMAIL = "EMail:";
+    public static final String ADMINISTRATOR = "Администратор";
+
+    public static final String OK_BUTTON = "OK";
+    public static final String CANCEL_BUTTON = "Отменить";
+    public static final String CANCELLATION_BUTTON = "Отмена";
+    public static final String CLOSE_BUTTON = "Закрыть";
+    public static final String OPEN_IN_FULL_WINDOW = "Открыть в полном окне";
+    public static final String DONE_BUTTON = "Готово";
+    public static final String SAVE_BUTTON = "Сохранить";
+    public static final String CHANGE_BUTTON = "Изменить";
+    public static final String FIND_BUTTON = "Найти";
+
+    public static final String SEARCH = "Поиск";
+    public static final String EMPTY_TABLE = "Результаты отсутствуют";
+    public static final String CLEAR_FORM = "Очистить форму";
+    public static final String SIZE_ACTION_TOOLTIP = "Распахнуть/Свернуть";
+    public static final String FAVORITE_ACTION_TOOLTIP = "Показать/Скрыть избранное";
+    public static final String FILTER_BUTTON_TOOLTIP = "Отобразить/Скрыть фильтры";
+    public static final String COLUMNS_DISPLAY_TOOLTIP = "Отображение видимых колонок";
+    public static final String COLUMNS_WIDTH_TOOLTIP = "Отобразить все колонки на экране";
+    public static final String NO_NEW_NOTIFICATIONS = "Новых уведомлений нет";
+    public static final String ADD_CONFIG_FILES = "Добавьте файлы конфигурации:";
+    public static final String ADD_REPORT_FILES = "Добавьте файлы шаблона отчета:";
+
+    public static final String MONTH_SWITCH_BUTTON = "Задачи дня";
+    public static final String WEEK_SWITCH_BUTTON = "Суббота, Воскресенье";
+    public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
+            "сентябрь", "октябрь", "ноябрь", "декабрь"};
+    public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
+            "суббота"};
 
     private BusinessUniverseConstants() {
     }

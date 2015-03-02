@@ -4,9 +4,15 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -48,7 +54,7 @@ public class ConfirmDialog extends DialogBox {
             }
         });
         buttonsPanel.add(okButton);
-        final Button cancelButton = new Button("Отмена");
+        final Button cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
 //        cancelButton.setFocus(true);
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override

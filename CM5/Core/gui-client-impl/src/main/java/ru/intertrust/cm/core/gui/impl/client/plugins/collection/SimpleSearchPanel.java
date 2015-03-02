@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,7 +34,7 @@ public class SimpleSearchPanel extends Composite implements IsWidget {
 
     private void init(){
         textPanel.add(textBox);
-        textBox.getElement().setAttribute("placeHolder", "Поиск");
+        textBox.getElement().setAttribute("placeHolder", LocalizeUtil.get(BusinessUniverseConstants.SEARCH));
         textPanel.add(searchButton);
         textPanel.addStyleName("search-panel-text-and-button-container");
         searchButton.addStyleName("simple-search-button");

@@ -12,10 +12,12 @@ import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.AttachmentBoxWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -38,7 +40,7 @@ public class ConfigurationDeployerPluginView extends PluginView {
     }
 
     private void init() {
-        mainPanel.add(new Label("Добавьте файлы конфигурации:"));
+        mainPanel.add(new Label(LocalizeUtil.get(BusinessUniverseConstants.ADD_CONFIG_FILES)));
         mainPanel.setStyleName("uploadConfigurationWrapper");
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);

@@ -1,6 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * Created by tbilyi on 14.02.14.
@@ -51,11 +57,11 @@ public class NewExtSearchPanelHelper implements IsWidget {
         FocusPanel sdfButtonClearForm = new FocusPanel();
 
         sdfButtonClearForm.getElement().setClassName("sdf-button-clear-form");
-        sdfButtonClearForm.add(new HTML("<span>Очистить форму</span>"));
+        sdfButtonClearForm.add(new HTML("<span>" + LocalizeUtil.get(BusinessUniverseConstants.CLEAR_FORM) + "</span>"));
 
         FocusPanel sdfEnterSearch = new FocusPanel();
         sdfEnterSearch.getElement().setClassName("sdf-enter-search");
-        sdfEnterSearch.add(new HTML("<span>Найти</span>"));
+        sdfEnterSearch.add(new HTML("<span>" + LocalizeUtil.get(BusinessUniverseConstants.FIND_BUTTON) + "</span>"));
 
         sdfFooterBlock.add(sdfButtonClearForm);
         sdfFooterBlock.add(sdfEnterSearch);

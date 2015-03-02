@@ -40,14 +40,14 @@ public class InformationDialogBox implements IsWidget{
     }
 
     private void addUserInfo(String name, String lastName, String login, String email){
-        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_LOGIN) + "  " + login));
-        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_FIRST_NAME) + "  " + name));
-        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_LAST_NAME) + "  " + lastName));
-        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_EMAIL) + "  " + email));
+        verticalPanel.add(new Label(LocalizeUtil.get(LOGIN) + "  " + login));
+        verticalPanel.add(new Label(LocalizeUtil.get(FIRST_NAME) + "  " + name));
+        verticalPanel.add(new Label(LocalizeUtil.get(LAST_NAME) + "  " + lastName));
+        verticalPanel.add(new Label(LocalizeUtil.get(EMAIL) + "  " + email));
     }
 
     private void addButton(){
-        Button closeButton = new Button(LocalizeUtil.get(TEXT_KEY_CLOSE));
+        Button closeButton = new Button(LocalizeUtil.get(CLOSE_BUTTON));
         closeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

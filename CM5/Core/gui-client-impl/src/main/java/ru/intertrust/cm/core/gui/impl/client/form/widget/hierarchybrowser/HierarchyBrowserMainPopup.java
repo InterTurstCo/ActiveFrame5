@@ -10,9 +10,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
@@ -149,10 +151,10 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
     private AbsolutePanel createFooterButtonPanel() {
         AbsolutePanel buttonsPanel = new AbsolutePanel();
         buttonsPanel.setStyleName("bottom-popup-buttons-panel");
-        okButton = new Button("Готово");
+        okButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.DONE_BUTTON));
         okButton.removeStyleName("gwt-Button");
         okButton.addStyleName("lightButton");
-        cancelButton = new Button("Отмена");
+        cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
         cancelButton.removeStyleName("gwt-Button");
         cancelButton.addStyleName("lightButton");
         buttonsPanel.add(okButton);

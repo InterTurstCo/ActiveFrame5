@@ -6,10 +6,12 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
@@ -63,7 +65,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
         allItemsPanel.getElement().getStyle().clearOverflow();
         panel.add(allItemsPanel);
 
-        Button okButton = new Button("OK");
+        Button okButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.OK_BUTTON));
         okButton.getElement().setClassName("lightButton");
         okButton.addClickHandler(new ClickHandler() {
             @Override
@@ -71,7 +73,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
                 selectionDialog.hide();
             }
         });
-        cancelButton = new Button("Отменить");
+        cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCEL_BUTTON));
         cancelButton.getElement().setClassName("darkButton");
         cancelButton.addClickHandler(new ClickHandler() {
             @Override

@@ -3,10 +3,16 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -50,9 +56,9 @@ public class CollectionDialogBox extends DialogBox {
     public void init(){
         this.setStyleName("table-browser-dialog popup-z-index");
         this.getElement().getStyle().setZIndex(100);
-        okButton = new Button("OK");
+        okButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.OK_BUTTON));
         okButton.setStyleName("darkButton buttons-fixed");
-        cancelButton = new Button("Отмена");
+        cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
         cancelButton.setStyleName("lightButton buttons-fixed position-margin-left");
         AbsolutePanel buttonsContainer = new AbsolutePanel();
         buttonsContainer.addStyleName("table-browser-dialog-box-button-panel");

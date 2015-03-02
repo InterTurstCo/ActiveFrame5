@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.gui.api.client.ApplicationContext;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
@@ -38,7 +39,8 @@ public class BusinessUniverseContext extends ApplicationContext {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(BusinessUniverseConstants.BUSINESS_UNIVERSE_CONTEXT_EXCEPTION_MESSAGE);
+                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
+                        .BUSINESS_UNIVERSE_CONTEXT_EXCEPTION_MESSAGE));
             }
         };
         Command command = new Command("searchConfigurations", "extended.search.plugin", extendedSearchData);

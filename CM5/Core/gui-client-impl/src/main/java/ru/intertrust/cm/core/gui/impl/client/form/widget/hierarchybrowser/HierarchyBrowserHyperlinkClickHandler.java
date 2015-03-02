@@ -6,6 +6,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
@@ -18,6 +19,10 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN_IN_FULL_WINDOW;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 03.01.14
@@ -51,7 +56,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(item.getPopupTitle());
         final FormPluginConfig config = GuiUtil.createFormPluginConfig(item.getId(), nodeConfig, item.getDomainObjectType(), false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
-        noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW), new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -62,7 +67,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                 eventBus.fireEvent(new HierarchyBrowserCloseDialogEvent());
             }
         });
-        noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noneEditableFormDialogBox.hide();
@@ -72,7 +77,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
                 final FormDialogBox editableFormDialogBox =
                         new FormDialogBox(item.getPopupTitle());
                 final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
-                editableFormDialogBox.initButton("Изменить", new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         final SaveAction action = ComponentRegistry.instance.get("save.action");
@@ -93,7 +98,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
 
                     }
                 });
-                editableFormDialogBox.initButton("Отмена", new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
                         editableFormDialogBox.hide();
@@ -103,7 +108,7 @@ public class HierarchyBrowserHyperlinkClickHandler implements ClickHandler {
             }
 
         });
-        noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noneEditableFormDialogBox.hide();

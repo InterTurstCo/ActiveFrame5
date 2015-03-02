@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -159,7 +160,7 @@ public class LinkedFormDialogBoxBuilder {
         db.setModal(true);
 
         // create buttons
-        Button saveButton = new Button("Сохранить");
+        Button saveButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.SAVE_BUTTON));
         saveButton.setStyleName("lnfm-save-button darkButton");
         decorateButton(saveButton);
         if (saveAction != null) {
@@ -174,7 +175,7 @@ public class LinkedFormDialogBoxBuilder {
                 }
             });
         }
-        Button cancelButton = new Button("Отменить");
+        Button cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCEL_BUTTON));
         cancelButton.setStyleName("lnfm-cancel-button darkButton");
         decorateButton(cancelButton);
         if (cancelAction != null) {
@@ -270,7 +271,7 @@ public class LinkedFormDialogBoxBuilder {
                 validationResult.append(widget.validate());
             }
             if (validationResult.hasErrors()) {
-                ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
                 return false;
             }
         }

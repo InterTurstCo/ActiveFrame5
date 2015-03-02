@@ -89,7 +89,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(TEXT_KEY_ADMIN));
+        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR));
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
@@ -122,9 +122,9 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(corner);
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
-        infoPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_CORE_VERSION) +  " " + version.getCoreVersion()));
+        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION) +  " " + version.getCoreVersion()));
         if (version.getProductVersion() != null) {
-            infoPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_VERSION) + " " + version.getProductVersion()));
+            infoPanel.add(new Label(LocalizeUtil.get(VERSION) + " " + version.getProductVersion()));
         }
         popupPanel.add(contentInfo);
 
@@ -154,7 +154,7 @@ public class HeaderContainer extends SimplePanel {
 
         headTable.setWidget(FIRST_ROW, 4, linksPanel);
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(TEXT_KEY_EXIT), "logout");
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT), "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
         settingsImage.addClickHandler(new ClickHandler() {
             @Override
@@ -197,7 +197,7 @@ public class HeaderContainer extends SimplePanel {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE);
+                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE));
             }
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
@@ -232,7 +232,7 @@ public class HeaderContainer extends SimplePanel {
     private void setInfoPage(final String pagePath){
 
        final String currentPath = pagePath.contains("http://")? pagePath : GWT.getHostPageBaseURL()+ pagePath;
-        Label help = new Label(LocalizeUtil.get(TEXT_KEY_HELP));
+        Label help = new Label(LocalizeUtil.get(INFO));
         infoPanel.add(help);
 
         help.addClickHandler(new ClickHandler() {

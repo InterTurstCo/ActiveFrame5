@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -15,6 +14,8 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
+
+import java.util.List;
 
 /**
  * @author IPetrov
@@ -64,7 +65,7 @@ public class DeleteAction extends SimpleServerAction {
 
     @Override
     protected String getDefaultOnSuccessMessage() {
-        return BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE;
+        return LocalizeUtil.get(BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE);
     }
 }
 

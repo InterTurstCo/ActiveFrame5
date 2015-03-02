@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
@@ -22,6 +23,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButto
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.LinkCreatingButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
@@ -129,7 +131,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
         String height = linkedFormConfig != null ? linkedFormConfig.getModalHeight() : null;
         final FormDialogBox createItemDialogBox = new FormDialogBox(title, width, height);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, localEventBus);
-        createItemDialogBox.initButton("Cохранить", new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(BusinessUniverseConstants.SAVE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, null, false);
@@ -144,7 +146,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
 
             }
         });
-        createItemDialogBox.initButton("Отмена", new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 createItemDialogBox.hide();

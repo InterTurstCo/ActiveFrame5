@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
@@ -55,7 +56,8 @@ public class ExtendedSearchFormPluginView extends PluginView {
 
                     result.put(id, state);
                 } catch (GuiException e) {
-                    ApplicationWindow.errorAlert(BusinessUniverseConstants.EXTENDED_SEARCH_ERROR_MESSAGE + e.getMessage());
+                    ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
+                            .EXTENDED_SEARCH_ERROR_MESSAGE) + e.getMessage());
                 }
             }
         }

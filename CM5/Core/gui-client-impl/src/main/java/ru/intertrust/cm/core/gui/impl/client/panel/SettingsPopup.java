@@ -47,11 +47,11 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_CHOOSE_THEME), "menuImage chooseTheme",
+                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME), "menuImage chooseTheme",
                         new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_RESET), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_RESET_ALL), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);

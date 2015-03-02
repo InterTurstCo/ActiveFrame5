@@ -4,6 +4,7 @@ import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ValueUtil;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
@@ -96,7 +97,8 @@ public class GenerateReportAction extends SimpleServerAction {
             }
         }
         if (validationResult.hasErrors()) {
-            ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+            ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
+                    .CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
             return false;
         }
         return true;

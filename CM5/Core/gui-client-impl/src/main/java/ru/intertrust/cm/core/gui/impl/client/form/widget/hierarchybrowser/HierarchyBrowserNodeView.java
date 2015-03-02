@@ -8,10 +8,12 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.HierarchyConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
@@ -283,7 +285,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     private void initFilterInput(final Panel resetButton, final Id parentId, final String parentCollectionName) {
-        textBox.getElement().setAttribute("placeholder", "Поиск");
+        textBox.getElement().setAttribute("placeholder", LocalizeUtil.get(BusinessUniverseConstants.SEARCH));
         textBox.setStyleName("input-text");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
