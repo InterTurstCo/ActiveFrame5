@@ -27,6 +27,7 @@ public class MessageResourceProvider {
         MessageResourceProvider.localeToResource = localeToResource;
     }
 
+    @Deprecated
     public static  Map<String, String> getMessages() {
         return getMessages(DEFAULT_LOCALE);
     }
@@ -35,6 +36,7 @@ public class MessageResourceProvider {
         return  localeToResource.get(locale);
     }
 
+    @Deprecated
     public static String getMessage(String key) {
         return getMessage(key, DEFAULT_LOCALE);
     }
@@ -51,6 +53,7 @@ public class MessageResourceProvider {
         return localizedText != null ? localizedText : key;
     }
 
+    @Deprecated
     public static String getMessage(MessageKey messageKey) {
         return getMessage(messageKey, DEFAULT_LOCALE);
     }

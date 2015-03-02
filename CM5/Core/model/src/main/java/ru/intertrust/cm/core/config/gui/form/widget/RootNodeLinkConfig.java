@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "root-node-link")
 public class RootNodeLinkConfig implements Dto{
     @Attribute(name = "title", required = true)
+    @Localizable
     private String title;
 
     public String getTitle() {
