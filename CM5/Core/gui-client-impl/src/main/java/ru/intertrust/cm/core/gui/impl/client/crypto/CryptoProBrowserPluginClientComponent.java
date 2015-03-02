@@ -30,7 +30,8 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
     public void init(DigitalSignatureConfig config, final DigitalSignatureComponentInitHandler handler) {
         this.config = config;
         this.extendedConfig = (ExtendedCryptoSettingsConfig)config.getCryptoSettingsConfig().getSettings();
-        nativeInit(this.extendedConfig.getTsAddress());
+        nativeInit(this.extendedConfig.getTsAddress(), 
+                (this.extendedConfig.getHashOnServer() != null && this.extendedConfig.getHashOnServer()));
         
         if (nativeCheckInstall()){
             JsArrayString allCerts = nativeGetCertificates();
@@ -78,7 +79,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
     }-*/;
     
     
-    private native void nativeInit(String tsAddress)
+    private native void nativeInit(String tsAddress, boolean hashOnServer)
     /*-{
         var cryptoTool = {
             CADESCOM_CADES_X_LONG_TYPE_1: 0x5d,
@@ -91,6 +92,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
             CAPICOM_CERTIFICATE_FIND_EXTENDED_PROPERTY: 6,
             CAPICOM_PROPID_KEY_PROV_INFO: 2,
             CADESCOM_BASE64_TO_BINARY: 1,
+            CADESCOM_HASH_ALGORITHM_CP_GOST_3411: 100,
             
             checkInstall: function(){
                 try{
@@ -103,8 +105,9 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                 }            
             },
             
-            init: function (tsAddress) {
+            init: function (tsAddress, hashOnServer) {
                 this.tsAddress = tsAddress;
+                this.hashOnServer = hashOnServer;
             },
             
             getCertificates: function () {
@@ -165,12 +168,24 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                 oSigner.Certificate = this.oCertificate;
                 oSigner.TSAAddress = this.tsAddress;
         
-                var oSignedData = this.objCreator("CAdESCOM.CadesSignedData");
-                oSignedData.ContentEncoding = this.CADESCOM_BASE64_TO_BINARY;
-                oSignedData.Content = base64Content;
-        
                 try {
-                    var sSignedMessage = oSignedData.SignCades(oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1, true);
+                    var oSignedData = this.objCreator("CAdESCOM.CadesSignedData");
+                    if (this.hashOnServer){
+                        // Создаем объект CAdESCOM.HashedData
+                        var oHashedData = this.objCreator("CAdESCOM.HashedData");
+
+                        // Инициализируем объект заранее вычисленным хэш-значением
+                        // Алгоритм хэширования нужно указать до того, как будет передано хэш-значение
+                        oHashedData.Algorithm = this.CADESCOM_HASH_ALGORITHM_CP_GOST_3411;
+                        oHashedData.SetHashValue(base64Content);
+
+                        var sSignedMessage = oSignedData.SignHash(oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1);
+                    }else{
+                        oSignedData.ContentEncoding = this.CADESCOM_BASE64_TO_BINARY;
+                        oSignedData.Content = base64Content;
+                        var sSignedMessage = oSignedData.SignCades(oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1, true);
+                    }
+        
                 } catch (err) {
                     throw "Failed to create signature. Error: " + err;
                 }
@@ -179,7 +194,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
             }
         };    
         
-        cryptoTool.init(tsAddress);
+        cryptoTool.init(tsAddress, hashOnServer);
         this.@ru.intertrust.cm.core.gui.impl.client.crypto.CryptoProBrowserPluginClientComponent::cryptoTool = cryptoTool;
     }-*/; 
     
