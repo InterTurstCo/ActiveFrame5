@@ -104,6 +104,23 @@ public class BusinessUniverseConstants {
     public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH = "800px";
 
     public static final int BROWSER_INACCURACY = 1;
+
+    public static final String TEXT_KEY_CHOOSE_THEME = "Выбрать тему";
+    public static final String TEXT_KEY_RESET = "Сбросить настройки";
+    public static final String TEXT_KEY_RESET_ALL = "Сбросить все настройки";
+    public static final String TEXT_KEY_CHANGE = "Изменить";
+    public static final String TEXT_KEY_CANCEL = "Отменить";
+    public static final String TEXT_KEY_EXIT = "Выход";
+    public static final String TEXT_KEY_CORE_VERSION = "Версия платформы:";
+    public static final String TEXT_KEY_VERSION = "Версия:";
+    public static final String TEXT_KEY_HELP = "Справка";
+    public static final String TEXT_KEY_LOGIN = "Логин:";
+    public static final String TEXT_KEY_FIRST_NAME = "Имя:";
+    public static final String TEXT_KEY_LAST_NAME = "Фамилия:";
+    public static final String TEXT_KEY_EMAIL = "EMail:";
+    public static final String TEXT_KEY_CLOSE = "Закрыть";
+    public static final String TEXT_KEY_ADMIN = "Администратор";
+
     private BusinessUniverseConstants() {
     }
 }

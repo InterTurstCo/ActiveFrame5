@@ -25,4 +25,7 @@
         <import-file>importdata/import-authinfo.csv</import-file>
         <import-file>importdata/import-system-event-log-types.csv</import-file>
     </import-files>
+    <localization-files>
+        <localization-file locale="en">localization/global_en.properties</localization-file>
+    </localization-files>
 </module>

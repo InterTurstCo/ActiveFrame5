@@ -15,11 +15,13 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
 
 import java.util.Map;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -45,10 +47,11 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem("Выбрать тему", "menuImage chooseTheme",new ThemePopupDomHandler(themeMap)));
+                body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_CHOOSE_THEME), "menuImage chooseTheme",
+                        new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem("Сбросить настройки", "menuImage resetSettings",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem("Сбросить все настройки", "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_RESET), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(TEXT_KEY_RESET_ALL), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);

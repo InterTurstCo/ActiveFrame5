@@ -9,6 +9,9 @@ import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -37,14 +40,14 @@ public class InformationDialogBox implements IsWidget{
     }
 
     private void addUserInfo(String name, String lastName, String login, String email){
-        verticalPanel.add(new Label("Логин: " + login));
-        verticalPanel.add(new Label("Имя: " + name));
-        verticalPanel.add(new Label("Фамилия: " + lastName));
-        verticalPanel.add(new Label("EMail: " + email));
+        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_LOGIN) + "  " + login));
+        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_FIRST_NAME) + "  " + name));
+        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_LAST_NAME) + "  " + lastName));
+        verticalPanel.add(new Label(LocalizeUtil.get(TEXT_KEY_EMAIL) + "  " + email));
     }
 
     private void addButton(){
-        Button closeButton = new Button("Закрыть");
+        Button closeButton = new Button(LocalizeUtil.get(TEXT_KEY_CLOSE));
         closeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

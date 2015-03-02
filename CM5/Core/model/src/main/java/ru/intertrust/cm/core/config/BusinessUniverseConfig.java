@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  *         Time: 17:15
  */
 @Root(name = "business-universe")
-public class BusinessUniverseConfig implements TopLevelConfig {
+public class BusinessUniverseConfig implements LocalizableConfig {
     public static final String NAME = "business_universe";
 
     @Element(name = "login-screen", required = false)

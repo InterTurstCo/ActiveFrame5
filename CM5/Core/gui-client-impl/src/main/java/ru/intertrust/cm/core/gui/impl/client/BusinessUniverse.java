@@ -107,6 +107,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     private void initialize(BusinessUniverseInitialization initializationInfo) {
+        final Application application = Application.getInstance();
+        application.setCurrentLocale(initializationInfo.getCurrentLocale());
+        application.setLocalizedResources(initializationInfo.getGlobalLocalizedResources());
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandlerImpl());
         final EventBus glEventBus = Application.getInstance().getEventBus();
         SettingsPopupConfig settingsPopupConfig = initializationInfo.getSettingsPopupConfig();
@@ -182,8 +185,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         String logoImagePath = GlobalThemesManager.getResourceFolder() + initializationInfo.getLogoImagePath();
         CurrentUserInfo currentUserInfo = getUserInfo(initializationInfo);
         CurrentVersionInfo version = getVersion(initializationInfo);
-        headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version);
-        headerContainer.setInfoPage(initializationInfo.getHelperLink());
+        headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version,
+                 initializationInfo.getHelperLink());
+
         header.add(headerContainer);
 
         left.add(navigationTreePanel);
@@ -210,7 +214,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         addStickerPanel();
         addWindowResizeListener();
 
-        final Application application = Application.getInstance();
+
         application.setPageNamePrefix(initializationInfo.getPageNamePrefix());
         application.setTimeZoneIds(initializationInfo.getTimeZoneIds());
         application.setHeaderNotificationPeriod(initializationInfo.getHeaderNotificationPeriod());

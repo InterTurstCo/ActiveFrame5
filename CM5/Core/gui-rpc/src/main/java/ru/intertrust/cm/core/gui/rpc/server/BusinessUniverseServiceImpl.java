@@ -6,9 +6,11 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
@@ -29,6 +31,8 @@ import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
 import java.util.*;
 
+import static ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization.*;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 31.07.13
@@ -39,6 +43,7 @@ import java.util.*;
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+
     private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
     @EJB
@@ -50,7 +55,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
-    @EJB private CollectionsService collectionsService;
+    @EJB
+    private CollectionsService collectionsService;
+
+    @EJB
+    private ProfileService profileService;
 
     private SoftReference<List<String>> refTimeZoneIds;
 
@@ -60,8 +69,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
-        final BusinessUniverseConfig businessUniverseConfig =
-                configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
+        String currentLocale = profileService.getPersonLocale();
+        initialization.setCurrentLocale(currentLocale);
+        final BusinessUniverseConfig businessUniverseConfig = configurationService.getLocalizedConfig(BusinessUniverseConfig.class,
+                BusinessUniverseConfig.NAME, currentLocale);
 
         addLogoImagePath(businessUniverseConfig, initialization);
         String version = guiService.getCoreVersion();
@@ -92,6 +103,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                     ? null
                     : businessUniverseConfig.getHeaderNotificationRefreshConfig().getTime());
         }
+        Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
+        initialization.setGlobalLocalizedResources(messages);
         return initialization;
     }
 
