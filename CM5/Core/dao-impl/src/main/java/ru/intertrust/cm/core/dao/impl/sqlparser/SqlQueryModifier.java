@@ -213,7 +213,8 @@ public class SqlQueryModifier {
      * @param params список переданных параметров
      * @return
      */
-    public String modifyQueryWithParameters(String query, final List<? extends Value> params, final Map<String, FieldConfig> columnToConfigMap) {
+    public String modifyQueryWithParameters(String query, final List<? extends Value> params, final Map<String, FieldConfig> columnToConfigMap,
+            final Map<String, Object> parameters) {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -225,6 +226,7 @@ public class SqlQueryModifier {
 
                 plainSelect.accept(modifyReferenceFieldParameter);
                 replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
+                parameters.putAll(modifyReferenceFieldParameter.getJdbcParameters());
 
             }
         });
@@ -243,7 +245,8 @@ public class SqlQueryModifier {
      * @param filterValues список фильтров
      * @return
      */
-    public String modifyQueryWithReferenceFilterValues(String query, final List<? extends Filter> filterValues, final Map<String, FieldConfig> columnToConfigMap) {
+    public String modifyQueryWithReferenceFilterValues(String query, final List<? extends Filter> filterValues, final Map<String, FieldConfig> columnToConfigMap, 
+            final Map<String, Object> parameters) {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -257,7 +260,7 @@ public class SqlQueryModifier {
 
                 plainSelect.accept(visitor);
                 replaceExpressions.putAll(visitor.getReplaceExpressions());
-
+                parameters.putAll(visitor.getJdbcParameters());
             }
         });
 

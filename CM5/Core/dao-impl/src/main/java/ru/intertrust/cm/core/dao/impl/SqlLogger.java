@@ -37,6 +37,8 @@ public class SqlLogger {
 
     private static final String PARAMETER_PATTERN = ":\\w";
 
+    public static final ThreadLocal<Long> SQL_PREPARATION_TIME_CACHE = new ThreadLocal<>();
+    
     private static final Logger logger = LoggerFactory.getLogger(SqlLogger.class);
 
     @org.springframework.beans.factory.annotation.Value("${sql.trace.warn.minTime:100}")
@@ -65,22 +67,24 @@ public class SqlLogger {
 
         long startTime = System.currentTimeMillis();
         Object returnValue = joinPoint.proceed();
-        long timing = System.currentTimeMillis() - startTime;
+        long executionTime = System.currentTimeMillis() - startTime;
 
+        Long preparationTime = readAndResetPreparationTime();
+        
         String query = getSqlQuery(joinPoint);
 
         int rows = countSqlRows(returnValue, query);
 
-        boolean logWarn = timing >= minWarnTime || rows >= minRowsNum;
+        boolean logWarn = executionTime >= minWarnTime || rows >= minRowsNum;
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             query = resolveParameters(query, joinPoint, true);
-            logger.info(formatLogEntry(query, timing, rows));
+            logger.info(formatLogEntry(query, preparationTime, executionTime, rows));
         } else if (logWarn && logger.isWarnEnabled()) {
             query = resolveParameters(query, joinPoint);
-            logger.warn(formatLogEntry(query, timing, rows));
+            logger.warn(formatLogEntry(query, preparationTime, executionTime, rows));
         } else if (logger.isTraceEnabled()){
             query = resolveParameters(query, joinPoint);
-            logger.trace(formatLogEntry(query, timing, rows));
+            logger.trace(formatLogEntry(query, preparationTime, executionTime, rows));
         }
 
         return returnValue;
@@ -138,15 +142,15 @@ public class SqlLogger {
 
         long startTime = System.currentTimeMillis();
         Object returnValue = joinPoint.proceed();
-        long timing = System.currentTimeMillis() - startTime;
+        long executionTime = System.currentTimeMillis() - startTime;
 
+        Long preparationTime = readAndResetPreparationTime();        
         String query = getSqlQuery(joinPoint);
 
         int rows = countSqlRows(returnValue, query);
 
         query = resolveParameters(query, joinPoint);
-        String logEntry = formatLogEntry(query, timing, rows);
-
+        String logEntry = formatLogEntry(query, preparationTime, executionTime, rows);
 
         LogTransactionListener listener = null;
         listener = userTransactionService.getListener(LogTransactionListener.class);
@@ -160,6 +164,11 @@ public class SqlLogger {
         return returnValue;
     }
 
+    private Long readAndResetPreparationTime() {
+        Long preparationTime = SQL_PREPARATION_TIME_CACHE.get();
+        SQL_PREPARATION_TIME_CACHE.set(null);
+        return preparationTime;
+    }
 
 
     private String resolveParameters(String query, ProceedingJoinPoint joinPoint) {
@@ -191,6 +200,22 @@ public class SqlLogger {
         return traceStringBuilder.toString();
     }
 
+    public String formatLogEntry(String query, Long preparationTime, long executionTime, int rows) {
+        if (preparationTime != null) {
+
+            Long totalTime = preparationTime != null ? preparationTime + executionTime : null;
+            StringBuilder traceStringBuilder = new StringBuilder();
+
+            Formatter formatter = new Formatter(traceStringBuilder);
+            String format = "SQL Trace: %1$6s {%2$s-preparation} {%3$s-execution}  %4$7s: %5$s";
+            formatter.format(format, totalTime, preparationTime, executionTime, "[" + rows + "]", query);
+            return traceStringBuilder.toString();
+
+        } else {
+            return formatLogEntry(query, executionTime, rows);
+        }
+    }
+    
     private Map<String, Object> getParametersMap(Object[] methodArgs) {
         Map<String, Object> parameters = null;
         for (int i = 1; i < methodArgs.length; i++) {

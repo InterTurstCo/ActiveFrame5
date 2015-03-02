@@ -21,8 +21,12 @@ public class Filter implements Dto {
      */
     protected String filter;
 
-    private HashMap<Integer, List<Value>> parameterMap = new HashMap<Integer, List<Value>>();
+    protected HashMap<Integer, List<Value>> parameterMap = new HashMap<Integer, List<Value>>();
     private HashMap<Integer, Boolean> isSingleParameterMap = new HashMap<Integer, Boolean>();
+    
+    public HashMap<Integer, List<Value>> getParameterMap() {
+        return parameterMap;
+    }
 
     public static Filter create(final String filterName, final int index, final Value filterValue) {
         final Filter result = new Filter();
@@ -217,6 +221,14 @@ public class Filter implements Dto {
 
         Filter another = (Filter) o;
 
+        if (filter == null) {
+            if (another.filter != null) {
+                return false;
+            }
+        } else if (!filter.equals(another.filter)) {
+            return false;
+        }
+        
         if (!parameterMap.equals(another.parameterMap)) return false;
 
         return true;

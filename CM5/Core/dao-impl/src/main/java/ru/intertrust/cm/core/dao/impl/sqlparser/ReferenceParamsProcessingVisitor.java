@@ -45,7 +45,7 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
     public Map<String, String> getReplaceExpressions() {
         return replaceExpressions;
     }
-
+    
     @Override
     public void visit(EqualsTo equalsTo) {
         visitBinaryExpression(equalsTo);        
@@ -90,8 +90,9 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
                         String strValue = ((StringValue) params.get(paramIndex)).get();
                         referenceValue = new ReferenceValue(new RdbmsId(strValue));
                     }
-
-                    BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, referenceValue, equalsTo, isEquals);
+                    String paramName = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
+                    addParameters(paramName, referenceValue);
+                    BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
                     replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                 }
             }
@@ -138,7 +139,10 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
                             if (refValue == null) {
                                 continue;
                             }
-                            finalExpression = updateFinalExpression(finalExpression, column, index, refValue, isEquals);                            
+                            String paramSuffix = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex + "_" + index;
+
+                            addParameters(paramSuffix, refValue);
+                            finalExpression = updateFinalExpression(finalExpression, column, index, paramSuffix, isEquals);                            
                             index++;
                         }
                     }

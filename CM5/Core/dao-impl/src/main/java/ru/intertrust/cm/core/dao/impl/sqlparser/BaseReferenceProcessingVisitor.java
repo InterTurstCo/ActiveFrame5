@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
@@ -21,8 +24,13 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  */
 public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
 
-    protected BinaryExpression createComparisonExpressionForReferenceType(Column column,
-            ReferenceValue referenceValue, boolean isEquals) {
+    Map<String, Object> jdbcParameters = new HashMap<>();
+        
+    public Map<String, Object> getJdbcParameters() {
+        return jdbcParameters;
+    }
+
+    protected BinaryExpression createComparisonExpressionForReferenceType(Column column, String paramName, boolean isEquals) {
         BinaryExpression comparisonExpressionForReferenceType = null;
         if (isEquals) {
             comparisonExpressionForReferenceType = new EqualsTo();
@@ -33,11 +41,17 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
 
         comparisonExpressionForReferenceType.setLeftExpression(typeColumn);
 
-        long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
-
-        comparisonExpressionForReferenceType.setRightExpression(new LongValue(refTypeId + ""));
+        JdbcNamedParameter referenceTypeParameter = new JdbcNamedParameter();
+        String referenceTypeParamName = createReferenceTypeColumn(paramName);
+        referenceTypeParameter.setName(referenceTypeParamName);
+        
+        comparisonExpressionForReferenceType.setRightExpression(referenceTypeParameter);
 
         return comparisonExpressionForReferenceType;
+    }
+
+    protected String createParamName(Column column, String paramSuffix) {
+        return DaoUtils.unwrap(column.getColumnName()) + paramSuffix;
     }
 
     protected Column createReferenceTypeColumn(Column column) {
@@ -45,8 +59,12 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         Column typeColumn = new Column(column.getTable(), typeColumnName);
         return typeColumn;
     }
+
+    protected String createReferenceTypeColumn(String paramName) {
+        return paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+    }
     
-    protected BinaryExpression createFilledReferenceExpression(Column column, ReferenceValue referenceValue, BinaryExpression equalsTo, boolean isEquals) {
+    protected BinaryExpression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
         BinaryExpression modifiedEqualsToForReferenceId = null;
         if (isEquals) {
             modifiedEqualsToForReferenceId = new EqualsTo();
@@ -58,10 +76,12 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         modifiedEqualsToForReferenceId.setRightExpression(equalsTo.getRightExpression());
 
         BinaryExpression equalsToForReferenceType =
-                createComparisonExpressionForReferenceType(column, referenceValue, isEquals);
+                createComparisonExpressionForReferenceType(column, paramName, isEquals);
 
-        long refId = ((RdbmsId) referenceValue.get()).getId();
-        modifiedEqualsToForReferenceId.setRightExpression(new LongValue(refId + ""));
+        JdbcNamedParameter referenceParameter = new JdbcNamedParameter();
+        referenceParameter.setName(paramName);
+        
+        modifiedEqualsToForReferenceId.setRightExpression(referenceParameter);
         // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
         // фильтр {например, t.id = 1 and t.id_type = 2 }
         BinaryExpression newReferenceExpression = null;
@@ -76,12 +96,12 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         return newReferenceExpression;
     }
 
-    protected Expression updateFinalExpression(Expression finalExpression, Column column, int index, ReferenceValue refValue, boolean isEquals) {
+    protected Expression updateFinalExpression(Expression finalExpression, Column column, int index, String paramName, boolean isEquals) {
         if (index == 0) {
-            finalExpression = createExpressionForReference(column, refValue, isEquals);
+            finalExpression = createExpressionForReference(column, paramName, isEquals);
 
         } else {
-            Expression expressionForReference = createExpressionForReference(column, refValue, isEquals);
+            Expression expressionForReference = createExpressionForReference(column, paramName, isEquals);
             Expression leftExpression = new Parenthesis(finalExpression);
             Expression rightExpression = new Parenthesis(expressionForReference);
 
@@ -96,9 +116,9 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         return finalExpression;
     }
 
-    protected Expression createExpressionForReference(Column column, ReferenceValue refValue, boolean isEquals) {
-        BinaryExpression referenceIdEqualsExpression = createReferenceEqualsExpr(column, refValue, isEquals);
-        BinaryExpression referenceTypeEqualsExpression = createReferenceTypeEqualsExpr(column, refValue, isEquals);
+    protected Expression createExpressionForReference(Column column, String paramName,  boolean isEquals) {
+        BinaryExpression referenceIdEqualsExpression = createReferenceEqualsExpr(column, paramName, isEquals);
+        BinaryExpression referenceTypeEqualsExpression = createReferenceTypeEqualsExpr(column, paramName, isEquals);
         if (isEquals) {
             return new AndExpression(referenceIdEqualsExpression, referenceTypeEqualsExpression);
         } else {
@@ -106,7 +126,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         }
     }
 
-    protected BinaryExpression createReferenceTypeEqualsExpr(Column column, ReferenceValue refValue, boolean isEquals) {
+    protected BinaryExpression createReferenceTypeEqualsExpr(Column column, String paramName, boolean isEquals) {
         Column typeColumn = createReferenceTypeColumn(column);
 
         BinaryExpression referenceTypeEqualsExpression = null;
@@ -116,11 +136,16 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
             referenceTypeEqualsExpression = new NotEqualsTo();
         }
         referenceTypeEqualsExpression.setLeftExpression(typeColumn);
-        referenceTypeEqualsExpression.setRightExpression(new LongValue(((RdbmsId) refValue.get()).getTypeId()));
+        
+        JdbcNamedParameter referenceTypeParameter = new JdbcNamedParameter();
+        String referenceTypeParamName = createReferenceTypeColumn(paramName);
+        referenceTypeParameter.setName(referenceTypeParamName);
+
+        referenceTypeEqualsExpression.setRightExpression(referenceTypeParameter);
         return referenceTypeEqualsExpression;
     }
 
-    protected BinaryExpression createReferenceEqualsExpr(Column column, ReferenceValue refValue, boolean isEquals) {
+    protected BinaryExpression createReferenceEqualsExpr(Column column, String paramName, boolean isEquals) {
         BinaryExpression referenceIdEqualsExpression = null;
         if (isEquals) {
             referenceIdEqualsExpression = new EqualsTo();
@@ -128,8 +153,23 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
             referenceIdEqualsExpression = new NotEqualsTo();
         }
         referenceIdEqualsExpression.setLeftExpression(column);
-        referenceIdEqualsExpression.setRightExpression(new LongValue(((RdbmsId) refValue.get()).getId()));
+        
+        JdbcNamedParameter referenceParameter = new JdbcNamedParameter();
+        String referenceParamName = paramName;
+        referenceParameter.setName(referenceParamName);
+        
+        referenceIdEqualsExpression.setRightExpression(referenceParameter);
         return referenceIdEqualsExpression;
+    }
+
+    protected void addParameters(String paramName, ReferenceValue referenceValue) {
+        String referenceParamName = paramName;
+        String referenceTypeParamName = paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+
+        long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
+
+        jdbcParameters.put(referenceParamName, ((RdbmsId) referenceValue.get()).getId());
+        jdbcParameters.put(referenceTypeParamName, refTypeId);
     }
 
 }

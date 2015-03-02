@@ -9,19 +9,25 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.eq;
@@ -153,6 +159,7 @@ public class CollectionsDaoImplTest {
     private NamedParameterJdbcOperations jdbcTemplate;
 
     private ConfigurationExplorerImpl configurationExplorer;
+    CollectionQueryCacheImpl collectionQueryCache = new CollectionQueryCacheImpl();
 
     private CollectionFilterConfig byDepartmentFilterConfig;
     private CollectionFilterConfig byDepartmentComplexFilterConfig;
@@ -169,6 +176,8 @@ public class CollectionsDaoImplTest {
     @Before
     public void setUp() throws Exception {
         initConfigurationExplorer();
+        collectionsDaoImpl.setCollectionQueryCache(collectionQueryCache);
+
     }
 
     private void initConfigurationExplorer() {
@@ -280,6 +289,77 @@ public class CollectionsDaoImplTest {
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
 
+    @Test
+    public void testGetCollectionQueryFromCache() throws Exception {
+        Filter filter = new Filter();
+        filter.setFilter("byDepartment");
+        AccessToken accessToken = createMockAccessToken();
+        filter.addCriterion(0, new ReferenceValue(new RdbmsId(1, 2)));
+
+        CollectionQueryEntry collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        assertNull(collectionQueryEntry);
+        
+        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+
+        //значения фильтра в ключе кеша не должны использоваться
+        filter = new Filter();
+        filter.setFilter("byDepartment");       
+        filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
+
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        assertNotNull(collectionQueryEntry);
+        
+        filter = new Filter();
+        filter.setFilter("byDepartment1");       
+        filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        assertNull(collectionQueryEntry);
+
+    }
+    
+    @Test
+    public void testGetQueryFromCache() throws Exception {
+        String collectionQuery = "Select * from country where id in ({0})";
+        AccessToken accessToken = createMockAccessToken();
+        
+        CollectionQueryEntry collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 0, 0, accessToken);
+        assertNull(collectionQueryEntry);
+    
+        List<Value> referenceValues =
+                Arrays.<Value> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
+        ListValue listValue = new ListValue(referenceValues);
+
+        List<Value> params = new ArrayList<>();
+        params.add(listValue);
+        
+        collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 0, 0, accessToken);
+
+        collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 0, 0, accessToken);
+        assertNotNull(collectionQueryEntry);
+
+        // другие offset и limit
+        collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 2, 2, accessToken);
+        assertNull(collectionQueryEntry);
+
+        collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 2, 2, accessToken);
+
+        collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 2, 2, accessToken);
+        assertNotNull(collectionQueryEntry);
+
+        // запрос без параметров
+        collectionQuery = "Select * from country where id = 1";
+        collectionsDaoImpl.findCollectionByQuery(collectionQuery, 4, 2, accessToken);
+
+        collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 4, 2, accessToken);
+        assertNotNull(collectionQueryEntry);
+    }
+    
     @Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
         Filter filter = new Filter();

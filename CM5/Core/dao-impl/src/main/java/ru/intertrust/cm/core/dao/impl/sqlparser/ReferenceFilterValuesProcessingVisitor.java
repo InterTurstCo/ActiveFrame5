@@ -95,17 +95,24 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                         if (inExpressionStr.indexOf(parameterPrefix + criterionKey) > 0) {
                             Expression finalExpression = null;
                             if (criterionValue instanceof ReferenceValue) {
-                                finalExpression = createExpressionForReference(column, (ReferenceValue) criterionValue, isEquals);
+                                String paramSuffix =
+                                        new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).toString();
+                                addParameters(paramSuffix, (ReferenceValue) criterionValue);
+                                finalExpression = createExpressionForReference(column, paramSuffix, isEquals);
                             } else if (criterionValue instanceof ListValue) {
                                 ListValue listValue = (ListValue) criterionValue;
                                 int index = 0;
                                 for (Value value : listValue.getValues()) {
-                                    ReferenceValue refValue = getReferenceValue(value);
+                                    ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
                                     if (refValue == null) {
                                         continue;
                                     }
+                                    String paramName =
+                                            new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).append("_")
+                                                    .append(index).toString();
 
-                                    finalExpression = updateFinalExpression(finalExpression, column, index, refValue, isEquals);
+                                    addParameters(paramName, refValue);
+                                    finalExpression = updateFinalExpression(finalExpression, column, index, paramName, isEquals);
                                     index++;
                                 }                                
                             }
@@ -162,7 +169,11 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                         Value criterionValue = filterValue.getCriterion(criterionKey);
                         if (criterionValue instanceof ReferenceValue && rightExpression.equals(parameterPrefix + criterionKey)) {
                             referenceValue = (ReferenceValue) criterionValue;
-                            BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, referenceValue, equalsTo, isEquals);
+                            
+                            String paramName = new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).toString();
+                            addParameters(paramName, referenceValue);
+                         
+                            BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
                             replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                         }
                     }
@@ -171,5 +182,6 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
             }
         }
     }
+
 
 }

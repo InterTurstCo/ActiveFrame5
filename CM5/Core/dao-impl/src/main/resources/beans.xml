@@ -114,6 +114,9 @@
     <bean id="collectionsCacheService"
           class="ru.intertrust.cm.core.dao.impl.CollectionsCacheServiceImpl" />
 
+    <bean id="collectionQueryCache"
+          class="ru.intertrust.cm.core.dao.impl.CollectionQueryCacheImpl" />
+          
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />
 
