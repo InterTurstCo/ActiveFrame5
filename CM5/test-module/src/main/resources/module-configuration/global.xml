@@ -35,7 +35,7 @@
        <!--<application-help source="help/index.html"/>-->
        <crypto-settings gui-component-name="cryptopro.browser.plugin.client.component" server-signature-verifier-bean-name="bouncycastleCryptoBean">
        		<provider-settings>
-       			<extended-crypto-settings-config ts-address="http://testca.cryptopro.ru/tsp/" hash-on-server="true"/>
+       			<extended-crypto-settings-config ts-address="http://cryptopro.ru/tsp/" hash-on-server="true"/>
        		</provider-settings>
        </crypto-settings>
     </global-settings>

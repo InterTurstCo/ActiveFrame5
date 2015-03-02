@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -68,7 +69,7 @@ public class AllAttachmentSignatureDataService implements SignatureDataService {
                 }
                 if (!exclude) {
                     result.getSignedDataItems().add(
-                            new SignedDataItem(domainObject.getId(), domainObject.getString("name"), getContentAsBase64(domainObject.getId())));
+                            new SignedDataItem(domainObject.getId(), domainObject.getString("name"), getContentAsString(domainObject.getId())));
                 }
             }
 
@@ -90,8 +91,19 @@ public class AllAttachmentSignatureDataService implements SignatureDataService {
         return result;
     }
 
-    private String getContentAsBase64(Id id) throws IOException {
-        return Base64.encodeBase64String(getAttachmentContent(id));
+    /**
+     * Получение строки для передачи на клиент. В случае с получением hash на клиенте формируется base64 строка самого вложения,
+     * в случае формирования hash на сервере формируется hash а потом преобразуется в base16 строку
+     * @param id
+     * @return
+     * @throws IOException
+     */
+    private String getContentAsString(Id id) throws IOException {
+        if (isHashOnServer()){
+            return Hex.encodeHexString(getAttachmentContent(id));
+        }else{
+            return Base64.encodeBase64String(getAttachmentContent(id));
+        }
     }
 
     private boolean isHashOnServer() {

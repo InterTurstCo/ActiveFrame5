@@ -179,7 +179,7 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
                         oHashedData.Algorithm = this.CADESCOM_HASH_ALGORITHM_CP_GOST_3411;
                         oHashedData.SetHashValue(base64Content);
 
-                        var sSignedMessage = oSignedData.SignHash(oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1);
+                        var sSignedMessage = oSignedData.SignHash(oHashedData, oSigner, this.CADESCOM_CADES_X_LONG_TYPE_1);
                     }else{
                         oSignedData.ContentEncoding = this.CADESCOM_BASE64_TO_BINARY;
                         oSignedData.Content = base64Content;
