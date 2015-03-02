@@ -18,11 +18,11 @@ import ru.intertrust.cm.crypto.BouncycastleCryptoBean;
 public class TestBouncycastleCryptoBean {
 
     @Test
-    //@Ignore
+    @Ignore
     public void testVerifySignature() throws IOException {
         BouncycastleCryptoBean bean = new BouncycastleCryptoBean();
-        try (InputStream document = getClass().getClassLoader().getResourceAsStream("9e60c2d7-fc88-476f-b517-8cc8ae1735bb.png");) {
-            VerifyResult result = bean.verify(document, readResource("valid-sctipt-formed.sig"));
+        try (InputStream document = getClass().getClassLoader().getResourceAsStream("74cdd5d3-2b53-4a72-bbb6-4e9b0fc1614c.zip")) {
+            VerifyResult result = bean.verify(document, readResource("signature.key"));
             System.out.println(result);
             assertTrue(result.getSignerInfos().get(0).isValid());
         }
