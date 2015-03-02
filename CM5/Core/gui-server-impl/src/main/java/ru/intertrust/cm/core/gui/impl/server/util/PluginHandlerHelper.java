@@ -219,7 +219,7 @@ public class PluginHandlerHelper {
     }
 
     public static List<String> doServerSideValidation(final FormState formState,
-                                                      final ApplicationContext applicationContext) {
+                                                      final ApplicationContext applicationContext, String locale) {
         //Simple Server Validation
         ConfigurationExplorer explorer = (ConfigurationExplorer) applicationContext.getBean("configurationExplorer");
         FormConfig formConfig = explorer.getConfig(FormConfig.class, formState.getName());
@@ -236,14 +236,14 @@ public class PluginHandlerHelper {
                 validator.init(formState);
                 ValidationResult validationResult = validator.validate(valueToValidate);
                 if (validationResult.hasErrors()) {
-                    errorMessages.addAll(getMessages(validationResult, constraint.getParams()));
+                    errorMessages.addAll(getMessages(validationResult, constraint.getParams(), locale));
                 }
             }
         }
         return errorMessages;
     }
 
-    public static List<String> doCustomServerSideValidation(FormState formState, List<ValidatorConfig> validatorConfigs) {
+    public static List<String> doCustomServerSideValidation(FormState formState, List<ValidatorConfig> validatorConfigs, String locale) {
         List<String> errorMessages = new ArrayList<>();
         if (validatorConfigs != null) {
             for (ValidatorConfig config : validatorConfigs) {
@@ -254,7 +254,7 @@ public class PluginHandlerHelper {
                     customValidator.init(formState);
                     ValidationResult validationResult = customValidator.validate(state);
                     if (validationResult.hasErrors()) {
-                        errorMessages.addAll(getMessages(validationResult, null));
+                        errorMessages.addAll(getMessages(validationResult, null, locale));
                     }
                 }
             }
@@ -301,17 +301,17 @@ public class PluginHandlerHelper {
         return null;
     }
 
-    private static List<String> getMessages(ValidationResult validationResult,  Map<String, String> params) {
+    private static List<String> getMessages(ValidationResult validationResult,  Map<String, String> params, String locale) {
         List<String> messages = new ArrayList<String>();
         for (ValidationMessage msg : validationResult.getMessages()) {
-            messages.add(getMessageText(msg.getMessage(), params));
+            messages.add(getMessageText(msg.getMessage(), params, locale));
         }
         return messages;
     }
 
-    private static String getMessageText(String messageKey, Map<String, String> props) {
-        if ( MessageResourceProvider.getMessages().get(messageKey) != null) {
-            return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey), props);
+    private static String getMessageText(String messageKey, Map<String, String> props, String locale) {
+        if ( MessageResourceProvider.getMessages(locale).get(messageKey) != null) {
+            return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey, locale), props);
         } else {
             return messageKey;//let's return at least messageKey if the message is not found
         }

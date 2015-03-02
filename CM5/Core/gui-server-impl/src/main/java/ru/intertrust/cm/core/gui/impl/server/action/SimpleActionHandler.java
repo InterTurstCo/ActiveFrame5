@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -33,13 +35,17 @@ import java.util.Map;
 @ComponentName(SimpleActionContext.COMPONENT_NAME)
 public class SimpleActionHandler extends ActionHandler<SimpleActionContext, SimpleActionData> {
 
+    @Autowired
+    private ProfileService profileService;
+
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
+        String locale = profileService.getPersonLocale();
         final List<String> errorMessages =
-                PluginHandlerHelper.doServerSideValidation(context.getMainFormState(), applicationContext);
+                PluginHandlerHelper.doServerSideValidation(context.getMainFormState(), applicationContext, locale);
         if (context.getConfirmFormState() != null) {
             errorMessages.addAll(PluginHandlerHelper.doServerSideValidation(
-                    context.getConfirmFormState(), applicationContext));
+                    context.getConfirmFormState(), applicationContext, locale));
         }
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);
@@ -74,7 +80,7 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                 } else {
                     confirmDomainObject = guiService.saveForm(confirmFormState, userInfo, null);
                     values.put(path, new ReferenceValue(confirmDomainObject.getId()));
-                    PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators);
+                    PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators, locale);
                     if (!errorMessages.isEmpty()) {
                         throw new ValidationException("Server-side validation failed", errorMessages);
                     }

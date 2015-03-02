@@ -120,7 +120,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
     }
@@ -159,7 +159,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = buildWidgetStatesMap(widgetConfigs, formObjects, formConfig);
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
     }
@@ -342,7 +342,7 @@ public class FormRetriever extends FormProcessor {
         buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
         result.setToolBarConfig(formConfig.getToolbarConfig());

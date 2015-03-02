@@ -27,18 +27,8 @@ public class MessageResourceProvider {
         MessageResourceProvider.localeToResource = localeToResource;
     }
 
-    @Deprecated
-    public static  Map<String, String> getMessages() {
-        return getMessages(DEFAULT_LOCALE);
-    }
-
     public static  Map<String, String> getMessages(String locale) {
         return  localeToResource.get(locale);
-    }
-
-    @Deprecated
-    public static String getMessage(String key) {
-        return getMessage(key, DEFAULT_LOCALE);
     }
 
     public static String getMessage(String key, String locale) {
@@ -51,11 +41,6 @@ public class MessageResourceProvider {
         }
         String localizedText = (String)properties.get(key);
         return localizedText != null ? localizedText : key;
-    }
-
-    @Deprecated
-    public static String getMessage(MessageKey messageKey) {
-        return getMessage(messageKey, DEFAULT_LOCALE);
     }
 
     public static String getMessage(MessageKey messageKey, String locale) {
@@ -73,7 +58,7 @@ public class MessageResourceProvider {
             return messageKey.getKey();
         }
         //localize displayText itself
-        return getMessage(displayText);
+        return getMessage(displayText, locale);
     }
 
     public static Set<String> getAvailableLocales() {

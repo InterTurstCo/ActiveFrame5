@@ -2,8 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -43,6 +45,9 @@ import java.util.List;
 @Remote(GuiService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService, GuiService.Remote {
+
+    @Autowired
+    private ProfileService profileService;
 
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
@@ -131,7 +136,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo, List<ValidatorConfig>
             validatorConfigs) {
-        List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs);
+        List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs,
+                profileService.getPersonLocale());
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);
         }
