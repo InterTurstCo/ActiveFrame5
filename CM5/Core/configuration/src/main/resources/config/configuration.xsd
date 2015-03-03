@@ -699,6 +699,12 @@
 					<xs:attribute name="server-signature-verifier-bean-name" use="required" type="xs:string" />
 				</xs:complexType>
 			</xs:element>
+
+            <xs:element name="collection-query-cache" minOccurs="0" maxOccurs="1">
+                <xs:complexType>
+                    <xs:attribute name="max-size" use="required" type="xs:integer" />
+                </xs:complexType>
+            </xs:element>
         </xs:sequence>
     </xs:complexType>
 

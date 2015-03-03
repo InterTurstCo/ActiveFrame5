@@ -261,10 +261,16 @@ public class CollectionsDaoImplTest {
 
         sortOrder = createByNameSortOrder();
 
-        configuration.getConfigurationList().add(new GlobalSettingsConfig());
+        GlobalSettingsConfig globalSettingsConfig = new GlobalSettingsConfig();
+        CollectionQueryCacheConfig collectionQueryCacheConfig = new CollectionQueryCacheConfig();
+        collectionQueryCacheConfig.setMaxSize(1000);
+        globalSettingsConfig.setCollectionQueryCacheConfig(collectionQueryCacheConfig);
+
+        configuration.getConfigurationList().add(globalSettingsConfig);
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
+        collectionQueryCache.setConfigurationExplorer(configurationExplorer);
     }
 
     private AccessToken createMockAccessToken() {

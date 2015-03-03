@@ -38,6 +38,7 @@
        			<extended-crypto-settings-config ts-address="http://cryptopro.ru/tsp/" hash-on-server="true"/>
        		</provider-settings>
        </crypto-settings>
+       <collection-query-cache max-size="1000" />
     </global-settings>
     <business-universe>
         <!--<side-bar-openning-time default-value="3000"/>-->

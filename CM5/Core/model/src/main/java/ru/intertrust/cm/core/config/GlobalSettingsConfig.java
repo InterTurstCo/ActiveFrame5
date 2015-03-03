@@ -45,7 +45,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @Element(name = "crypto-settings", required = false)
     private CryptoSettingsConfig cryptoSettingsConfig;
-    
+
+    @Element(name = "collection-query-cache", required = false)
+    private CollectionQueryCacheConfig collectionQueryCache;    
     
     public ApplicationHelpConfig getApplicationHelpConfig() {
         return applicationHelpConfig;
@@ -53,6 +55,14 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public void setApplicationHelpConfig(ApplicationHelpConfig applicationHelpConfig) {
         this.applicationHelpConfig = applicationHelpConfig;
+    }
+    
+    public CollectionQueryCacheConfig getCollectionQueryCacheConfig() {
+        return collectionQueryCache;
+    }
+
+    public void setCollectionQueryCacheConfig(CollectionQueryCacheConfig collectionQueryCache) {
+        this.collectionQueryCache = collectionQueryCache;
     }
 
     public AuditLog getAuditLog() {

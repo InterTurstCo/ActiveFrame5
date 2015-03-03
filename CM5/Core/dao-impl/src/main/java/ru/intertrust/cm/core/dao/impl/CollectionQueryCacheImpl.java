@@ -1,13 +1,19 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
@@ -19,8 +25,18 @@ import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
  */
 public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
-    public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new HashMap<>();
-    
+
+    public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap <>();
+
+    private static final Logger logger = LoggerFactory.getLogger(CollectionQueryCacheImpl.class);
+
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
+    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     /**
      * Ключ для идентификации SQL запроса коллекции в кеше. Состоит из параметров запроса.
      * @author atsvetkov
@@ -212,6 +228,10 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Override
     public void putCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, CollectionQueryEntry queryEntry) {
+        if (collectionQueryCache.size() > getCacheMaxSize()) {
+            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+            return;
+        }
         if (collectionNameOrQuery != null) {
             CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, accessToken);
             collectionQueryCache.put(key, queryEntry);
@@ -229,12 +249,25 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
     @Override
     public void putCollectionCountQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry) {
+        if (collectionQueryCache.size() > getCacheMaxSize()) {
+            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+            return;
+        }
         if (collectionNameOrQuery != null) {
             CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, accessToken);
             collectionQueryCache.put(key, queryEntry);
         }
     }
 
+    public Integer getCacheMaxSize() {
+        CollectionQueryCacheConfig collectionQueryCache = configurationExplorer.getGlobalSettings().getCollectionQueryCacheConfig();
+        if (collectionQueryCache != null) {
+            return collectionQueryCache.getMaxSize();
+        } else {
+            return new Integer(0);
+        }
+    }
+    
     @Override
     public CollectionQueryEntry getCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken) {
         return getCollectionQuery(collectionQuery, null, null, offset, limit, accessToken);
@@ -244,5 +277,4 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     public void putCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken, CollectionQueryEntry queryEntry) {
         putCollectionQuery(collectionQuery, null, null, offset, limit, accessToken, queryEntry);
     }
-
 }
