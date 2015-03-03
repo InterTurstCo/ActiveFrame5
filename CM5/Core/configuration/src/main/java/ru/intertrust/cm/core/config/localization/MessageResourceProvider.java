@@ -21,7 +21,7 @@ public class MessageResourceProvider {
 
     public static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
 
-    private static Map<String, Map<String, String>> localeToResource = new HashMap<String, Map<String, String>>();
+    private static Map<String, Map<String, String>> localeToResource = new HashMap<>();
 
     public static void setLocaleToResource(Map<String, Map<String, String>> localeToResource) {
         MessageResourceProvider.localeToResource = localeToResource;
@@ -31,7 +31,8 @@ public class MessageResourceProvider {
         if (locale == null) {
             locale = DEFAULT_LOCALE;
         }
-        return  localeToResource.get(locale);
+        Map<String, String> result = localeToResource.get(locale);
+        return  result != null ? result : new HashMap<String, String>();
     }
 
     public static String getMessage(String key, String locale) {

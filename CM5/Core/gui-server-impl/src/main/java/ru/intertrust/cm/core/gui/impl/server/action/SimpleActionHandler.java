@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -51,7 +52,7 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                     context.getConfirmFormState(), applicationContext, locale));
         }
         if (!errorMessages.isEmpty()) {
-            throw new ValidationException(buildMessage("ServerValidationException"), errorMessages);
+            throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION), errorMessages);
         }
         final SimpleActionConfig config = context.getActionConfig();
         final boolean isSaveContext = config.getBeforeConfig() == null
@@ -69,7 +70,7 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                 final FieldPath path = FieldPath.createPaths(
                         config.getBeforeConfig().getLinkedDomainObjectConfig().getReferenceFieldPath())[0];
                 if (path.isMultiBackReference()) {
-                    throw new GuiException( buildMessage("GuiExceptionRefPathNotSupported", new Pair("path", path)));
+                    throw new GuiException( buildMessage(LocalizationKeys.GUI_EXCEPTION_REF_PATH_NOT_SUPPORTED, new Pair("path", path)));
                 }
                 final FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
                 final Map<FieldPath, Value> values = new HashMap<>();
@@ -85,7 +86,7 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                     values.put(path, new ReferenceValue(confirmDomainObject.getId()));
                     PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators, locale);
                     if (!errorMessages.isEmpty()) {
-                        throw new ValidationException(buildMessage("ServerValidationException"), errorMessages);
+                        throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION), errorMessages);
                     }
                     formSaver.setContext(mainFormState, values);
                     mainDomainObject = formSaver.saveForm();

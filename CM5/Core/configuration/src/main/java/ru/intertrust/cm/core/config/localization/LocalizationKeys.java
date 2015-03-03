@@ -6,7 +6,9 @@ package ru.intertrust.cm.core.config.localization;
  *         Time: 15:44
  */
 public class LocalizationKeys {
-    private LocalizationKeys(){}  //non-instantiable
+
+    private LocalizationKeys() {
+    }  //non-instantiable
 
     public static final String FOR_TODAY_LABEL_KEY = "ForToday";
     public static final String FOR_LAST_WEEK_LABEL_KEY = "ForLastWeek";
@@ -28,7 +30,7 @@ public class LocalizationKeys {
     public static final String LOGOUT_ERROR_MESSAGE_KEY = "LogoutError";
     public static final String EXTENDED_SEARCH_ERROR_MESSAGE_KEY = "ExtendedSearchError";
     public static final String WRONG_DATE_FORMAT_ERROR_MESSAGE_KEY = "WrongDateFormat";
-    public static final String DATA_IS_NOT_SAVED_CONFIRM_MESSAGE= "DataNotSavedConfirm";
+    public static final String DATA_IS_NOT_SAVED_CONFIRM_MESSAGE = "DataNotSavedConfirm";
 
     public static final String CHOOSE_THEME_KEY = "ChooseTheme";
     public static final String RESET_SETTINGS_KEY = "ResetSettings";
@@ -71,57 +73,34 @@ public class LocalizationKeys {
     public static final String MONTH_SWITCH_BUTTON_KEY = "MonthSwitchButton";
     public static final String WEEK_SWITCH_BUTTON_KEY = "WeekSwitchButton";
 
-//    public static final String[] MONTHS_KEY = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
-//            "сентябрь", "октябрь", "ноябрь", "декабрь"};
-//    public static final String[] WEEK_DAYS_KEY = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
-//            "суббота"};
-
     public static final String EXECUTION_ACTION_ERROR_KEY = "ActionExecutionError";
     public static final String DATE_FORMAT_ERROR_KEY = "DateFormatError";
 
     public static final String ACCESS_EXCEPTION = "AccessException";
-    public static final String ACTION_SERVICE_EXCEPTION="ActionServiceException";
-    public static final String AUTHENTICATION_EXCEPTION="AuthenticationException";
-    public static final String COLLECTION_CONFIGURATION_EXCEPTION="CollectionConfigurationException";
-    public static final String COLLECTION_QUERY_EXCEPTION="CollectionQueryException";
-    public static final String CONFIGURATION_EXCEPTION="ConfigurationException";
+    public static final String AUTHENTICATION_EXCEPTION = "AuthenticationException";
+    public static final String OPTIMISTIC_LOCK_EXCEPTION = "OptimisticLockException";
+    public static final String SERVER_VALIDATION_EXCEPTION = "ServerValidationException";
+    public static final String SYSTEM_EXCEPTION = "SystemException";
 
-    public static final String DOEL_EXCEPTION="DoelException";
-    public static final String EVENT_TRIGGER_EXCEPTION="EventTriggerException";
-    public static final String EXTENSION_POINT_EXCEPTION="ExtensionPointException";
-    public static final String FATAL_EXCEPTION="FatalException";
-    public static final String INVALID_ID_EXCEPTION="InvalidIdException";
-    public static final String MAIL_NOTIFICATION_EXCEPTION="MailNotificationException";
-    public static final String NOTIFICATION_EXCEPTION="NotificationException";
-    public static final String OBJECT_NOT_FOUND_EXCEPTION="ObjectNotFoundException";
-    public static final String OPTIMISTIC_LOCK_EXCEPTION="OptimisticLockException";
-    public static final String PROCESS_EXCEPTION="ProcessException";
-    public static final String PROFILE_EXCEPTION="ProfileException";
-    public static final String REPORT_SERVICE_EXCEPTION="ReportServiceException";
-    public static final String SCHEDULE_EXCEPTION="ScheduleException";
-    public static final String UNEXPECTED_EXCEPTION="UnexpectedException";
-    public static final String SERVER_VALIDATION_EXCEPTION="ServerValidationException";
-    public static final String SYSTEM_EXCEPTION="SystemException";
-
-    public static final String GUI_EXCEPTION_COMMAND_NOT_FOUND="GuiExceptionCommandNotFound";
-    public static final String GUI_EXCEPTION_COMMAND_CALL="GuiExceptionCommandCallError";
-    public static final String GUI_EXCEPTION_COMMAND_EXECUTION="GuiExceptionCommandExecutionError";
-    public static final String GUI_EXCEPTION_MULTIPLE_FIELDPATHS="GuiExceptionMultipleFieldPaths";
-    public static final String GUI_EXCEPTION_SINGLE_FIELDPATH="GuiExceptionSingleFieldPath";
-    public static final String GUI_EXCEPTION_OBJECT_NOT_SAVED="GuiExceptionObjectNotSaved";
-    public static final String GUI_EXCEPTION_NO_PROCESS_TYPE="GuiExceptionNoProcessType";
-    public static final String GUI_EXCEPTION_NO_PROCESS_NAME="GuiExceptionNoProcessName";
-    public static final String GUI_EXCEPTION_PROCESS_NOT_SUPPORTED="GuiExceptionProcessNotSupported";
-    public static final String GUI_EXCEPTION_REF_PATH_NOTSUPPORTED="GuiExceptionRefPathNotSupported";
-    public static final String GUI_EXCEPTION_UNKNOWN_URL="guiexceptionunknownurl";
-    public static final String GUI_EXCEPTION_MANY_DEFAULT_FORMS="GuiExceptionManyDefaultForms";
-    public static final String GUI_EXCEPTION_OBJECT_NOT_EXIST="GuiExceptionObjectNotExist";
-    public static final String GUI_EXCEPTION_REPORT_FORM_ERROR="GuiExceptionReportFormError";
-    public static final String GUI_EXCEPTION_REPORT_NAME_NOT_FOUND="GuiExceptionReportNameNotFound";
-    public static final String GUI_EXCEPTION_WIDGET_ID_NOT_FOUND="GuiExceptionWidgetIdNotFound";
-    public static final String GUI_EXCEPTION_SEARCH="GuiExceptionSearchError";
-    public static final String GUI_EXCEPTION_COLLECTION_VIEW="GuiExceptionCollectionViewError";
-    public static final String GUI_EXCEPTION_HIERARCH_COLLECTION="GuiExceptionHierarchCollection";
-    public static final String GUI_EXCEPTION_SORTINGFIELD_NOT_FOUND="GuiExceptionSortingFieldNotFound";
-    public static final String GUI_EXCEPTION_VERSION_ERROR="GuiExceptionVersionError";
+    public static final String GUI_EXCEPTION_COMMAND_NOT_FOUND = "GuiException.CommandNotFound";
+    public static final String GUI_EXCEPTION_COMMAND_CALL = "GuiException.CommandCallError";
+    public static final String GUI_EXCEPTION_COMMAND_EXECUTION = "GuiException.CommandExecutionError";
+    public static final String GUI_EXCEPTION_MULTIPLE_FIELDPATHS = "GuiException.MultipleFieldPaths";
+    public static final String GUI_EXCEPTION_SINGLE_FIELDPATH = "GuiException.SingleFieldPath";
+    public static final String GUI_EXCEPTION_OBJECT_NOT_SAVED = "GuiException.ObjectNotSaved";
+    public static final String GUI_EXCEPTION_NO_PROCESS_TYPE = "GuiException.NoProcessType";
+    public static final String GUI_EXCEPTION_NO_PROCESS_NAME = "GuiException.NoProcessName";
+    public static final String GUI_EXCEPTION_PROCESS_NOT_SUPPORTED = "GuiException.ProcessNotSupported";
+    public static final String GUI_EXCEPTION_REF_PATH_NOT_SUPPORTED = "GuiException.RefPathNotSupported";
+    public static final String GUI_EXCEPTION_UNKNOWN_URL = "GuiException.UnknownUrl";
+    public static final String GUI_EXCEPTION_MANY_DEFAULT_FORMS = "GuiException.ManyDefaultForms";
+    public static final String GUI_EXCEPTION_OBJECT_NOT_EXIST = "GuiException.ObjectNotExist";
+    public static final String GUI_EXCEPTION_REPORT_FORM_ERROR = "GuiException.ReportFormError";
+    public static final String GUI_EXCEPTION_REPORT_NAME_NOT_FOUND = "GuiException.ReportNameNotFound";
+    public static final String GUI_EXCEPTION_WIDGET_ID_NOT_FOUND = "GuiException.WidgetIdNotFound";
+    public static final String GUI_EXCEPTION_SEARCH = "GuiException.SearchError";
+    public static final String GUI_EXCEPTION_COLLECTION_VIEW = "GuiException.CollectionViewError";
+    public static final String GUI_EXCEPTION_HIERARCH_COLLECTION = "GuiException.HierarchCollection";
+    public static final String GUI_EXCEPTION_SORT_FIELD_NOT_FOUND = "GuiException.SortingFieldNotFound";
+    public static final String GUI_EXCEPTION_VERSION_ERROR = "GuiException.VersionError";
 }

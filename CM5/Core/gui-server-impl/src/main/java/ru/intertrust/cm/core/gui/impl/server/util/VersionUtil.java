@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
@@ -47,7 +48,8 @@ public class VersionUtil {
                         return mainAttribs.getValue("Implementation-Version");
                     }
                 } catch (Throwable e) {
-                    throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionVersionError", locale), e);
+                    throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys
+                            .GUI_EXCEPTION_VERSION_ERROR, locale), e);
                 } finally {
                     if (is != null) {
                         is.close();

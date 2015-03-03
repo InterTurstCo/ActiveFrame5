@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.datebox.DateBoxConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageKey;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
@@ -388,7 +389,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                              extendedSearchData.getTargetCollectionNames().
                              get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionSearchError",
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SEARCH,
                     profileService.getPersonLocale()) + ge.getMessage());
         }
     }

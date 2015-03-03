@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
@@ -67,7 +68,7 @@ public class CollectionPluginHelper {
             }
             return columnPropertiesMap;
 
-        } else throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionCollectionViewError", locale));
+        } else throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COLLECTION_VIEW, locale));
     }
 
     public static Map<String, CollectionColumnProperties> getFilterNameColumnPropertiesMap(

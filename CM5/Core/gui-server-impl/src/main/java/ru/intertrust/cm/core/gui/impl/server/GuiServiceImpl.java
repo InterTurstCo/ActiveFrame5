@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -81,17 +82,17 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionCommandNotFound", locale));
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND, locale));
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
-            log.error(MessageResourceProvider.getMessage("GuiExceptionCommandCallError", locale) + e.getMessage(), e);
+            log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL, locale) + e.getMessage(), e);
             throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionCommandExecutionError", locale)
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION, locale)
                     + command.getName(), e);
         }
     }

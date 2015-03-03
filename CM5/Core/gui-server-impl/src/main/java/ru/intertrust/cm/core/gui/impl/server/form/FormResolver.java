@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.config.gui.form.FormWidgetAccessConfig;
 import ru.intertrust.cm.core.config.gui.form.HideWidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
 import ru.intertrust.cm.core.config.gui.form.WidgetRefConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -229,7 +230,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                 String domainObjectTypeInLowerCase = domainObjectType.toLowerCase();
                 if (formConfig.isDefault()) {
                     if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
-                        throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionManyDefaultForms",
+                        throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MANY_DEFAULT_FORMS,
                                 profileService.getPersonLocale()) + domainObjectType);
                     }
                     defaultFormByDomainObjectType.put(domainObjectTypeInLowerCase, formConfig.getName());

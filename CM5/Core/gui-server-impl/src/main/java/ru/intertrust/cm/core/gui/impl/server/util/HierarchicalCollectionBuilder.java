@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -44,7 +45,8 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
         ExpandHierarchicalCollectionData data = (ExpandHierarchicalCollectionData)params;
         ChildCollectionViewerConfig childCollectionViewerConfig = findChildCollectionViewerConfig(data);
         if (childCollectionViewerConfig == null) {
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionHierarchCollection", profileService.getPersonLocale()));
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_HIERARCH_COLLECTION,
+                    profileService.getPersonLocale()));
         }
         CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
         collectionViewerConfig.setHierarchical(true);

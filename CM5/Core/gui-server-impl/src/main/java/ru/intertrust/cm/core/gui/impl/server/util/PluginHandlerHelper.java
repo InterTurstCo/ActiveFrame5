@@ -310,7 +310,7 @@ public class PluginHandlerHelper {
     }
 
     private static String getMessageText(String messageKey, Map<String, String> props, String locale) {
-        if ( MessageResourceProvider.getMessages(locale).get(messageKey) != null) {
+        if (MessageResourceProvider.getMessages(locale).get(messageKey) != null) {
             return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey, locale), props);
         } else {
             return messageKey;//let's return at least messageKey if the message is not found

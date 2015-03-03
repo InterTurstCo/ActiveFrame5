@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
@@ -31,7 +32,7 @@ public class StartProcessActionHandler extends ActionHandler<StartProcessActionC
     public StartProcessActionData executeAction(StartProcessActionContext startProcessActionContext) {
         Id domainObjectId = startProcessActionContext.getRootObjectId();
         if (domainObjectId == null) {
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionObjectNotSaved",
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED,
                     profileService.getPersonLocale()));
         }
 

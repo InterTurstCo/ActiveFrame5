@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageKey;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
@@ -93,7 +94,7 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
-            throw new GuiException(buildMessage("GuiExceptionObjectNotExist", new Pair("objectId",
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST, new Pair("objectId",
                     domainObjectId.toStringRepresentation())));
         }
         if (updaterComponentName != null) {
@@ -142,7 +143,7 @@ public class FormRetriever extends FormProcessor {
             }
         }
         if (formConfig == null) {
-            throw new GuiException(String.format(buildMessage("GuiExceptionReportFormError", new Pair("formName", formName),
+            throw new GuiException(String.format(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_FORM_ERROR, new Pair("formName", formName),
                             new Pair("reportName", reportName))));
         }
         if (formName == null) {
@@ -152,7 +153,7 @@ public class FormRetriever extends FormProcessor {
             reportName = formConfig.getReportTemplate();
         }
         if (reportName == null) {
-            throw new GuiException(buildMessage("GuiExceptionReportNameNotFound"));
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_NAME_NOT_FOUND));
         }
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
         FormObjects formObjects = new FormObjects();
@@ -292,7 +293,7 @@ public class FormRetriever extends FormProcessor {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
                 if (!selfManagingWidget && !(config instanceof LabelConfig)) {
-                    throw new GuiException(buildMessage("GuiExceptionWidgetIdNotFound", new Pair("widgetId", widgetId)));
+                    throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_WIDGET_ID_NOT_FOUND, new Pair("widgetId", widgetId)));
                 }
                 WidgetState initialState = widgetHandler.getInitialState(widgetContext);
                 if (initialState != null) {

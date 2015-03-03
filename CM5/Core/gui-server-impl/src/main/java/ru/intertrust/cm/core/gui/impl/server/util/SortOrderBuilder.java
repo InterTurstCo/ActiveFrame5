@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCri
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
@@ -118,7 +119,7 @@ public class SortOrderBuilder {
             }
         }
 
-        throw new GuiException(buildMessage("GuiExceptionSortingFieldNotFound", locale, new Pair("field", field)));
+        throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_SORT_FIELD_NOT_FOUND, locale, new Pair("field", field)));
     }
 
     public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend) {

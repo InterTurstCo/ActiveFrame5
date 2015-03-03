@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -34,7 +35,7 @@ public class CollectionFiltersActionHandler extends ActionHandler<CollectionFilt
     @Override
     public ActionData executeAction(CollectionFiltersActionContext context) {
         if (context.getLink() == null) {
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionUnknownUrl",
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_UNKNOWN_URL,
                     profileService.getPersonLocale()));
         }
         final DomainObject domainObject = PluginHandlerHelper.getCollectionSettingsDomainObject(context.getLink(),

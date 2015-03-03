@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -68,8 +69,8 @@ public abstract class WidgetHandler implements ComponentHandler {
        for (FieldPath fieldPath : fieldPaths) {
            if (singleChoiceAnalyzed != null) {
               if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())){
-                  throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionMultipleFieldPaths",
-                          profileService.getPersonLocale()));
+                  throw new GuiException(MessageResourceProvider.getMessage(
+                          LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS, profileService.getPersonLocale()));
               }
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField();
@@ -80,7 +81,7 @@ public abstract class WidgetHandler implements ComponentHandler {
     protected boolean isNullable(WidgetContext widgetContext) {
         FieldPath[] fieldPaths = widgetContext.getFieldPaths();
         if (fieldPaths.length > 1) {
-            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionSingleFieldPath",
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SINGLE_FIELDPATH,
                     profileService.getPersonLocale()));
         }
         if (fieldPaths[0].isField() || fieldPaths[0].isOneToOneDirectReference()) {

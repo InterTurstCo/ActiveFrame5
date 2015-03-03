@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
@@ -212,7 +213,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             if (singleChoiceAnalyzed != null) {
                 if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())
                         || fieldPath.isOneToOneBackReference()){
-                    throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionMultipleFieldPaths",
+                    throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS,
                             profileService.getPersonLocale()));
                 }
             }
