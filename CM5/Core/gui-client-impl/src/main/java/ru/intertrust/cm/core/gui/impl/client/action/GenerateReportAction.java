@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ValueUtil;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
@@ -97,8 +98,8 @@ public class GenerateReportAction extends SimpleServerAction {
             }
         }
         if (validationResult.hasErrors()) {
-            ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
-                    .CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
+            ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY,
+                    BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
             return false;
         }
         return true;

@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.FocusPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -83,7 +84,8 @@ public class HeaderNotificationPluginView extends PluginView{
     private void buildPlugin(){
         if (listNotificationItem.size() == 0){
             AbsolutePanel absolutePanel = new AbsolutePanel();
-            absolutePanel.add( new Label(LocalizeUtil.get(BusinessUniverseConstants.NO_NEW_NOTIFICATIONS)));
+            absolutePanel.add( new Label(LocalizeUtil.get(LocalizationKeys.NO_NEW_NOTIFICATIONS_KEY,
+                    BusinessUniverseConstants.NO_NEW_NOTIFICATIONS)));
             container.add(absolutePanel);
 
 

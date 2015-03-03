@@ -10,12 +10,14 @@ public class LocalizeUtil {
     private LocalizeUtil(){} //non-instantiable
 
     /**
-        Returns localized message for current locale
+        Returns localized message for current locale. If there's no localized value for the key, returns the key.
      */
     public static String get(String key) {
-        String value = Application.getInstance().getLocalizedResources().get(key);
-        return value != null ? value : key;
+        return get(key, key);
     }
 
-
+    public static String get(String key, String defaultValue) {
+        String value = Application.getInstance().getLocalizedResources().get(key);
+        return value != null ? value : defaultValue;
+    }
 }

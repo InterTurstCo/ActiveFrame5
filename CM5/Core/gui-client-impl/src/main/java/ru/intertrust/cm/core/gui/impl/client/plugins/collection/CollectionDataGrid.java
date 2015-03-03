@@ -12,6 +12,7 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -53,7 +54,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     }
 
     private void setEmptyTableMessage() {
-        String emptyTableText = LocalizeUtil.get(BusinessUniverseConstants.EMPTY_TABLE);
+        String emptyTableText = LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE);
         HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
         this.setEmptyTableWidget(emptyTableWidget);
 

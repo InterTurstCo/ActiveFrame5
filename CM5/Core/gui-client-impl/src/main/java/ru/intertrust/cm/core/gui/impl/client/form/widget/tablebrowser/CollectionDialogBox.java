@@ -12,7 +12,11 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OK_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OK_BUTTON;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -56,9 +60,9 @@ public class CollectionDialogBox extends DialogBox {
     public void init(){
         this.setStyleName("table-browser-dialog popup-z-index");
         this.getElement().getStyle().setZIndex(100);
-        okButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.OK_BUTTON));
+        okButton = new Button(LocalizeUtil.get(OK_BUTTON_KEY, OK_BUTTON));
         okButton.setStyleName("darkButton buttons-fixed");
-        cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
+        cancelButton = new Button(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON));
         cancelButton.setStyleName("lightButton buttons-fixed position-margin-left");
         AbsolutePanel buttonsContainer = new AbsolutePanel();
         buttonsContainer.addStyleName("table-browser-dialog-box-button-panel");

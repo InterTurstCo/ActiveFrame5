@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action.system;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
@@ -26,8 +27,8 @@ public abstract class AbstractUserSettingAction extends Action {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
-                        .COULD_NOT_SAVE_USER_SETTINGS_MESSAGE));
+                ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.COULD_NOT_SAVE_USER_SETTINGS_MESSAGE_KEY,
+                        BusinessUniverseConstants.COULD_NOT_SAVE_USER_SETTINGS_MESSAGE));
             }
         };
         Command command = new Command("executeAction", this.getName(), getInitialContext());

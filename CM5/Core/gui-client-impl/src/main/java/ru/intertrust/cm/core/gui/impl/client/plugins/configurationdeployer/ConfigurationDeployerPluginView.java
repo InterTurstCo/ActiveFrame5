@@ -10,6 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypeConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AcceptedTypesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -40,7 +41,8 @@ public class ConfigurationDeployerPluginView extends PluginView {
     }
 
     private void init() {
-        mainPanel.add(new Label(LocalizeUtil.get(BusinessUniverseConstants.ADD_CONFIG_FILES)));
+        mainPanel.add(new Label(LocalizeUtil.get(LocalizationKeys.ADD_CONFIG_FILES_KEY,
+                BusinessUniverseConstants.ADD_CONFIG_FILES)));
         mainPanel.setStyleName("uploadConfigurationWrapper");
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);

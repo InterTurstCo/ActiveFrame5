@@ -29,10 +29,15 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.Arrays;
 import java.util.Map;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OPEN_IN_FULL_WINDOW_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN_IN_FULL_WINDOW;
+
 /**
  * Created by andrey on 20.10.14.
  */
@@ -57,13 +62,13 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
 
         final FormDialogBox editableFormDialogBox = new FormDialogBox(popupTitle, getModalWidth(widget), getModalHeight(widget));
         final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
-        editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
+        editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 editableOnChangeClick(formPluginEditable, editableFormDialogBox);
             }
         });
-        editableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON), new ClickHandler() {
+        editableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 editableOnCancelClick(formPluginEditable, editableFormDialogBox);
@@ -105,20 +110,20 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
                getModalWidth(widget), getModalHeight(widget));
         final FormPluginConfig config = createFormPluginConfig(widget, false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 openInFullWindow(plugin, noneEditableFormDialogBox);
             }
         });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noEditableOnChangeButtonClick(plugin, noneEditableFormDialogBox);
             }
 
         });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noEditableOnCancelClick(plugin, noneEditableFormDialogBox);

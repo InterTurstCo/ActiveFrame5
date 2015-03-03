@@ -4,6 +4,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
@@ -31,7 +32,8 @@ public class SearchPopup extends PopupPanel {
         this.addStyleName("dialogBoxBody");
 
         this.removeStyleName("gwt-PopupPanel");
-        Label label = new Label(LocalizeUtil.get(BusinessUniverseConstants.SEARCH));
+        Label label = new Label(LocalizeUtil.get(LocalizationKeys.SEARCH_KEY,
+                BusinessUniverseConstants.SEARCH));
         label.addStyleName("form-header-message");
         label.removeStyleName("gwt-Label");
         AbsolutePanel panel = new AbsolutePanel();

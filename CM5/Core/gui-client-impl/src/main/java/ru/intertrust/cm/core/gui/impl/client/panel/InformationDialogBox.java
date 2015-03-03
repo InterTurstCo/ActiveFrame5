@@ -11,6 +11,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
@@ -40,14 +41,14 @@ public class InformationDialogBox implements IsWidget{
     }
 
     private void addUserInfo(String name, String lastName, String login, String email){
-        verticalPanel.add(new Label(LocalizeUtil.get(LOGIN) + "  " + login));
-        verticalPanel.add(new Label(LocalizeUtil.get(FIRST_NAME) + "  " + name));
-        verticalPanel.add(new Label(LocalizeUtil.get(LAST_NAME) + "  " + lastName));
-        verticalPanel.add(new Label(LocalizeUtil.get(EMAIL) + "  " + email));
+        verticalPanel.add(new Label(LocalizeUtil.get(LOGIN_KEY, LOGIN) + "  " + login));
+        verticalPanel.add(new Label(LocalizeUtil.get(FIRST_NAME_KEY, FIRST_NAME) + "  " + name));
+        verticalPanel.add(new Label(LocalizeUtil.get(LAST_NAME_KEY, LAST_NAME) + "  " + lastName));
+        verticalPanel.add(new Label(LocalizeUtil.get(EMAIL_KEY, EMAIL) + "  " + email));
     }
 
     private void addButton(){
-        Button closeButton = new Button(LocalizeUtil.get(CLOSE_BUTTON));
+        Button closeButton = new Button(LocalizeUtil.get(CLOSE_BUTTON_KEY, CLOSE_BUTTON));
         closeButton.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

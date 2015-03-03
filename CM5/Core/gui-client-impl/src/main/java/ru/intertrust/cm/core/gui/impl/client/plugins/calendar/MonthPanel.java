@@ -24,13 +24,16 @@ import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.Date;
 import java.util.List;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.MONTH_SWITCH_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTHS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTH_SWITCH_BUTTON;
 
 /**
  * @author Sergey.Okolot
@@ -191,7 +194,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
 
     private FlowPanel createSwitchBtn() {
         final FlowPanel result = new FlowPanel();
-        result.add(new InlineLabel(LocalizeUtil.get(BusinessUniverseConstants.MONTH_SWITCH_BUTTON)));
+        result.add(new InlineLabel(LocalizeUtil.get(MONTH_SWITCH_BUTTON_KEY, MONTH_SWITCH_BUTTON)));
         result.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -261,7 +264,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             // build month border
             if (dateIndex < 8) {
                 if (dateIndex == 1) {
-                    final Label month = new Label(LocalizeUtil.get(BusinessUniverseConstants.MONTHS[date.getMonth()]));
+                    final Label month = new Label(LocalizeUtil.get(MONTHS[date.getMonth()]));
                     month.setStyleName("first");
                     add(month);
                     if (dayIndex != 1) {

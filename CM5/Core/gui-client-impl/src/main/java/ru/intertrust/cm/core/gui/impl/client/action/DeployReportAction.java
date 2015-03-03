@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
@@ -38,6 +39,7 @@ public class DeployReportAction extends SimpleServerAction {
 
     @Override
     protected String getDefaultOnSuccessMessage() {
-        return LocalizeUtil.get(BusinessUniverseConstants.REPORT_IS_UPLOADED_MESSAGE);
+        return LocalizeUtil.get(LocalizationKeys.REPORT_IS_UPLOADED_MESSAGE_KEY,
+                BusinessUniverseConstants.REPORT_IS_UPLOADED_MESSAGE);
     }
 }

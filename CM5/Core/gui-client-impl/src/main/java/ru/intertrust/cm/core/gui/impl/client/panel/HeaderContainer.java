@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
@@ -33,6 +34,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAs
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DARK;
 import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DEFAULT;
 import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.getCurrentTheme;
@@ -89,7 +91,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR));
+        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR_KEY, ADMINISTRATOR));
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
@@ -122,9 +124,9 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(corner);
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
-        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION) +  " " + version.getCoreVersion()));
+        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) +  " " + version.getCoreVersion()));
         if (version.getProductVersion() != null) {
-            infoPanel.add(new Label(LocalizeUtil.get(VERSION) + " " + version.getProductVersion()));
+            infoPanel.add(new Label(LocalizeUtil.get(VERSION_KEY, VERSION) + " " + version.getProductVersion()));
         }
         popupPanel.add(contentInfo);
 
@@ -154,7 +156,7 @@ public class HeaderContainer extends SimplePanel {
 
         headTable.setWidget(FIRST_ROW, 4, linksPanel);
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT), "logout");
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
         settingsImage.addClickHandler(new ClickHandler() {
             @Override
@@ -197,7 +199,8 @@ public class HeaderContainer extends SimplePanel {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE));
+                ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.LOGOUT_ERROR_MESSAGE_KEY,
+                        BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE));
             }
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
@@ -232,7 +235,7 @@ public class HeaderContainer extends SimplePanel {
     private void setInfoPage(final String pagePath){
 
        final String currentPath = pagePath.contains("http://")? pagePath : GWT.getHostPageBaseURL()+ pagePath;
-        Label help = new Label(LocalizeUtil.get(INFO));
+        Label help = new Label(LocalizeUtil.get(INFO_KEY, INFO));
         infoPanel.add(help);
 
         help.addClickHandler(new ClickHandler() {

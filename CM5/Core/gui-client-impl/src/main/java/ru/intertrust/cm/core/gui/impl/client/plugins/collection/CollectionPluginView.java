@@ -96,12 +96,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COLUMNS_DISPLAY_TOOLTIP;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COLUMNS_WIDTH_TOOLTIP;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_BUTTON_TOOLTIP;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_TOOLTIP;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
 
 /**
@@ -567,10 +568,10 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
-        filterButton.getElement().setAttribute("title", LocalizeUtil.get(FILTER_BUTTON_TOOLTIP));
+        filterButton.getElement().setAttribute("title", LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
         treeLinkWidget.add(filterButton);
         final Button columnManagerButton = new Button();
-        columnManagerButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP));
+        columnManagerButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP_KEY, COLUMNS_DISPLAY_TOOLTIP));
         columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
         columnManagerButton.addClickHandler(new ClickHandler() {
             @Override
@@ -580,7 +581,7 @@ public class CollectionPluginView extends PluginView {
         });
         treeLinkWidget.add(columnManagerButton);
         Button columnWidthRecalculateButton = new Button();
-        columnWidthRecalculateButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_WIDTH_TOOLTIP));
+        columnWidthRecalculateButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_WIDTH_TOOLTIP_KEY, COLUMNS_WIDTH_TOOLTIP));
         columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
                 .recalculateColumnsWidthBtn());
         columnWidthRecalculateButton.addClickHandler(new ClickHandler() {

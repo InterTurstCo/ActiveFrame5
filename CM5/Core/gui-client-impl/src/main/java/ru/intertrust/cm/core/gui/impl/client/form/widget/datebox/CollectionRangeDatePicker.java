@@ -14,7 +14,12 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import java.util.Date;
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOSE_DATE_RANGE_LABEL;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_DATE_RANGE_LABEL_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_LAST_WEEK_LABEL_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_LAST_YEAR_LABEL_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_TODAY_LABEL_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_YESTERDAY_LABEL_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_DATE_RANGE_LABEL;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_LAST_WEEK_LABEL;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_LAST_YEAR_LABEL;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_TODAY_LABEL;
@@ -58,19 +63,19 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
 
         Panel container = new AbsolutePanel();
 
-        Panel forTodayPanel = initDateSelector(LocalizeUtil.get(FOR_TODAY_LABEL), new RangeEnumDateClickHandler(FOR_TODAY_LABEL));
+        Panel forTodayPanel = initDateSelector(LocalizeUtil.get(FOR_TODAY_LABEL_KEY, FOR_TODAY_LABEL), new RangeEnumDateClickHandler(FOR_TODAY_LABEL));
         container.add(forTodayPanel);
 
-        Panel forYesterdayPanel = initDateSelector(LocalizeUtil.get(FOR_YESTERDAY_LABEL), new RangeEnumDateClickHandler(FOR_YESTERDAY_LABEL));
+        Panel forYesterdayPanel = initDateSelector(LocalizeUtil.get(FOR_YESTERDAY_LABEL_KEY, FOR_YESTERDAY_LABEL), new RangeEnumDateClickHandler(FOR_YESTERDAY_LABEL));
         container.add(forYesterdayPanel);
 
-        Panel forLastWeekPanel = initDateSelector(LocalizeUtil.get(FOR_LAST_WEEK_LABEL), new RangeEnumDateClickHandler(FOR_LAST_WEEK_LABEL));
+        Panel forLastWeekPanel = initDateSelector(LocalizeUtil.get(FOR_LAST_WEEK_LABEL_KEY, FOR_LAST_WEEK_LABEL), new RangeEnumDateClickHandler(FOR_LAST_WEEK_LABEL));
         container.add(forLastWeekPanel);
 
-        Panel forLastYearPanel = initDateSelector(LocalizeUtil.get(FOR_LAST_YEAR_LABEL), new RangeEnumDateClickHandler(FOR_LAST_YEAR_LABEL));
+        Panel forLastYearPanel = initDateSelector(LocalizeUtil.get(FOR_LAST_YEAR_LABEL_KEY, FOR_LAST_YEAR_LABEL), new RangeEnumDateClickHandler(FOR_LAST_YEAR_LABEL));
         container.add(forLastYearPanel);
 
-        Panel dateRangePanel = initDateSelectorWithPicker(LocalizeUtil.get(CHOSE_DATE_RANGE_LABEL));
+        Panel dateRangePanel = initDateSelectorWithPicker(LocalizeUtil.get(CHOOSE_DATE_RANGE_LABEL_KEY, CHOOSE_DATE_RANGE_LABEL));
         container.add(dateRangePanel);
         final DateTimePicker startDateTimePicker = new DateTimePicker(startDate, showTime, showSeconds);
         final DateTimePicker endDateTimePicker = new DateTimePicker(endDate, showTime, showSeconds);

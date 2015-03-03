@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -36,9 +37,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CLOSE_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FIND_BUTTON_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSE_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants
-        .CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXTENDED_SEARCH_ERROR_MESSAGE;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FIND_BUTTON;
 
@@ -91,8 +94,8 @@ public class ExtendedSearchPluginView extends PluginView {
         //scrollSearchForm.setHeight("435px");
         //scrollSearchForm.setWidth("650px");
         scrollSearchForm.setHeight("377px");
-        search.add(new HTML("<span>" + LocalizeUtil.get(FIND_BUTTON) + "</span>"));
-        closeSearch.add(new HTML("<span>" + LocalizeUtil.get(CLOSE_BUTTON) + "</span>"));
+        search.add(new HTML("<span>" + LocalizeUtil.get(FIND_BUTTON_KEY, FIND_BUTTON) + "</span>"));
+        closeSearch.add(new HTML("<span>" + LocalizeUtil.get(CLOSE_BUTTON_KEY, CLOSE_BUTTON) + "</span>"));
 
         // закрытие формы поиска
         closeSearch.addClickHandler(new ClickHandler() {
@@ -237,7 +240,8 @@ public class ExtendedSearchPluginView extends PluginView {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(LocalizeUtil.get(EXTENDED_SEARCH_ERROR_MESSAGE) + caught.getMessage());
+                ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.EXTENDED_SEARCH_ERROR_MESSAGE_KEY,
+                        EXTENDED_SEARCH_ERROR_MESSAGE) + caught.getMessage());
             }
         };
         Command command = new Command("searchFormDataProcessor", this.plugin.getName(), extendedSearchData);
@@ -291,7 +295,8 @@ public class ExtendedSearchPluginView extends PluginView {
             }
         }
         if (validationResult.hasErrors()) {
-            ApplicationWindow.errorAlert(LocalizeUtil.get(CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
+            ApplicationWindow.errorAlert(LocalizeUtil.get(CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY,
+                    CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
             return false;
         }
         return true;

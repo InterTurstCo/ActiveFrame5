@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
@@ -65,7 +66,7 @@ public class DeleteAction extends SimpleServerAction {
 
     @Override
     protected String getDefaultOnSuccessMessage() {
-        return LocalizeUtil.get(BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE);
+        return LocalizeUtil.get(LocalizationKeys.ROW_IS_DELETED_MESSAGE_KEY, BusinessUniverseConstants.ROW_IS_DELETED_MESSAGE);
     }
 }
 

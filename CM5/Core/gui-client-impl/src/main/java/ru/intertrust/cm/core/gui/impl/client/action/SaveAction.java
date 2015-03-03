@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
@@ -63,7 +64,8 @@ public class SaveAction extends SimpleServerAction {
 
     @Override
     protected String getDefaultOnSuccessMessage() {
-        return LocalizeUtil.get(BusinessUniverseConstants.SAVED_MESSAGE);
+        return LocalizeUtil.get(LocalizationKeys.SAVED_MESSAGE_KEY,
+                BusinessUniverseConstants.SAVED_MESSAGE);
     }
 
     @Override
@@ -84,8 +86,8 @@ public class SaveAction extends SimpleServerAction {
                 }
             }
             if (validationResult.hasErrors()) {
-                ApplicationWindow.errorAlert(LocalizeUtil.get(BusinessUniverseConstants
-                        .CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
+                ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY,
+                        BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
                 return false;
             }
         }

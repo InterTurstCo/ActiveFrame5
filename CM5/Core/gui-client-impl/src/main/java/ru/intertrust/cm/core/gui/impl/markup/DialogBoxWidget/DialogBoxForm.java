@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.ArrayList;
 
@@ -36,7 +35,7 @@ public class DialogBoxForm {
     Button openDialog = new Button("add Query");
     DialogBox dBox = new DialogBox();
     CellTable table = new CellTable();
-    Button dBoxOk = new Button(LocalizeUtil.get(BusinessUniverseConstants.OK_BUTTON));
+    Button dBoxOk = new Button(LocalizeUtil.get("OK"));
     Button dBoxCansel = new Button("cancel");
     ArrayList<Entity> list = new ArrayList<Entity>();
     HorizontalPanel dBoxHorPanel = new HorizontalPanel();

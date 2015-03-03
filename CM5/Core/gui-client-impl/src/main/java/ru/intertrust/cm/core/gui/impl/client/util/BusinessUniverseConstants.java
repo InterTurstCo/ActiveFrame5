@@ -49,7 +49,7 @@ public class BusinessUniverseConstants {
     public static final String NEXT_YEAR_LABEL = "Следущий год";
     public static final String TOMORROW_LABEL = "Завтра";
     public static final String CHOSE_DATE_LABEL = "Выбрать дату";
-    public static final String CHOSE_DATE_RANGE_LABEL = "Выбрать период";
+    public static final String CHOOSE_DATE_RANGE_LABEL = "Выбрать период";
     public static final String DATETIME_PICKER_BUTTON = "Готово";
     public static final String ZERO_STRING = "0";
 
@@ -127,13 +127,14 @@ public class BusinessUniverseConstants {
     public static final String SAVE_BUTTON = "Сохранить";
     public static final String CHANGE_BUTTON = "Изменить";
     public static final String FIND_BUTTON = "Найти";
+    public static final String CONTINUE_BUTTON = "Продолжить";
 
     public static final String SEARCH = "Поиск";
     public static final String EMPTY_TABLE = "Результаты отсутствуют";
     public static final String CLEAR_FORM = "Очистить форму";
     public static final String SIZE_ACTION_TOOLTIP = "Распахнуть/Свернуть";
     public static final String FAVORITE_ACTION_TOOLTIP = "Показать/Скрыть избранное";
-    public static final String FILTER_BUTTON_TOOLTIP = "Отобразить/Скрыть фильтры";
+    public static final String FILTER_TOOLTIP = "Отобразить/Скрыть фильтры";
     public static final String COLUMNS_DISPLAY_TOOLTIP = "Отображение видимых колонок";
     public static final String COLUMNS_WIDTH_TOOLTIP = "Отобразить все колонки на экране";
     public static final String NO_NEW_NOTIFICATIONS = "Новых уведомлений нет";
@@ -142,6 +143,7 @@ public class BusinessUniverseConstants {
 
     public static final String MONTH_SWITCH_BUTTON = "Задачи дня";
     public static final String WEEK_SWITCH_BUTTON = "Суббота, Воскресенье";
+
     public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
             "сентябрь", "октябрь", "ноябрь", "декабрь"};
     public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",

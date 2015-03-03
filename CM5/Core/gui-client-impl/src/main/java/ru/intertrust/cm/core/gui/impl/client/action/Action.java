@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.action.BeforeActionExecutionConfig;
 import ru.intertrust.cm.core.config.gui.action.LinkedDomainObjectConfig;
 import ru.intertrust.cm.core.config.gui.action.OnSuccessMessageConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
@@ -160,7 +161,8 @@ public abstract class Action extends BaseComponent {
                     config.setDomainObjectTypeToCreate(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
                             .getFormMappingConfig().getDomainObjectType());
                     final FormPlugin formPlugin = formDialogBox.createFormPlugin(config, new SimpleEventBus());
-                    formDialogBox.initButton("Продолжить", new ClickHandler() {
+                    String continueButtonText = LocalizeUtil.get(LocalizationKeys.CONTINUE_BUTTON_KEY, BusinessUniverseConstants.CONTINUE_BUTTON);
+                    formDialogBox.initButton(continueButtonText, new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
                             if (actionConfig.getBeforeConfig().getLinkedDomainObjectConfig().isPerformValidation()) {
@@ -171,7 +173,8 @@ public abstract class Action extends BaseComponent {
                             execute();
                         }
                     });
-                    formDialogBox.initButton(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON), new ClickHandler() {
+                    formDialogBox.initButton(LocalizeUtil.get(LocalizationKeys.CANCELLATION_BUTTON_KEY,
+                            BusinessUniverseConstants.CANCELLATION_BUTTON), new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
                             formDialogBox.hide();

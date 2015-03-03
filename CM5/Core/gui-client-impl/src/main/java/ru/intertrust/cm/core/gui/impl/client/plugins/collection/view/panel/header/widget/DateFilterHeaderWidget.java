@@ -8,7 +8,6 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.util.GuiConstants;
@@ -17,10 +16,13 @@ import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import java.util.Date;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.DATE_FORMAT_ERROR_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.WRONG_DATE_FORMAT_ERROR_MESSAGE_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DATE_FORMAT_ERROR;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_CLEAR_BUTTON_ID_PART;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants
-        .HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -115,15 +117,16 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
             Date userDate = userDateTimeFormat.parse(userDateString);
             return guiDateTimeFormat.format(userDate);
         } catch (IllegalArgumentException ex) {
-            String errorDescription = LocalizeUtil.get(BusinessUniverseConstants.DATE_FORMAT_ERROR) + getErrorMessage();
+            String errorDescription = LocalizeUtil.get(DATE_FORMAT_ERROR_KEY, DATE_FORMAT_ERROR) + getErrorMessage();
             ApplicationWindow.errorAlert(errorDescription);
             throw new GuiException(errorDescription);
         }
     }
 
     protected String getErrorMessage(){
-        StringBuilder errorMessageBuilder = new StringBuilder(LocalizeUtil.get(BusinessUniverseConstants
-                .WRONG_DATE_FORMAT_ERROR_MESSAGE));
+        StringBuilder errorMessageBuilder = new StringBuilder(LocalizeUtil.get(
+                WRONG_DATE_FORMAT_ERROR_MESSAGE_KEY,
+                WRONG_DATE_FORMAT_ERROR_MESSAGE));
         errorMessageBuilder.append(userDateTimeFormat.getPattern());
         return errorMessageBuilder.toString();
     }

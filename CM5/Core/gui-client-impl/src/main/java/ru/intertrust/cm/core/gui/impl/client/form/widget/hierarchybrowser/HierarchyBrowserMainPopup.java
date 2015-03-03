@@ -4,7 +4,14 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
@@ -14,12 +21,20 @@ import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.DONE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DONE_BUTTON;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -151,10 +166,11 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
     private AbsolutePanel createFooterButtonPanel() {
         AbsolutePanel buttonsPanel = new AbsolutePanel();
         buttonsPanel.setStyleName("bottom-popup-buttons-panel");
-        okButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.DONE_BUTTON));
+        okButton = new Button(LocalizeUtil.get(DONE_BUTTON_KEY, DONE_BUTTON));
         okButton.removeStyleName("gwt-Button");
         okButton.addStyleName("lightButton");
-        cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
+        cancelButton = new Button(LocalizeUtil.get(CANCELLATION_BUTTON_KEY,
+                CANCELLATION_BUTTON));
         cancelButton.removeStyleName("gwt-Button");
         cancelButton.addStyleName("lightButton");
         buttonsPanel.add(okButton);

@@ -6,7 +6,12 @@ import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CLEAR_FORM_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FIND_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLEAR_FORM;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FIND_BUTTON;
+
 
 /**
  * Created by tbilyi on 14.02.14.
@@ -57,11 +62,11 @@ public class NewExtSearchPanelHelper implements IsWidget {
         FocusPanel sdfButtonClearForm = new FocusPanel();
 
         sdfButtonClearForm.getElement().setClassName("sdf-button-clear-form");
-        sdfButtonClearForm.add(new HTML("<span>" + LocalizeUtil.get(BusinessUniverseConstants.CLEAR_FORM) + "</span>"));
+        sdfButtonClearForm.add(new HTML("<span>" + LocalizeUtil.get(CLEAR_FORM_KEY, CLEAR_FORM) + "</span>"));
 
         FocusPanel sdfEnterSearch = new FocusPanel();
         sdfEnterSearch.getElement().setClassName("sdf-enter-search");
-        sdfEnterSearch.add(new HTML("<span>" + LocalizeUtil.get(BusinessUniverseConstants.FIND_BUTTON) + "</span>"));
+        sdfEnterSearch.add(new HTML("<span>" + LocalizeUtil.get(FIND_BUTTON_KEY, FIND_BUTTON) + "</span>"));
 
         sdfFooterBlock.add(sdfButtonClearForm);
         sdfFooterBlock.add(sdfEnterSearch);

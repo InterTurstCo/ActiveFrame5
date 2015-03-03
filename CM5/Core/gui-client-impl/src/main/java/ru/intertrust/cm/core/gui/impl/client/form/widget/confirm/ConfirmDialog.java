@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -54,7 +55,8 @@ public class ConfirmDialog extends DialogBox {
             }
         });
         buttonsPanel.add(okButton);
-        final Button cancelButton = new Button(LocalizeUtil.get(BusinessUniverseConstants.CANCELLATION_BUTTON));
+        final Button cancelButton = new Button(LocalizeUtil.get(LocalizationKeys.CANCELLATION_BUTTON_KEY,
+                BusinessUniverseConstants.CANCELLATION_BUTTON));
 //        cancelButton.setFocus(true);
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override

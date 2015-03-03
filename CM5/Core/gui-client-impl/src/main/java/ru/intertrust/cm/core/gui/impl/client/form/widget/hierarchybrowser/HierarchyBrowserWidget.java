@@ -51,6 +51,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OPEN_IN_FULL_WINDOW_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
@@ -330,7 +335,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String title = currentState.getHyperlinkPopupTitle(collectionName, domainObjectType);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -342,7 +347,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 mainPopup.hidePopup();
             }
         });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
@@ -350,7 +355,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
-                editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON), new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
                         final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id, true);
@@ -367,7 +372,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                     }
                 });
-                editableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON), new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
 
@@ -379,7 +384,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             }
 
         });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON), new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noneEditableFormDialogBox.hide();
@@ -500,7 +505,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String modalWidth = GuiUtil.getModalWidth(domainObjectTypeToCreate, linkedFormMappingConfig, null);
         final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus);
-        createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON), new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
                 final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId, true);
@@ -515,7 +520,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
             }
         });
-        createItemDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON), new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 createItemDialogBox.hide();

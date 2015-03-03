@@ -31,6 +31,7 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import java.util.Date;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.WEEK_SWITCH_BUTTON_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTHS;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WEEK_DAYS;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WEEK_SWITCH_BUTTON;
@@ -119,7 +120,8 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
 
     private FlowPanel createSwitchBtn() {
         final FlowPanel result = new FlowPanel();
-        result.add(new InlineLabel(LocalizeUtil.get(WEEK_SWITCH_BUTTON)));
+        result.add(new InlineLabel(LocalizeUtil.get(WEEK_SWITCH_BUTTON_KEY,
+                WEEK_SWITCH_BUTTON)));
         result.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

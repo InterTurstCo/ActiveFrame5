@@ -28,7 +28,6 @@ import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
@@ -41,6 +40,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FAVORITE_ACTION_TOOLTIP_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SIZE_ACTION_TOOLTIP_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FAVORITE_ACTION_TOOLTIP;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SIZE_ACTION_TOOLTIP;
 
 /**
  * Базовый класс представления плагина.
@@ -212,11 +216,11 @@ public abstract class PluginView implements IsWidget {
     private List<ActionContext> getDefaultSystemContexts() {
         final List<ActionContext> contexts = new ArrayList<ActionContext>();
         final ToggleActionContext fstCtx = new ToggleActionContext(createActionConfigWithImageInDiv(
-                "size.toggle.action", LocalizeUtil.get(BusinessUniverseConstants.SIZE_ACTION_TOOLTIP), ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME, 1000));
+                "size.toggle.action", LocalizeUtil.get(SIZE_ACTION_TOOLTIP_KEY, SIZE_ACTION_TOOLTIP), ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME, 1000));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
         contexts.add(new ToggleActionContext(createActionConfigWithImageInDiv(
-                "favorite.toggle.action", LocalizeUtil.get(BusinessUniverseConstants.FAVORITE_ACTION_TOOLTIP), ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
+                "favorite.toggle.action", LocalizeUtil.get(FAVORITE_ACTION_TOOLTIP_KEY, FAVORITE_ACTION_TOOLTIP), ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
         return contexts;
     }
 

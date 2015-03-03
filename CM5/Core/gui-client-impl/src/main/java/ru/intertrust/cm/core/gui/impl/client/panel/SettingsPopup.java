@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionCo
 import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -47,11 +48,11 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME), "menuImage chooseTheme",
+                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME_KEY, CHOOSE_THEME), "menuImage chooseTheme",
                         new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS_KEY, RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS_KEY, RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);
