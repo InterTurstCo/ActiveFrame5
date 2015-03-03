@@ -28,6 +28,9 @@ public class MessageResourceProvider {
     }
 
     public static  Map<String, String> getMessages(String locale) {
+        if (locale == null) {
+            locale = DEFAULT_LOCALE;
+        }
         return  localeToResource.get(locale);
     }
 
