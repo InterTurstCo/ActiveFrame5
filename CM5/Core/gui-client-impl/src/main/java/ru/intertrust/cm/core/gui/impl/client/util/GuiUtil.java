@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -288,6 +289,20 @@ public final class GuiUtil {
         }
 
         return null;
+    }
+    public static String getModalHeight(String domainObjectType, LinkedDomainObjectsTableConfig config) {
+        LinkedFormMappingConfig linkedFormMappingConfig = config.getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = config.getLinkedFormConfig();
+        String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
+
+        return modalHeight == null ? config.getModalHeight() : modalHeight;
+    }
+    public static String getModalWidth(String domainObjectType, LinkedDomainObjectsTableConfig config) {
+        LinkedFormMappingConfig linkedFormMappingConfig = config.getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = config.getLinkedFormConfig();
+        String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
+
+        return modalWidth == null ? config.getModalHeight() : modalWidth;
     }
 
     private static LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {

@@ -239,8 +239,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
                 .setSaveAction(saveAction)
                 .setCancelAction(cancelAction)
-                .withHeight(getModalHeight(domainObjectType))
-                .withWidth(getModalWidth(domainObjectType))
+                .withHeight(GuiUtil.getModalHeight(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
+                .withWidth(GuiUtil.getModalWidth(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
                 .withObjectType(domainObjectType)
                 .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                 .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
@@ -251,24 +251,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
         lfb.display();
 
-    }
-
-    private String getModalHeight(String domainObjectType) {
-        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
-                .getLinkedFormMappingConfig();
-        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
-
-        return modalHeight == null ? currentState.getLinkedDomainObjectsTableConfig().getModalHeight() : modalHeight;
-    }
-
-    private String getModalWidth(String domainObjectType) {
-        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
-                .getLinkedFormMappingConfig();
-        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
-        String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
-
-        return modalWidth == null ? currentState.getLinkedDomainObjectsTableConfig().getModalWidth() : modalWidth;
     }
 
     private void insertInCorrectModel(RowItem rowItem) {
@@ -591,9 +573,11 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
                         .withObjectType(pooledEditedFormState.getRootDomainObjectType())
-                        .withFormState(pooledEditedFormState).
-                                withHeight(getModalHeight(pooledEditedFormState.getRootDomainObjectType()))
-                        .withWidth(getModalWidth(pooledEditedFormState.getRootDomainObjectType()))
+                        .withFormState(pooledEditedFormState)
+                        .withHeight(GuiUtil.getModalHeight(pooledEditedFormState.getRootDomainObjectType(),
+                                currentState.getLinkedDomainObjectsTableConfig()))
+                        .withWidth(GuiUtil.getModalWidth(pooledEditedFormState.getRootDomainObjectType(),
+                                currentState.getLinkedDomainObjectsTableConfig()))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .withTypeTitleMap(currentState.getTypeTitleMap())
@@ -604,8 +588,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .setSaveAction(saveAction)
                         .setCancelAction(cancelAction)
                         .withId(object.getObjectId())
-                        .withHeight(getModalHeight(null))
-                        .withWidth(getModalWidth(null))
+                        .withHeight(GuiUtil.getModalHeight(null, currentState.getLinkedDomainObjectsTableConfig()))
+                        .withWidth(GuiUtil.getModalWidth(null, currentState.getLinkedDomainObjectsTableConfig()))
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .withTypeTitleMap(currentState.getTypeTitleMap())

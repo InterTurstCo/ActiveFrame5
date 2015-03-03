@@ -419,9 +419,9 @@
                                         <widget id="17a" width="1200px"/>
 
                                     </td>
-                                    <td>
+                                    <!--<td>
                                         <widget id="bad_label" width="200px"/>
-                                    </td>
+                                    </td>-->
                                 </tr>
                             </table>
                         </tab-group>
@@ -822,6 +822,12 @@
                 </selection-filters>
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
+                        <action type="view">
+                            <display position="before" tooltip="Отобразить на форме">
+                                <image url="/images/icons/pcontrol.png"/>
+                                <text value="Отобразить"/>
+                            </display>
+                        </action>
                         <pattern value="{name}"/>
                         <!-- пути задаются относительно базового field-path (correspondent) -->
                         <formatting>
@@ -850,7 +856,7 @@
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
-            <label id="bad_label">
+           <!-- <label id="bad_label">
                 <pattern value="date {created_date}"/>
                 <field-path value="created_date"/>
             <formatting>
@@ -862,7 +868,7 @@
                     </field-paths>
                 </date-format>
             </formatting>
-            </label>
+            </label>-->
         </widget-config>
         <widget-groups>
             <widget-group name="country-union-group">
@@ -1172,6 +1178,7 @@
                     </summary-table-column>
                     <summary-table-column header="Население" widget-id="3">
                         <pattern value="{population}"/>
+
                     </summary-table-column>
                 </summary-table>
                 <selection-sort-criteria>

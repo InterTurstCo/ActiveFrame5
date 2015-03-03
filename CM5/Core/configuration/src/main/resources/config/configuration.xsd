@@ -3464,7 +3464,7 @@
         <xs:sequence>
             <xs:element name="display" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
-                    <xs:sequence>
+                    <xs:choice maxOccurs="unbounded" minOccurs="1">
                         <xs:element name="image">
                             <xs:complexType>
                                 <xs:attribute name="url" type="xs:string"/>
@@ -3475,7 +3475,7 @@
                                 <xs:attribute name="value" type="xs:string"/>
                             </xs:complexType>
                         </xs:element>
-                    </xs:sequence>
+                    </xs:choice>
                     <xs:attribute name="position" type="con:positionType"/>
                     <xs:attribute name="tooltip" type="xs:string"/>
                 </xs:complexType>
@@ -3502,6 +3502,8 @@
         <xs:restriction base="xs:string">
             <xs:enumeration value="edit"/>
             <xs:enumeration value="delete"/>
+            <xs:enumeration value="view"/>
+            <xs:enumeration value="view_or_edit"/>
         </xs:restriction>
     </xs:simpleType>
 

@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.event.linkedtable.LinkedTableRowDeletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.CheckAccessRequest;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -46,7 +47,7 @@ public class LinkedTableUtil {
     public static final String DEFAULT_DELETE_ACTION_COMPONENT = "default.delete.table.action";
 
     enum ActionTypes {
-        edit, delete
+        edit, delete, view, view_or_edit
     }
 
     public static void configureEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table,
@@ -156,6 +157,8 @@ public class LinkedTableUtil {
                             addEditButton(container, columnContext);
                         } else if (type.equals(ActionTypes.delete.name())) {
                             addDeleteButton(container, columnContext);
+                        } else if (type.equals(ActionTypes.view.name())) {
+                            addViewButton(container, columnContext);
                         }
                     }
                 }
@@ -168,18 +171,24 @@ public class LinkedTableUtil {
         }
 
         private void displayAction(ColumnDisplayConfig columnDisplayConfig, SummaryTableActionColumnConfig summaryTableActionColumnConfig, HorizontalPanel container) {
-            String url = columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
+
             String text = columnDisplayConfig.getColumnDisplayTextConfig().getValue();
-            Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
-                    + url);
-            actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
+            String url = columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
             String componentName = summaryTableActionColumnConfig.getComponentName();
-            actionImage.addStyleName(componentName);
-            container.add(actionImage);
-            Label actionText = new Label(text);
-            actionText.addStyleName(componentName);
-            actionText.addStyleName(ACTION_TEXT_SELECTOR);
-            container.add(actionText);
+            if (url != null) {
+                Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
+                        + url);
+                actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
+
+                actionImage.addStyleName(componentName);
+                container.add(actionImage);
+            }
+            if (text != null) {
+                Label actionText = new Label(text);
+                actionText.addStyleName(componentName);
+                actionText.addStyleName(ACTION_TEXT_SELECTOR);
+                container.add(actionText);
+            }
         }
 
         private void addDeleteButton(final HorizontalPanel container, ColumnContext columnContext) {
@@ -210,6 +219,20 @@ public class LinkedTableUtil {
             });
         }
 
+        private void addViewButton(final HorizontalPanel container, ColumnContext columnContext) {
+            withCheckAccess(DEFAULT_EDIT_ACCESS_CHECKER, columnContext, new CheckAccessCallback() {
+                @Override
+                public void onSuccess() {
+                    container.add(createViewButton());
+                }
+
+                @Override
+                public void onDenied() {
+
+                }
+            });
+        }
+
         @Override
         public void onBrowserEvent(final Context context, Element parent, final ColumnContext columnContext, NativeEvent event, final ValueUpdater<ColumnContext> valueUpdater) {
             EventTarget eventTarget = event.getEventTarget();
@@ -218,14 +241,31 @@ public class LinkedTableUtil {
             if (summaryTableActionsColumnConfig != null) {
                 for (SummaryTableActionColumnConfig summaryTableActionColumnConfig : summaryTableActionsColumnConfig.getSummaryTableActionColumnConfig()) {
                     if (summaryTableActionColumnConfig.getComponentName() == null) {
-                        continue;
-                    }
+                        if(as.getClassName().contains(ActionTypes.view.name()) || as.getClassName().contains(ActionTypes.view_or_edit.name())){
+                            FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
+                            boolean editable = as.getClassName().contains(ActionTypes.view_or_edit.name());
+                            String domainObjectType = rowFormState == null ? null : rowFormState.getRootDomainObjectType();
+                            LinkedFormDialogBoxBuilder lfb = new LinkedFormDialogBoxBuilder()
+                                    .withEditable(editable)
+                                    .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
+                                    .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
+                                    .withTypeTitleMap(currentState.getTypeTitleMap())
+                                    .withFormState(rowFormState)
+                                    .withObjectType(domainObjectType)
+                                    .withId(columnContext.getObjectId())
+                                    .withHeight(GuiUtil.getModalHeight(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
+                                    .withWidth(GuiUtil.getModalWidth(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
+                                    .buildDialogBox();
+                            lfb.display();
+                        }
+                    } else {
                     String componentName = summaryTableActionColumnConfig.getComponentName();
                     if ((className.contains(ACTION_IMAGE_SELECTOR) || className.contains(ACTION_TEXT_SELECTOR)) &&
                             className.contains(componentName)) {
                         LinkedTableAction action = ComponentRegistry.instance.get(componentName);
                         action.perform(columnContext.getObjectId(), context.getIndex()
                         );
+                    }
                     }
                 }
             }
@@ -294,6 +334,13 @@ public class LinkedTableUtil {
         return editButton;
     }
 
+    private static Button createViewButton() {
+        Button viewButton = new Button();
+        viewButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
+        viewButton.addStyleName(EDIT_BUTTON_SELECTOR);
+        return viewButton;
+    }
+
     static class ActionsColumn extends Column<RowItem, ColumnContext> {
         public ActionsColumn(Cell<ColumnContext> cell) {
             super(cell);
@@ -320,14 +367,13 @@ public class LinkedTableUtil {
         @Override
         public void render(Context context, final ColumnContext columnContext, SafeHtmlBuilder safeHtmlBuilder) {
             final HorizontalPanel container = new HorizontalPanel();
-            SummaryTableActionColumnConfig summaryTableActionColumnConfig = summaryTableColumnConfig.getSummaryTableActionColumnConfig();
+            final SummaryTableActionColumnConfig summaryTableActionColumnConfig = summaryTableColumnConfig.getSummaryTableActionColumnConfig();
             if (summaryTableActionColumnConfig != null) {
-                final ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
-                if (columnDisplayConfig != null) {
+                if (summaryTableActionColumnConfig.getColumnDisplayConfig() != null) {
                     withCheckAccessDo(columnContext, new CheckAccessCallback() {
                         @Override
                         public void onSuccess() {
-                            drawColumnAction(columnDisplayConfig, container, columnContext);
+                            drawColumnAction(summaryTableActionColumnConfig, container, columnContext);
                         }
 
                         @Override
@@ -358,14 +404,27 @@ public class LinkedTableUtil {
             safeHtmlBuilder.appendHtmlConstant(container.toString());
         }
 
-        private void drawColumnAction(ColumnDisplayConfig columnDisplayConfig, HorizontalPanel container, ColumnContext columnContext) {
-            Image actionImage = new Image(GlobalThemesManager.getResourceFolder()
-                    + columnDisplayConfig.getColumnDisplayImageConfig().getUrl());
-            actionImage.addStyleName(ACTION_IMAGE_SELECTOR);
-            container.add(actionImage);
-            Label actionText = new Label(columnDisplayConfig.getColumnDisplayTextConfig().getValue());
-            actionText.addStyleName(ACTION_TEXT_SELECTOR);
-            container.add(actionText);
+        private void drawColumnAction(SummaryTableActionColumnConfig summaryTableActionColumnConfig,
+                                      HorizontalPanel container, ColumnContext columnContext) {
+            ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
+            String url = columnDisplayConfig.getColumnDisplayImageConfig() == null ? null
+                    : columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
+            String type = summaryTableActionColumnConfig.getType();
+            if (url != null) {
+                Image actionImage = new Image(GlobalThemesManager.getResourceFolder() + url);
+                String styleName = type == null ? ACTION_IMAGE_SELECTOR : type;
+                actionImage.addStyleName(styleName);
+                container.add(actionImage);
+            }
+            String text = columnDisplayConfig.getColumnDisplayTextConfig() == null ? null
+                    : columnDisplayConfig.getColumnDisplayTextConfig().getValue();
+            if (text != null) {
+                Label actionText = new Label(text);
+                actionText.setStyleName("linked-table-label");
+                String styleName = type == null ? ACTION_TEXT_SELECTOR : type;
+                actionText.addStyleName(styleName);
+                container.add(actionText);
+            }
             HTML htmlCellText = new HTML("<div>" + columnContext.renderRow() + "</div>");
             if (ColumnDisplayConfig.Position.before.name().equals(columnDisplayConfig.getPosition())) {
                 container.insert(htmlCellText, 0);
@@ -378,7 +437,23 @@ public class LinkedTableUtil {
         public void onBrowserEvent(Context context, Element parent, ColumnContext columnContext, NativeEvent event, ValueUpdater<ColumnContext> valueUpdater) {
             EventTarget eventTarget = event.getEventTarget();
             Element as = Element.as(eventTarget);
-            if (as.getClassName().contains(ACTION_IMAGE_SELECTOR) || as.getClassName().contains(ACTION_TEXT_SELECTOR)) {
+            if(as.getClassName().contains(ActionTypes.view.name()) || as.getClassName().contains(ActionTypes.view_or_edit.name())){
+                FormState rowFormState = obtainFormStateForRow(columnContext, currentState);
+                String domainObjectType = rowFormState == null ? null : rowFormState.getRootDomainObjectType();
+                LinkedFormDialogBoxBuilder lfb = new LinkedFormDialogBoxBuilder()
+                        .withEditable(false)
+                        .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
+                        .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
+                        .withTypeTitleMap(currentState.getTypeTitleMap())
+                        .withFormState(rowFormState)
+                        .withObjectType(domainObjectType)
+                        .withId(columnContext.getObjectId())
+                        .withHeight(GuiUtil.getModalHeight(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
+                        .withWidth(GuiUtil.getModalWidth(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()))
+                        .buildDialogBox();
+                lfb.display();
+            }
+            else if (as.getClassName().contains(ACTION_IMAGE_SELECTOR) || as.getClassName().contains(ACTION_TEXT_SELECTOR)) {
                 String componentName = summaryTableColumnConfig.getSummaryTableActionColumnConfig().getComponentName();
                 LinkedTableAction action = ComponentRegistry.instance.get(componentName);
                 FormState rowFormState = obtainFormStateForRow(columnContext, currentState);

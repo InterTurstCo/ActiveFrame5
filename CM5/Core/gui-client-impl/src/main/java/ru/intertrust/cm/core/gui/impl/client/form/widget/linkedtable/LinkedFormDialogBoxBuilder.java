@@ -48,6 +48,7 @@ public class LinkedFormDialogBoxBuilder {
     private LinkedFormMappingConfig linkedFormMappingConfig;
     private WidgetsContainer parentWidgetsContainer;
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
+    private boolean editable = true;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -75,6 +76,10 @@ public class LinkedFormDialogBoxBuilder {
 
     public LinkedFormDialogBoxBuilder withObjectType(String objectTypeName) {
         this.objectTypeName = objectTypeName;
+        return this;
+    }
+    public LinkedFormDialogBoxBuilder withEditable(boolean editable) {
+        this.editable = editable;
         return this;
     }
 
@@ -178,40 +183,43 @@ public class LinkedFormDialogBoxBuilder {
         db.removeStyleName("gwt-DialogBox");
         db.addStyleName("popup-body popup-z-index");
         db.setModal(true);
-
+        Panel buttons = new FlowPanel();
         // create buttons
-        Button saveButton = new Button("Сохранить");
-        saveButton.setStyleName("lnfm-save-button darkButton");
-        decorateButton(saveButton);
-        if (saveAction != null) {
-            saveButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    if (isValid()) {
-                        saveAction.execute(formPlugin);
-                        db.clear();
-                        db.hide();
+        if (editable) {
+            Button saveButton = new Button("Сохранить");
+            saveButton.setStyleName("lnfm-save-button darkButton");
+            decorateButton(saveButton);
+            if (saveAction != null) {
+                saveButton.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        if (isValid()) {
+                            saveAction.execute(formPlugin);
+                            db.clear();
+                            db.hide();
+                        }
                     }
-                }
-            });
+                });
+            }
+            buttons.add(saveButton);
         }
         Button cancelButton = new Button("Отменить");
         cancelButton.setStyleName("lnfm-cancel-button darkButton");
         decorateButton(cancelButton);
-        if (cancelAction != null) {
-            cancelButton.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    cancelAction.execute(formPlugin);
-                    db.clear();
-                    db.hide();
-                }
-            });
-        }
 
-        Panel buttons = new FlowPanel();
+        cancelButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                if (cancelAction != null) {
+                    cancelAction.execute(formPlugin);
+                }
+                db.clear();
+                db.hide();
+            }
+        });
+
         buttons.addStyleName("linkedFormButtonsPanel");
-        buttons.add(saveButton);
+
         buttons.add(cancelButton);
         ScrollPanel bodyPanel = new ScrollPanel();
         bodyPanel.setStyleName("linkedFormBodyPanel");
@@ -261,7 +269,7 @@ public class LinkedFormDialogBoxBuilder {
 
     private void addPluginStateToConfig(FormPluginConfig config) {
         FormPluginState formPluginState = new FormPluginState();
-        formPluginState.setEditable(true);
+        formPluginState.setEditable(editable);
         config.setPluginState(formPluginState);
     }
 

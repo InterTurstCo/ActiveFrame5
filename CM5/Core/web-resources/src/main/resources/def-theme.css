@@ -3068,3 +3068,10 @@ a:active .icon.back {
 .infoDialogBox {
     z-index: 20;
 }
+
+.linked-table-label{
+    font-size: 100%;
+    padding-left: 8px;
+    text-decoration: underline;
+    cursor: pointer;
+}
