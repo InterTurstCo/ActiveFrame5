@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
@@ -18,10 +19,14 @@ import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 public class SorOrderHelperImpl implements SortOrderHelper {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private ProfileService profileService;
+
     @Override
     public SortOrder buildSortOrder(String collectionName, DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                     CollectionDisplayConfig collectionDisplayConfig) {
-        SortOrder result = SortOrderBuilder.getInitSortOrder(defaultSortCriteriaConfig, collectionDisplayConfig);
+        SortOrder result = SortOrderBuilder.getInitSortOrder(defaultSortCriteriaConfig, collectionDisplayConfig,
+                profileService.getPersonLocale());
         if(result == null) {
             result = buildSortOrderByIdField(collectionName);
 

@@ -26,7 +26,7 @@ public class ChildCollectionViewerConfig implements Dto {
 
     @Attribute(name="bread-crumb", required = false)
     @Localizable
-    private String breadCrumb;
+    private String breadCrumb="Не определён";
 
     @Element(name = "collection-viewer")
     private CollectionViewerConfig collectionViewerConfig;

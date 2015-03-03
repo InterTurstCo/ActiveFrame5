@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -37,12 +38,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.intertrust.cm.core.business.api.BaseAttachmentService.*;
+import static ru.intertrust.cm.core.business.api.BaseAttachmentService.CONTENT_LENGTH;
+import static ru.intertrust.cm.core.business.api.BaseAttachmentService.DESCRIPTION;
+import static ru.intertrust.cm.core.business.api.BaseAttachmentService.NAME;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -51,10 +52,6 @@ import static ru.intertrust.cm.core.business.api.BaseAttachmentService.*;
  */
 @ComponentName("attachment-box")
 public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
-    private static final String ATTACHMENT_NAME = "Name";
-    private static final String ATTACHMENT_DESCRIPTION = "Description";
-    private static final String ATTACHMENT_MIME_TYPE = "MimeType";
-    private static final String ATTACHMENT_CONTENT_LENGTH = "ContentLength";
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
     @Autowired
@@ -65,6 +62,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private AccessVerificationService accessVerificationService;
     @Autowired
     private CrudService crudService;
+    @Autowired
+    private ProfileService profileService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
@@ -213,7 +212,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             if (singleChoiceAnalyzed != null) {
                 if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())
                         || fieldPath.isOneToOneBackReference()){
-                    throw new GuiException("Multiply fieldPaths should be all reference type or all backreference type");
+                    throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionMultipleFieldPaths",
+                            profileService.getPersonLocale()));
                 }
             }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField()

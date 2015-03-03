@@ -1,13 +1,27 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.gui.collection.view.ChildCollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -17,7 +31,15 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 
 import java.text.DateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -28,7 +50,7 @@ public class CollectionPluginHelper {
 
     public static LinkedHashMap<String, CollectionColumnProperties> getFieldColumnPropertiesMap(
             final CollectionViewConfig collectionViewConfig, DefaultSortCriteriaConfig sortCriteriaConfig,
-            InitialFiltersConfig initialFiltersConfig) {
+            InitialFiltersConfig initialFiltersConfig, String locale) {
         LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<String, CollectionColumnProperties>();
         CollectionDisplayConfig collectionDisplay = collectionViewConfig.getCollectionDisplayConfig();
         if (collectionDisplay != null) {
@@ -45,7 +67,7 @@ public class CollectionPluginHelper {
             }
             return columnPropertiesMap;
 
-        } else throw new GuiException("Collection view config has no display tags configured ");
+        } else throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionCollectionViewError", locale));
     }
 
     public static Map<String, CollectionColumnProperties> getFilterNameColumnPropertiesMap(

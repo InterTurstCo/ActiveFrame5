@@ -40,7 +40,6 @@ public final class ExceptionMessageFactory {
                 cause = (SystemException) ex;
             }
         }
-
         String exceptionKey = null;
         String message = null;
         if (cause != null) {
@@ -51,16 +50,14 @@ public final class ExceptionMessageFactory {
                 return new Pair<>(message, !NOT_LOGGED_EXCEPTIONS.contains(exceptionKey));
             }
 
-            message = MessageResourceProvider.getMessage(exceptionKey, currentLocale);
-            //TODO add methods with boolean flag returnKeyIfNotFound (default = true, here pass false)
+            message = MessageResourceProvider.getMessage(exceptionKey, currentLocale, null);
         }
         if (message == null) {
             message = MessageResourceProvider.getMessage(SYSTEM_EXCEPTION_KEY, currentLocale);
-            Map<String, String> placeholders = new HashMap<>();
-            placeholders.put(COMMAND_NAME_PLACEHOLDER, command.getName());
-            message = PlaceholderResolver.substitute(message, placeholders);
         }
-
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put(COMMAND_NAME_PLACEHOLDER, command.getName());
+        message = PlaceholderResolver.substitute(message, placeholders);
         return new Pair<>(message, !NOT_LOGGED_EXCEPTIONS.contains(exceptionKey));
 
    }

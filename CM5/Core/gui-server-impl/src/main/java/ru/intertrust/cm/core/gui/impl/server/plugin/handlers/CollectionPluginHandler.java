@@ -95,7 +95,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         InitialFiltersConfig initialFiltersConfig = collectionViewerConfig.getInitialFiltersConfig();
         LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
-                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig, initialFiltersConfig);
+                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig,
+                        initialFiltersConfig, profileService.getPersonLocale());
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<>();
         TableBrowserParams tableBrowserParams = collectionViewerConfig.getTableBrowserParams();
@@ -165,7 +166,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
 
         final LinkedHashMap<String, CollectionColumnProperties> map =
-                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null);
+                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null, profileService.getPersonLocale());
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);

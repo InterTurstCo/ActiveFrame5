@@ -388,7 +388,8 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                              extendedSearchData.getTargetCollectionNames().
                              get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
-            throw new GuiException("Ошибка при поиске: \n" + ge.getMessage());
+            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionSearchError",
+                    profileService.getPersonLocale()) + ge.getMessage());
         }
     }
 

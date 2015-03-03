@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -35,11 +37,14 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
     @Autowired
     private CrudService crudService;
 
+    @Autowired
+    private ProfileService profileService;
+
     public PluginData prepareHierarchicalCollectionData(Dto params) {
         ExpandHierarchicalCollectionData data = (ExpandHierarchicalCollectionData)params;
         ChildCollectionViewerConfig childCollectionViewerConfig = findChildCollectionViewerConfig(data);
         if (childCollectionViewerConfig == null) {
-            throw new GuiException("Ошибка в конфигурации иерархической коллекции");
+            throw new GuiException(MessageResourceProvider.getMessage("GuiExceptionHierarchCollection", profileService.getPersonLocale()));
         }
         CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();
         collectionViewerConfig.setHierarchical(true);
@@ -53,8 +58,7 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
         LinkConfig link = new LinkConfig();
         link.setName(createLinkForHierarchicalCollection(childCollectionViewerConfig, data.getCurrentCollectionName(),
                 data.getSelectedParentId()));
-        link.setDisplayText(childCollectionViewerConfig.getBreadCrumb() != null ?
-                childCollectionViewerConfig.getBreadCrumb() : "Не определён");
+        link.setDisplayText(childCollectionViewerConfig.getBreadCrumb());
         LinkPluginDefinition pluginDefinition = new LinkPluginDefinition();
         pluginDefinition.setPluginConfig(domainObjectSurferConfig);
         link.setPluginDefinition(pluginDefinition);

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -43,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.ArrayList;
@@ -91,7 +93,8 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
-            throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
+            throw new GuiException(buildMessage("GuiExceptionObjectNotExist", new Pair("objectId",
+                    domainObjectId.toStringRepresentation())));
         }
         if (updaterComponentName != null) {
             DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
@@ -139,7 +142,8 @@ public class FormRetriever extends FormProcessor {
             }
         }
         if (formConfig == null) {
-            throw new GuiException(String.format("Конфигурация формы отчета не найдена или некорректна! Форма: '%s', отчет: '%s'", formName, reportName));
+            throw new GuiException(String.format(buildMessage("GuiExceptionReportFormError", new Pair("formName", formName),
+                            new Pair("reportName", reportName))));
         }
         if (formName == null) {
             formName = formConfig.getName();
@@ -148,7 +152,7 @@ public class FormRetriever extends FormProcessor {
             reportName = formConfig.getReportTemplate();
         }
         if (reportName == null) {
-            throw new GuiException("Имя отчета не сконфигурировано ни в плагине, ни форме!");
+            throw new GuiException(buildMessage("GuiExceptionReportNameNotFound"));
         }
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
         FormObjects formObjects = new FormObjects();
@@ -288,7 +292,7 @@ public class FormRetriever extends FormProcessor {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
                 if (!selfManagingWidget && !(config instanceof LabelConfig)) {
-                    throw new GuiException("Widget, id: " + widgetId + " is not configured with Field Path");
+                    throw new GuiException(buildMessage("GuiExceptionWidgetIdNotFound", new Pair("widgetId", widgetId)));
                 }
                 WidgetState initialState = widgetHandler.getInitialState(widgetContext);
                 if (initialState != null) {
@@ -577,5 +581,17 @@ public class FormRetriever extends FormProcessor {
 
     private FormConfig getLocalizedFormConfig(String formName) {
         return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+    }
+
+    private String buildMessage(String message) {
+        return MessageResourceProvider.getMessage(message, profileService.getPersonLocale());
+    }
+
+    private String buildMessage(String message, Pair<String, String>... params) {
+        Map<String, String> paramsMap = new HashMap<>();
+        for (Pair<String, String> pair  : params) {
+            paramsMap.put(pair.getFirst(), pair.getSecond());
+        }
+        return PlaceholderResolver.substitute(buildMessage(message), paramsMap);
     }
 }

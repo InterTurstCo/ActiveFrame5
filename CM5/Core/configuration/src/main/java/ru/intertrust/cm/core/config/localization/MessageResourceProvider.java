@@ -32,15 +32,19 @@ public class MessageResourceProvider {
     }
 
     public static String getMessage(String key, String locale) {
+       return getMessage(key, locale, key);
+    }
+
+    public static String getMessage(String key, String locale, String defaultValue) {
         if (locale == null) {
             locale = DEFAULT_LOCALE;
         }
         Map properties = localeToResource.get(locale);
         if (properties == null) {
-            return key;
+            return defaultValue;
         }
         String localizedText = (String)properties.get(key);
-        return localizedText != null ? localizedText : key;
+        return localizedText != null ? localizedText : defaultValue;
     }
 
     public static String getMessage(MessageKey messageKey, String locale) {
