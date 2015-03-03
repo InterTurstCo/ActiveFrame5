@@ -1,0 +1,31 @@
+﻿AccessException=You don't have access to the object.
+ActionServiceException=Imposible to get action list for the object.
+AuthenticationException=Authorization error.
+CollectionConfigurationException=Collection configuration error.
+CollectionQueryException=Error in SQL query.
+ConfigurationException=Error in the object's configuration.
+CrudException=DB operation error.
+#DaoException parent exception for OptimisticLock and others
+#    =DB operation error*/
+DoelException=DOEL-expression processing error.
+DoelParseException=DOEL-expression parsing error.
+EventTriggerException=Trigger initalization error.
+ExtensionPointException=Extension Point initialization error.
+FatalException=Application Fatal error.
+
+#InboxNotificationException не используется
+InvalidIdException=Incorrect DO identifier.
+MailNotificationException=Email sending/receiving error
+NotificationException=Notification sending error.
+ObjectNotFoundException=Data not found.
+OptimisticLockException=Impossible to save, the data was changed by another user.
+PermissionException=Group creation error.
+ProcessException=Workflow execution error.
+ProfileException=Error in processing of system/user profile.
+ReportServiceException=Report processing error
+ScheduleException=Scheduling subsystem error
+SearchException=Search subsystem error
+UnexpectedException=Unexpected error
+ValidationException=Correct valdation errors before saving.
+
+SystemException=System error during the execution of ${commandName}. Please contact the administrator.

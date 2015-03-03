@@ -7,9 +7,21 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ApplicationHelpConfig;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.LogoConfig;
+import ru.intertrust.cm.core.config.ProductTitle;
+import ru.intertrust.cm.core.config.ProductVersion;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -29,9 +41,13 @@ import javax.ejb.EJBException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
-import java.util.*;
-
-import static ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * @author Denis Mitavskiy
@@ -130,7 +146,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e);
+        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
+                profileService.getPersonLocale());
         final String message = messageInfo.getFirst();
         final Boolean toLog = messageInfo.getSecond();
         if (toLog) {

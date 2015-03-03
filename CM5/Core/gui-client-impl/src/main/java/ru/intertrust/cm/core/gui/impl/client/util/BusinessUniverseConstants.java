@@ -147,6 +147,10 @@ public class BusinessUniverseConstants {
     public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
             "суббота"};
 
+    public static final String EXECUTION_ACTION_ERROR = "Ошибка выполнения действия: ";
+    public static final String DATE_FORMAT_ERROR = "Ошибка в формате даты: ";
+
+
     private BusinessUniverseConstants() {
     }
 }

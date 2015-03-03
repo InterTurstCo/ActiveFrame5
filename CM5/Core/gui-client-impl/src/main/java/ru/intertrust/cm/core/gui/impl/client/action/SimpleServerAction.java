@@ -27,6 +27,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 19.09.13
@@ -55,7 +57,7 @@ public abstract class SimpleServerAction extends Action {
                         throw ((GuiException) caught);
 //                    }
                 } else {
-                    throw new GuiException("Ошибка выполнения действия: " + caught.getMessage(), caught);
+                    throw new GuiException(LocalizeUtil.get(EXECUTION_ACTION_ERROR) + caught.getMessage(), caught);
                 }
             }
         };
@@ -68,7 +70,7 @@ public abstract class SimpleServerAction extends Action {
             }
             BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, true);
         } catch (GuiException e) {
-            ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + e.getMessage());
+            ApplicationWindow.errorAlert(LocalizeUtil.get(EXECUTION_ACTION_ERROR) + e.getMessage());
         }
     }
 

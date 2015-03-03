@@ -1,0 +1,31 @@
+﻿AccessException=У вас нет прав доступа к даному объекту.
+ActionServiceException=Невозможно получить список действий для объекта.
+AuthenticationException=Ошибка авторизации.
+CollectionConfigurationException=Ошибка конфигурации коллекции.
+CollectionQueryException=Ошибка в SQL запросе.
+ConfigurationException=Ошибка конфигурации объекта.
+CrudException=Ошибка операции с БД.
+#DaoException parent exception for OptimisticLock and others
+#    =Ошибка операции с БД.*/
+DoelException=Ошибка обработки DOEL выражения.
+DoelParseException=Ошибка разбора DOEL выражения.
+EventTriggerException=Ошибка инициализации тригера.
+ExtensionPointException=Ошибка инициализации точки расширения.
+FatalException=Фатальная ошибка приложения.
+
+#InboxNotificationException не используется
+InvalidIdException=Некоректный идентификатор ДО.
+MailNotificationException=Ошибка отправки/приема сообщения по email.
+NotificationException=Ошибка отправки сообщения.
+ObjectNotFoundException=Данных не найдено.
+OptimisticLockException=Сохранение невозможно, данные изменены другим пользователем.
+PermissionException=Ошибка создания группы.
+ProcessException=Ошибка выполнения workflow процесса.
+ProfileException=Ошибка обработки профиля системы/пользователя.
+ReportServiceException=Ошибка обработки отчета
+ScheduleException=Ошибка работы подсистемы периодических заданий
+SearchException=Ошибка работы подсистемы поиска
+UnexpectedException=Неизвестная ошибка приложения.
+ValidationException=Исправьте ошибки перед сохранением
+
+SystemException=Системная ошибка при выполнении ${commandName}, обратитесь к администратору.

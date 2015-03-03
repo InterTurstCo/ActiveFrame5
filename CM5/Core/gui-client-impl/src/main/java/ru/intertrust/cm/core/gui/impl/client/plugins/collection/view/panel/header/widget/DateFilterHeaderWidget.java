@@ -115,12 +115,12 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
             Date userDate = userDateTimeFormat.parse(userDateString);
             return guiDateTimeFormat.format(userDate);
         } catch (IllegalArgumentException ex) {
-            ApplicationWindow.errorAlert("Ошибка в формате даты: " + getErrorMessage());
-            throw new GuiException("Ошибка в формате даты: " + getErrorMessage());
+            String errorDescription = LocalizeUtil.get(BusinessUniverseConstants.DATE_FORMAT_ERROR) + getErrorMessage();
+            ApplicationWindow.errorAlert(errorDescription);
+            throw new GuiException(errorDescription);
         }
-
-
     }
+
     protected String getErrorMessage(){
         StringBuilder errorMessageBuilder = new StringBuilder(LocalizeUtil.get(BusinessUniverseConstants
                 .WRONG_DATE_FORMAT_ERROR_MESSAGE));
