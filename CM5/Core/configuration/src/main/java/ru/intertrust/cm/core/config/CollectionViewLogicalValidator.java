@@ -97,6 +97,9 @@ public class CollectionViewLogicalValidator implements ConfigurationValidator {
                                               CollectionDisplayConfig colDisplayConf, LogicalErrors logicalErrors) {
         List<CollectionColumnConfig> columns = colDisplayConf.getColumnConfig();
         String sqlQuery = colConf.getPrototype();
+        if (sqlQuery == null) {
+            return;
+        }
         for (CollectionColumnConfig column : columns) {
             if (column != null) {
                 String field = column.getField();
