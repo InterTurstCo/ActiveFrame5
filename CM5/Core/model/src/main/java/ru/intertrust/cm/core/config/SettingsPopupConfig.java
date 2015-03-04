@@ -14,12 +14,19 @@ public class SettingsPopupConfig implements Dto {
     @Element(name = "themes", required = false)
     private ThemesConfig themesConfig;
 
+    @Element(name = "languages", required = false)
+    private LanguagesConfig languagesConfig;
+
     public ThemesConfig getThemesConfig() {
         return themesConfig;
     }
 
     public void setThemesConfig(ThemesConfig themesConfig) {
         this.themesConfig = themesConfig;
+    }
+
+    public LanguagesConfig getLanguagesConfig() {
+        return languagesConfig;
     }
 
     @Override
@@ -30,18 +37,20 @@ public class SettingsPopupConfig implements Dto {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         SettingsPopupConfig that = (SettingsPopupConfig) o;
-
         if (themesConfig != null ? !themesConfig.equals(that.themesConfig) : that.themesConfig != null) {
             return false;
         }
-
+        if (languagesConfig != null ? !languagesConfig.equals(that.languagesConfig) : that.languagesConfig != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        return themesConfig != null ? themesConfig.hashCode() : 17;
+        int result = themesConfig != null ? themesConfig.hashCode() : 17;
+        result = 31 * result + (languagesConfig != null ? languagesConfig.hashCode() : 17);
+        return result;
     }
 }

@@ -117,6 +117,7 @@ public class BusinessUniverseConstants {
     public static final String LAST_NAME = "Фамилия:";
     public static final String EMAIL = "EMail:";
     public static final String ADMINISTRATOR = "Администратор";
+    public static final String CHOOSE_LANG = "Выбрать язык";
 
     public static final String OK_BUTTON = "OK";
     public static final String CANCEL_BUTTON = "Отменить";

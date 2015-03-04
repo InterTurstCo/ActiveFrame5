@@ -44,6 +44,7 @@ public class LocalizationKeys {
     public static final String LAST_NAME_KEY = "LastName";
     public static final String EMAIL_KEY = "EMail";
     public static final String ADMINISTRATOR_KEY = "Administrator";
+    public static final String CHOOSE_LANG_KEY = "ChooseLanguage";
 
     public static final String OK_BUTTON_KEY = "OkButton";
     public static final String CANCEL_BUTTON_KEY = "CancelButton";

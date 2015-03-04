@@ -64,4 +64,6 @@ public interface ProfileService {
      * @return
      */
     String getPersonLocale();
+
+    public void setPersonLocale(String locale);
 }
