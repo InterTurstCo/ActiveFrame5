@@ -39,7 +39,7 @@ public class SchedulerQueryHelperTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select schedule.* from \"schedule\" schedule inner join \"status\" s on " +
                 "(s.\"id\" = schedule.\"status\" and s.\"id_type\" = schedule.\"status_type\") " +
-                "where s.\"name\"=:status and active = 1" + ACCESS_RIGHTS_PART + " order by schedule.\"priority\"";
+                "where s.\"name\"=:status and \"active\" = 1" + ACCESS_RIGHTS_PART + " order by schedule.\"priority\"";
         Assert.assertEquals(expectedQuery, queryHelper.generateFindTasksByStatusQuery("schedule", accessToken, true));
 
         String expectedQuery2 = "select schedule.* from \"schedule\" schedule inner join \"status\" s on " +

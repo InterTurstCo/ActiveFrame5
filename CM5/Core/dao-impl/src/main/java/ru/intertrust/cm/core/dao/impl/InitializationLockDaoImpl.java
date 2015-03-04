@@ -40,7 +40,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     protected static final String SELECT_FOR_UPDATE_QUERY =
             "select " + wrap(ID_COLUMN) + " from " + wrap(INITIALIZATION_LOCK_TABLE) +
                     " where " +  wrap(ID_COLUMN) + " = ? and " +
-                    "(" + wrap(SERVER_ID_COLUMN) +  " is null or " + START_DATE_COLUMN + " < ?) for update";
+                    "(" + wrap(SERVER_ID_COLUMN) +  " is null or " + wrap(START_DATE_COLUMN) + " < ?) for update";
 
     protected static final String UNLOCK_QUERY =
             "update " + wrap(INITIALIZATION_LOCK_TABLE) + " set " + wrap(SERVER_ID_COLUMN) +  " = null, " +
@@ -133,7 +133,12 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            queryHelper = new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
+            String dbVendor = System.getProperty("db.vendor");
+            if ("oracle".equalsIgnoreCase(dbVendor)) {
+                return new OracleQueryHelper(domainObjectTypeIdDao, md5Service);
+            } else {
+                return new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);
+            }
         }
 
         return queryHelper;

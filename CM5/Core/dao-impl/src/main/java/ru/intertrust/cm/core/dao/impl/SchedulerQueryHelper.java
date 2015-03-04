@@ -27,7 +27,7 @@ public class SchedulerQueryHelper extends DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append("s").append(".").append(wrap("name")).append("=:status");
         if (activeOnly) {
-            whereClause.append(" and active = 1");
+            whereClause.append(" and ").append(wrap("active")).append(" = 1");
         }
 
         StringBuilder orderClause = new StringBuilder();

@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import ru.intertrust.cm.core.dao.api.MD5Service;
-import ru.intertrust.cm.core.dao.impl.MD5ServiceImpl;
 
 /**
  * Тест реализации MD5Service.
@@ -38,13 +37,13 @@ public class MD5ServiceTest {
     @Test
     public void testGetMD5() {
         String message = MESSAGE;
-        assertTrue(MD5_CODE.equals(md5Service.getMD5(message)));
+        assertTrue(MD5_CODE.equals(md5Service.getMD5AsHex(message)));
     }
 
     @Test
     public void testGetMD5IfMessageNull() {
         String message = null;
-        assertTrue(null == md5Service.getMD5(message));
+        assertTrue(null == md5Service.getMD5AsHex(message));
     }
 
 }

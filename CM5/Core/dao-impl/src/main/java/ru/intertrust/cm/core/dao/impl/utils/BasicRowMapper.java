@@ -1,11 +1,9 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.impl.DataType;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -17,7 +15,6 @@ import java.util.List;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.CREATED_DATE_COLUMN;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.UPDATED_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 
 /**
  * Базовй класс для отображения {@link java.sql.ResultSet} на доменные объекты и
@@ -46,42 +43,23 @@ public class BasicRowMapper extends ValueReader {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
-    protected DataType getColumnDataTypeByDbTypeName(String columnTypeName) {
-        DataType result = null;
-        if (columnTypeName.equals("int8")) {
-            result = DataType.INTEGER;
-        } else if (columnTypeName.equals("timestamp")) {
-            result = DataType.DATETIME;
-        } else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
-                || columnTypeName.equals("text")) {
-            result = DataType.STRING;
-        } else if (columnTypeName.equals("bool")) {
-            result = DataType.BOOLEAN;
-        } else if (columnTypeName.equals("numeric")) {
-            result = DataType.DECIMAL;
-        } else if (columnTypeName.equals("bigint")) {
-            result = DataType.LONG;
-        }
-        return result;
-    }
-
     protected FieldConfig getFieldConfigByDbTypeName(String columnName, String columnTypeName) {
         FieldConfig result;
 
         if (columnTypeName.startsWith("int")) {
             result =  new LongFieldConfig();
-        } else if (columnTypeName.equals("timestamp")) {
+        } else if (columnTypeName.equalsIgnoreCase("timestamp")) {
             result = new DateTimeFieldConfig();
-        } else if (columnTypeName.equals("date")) {
+        } else if (columnTypeName.equalsIgnoreCase("date")) {
             result = new TimelessDateFieldConfig();
-        }else if (columnTypeName.equals("varchar") || columnTypeName.equals("unknown")
+        }else if (columnTypeName.equalsIgnoreCase("varchar") || columnTypeName.equals("unknown")
                 || columnTypeName.equals("text")) {
             result = new StringFieldConfig();
-        } else if (columnTypeName.equals("bool")) {
+        } else if (columnTypeName.equalsIgnoreCase("bool")) {
             result = new BooleanFieldConfig();
-        } else if (columnTypeName.equals("numeric")) {
+        } else if (columnTypeName.equalsIgnoreCase("numeric")) {
             result = new DecimalFieldConfig();
-        } else if (columnTypeName.equals("bigint")) {
+        } else if (columnTypeName.equalsIgnoreCase("bigint") || columnTypeName.equalsIgnoreCase("number")) {
             result = new LongFieldConfig();
         } else {
             result = new StringFieldConfig();

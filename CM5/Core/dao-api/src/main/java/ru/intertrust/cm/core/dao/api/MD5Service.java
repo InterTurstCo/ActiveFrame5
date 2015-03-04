@@ -8,10 +8,17 @@ package ru.intertrust.cm.core.dao.api;
 public interface MD5Service {
 
     /**
-     * Получение MD5 хеша для переданного сообщения
+     * Получение 16-ричного MD5 хеша для переданного сообщения
      * @param message сообщение для кодирования
      * @return MD5 хеш.
      */
-    String getMD5(String message);
+    String getMD5AsHex(String message);
+
+    /**
+     * Получение 32-ричного MD5 хеша для переданного сообщения
+     * @param message сообщение для кодирования
+     * @return MD5 хеш.
+     */
+    String getMD5As32Base(String message);
 
 }

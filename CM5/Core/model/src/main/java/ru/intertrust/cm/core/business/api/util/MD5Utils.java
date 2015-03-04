@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api.util;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
@@ -13,7 +14,7 @@ public class MD5Utils {
      * @param message сообщение для кодирования
      * @return MD5 хеш.
      */
-    public static String getMD5(String message) {
+    public static String getMD5AsHex(String message) {
         if (message == null || message.length() < 1) {
             return null;
         }
@@ -28,6 +29,30 @@ public class MD5Utils {
                 sb.append(String.format("%02x", b & 0xff));
             }
             digest = sb.toString();
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return digest;
+    }
+
+    /**
+     * Получение 32-ричного MD5 хеша для переданного сообщения
+     * @param message сообщение для кодирования
+     * @return MD5 хеш.
+     */
+    public static String getMD5As32Base(String message) {
+        if (message == null || message.length() < 1) {
+            return null;
+        }
+
+        String digest = null;
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] hash = md.digest(message.getBytes("UTF-8"));
+            BigInteger bigInteger = new BigInteger(hash);
+            return  bigInteger.toString(32);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(MD5Utils.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchAlgorithmException ex) {

@@ -106,8 +106,8 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append("gg.").append(wrap("child_group_id")).append("=:id and gg.").
                 append(wrap(getReferenceTypeColumnName("child_group_id"))).append("=:id_type and (").
-                append(wrap(tableAlias)).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
-                append(wrap(tableAlias)).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
+                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
+                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
 
         return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
     }
@@ -150,8 +150,8 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append("gg.").append(wrap("parent_group_id")).append("=:id and gg.").
                 append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type and (").
-                append(wrap(tableAlias)).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
-                append(wrap(tableAlias)).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
+                append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
+                append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
 
         return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
     }
@@ -164,9 +164,9 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder whereClause = new StringBuilder();
-        whereClause.append(wrap(tableAlias)).append(".").append(wrap("object_id")).append("=:id and ").
-                append(wrap(tableAlias)).append(".").append(wrap(getReferenceTypeColumnName("object_id"))).append("=:id_type and ").
-                append(wrap(tableAlias)).append(".").append(wrap("group_name")).append("=:name");
+        whereClause.append(tableAlias).append(".").append(wrap("object_id")).append("=:id and ").
+                append(tableAlias).append(".").append(wrap(getReferenceTypeColumnName("object_id"))).append("=:id_type and ").
+                append(tableAlias).append(".").append(wrap("group_name")).append("=:name");
 
         return generateFindQuery(typeName, accessToken, false, null, whereClause, null);
     }

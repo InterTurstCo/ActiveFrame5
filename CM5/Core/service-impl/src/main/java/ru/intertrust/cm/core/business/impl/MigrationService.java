@@ -225,7 +225,7 @@ public class MigrationService {
                             makeNotNullConfig.getType() + "." + makeNotNullFieldConfig.getName() + " because it doesn't exist");
                 }
 
-                dataStructureDao.setColumnNotNull(domainObjectTypeConfig, fieldConfig, false);
+                dataStructureDao.setColumnNotNull(domainObjectTypeConfig, fieldConfig, true);
             }
         }
     }

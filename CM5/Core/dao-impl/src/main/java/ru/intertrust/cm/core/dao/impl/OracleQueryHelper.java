@@ -39,14 +39,14 @@ public class OracleQueryHelper extends BasicQueryHelper {
 
     private static final String COLUMNS_QUERY =
             "select table_name, column_name, data_type, nullable, char_length length, data_precision numeric_precision, " +
-                    "data_scale numeric_precision from user_tab_columns";
+                    "data_scale numeric_scale from user_tab_columns";
 
     private static final String INDEXES_QUERY =
             "select columns.table_name, columns.index_name, columns.column_name " +
                     "from all_ind_columns columns join all_indexes indexes on columns.index_name = indexes.index_name " +
                     "order by columns.table_name, columns.index_name, columns.column_position";
 
-    private static final String STATISTICS_QUERY = "EXEC dbms_stats.gather_schema_stats(user(), cascade=>TRUE)";
+    private static final String STATISTICS_QUERY = "{call dbms_stats.gather_schema_stats(user(), cascade=>TRUE)}";
 
     protected OracleQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {
         super(domainObjectTypeIdDao, md5Service);
@@ -76,40 +76,40 @@ public class OracleQueryHelper extends BasicQueryHelper {
     protected String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> indexFields, List<String> indexExpressions) {
         String indexFieldsPart = createIndexFieldsPart(indexFields, indexExpressions);
         // имя индекса формируется из MD5 хеша DDL выражения
-        String indexName = createExplicitIndexName(config, indexFields, indexExpressions);
+        String indexName = generateExplicitIndexName(config, indexFields, indexExpressions);
         return "create index " + wrap(indexName) + " on " + wrap(getSqlName(config)) + " (" + indexFieldsPart + ")";
     }
 
     @Override
     public String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull) {
         StringBuilder query = new StringBuilder();
-        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify (").
                 append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
         if (notNull) {
-            query.append(" not null;");
+            query.append(" not null");
         } else {
-            query.append(" null;");
+            query.append(" null");
         }
 
         if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-            query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
-                    append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" ").
+            query.append(", ").append(wrap(getReferenceTypeColumnName(fieldConfig.getName()))).append(" ").
                     append(getReferenceTypeSqlType());
             if (notNull) {
-                query.append(" not null;");
+                query.append(" not null");
             } else {
-                query.append(" null;");
+                query.append(" null");
             }
         } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
-            query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
-                    append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
+            query.append(", ").append(wrap(getTimeZoneIdColumnName(fieldConfig.getName()))).append(" ").
                     append(getTimeZoneIdSqlType());
             if (notNull) {
-                query.append(" not null;");
+                query.append(" not null");
             } else {
-                query.append(" null;");
+                query.append(" null");
             }
         }
+
+        query.append(")");
 
         return query.toString();
     }
@@ -118,7 +118,7 @@ public class OracleQueryHelper extends BasicQueryHelper {
     public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
         StringBuilder query = new StringBuilder();
 
-        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify column ").
+        query.append("alter table ").append(wrap(getSqlName(config))).append(" modify ").
                 append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
 
         return query.toString();

@@ -271,45 +271,7 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration_Number"/>
         </uniqueKey>
-        <indices>
-            <index type="btree">
-                <field name="Registration_Number" />
-                <field name="Name" />
-                <expr value="lower(btrim(Name))"/>
-                <expr value="lower(Name||Description)" />
-            </index>
-            <index>
-                <expr value="lower(btrim(Name))"/>
-            </index>
-            <index>
-                <expr value="lower(Name)" />
-            </index>
-            <index>
-                <expr value="lower(Name || '4')" />
-            </index>
-            
-             <index>
-                <expr value="lower(Name || '8')" />
-            </index>
-            <index>
-                <field name="Name" />
-            </index>
-            <index>
-                <expr value="lower(Name||'2')" />
-            </index>
-            <index>
-                <expr value="lower(Description)" />
-            </index>
-            <index>
-                <expr value="lower(Name||Description)" />
-            </index>
-            <index>
-                <field name="Description" />
-            </index>
-             <index>
-                <field name="Registration_Number" />
-            </index>
-        </indices>
+
     </domain-object-type>
         
     

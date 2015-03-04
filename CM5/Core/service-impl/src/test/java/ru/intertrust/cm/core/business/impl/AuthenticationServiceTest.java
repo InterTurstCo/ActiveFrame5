@@ -57,9 +57,9 @@ public class AuthenticationServiceTest {
     public void testInsertAuthenticationInfo() {
         //authenticationService.insertAuthenticationInfoAndRole(testAuthenticationInfo);
 //        when(domainObjectDao.create(anyObject(), anyObject())).thenReturn(Long.valueOf(7)); // ID конфигурации доменного объекта
-//        when(md5ServiceMock.getMD5(ADMIN_PASSWORD)).thenReturn(ADMIN_PASSWORD);
+//        when(md5ServiceMock.getMD5AsHex(ADMIN_PASSWORD)).thenReturn(ADMIN_PASSWORD);
 
-//        verify(md5ServiceMock).getMD5(ADMIN_PASSWORD);
+//        verify(md5ServiceMock).getMD5AsHex(ADMIN_PASSWORD);
 
     }
 

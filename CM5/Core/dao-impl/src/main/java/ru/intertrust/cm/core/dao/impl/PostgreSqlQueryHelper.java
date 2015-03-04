@@ -86,7 +86,7 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     protected String generateIndexQuery(DomainObjectTypeConfig config, String indexType, List<String> indexFields, List<String> indexExpressions) {
         String indexFieldsPart = createIndexFieldsPart(indexFields, indexExpressions);
         // имя индекса формируется из MD5 хеша DDL выражения
-        String indexName = createExplicitIndexName(config, indexFields, indexExpressions);
+        String indexName = generateExplicitIndexName(config, indexFields, indexExpressions);
         return "create index " + wrap(indexName) + " on " + wrap(getSqlName(config)) +
                 " USING " + indexType + " (" + indexFieldsPart + ")";
     }

@@ -3,16 +3,32 @@ package ru.intertrust.cm.core.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
  * @author vmatsukevich Date: 5/15/13 Time: 4:27 PM
  */
 public class PostgreSqlDataStructureDaoImpl extends BasicDataStructureDaoImpl {
+
     private static final Logger logger = LoggerFactory.getLogger(PostgreSqlDataStructureDaoImpl.class);
+
+    @Autowired
+    private SqlLoggerEnforcer sqlLoggerEnforcer;
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#gatherStatistics()}
+     */
+    @Override
+    public void gatherStatistics() {
+        sqlLoggerEnforcer.forceSqlLogging();
+        jdbcTemplate.update(getQueryHelper().generateGatherStatisticsQuery());
+        sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
+    }
 
     @Override
     protected BasicQueryHelper createQueryHelper(DomainObjectTypeIdDao domainObjectTypeIdDao, MD5Service md5Service) {

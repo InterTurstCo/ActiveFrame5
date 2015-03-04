@@ -25,14 +25,12 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlNam
  * @author vmatsukevich Date: 5/15/13 Time: 4:27 PM
  */
 public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
+
+    @Autowired
+    protected JdbcOperations jdbcTemplate;
+
     @Autowired
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
-
-    @Autowired
-    private SqlLoggerEnforcer sqlLoggerEnforcer;
-
-    @Autowired
-    private JdbcOperations jdbcTemplate;
 
     @Autowired
     private MD5Service md5Service;
@@ -156,8 +154,13 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                     indexExpressions.add(getSqlName(((IndexExpressionConfig) indexExpression).getValue()));
                 }
             }
-            
+
+            // Алгоритм генерации имени изменен. Для поддержки клиентов, у которых уже создан индекс со старым имененем,
+            // удаляем индексы по обоим вариантам имен
             String indexName = getQueryHelper().createExplicitIndexName(domainObjectTypeConfig, indexFields, indexExpressions);
+            indexNamesToDelete.add(indexName);
+
+            indexName = getQueryHelper().generateExplicitIndexName(domainObjectTypeConfig, indexFields, indexExpressions);
             indexNamesToDelete.add(indexName);
         }
         
@@ -165,12 +168,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         if (deleteIndexesQuery != null) {
             jdbcTemplate.update(deleteIndexesQuery);
         }
-    }
-
-    private String createIndexFieldsExpression(List<String> indexFields, List<String> indexExpressions) {
-        StringBuilder result = new StringBuilder();
-        result.append("(").append(getQueryHelper().createIndexFieldsPart(indexFields, indexExpressions)).append(")");
-        return result.toString();
     }
 
     @Override
@@ -315,16 +312,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     @Override
     public String getSqlType(FieldConfig fieldConfig) {
         return getQueryHelper().getSqlType(fieldConfig);
-    }
-
-    /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#gatherStatistics()}
-     */
-    @Override
-    public void gatherStatistics() {
-        sqlLoggerEnforcer.forceSqlLogging();
-        jdbcTemplate.update(getQueryHelper().generateGatherStatisticsQuery());
-        sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
     }
 
     protected BasicQueryHelper getQueryHelper() {
