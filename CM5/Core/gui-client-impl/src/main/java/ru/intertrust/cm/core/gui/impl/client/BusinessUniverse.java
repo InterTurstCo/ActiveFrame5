@@ -23,11 +23,26 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.*;
+import ru.intertrust.cm.core.gui.api.client.ActionManager;
+import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.api.client.CompactModeState;
+import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -91,10 +106,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         BusinessUniverseServiceAsync.Impl.getInstance().getBusinessUniverseInitialization(GuiUtil.getClient(), callback);
     }
 
-    private void initialize(BusinessUniverseInitialization initizationInfo) {
+    private void initialize(BusinessUniverseInitialization initializationInfo) {
+        final Application application = Application.getInstance();
+        application.setCurrentLocale(initializationInfo.getCurrentLocale());
+        application.setLocalizedResources(initializationInfo.getGlobalLocalizedResources());
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandlerImpl());
         final EventBus glEventBus = Application.getInstance().getEventBus();
-        SettingsPopupConfig settingsPopupConfig = initizationInfo.getSettingsPopupConfig();
+        SettingsPopupConfig settingsPopupConfig = initializationInfo.getSettingsPopupConfig();
         ThemesConfig themesConfig = settingsPopupConfig == null ? null : settingsPopupConfig.getThemesConfig();
         GlobalThemesManager.initTheme(themesConfig);
         header = new AbsolutePanel();
@@ -152,7 +170,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         // данному плагину устанавливается глобальная шина событий
         navigationTreePlugin.setEventBus(glEventBus);
 
-        Integer sideBarOpenningTime = initizationInfo.getSideBarOpenningTimeConfig();
+        Integer sideBarOpenningTime = initializationInfo.getSideBarOpenningTimeConfig();
         navigationTreePlugin.setSideBarOpenningTime(sideBarOpenningTime);
         centralPluginPanel = new CentralPluginPanel();
         centralPluginPanel.setStyle("rightSectionWrapper");
@@ -164,11 +182,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
         glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, this);
         glEventBus.addHandler(LeaveLeftPanelEvent.TYPE, navigationTreePlugin);
-        String logoImagePath = GlobalThemesManager.getResourceFolder() + initizationInfo.getLogoImagePath();
-        CurrentUserInfo currentUserInfo = getUserInfo(initizationInfo);
-        CurrentVersionInfo version = getVersion(initizationInfo);
-        headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version);
-        headerContainer.setInfoPage(initizationInfo.getHelperLink());
+        String logoImagePath = GlobalThemesManager.getResourceFolder() + initializationInfo.getLogoImagePath();
+        CurrentUserInfo currentUserInfo = getUserInfo(initializationInfo);
+        CurrentVersionInfo version = getVersion(initializationInfo);
+        headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version,
+                 initializationInfo.getHelperLink());
+
         header.add(headerContainer);
 
         left.add(navigationTreePanel);
@@ -194,11 +213,12 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         });
         addStickerPanel();
         addWindowResizeListener();
-        final Application application = Application.getInstance();
-        application.setPageNamePrefix(initizationInfo.getPageNamePrefix());
-        application.setTimeZoneIds(initizationInfo.getTimeZoneIds());
-        application.setHeaderNotificationPeriod(initizationInfo.getHeaderNotificationPeriod());
-        application.setCollectionCountersUpdatePeriod(initizationInfo.getCollectionCountersUpdatePeriod());
+
+
+        application.setPageNamePrefix(initializationInfo.getPageNamePrefix());
+        application.setTimeZoneIds(initializationInfo.getTimeZoneIds());
+        application.setHeaderNotificationPeriod(initializationInfo.getHeaderNotificationPeriod());
+        application.setCollectionCountersUpdatePeriod(initializationInfo.getCollectionCountersUpdatePeriod());
         application.setActionManager(new ActionManagerImpl(centralPluginPanel));
 
         RootLayoutPanel.get().add(root);

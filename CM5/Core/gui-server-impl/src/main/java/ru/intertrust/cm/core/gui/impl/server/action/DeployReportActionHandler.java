@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.DeployReportActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.io.ByteArrayOutputStream;
@@ -54,7 +55,7 @@ public class DeployReportActionHandler extends ActionHandler<DeployReportActionC
         }
         reportServiceAdmin.deploy(deployData);
 
-        return null;
+        return new SimpleActionData();
     }
 
     @Override

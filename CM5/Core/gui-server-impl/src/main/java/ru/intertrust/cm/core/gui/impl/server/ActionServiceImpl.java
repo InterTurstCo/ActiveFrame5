@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
 import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
@@ -58,6 +59,9 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     private CurrentUserAccessor currentUserAccessor;
 
     @Autowired private ApplicationContext applicationContext;
+
+    @Autowired private ProfileService profileService;
+
 
     @Override
     public List<ActionContext> getActions(Id domainObjectId) {
@@ -293,15 +297,15 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     }
 
     @Override
-    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
-        return configurationExplorer.getDefaultToolbarConfig(pluginName);
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
+        return configurationExplorer.getDefaultToolbarConfig(pluginName, currentLocale);
     }
 
     @Override
     public ActionConfig getActionConfig(final String name) {
-        ActionConfig result = configurationExplorer.getConfig(ActionConfig.class, name);
+        ActionConfig result = configurationExplorer.getLocalizedConfig(ActionConfig.class, name, profileService.getPersonLocale());
         if (result == null) {
-            result = configurationExplorer.getConfig(SimpleActionConfig.class, name);
+            result = configurationExplorer.getLocalizedConfig(SimpleActionConfig.class, name, profileService.getPersonLocale());
         }
         return result;
     }

@@ -6,6 +6,8 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
+import ru.intertrust.cm.core.config.base.Localizable;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
 import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
@@ -19,7 +21,7 @@ import java.util.List;
  *         Time: 16:02
  */
 @Root(name="action")
-public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
+public class ActionConfig extends BaseActionConfig implements LocalizableConfig {
 
     @Element(name = "before-execution", required = false)
     private BeforeActionExecutionConfig beforeConfig;
@@ -47,6 +49,7 @@ public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
     private String componentName;
 
     @Attribute(required = false)
+    @Localizable
     private String text;
 
     @Attribute(name = "image", required = false)
@@ -56,6 +59,7 @@ public class ActionConfig extends BaseActionConfig implements TopLevelConfig {
     private String imageClass;
 
     @Attribute(required = false)
+    @Localizable
     private String tooltip;
 
     @Attribute(required = false)

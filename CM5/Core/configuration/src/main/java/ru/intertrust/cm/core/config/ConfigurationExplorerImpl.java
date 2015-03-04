@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
@@ -14,7 +16,11 @@ import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -36,10 +42,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
-    FormLogicalValidator formLogicalValidator;
+    private FormLogicalValidator formLogicalValidator;
 
     @Autowired
-    NavigationPanelLogicalValidator navigationPanelLogicalValidator;
+    private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
     //private ObjectCloner objectCloner = new ObjectCloner();
 
@@ -55,6 +61,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         if (!skipLogicalValidation) {
             validate();
         }
+
     }
 
     public ConfigurationExplorerImpl(Configuration configuration) {
@@ -493,9 +500,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * @inheritDoc
      */
     @Override
-    public ToolBarConfig getDefaultToolbarConfig(String pluginName) {
+    public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
         readLock.lock();
         try {
+            CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.localizedToolbarConfigMap.get(currentLocale);
+            if (toolbarMap != null) {
+                ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
+                return getReturnObject(toolBarConfig, ToolBarConfig.class);
+            }
             ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
             return getReturnObject(toolBarConfig, ToolBarConfig.class);
         } finally {
@@ -626,4 +638,39 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         return false;
     }
 
+    @Override
+    public <T> T getLocalizedConfig(Class<T> type, String name, String currentLocale) {
+        if (LocalizableConfig.class.isAssignableFrom(type)) {
+            readLock.lock();
+            try {
+                CaseInsensitiveMap<LocalizableConfig> typeMap =
+                        configStorage.localizedConfigMap.get(new Pair<String, Class>(currentLocale, type));
+                if (typeMap != null) {
+                    T config = (T) typeMap.get(name);
+                    return getReturnObject(config, type);
+                }
+            } finally {
+                readLock.unlock();
+            }
+        }
+        return getConfig(type, name);
+    }
+
+    @Override
+    public <T> Collection<T> getLocalizedConfigs(Class<T> type, String currentLocale) {
+        readLock.lock();
+        try {
+            CaseInsensitiveMap<LocalizableConfig> typeMap = configStorage.localizedConfigMap.get(
+                    new Pair<String, Class>(currentLocale, type));
+            if (typeMap == null) {
+                return Collections.EMPTY_LIST;
+            }
+//            //Перекладываем в другой контейнер, для возможности сериализации
+            List<T> result = new ArrayList<T>();
+            result.addAll((Collection<T>) typeMap.values());
+            return getReturnObject(typeMap.values(), ArrayList.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
 }

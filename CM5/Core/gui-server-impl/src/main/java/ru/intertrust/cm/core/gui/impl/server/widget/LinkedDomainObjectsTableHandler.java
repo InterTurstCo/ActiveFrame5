@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -67,6 +68,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     protected FieldPathHelper fieldPathHelper;
+
+    @Deprecated
+    private ProfileService profileService;
 
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
     private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
@@ -178,7 +182,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             DomainObject savedObject = null;
             String savedObjectType = formState.getRootDomainObjectType();
 
-            List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext);
+            List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext,
+                    profileService.getPersonLocale());
             if (!validationResult.isEmpty()) {
                 throw new ValidationException("Server-side validation failed", validationResult);
             }

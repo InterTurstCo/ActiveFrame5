@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -24,13 +26,18 @@ import java.util.List;
 @Deprecated
 public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActionData> {
 
+    @Autowired
+    private ProfileService profileService;
+
     @Override
     public SaveActionData executeAction(SaveActionContext context) {
+        String locale = profileService.getPersonLocale();
         final List<String> errorMessages =
-                PluginHandlerHelper.doServerSideValidation(context.getFormState(), applicationContext);
+                PluginHandlerHelper.doServerSideValidation(context.getFormState(), applicationContext,
+                        locale);
         if (context.getConfirmFormState() != null) {
             errorMessages.addAll(PluginHandlerHelper.doServerSideValidation(
-                    context.getConfirmFormState(), applicationContext));
+                    context.getConfirmFormState(), applicationContext, locale));
         }
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);

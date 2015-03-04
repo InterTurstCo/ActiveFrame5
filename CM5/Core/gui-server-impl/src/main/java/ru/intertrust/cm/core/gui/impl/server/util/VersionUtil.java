@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
 import java.io.IOException;
@@ -22,7 +24,7 @@ public class VersionUtil {
     public VersionUtil() {
     }
 
-    public String getManifestInfo(String jarAlias) {
+    public String getManifestInfo(String jarAlias, String locale) {
         final int endIndex = jarAlias.indexOf(".jar");
         if (endIndex == -1) {
             return null;
@@ -46,7 +48,8 @@ public class VersionUtil {
                         return mainAttribs.getValue("Implementation-Version");
                     }
                 } catch (Throwable e) {
-                    throw new GuiException("Ошибка получения версии: ", e);
+                    throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys
+                            .GUI_EXCEPTION_VERSION_ERROR, locale), e);
                 } finally {
                     if (is != null) {
                         is.close();
@@ -60,19 +63,19 @@ public class VersionUtil {
     }
 
     // При запуске из Idea в проекте платформы это работать не будет, потому что не собираются JAR-ы библиотек, а лишь компилируются
-    public String getApplicationVersion() {
+    public String getApplicationVersion(String locale) {
         if (PLATFORM_VERSION != null) {
             return PLATFORM_VERSION;
         }
-        PLATFORM_VERSION = getManifestInfo(ALIAS_PLATFORM_JAR);
+        PLATFORM_VERSION = getManifestInfo(ALIAS_PLATFORM_JAR, locale);
         return PLATFORM_VERSION;
     }
 
-    public String getProductVersion(String jarName) {
+    public String getProductVersion(String jarName, String locale) {
         if (PRODUCT_VERSION != null) {
             return PRODUCT_VERSION;
         }
-        PRODUCT_VERSION = getManifestInfo(jarName);
+        PRODUCT_VERSION = getManifestInfo(jarName, locale);
         return PRODUCT_VERSION;
     }
 }

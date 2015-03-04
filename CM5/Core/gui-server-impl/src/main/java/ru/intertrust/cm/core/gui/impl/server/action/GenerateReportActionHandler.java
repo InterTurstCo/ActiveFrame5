@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -37,6 +38,8 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     private ApplicationContext applicationContext;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private ProfileService profileService;
 
     @Override
     public GenerateReportActionData executeAction(GenerateReportActionContext context) {
@@ -88,7 +91,8 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     }
 
     private List<WidgetConfig> getWidgetConfigs(FormState formState) {
-        FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
+        FormConfig formConfig = configurationExplorer.getLocalizedConfig(FormConfig.class, formState.getName(),
+                profileService.getPersonLocale());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         return widgetConfigurationConfig.getWidgetConfigList();
     }

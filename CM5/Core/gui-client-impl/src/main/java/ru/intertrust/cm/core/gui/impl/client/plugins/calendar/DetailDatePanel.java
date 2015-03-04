@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Panel;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarSelectDateListener;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModel;
 import ru.intertrust.cm.core.gui.impl.client.model.CalendarTableModelCallback;
@@ -11,6 +16,9 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 
 import java.util.Date;
 import java.util.List;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTHS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WEEK_DAYS;
 
 /**
  * @author Sergey.Okolot
@@ -53,8 +61,8 @@ public class DetailDatePanel extends FlowPanel implements CalendarSelectDateList
 
     private void updateHeader() {
         header.setHTML(tableModel.getSelectedDate().getDate() + " "
-                + GuiUtil.MONTHS[tableModel.getSelectedDate().getMonth()] + ",<br/>"
-                + GuiUtil.WEEK_DAYS[tableModel.getSelectedDate().getDay()]);
+                + LocalizeUtil.get(MONTHS[tableModel.getSelectedDate().getMonth()]) + ",<br/>"
+                + LocalizeUtil.get(WEEK_DAYS[tableModel.getSelectedDate().getDay()]));
     }
 
     private void updateTaskPanels() {

@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +16,7 @@ public class SummaryTableActionColumnConfig implements Dto {
     @Attribute(name = "type", required = false)
     private String type;
     @Attribute(name = "tooltip", required = false)
+    @Localizable
     private String tooltip;
     @Attribute(name = "component-name", required = false)
     private String componentName;

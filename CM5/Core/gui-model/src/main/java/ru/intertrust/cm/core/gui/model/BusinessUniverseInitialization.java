@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.gui.model;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Базовая информация, необходимая при загрузке Business Universe
@@ -26,7 +28,8 @@ public class BusinessUniverseInitialization implements Dto {
     private String productVersion;
     private Integer SideBarOpenningTimeConfig;
     private String helperLink;
-
+    private String currentLocale;
+    private Map<String, String> globalLocalizedResources = new HashMap<>();
 
     public String getHelperLink() {
         return helperLink;
@@ -163,5 +166,21 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setSideBarOpenningTimeConfig(Integer sideBarOpenningTimeConfig) {
         SideBarOpenningTimeConfig = sideBarOpenningTimeConfig;
+    }
+
+    public Map<String, String> getGlobalLocalizedResources() {
+        return globalLocalizedResources;
+    }
+
+    public void setGlobalLocalizedResources(Map<String, String> globalLocalizedResources) {
+        this.globalLocalizedResources = globalLocalizedResources;
+    }
+
+    public String getCurrentLocale() {
+        return currentLocale;
+    }
+
+    public void setCurrentLocale(String currentLocale) {
+        this.currentLocale = currentLocale;
     }
 }

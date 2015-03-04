@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -26,7 +27,7 @@ public class CollectionDatePicker extends OneDatePicker {
     protected Panel initDatePickerPanel(final DateTimePicker dateTimePicker) {
         final Panel container = new AbsolutePanel();
         container.add(dateTimePicker);
-        Button submit = new Button(BusinessUniverseConstants.DATETIME_PICKER_BUTTON);
+        Button submit = new Button(LocalizeUtil.get(BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
         submit.setStyleName("darkButton");
         submit.addClickHandler(new ClickHandler() {
             @Override

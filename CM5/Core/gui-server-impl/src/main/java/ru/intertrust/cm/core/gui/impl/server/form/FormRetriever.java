@@ -5,16 +5,29 @@ import org.apache.commons.collections.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.Localizer;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.ExactTypesConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.localization.MessageKey;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
@@ -23,13 +36,26 @@ import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.*;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.FormObjects;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
+import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
+import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -46,7 +72,7 @@ public class FormRetriever extends FormProcessor {
     ConfigurationExplorer configurationExplorer;
 
     @Autowired
-    Localizer localizer;
+    ProfileService profileService;
 
     public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
         return getForm(domainObjectType, null, null, formViewerConfig);
@@ -78,7 +104,8 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
-            throw new GuiException("Object with id: " + domainObjectId.toStringRepresentation() + " doesn't exist");
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST, new Pair("objectId",
+                    domainObjectId.toStringRepresentation())));
         }
         if (updaterComponentName != null) {
             DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
@@ -108,7 +135,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -118,7 +145,7 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getReportForm(String reportName, String formName) {
         FormConfig formConfig = null;
         if (formName != null) {
-            formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+            formConfig = getLocalizedFormConfig(formName);
         }
         boolean formIsInvalid = (formConfig == null) ||
                 !FormConfig.TYPE_REPORT.equals(formConfig.getType()) ||
@@ -129,7 +156,8 @@ public class FormRetriever extends FormProcessor {
             }
         }
         if (formConfig == null) {
-            throw new GuiException(String.format("Конфигурация формы отчета не найдена или некорректна! Форма: '%s', отчет: '%s'", formName, reportName));
+            throw new GuiException(String.format(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_FORM_ERROR, new Pair("formName", formName),
+                            new Pair("reportName", reportName))));
         }
         if (formName == null) {
             formName = formConfig.getName();
@@ -138,7 +166,7 @@ public class FormRetriever extends FormProcessor {
             reportName = formConfig.getReportTemplate();
         }
         if (reportName == null) {
-            throw new GuiException("Имя отчета не сконфигурировано ни в плагине, ни форме!");
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_NAME_NOT_FOUND));
         }
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
         FormObjects formObjects = new FormObjects();
@@ -149,7 +177,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -277,7 +305,7 @@ public class FormRetriever extends FormProcessor {
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages());
+                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
         formState.setParentState(parentFormState);
         formState.setParentId(parentId);
         for (final WidgetConfig config : widgetConfigs) {
@@ -288,7 +316,7 @@ public class FormRetriever extends FormProcessor {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
                 if (!selfManagingWidget && !(config instanceof LabelConfig)) {
-                    throw new GuiException("Widget, id: " + widgetId + " is not configured with Field Path");
+                    throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_WIDGET_ID_NOT_FOUND, new Pair("widgetId", widgetId)));
                 }
                 WidgetState initialState = widgetHandler.getInitialState(widgetContext);
                 if (initialState != null) {
@@ -341,7 +369,6 @@ public class FormRetriever extends FormProcessor {
             widgetComponents.put(widgetId, config.getComponentName());
         }
         buildForceRequiredConstraints(widgetStateMap, widgetConfigsById, formConfig.getType(), formObjects);
-
         formState.clearParentStateAndId(); //no need to send parentState for client
         final FormDisplayData result = new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
                 formConfig.getMinWidth(), formConfig.getDebug());
@@ -416,7 +443,7 @@ public class FormRetriever extends FormProcessor {
             for (FormMappingConfig mappingConfig : formViewerConfig.getFormMappingConfigList()) {
                 if (root.getTypeName().equals(mappingConfig.getDomainObjectType())) {
                     String formName = mappingConfig.getForm();
-                    formConfig = configurationExplorer.getConfig(FormConfig.class, formName);
+                    formConfig = getLocalizedFormConfig(formName);
                 }
             }
         }
@@ -432,7 +459,7 @@ public class FormRetriever extends FormProcessor {
             List<LinkedFormConfig> linkedFormConfigs = linkedFormMappingConfig.getLinkedFormConfigs();
             LinkedFormConfig result = findLinkedFormConfig(linkedFormConfigs, domainObjectType);
             if (result != null) {
-                return configurationExplorer.getConfig(FormConfig.class, result.getName());
+                return getLocalizedFormConfig(result.getName());
             }
         }
         return null;
@@ -552,25 +579,43 @@ public class FormRetriever extends FormProcessor {
 
     private HashMap<String, Object> buildWidgetProps(List<Constraint> constraints, String formType) {
         HashMap<String, Object> props = new HashMap<String, Object>();
-        String domainObjectKey =  Localizer.DOMAIN_OBJECT;
-        String fieldKey = Localizer.FIELD;
+        String domainObjectKey =  MessageResourceProvider.DOMAIN_OBJECT;
+        String fieldKey = MessageResourceProvider.FIELD;
         if (FormConfig.TYPE_SEARCH.equals(formType)) {
-            domainObjectKey = Localizer.SEARCH_DOMAIN_OBJECT;
-            fieldKey = Localizer.SEARCH_FIELD;
+            domainObjectKey = MessageResourceProvider.SEARCH_DOMAIN_OBJECT;
+            fieldKey = MessageResourceProvider.SEARCH_FIELD;
         }
         for (Constraint constraint : constraints) {
             Map<String, String> params =  constraint.getParams();
             //localize domain object name:
             String domainObjectName = params.get(Constraint.PARAM_DOMAIN_OBJECT_TYPE);
-            String localizedDomainObjectName = localizer.getDisplayText(domainObjectName, domainObjectKey);
+            String localizedDomainObjectName = MessageResourceProvider.getMessage(new MessageKey(domainObjectName,
+                    domainObjectKey), profileService.getPersonLocale());
             //localize field name:
             String fieldName = params.get(Constraint.PARAM_FIELD_NAME);
-            String localizedFieldName = localizer.getDisplayText(fieldName, fieldKey, params);
+            String localizedFieldName = MessageResourceProvider.getMessage(new MessageKey(fieldName, fieldKey, params),
+                    profileService.getPersonLocale());
 
             params.put(Constraint.PARAM_DOMAIN_OBJECT_TYPE, localizedDomainObjectName);
             params.put(Constraint.PARAM_FIELD_NAME, localizedFieldName);
             props.putAll(params);
         }
         return props;
+    }
+
+    private FormConfig getLocalizedFormConfig(String formName) {
+        return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+    }
+
+    private String buildMessage(String message) {
+        return MessageResourceProvider.getMessage(message, profileService.getPersonLocale());
+    }
+
+    private String buildMessage(String message, Pair<String, String>... params) {
+        Map<String, String> paramsMap = new HashMap<>();
+        for (Pair<String, String> pair  : params) {
+            paramsMap.put(pair.getFirst(), pair.getSecond());
+        }
+        return PlaceholderResolver.substitute(buildMessage(message), paramsMap);
     }
 }

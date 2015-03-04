@@ -8,9 +8,16 @@ import com.google.gwt.event.dom.client.MouseWheelHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
@@ -23,6 +30,10 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.Date;
 import java.util.List;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.MONTH_SWITCH_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTHS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTH_SWITCH_BUTTON;
 
 /**
  * @author Sergey.Okolot
@@ -183,7 +194,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
 
     private FlowPanel createSwitchBtn() {
         final FlowPanel result = new FlowPanel();
-        result.add(new InlineLabel("Задачи дня"));
+        result.add(new InlineLabel(LocalizeUtil.get(MONTH_SWITCH_BUTTON_KEY, MONTH_SWITCH_BUTTON)));
         result.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -253,7 +264,7 @@ public class MonthPanel extends AbstractCalendarPanel implements CalendarScrollE
             // build month border
             if (dateIndex < 8) {
                 if (dateIndex == 1) {
-                    final Label month = new Label(GuiUtil.MONTHS[date.getMonth()]);
+                    final Label month = new Label(LocalizeUtil.get(MONTHS[date.getMonth()]));
                     month.setStyleName("first");
                     add(month);
                     if (dayIndex != 1) {

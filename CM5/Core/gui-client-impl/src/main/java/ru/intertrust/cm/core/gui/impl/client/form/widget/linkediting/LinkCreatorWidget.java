@@ -14,9 +14,14 @@ import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
+import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.SelectTypePopup;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.LinkCreatingButton;
@@ -38,6 +43,10 @@ import java.util.Map;
 import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createNewFormPluginConfig;
 import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createSaveAction;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 26.10.2014
@@ -138,7 +147,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
         String height = linkedFormConfig != null ? linkedFormConfig.getModalHeight() : null;
         final FormDialogBox createItemDialogBox = new FormDialogBox(title, width, height);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, localEventBus, getContainer());
-        createItemDialogBox.initButton("Cохранить", new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 final SaveAction action = createSaveAction(createFormPlugin, null, false);
@@ -153,7 +162,8 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
 
             }
         });
-        createItemDialogBox.initButton("Отмена", new ClickHandler() {
+        String cancelButtonText = LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON) ;
+        createItemDialogBox.initButton(cancelButtonText, new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 createItemDialogBox.hide();

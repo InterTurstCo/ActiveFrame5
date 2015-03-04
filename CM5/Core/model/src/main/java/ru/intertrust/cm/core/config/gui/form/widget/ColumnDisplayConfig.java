@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * Created by andrey on 08.12.14.
@@ -14,11 +15,14 @@ public class ColumnDisplayConfig implements Dto {
     }
     @Attribute(name = "position", required = false)
     private String position;
+
     @Attribute(name = "tooltip", required = false)
+    @Localizable
     private String tooltip;
 
     @Element(name = "image", required = false)
     private ColumnDisplayImageConfig columnDisplayImageConfig;
+
     @Element(name = "text", required = false)
     private ColumnDisplayTextConfig columnDisplayTextConfig;
 

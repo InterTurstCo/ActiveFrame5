@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.panel;
 
-import java.util.Map;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
@@ -13,13 +11,20 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.action.system.ThemeActionContext;
+
+import java.util.Map;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
 
 
 /**
@@ -65,12 +70,11 @@ public class ThemePopup extends PopupPanel {
             } else {
                 image.setVisible(false);
             }
-
         }
         AbsolutePanel buttonPanel = new AbsolutePanel();
         buttonPanel.setStyleName("button-panel");
         buttonPanel.getElement().getStyle().clearPosition();
-        Button select = new Button("Изменить");
+        Button select = new Button(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON));
         select.setStyleName("lightButton");
         select.addClickHandler(new ClickHandler() {
             @Override
@@ -87,7 +91,7 @@ public class ThemePopup extends PopupPanel {
             }
         });
         buttonPanel.add(select);
-        Button cancel = new Button("Отменить");
+        Button cancel = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
         cancel.setStyleName("darkButton");
         cancel.addClickHandler(new ClickHandler() {
             @Override

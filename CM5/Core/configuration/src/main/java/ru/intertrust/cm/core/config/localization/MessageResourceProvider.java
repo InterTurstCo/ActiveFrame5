@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.localization;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lesia Puhova
@@ -10,69 +11,70 @@ import java.util.Map;
  */
 public class MessageResourceProvider {
 
-    private static Map<String, String> defaultMessages = new HashMap<String, String>();
+    public static final String FIELD = "FIELD";
+    public static final String DOMAIN_OBJECT = "DOMAIN_OBJECT";
+    public static final String SEARCH_AREA = "SEARCH_AREA";
+    public static final String SEARCH_DOMAIN_OBJECT = "SEARCH_DOMAIN_OBJECT";
+    public static final String SEARCH_FIELD = "SEARCH_FIELD";
 
-    private static final String DEFAULT_LOCALE = "default";
+    public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 
-    static {
-        defaultMessages.put("validate.not-empty", "Поле ${field-name} не должно быть пустым!");
-        defaultMessages.put("validate.max", "Поле ${field-name} не может быть больше чем ${value}!");
-        defaultMessages.put("validate.integer", "'${value}' должно быть целым!");
-        defaultMessages.put("validate.decimal", "'${value}' должно быть десятичным!");
-        defaultMessages.put("validate.positive-int", "'${value}' должно быть целым положительным!");
-        defaultMessages.put("validate.positive-dec", "'${value}' должно быть десятичным положительным!");
-        defaultMessages.put("validate.unique-field", "Поле ${field-name} со значением '${value}' уже существует!");
-        defaultMessages.put("validate.pattern", "Поле ${field-name} должно соответствовать шаблону ${pattern}!");
-        defaultMessages.put("validate.length.not-equal", "Длина поля ${field-name} должна быть равна ${length}");
-        defaultMessages.put("validate.length.too-small", "Длина поля ${field-name} не может быть меньше чем${min-length}");
-        defaultMessages.put("validate.length.too-big", "Длина поля ${field-name} не может быть больше чем ${max-length}");
-        defaultMessages.put("validate.range.too-small", "Значение поля ${field-name} не может быть меньше чем ${range-start}");
-        defaultMessages.put("validate.range.too-big", "Значение поля ${field-name} не может быть больше чем ${range-end}");
-        defaultMessages.put("validate.precision", "Значение поля ${field-name} должно иметь точность ${precision}");
-        defaultMessages.put("validate.scale", "Значение поля ${field-name} должно иметь ${scale} знаков после запятой");
-    }
+    private static Map<String, Map<String, String>> localeToResource = new HashMap<>();
 
-//    static {
-//        defaultMessages.put("validate.not-empty", "Field ${field-name} cannot be empty!");
-//        defaultMessages.put("validate.max", "Field ${field-name} cannot be greater than ${value}!");
-//        defaultMessages.put("validate.integer", "'${value}' is not valid integer number!");
-//        defaultMessages.put("validate.decimal", "'${value}' is not valid decimal number!");
-//        defaultMessages.put("validate.positive-int", "'${value}' is not valid positive integer number!");
-//        defaultMessages.put("validate.positive-dec", "'${value}' is not valid positive decimal number!");
-//        defaultMessages.put("validate.unique-field", "Field ${field-name} with value '${value}' already exists!");
-//        defaultMessages.put("validate.pattern", "Field ${field-name} should match pattern ${pattern}!");
-//        defaultMessages.put("validate.length.not-equal", "Length of field ${field-name} should be equal to ${length}");
-//        defaultMessages.put("validate.length.too-small", "Length of field ${field-name} cannot be less than ${min-length}");
-//        defaultMessages.put("validate.length.too-big", "Length of field ${field-name} cannot be greater than ${max-length}");
-//        defaultMessages.put("validate.range.too-small", "Value of field ${field-name} cannot be less than ${range-start}");
-//        defaultMessages.put("validate.range.too-big", "Value of field ${field-name} cannot be greater than ${range-end}");
-//        defaultMessages.put("validate.precision", "Value of field ${field-name} should have precision ${precision}");
-//        defaultMessages.put("validate.scale", "Value of field ${field-name} should have scale ${scale}");
-//    }
-
-    private static Map<String, Map<String, String>> localeToResource = new HashMap<String, Map<String, String>>();
-
-    public static  Map<String, String> getMessages() {
-        return getMessages(DEFAULT_LOCALE);
+    public static void setLocaleToResource(Map<String, Map<String, String>> localeToResource) {
+        MessageResourceProvider.localeToResource = localeToResource;
     }
 
     public static  Map<String, String> getMessages(String locale) {
-        if (localeToResource.get(locale) != null) {
-            return  localeToResource.get(locale);
+        if (locale == null) {
+            return new HashMap<>();
         }
-
-       //todo: load from property file for the given locale or for default locale if not found
-        Map<String, String> localizedMessages = new HashMap<>();
-
-        Map<String, String> messages = new HashMap<String, String>();
-        messages.putAll(defaultMessages);
-        messages.putAll(localizedMessages);
-
-        localeToResource.put(locale, messages);
-        return messages;
+        Map<String, String> result = localeToResource.get(locale);
+        return  result != null ? result : new HashMap<String, String>();
     }
 
-    public static String getMessage(String messageKey) {
-        return getMessages().get(messageKey);
+    public static String getMessage(String key, String locale) {
+       return getMessage(key, locale, key);
     }
+
+    public static String getMessage(String key, String locale, String defaultValue) {
+        Map properties = localeToResource.get(locale);
+        if (properties == null) {
+            return defaultValue;
+        }
+        String localizedText = (String)properties.get(key);
+        return localizedText != null ? localizedText : defaultValue;
+    }
+
+    public static String getMessage(MessageKey messageKey, String locale) {
+
+        Map properties = localeToResource.get(locale);
+        if (properties == null) {
+            return messageKey.getKey();
+        }
+        String displayText = (String)properties.get(createKey(messageKey.getKey(), messageKey.getClassifier(),
+                messageKey.getContext()));
+
+        if (displayText == null) {
+            return messageKey.getKey();
+        }
+        //localize displayText itself
+        return getMessage(displayText, locale);
+    }
+
+    public static Set<String> getAvailableLocales() {
+        return localeToResource.keySet();
+    }
+
+    private static String createKey(String value, String classifier, Map<String, ? extends Object> context) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(classifier.toUpperCase()).append("]");
+        //TODO: add extra contexts here, if any.
+        if (context != null && (FIELD.equals(classifier) || SEARCH_FIELD.equals(classifier) )) {
+            sb.append(context.get(DOMAIN_OBJECT_CONTEXT)).append(".");
+        }
+        sb.append(value);
+        return sb.toString();
+    }
+
 }

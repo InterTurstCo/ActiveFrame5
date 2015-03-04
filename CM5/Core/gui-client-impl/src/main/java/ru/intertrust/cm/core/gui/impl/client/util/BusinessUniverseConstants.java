@@ -49,7 +49,7 @@ public class BusinessUniverseConstants {
     public static final String NEXT_YEAR_LABEL = "Следущий год";
     public static final String TOMORROW_LABEL = "Завтра";
     public static final String CHOSE_DATE_LABEL = "Выбрать дату";
-    public static final String CHOSE_DATE_RANGE_LABEL = "Выбрать период";
+    public static final String CHOOSE_DATE_RANGE_LABEL = "Выбрать период";
     public static final String DATETIME_PICKER_BUTTON = "Готово";
     public static final String ZERO_STRING = "0";
 
@@ -86,7 +86,7 @@ public class BusinessUniverseConstants {
     //alert messages
     public static final String TASK_COMPLETE_MESSAGE = "Задача успешно завершена";
     public static final String ROW_IS_DELETED_MESSAGE = "Строка удалена";
-    public static final String REPORT_IS_UPLOADED_MESSAGE = "Репорт успешно загружен";
+    public static final String REPORT_IS_UPLOADED_MESSAGE = "Отчет успешно загружен";
     public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE = "Поля на форме не заполнены или заполнены некорректно.\nИсправьте ошибки заполнения перед сохранением.";
     public static final String SAVED_MESSAGE = "Успешно сохранено";
     public static final String EVENT_IS_SENT_MESSAGE = "Событие отправлно";
@@ -104,6 +104,56 @@ public class BusinessUniverseConstants {
     public static final String DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH = "800px";
 
     public static final int BROWSER_INACCURACY = 1;
+
+    public static final String CHOOSE_THEME = "Выбрать тему";
+    public static final String RESET_SETTINGS = "Сбросить настройки";
+    public static final String RESET_ALL_SETTINGS = "Сбросить все настройки";
+    public static final String EXIT = "Выход";
+    public static final String CORE_VERSION = "Версия платформы:";
+    public static final String VERSION = "Версия:";
+    public static final String INFO = "Справка";
+    public static final String LOGIN = "Логин:";
+    public static final String FIRST_NAME = "Имя:";
+    public static final String LAST_NAME = "Фамилия:";
+    public static final String EMAIL = "EMail:";
+    public static final String ADMINISTRATOR = "Администратор";
+    public static final String CHOOSE_LANG = "Выбрать язык";
+
+    public static final String OK_BUTTON = "OK";
+    public static final String CANCEL_BUTTON = "Отменить";
+    public static final String CANCELLATION_BUTTON = "Отмена";
+    public static final String CLOSE_BUTTON = "Закрыть";
+    public static final String OPEN_IN_FULL_WINDOW = "Открыть в полном окне";
+    public static final String DONE_BUTTON = "Готово";
+    public static final String SAVE_BUTTON = "Сохранить";
+    public static final String CHANGE_BUTTON = "Изменить";
+    public static final String FIND_BUTTON = "Найти";
+    public static final String CONTINUE_BUTTON = "Продолжить";
+
+    public static final String SEARCH = "Поиск";
+    public static final String EMPTY_TABLE = "Результаты отсутствуют";
+    public static final String CLEAR_FORM = "Очистить форму";
+    public static final String SIZE_ACTION_TOOLTIP = "Распахнуть/Свернуть";
+    public static final String FAVORITE_ACTION_TOOLTIP = "Показать/Скрыть избранное";
+    public static final String FILTER_TOOLTIP = "Отобразить/Скрыть фильтры";
+    public static final String COLUMNS_DISPLAY_TOOLTIP = "Отображение видимых колонок";
+    public static final String COLUMNS_WIDTH_TOOLTIP = "Отобразить все колонки на экране";
+    public static final String NO_NEW_NOTIFICATIONS = "Новых уведомлений нет";
+    public static final String ADD_CONFIG_FILES = "Добавьте файлы конфигурации:";
+    public static final String ADD_REPORT_FILES = "Добавьте файлы шаблона отчета:";
+
+    public static final String MONTH_SWITCH_BUTTON = "Задачи дня";
+    public static final String WEEK_SWITCH_BUTTON = "Суббота, Воскресенье";
+
+    public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
+            "сентябрь", "октябрь", "ноябрь", "декабрь"};
+    public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
+            "суббота"};
+
+    public static final String EXECUTION_ACTION_ERROR = "Ошибка выполнения действия: ";
+    public static final String DATE_FORMAT_ERROR = "Ошибка в формате даты: ";
+
+
     private BusinessUniverseConstants() {
     }
 }

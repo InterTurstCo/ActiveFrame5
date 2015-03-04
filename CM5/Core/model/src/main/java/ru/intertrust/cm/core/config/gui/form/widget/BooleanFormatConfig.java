@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -11,12 +12,15 @@ import org.simpleframework.xml.Root;
 @Root(name = "boolean-format")
 public class BooleanFormatConfig extends AbstractTypeFormatConfig {
     @Attribute(name = "true-text")
+    @Localizable
     private String trueText;
 
     @Attribute(name = "false-text")
+    @Localizable
     private String falseText;
 
     @Attribute(name = "null-text")
+    @Localizable
     private String nullText;
 
     public String getTrueText() {

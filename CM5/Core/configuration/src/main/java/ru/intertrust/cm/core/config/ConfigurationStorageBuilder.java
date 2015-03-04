@@ -1,21 +1,13 @@
 package ru.intertrust.cm.core.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.base.Localizable;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.DomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
@@ -23,8 +15,22 @@ import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.AnnotationScanCallback;
+import ru.intertrust.cm.core.util.AnnotationScanner;
 import ru.intertrust.cm.core.util.ObjectCloner;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -51,6 +57,36 @@ public class ConfigurationStorageBuilder {
             configurationStorage.topLevelConfigMap.put(config.getClass(), typeMap);
         }
         typeMap.put(config.getName(), config);
+    }
+
+    private void fillLocalizedConfigMap(String locale, LocalizableConfig config) {
+        Pair<String, Class<?>> key = new Pair<String, Class<?>>(locale, config.getClass());
+        CaseInsensitiveMap<LocalizableConfig> typeMap = configurationStorage.localizedConfigMap.get(key);
+        if (typeMap == null) {
+            typeMap = new CaseInsensitiveMap<>();
+            configurationStorage.localizedConfigMap.put(key, typeMap);
+        }
+        ObjectCloner cloner = new ObjectCloner();
+        LocalizableConfig clonedConfig = cloner.cloneObject(config, config.getClass());
+        localize(locale, clonedConfig);
+        typeMap.put(config.getName(), clonedConfig);
+    }
+
+    private void localize(final String locale, LocalizableConfig config) {
+        try {
+            AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
+                @Override
+                public void onAnnotationFound(Object object, Field field) throws IllegalAccessException {
+                    if (field.get(object) != null) {
+                        String originalValue = (String) field.get(object);
+                        String localizedValue = MessageResourceProvider.getMessage(originalValue, locale);
+                        field.set(object, localizedValue);
+                    }
+                }
+            });
+        } catch (IllegalAccessException e) {
+            throw new ConfigurationException(e);
+        }
     }
 
     public void fillGlobalSettingsCache(TopLevelConfig config) {
@@ -84,14 +120,36 @@ public class ConfigurationStorageBuilder {
     public void updateToolbarConfigByPluginMap(ToolBarConfig oldConfig, ToolBarConfig newConfig) {
         if (oldConfig != null) {
             configurationStorage.toolbarConfigByPluginMap.remove(oldConfig.getPlugin());
+            for (String locale : MessageResourceProvider.getAvailableLocales()) {
+                CaseInsensitiveMap<ToolBarConfig> toolbarMap =  configurationStorage.localizedToolbarConfigMap.get(locale);
+                if (toolbarMap != null) {
+                    toolbarMap.remove(oldConfig.getPlugin());
+                }
+            }
         }
-
         fillToolbarConfigByPluginMap(newConfig);
+        for (String locale : MessageResourceProvider.getAvailableLocales()) {
+            fillLocalizedToolbarConfigMap(newConfig, locale);
+        }
     }
 
     public void fillToolbarConfigByPluginMap(ToolBarConfig toolBarConfig) {
         if (configurationStorage.toolbarConfigByPluginMap.get(toolBarConfig.getPlugin()) == null) {
             configurationStorage.toolbarConfigByPluginMap.put(toolBarConfig.getPlugin(), toolBarConfig);
+        }
+    }
+
+    public void fillLocalizedToolbarConfigMap(ToolBarConfig toolBarConfig, String locale) {
+        CaseInsensitiveMap<ToolBarConfig> toolbarMap = configurationStorage.localizedToolbarConfigMap.get(locale);
+        if (toolbarMap == null) {
+            toolbarMap = new CaseInsensitiveMap<>();
+            configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
+        }
+        if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
+            ObjectCloner cloner = new ObjectCloner();
+            ToolBarConfig clonedConfig = cloner.cloneObject(toolBarConfig, toolBarConfig.getClass());
+            localize(locale, clonedConfig);
+            toolbarMap.put(clonedConfig.getPlugin(), clonedConfig);
         }
     }
 
@@ -372,16 +430,25 @@ public class ConfigurationStorageBuilder {
                     "Configuration is null");
         }
 
-        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {            
+        for (TopLevelConfig config : configurationStorage.configuration.getConfigurationList()) {
             fillGlobalSettingsCache(config);
             fillTopLevelConfigMap(config);
-            
+
             if (CollectionViewConfig.class.equals(config.getClass())) {
                 CollectionViewConfig collectionViewConfig = (CollectionViewConfig) config;
                 fillCollectionColumnConfigMap(collectionViewConfig);
             } else if (ToolBarConfig.class.equals(config.getClass())) {
                 ToolBarConfig toolBarConfig = (ToolBarConfig) config;
                 fillToolbarConfigByPluginMap(toolBarConfig);
+                for (String locale : MessageResourceProvider.getAvailableLocales()) {
+                    fillLocalizedToolbarConfigMap(toolBarConfig, locale);
+                }
+            }
+
+            if (config instanceof LocalizableConfig) {
+                for (String locale : MessageResourceProvider.getAvailableLocales()) {
+                    fillLocalizedConfigMap(locale, (LocalizableConfig)config);
+                }
             }
         }
 
@@ -392,9 +459,9 @@ public class ConfigurationStorageBuilder {
             fillConfigurationMapsOfAttachmentDomainObjectType(domainObjectTypeConfig);
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
             fillAuditLogConfigMap(domainObjectTypeConfig);
-            
+
             if (domainObjectTypeConfig.getExtendsAttribute() == null) {
-                
+
             }
         }
 
@@ -451,7 +518,7 @@ public class ConfigurationStorageBuilder {
         }
 
         DomainObjectTypeConfig auditLogDomainObjectConfig = createAuditLogConfig(domainObjectTypeConfig);
-        
+
         fillTopLevelConfigMap(auditLogDomainObjectConfig);
         fillFieldsConfigMap(auditLogDomainObjectConfig);
         configurationStorage.auditLogTypes.put(auditLogDomainObjectConfig.getName(), auditLogDomainObjectConfig.getName());

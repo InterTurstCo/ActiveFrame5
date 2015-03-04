@@ -4,9 +4,16 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
 import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.List;
 
@@ -36,7 +43,7 @@ public class ConfigDeployingResultPopup extends PopupPanel {
 
         container.add(header);
         container.add(body);
-        Button submit = new Button("OK");
+        Button submit = new Button(LocalizeUtil.get(LocalizationKeys.OK_BUTTON_KEY, BusinessUniverseConstants.OK_BUTTON));
         submit.setStyleName("darkButton");
         submit.addClickHandler(new ClickHandler() {
             @Override

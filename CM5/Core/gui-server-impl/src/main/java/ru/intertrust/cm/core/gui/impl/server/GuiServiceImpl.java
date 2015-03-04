@@ -2,8 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.UserInfo;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -11,6 +13,8 @@ import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -45,6 +49,9 @@ import java.util.List;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService, GuiService.Remote {
 
+    @Autowired
+    private ProfileService profileService;
+
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
     @Override
@@ -69,23 +76,25 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
         }
+        String locale = profileService.getPersonLocale();
         try {
             final Dto dto = (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(componentHandler, command.getParameter());
             return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
-            throw new GuiException("Команда " + command.getName() + " не найдена");
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND, locale));
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
-            log.error("Ошибка вызова команды: " + e.getMessage(), e);
+            log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL, locale) + e.getMessage(), e);
             throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            throw new GuiException("Команда не может быть выполнена: " + command.getName(), e);
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION, locale)
+                    + command.getName(), e);
         }
     }
 
@@ -138,7 +147,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo, List<ValidatorConfig>
             validatorConfigs) {
-        List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs);
+        List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs,
+                profileService.getPersonLocale());
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);
         }
@@ -168,11 +178,11 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     public String getCoreVersion() {
         VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
-        return version.getApplicationVersion();
+        return version.getApplicationVersion(profileService.getPersonLocale());
     }
 
     public String getProductVersion(String jarName) {
         VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
-        return version.getProductVersion(jarName);
+        return version.getProductVersion(jarName, profileService.getPersonLocale());
     }
 }

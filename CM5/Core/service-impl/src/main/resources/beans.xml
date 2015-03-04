@@ -219,7 +219,7 @@
         <constructor-arg value="false" />
     </bean>
 
-    <bean id="localizationLoader" class="ru.intertrust.cm.core.business.load.LocalizerImpl"/>
+
 
     <bean id="allAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.AllAttachmentSignatureDataService"/>
 

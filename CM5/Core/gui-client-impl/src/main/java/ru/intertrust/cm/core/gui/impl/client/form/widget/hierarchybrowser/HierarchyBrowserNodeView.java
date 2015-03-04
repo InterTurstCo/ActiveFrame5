@@ -1,14 +1,37 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser;
 
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.ScrollEvent;
+import com.google.gwt.event.dom.client.ScrollHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserItemClickEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserNodeClickEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserRefreshClickEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserScrollEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserSearchClickEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.HierarchyConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -19,8 +42,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBro
 import java.util.ArrayList;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.BROWSER_INACCURACY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SEARCH;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -283,7 +308,7 @@ public class HierarchyBrowserNodeView implements IsWidget {
     }
 
     private void initFilterInput(final Panel resetButton, final Id parentId, final String parentCollectionName) {
-        textBox.getElement().setAttribute("placeholder", "Поиск");
+        textBox.getElement().setAttribute("placeholder", LocalizeUtil.get(SEARCH_KEY, SEARCH));
         textBox.setStyleName("input-text");
         textBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override

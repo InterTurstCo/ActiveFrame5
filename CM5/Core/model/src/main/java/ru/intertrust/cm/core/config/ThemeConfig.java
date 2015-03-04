@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "theme")
 public class ThemeConfig implements Dto {
     @Attribute(name = "display-name", required = true)
+    @Localizable
     private String displayName;
 
     @Attribute(name = "component-name", required = true)

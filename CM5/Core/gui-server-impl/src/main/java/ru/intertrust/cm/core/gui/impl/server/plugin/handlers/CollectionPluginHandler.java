@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
@@ -66,6 +67,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     @Autowired
     private SortOrderHelper sortOrderHelper;
 
+    @Autowired
+    private ProfileService profileService;
+
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         final String link = collectionViewerConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
@@ -91,7 +95,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         InitialFiltersConfig initialFiltersConfig = collectionViewerConfig.getInitialFiltersConfig();
         LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
-                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig, initialFiltersConfig);
+                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig,
+                        initialFiltersConfig, profileService.getPersonLocale());
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<>();
         TableBrowserParams tableBrowserParams = collectionViewerConfig.getTableBrowserParams();
@@ -161,7 +166,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
 
         final LinkedHashMap<String, CollectionColumnProperties> map =
-                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null);
+                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null, profileService.getPersonLocale());
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
@@ -175,7 +180,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 viewerConfig.getToolBarConfig() == null ? new ToolBarConfig() : viewerConfig.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;
         if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
-            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME);
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, profileService.getPersonLocale());
         } else {
             defaultToolbarConfig = null;
         }
@@ -200,7 +205,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         return PluginHandlerHelper.findCollectionViewConfig(collectionName, viewName,
                 currentUserAccessor.getCurrentUser(),
-                link, configurationService, collectionsService);
+                link, configurationService, collectionsService, profileService.getPersonLocale());
     }
 
 

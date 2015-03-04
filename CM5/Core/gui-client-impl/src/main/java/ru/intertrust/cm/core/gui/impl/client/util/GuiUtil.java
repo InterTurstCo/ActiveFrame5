@@ -54,11 +54,6 @@ import java.util.*;
  */
 public final class GuiUtil {
 
-    public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
-            "сентябрь", "октябрь", "ноябрь", "декабрь"};
-    public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
-            "суббота"};
-
     private GuiUtil(){}
 
     public static boolean isChildClicked(ClickEvent event, String id) {

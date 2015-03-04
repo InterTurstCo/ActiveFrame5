@@ -6,7 +6,16 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
+import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -18,7 +27,13 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.*;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
@@ -169,7 +184,8 @@ public class PluginHandlerHelper {
     public static CollectionViewConfig findCollectionViewConfig(final String collectionName, String collectionViewName,
                                                                 final String userLogin, final String link,
                                                                 final ConfigurationService configurationService,
-                                                                final CollectionsService collectionsService) {
+                                                                final CollectionsService collectionsService,
+                                                                String locale) {
         if (collectionViewName == null) {
             collectionViewName = findDefaultCollectionViewName(collectionName, configurationService);
         }
@@ -181,7 +197,7 @@ public class PluginHandlerHelper {
                     identifiableObject.getString(UserSettingsHelper.DO_COLLECTION_VIEW_FIELD_KEY));
         }
         if (result == null) {
-            result = configurationService.getConfig(CollectionViewConfig.class, collectionViewName);
+            result = configurationService.getLocalizedConfig(CollectionViewConfig.class, collectionViewName, locale);
         }
         if (result == null) {
             throw new UnexpectedException("Couldn't find collection view with name '" + collectionViewName + "'");
@@ -203,7 +219,7 @@ public class PluginHandlerHelper {
     }
 
     public static List<String> doServerSideValidation(final FormState formState,
-                                                      final ApplicationContext applicationContext) {
+                                                      final ApplicationContext applicationContext, String locale) {
         //Simple Server Validation
         ConfigurationExplorer explorer = (ConfigurationExplorer) applicationContext.getBean("configurationExplorer");
         FormConfig formConfig = explorer.getConfig(FormConfig.class, formState.getName());
@@ -220,14 +236,14 @@ public class PluginHandlerHelper {
                 validator.init(formState);
                 ValidationResult validationResult = validator.validate(valueToValidate);
                 if (validationResult.hasErrors()) {
-                    errorMessages.addAll(getMessages(validationResult, constraint.getParams()));
+                    errorMessages.addAll(getMessages(validationResult, constraint.getParams(), locale));
                 }
             }
         }
         return errorMessages;
     }
 
-    public static List<String> doCustomServerSideValidation(FormState formState, List<ValidatorConfig> validatorConfigs) {
+    public static List<String> doCustomServerSideValidation(FormState formState, List<ValidatorConfig> validatorConfigs, String locale) {
         List<String> errorMessages = new ArrayList<>();
         if (validatorConfigs != null) {
             for (ValidatorConfig config : validatorConfigs) {
@@ -238,7 +254,7 @@ public class PluginHandlerHelper {
                     customValidator.init(formState);
                     ValidationResult validationResult = customValidator.validate(state);
                     if (validationResult.hasErrors()) {
-                        errorMessages.addAll(getMessages(validationResult, null));
+                        errorMessages.addAll(getMessages(validationResult, null, locale));
                     }
                 }
             }
@@ -285,17 +301,17 @@ public class PluginHandlerHelper {
         return null;
     }
 
-    private static List<String> getMessages(ValidationResult validationResult,  Map<String, String> params) {
+    private static List<String> getMessages(ValidationResult validationResult,  Map<String, String> params, String locale) {
         List<String> messages = new ArrayList<String>();
         for (ValidationMessage msg : validationResult.getMessages()) {
-            messages.add(getMessageText(msg.getMessage(), params));
+            messages.add(getMessageText(msg.getMessage(), params, locale));
         }
         return messages;
     }
 
-    private static String getMessageText(String messageKey, Map<String, String> props) {
-        if ( MessageResourceProvider.getMessages().get(messageKey) != null) {
-            return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey), props);
+    private static String getMessageText(String messageKey, Map<String, String> props, String locale) {
+        if (MessageResourceProvider.getMessages(locale).get(messageKey) != null) {
+            return PlaceholderResolver.substitute(MessageResourceProvider.getMessage(messageKey, locale), props);
         } else {
             return messageKey;//let's return at least messageKey if the message is not found
         }

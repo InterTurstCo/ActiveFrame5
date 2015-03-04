@@ -6,6 +6,7 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.hierarchybrowser.CreateNewButtonConfig;
@@ -33,6 +34,7 @@ public class NodeCollectionDefConfig implements Dto, HasLinkedFormMappings {
     private String parentFilter;
     @Deprecated
     @Attribute(name = "title", required = false)
+    @Localizable
     private String title;
 
     @Attribute(name = "selective", required = false)

@@ -266,6 +266,25 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    @Override
+    public String getPersonLocale() {
+        PersonProfile profile = getPersonProfile();
+        if (profile != null && profile.getString(ProfileService.LOCALE) != null) {
+            return profile.getString(ProfileService.LOCALE);
+        }
+        if (configurationService.getGlobalSettings().getDefaultLocaleConfig() != null) {
+            return configurationService.getGlobalSettings().getDefaultLocaleConfig().getName();
+        }
+        return null;
+    }
+
+    @Override
+    public void setPersonLocale(String locale) {
+        PersonProfile profile = getPersonProfile();
+        profile.setString(ProfileService.LOCALE, locale);
+        //setPersonProfile(profile); //FIXME: uncomment after CMFIVE-3397 is fixed.
+    }
+
     private void cleanProfileAttributes(Id profileId) {
         IdentifiableObjectCollection profileValues = getProfileValuesByProfileId(profileId);
         if (profileValues.size() > 0) {
@@ -275,7 +294,6 @@ public class ProfileServiceImpl implements ProfileService {
             }
         }
     }
-
 
     private IdentifiableObjectCollection getProfileValuesByProfileId(Id profileId) {
         Filter filter = new Filter();

@@ -31,9 +31,10 @@ public interface ActionService {
     /**
      * Returns default toolbar for plugin.
      * @param pluginName componentName of plugin.
+     * @param currentLocale локаль текущего пользователя
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
-    ToolBarConfig getDefaultToolbarConfig(String pluginName);
+    ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale);
 
     ActionConfig getActionConfig(String name);
 }

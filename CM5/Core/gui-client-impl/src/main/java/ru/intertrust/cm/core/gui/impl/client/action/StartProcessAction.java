@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -52,7 +53,8 @@ public class StartProcessAction extends SimpleServerAction {
 
     @Override
     protected String getDefaultOnSuccessMessage() {
-        return BusinessUniverseConstants.PROCESS_IS_STARTED_MESSAGE;
+        return LocalizeUtil.get(LocalizationKeys.PROCESS_IS_STARTED_MESSAGE_KEY,
+                BusinessUniverseConstants.PROCESS_IS_STARTED_MESSAGE);
     }
 
 }

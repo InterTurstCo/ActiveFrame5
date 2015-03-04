@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.linkediting;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -12,6 +13,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "created-object")
 public class CreatedObjectConfig implements Dto {
     @Attribute(name = "text")
+    @Localizable
     private String text;
 
     @Attribute(name = "domain-object-type")

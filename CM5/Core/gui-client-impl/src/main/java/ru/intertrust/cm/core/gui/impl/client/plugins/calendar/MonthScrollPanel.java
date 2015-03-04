@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
-import java.util.Date;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.MouseDownEvent;
 import com.google.gwt.event.dom.client.MouseDownHandler;
@@ -12,12 +11,14 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RequiresResize;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
-
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+
+import java.util.Date;
 
 /**
  * @author Sergey.Okolot
@@ -175,7 +176,7 @@ public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
 
 
         private MonthItem(final int monthIndex, final int year) {
-            super(GuiUtil.MONTHS[monthIndex] + ", " + year);
+            super(LocalizeUtil.get(BusinessUniverseConstants.MONTHS[monthIndex]) + ", " + year);
             setStyleName("month-block");
             getElement().getStyle().setWidth(MONTH_SCROLL_ITEM_WIDTH, Style.Unit.PX);
             this.monthIndex = monthIndex;

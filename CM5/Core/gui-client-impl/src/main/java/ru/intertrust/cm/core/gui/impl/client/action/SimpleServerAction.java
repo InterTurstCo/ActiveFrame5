@@ -3,10 +3,17 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -20,6 +27,9 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
 
 /**
  * @author Denis Mitavskiy
@@ -49,7 +59,7 @@ public abstract class SimpleServerAction extends Action {
                         throw ((GuiException) caught);
 //                    }
                 } else {
-                    throw new GuiException("Ошибка выполнения действия: " + caught.getMessage(), caught);
+                    throw new GuiException(LocalizeUtil.get(EXECUTION_ACTION_ERROR_KEY, EXECUTION_ACTION_ERROR) + caught.getMessage(), caught);
                 }
             }
         };
@@ -62,7 +72,7 @@ public abstract class SimpleServerAction extends Action {
             }
             BusinessUniverseServiceAsync.Impl.executeCommand(command, callback, true, true);
         } catch (GuiException e) {
-            ApplicationWindow.errorAlert("Ошибка при выполнении действия: " + e.getMessage());
+            ApplicationWindow.errorAlert(LocalizeUtil.get(EXECUTION_ACTION_ERROR_KEY, EXECUTION_ACTION_ERROR) + e.getMessage());
         }
     }
 
@@ -74,7 +84,8 @@ public abstract class SimpleServerAction extends Action {
     }
 
     protected String getDefaultOnSuccessMessage() {
-        return BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE;
+        return LocalizeUtil.get(LocalizationKeys.DONE_SUCCESSFULLY_MESSAGE_KEY,
+                BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE);
     }
 
     public void addActionSuccessListener(ActionSuccessListener listener) {

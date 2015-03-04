@@ -1,14 +1,15 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * Created by andrey on 08.12.14.
  */
 public class ColumnDisplayTextConfig implements Dto {
     @Attribute(name = "value")
+    @Localizable
     private String value;
 
     public String getValue() {

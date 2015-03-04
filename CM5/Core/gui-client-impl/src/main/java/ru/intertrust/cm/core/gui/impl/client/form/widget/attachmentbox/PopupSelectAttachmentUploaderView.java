@@ -6,8 +6,14 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditableNonDeletablePresenterFactory;
@@ -17,6 +23,11 @@ import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OK_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OK_BUTTON;
 
 /**
  * @author Lesia Puhova
@@ -73,7 +84,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
         allItemsPanel.getElement().getStyle().clearOverflow();
         panel.add(allItemsPanel);
 
-        Button okButton = new Button("OK");
+        Button okButton = new Button(LocalizeUtil.get(OK_BUTTON_KEY, OK_BUTTON));
         okButton.getElement().setClassName("lightButton");
         okButton.addClickHandler(new ClickHandler() {
             @Override
@@ -84,7 +95,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
                 selectionDialog.hide();
             }
         });
-        cancelButton = new Button("Отменить");
+        cancelButton = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
         cancelButton.getElement().setClassName("darkButton");
         cancelButton.addClickHandler(new ClickHandler() {
             @Override

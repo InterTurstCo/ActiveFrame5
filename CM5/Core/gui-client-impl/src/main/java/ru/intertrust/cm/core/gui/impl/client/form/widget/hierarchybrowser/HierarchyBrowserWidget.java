@@ -13,10 +13,15 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.form.widget.*;
+import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
@@ -27,12 +32,16 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipSizer;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipRequest;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipResponse;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserUpdaterContext;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -42,6 +51,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OPEN_IN_FULL_WINDOW_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN_IN_FULL_WINDOW;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 10.12.13
@@ -303,7 +323,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String collectionName = item.getNodeCollectionName();
         final HierarchyBrowserDisplay display = event.getHyperlinkDisplay();
         final boolean tooltipContent = event.isTooltipContent();
-        if (BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
+        if (UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
             return;
         }
         NodeCollectionDefConfig nodeCollectionDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
@@ -315,7 +335,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String title = currentState.getHyperlinkPopupTitle(collectionName, domainObjectType);
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
-        noneEditableFormDialogBox.initButton("Открыть в полном окне", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {
 
             @Override
             public void onClick(ClickEvent event) {
@@ -327,7 +347,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 mainPopup.hidePopup();
             }
         });
-        noneEditableFormDialogBox.initButton("Изменить", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
 
@@ -335,7 +355,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
                 config.getPluginState().setEditable(true);
                 final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
-                editableFormDialogBox.initButton("Изменить", new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
                         final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id, true);
@@ -352,7 +372,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                     }
                 });
-                editableFormDialogBox.initButton("Отмена", new ClickHandler() {
+                editableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
 
@@ -364,7 +384,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
             }
 
         });
-        noneEditableFormDialogBox.initButton("Отмена", new ClickHandler() {
+        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 noneEditableFormDialogBox.hide();
@@ -486,7 +506,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String modalWidth = GuiUtil.getModalWidth(domainObjectTypeToCreate, linkedFormMappingConfig, null);
         final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus, getContainer());
-        createItemDialogBox.initButton("Cохранить", new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
             @Override
             public void onClick(final ClickEvent event) {
                 final SaveAction action = GuiUtil.createSaveAction(createFormPlugin, parentId, true);
@@ -501,7 +521,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
             }
         });
-        createItemDialogBox.initButton("Отмена", new ClickHandler() {
+        createItemDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 createItemDialogBox.hide();

@@ -9,6 +9,7 @@
             <language id="ru"/>
             <language id="en"/>
         </search-languages>
+        <default-locale name="ru"/>
         <event-logs>
             <login enable="true"/>
             <logout enable="true"/>
@@ -57,6 +58,11 @@
                 <theme display-name="Lucem тема" component-name="lucem-theme" default-theme="false"
                        img="resources/common/images/lucem-theme-preview.png"/>
             </themes>
+            <languages>
+                <language name = "en" display-name="English" img="images/flags/United Kingdom(Great Britain).png"/>
+                <language name = "ru" display-name="Русский" img="images/flags/Russian Federation.png"/>
+                <language name = "ua" display-name="Українська" img="images/flags/Ukraine.png"/>
+            </languages>
         </settings-popup>
         <!--<plugin-action-tool-bars>
             <tool-bar plugin="form.plugin" display-mode="preview"> &lt;!&ndash; Ещё есть режим edit &ndash;&gt;

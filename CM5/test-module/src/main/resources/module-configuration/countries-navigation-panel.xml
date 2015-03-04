@@ -371,7 +371,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="Org_Middle" display-text="Промежуточный Обьетк">
+                <link name="Org_Middle" display-text="Промежуточный Объект">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="org_middle">
                             <collection-viewer>
@@ -524,7 +524,7 @@
                                 </domain-object-surfer>
                             </plugin>
                         </link>
-                        <link name="TasksLow" display-text="Задачи низкого приориете">
+                        <link name="TasksLow" display-text="Задачи низкого приоритета">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="Internal_Document">
                                     <collection-viewer>
@@ -556,7 +556,7 @@
                                 </domain-object-surfer>
                             </plugin>
                         </link>
-                        <link name="TasksLow2" display-text="Задачи низкого приориете2">
+                        <link name="TasksLow2" display-text="Задачи низкого приоритета2">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="Internal_Document">
                                     <collection-viewer>

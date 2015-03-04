@@ -6,8 +6,21 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.FocusPanel;
+import com.google.gwt.user.client.ui.HTMLTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
@@ -15,12 +28,17 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySup
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.*;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DARK;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DEFAULT;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.getCurrentTheme;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * Entry point classes define <code>createHeader()</code>
@@ -38,7 +56,8 @@ public class HeaderContainer extends SimplePanel {
     public HeaderContainer() {
     }
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig, CurrentVersionInfo version) {
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig,
+                           CurrentVersionInfo version, String helperLink) {
         this.settingsPopupConfig = settingsPopupConfig;
         addUserInfoToDialog(currentUserInfo);
 
@@ -72,7 +91,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        final InlineLabel userPosition = new InlineLabel("Администратор");
+        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR_KEY, ADMINISTRATOR));
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
@@ -105,9 +124,9 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(corner);
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
-        infoPanel.add(new Label("Версия платформы: " + version.getCoreVersion()));
+        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) +  " " + version.getCoreVersion()));
         if (version.getProductVersion() != null) {
-            infoPanel.add(new Label("          Версия: " + version.getProductVersion()));
+            infoPanel.add(new Label(LocalizeUtil.get(VERSION_KEY, VERSION) + " " + version.getProductVersion()));
         }
         popupPanel.add(contentInfo);
 
@@ -137,7 +156,7 @@ public class HeaderContainer extends SimplePanel {
 
         headTable.setWidget(FIRST_ROW, 4, linksPanel);
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport("Выход", "logout");
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
         settingsImage.addClickHandler(new ClickHandler() {
             @Override
@@ -157,6 +176,7 @@ public class HeaderContainer extends SimplePanel {
         });
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
         head.add(headTable);
+        setInfoPage(helperLink);
     }
 
     // вызываем окно расширенного поиска
@@ -179,7 +199,8 @@ public class HeaderContainer extends SimplePanel {
 
             @Override
             public void onFailure(Throwable caught) {
-                ApplicationWindow.errorAlert(BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE);
+                ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.LOGOUT_ERROR_MESSAGE_KEY,
+                        BusinessUniverseConstants.LOGOUT_ERROR_MESSAGE));
             }
         };
         BusinessUniverseAuthenticationServiceAsync.Impl.getInstance().logout(callback);
@@ -206,15 +227,15 @@ public class HeaderContainer extends SimplePanel {
         return head;
     }
 
-    public void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
+    private void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
         dialogBox = new InformationDialogBox(currentUserInfo.getFirstName(), currentUserInfo.getLastName(),
                 currentUserInfo.getCurrentLogin(),currentUserInfo.getMail());
     }
 
-    public void setInfoPage(final String pagePath){
+    private void setInfoPage(final String pagePath){
 
        final String currentPath = pagePath.contains("http://")? pagePath : GWT.getHostPageBaseURL()+ pagePath;
-        Label help = new Label("Справка");
+        Label help = new Label(LocalizeUtil.get(INFO_KEY, INFO));
         infoPanel.add(help);
 
         help.addClickHandler(new ClickHandler() {

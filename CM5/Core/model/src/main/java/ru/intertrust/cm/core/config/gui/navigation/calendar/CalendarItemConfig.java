@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.gui.navigation.calendar;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.PatternConfig;
 

@@ -3,12 +3,18 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.FormPluginView;
@@ -18,7 +24,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListene
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -28,6 +33,14 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
 import java.util.Collection;
 import java.util.Map;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
+
 
 /**
  * Created by andrey on 27.02.14.
@@ -186,7 +199,7 @@ public class LinkedFormDialogBoxBuilder {
         Panel buttons = new FlowPanel();
         // create buttons
         if (editable) {
-            Button saveButton = new Button("Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ");
+            Button saveButton = new Button("Ñîõðàíèòü");
             saveButton.setStyleName("lnfm-save-button darkButton");
             decorateButton(saveButton);
             if (saveAction != null) {
@@ -203,7 +216,7 @@ public class LinkedFormDialogBoxBuilder {
             }
             buttons.add(saveButton);
         }
-        Button cancelButton = new Button("ÐžÑ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ");
+        Button cancelButton = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
         cancelButton.setStyleName("lnfm-cancel-button darkButton");
         decorateButton(cancelButton);
 
@@ -293,7 +306,8 @@ public class LinkedFormDialogBoxBuilder {
                 validationResult.append(widget.validate());
             }
             if (validationResult.hasErrors()) {
-                ApplicationWindow.errorAlert(BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE);
+                ApplicationWindow.errorAlert(LocalizeUtil.get(CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY,
+                        CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE));
                 return false;
             }
         }

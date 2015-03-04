@@ -195,7 +195,18 @@
     </deploy-processes>
 
     <localization-files>
-        <localization-file>text.properties</localization-file>
+        <localization-file locale="ru">localization/text.properties</localization-file>
+        <localization-file locale="ru">localization/validationMessages.properties</localization-file>
+        <localization-file locale="ru">localization/error_messages_ru.properties.txt</localization-file>
+
+        <localization-file locale="en">localization/text_en.properties</localization-file>
+        <localization-file locale="en">localization/validationMessages_en.properties</localization-file>
+        <localization-file locale="en">localization/form_city_en.properties</localization-file>
+        <localization-file locale="en">localization/navPanel_en.properties</localization-file>
+        <localization-file locale="en">localization/actions_en.properties</localization-file>
+        <localization-file locale="en">localization/collection_city_en.properties</localization-file>
+        <localization-file locale="en">localization/report_en.properties</localization-file>
+        <localization-file locale="en">localization/error_messages_en.properties.txt</localization-file>
     </localization-files>
 
 </module>

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -8,9 +9,14 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCri
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,10 +27,10 @@ public class SortOrderBuilder {
     private static final String DEFAULT_SORT_FIELD = "id";
 
     public static SortOrder getInitSortOrder(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
-                                             CollectionDisplayConfig collectionDisplayConfig) {
+                                             CollectionDisplayConfig collectionDisplayConfig, String locale) {
         SortOrder result = null;
         if (!defaultSortCriteriaConfig.isEmpty()) {
-            SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig);
+            SortCriteriaConfig sortCriteriaConfig = getSortCriteriaIfExists(defaultSortCriteriaConfig, collectionDisplayConfig, locale);
             if (sortCriteriaConfig == null) {
                 result = getSimpleSortOrder(defaultSortCriteriaConfig);
             } else {
@@ -91,10 +97,10 @@ public class SortOrderBuilder {
     }
 
     private static SortCriteriaConfig getSortCriteriaIfExists(DefaultSortCriteriaConfig defaultSortCriteriaConfig,
-                                                              CollectionDisplayConfig collectionDisplayConfig) {
+                                                              CollectionDisplayConfig collectionDisplayConfig, String locale) {
         SortCriterion.Order order = defaultSortCriteriaConfig.getOrder();
         String field = defaultSortCriteriaConfig.getColumnField();
-        CollectionColumnConfig columnConfig = getColumnConfig(field, collectionDisplayConfig);
+        CollectionColumnConfig columnConfig = getColumnConfig(field, collectionDisplayConfig, locale);
         SortCriteriaConfig sortCriteriaConfig = null;
         if (order.equals(SortCriterion.Order.ASCENDING)) {
             sortCriteriaConfig = columnConfig.getAscSortCriteriaConfig();
@@ -105,14 +111,15 @@ public class SortOrderBuilder {
 
     }
 
-    private static CollectionColumnConfig getColumnConfig(String field, CollectionDisplayConfig collectionDisplayConfig) {
+    private static CollectionColumnConfig getColumnConfig(String field, CollectionDisplayConfig collectionDisplayConfig, String locale) {
         List<CollectionColumnConfig> columnConfigLists = collectionDisplayConfig.getColumnConfig();
         for (CollectionColumnConfig columnConfig : columnConfigLists) {
             if (field.equalsIgnoreCase(columnConfig.getField())) {
                 return columnConfig;
             }
         }
-        throw new GuiException("Couldn't find sorting " + field + "'");
+
+        throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_SORT_FIELD_NOT_FOUND, locale, new Pair("field", field)));
     }
 
     public static SortOrder getSortOrder(SortCriteriaConfig sortCriteriaConfig, String fieldName, boolean ascend) {
@@ -140,5 +147,17 @@ public class SortOrderBuilder {
         SortCriterion defaultSortCriterion = new SortCriterion(fieldName, SortCriterion.Order.ASCENDING);
         result.add(defaultSortCriterion);
         return result;
+    }
+
+    private static String buildMessage(String message, String locale) {
+        return MessageResourceProvider.getMessage(message, locale);
+    }
+
+    private static String buildMessage(String message, String locale, Pair<String, String>... params) {
+        Map<String, String> paramsMap = new HashMap<>();
+        for (Pair<String, String> pair  : params) {
+            paramsMap.put(pair.getFirst(), pair.getSecond());
+        }
+        return PlaceholderResolver.substitute(buildMessage(message, locale), paramsMap);
     }
 }

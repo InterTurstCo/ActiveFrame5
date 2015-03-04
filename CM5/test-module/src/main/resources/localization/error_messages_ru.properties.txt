@@ -1,0 +1,54 @@
+﻿AccessException=У вас нет прав доступа к даному объекту.
+ActionServiceException=Невозможно получить список действий для объекта.
+AuthenticationException=Ошибка авторизации.
+CollectionConfigurationException=Ошибка конфигурации коллекции.
+CollectionQueryException=Ошибка в SQL запросе.
+ConfigurationException=Ошибка конфигурации объекта.
+CrudException=Ошибка операции с БД.
+#DaoException parent exception for OptimisticLock and others
+#    =Ошибка операции с БД.*/
+DoelException=Ошибка обработки DOEL выражения.
+DoelParseException=Ошибка разбора DOEL выражения.
+EventTriggerException=Ошибка инициализации тригера.
+ExtensionPointException=Ошибка инициализации точки расширения.
+FatalException=Фатальная ошибка приложения.
+
+#InboxNotificationException не используется
+InvalidIdException=Некоректный идентификатор ДО.
+MailNotificationException=Ошибка отправки/приема сообщения по email.
+NotificationException=Ошибка отправки сообщения.
+ObjectNotFoundException=Данных не найдено.
+OptimisticLockException=Сохранение невозможно, данные изменены другим пользователем.
+PermissionException=Ошибка создания группы.
+ProcessException=Ошибка выполнения workflow процесса.
+ProfileException=Ошибка обработки профиля системы/пользователя.
+ReportServiceException=Ошибка обработки отчета
+ScheduleException=Ошибка работы подсистемы периодических заданий
+SearchException=Ошибка работы подсистемы поиска
+UnexpectedException=Неизвестная ошибка приложения.
+ValidationException=Исправьте ошибки перед сохранением
+ServerValidationException=Server-side validation failed
+
+SystemException=Системная ошибка при выполнении ${commandName}, обратитесь к администратору.
+
+GuiException.CommandNotFound=Команда ${commandName} не найдена
+GuiException.CommandCallError=Ошибка вызова команды: 
+GuiException.CommandExecutionError=Команда не может быть выполнена: 
+GuiException.MultipleFieldPaths=Multiply fieldPaths should be all reference type or all backreference type
+GuiException.SingleFieldPath=Only single field-path is supported
+GuiException.ObjectNotSaved=Объект ещё не сохранён
+GuiException.NoProcessType=Не задано тип процесса
+GuiException.NoProcessName=Не задано имя процесса
+GuiException.ProcessNotSupported=Process '${processType}' not supported.
+GuiException.RefPathNotSupported=Reference ${path} not supported
+GuiException.UnknownUrl=Неизвестный url
+GuiException.ManyDefaultForms=There's more than 1 default form for type: 
+GuiException.ObjectNotExist=Object with id: ${objectId} doesn't exist
+GuiException.ReportFormError=Конфигурация формы отчета не найдена или некорректна! Форма: '${formName}', отчет: '${reportName}'
+GuiException.ReportNameNotFound=Имя отчета не сконфигурировано ни в плагине, ни форме!
+GuiException.WidgetIdNotFound=Widget, id: ${widgetId} is not configured with Field Path
+GuiException.SearchError=Ошибка при поиске:\n
+GuiException.CollectionViewError=Collection view config has no display tags configured
+GuiException.HierarchCollection=Ошибка в конфигурации иерархической коллекции
+GuiException.SortingFieldNotFound=Couldn't find sorting '${field}'
+GuiException.VersionError=Ошибка получения версии: 

@@ -1,0 +1,54 @@
+﻿AccessException=You don't have access to the object.
+ActionServiceException=Imposible to get action list for the object.
+AuthenticationException=Authorization error.
+CollectionConfigurationException=Collection configuration error.
+CollectionQueryException=Error in SQL query.
+ConfigurationException=Error in the object's configuration.
+CrudException=DB operation error.
+#DaoException parent exception for OptimisticLock and others
+#    =DB operation error*/
+DoelException=DOEL-expression processing error.
+DoelParseException=DOEL-expression parsing error.
+EventTriggerException=Trigger initalization error.
+ExtensionPointException=Extension Point initialization error.
+FatalException=Application Fatal error.
+
+#InboxNotificationException не используется
+InvalidIdException=Incorrect DO identifier.
+MailNotificationException=Email sending/receiving error
+NotificationException=Notification sending error.
+ObjectNotFoundException=Data not found.
+OptimisticLockException=Impossible to save, the data was changed by another user.
+PermissionException=Group creation error.
+ProcessException=Workflow execution error.
+ProfileException=Error in processing of system/user profile.
+ReportServiceException=Report processing error
+ScheduleException=Scheduling subsystem error
+SearchException=Search subsystem error
+UnexpectedException=Unexpected error
+ValidationException=Correct valdation errors before saving.
+ServerValidationException=Server-side validation failed
+
+SystemException=System error during the execution of ${commandName}. Please contact the administrator.
+
+GuiException.CommandNotFound=Command ${commandName} not found
+GuiException.CommandCallError=Command invocation error: 
+GuiException.CommandExecutionError=Command cannto be executed: 
+GuiException.MultipleFieldPaths=Multiply fieldPaths should be all reference type or all backreference type
+GuiException.SingleFieldPath=Only single field-path is supported
+GuiException.ObjectNotSaved=The object has not been saved
+GuiException.NoProcessType=Process type is not specified
+GuiException.NoProcessName=Process name is not specified
+GuiException.ProcessNotSupported=Process '${processType}' not supported.
+GuiException.RefPathNotSupported=Reference ${path} not supported
+GuiException.UnknownUrl=Unknown URL
+GuiException.ManyDefaultForms=There's more than 1 default form for type: 
+GuiException.ObjectNotExist=Object with id: ${objectId} doesn't exist
+GuiException.ReportFormError=Report form configurations was not found or it is incorrect! Form: '${formName}', report: '${reportName}'
+GuiException.ReportNameNotFound=Report name is configured neither in the plugin, nor in the form!
+GuiException.WidgetIdNotFound=Widget, id: ${widgetId} is not configured with Field Path
+GuiException.SearchError=Search Error:\n
+GuiException.CollectionViewError=Collection view config has no display tags configured
+GuiException.HierarchCollection=Error in hierarchical collection configuration
+GuiException.SortingFieldNotFound=Couldn't find sorting '${field}'
+GuiException.VersionError=Version retrieving error: 

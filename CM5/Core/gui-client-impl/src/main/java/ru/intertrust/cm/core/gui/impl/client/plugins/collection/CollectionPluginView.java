@@ -13,7 +13,15 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.ToggleButton;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.MultiSelectionModel;
 import com.google.gwt.view.client.SetSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -26,14 +34,34 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CommonSortCriterionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFilterConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
-import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.CheckBoxFieldUpdateEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.DeleteCollectionRowEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.FilterEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SaveToCsvEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.SimpleSearchEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
@@ -59,9 +87,23 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSED;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COLUMNS_DISPLAY_TOOLTIP;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COLUMNS_WIDTH_TOOLTIP;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_TOOLTIP;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -526,10 +568,10 @@ public class CollectionPluginView extends PluginView {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
         filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
-        filterButton.getElement().setAttribute("title", "Отобразить/Скрыть фильтры");
+        filterButton.getElement().setAttribute("title", LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
         treeLinkWidget.add(filterButton);
         final Button columnManagerButton = new Button();
-        columnManagerButton.getElement().setAttribute("title", "Отображение видимых колонок");
+        columnManagerButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP_KEY, COLUMNS_DISPLAY_TOOLTIP));
         columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
         columnManagerButton.addClickHandler(new ClickHandler() {
             @Override
@@ -539,7 +581,7 @@ public class CollectionPluginView extends PluginView {
         });
         treeLinkWidget.add(columnManagerButton);
         Button columnWidthRecalculateButton = new Button();
-        columnWidthRecalculateButton.getElement().setAttribute("title", "Отобразить все колонки на экране");
+        columnWidthRecalculateButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_WIDTH_TOOLTIP_KEY, COLUMNS_WIDTH_TOOLTIP));
         columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
                 .recalculateColumnsWidthBtn());
         columnWidthRecalculateButton.addClickHandler(new ClickHandler() {

@@ -7,7 +7,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 
 import java.util.ArrayList;
 
@@ -27,7 +35,7 @@ public class DialogBoxForm {
     Button openDialog = new Button("add Query");
     DialogBox dBox = new DialogBox();
     CellTable table = new CellTable();
-    Button dBoxOk = new Button("OK");
+    Button dBoxOk = new Button(LocalizeUtil.get("OK"));
     Button dBoxCansel = new Button("cancel");
     ArrayList<Entity> list = new ArrayList<Entity>();
     HorizontalPanel dBoxHorPanel = new HorizontalPanel();

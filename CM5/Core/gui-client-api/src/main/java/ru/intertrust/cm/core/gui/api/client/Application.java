@@ -9,7 +9,9 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Утилитный класс, который обеспечивает доступ к "глобальным" объектам приложения
@@ -43,6 +45,8 @@ public class Application {
     private int collectionCountersUpdatePeriod = -1;
     private int headerNotificationPeriod = -1;
     private String version;
+    private String currentLocale;
+    private Map<String, String> localizedResources = new HashMap<>();
 
     public String getVersion() {
         return version;
@@ -129,8 +133,27 @@ public class Application {
         }
     }
 
+    public String getCurrentLocale() {
+        return currentLocale;
+    }
+
+    public void setCurrentLocale(String currentLocale) {
+        this.currentLocale = currentLocale;
+    }
+
     public void showLoadingIndicator() {
         showLoadingIndicator(true);
+    }
+
+    public Map<String, String> getLocalizedResources() {
+        return localizedResources;
+    }
+
+    public void setLocalizedResources(Map<String, String> localizedResources) {
+        this.localizedResources.clear();
+        if (localizedResources != null) {
+            this.localizedResources.putAll(localizedResources);
+        }
     }
 
     public void showLoadingIndicator(boolean lockScreenImmediately) {

@@ -5,7 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.base.LocalizableConfig;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  *         Created on 14.04.2014 12:07.
  */
 @Root(name = "tool-bar")
-public class ToolBarConfig extends BaseAttributeConfig implements TopLevelConfig {
+public class ToolBarConfig extends BaseAttributeConfig implements LocalizableConfig {
 
     @Attribute(name = "name", required = false)
     private String name;

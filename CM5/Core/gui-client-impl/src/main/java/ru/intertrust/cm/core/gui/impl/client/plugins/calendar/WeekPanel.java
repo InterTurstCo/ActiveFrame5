@@ -1,16 +1,20 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.calendar;
 
-import java.util.Date;
-import java.util.List;
-
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.InlineLabel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.CalendarUtil;
-
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarNextWeekEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarNextWeekEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarPreviousWeekEvent;
@@ -24,6 +28,13 @@ import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemData;
 import ru.intertrust.cm.core.gui.model.plugin.calendar.CalendarItemsData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
+import java.util.Date;
+import java.util.List;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.WEEK_SWITCH_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.MONTHS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WEEK_DAYS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WEEK_SWITCH_BUTTON;
 /**
  * @author Sergey.Okolot
  *         Created on 17.10.2014 14:17.
@@ -109,7 +120,8 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
 
     private FlowPanel createSwitchBtn() {
         final FlowPanel result = new FlowPanel();
-        result.add(new InlineLabel("Суббота, Воскресенье"));
+        result.add(new InlineLabel(LocalizeUtil.get(WEEK_SWITCH_BUTTON_KEY,
+                WEEK_SWITCH_BUTTON)));
         result.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -141,8 +153,8 @@ public class WeekPanel extends AbstractCalendarPanel implements CalendarNextWeek
 
         @Override
         protected Label getItemLabel(Date date) {
-            final HTML result = new HTML(date.getDate() + " " + GuiUtil.MONTHS[date.getMonth()] + ",<br/>"
-                    + GuiUtil.WEEK_DAYS[date.getDay()], true);
+            final HTML result = new HTML(date.getDate() + " " + LocalizeUtil.get(MONTHS[date.getMonth()]) + ",<br/>"
+                    + LocalizeUtil.get(WEEK_DAYS[date.getDay()]), true);
             result.setStyleName("calendarBlockDate");
             return result;
         }

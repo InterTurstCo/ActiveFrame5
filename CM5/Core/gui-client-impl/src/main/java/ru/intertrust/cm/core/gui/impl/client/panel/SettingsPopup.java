@@ -8,18 +8,30 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.config.LanguageConfig;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemeConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_LANG_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_THEME_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_ALL_SETTINGS_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_SETTINGS_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_LANG;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_THEME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.RESET_ALL_SETTINGS;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.RESET_SETTINGS;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -45,10 +57,20 @@ public class SettingsPopup extends PopupPanel{
             container.getElement().getStyle().clearOverflow();
             Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
             if(themeMap != null){
-                body.add(createMenuItem("Выбрать тему", "menuImage chooseTheme",new ThemePopupDomHandler(themeMap)));
+                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME_KEY, CHOOSE_THEME), "menuImage chooseTheme",
+                        new ThemePopupDomHandler(themeMap)));
             }
-            body.add(createMenuItem("Сбросить настройки", "menuImage resetSettings",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem("Сбросить все настройки", "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
+            List<LanguageConfig> languageConfigs = settingsPopupConfig.getLanguagesConfig().getLanguageConfigs();
+            Map<String, LanguageConfig> languageMap = new HashMap<>();
+            for (LanguageConfig languageConfig : languageConfigs) {
+                languageMap.put(languageConfig.getName(), languageConfig);
+            }
+            if(languageMap != null){
+                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_LANG_KEY, CHOOSE_LANG), "menuImage chooseTheme",
+                        new LocalePopupDomHandler(languageMap)));
+            }
+            body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS_KEY, RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+            body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS_KEY, RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
 
             container.add(header);
             container.add(body);
@@ -115,6 +137,20 @@ public class SettingsPopup extends PopupPanel{
         public void onClick(ClickEvent event) {
             ThemePopup themePopup = new ThemePopup(themeMap);
             themePopup.center();
+        }
+    }
+
+    private class LocalePopupDomHandler implements ClickHandler{
+        private Map<String, LanguageConfig> languageConfigMap;
+
+        private LocalePopupDomHandler(Map<String, LanguageConfig> languageConfigMap) {
+            this.languageConfigMap = languageConfigMap;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            LanguagePopup localePopup = new LanguagePopup(languageConfigMap);
+            localePopup.center();
         }
     }
 }

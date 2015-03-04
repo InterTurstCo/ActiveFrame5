@@ -39,9 +39,28 @@
         <act:action name="aPreviousWeek" componentName="calendar.previous.week" rendered="mode=='week'"
                     dirtySensitivity="false" immediate="true" text="&lt; Предыдущая неделя" order="150"/>
         <act:action name="aNextWeek" componentName="calendar.next.week" rendered="mode=='week'" dirtySensitivity="false"
-                    immediate="true" text="Сдедующая неделя &gt;" order="200"/>
+                    immediate="true" text="Следующая неделя &gt;" order="200"/>
         <act:action name="aToday" componentName="calendar.select.today" dirtySensitivity="false" immediate="true"
                     text="Сегодня" order="250" imageClass="calendarToday"/>
+    </act:tool-bar>
+
+    <act:tool-bar plugin="report.plugin">
+        <act:action name="generate-report.action" componentName="generate-report.action" text="Создать Отчет" rendered="true"
+                image="images/icons/favorite-panel-off.png"/>
+    </act:tool-bar>
+
+    <act:tool-bar plugin="report.upload.plugin">
+        <act:action name="deploy-report.action" componentName="deploy-report.action" text="Загрузить шаблон отчёта" rendered="true"
+                    image="images/icons/favorite-panel-off.png">
+            <act:after-execution>
+                <act:on-success-message text="Отчет успешно загружен"/>
+            </act:after-execution>
+        </act:action>
+    </act:tool-bar>
+
+    <act:tool-bar plugin="configuration.deployer.plugin">
+        <act:action name="deploy.configuration.action" componentName="deploy.configuration.action" text="Загрузить конфигурацию" rendered="true"
+                    imageClass="configurationUploader" display="toggleButton"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="collection.plugin">

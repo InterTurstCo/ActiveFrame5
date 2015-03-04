@@ -6,9 +6,23 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ApplicationHelpConfig;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.LogoConfig;
+import ru.intertrust.cm.core.config.ProductTitle;
+import ru.intertrust.cm.core.config.ProductVersion;
+import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.ThemesConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
@@ -27,7 +41,13 @@ import javax.ejb.EJBException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 
 /**
  * @author Denis Mitavskiy
@@ -39,6 +59,7 @@ import java.util.*;
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+
     private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
     @EJB
@@ -50,7 +71,11 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @EJB
     private ConfigurationService configurationService;
 
-    @EJB private CollectionsService collectionsService;
+    @EJB
+    private CollectionsService collectionsService;
+
+    @EJB
+    private ProfileService profileService;
 
     private SoftReference<List<String>> refTimeZoneIds;
 
@@ -60,8 +85,10 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
-        final BusinessUniverseConfig businessUniverseConfig =
-                configurationService.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
+        String currentLocale = profileService.getPersonLocale();
+        initialization.setCurrentLocale(currentLocale);
+        final BusinessUniverseConfig businessUniverseConfig = configurationService.getLocalizedConfig(BusinessUniverseConfig.class,
+                BusinessUniverseConfig.NAME, currentLocale);
 
         addLogoImagePath(businessUniverseConfig, initialization);
         String version = guiService.getCoreVersion();
@@ -92,6 +119,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                     ? null
                     : businessUniverseConfig.getHeaderNotificationRefreshConfig().getTime());
         }
+        Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
+        initialization.setGlobalLocalizedResources(messages);
         return initialization;
     }
 
@@ -117,7 +146,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e);
+        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
+                profileService.getPersonLocale());
         final String message = messageInfo.getFirst();
         final Boolean toLog = messageInfo.getSecond();
         if (toLog) {

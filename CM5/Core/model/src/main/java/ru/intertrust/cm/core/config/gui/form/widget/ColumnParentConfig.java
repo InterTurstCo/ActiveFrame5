@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -10,6 +11,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 public class ColumnParentConfig implements Dto {
     @Attribute(name = "header")
+    @Localizable
     private String header;
 
     public String getHeader() {

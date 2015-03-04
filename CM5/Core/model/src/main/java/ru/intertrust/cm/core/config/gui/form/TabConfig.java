@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.base.Localizable;
 
 /**
  * @author Denis Mitavskiy
@@ -14,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "tab")
 public class TabConfig implements Dto {
     @Attribute(name = "name")
+    @Localizable
     private String name;
 
     @ElementUnion({
