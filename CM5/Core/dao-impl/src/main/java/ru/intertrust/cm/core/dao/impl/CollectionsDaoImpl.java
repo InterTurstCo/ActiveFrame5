@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 
@@ -10,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.statement.select.SelectBody;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +42,7 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.ReferenceFilterUtility;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 /**
  * @author vmatsukevich
@@ -58,8 +57,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public static final String CURRENT_PERSON_PARAM = "CURRENT_PERSON";
 
     public static final String JDBC_PARAM_PREFIX = "PARAM";
-
+    
     private static final String PARAM_NAME_PREFIX_SPRING = ":";
+
+    public static final String IDS_EXCLUDED_FILTER_PREFIX = "idsExcluded";
+    public static final String IDS_INCLUDED_FILTER_PREFIX = "idsIncluded";
 
     @Autowired
     private CollectionQueryCache collectionQueryCache;
@@ -119,8 +121,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
             List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         long start = System.currentTimeMillis();
-        checkFilterValues(filterValues);
 
+        filterValues = processIdsFilters(filterValues);
+        checkFilterValues(filterValues);
+        
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
@@ -190,35 +194,84 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return collection;
     }
 
+    private List<Filter> processIdsFilters(List<? extends Filter> filterValues) {
+        if (filterValues == null) {
+            return null;
+        }
+        List<Filter> processedFilters = new ArrayList<>();
+
+        for (Filter filter : filterValues) {
+            if (filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter) {
+                continue;
+            }
+            processedFilters.add(filter);
+        }
+
+        List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>();
+        List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>();
+
+        for (Filter filter : filterValues) {
+            if (filter instanceof IdsIncludedFilter) {
+                idsIncludedFilters.add((IdsIncludedFilter) filter);
+            }
+            if (filter instanceof IdsExcludedFilter) {
+                idsExcludedFilters.add((IdsExcludedFilter) filter);
+            }
+
+        }
+
+        int index = 0;
+        for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
+            final ObjectCloner cloner = new ObjectCloner();
+            IdsIncludedFilter clonedFilter = cloner.cloneObject(idsIncludedFilter, IdsIncludedFilter.class);
+
+            clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
+            processedFilters.add(clonedFilter);
+            index++;
+        }
+        index = 0;
+        for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
+            final ObjectCloner cloner = new ObjectCloner();
+            IdsExcludedFilter clonedFilter = cloner.cloneObject(idsExcludedFilter, IdsExcludedFilter.class);
+
+            clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
+            processedFilters.add(clonedFilter);
+            index++;
+        }
+        return processedFilters;
+    }
+
     private void addReferenceFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
-        for (Filter filterValue : filterValues) {
-            for (Integer criterionKey : filterValue.getCriterionKeys()) {
-                Value criterionValue = filterValue.getCriterion(criterionKey);
-                if (criterionValue instanceof ReferenceValue) {
-                    String referenceParam = filterValue.getFilter() + "_" + criterionKey;
-                    String referenceTypeParam = referenceParam + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+        if (filterValues != null) {
+            for (Filter filterValue : filterValues) {
+                for (Integer criterionKey : filterValue.getCriterionKeys()) {
+                    Value criterionValue = filterValue.getCriterion(criterionKey);
+                    if (criterionValue instanceof ReferenceValue) {
+                        String referenceParam = filterValue.getFilter() + "_" + criterionKey;
+                        String referenceTypeParam = referenceParam + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 
-                    ReferenceValue refValue = (ReferenceValue) criterionValue;
+                        ReferenceValue refValue = (ReferenceValue) criterionValue;
 
-                    long refId = ((RdbmsId) refValue.get()).getId();
-                    long refTypeId = ((RdbmsId) refValue.get()).getTypeId();
+                        long refId = ((RdbmsId) refValue.get()).getId();
+                        long refTypeId = ((RdbmsId) refValue.get()).getTypeId();
 
-                    parameters.put(referenceParam, refId);
-                    parameters.put(referenceTypeParam, refTypeId);
-                } else if (criterionValue instanceof ListValue) {
-                    ListValue listValue = (ListValue) criterionValue;
-                    int index = 0;
-                    for (Value value : listValue.getValues()) {
-                        ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
-                        if (refValue == null) {
-                            continue;
+                        parameters.put(referenceParam, refId);
+                        parameters.put(referenceTypeParam, refTypeId);
+                    } else if (criterionValue instanceof ListValue) {
+                        ListValue listValue = (ListValue) criterionValue;
+                        int index = 0;
+                        for (Value value : listValue.getValues()) {
+                            ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
+                            if (refValue == null) {
+                                continue;
+                            }
+                            String referenceParam =
+                                    new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).append("_")
+                                            .append(index).toString();
+
+                            addParametersForReference(parameters, refValue, referenceParam);
+                            index++;
                         }
-                        String referenceParam =
-                                new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).append("_")
-                                        .append(index).toString();
-
-                        addParametersForReference(parameters, refValue, referenceParam);
-                        index++;
                     }
                 }
             }
@@ -366,6 +419,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private void addReferenceParameters(Map<String, Object> parameters, List<? extends Value> params) {
+        if (params == null) {
+            return;
+        }
         int paramIndex = 0;
         ReferenceValue referenceValue = null;
         for (Value value : params) {
@@ -456,6 +512,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
             List<? extends Filter> filterValues, AccessToken accessToken) {
 
         long start = System.currentTimeMillis();
+
+        filterValues = processIdsFilters(filterValues);
 
         checkFilterValues(filterValues);
 
