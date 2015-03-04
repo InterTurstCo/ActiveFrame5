@@ -15,7 +15,6 @@ import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
-import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -504,9 +503,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
         readLock.lock();
         try {
-            if (currentLocale == null) {
-                currentLocale = MessageResourceProvider.DEFAULT_LOCALE;
-            }
             CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.localizedToolbarConfigMap.get(currentLocale);
             if (toolbarMap != null) {
                 ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
@@ -647,9 +643,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         if (LocalizableConfig.class.isAssignableFrom(type)) {
             readLock.lock();
             try {
-                if (currentLocale == null) {
-                    currentLocale = MessageResourceProvider.DEFAULT_LOCALE;
-                }
                 CaseInsensitiveMap<LocalizableConfig> typeMap =
                         configStorage.localizedConfigMap.get(new Pair<String, Class>(currentLocale, type));
                 if (typeMap != null) {

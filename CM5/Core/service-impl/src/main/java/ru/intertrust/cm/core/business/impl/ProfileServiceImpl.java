@@ -269,7 +269,13 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public String getPersonLocale() {
         PersonProfile profile = getPersonProfile();
-        return (profile != null) ? profile.getString(ProfileService.LOCALE) : null;
+        if (profile != null && profile.getString(ProfileService.LOCALE) != null) {
+            return profile.getString(ProfileService.LOCALE);
+        }
+        if (configurationService.getGlobalSettings().getDefaultLocaleConfig() != null) {
+            return configurationService.getGlobalSettings().getDefaultLocaleConfig().getName();
+        }
+        return null;
     }
 
     @Override

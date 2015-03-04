@@ -41,6 +41,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Element(name = "application-help", required = false)
     private ApplicationHelpConfig applicationHelpConfig;
 
+    @Element(name="default-locale", required = false)
+    private DefaultLocaleConfig defaultLocaleConfig;
+
     public ApplicationHelpConfig getApplicationHelpConfig() {
         return applicationHelpConfig;
     }
@@ -113,6 +116,10 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         return devModeValidationRulesNotDefined() || developmentMode.getLogicalValidation().validateIndirectPermissions();
     }
 
+    public DefaultLocaleConfig getDefaultLocaleConfig() {
+        return defaultLocaleConfig;
+    }
+
     private boolean devModeValidationRulesNotDefined() {
         if (developmentMode == null) {
             return true;
@@ -145,7 +152,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
             return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
-
+        if (defaultLocaleConfig != null ? !defaultLocaleConfig.equals(that.defaultLocaleConfig) : that.defaultLocaleConfig != null)
+            return false;
         return true;
     }
 
@@ -159,6 +167,7 @@ public class GlobalSettingsConfig implements TopLevelConfig {
         result = 31 * result + (developmentMode != null ? developmentMode.hashCode() : 0);
         result = 31 * result + (eventLogsConfig != null ? eventLogsConfig.hashCode() : 0);
         result = 31 * result + (applicationHelpConfig != null ? applicationHelpConfig.hashCode() : 0);
+        result = 31 * result + (defaultLocaleConfig != null ? defaultLocaleConfig.hashCode() : 0);
         return result;
     }
 

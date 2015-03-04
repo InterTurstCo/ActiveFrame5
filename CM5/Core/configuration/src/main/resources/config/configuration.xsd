@@ -617,7 +617,6 @@
                 </xs:complexType>
             </xs:element>
 
-
             <xs:element name="audit-log">
                 <xs:complexType>
                     <xs:attribute name="enable" use="optional"
@@ -644,6 +643,13 @@
                             </xs:complexType>
                         </xs:element>
                     </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+
+            <xs:element name="default-locale" minOccurs="0">
+                <xs:complexType>
+                    <xs:attribute name="name" use="required"
+                                  type="xs:string"/>
                 </xs:complexType>
             </xs:element>
 

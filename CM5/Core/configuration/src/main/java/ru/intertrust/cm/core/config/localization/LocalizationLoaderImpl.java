@@ -38,7 +38,7 @@ public class LocalizationLoaderImpl implements LocalizationLoader, LocalizationL
                 URL moduleUrl = moduleConfiguration.getModuleUrl();
                 for (LocalizationFileConfiguration config : moduleConfiguration.getLocalisationFiles().getLocalizationFiles()) {
                     Map moduleProps = loadProperties(moduleUrl.toString() + config.getFilePath());
-                    String locale = config.getLocale() != null ? config.getLocale() : MessageResourceProvider.DEFAULT_LOCALE;
+                    String locale = config.getLocale();
                     Map<String, String> properties = propertiesByLocale.get(locale);
                     if (properties == null) {
                         properties = new HashMap<>();

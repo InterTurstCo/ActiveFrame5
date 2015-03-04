@@ -19,8 +19,6 @@ public class MessageResourceProvider {
 
     public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 
-    public static final String DEFAULT_LOCALE = "DEFAULT_LOCALE";
-
     private static Map<String, Map<String, String>> localeToResource = new HashMap<>();
 
     public static void setLocaleToResource(Map<String, Map<String, String>> localeToResource) {
@@ -29,7 +27,7 @@ public class MessageResourceProvider {
 
     public static  Map<String, String> getMessages(String locale) {
         if (locale == null) {
-            locale = DEFAULT_LOCALE;
+            return new HashMap<>();
         }
         Map<String, String> result = localeToResource.get(locale);
         return  result != null ? result : new HashMap<String, String>();
@@ -40,9 +38,6 @@ public class MessageResourceProvider {
     }
 
     public static String getMessage(String key, String locale, String defaultValue) {
-        if (locale == null) {
-            locale = DEFAULT_LOCALE;
-        }
         Map properties = localeToResource.get(locale);
         if (properties == null) {
             return defaultValue;
@@ -52,9 +47,7 @@ public class MessageResourceProvider {
     }
 
     public static String getMessage(MessageKey messageKey, String locale) {
-        if (locale == null) {
-            locale = DEFAULT_LOCALE;
-        }
+
         Map properties = localeToResource.get(locale);
         if (properties == null) {
             return messageKey.getKey();

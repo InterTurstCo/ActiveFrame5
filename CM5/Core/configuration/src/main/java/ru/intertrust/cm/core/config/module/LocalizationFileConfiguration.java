@@ -12,7 +12,7 @@ public class LocalizationFileConfiguration {
     @Text
     private String filePath;
 
-    @Attribute(required = false)
+    @Attribute(required = true)
     private String locale;
 
     public String getFilePath() {

@@ -9,6 +9,7 @@
             <language id="ru"/>
             <language id="en"/>
         </search-languages>
+        <default-locale name="ru"/>
         <event-logs>
             <login enable="true"/>
             <logout enable="true"/>
