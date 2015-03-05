@@ -104,4 +104,14 @@ public class LocalizationKeys {
     public static final String GUI_EXCEPTION_HIERARCH_COLLECTION = "GuiException.HierarchCollection";
     public static final String GUI_EXCEPTION_SORT_FIELD_NOT_FOUND = "GuiException.SortingFieldNotFound";
     public static final String GUI_EXCEPTION_VERSION_ERROR = "GuiException.VersionError";
+
+    public static final String USER_NAME_KEY = "UserName";
+    public static final String PASSWORD_KEY = "Password";
+    public static final String SIGN_ON_KEY = "SignOn";
+    public static final String REMEMBER_ME_KEY = "RememberMe";
+    public static final String AUTHORIZATION_ERROR_KEY="AuthorizationError";
+    public static final String AUTHORIZATION_WRONG_PSW_ERROR_KEY ="WrongPswError";
+    public static final String AUTHORIZATION_CONNECTION_ERROR_KEY="NoConnectionError";
+
+
 }

@@ -1,7 +1,11 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.LoginScreenConfig;
+import ru.intertrust.cm.core.config.ProductTitle;
+import ru.intertrust.cm.core.config.ProductVersion;
+
+import java.util.Map;
 
 /**
  * Created by tbilyi on 11.08.2014.
@@ -12,6 +16,7 @@ public class LoginWindowInitialization implements Dto{
     private LoginScreenConfig loginScreenConfig;
     private ProductTitle globalProductTitle;
     private ProductVersion globalProductVersion;
+    private Map<String, String> localizedResources;
 
     public ProductTitle getGlobalProductTitle() {
         return globalProductTitle;
@@ -62,6 +67,14 @@ public class LoginWindowInitialization implements Dto{
 
     public void setLoginScreenConfig(LoginScreenConfig loginScreenConfig) {
         this.loginScreenConfig = loginScreenConfig;
+    }
+
+    public Map<String, String> getLocalizedResources() {
+        return localizedResources;
+    }
+
+    public void setLocalizedResources(Map<String, String> localizedResources) {
+        this.localizedResources = localizedResources;
     }
 
     public LoginWindowInitialization() {

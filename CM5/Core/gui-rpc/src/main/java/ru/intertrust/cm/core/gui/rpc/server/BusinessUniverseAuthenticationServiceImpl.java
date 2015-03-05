@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.impl.server.LoginServiceImpl;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.model.AuthenticationException;
 
 import javax.ejb.EJB;
 import javax.servlet.annotation.WebServlet;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -50,6 +52,10 @@ public class BusinessUniverseAuthenticationServiceImpl extends BaseService
         initialization.setGlobalProductTitle(globalSettingsConfig.getProductTitle());
         initialization.setGlobalProductVersion(globalSettingsConfig.getProductVersion());
         initialization.setProductVersion(globalSettingsConfig.getProductVersion() == null || globalSettingsConfig.getProductVersion().getArchive() == null ? null : guiService.getProductVersion(globalSettingsConfig.getProductVersion().getArchive()));
+        if (globalSettingsConfig.getDefaultLocaleConfig() != null) {
+            Map<String, String> messages = MessageResourceProvider.getMessages(globalSettingsConfig.getDefaultLocaleConfig().getName());
+            initialization.setLocalizedResources(messages);
+        }
         return initialization;
     }
 }

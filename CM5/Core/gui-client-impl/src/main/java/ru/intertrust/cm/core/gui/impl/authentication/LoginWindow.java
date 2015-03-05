@@ -35,6 +35,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_CONNECTION_ERROR_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_ERROR_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_WRONG_PSW_ERROR_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORE_VERSION_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.PASSWORD_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.REMEMBER_ME_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_SETTINGS_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SIGN_ON_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.USER_NAME_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.VERSION_KEY;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 25.07.13
@@ -58,6 +69,12 @@ public class LoginWindow  implements Component{
     private String coreVersionPrefix = "";
     private String productVersionPrefix = "";
     private String initialToken;
+    private Map<String, String> localizedResources;
+    private Label loginName;
+    private Label passwordLabel;
+    private Label titleLogin;
+    private Label labelCheckBox;
+    private Label titleClearUserSettings;
 
     private static Logger log = Logger.getLogger("LoginWindow logger");
 
@@ -101,10 +118,10 @@ public class LoginWindow  implements Component{
         //error message
         message = new Label();
         message.getElement().addClassName("auth-error-label");
-        Label loginName = new Label("Имя пользователя");
+        loginName = new Label("Имя пользователя");
         loginName.getElement().removeClassName(".gwt-Label");
         loginName.getElement().addClassName("auth-Label");
-        Label passwordLabel = new Label("Пароль");
+        passwordLabel = new Label("Пароль");
         passwordLabel.getElement().removeClassName(".gwt-Label");
         passwordLabel.getElement().addClassName("auth-Label");
         loginField.setWidth("140px");
@@ -112,7 +129,7 @@ public class LoginWindow  implements Component{
 
         loginButton = new FocusPanel();
 
-        Label titleLogin = new Label("Войти");
+        titleLogin = new Label("Войти");
         titleLogin.getElement().addClassName("auth_button_title");
         loginButton.add(titleLogin);
 
@@ -134,7 +151,7 @@ public class LoginWindow  implements Component{
         AbsolutePanel memoryPanel = new AbsolutePanel();
         memoryPanel.setStyleName("auth_remember");
 
-        Label labelCheckBox = new Label("Запомнить меня");
+        labelCheckBox = new Label("Запомнить меня");
         labelCheckBox.setStyleName("auth_checkbox_title");
 //        enterPanel = new AbsolutePanel();
 //        enterPanel.setStyleName("darkButton");
@@ -205,19 +222,19 @@ public class LoginWindow  implements Component{
 
             @Override
             public void onSuccess(LoginWindowInitialization loginWindowInitialization) {
-
+                localizedResources = loginWindowInitialization.getLocalizedResources();
                 if(loginWindowInitialization.getLoginScreenConfig() != null) {
                     LoginScreenConfig logoConfig = loginWindowInitialization.getLoginScreenConfig();
                     ProductTitleConfig productTitleConfig = logoConfig.getProductTitleConfig();
 
                     if(logoConfig.isDisplaycoreVersion()){
                         coreVersion =  loginWindowInitialization.getVersion();
-                        coreVersionPrefix = "Версия платформы: ";
+                        coreVersionPrefix = get(CORE_VERSION_KEY, "Версия платформы: ");
                     }
 
                     if(logoConfig.isDisplayProductVersion() && loginWindowInitialization.getProductVersion() != null){
                         productVersion = loginWindowInitialization.getProductVersion();
-                        productVersionPrefix = "Версия: ";
+                        productVersionPrefix = get(VERSION_KEY, "Версия: ");
                     }
 
                     if(productTitleConfig.getStyle().equals("text")){
@@ -254,6 +271,11 @@ public class LoginWindow  implements Component{
                 loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divCoreVersion);
                 loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divPlatformVersion);
 
+                loginName.setText(get(USER_NAME_KEY, "Имя пользователя"));
+                passwordLabel.setText(get(PASSWORD_KEY, "Пароль"));
+                titleLogin.setText(get(SIGN_ON_KEY, "Войти"));
+                labelCheckBox.setText(get(REMEMBER_ME_KEY, "Запомнить меня"));
+                titleClearUserSettings.setText(get(RESET_SETTINGS_KEY, "Очистить настройки"));
             }
 
             @Override
@@ -321,12 +343,12 @@ public class LoginWindow  implements Component{
             @Override
             public void onFailure(Throwable caught) {
                 if (caught instanceof AuthenticationException) {
-                    message.setText("Ошибка авторизации. Проверте правильность введенных данных.");
+                    message.setText(get(AUTHORIZATION_WRONG_PSW_ERROR_KEY, "Ошибка авторизации. Проверте правильность введенных данных."));
                 } else if (caught instanceof StatusCodeException) {
-                    message.setText("Ошибка авторизации. Невозможно подключиться к серверу.");
+                    message.setText(get(AUTHORIZATION_CONNECTION_ERROR_KEY, "Ошибка авторизации. Невозможно подключиться к серверу."));
                 } else {
                     log.info("Login exception: " + caught);
-                    message.setText("Ошибка авторизации. " + caught.getMessage());
+                    message.setText(get(AUTHORIZATION_ERROR_KEY, "Ошибка авторизации. ") + caught.getMessage());
                 }
             }
         };
@@ -338,7 +360,7 @@ public class LoginWindow  implements Component{
         FocusPanel clearUserSettingsButton = new FocusPanel();
         clearUserSettingsButton.setStyleName("lightButton");
         clearUserSettingsButton.addStyleName("clearUserSettings");
-        Label titleClearUserSettings = new Label("Очистить настройки");
+        titleClearUserSettings = new Label("Очистить настройки");
         titleClearUserSettings.getElement().addClassName("auth_button_title");
         clearUserSettingsButton.add(titleClearUserSettings);
 
@@ -395,4 +417,13 @@ public class LoginWindow  implements Component{
     public void setPasswordField(PasswordTextBox passwordField) {
         this.passwordField = passwordField;
     }
+
+    public String get(String key, String defaultValue) {
+        if (localizedResources == null) {
+            return defaultValue;
+        }
+        String value = localizedResources.get(key);
+        return value != null ? value : defaultValue;
+    }
+
 }
