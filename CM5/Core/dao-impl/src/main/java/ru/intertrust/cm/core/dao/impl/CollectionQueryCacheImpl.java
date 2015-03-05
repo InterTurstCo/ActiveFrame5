@@ -11,16 +11,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 /**
  * 
@@ -53,60 +49,19 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         private Integer limit;
         private AccessToken accessToken;
         
-        public static final String IDS_EXCLUDED_FILTER_PREFIX = "idsExcluded";
-        public static final String IDS_INCLUDED_FILTER_PREFIX = "idsIncluded";
-        
         public CollectionQueryKey(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, Integer offset, Integer limit,
                 AccessToken accessToken) {
             this.collectionNameOrQuery = collectionNameOrQuery;
             if (filterValues != null) {
                 for (Filter filter : filterValues) {
-                    if (filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter) {
-                        continue;
-                    }
                     this.filtersForCache.add(new FilterForCache(filter));
                 }
-                addIdsFilters(filterValues);
             }
             this.sortOrder = sortOrder;
             this.offset = offset;
             this.limit = limit;
             this.accessToken = accessToken;
-        }
-        //Фильтры IdsIncludedFilter/IdsExcludedFilter добавляются в ключ кеширования по особому. Так как эти фильтр ыдобавляются всегда в конец запроса, то название фильтра не имеет значение, важно их количество (каждого типа).
-        private void addIdsFilters(List<? extends Filter> filterValues) {
-            List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>();
-            List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>();
-
-            for (Filter filter : filterValues) {
-                if (filter instanceof IdsIncludedFilter) {
-                    idsIncludedFilters.add((IdsIncludedFilter) filter);
-                }
-                if (filter instanceof IdsExcludedFilter) {
-                    idsExcludedFilters.add((IdsExcludedFilter) filter);
-                }
-
-            }
-
-            int index = 0;
-            for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
-                final ObjectCloner cloner = new ObjectCloner();
-                IdsIncludedFilter clonedFilter = cloner.cloneObject(idsIncludedFilter, IdsIncludedFilter.class);
-
-                clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
-                this.filtersForCache.add(new FilterForCache(clonedFilter));
-                index++;
-            }
-            index = 0;
-            for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
-                final ObjectCloner cloner = new ObjectCloner();
-                IdsExcludedFilter clonedFilter = cloner.cloneObject(idsExcludedFilter, IdsExcludedFilter.class);
-
-                clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
-                this.filtersForCache.add(new FilterForCache(clonedFilter));
-                index++;
-            }
-        }
+        }       
 
         @Override
         public int hashCode() {
