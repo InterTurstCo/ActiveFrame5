@@ -19,7 +19,7 @@ public class LocalizationKeys {
     public static final String TASK_COMPLETE_MESSAGE_KEY = "TaskComplete";
     public static final String ROW_IS_DELETED_MESSAGE_KEY = "RowDeleted";
     public static final String REPORT_IS_UPLOADED_MESSAGE_KEY = "ReportUploaded";
-    public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY = "CoreectValidationErrors";
+    public static final String CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY = "CorrectValidationErrors";
     public static final String SAVED_MESSAGE_KEY = "Saved";
     public static final String EVENT_IS_SENT_MESSAGE_KEY = "MessageSent";
     public static final String SYSTEM_EXCEPTION_MESSAGE_KEY = "SystemError";

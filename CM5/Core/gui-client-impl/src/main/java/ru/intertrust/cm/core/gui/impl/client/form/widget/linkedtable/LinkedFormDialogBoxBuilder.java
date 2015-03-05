@@ -36,10 +36,8 @@ import java.util.Map;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
 
 
 /**
@@ -199,7 +197,7 @@ public class LinkedFormDialogBoxBuilder {
         Panel buttons = new FlowPanel();
         // create buttons
         if (editable) {
-            Button saveButton = new Button("Сохранить");
+            Button saveButton = new Button("РЎРѕС…СЂР°РЅРёС‚СЊ");
             saveButton.setStyleName("lnfm-save-button darkButton");
             decorateButton(saveButton);
             if (saveAction != null) {
