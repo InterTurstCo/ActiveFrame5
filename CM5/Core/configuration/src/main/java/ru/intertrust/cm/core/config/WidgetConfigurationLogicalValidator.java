@@ -126,6 +126,9 @@ public class WidgetConfigurationLogicalValidator {
 
         FieldConfig fieldConfig = findRequiredFieldConfig(widget, logicalErrors);
         if (fieldConfig == null) {
+            if (widget.getWidgetConfig().getHandler() != null) { // custom widget handler allows using fake field-paths
+                return;
+            }
             String error = String.format("Could not find field '%s'  in path '%s'",
                     widget.getDomainObjectFieldToValidate(), widget.getCurrentFieldPathValue());
             logger.error(error);

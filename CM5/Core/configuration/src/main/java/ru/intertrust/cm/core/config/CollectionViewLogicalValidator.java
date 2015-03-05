@@ -100,10 +100,11 @@ public class CollectionViewLogicalValidator implements ConfigurationValidator {
         if (sqlQuery == null) {
             return;
         }
+        sqlQuery = sqlQuery.toLowerCase();
         for (CollectionColumnConfig column : columns) {
             if (column != null) {
                 String field = column.getField();
-                if (!sqlQuery.contains(field)) {
+                if (!sqlQuery.contains(field.toLowerCase())) {
                     String collectionName = colConf.getName();
                     String error = String.format("Couldn't find field '%s' in sql query for collection with name '%s'",
                             field, collectionName);
