@@ -135,6 +135,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     public void refreshAclFor(Id invalidContextId) {
         RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
+        //Проверка, есть ли вообще матрицы доступа для данного типа доменного объекта. Необходима, что бы лишний раз не читать статус ДО.
+        AccessMatrixConfig accessMatrixByTypeConfig =
+                configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObjectType);
+
+        if (accessMatrixByTypeConfig == null || accessMatrixByTypeConfig.getName() == null) {
+            return;
+        }
+
         String status = getStatusFor(invalidContextId);
         AccessMatrixStatusConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObjectType, status);

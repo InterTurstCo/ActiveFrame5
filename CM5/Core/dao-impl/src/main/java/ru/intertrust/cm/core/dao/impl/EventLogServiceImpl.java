@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -132,16 +133,30 @@ public class EventLogServiceImpl implements EventLogService {
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
+        List<DomainObject> objectAccessLogs = new ArrayList<>();
+
         for (Id objectId : objectIds) {
-            logAccessDomainObject(objectId, accessType, success);
+            DomainObject objectAccessLog = createObjectAccessLogObject(objectId, accessType, success);
+            if (objectAccessLog != null) {
+                objectAccessLogs.add(objectAccessLog);
+            }
         }
+        domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
     }
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
+        List<DomainObject> objectAccessLogs = new ArrayList<>();
+
         for (DomainObject object : objects) {
-            logAccessDomainObject(object.getId(), accessType, success);
+            DomainObject objectAccessLog = createObjectAccessLogObject(object.getId(), accessType, success);
+            if (objectAccessLog != null) {
+                objectAccessLogs.add(objectAccessLog);
+            }
+        }
+        if (objectAccessLogs.size() > 0) {
+            domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
         }
     }
 
@@ -170,7 +185,41 @@ public class EventLogServiceImpl implements EventLogService {
         saveObjectAccessLog(accessLogBuilder);
     }
 
+    private DomainObject createObjectAccessLogObject(Id objectId, String accessType, boolean success) {
+        DomainObject objectAccessLog = null;
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
+        }
+
+        if (objectId == null) {
+            return objectAccessLog;
+        }
+
+        if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) {
+            return objectAccessLog;
+        }
+
+        ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
+        if (currentUserAccessor.getCurrentUserId() != null) {
+            accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
+        } else {
+            accessLogBuilder.setProcessName("system");
+        }
+        accessLogBuilder.setEventType(EventLogType.ACCESS_OBJECT.name());
+        accessLogBuilder.setObjectId(objectId).setAccessType(accessType).setDate(new Date()).setSuccess(success);
+
+        objectAccessLog = createObjectAccessLogDO(accessLogBuilder);
+        return objectAccessLog;
+    }
+    
     private DomainObject saveObjectAccessLog(ObjectAccessLogBuilder objectAccessLogBuilder) {
+        DomainObject objectAccessLog = createObjectAccessLogDO(objectAccessLogBuilder);
+
+        objectAccessLog = domainObjectDao.save(objectAccessLog, getSystemAccessToken());
+        return objectAccessLog;
+    }
+
+    private DomainObject createObjectAccessLogDO(ObjectAccessLogBuilder objectAccessLogBuilder) {
         DomainObject objectAccessLog = createDomainObject(OBJECT_ACCESS_LOG);
         objectAccessLog.setString("event_type", objectAccessLogBuilder.getEventType());
         objectAccessLog.setReference("person", objectAccessLogBuilder.getPerson());
@@ -182,8 +231,6 @@ public class EventLogServiceImpl implements EventLogService {
         objectAccessLog.setTimestamp("date", objectAccessLogBuilder.getDate());
         objectAccessLog.setBoolean("success", objectAccessLogBuilder.isSuccess());
         objectAccessLog.setString("process_name", objectAccessLogBuilder.getProcessName());
-
-        objectAccessLog = domainObjectDao.save(objectAccessLog, getSystemAccessToken());
         return objectAccessLog;
     }
 

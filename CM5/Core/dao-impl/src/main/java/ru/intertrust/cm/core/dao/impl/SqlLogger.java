@@ -98,7 +98,7 @@ public class SqlLogger {
         int rows = -1;
 
         if (returnValue == null) {
-            // не обрабатывается
+            rows = 0;
         } else if (returnValue instanceof IdentifiableObjectCollection) {
             //  SELECT в случае коллекций получаем количество строк
             IdentifiableObjectCollection result = (IdentifiableObjectCollection) returnValue;
