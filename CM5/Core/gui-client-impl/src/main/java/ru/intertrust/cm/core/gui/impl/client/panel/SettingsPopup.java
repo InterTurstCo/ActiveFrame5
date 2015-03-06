@@ -60,14 +60,16 @@ public class SettingsPopup extends PopupPanel{
                 body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME_KEY, CHOOSE_THEME), "menuImage chooseTheme",
                         new ThemePopupDomHandler(themeMap)));
             }
-            List<LanguageConfig> languageConfigs = settingsPopupConfig.getLanguagesConfig().getLanguageConfigs();
-            Map<String, LanguageConfig> languageMap = new HashMap<>();
-            for (LanguageConfig languageConfig : languageConfigs) {
-                languageMap.put(languageConfig.getName(), languageConfig);
-            }
-            if(languageMap != null){
-                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_LANG_KEY, CHOOSE_LANG), "menuImage chooseTheme",
-                        new LocalePopupDomHandler(languageMap)));
+            if (settingsPopupConfig.getLanguagesConfig() != null) {
+                List<LanguageConfig> languageConfigs = settingsPopupConfig.getLanguagesConfig().getLanguageConfigs();
+                Map<String, LanguageConfig> languageMap = new HashMap<>();
+                for (LanguageConfig languageConfig : languageConfigs) {
+                    languageMap.put(languageConfig.getName(), languageConfig);
+                }
+                if (!languageMap.isEmpty()) {
+                    body.add(createMenuItem(LocalizeUtil.get(CHOOSE_LANG_KEY, CHOOSE_LANG), "menuImage chooseTheme",
+                            new LocalePopupDomHandler(languageMap)));
+                }
             }
             body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS_KEY, RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
             body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS_KEY, RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
