@@ -52,7 +52,8 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                     context.getConfirmFormState(), applicationContext, locale));
         }
         if (!errorMessages.isEmpty()) {
-            throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION), errorMessages);
+            throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION,
+                    "Server-side validation failed"), errorMessages);
         }
         final SimpleActionConfig config = context.getActionConfig();
         final boolean isSaveContext = config.getBeforeConfig() == null
@@ -70,7 +71,8 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                 final FieldPath path = FieldPath.createPaths(
                         config.getBeforeConfig().getLinkedDomainObjectConfig().getReferenceFieldPath())[0];
                 if (path.isMultiBackReference()) {
-                    throw new GuiException( buildMessage(LocalizationKeys.GUI_EXCEPTION_REF_PATH_NOT_SUPPORTED, new Pair("path", path)));
+                    throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REF_PATH_NOT_SUPPORTED,
+                            "Reference ${path} not supported", new Pair("path", path)));
                 }
                 final FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
                 final Map<FieldPath, Value> values = new HashMap<>();
@@ -86,7 +88,8 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
                     values.put(path, new ReferenceValue(confirmDomainObject.getId()));
                     PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators, locale);
                     if (!errorMessages.isEmpty()) {
-                        throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION), errorMessages);
+                        throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION,
+                                "Server-side validation failed"), errorMessages);
                     }
                     formSaver.setContext(mainFormState, values);
                     mainDomainObject = formSaver.saveForm();
@@ -125,15 +128,15 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
         return new SimpleActionContext(actionConfig);
     }
 
-    private String buildMessage(String message) {
-        return MessageResourceProvider.getMessage(message, profileService.getPersonLocale());
+    private String buildMessage(String message, String defaultValue) {
+        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
     }
 
-    private String buildMessage(String message, Pair<String, String>... params) {
+    private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
         Map<String, String> paramsMap = new HashMap<>();
         for (Pair<String, String> pair  : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
-        return PlaceholderResolver.substitute(buildMessage(message), paramsMap);
+        return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
     }
 }

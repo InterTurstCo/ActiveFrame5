@@ -68,7 +68,8 @@ public class CollectionPluginHelper {
             }
             return columnPropertiesMap;
 
-        } else throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COLLECTION_VIEW, locale));
+        } else throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COLLECTION_VIEW,
+                "Collection view config has no display tags configured", locale));
     }
 
     public static Map<String, CollectionColumnProperties> getFilterNameColumnPropertiesMap(

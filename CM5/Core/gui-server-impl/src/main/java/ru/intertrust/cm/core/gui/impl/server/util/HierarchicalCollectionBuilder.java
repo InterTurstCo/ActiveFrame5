@@ -46,6 +46,7 @@ public class HierarchicalCollectionBuilder implements ComponentHandler {
         ChildCollectionViewerConfig childCollectionViewerConfig = findChildCollectionViewerConfig(data);
         if (childCollectionViewerConfig == null) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_HIERARCH_COLLECTION,
+                    "Ошибка в конфигурации иерархической коллекции",
                     profileService.getPersonLocale()));
         }
         CollectionViewerConfig collectionViewerConfig = childCollectionViewerConfig.getCollectionViewerConfig();

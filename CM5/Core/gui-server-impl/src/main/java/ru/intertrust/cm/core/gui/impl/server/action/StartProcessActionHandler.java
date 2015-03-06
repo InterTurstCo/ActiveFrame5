@@ -33,6 +33,7 @@ public class StartProcessActionHandler extends ActionHandler<StartProcessActionC
         Id domainObjectId = startProcessActionContext.getRootObjectId();
         if (domainObjectId == null) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED,
+                    "Объект ещё не сохранён",
                     profileService.getPersonLocale()));
         }
 

@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -92,8 +93,12 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
     protected String getMessageText(String messageKey) {
         Map<String, Object> props = getInitialData().getWidgetProperties();
         props.put(Constraint.VAlUE, getValue());
-        if (messages.get(messageKey) != null) {
-            return PlaceholderResolver.substitute(messages.get(messageKey), props);
+        String value = messages.get(messageKey);
+        if (value == null) {
+            value = LocalizationKeys.validationMessages.get(messageKey);
+        }
+        if (value != null) {
+            return PlaceholderResolver.substitute(value, props);
         } else {
             return messageKey;//let's return at least messageKey if the message is not found
         }

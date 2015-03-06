@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.config.localization;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Lesia Puhova
  *         Date: 03.03.2015
@@ -77,9 +80,6 @@ public class LocalizationKeys {
     public static final String EXECUTION_ACTION_ERROR_KEY = "ActionExecutionError";
     public static final String DATE_FORMAT_ERROR_KEY = "DateFormatError";
 
-    public static final String ACCESS_EXCEPTION = "AccessException";
-    public static final String AUTHENTICATION_EXCEPTION = "AuthenticationException";
-    public static final String OPTIMISTIC_LOCK_EXCEPTION = "OptimisticLockException";
     public static final String SERVER_VALIDATION_EXCEPTION = "ServerValidationException";
     public static final String SYSTEM_EXCEPTION = "SystemException";
 
@@ -109,9 +109,25 @@ public class LocalizationKeys {
     public static final String PASSWORD_KEY = "Password";
     public static final String SIGN_ON_KEY = "SignOn";
     public static final String REMEMBER_ME_KEY = "RememberMe";
-    public static final String AUTHORIZATION_ERROR_KEY="AuthorizationError";
-    public static final String AUTHORIZATION_WRONG_PSW_ERROR_KEY ="WrongPswError";
-    public static final String AUTHORIZATION_CONNECTION_ERROR_KEY="NoConnectionError";
+    public static final String AUTHORIZATION_ERROR_KEY = "AuthorizationError";
+    public static final String AUTHORIZATION_WRONG_PSW_ERROR_KEY = "WrongPswError";
+    public static final String AUTHORIZATION_CONNECTION_ERROR_KEY = "NoConnectionError";
 
-
+    public static final Map<String, String> validationMessages = new HashMap<>(); //<key, defaultValue>
+    static {
+        validationMessages.put("validate.not-empty", "Поле ${field-name} не должно быть пустым!");
+        validationMessages.put("validate.integer", "'${value}' должно быть целым!");
+        validationMessages.put("validate.decimal", "'${value}' должно быть десятичным!");
+        validationMessages.put("validate.positive-int", "'${value}' должно быть целым положительным!");
+        validationMessages.put("validate.positive-dec", "'${value}' должно быть десятичным положительным!");
+        validationMessages.put("validate.unique-field", "Поле ${field-name} со значением '${value}' уже существует!");
+        validationMessages.put("validate.pattern", "Поле ${field-name} должно соответствовать шаблону ${pattern}!");
+        validationMessages.put("validate.length.not-equal", "Длина поля ${field-name} должна быть равна ${length}");
+        validationMessages.put("validate.length.too-small", "Длина поля ${field-name} не может быть меньше чем${min-length}");
+        validationMessages.put("validate.length.too-big", "Длина поля ${field-name} не может быть больше чем ${max-length}");
+        validationMessages.put("validate.range.too-small","Значение поля ${field-name} не может быть меньше чем ${range-start}" );
+        validationMessages.put("validate.range.too-big", "Значение поля ${field-name} не может быть больше чем ${range-end}");
+        validationMessages.put("validate.precision", "Значение поля ${field-name} должно иметь точность ${precision}");
+        validationMessages.put("validate.scale", "Значение поля ${field-name} должно иметь ${scale} знаков после запятой");
+    }
 }

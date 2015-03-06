@@ -83,17 +83,20 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
-            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND, locale));
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND,
+                    "Команда ${commandName} не найдена", locale));
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
-            log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL, locale) + e.getMessage(), e);
+            log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL,
+                    "Ошибка вызова команды: ", locale) + e.getMessage(), e);
             throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
-            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION, locale)
+            throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION,
+                    "Команда не может быть выполнена: ", locale)
                     + command.getName(), e);
         }
     }

@@ -70,7 +70,9 @@ public abstract class WidgetHandler implements ComponentHandler {
            if (singleChoiceAnalyzed != null) {
               if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())){
                   throw new GuiException(MessageResourceProvider.getMessage(
-                          LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS, profileService.getPersonLocale()));
+                          LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS,
+                          "Multiply fieldPaths should be all reference type or all backreference type",
+                          profileService.getPersonLocale()));
               }
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField();
@@ -82,6 +84,7 @@ public abstract class WidgetHandler implements ComponentHandler {
         FieldPath[] fieldPaths = widgetContext.getFieldPaths();
         if (fieldPaths.length > 1) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SINGLE_FIELDPATH,
+                    "Only single field-path is supported",
                     profileService.getPersonLocale()));
         }
         if (fieldPaths[0].isField() || fieldPaths[0].isOneToOneDirectReference()) {

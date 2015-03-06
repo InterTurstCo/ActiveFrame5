@@ -36,16 +36,19 @@ public class GenericWorkflowActionHandler
     public SimpleActionData executeAction(SimpleActionContext context) {
         final Id domainObjectId = context.getRootObjectId();
         if (domainObjectId == null) {
-            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED));
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED,
+                    "Объект ещё не сохранён"));
         }
         final ActionConfig actionConfig = context.getActionConfig();
         final String processType = actionConfig.getProperty(PluginHandlerHelper.WORKFLOW_PROCESS_TYPE_KEY);
         if (processType == null) {
-            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_TYPE));
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_TYPE,
+                    "Не задано тип процесса"));
         }
         final String processName = actionConfig.getProperty(PluginHandlerHelper.WORKFLOW_PROCESS_NAME_KEY);
         if (processName == null) {
-            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_NAME));
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_NAME,
+                    "Не задано имя процесса"));
         }
         switch(processType) {
             case "start.process":
@@ -57,7 +60,9 @@ public class GenericWorkflowActionHandler
                         actionConfig.getProperty("complete.task.action"));
                 break;
             default:
-                new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED, new Pair("processType", processType)));
+                new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,
+                        "Process '${processType}' not supported.",
+                        new Pair("processType", processType)));
         }
         final SimpleActionData result = new SimpleActionData();
         return result;
@@ -68,15 +73,15 @@ public class GenericWorkflowActionHandler
         return new SimpleActionContext(actionConfig);
     }
 
-    private String buildMessage(String message) {
-        return MessageResourceProvider.getMessage(message, profileService.getPersonLocale());
+    private String buildMessage(String message, String defaultValue) {
+        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
     }
 
-    private String buildMessage(String message, Pair<String, String> ... params) {
+    private String buildMessage(String message, String defaultValue, Pair<String, String> ... params) {
         Map<String, String> paramsMap = new HashMap<>();
         for (Pair<String, String> pair  : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
-        return PlaceholderResolver.substitute(buildMessage(message), paramsMap);
+        return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
     }
 }

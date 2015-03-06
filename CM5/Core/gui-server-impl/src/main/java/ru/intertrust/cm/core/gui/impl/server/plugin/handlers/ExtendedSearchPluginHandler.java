@@ -390,6 +390,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                              get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SEARCH,
+                    "Ошибка при поиске:\\n",
                     profileService.getPersonLocale()) + ge.getMessage());
         }
     }

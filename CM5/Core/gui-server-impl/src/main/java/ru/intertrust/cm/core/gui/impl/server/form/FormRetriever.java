@@ -104,7 +104,8 @@ public class FormRetriever extends FormProcessor {
     public FormDisplayData getForm(Id domainObjectId, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
         DomainObject root = crudService.find(domainObjectId);
         if (root == null) {
-            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST, new Pair("objectId",
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_EXIST,
+                    "Object with id: ${objectId} doesn't exist", new Pair("objectId",
                     domainObjectId.toStringRepresentation())));
         }
         if (updaterComponentName != null) {
@@ -156,7 +157,9 @@ public class FormRetriever extends FormProcessor {
             }
         }
         if (formConfig == null) {
-            throw new GuiException(String.format(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_FORM_ERROR, new Pair("formName", formName),
+            throw new GuiException(String.format(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_FORM_ERROR,
+                    "Конфигурация формы отчета не найдена или некорректна! Форма: '${formName}', отчет: '${reportName}'",
+                            new Pair("formName", formName),
                             new Pair("reportName", reportName))));
         }
         if (formName == null) {
@@ -166,7 +169,8 @@ public class FormRetriever extends FormProcessor {
             reportName = formConfig.getReportTemplate();
         }
         if (reportName == null) {
-            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_NAME_NOT_FOUND));
+            throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REPORT_NAME_NOT_FOUND,
+                    "Имя отчета не сконфигурировано ни в плагине, ни форме!"));
         }
         List<WidgetConfig> widgetConfigs = findWidgetConfigs(formConfig);
         FormObjects formObjects = new FormObjects();
@@ -316,7 +320,9 @@ public class FormRetriever extends FormProcessor {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
                 if (!selfManagingWidget && !(config instanceof LabelConfig)) {
-                    throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_WIDGET_ID_NOT_FOUND, new Pair("widgetId", widgetId)));
+                    throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_WIDGET_ID_NOT_FOUND,
+                            "Widget, id: ${widgetId} is not configured with Field Path",
+                            new Pair("widgetId", widgetId)));
                 }
                 WidgetState initialState = widgetHandler.getInitialState(widgetContext);
                 if (initialState != null) {
@@ -607,15 +613,15 @@ public class FormRetriever extends FormProcessor {
         return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
     }
 
-    private String buildMessage(String message) {
-        return MessageResourceProvider.getMessage(message, profileService.getPersonLocale());
+    private String buildMessage(String message, String defaultValue) {
+        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
     }
 
-    private String buildMessage(String message, Pair<String, String>... params) {
+    private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
         Map<String, String> paramsMap = new HashMap<>();
         for (Pair<String, String> pair  : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
-        return PlaceholderResolver.substitute(buildMessage(message), paramsMap);
+        return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
     }
 }

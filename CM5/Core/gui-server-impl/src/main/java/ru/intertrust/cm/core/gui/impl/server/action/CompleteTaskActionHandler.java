@@ -32,6 +32,7 @@ public class CompleteTaskActionHandler extends ActionHandler<CompleteTaskActionC
         Id domainObjectId = completeTaskActionContext.getRootObjectId();
         if (domainObjectId == null) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED,
+                    "Объект ещё не сохранён",
                     profileService.getPersonLocale()));
         }
 

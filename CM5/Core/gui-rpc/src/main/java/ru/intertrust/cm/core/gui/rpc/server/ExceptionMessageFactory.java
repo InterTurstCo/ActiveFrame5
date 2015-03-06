@@ -21,15 +21,20 @@ public final class ExceptionMessageFactory {
     private static final String GUI_EXCEPTION_KEY = "GuiException";
     private static final String COMMAND_NAME_PLACEHOLDER = "commandName";
 
+    private static final String ACCESS_EXCEPTION = "AccessException";
+    private static final String AUTHENTICATION_EXCEPTION = "AuthenticationException";
+    private static final String OPTIMISTIC_LOCK_EXCEPTION = "OptimisticLockException";
+    private static final String PERMISSION_EXCEPTION = "PermissionException";
+
     private ExceptionMessageFactory() {
     }
 
     private static final Set<String> NOT_LOGGED_EXCEPTIONS = new HashSet<>();
     static {
-        NOT_LOGGED_EXCEPTIONS.add(LocalizationKeys.ACCESS_EXCEPTION);
-        NOT_LOGGED_EXCEPTIONS.add(LocalizationKeys.AUTHENTICATION_EXCEPTION);
-        NOT_LOGGED_EXCEPTIONS.add(LocalizationKeys.OPTIMISTIC_LOCK_EXCEPTION);
-        NOT_LOGGED_EXCEPTIONS.add("PermissionException");
+        NOT_LOGGED_EXCEPTIONS.add(ACCESS_EXCEPTION);
+        NOT_LOGGED_EXCEPTIONS.add(AUTHENTICATION_EXCEPTION);
+        NOT_LOGGED_EXCEPTIONS.add(OPTIMISTIC_LOCK_EXCEPTION);
+        NOT_LOGGED_EXCEPTIONS.add(PERMISSION_EXCEPTION);
     }
 
     public static Pair<String, Boolean> getMessage(final Command command, Throwable ex, String currentLocale) {
@@ -50,7 +55,8 @@ public final class ExceptionMessageFactory {
             message = MessageResourceProvider.getMessage(exceptionKey, currentLocale, null);
         }
         if (message == null) {
-            message = MessageResourceProvider.getMessage(LocalizationKeys.SYSTEM_EXCEPTION, currentLocale);
+            message = MessageResourceProvider.getMessage(LocalizationKeys.SYSTEM_EXCEPTION,
+                    "Системная ошибка при выполнении ${commandName}, обратитесь к администратору.", currentLocale);
         }
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put(COMMAND_NAME_PLACEHOLDER, command.getName());

@@ -214,6 +214,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                 if (singleChoiceAnalyzed != (fieldPath.isOneToOneDirectReference() || fieldPath.isField())
                         || fieldPath.isOneToOneBackReference()){
                     throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS,
+                            "Multiply fieldPaths should be all reference type or all backreference type",
                             profileService.getPersonLocale()));
                 }
             }

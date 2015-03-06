@@ -49,7 +49,7 @@ public class VersionUtil {
                     }
                 } catch (Throwable e) {
                     throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys
-                            .GUI_EXCEPTION_VERSION_ERROR, locale), e);
+                            .GUI_EXCEPTION_VERSION_ERROR, "Ошибка получения версии: ", locale), e);
                 } finally {
                     if (is != null) {
                         is.close();
