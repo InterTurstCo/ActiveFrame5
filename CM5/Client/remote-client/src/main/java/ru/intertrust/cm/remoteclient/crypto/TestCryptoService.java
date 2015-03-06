@@ -1,11 +1,13 @@
 package ru.intertrust.cm.remoteclient.crypto;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
+import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestCryptoService extends ClientBase {
@@ -38,9 +40,13 @@ public class TestCryptoService extends ClientBase {
             String query = "select id from " + type;
             IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query);
             for (IdentifiableObject identifiableObject : collection) {
-                VerifyResult result = cryptoService.verify(identifiableObject.getId());
-                if (result.getSignerInfos().size() > 0){
-                    System.out.println(result.toString());
+                List<DocumentVerifyResult> result = cryptoService.verify(identifiableObject.getId());
+                for (DocumentVerifyResult documentVerifyResult : result) {
+                    if (documentVerifyResult.getSignerInfos().size() > 0){
+                        System.out.println("Verify digital signature for " + documentVerifyResult.getDocumentId().toStringRepresentation());
+                        System.out.println(documentVerifyResult.toString());
+                    }
+                    
                 }
             }
         }

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureDataService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureStorageService;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
@@ -32,9 +34,6 @@ import ru.intertrust.cm.core.config.crypto.TypeCryptoSettingsConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
-
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 @Stateless(name = "CryptoService")
 @Local(CryptoService.class)
@@ -79,24 +78,35 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     }
 
     @Override
-    public VerifyResult verify(Id documentId) {
+    public List<DocumentVerifyResult> verify(Id documentId) {
         String signedType = domainObjectTypeIdCache.getName(documentId);
         TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
         InputStream contentStream = null;
         try {
             if (config != null) {
+                List<DocumentVerifyResult> result = new ArrayList<DocumentVerifyResult>();
+                
                 String signatureStorageBeanName = config.getSignatureStorageBeanName();
                 SignatureStorageService signatureStorageService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
                 List<SignedResultItem> signes = signatureStorageService.loadSignature(config.getSignatureStorageBeanSettings(), documentId);
 
-                VerifyResult result = new VerifyResult();
                 List<Id> signedDocuments = getBatchForSignature(documentId);
+                //Цикл по подписанным документам в пачке
                 for (Id id : signedDocuments) {
+                    DocumentVerifyResult verifyResult = new DocumentVerifyResult();
+                    verifyResult.setDocumentId(id);
+                    
                     contentStream = getContentForSignature(id).getContent();
+                    //Цикл по всем подписям
                     for (SignedResultItem signedResultItem : signes) {
-                        VerifyResult oneResult = cryptoBean.verify(contentStream, Base64.decodeBase64(signedResultItem.getSignature()));
-                        result.getSignerInfos().addAll(oneResult.getSignerInfos());
+                        if (signedResultItem.getId().equals(id)){
+                            VerifyResult oneResult = cryptoBean.verify(contentStream, Base64.decodeBase64(signedResultItem.getSignature()));
+                            verifyResult.getSignerInfos().addAll(oneResult.getSignerInfos());
+                        }
                     }
+                    contentStream.close();
+                    contentStream = null;
+                    result.add(verifyResult);
                 }
 
                 return result;

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api.crypto;
 import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
@@ -26,6 +27,6 @@ public interface CryptoService extends CryptoTool{
      * @param documentId идентификатор документа
      * @return
      */
-    VerifyResult verify(Id documrntId);
+    List<DocumentVerifyResult> verify(Id documrntId);
 
 }
