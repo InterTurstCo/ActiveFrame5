@@ -1,5 +1,6 @@
 package ru.intertrust.cm.remoteclient.profile.test;
 
+import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -10,6 +11,7 @@ import java.util.Date;
 public class TestProfileService extends ClientBase {
 
     private ProfileService profileService;
+    private PersonManagementService personManagementService;
 
     public static void main(String[] args) {
         try {
@@ -24,10 +26,12 @@ public class TestProfileService extends ClientBase {
         super.execute(args);
         profileService = (ProfileService) getService(
                 "ProfileService", ProfileService.Remote.class);
+        personManagementService = (PersonManagementService) getService(
+                "PersonManagementService", PersonManagementService.Remote.class);
 
         Profile systemProfile1 = profileService.getProfile("test1");
 
-        Profile personProfile1 = profileService.getPersonProfile(new RdbmsId(5011, 13));
+        Profile personProfile1 = profileService.getPersonProfile(findPerson("person1"));
 
         profileService.setProfile(systemProfile1);
 
@@ -41,7 +45,7 @@ public class TestProfileService extends ClientBase {
         profileService.setProfile(systemProfile2);
         */
 
-        PersonProfile personProfile2 = profileService.getPersonProfile();
+        Profile personProfile2 = profileService.getPersonProfile();
 
         personProfile2.setValue("key1", new ProfileStringValue("key1_val"));
         personProfile2.setValue("key11", new ProfileStringValue("value11"));
@@ -50,6 +54,9 @@ public class TestProfileService extends ClientBase {
         personProfile2.setValue("key3", new ProfileDateTimeValue(new Date()));
 
         profileService.setPersonProfile(personProfile2);
+        
+        personProfile2 = profileService.getPersonProfile();
+        assertTrue("err", personProfile2.getString("key1").equals("key1_val"));
 
 
 //        profileService.setPersonProfile(new PersonProfileObject());
@@ -65,5 +72,9 @@ public class TestProfileService extends ClientBase {
 
 
 
+    }
+    
+    private Id findPerson(String login){
+        return personManagementService.getPersonId(login);
     }
 }

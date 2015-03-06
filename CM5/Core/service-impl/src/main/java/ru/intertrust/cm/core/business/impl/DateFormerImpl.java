@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.business.api.DateFormer;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.Profile;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 
 /**
@@ -73,7 +73,7 @@ public class DateFormerImpl implements DateFormer {
     }
 
     private Locale getPersonLocale(Id personId) {
-        PersonProfile profile = profileService.getPersonProfileByPersonId(personId);
+        Profile profile = profileService.getPersonProfileByPersonId(personId);
         String locale = profile.getString(ProfileService.LOCALE);
         return Locale.forLanguageTag(locale);
     }

@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.Profile;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
@@ -40,7 +41,7 @@ public class NotificationChannelSelectorImpl implements NotificationChannelSelec
         List<String> channelNames = notificationChannelLoader.getNotificationChannelNames();
         if (channelNames == null || channelNames.isEmpty()) return channelNames;
 
-        PersonProfile personProfile = profileService.getPersonProfileByPersonId(addressee);
+        Profile personProfile = profileService.getPersonProfileByPersonId(addressee);
 
         List<String> resultChannelNames = new ArrayList<>(channelNames.size());
 
@@ -53,7 +54,7 @@ public class NotificationChannelSelectorImpl implements NotificationChannelSelec
         return resultChannelNames;
     }
 
-    protected boolean isChannelEnabled(String channelName, String notificationType, NotificationPriority priority, PersonProfile personProfile) {
+    protected boolean isChannelEnabled(String channelName, String notificationType, NotificationPriority priority, Profile personProfile) {
         ArrayList<String> keys = personProfile.getFields();
         if (keys == null || keys.isEmpty()) return false;
 

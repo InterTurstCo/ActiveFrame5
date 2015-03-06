@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +19,8 @@ import ru.intertrust.cm.core.business.api.DateFormer;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
-import ru.intertrust.cm.core.business.api.dto.PersonProfileObject;
+import ru.intertrust.cm.core.business.api.dto.Profile;
+import ru.intertrust.cm.core.business.api.dto.ProfileObject;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
@@ -35,7 +34,7 @@ public class DateFormerTest {
     
     @Before
     public void setUp() {
-        PersonProfile profile = new PersonProfileObject();
+        Profile profile = new ProfileObject();
         profile.setString(ProfileService.LOCALE, "RU");        
         when(profileService.getPersonProfileByPersonId((Id)anyObject())).thenReturn(profile);
     }

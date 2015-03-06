@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
 import ru.intertrust.cm.core.business.api.dto.Profile;
 
 /**
@@ -42,14 +41,14 @@ public interface ProfileService {
      * Предназначен для работы под провами простого пользователя 
      * @return
      */
-    PersonProfile getPersonProfile();
+    Profile getPersonProfile();
 
     /**
      * Получение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей.
      * Предназначен для работы под провами простого пользователя
      * @return
      */
-    PersonProfile getPersonProfileByPersonId(Id personId);
+    Profile getPersonProfileByPersonId(Id personId);
 
     /**
      * Сохранение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей. 
@@ -57,7 +56,7 @@ public interface ProfileService {
      * При сохранения профиля меняются данные только профиля пользователя. Данные системных профилей остаются не изменными. 
      * @param profile
      */
-    void setPersonProfile(PersonProfile profile);
+    void setPersonProfile(Profile profile);
 
     /**
      * Получение локали из профиля текущего пользователя

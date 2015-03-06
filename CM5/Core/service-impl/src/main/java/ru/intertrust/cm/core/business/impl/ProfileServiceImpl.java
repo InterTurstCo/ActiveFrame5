@@ -62,21 +62,15 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-            Filter filter = new Filter();
-            filter.setFilter("byName");
-            filter.addStringCriterion(0, name);
-
-            IdentifiableObjectCollection profileValues = collectionsService.findCollection("ProfileValues",
-                    new SortOrder(), Collections.singletonList(filter));
-            if (profileValues.size() == 0) {
-                ProfileObject profileObject = new ProfileObject();
-                profileObject.setName(name);
-                return profileObject;
-            }
-
+            Id profileId = findProfileByName(name);
+            
             ProfileObject profileObject = new ProfileObject();
-            fillProfileAttributes(profileObject, profileValues);
+            profileObject.setId(profileId);
             profileObject.setName(name);
+            if (profileId != null) {                
+                IdentifiableObjectCollection profileValues = getProfileValues(profileId);
+                fillProfileAttributes(profileObject, profileValues);
+            }
 
             return profileObject;
         } catch (AccessException ex) {
@@ -87,6 +81,27 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
+    private IdentifiableObjectCollection getProfileValues(Id profileId){
+        String query = "select pv.id from profile_value pv where pv.profile = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(profileId));
+        IdentifiableObjectCollection profileValues = collectionsService.findCollectionByQuery(query, params);
+        return profileValues;
+    }
+    
+    private Id findProfileByName(String name){
+        String query = "select id from profile where name = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new StringValue(name));
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params);
+        Id result = null;
+        if (collection.size() > 0){
+            result = collection.get(0).getId();
+        }
+        return result;        
+    }
+    
+    
     /**
      * Получения профиля персоны. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
      * редактирования пользовательских профилей администраторами. При его вызове должен создаваться AdminAccessToken
@@ -99,15 +114,18 @@ public class ProfileServiceImpl implements ProfileService {
         try {
             accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
-            IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
-            if (profileValues.size() == 0) {
-                return new ProfileObject();
+            ProfileObject personProfileObject = new ProfileObject();
+            DomainObject personDo = crudService.find(personId);
+            Id profileId = personDo.getReference("profile");
+            if (profileId == null) {
+                personProfileObject.setName(personDo.getString("login"));
+            }else{
+                personProfileObject.setId(profileId);
+                IdentifiableObjectCollection profileValues = getProfileValues(profileId);
+                fillProfileAttributes(personProfileObject, profileValues);    
             }
 
-            ProfileObject profileObject = new ProfileObject();
-            fillProfileAttributes(profileObject, profileValues);
-
-            return profileObject;
+            return personProfileObject;
         } catch (AccessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -173,7 +191,7 @@ public class ProfileServiceImpl implements ProfileService {
      * @return
      */
     @Override
-    public PersonProfile getPersonProfile() {
+    public Profile getPersonProfile() {
 
         try {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
@@ -185,21 +203,25 @@ public class ProfileServiceImpl implements ProfileService {
 
     }
 
+    /**
+     * Получение пользовательского профиля. Профиль содержит данные профиля пользователя с учетом иерархии профилей.
+     * Предназначен для работы под провами простого пользователя
+     * @return
+     */
     @Override
-    public PersonProfile getPersonProfileByPersonId(Id personId) {
+    public Profile getPersonProfileByPersonId(Id personId) {
         try {
-            PersonProfileObject personProfileObject = new PersonProfileObject();
+            ProfileObject personProfileObject = new ProfileObject();
             DomainObject personDo = crudService.find(personId);
             Id profileId = personDo.getReference("profile");
             if (profileId == null) {
-                return personProfileObject;
+                personProfileObject.setName(personDo.getString("login"));
+            }else{
+                personProfileObject.setId(profileId);
+                IdentifiableObjectCollection profileValues = getProfileValues(profileId);
+                fillProfileAttributes(personProfileObject, profileValues);    
+                fillInheritedAttributes(personProfileObject, personProfileObject);
             }
-
-            personProfileObject.setId(profileId);
-            IdentifiableObjectCollection profileValues = getProfileValuesByPersonId(personId);
-            fillProfileAttributes(personProfileObject, profileValues);
-
-            fillInheritedAttributes(personProfileObject, personProfileObject);
 
             return personProfileObject;
         } catch (Exception ex) {
@@ -209,7 +231,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public void setPersonProfile(PersonProfile profile) {
+    public void setPersonProfile(Profile profile) {
 
         try {
             Id profileId = profile.getId();
@@ -219,6 +241,7 @@ public class ProfileServiceImpl implements ProfileService {
             if (profileId == null) {
                 // create new profile record
                 personProfileDo = crudService.createDomainObject("person_profile");
+                personProfileDo.setString("name", profile.getName());
             } else {
                 personProfileDo = crudService.find(profileId);
                 // profile already exists - clean existing attributes
@@ -229,12 +252,20 @@ public class ProfileServiceImpl implements ProfileService {
             Id parentProfileId = profile.getParent();
             personProfileDo.setReference("parent", parentProfileId);
             personProfileDo = crudService.save(personProfileDo);
-            profileId = personProfileDo.getId();
+            
+            //Если это новый провиль то обновляем обьект персоны
+            if (profileId == null){
+                profileId = personProfileDo.getId();
+                Id currentUserId = currentUserAccessor.getCurrentUserId();
+                DomainObject person = crudService.find(currentUserId);
+                person.setReference("profile", profileId);
+                crudService.save(person);
+            }
 
             // read parent and inherited profile attributes
-            BaseProfileObject parentProfile = new ProfileObject();
+            ProfileObject parentProfile = new ProfileObject();
             if (parentProfileId != null){
-                fillProfileAttributes(parentProfile, getProfileValuesByProfileId(parentProfileId));
+                fillProfileAttributes(parentProfile, getProfileValues(parentProfileId));
                 fillInheritedAttributes(parentProfile, parentProfile);
             }
 
@@ -268,7 +299,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public String getPersonLocale() {
-        PersonProfile profile = getPersonProfile();
+        Profile profile = getPersonProfile();
         if (profile != null && profile.getString(ProfileService.LOCALE) != null) {
             return profile.getString(ProfileService.LOCALE);
         }
@@ -280,13 +311,13 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public void setPersonLocale(String locale) {
-        PersonProfile profile = getPersonProfile();
+        Profile profile = getPersonProfile();
         profile.setString(ProfileService.LOCALE, locale);
         //setPersonProfile(profile); //FIXME: uncomment after CMFIVE-3397 is fixed.
     }
 
     private void cleanProfileAttributes(Id profileId) {
-        IdentifiableObjectCollection profileValues = getProfileValuesByProfileId(profileId);
+        IdentifiableObjectCollection profileValues = getProfileValues(profileId);
         if (profileValues.size() > 0) {
             for (IdentifiableObject profileValueObj : profileValues) {
                 Id profileValueId = profileValueObj.getId();
@@ -295,25 +326,25 @@ public class ProfileServiceImpl implements ProfileService {
         }
     }
 
-    private IdentifiableObjectCollection getProfileValuesByProfileId(Id profileId) {
+    /*private IdentifiableObjectCollection getProfileValuesByProfileId(Id profileId) {
         Filter filter = new Filter();
         filter.setFilter("byId");
         filter.addReferenceCriterion(0, profileId);
 
         return collectionsService.findCollection("ProfileValues",
                 new SortOrder(), Collections.singletonList(filter));
-    }
+    }*/
 
-    private IdentifiableObjectCollection getProfileValuesByPersonId(Id personId) {
+    /*private IdentifiableObjectCollection getProfileValuesByPersonId(Id personId) {
         Filter filter = new Filter();
         filter.setFilter("byPersonId");
         filter.addReferenceCriterion(0, personId);
 
         return collectionsService.findCollection("ProfileValues",
                 new SortOrder(), Collections.singletonList(filter));
-    }
+    }*/
 
-    private void fillProfileAttributes(BaseProfileObject profileObject, IdentifiableObjectCollection profileValues) {
+    private void fillProfileAttributes(ProfileObject profileObject, IdentifiableObjectCollection profileValues) {
 
         if (profileValues != null) {
             for (IdentifiableObject profileValueObj : profileValues) {
@@ -349,13 +380,13 @@ public class ProfileServiceImpl implements ProfileService {
 
     }
 
-    private void fillInheritedAttributes(BaseProfileObject result, BaseProfileObject current) {
+    private void fillInheritedAttributes(ProfileObject result, ProfileObject current) {
         if (current.getParent() == null) return;
 
         ProfileObject parentProfileObject = new ProfileObject();
         DomainObject parentProfileDo = crudService.find(current.getParent());
         parentProfileObject.setId(parentProfileDo.getId());
-        fillProfileAttributes(parentProfileObject, getProfileValuesByProfileId(parentProfileDo.getId()));
+        fillProfileAttributes(parentProfileObject, getProfileValues(parentProfileDo.getId()));
 
         ArrayList<String> personFields = result.getFields();
         ArrayList<String> parentFields = parentProfileObject.getFields();

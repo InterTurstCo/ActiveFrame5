@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.business.api.NotificationTextFormer;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.PersonProfile;
+import ru.intertrust.cm.core.business.api.dto.Profile;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -71,7 +71,7 @@ public class NotificationChannelBase {
     }
     
     protected String getPersonLocale(Id personId){
-        PersonProfile profile = profileService.getPersonProfileByPersonId(personId);
+        Profile profile = profileService.getPersonProfileByPersonId(personId);
         return profile.getString(ProfileService.LOCALE);
     }
     

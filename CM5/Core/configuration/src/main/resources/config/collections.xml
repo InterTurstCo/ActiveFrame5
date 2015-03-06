@@ -1084,54 +1084,5 @@
             </criteria>
         </filter>
     </collection>
-    
-    <collection name="ProfileValues" idField="id">
-
-        <prototype>
-            <![CDATA[
-                select
-                    pv.id
-                from
-                    profile_value pv
-                    ::from-clause
-                where
-                     1=1 ::where-clause
-            ]]>
-        </prototype>
-
-        <filter name="byName">
-            <reference placeholder="from-clause">
-                <![CDATA[
-                    inner join system_profile sp on pv.profile=sp.id
-                ]]>
-            </reference>
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    sp.name = {0}
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byPersonId">
-            <reference placeholder="from-clause">
-                <![CDATA[
-                    inner join person_profile pp on pv.profile=pp.id
-                    inner join person p on p.profile=pp.id
-                ]]>
-            </reference>
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    p.id = {0}
-                ]]>
-            </criteria>
-        </filter>
-        <filter name="byId">
-            <criteria placeholder="where-clause">
-                <![CDATA[
-                    pv.profile = {0}
-                ]]>
-            </criteria>
-        </filter>
-
-    </collection>
 
 </configuration>
