@@ -257,7 +257,7 @@ public interface ConfigurationExplorer {
      * @return true, если {@code assumedParentDomainObjectTypeName} является предком {@code assumedParentDomainObjectTypeName},
      * false - в противном случае
      */
-    boolean isInstanceOf(String domainObjectType, String assumedDomainObjectType);
+    boolean isAssignable(String domainObjectType, String assumedDomainObjectType);
 
     public <T> T getLocalizedConfig(Class<T> type, String name, String locale);
 

@@ -32,7 +32,7 @@ public class FieldPathHelperImpl implements FieldPathHelper {
         if (exactMatch) {
             return type.equalsIgnoreCase(getReferencedObjectType(formRootObjectType, path));
         } else {
-            return configurationExplorer.isInstanceOf(type, getReferencedObjectType(formRootObjectType, path));
+            return configurationExplorer.isAssignable(type, getReferencedObjectType(formRootObjectType, path));
         }
     }
 }

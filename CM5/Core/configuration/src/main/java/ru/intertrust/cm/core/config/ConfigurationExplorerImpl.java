@@ -16,11 +16,7 @@ import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -617,10 +613,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     }
 
     /**
-     * {@link ru.intertrust.cm.core.config.ConfigurationExplorer#isInstanceOf(String, String)}
+     * {@link ru.intertrust.cm.core.config.ConfigurationExplorer#isAssignable(String, String)}
      */
     @Override
-    public boolean isInstanceOf(String domainObjectType, String assumedDomainObjectType) {
+    public boolean isAssignable(String domainObjectType, String assumedDomainObjectType) {
         if (domainObjectType.equalsIgnoreCase(assumedDomainObjectType)) {
             return true;
         }

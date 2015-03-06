@@ -323,7 +323,7 @@ public class FormSaver extends FormProcessor {
                     linkedType = referenceFieldConfig.getType();
                 }
 
-                if (configurationExplorer.isInstanceOf(domainObjectType, linkedType)) {
+                if (configurationExplorer.isAssignable(domainObjectType, linkedType)) {
                     result.get(fieldPath).add(id);
                     break;
                 }

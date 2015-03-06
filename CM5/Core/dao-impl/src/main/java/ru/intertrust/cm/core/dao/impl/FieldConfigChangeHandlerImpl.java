@@ -85,7 +85,7 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
                     if (oldFieldConfig.getType() == null) {
                         dataStructureDao.createForeignKeyAndUniqueConstraints(domainObjectTypeConfig,
                                 Collections.singletonList(newFieldConfig), new ArrayList<UniqueKeyConfig>());
-                    } else if (configurationExplorer.isInstanceOf(oldFieldConfig.getType(), newFieldConfig.getType())) {
+                    } else if (configurationExplorer.isAssignable(oldFieldConfig.getType(), newFieldConfig.getType())) {
                         String foreignKeyName = schemaCache.getForeignKeyName(domainObjectTypeConfig, oldFieldConfig);
                         if (foreignKeyName != null) {
                             dataStructureDao.dropConstraint(domainObjectTypeConfig, foreignKeyName);
