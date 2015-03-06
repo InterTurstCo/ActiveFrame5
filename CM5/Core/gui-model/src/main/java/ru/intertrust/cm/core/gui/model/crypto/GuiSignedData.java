@@ -1,15 +1,14 @@
-package ru.intertrust.cm.core.config.crypto;
+package ru.intertrust.cm.core.gui.model.crypto;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
-public class SignedData implements Dto{
+public class GuiSignedData implements Dto{
     private static final long serialVersionUID = 1094911161784917225L;
 
-    private List<SignedDataItem> signedDataItems = new ArrayList<SignedDataItem>();
+    private ArrayList<GuiSignedDataItem> signedDataItems = new ArrayList<GuiSignedDataItem>();
     
     private Id rootId;
 
@@ -21,11 +20,11 @@ public class SignedData implements Dto{
         this.rootId = rootId;
     }
 
-    public List<SignedDataItem> getSignedDataItems() {
+    public ArrayList<GuiSignedDataItem> getSignedDataItems() {
         return signedDataItems;
     }
 
-    public void setSignedDataItems(List<SignedDataItem> signedDataItems) {
+    public void setSignedDataItems(ArrayList<GuiSignedDataItem> signedDataItems) {
         this.signedDataItems = signedDataItems;
     }
 }

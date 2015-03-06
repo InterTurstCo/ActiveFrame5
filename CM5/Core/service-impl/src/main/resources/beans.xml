@@ -223,5 +223,7 @@
 
     <bean id="allAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.AllAttachmentSignatureDataService"/>
 
-    <bean id="domainObjectStoreSignatureResultService" class="ru.intertrust.cm.core.business.impl.crypto.DomainObjectStoreSignatureResultService"/>
+    <bean id="currentAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.CurrentAttachmentSignatureDataService"/>
+
+    <bean id="domainObjectStoreSignatureService" class="ru.intertrust.cm.core.business.impl.crypto.DomainObjectStoreSignatureService"/>
 </beans>

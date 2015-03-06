@@ -1,9 +1,9 @@
 package ru.intertrust.cm.core.gui.rpc.api;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.crypto.SignedData;
 import ru.intertrust.cm.core.config.crypto.SignedResult;
 import ru.intertrust.cm.core.gui.model.crypto.DigitalSignatureConfig;
+import ru.intertrust.cm.core.gui.model.crypto.GuiSignedData;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -12,7 +12,7 @@ import com.google.gwt.user.client.rpc.ServiceDefTarget;
 public interface DigitalSignatureServiceAsync {
     void getConfig(AsyncCallback<DigitalSignatureConfig> callback);
 
-    void getSignedData(Id rootId, AsyncCallback<SignedData> callback);
+    void getSignedData(Id rootId, AsyncCallback<GuiSignedData> callback);
 
     void saveSignResult(SignedResult result, AsyncCallback<Void> callback);
     

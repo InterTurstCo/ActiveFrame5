@@ -5,15 +5,12 @@ import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.config.CollectorSettings;
 
-@Root(name = "extended-crypto-settings-config")
-public class ExtendedCryptoSettingsConfig implements CollectorSettings{
+@Root(name = "cades-crypto-settings-config")
+public class CAdESCryptoSettingsConfig implements CollectorSettings{
     private static final long serialVersionUID = -6823371274654533928L;
     
     @Attribute(name = "ts-address", required=true)
     private String tsAddress;
-
-    @Attribute(name = "hash-on-server", required=false)
-    private Boolean hashOnServer;
     
     public String getTsAddress() {
         return tsAddress;
@@ -21,15 +18,7 @@ public class ExtendedCryptoSettingsConfig implements CollectorSettings{
 
     public void setTsAddress(String tsAddress) {
         this.tsAddress = tsAddress;
-    }
-    
-    public Boolean getHashOnServer() {
-        return hashOnServer;
-    }
-
-    public void setHashOnServer(Boolean hashOnServer) {
-        this.hashOnServer = hashOnServer;
-    }
+    }    
 
     @Override
     public int hashCode() {
@@ -47,7 +36,7 @@ public class ExtendedCryptoSettingsConfig implements CollectorSettings{
             return false;
         if (getClass() != obj.getClass())
             return false;
-        ExtendedCryptoSettingsConfig other = (ExtendedCryptoSettingsConfig) obj;
+        CAdESCryptoSettingsConfig other = (CAdESCryptoSettingsConfig) obj;
         if (tsAddress == null) {
             if (other.tsAddress != null)
                 return false;

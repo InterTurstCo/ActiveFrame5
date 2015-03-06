@@ -16,11 +16,11 @@ public class TypeCryptoSettingsConfig implements TopLevelConfig{
     @Attribute(required = true)
     private String name;
 
-    @Attribute(required = true, name="get-content-bean-name")
+    @Attribute(required = false, name="get-content-bean-name")
     private String getContentBeanName;    
 
-    @Attribute(required = true, name="save-signature-bean-name")
-    private String saveSignatureBeanName;    
+    @Attribute(required = false, name="signature-storage-bean-name")
+    private String signatureStorageBeanName;    
     
     /**
      * Конфигурация спринг бина получения подписываемого контента
@@ -32,9 +32,9 @@ public class TypeCryptoSettingsConfig implements TopLevelConfig{
     /**
      * Конфигурация спринг бина сохранения ЭП
      */
-    @Element(name = "save-signature-bean-settings", required = false)
+    @Element(name = "signature-storage-bean-settings", required = false)
     @Convert(CollectorSettingsConverter.class)
-    private CollectorSettings saveSignatureBeanSettings;    
+    private CollectorSettings signatureStorageBeanSettings;    
     
     @Override
     public String getName() {
@@ -53,12 +53,12 @@ public class TypeCryptoSettingsConfig implements TopLevelConfig{
         this.getContentBeanName = getContentBeanName;
     }
 
-    public String getSaveSignatureBeanName() {
-        return saveSignatureBeanName;
+    public String getSignatureStorageBeanName() {
+        return signatureStorageBeanName;
     }
 
-    public void setSaveSignatureBeanName(String saveSignatureBeanName) {
-        this.saveSignatureBeanName = saveSignatureBeanName;
+    public void setSignatureStorageBeanName(String signatureStorageBeanName) {
+        this.signatureStorageBeanName = signatureStorageBeanName;
     }
 
     public CollectorSettings getGetContentBeanSettings() {
@@ -69,12 +69,12 @@ public class TypeCryptoSettingsConfig implements TopLevelConfig{
         this.getContentBeanSettings = getContentBeanSettings;
     }
 
-    public CollectorSettings getSaveSignatureBeanSettings() {
-        return saveSignatureBeanSettings;
+    public CollectorSettings getSignatureStorageBeanSettings() {
+        return signatureStorageBeanSettings;
     }
 
-    public void setSaveSignatureBeanSettings(CollectorSettings saveSignatureBeanSettings) {
-        this.saveSignatureBeanSettings = saveSignatureBeanSettings;
+    public void setSignatureStorageBeanSettings(CollectorSettings signatureStorageBeanSettings) {
+        this.signatureStorageBeanSettings = signatureStorageBeanSettings;
     }
 
     

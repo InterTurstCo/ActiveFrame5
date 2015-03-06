@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.business.api.crypto;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
-import ru.intertrust.cm.core.config.crypto.SignedData;
-import ru.intertrust.cm.core.config.crypto.SignedResult;
+import ru.intertrust.cm.core.config.crypto.SignedDataItem;
+import ru.intertrust.cm.core.config.crypto.SignedResultItem;
 
 public interface CryptoService extends CryptoTool{
     
@@ -12,7 +15,17 @@ public interface CryptoService extends CryptoTool{
     
     CryptoSettingsConfig getCryptoSettingsConfig();
     
-    SignedData getSignedData(Id rootId);
+    SignedDataItem getContentForSignature(Id id);
     
-    void saveSignedResult(SignedResult signedResult);
+    List<Id> getBatchForSignature(Id rootId);
+    
+    void saveSignedResult(SignedResultItem signedResult);
+    
+    /**
+     * Проверка ЭП вложения (ДО наследника attachment)
+     * @param documentId идентификатор документа
+     * @return
+     */
+    VerifyResult verify(Id documrntId);
+
 }

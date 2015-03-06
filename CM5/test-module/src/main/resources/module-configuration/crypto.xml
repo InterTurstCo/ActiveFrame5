@@ -2,14 +2,40 @@
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
 	<type-crypto-settings name="country"
-		get-content-bean-name="allAttachmentSignatureDataService"
-		save-signature-bean-name="domainObjectStoreSignatureResultService">
-		<save-signature-bean-settings>
-			<domain-object-store-signature
-				signature-store-type-name="digital_signature" 
-				signed-attachment-field-name="signed_object" 
-				signature-field-name="signature"/>
-		</save-signature-bean-settings>
+		get-content-bean-name="allAttachmentSignatureDataService">
 	</type-crypto-settings>
+
+    <type-crypto-settings name="country_attachment"
+        get-content-bean-name="currentAttachmentSignatureDataService"
+        signature-storage-bean-name="domainObjectStoreSignatureService">
+        <signature-storage-bean-settings>
+            <domain-object-store-signature
+                signature-store-type-name="digital_signature" 
+                signed-attachment-field-name="signed_object" 
+                signature-field-name="signature"/>
+        </signature-storage-bean-settings>
+    </type-crypto-settings>
+
+    <type-crypto-settings name="fauna_attachment"
+        get-content-bean-name="currentAttachmentSignatureDataService"
+        signature-storage-bean-name="domainObjectStoreSignatureService">
+        <signature-storage-bean-settings>
+            <domain-object-store-signature
+                signature-store-type-name="digital_signature" 
+                signed-attachment-field-name="signed_object" 
+                signature-field-name="signature"/>
+        </signature-storage-bean-settings>
+    </type-crypto-settings>
+
+    <type-crypto-settings name="digital_signature"
+        get-content-bean-name="signatureOwnerAttachments"
+        signature-storage-bean-name="currentDomainObjectStoreSignatureService">
+        <signature-storage-bean-settings>
+            <domain-object-store-signature
+                signature-store-type-name="digital_signature" 
+                signed-attachment-field-name="signed_object" 
+                signature-field-name="signature"/>
+        </signature-storage-bean-settings>
+    </type-crypto-settings>
 
 </configuration>

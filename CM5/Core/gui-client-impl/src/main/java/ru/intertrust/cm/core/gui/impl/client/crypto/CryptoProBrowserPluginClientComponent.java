@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.crypto;
 
 import java.util.ArrayList;
 
-import ru.intertrust.cm.core.config.crypto.ExtendedCryptoSettingsConfig;
+import ru.intertrust.cm.core.config.crypto.CAdESCryptoSettingsConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.DigitalSignatureClientComponent;
 import ru.intertrust.cm.core.gui.api.client.DigitalSignatureComponentInitHandler;
@@ -18,7 +18,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 @ComponentName("cryptopro.browser.plugin.client.component")
 public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClientComponent{
     private DigitalSignatureConfig config;
-    private ExtendedCryptoSettingsConfig extendedConfig;
+    private CAdESCryptoSettingsConfig extendedConfig;
     private JavaScriptObject cryptoTool;
 
     @Override
@@ -29,9 +29,9 @@ public class CryptoProBrowserPluginClientComponent extends DigitalSignatureClien
     @Override
     public void init(DigitalSignatureConfig config, final DigitalSignatureComponentInitHandler handler) {
         this.config = config;
-        this.extendedConfig = (ExtendedCryptoSettingsConfig)config.getCryptoSettingsConfig().getSettings();
+        this.extendedConfig = (CAdESCryptoSettingsConfig)config.getCryptoSettingsConfig().getSettings();
         nativeInit(this.extendedConfig.getTsAddress(), 
-                (this.extendedConfig.getHashOnServer() != null && this.extendedConfig.getHashOnServer()));
+                (this.config.getCryptoSettingsConfig().getHashOnServer() != null && this.config.getCryptoSettingsConfig().getHashOnServer()));
         
         if (nativeCheckInstall()){
             JsArrayString allCerts = nativeGetCertificates();

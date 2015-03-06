@@ -66,16 +66,6 @@ public class BouncycastleCryptoBean implements CryptoBean {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public VerifyResult verify(InputStream document, byte[] signature, Id personId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public VerifyResult verify(Id documrntId) {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Получение файла в виде массива байт
      * @param file

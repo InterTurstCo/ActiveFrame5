@@ -1,20 +1,18 @@
-package ru.intertrust.cm.core.config.crypto;
-
-import java.io.InputStream;
+package ru.intertrust.cm.core.gui.model.crypto;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
-public class SignedDataItem implements Dto {
+public class GuiSignedDataItem implements Dto{
     private static final long serialVersionUID = -3132225111239223064L;
     private Id id;
     private String name;
-    private InputStream content;
+    private String content;
       
-    public SignedDataItem() {
+    public GuiSignedDataItem() {
     }
     
-    public SignedDataItem(Id id, String name, InputStream content) {
+    public GuiSignedDataItem(Id id, String name, String content) {
         super();
         this.id = id;
         this.name = name;
@@ -26,10 +24,10 @@ public class SignedDataItem implements Dto {
     public void setId(Id id) {
         this.id = id;
     }
-    public InputStream getContent() {
+    public String getContent() {
         return content;
     }
-    public void setContent(InputStream content) {
+    public void setContent(String content) {
         this.content = content;
     }
     public String getName() {

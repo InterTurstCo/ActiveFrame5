@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.api.crypto;
 
 import java.io.InputStream;
 
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
 
 /**
@@ -35,22 +34,6 @@ public interface CryptoTool {
      * @return
      */
     VerifyResult verify(InputStream document, byte[] signature, byte[] signerSertificate);
-
-    /**
-     * Проверка стандартной ЭП с помощью сертификата, указанного в доменном объекте персоны
-     * @param document поток содержащий документ
-     * @param signature электронная подпись
-     * @param personId идентификатор персоны которой был подписан документ
-     * @return
-     */
-    VerifyResult verify(InputStream document, byte[] signature, Id personId);
-
-    /**
-     * Проверка стандартной ЭП с помощью сертификата, указанного в доменном объекте персоны
-     * @param documentId идентификатор документа
-     * @return
-     */
-    VerifyResult verify(Id documrntId);
 
     /**
      * Формирование hash переданного документа
