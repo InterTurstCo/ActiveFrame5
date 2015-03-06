@@ -24,7 +24,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 @Stateless(name = "ProfileService")
@@ -312,8 +311,8 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public void setPersonLocale(String locale) {
         Profile profile = getPersonProfile();
-        profile.setString(ProfileService.LOCALE, locale);
-        //setPersonProfile(profile); //FIXME: uncomment after CMFIVE-3397 is fixed.
+        profile.setValue(ProfileService.LOCALE, new ProfileStringValue(locale));
+        setPersonProfile(profile);
     }
 
     private void cleanProfileAttributes(Id profileId) {
