@@ -97,7 +97,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
-            boolean schemaUpdatedByAutoMigration = schemaUpdatedByScriptMigration ||
+            boolean schemaUpdatedByAutoMigration =
                     createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
 
             saveConfiguration();

@@ -33,78 +33,78 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 public class SqlQueryModifierTest {
 
     private static final String ID_FIELD = "id";
-    private static final String UNION_QUERY = "SELECT * FROM EMPLOYEE e, Department d where 1 = 1 and e.id = 1 " +
-            "union SELECT * FROM EMPLOYEE e, Department d where 1 = 1 and e.id = 2";
+    private static final String UNION_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 1 " +
+            "union SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 2";
 
-    private static final String PLAIN_SELECT_QUERY = "SELECT * FROM EMPLOYEE e, Department d where 1 = 1 and e.id = 1";
+    private static final String PLAIN_SELECT_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 1";
 
-    private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE = "SELECT * FROM EMPLOYEE e, Department d";
+    private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d";
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED = "SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE "
             + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = EMPLOYEE.\"id\")) e, "
             + "(SELECT * FROM \"Department\" Department WHERE EXISTS ("
             + "SELECT r.\"object_id\" FROM \"department_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d";
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = Department.\"id\")) d";
 
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT * FROM " +
-            "EMPLOYEE e, " +
-            "Department d WHERE 1 = 1 AND e.id = 1";
+            "\"EMPLOYEE\" e, " +
+            "\"Department\" d WHERE 1 = 1 AND e.\"id\" = 1";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM EMPLOYEE e, " +
-            "Department d WHERE 1 = 1 AND (e.id = :idsIncluded10 AND e." + TYPE_COLUMN +
-            " = :idsIncluded10_type) AND ((e.id = :idsIncluded20 AND e." + TYPE_COLUMN +
-            " = :idsIncluded20_type) OR (e.id = :idsIncluded21 AND e." + TYPE_COLUMN + " = :idsIncluded21_type))";
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM \"EMPLOYEE\" e, " +
+            "\"Department\" d WHERE 1 = 1 AND (e.\"id\" = :idsIncluded10 AND e.\"id_type\" = :idsIncluded10_type) AND " +
+            "((e.\"id\" = :idsIncluded20 AND e.\"id_type\" = :idsIncluded20_type) OR " +
+            "(e.\"id\" = :idsIncluded21 AND e.\"id_type\" = :idsIncluded21_type))";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM EMPLOYEE e, " +
-            "Department d WHERE 1 = 1 AND (e.person <> :idsExcluded10 OR e.person_type <> :idsExcluded10_type) " +
-            "AND ((e.person <> :idsExcluded20 OR e.person_type <> :idsExcluded20_type) AND " +
-            "(e.person <> :idsExcluded21 OR e.person_type <> :idsExcluded21_type))";
+    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM \"EMPLOYEE\" e, " +
+            "\"Department\" d WHERE 1 = 1 AND (e.\"person\" <> :idsExcluded10 OR e.\"person_type\" <> :idsExcluded10_type) " +
+            "AND ((e.\"person\" <> :idsExcluded20 OR e.\"person_type\" <> :idsExcluded20_type) AND " +
+            "(e.\"person\" <> :idsExcluded21 OR e.\"person_type\" <> :idsExcluded21_type))";
 
-    private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM EMPLOYEE e, " +
-            "Department d WHERE 1 = 1 AND e.id = 1) " +
-            "UNION (SELECT * FROM EMPLOYEE e, Department d WHERE 1 = 1 " +
-            "AND e.id = 2)";
+    private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM \"EMPLOYEE\" e, " +
+            "\"Department\" d WHERE 1 = 1 AND e.\"id\" = 1) " +
+            "UNION (SELECT * FROM \"EMPLOYEE\" e, \"Department\" d WHERE 1 = 1 " +
+            "AND e.\"id\" = 2)";
 
     private static final String PLAIN_SELECT_QUERY_WITH_ACL = "SELECT * FROM "
             + "(SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = EMPLOYEE.\"id\")) e, "
             + "(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" "
             + "FROM \"department_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 1";
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = Department.\"id\")) d WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String UNION_QUERY_WITH_ACL = "(SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE "
             + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = EMPLOYEE.\"id\")) e, "
             + "(SELECT * FROM \"Department\" Department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 1) "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = Department.\"id\")) d WHERE 1 = 1 AND e.\"id\" = 1) "
             + "UNION (SELECT * FROM (SELECT * FROM \"EMPLOYEE\" EMPLOYEE WHERE EXISTS "
             + "(SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = EMPLOYEE.id)) e, (SELECT * FROM \"Department\" Department "
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = EMPLOYEE.\"id\")) e, (SELECT * FROM \"Department\" Department "
             + "WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r "
             + "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" "
             + "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" "
             + "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" "
-            + "WHERE gm.person_id = :user_id AND rt.id = Department.id)) d WHERE 1 = 1 AND e.id = 2)";
+            + "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = Department.\"id\")) d WHERE 1 = 1 AND e.\"id\" = 2)";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
             "FROM SS_MODULE module " +

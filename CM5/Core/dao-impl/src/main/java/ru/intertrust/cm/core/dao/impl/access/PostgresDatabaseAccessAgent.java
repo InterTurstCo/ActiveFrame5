@@ -43,6 +43,8 @@ import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+
 /**
  * Реализация агента БД по запросам прав доступа для PostgreSQL.
  * <p>Перед использованием объекта необходимо установить корректный источник данных вызовом метода
@@ -275,17 +277,17 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         
         StringBuilder query = new StringBuilder();
         
-        query.append("select count(*) from ").append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append("select count(*) from ").append(wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
-        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
-                .append(" = a.").append(DaoUtils.wrap("object_id"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
-                .append(DaoUtils.wrap("id")).append(" = :object_id and a.")
-                .append(DaoUtils.wrap("operation")).append(" in (:operation)");
+        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.").append(wrap("access_object_id"))
+                .append(" = a.").append(wrap("object_id"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.")
+                .append(wrap("id")).append(" = :object_id and a.")
+                .append(wrap("operation")).append(" in (:operation)");
         return query.toString();
     }
 
@@ -296,16 +298,16 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         
         StringBuilder query = new StringBuilder();
         
-        query.append("select count(*) from ").append(DaoUtils.wrap(domainObjectAclReadTable)).append(" a ");
-        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append("select count(*) from ").append(wrap(domainObjectAclReadTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
+                .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
-        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
-                .append(" = a.").append(DaoUtils.wrap("object_id"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.")
-                .append(DaoUtils.wrap("id")).append(" = :object_id ");
+        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.").append(wrap("access_object_id"))
+                .append(" = a.").append(wrap("object_id"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.")
+                .append(wrap("id")).append(" = :object_id ");
         return query.toString();
     }
 
@@ -381,18 +383,18 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         StringBuilder query = new StringBuilder();
         
-        query.append("select a.").append(DaoUtils.wrap("object_id")).append(" object_id from ")
-                .append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
-                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append("select a.").append(wrap("object_id")).append(" object_id from ")
+                .append(wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
-        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
-                .append(" = a.").append(DaoUtils.wrap("object_id"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.").append(DaoUtils.wrap("id"))
+        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.").append(wrap("access_object_id"))
+                .append(" = a.").append(wrap("object_id"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.").append(wrap("id"))
                 .append(" in (:object_ids) and ")
-                .append("a.").append(DaoUtils.wrap("operation")).append(" = :operation");
+                .append("a.").append(wrap("operation")).append(" = :operation");
         return query.toString();
     }
 
@@ -424,18 +426,18 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         StringBuilder query = new StringBuilder();
         
-        query.append("select a.").append(DaoUtils.wrap("operation")).append(" operation from ")
-                .append(DaoUtils.wrap(domainObjectAclTable)).append(" a ");
-        query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on a.").append(DaoUtils.wrap("group_id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
-                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+        query.append("select a.").append(wrap("operation")).append(" operation from ")
+                .append(wrap(domainObjectAclTable)).append(" a ");
+        query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
-        query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on o.").append(DaoUtils.wrap("access_object_id"))
-                .append(" = a.").append(DaoUtils.wrap("object_id"));
-        query.append(" where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and o.").append(DaoUtils.wrap("id"))
+        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.").append(wrap("access_object_id"))
+                .append(" = a.").append(wrap("object_id"));
+        query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.").append(wrap("id"))
                 .append(" = :object_id and a.")
-                .append(DaoUtils.wrap("operation")).append(" in (:operations)");
+                .append(wrap("operation")).append(" in (:operations)");
 
         return query.toString();
     }
@@ -552,12 +554,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getQueryForCheckUserGroup() {
         StringBuilder query = new StringBuilder();
         
-        query.append("select count(*) from ").append(DaoUtils.wrap("user_group")).append(" ug ");
-        query.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on ug.").append(DaoUtils.wrap("id"))
-                .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-        query.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.").append(DaoUtils.wrap("child_group_id"))
-                .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-        query.append("where gm.").append(DaoUtils.wrap("person_id")).append(" = :user_id and ug.").append(DaoUtils.wrap("group_name"))
+        query.append("select count(*) from ").append(wrap("user_group")).append(" ug ");
+        query.append("inner join ").append(wrap("group_group")).append(" gg on ug.").append(wrap("id"))
+                .append(" = gg.").append(wrap("parent_group_id"));
+        query.append("inner join ").append(wrap("group_member")).append(" gm on gg.").append(wrap("child_group_id"))
+                .append(" = gm.").append(wrap("usergroup"));
+        query.append("where gm.").append(wrap("person_id")).append(" = :user_id and ug.").append(wrap("group_name"))
                 .append(" = :group_name");
         return query.toString();
     }
@@ -652,10 +654,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             return true;
         }
 
-        String query = "select gm.person_id, gm.person_id_type from group_member gm " +
-                "inner join group_group gg on (gg.child_group_id = gm.usergroup) " +
-                "inner join user_group ug on gg.parent_group_id = ug.id where ug.group_name in (:groups)";
-        Map<String, Object> params = new HashMap<String, Object>();
+        String query = "select gm." + wrap("person_id") + ", gm." + wrap("person_id_type") + " " +
+                "from " + wrap("group_member") + " gm " +
+                "inner join " + wrap("group_group") + " gg on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") + " " +
+                "inner join " + wrap("user_group") + " ug on gg." + wrap("parent_group_id") + "= ug." + wrap("id") + " " +
+                "where ug." + wrap("group_name") + " in (:groups)";
+
+        Map<String, Object> params = new HashMap<>();
         params.put("groups", userGroups);
 
         List<Id> groupMembers = jdbcTemplate.query(query, params, new RowMapper<Id>() {

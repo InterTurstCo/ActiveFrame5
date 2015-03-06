@@ -324,8 +324,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
                     // контекстным объектом является текущий объект (для которого
                     // пересчитываются списки доступа)
-                    result.add(processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName, invalidContextId));
-
+                    AclInfo aclInfo = processAclForDynamicGroupWithContext(invalidContextId, accessType, dynamicGroupName, invalidContextId);
+                    if (aclInfo != null) {
+                        result.add(aclInfo);
+                    }
                 } else {
                     result.add(processAclForDynamicGroupWithoutContext(invalidContextId, accessType, dynamicGroupName));
                 }
@@ -337,7 +339,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private AclInfo processAclForDynamicGroupWithContext(Id objectId, AccessType accessType, String dynamicGroupName,
             Id contextObjectId) {
         Id dynamicGroupId = getUserGroupByGroupNameAndObjectId(dynamicGroupName, contextObjectId);
-        return new AclInfo(accessType, dynamicGroupId);
+        if (dynamicGroupId != null) {
+            return new AclInfo(accessType, dynamicGroupId);
+        } else {
+            return null;
+        }
     }
 
     private List<AclInfo> processAclForCollector(Id invalidContextId,

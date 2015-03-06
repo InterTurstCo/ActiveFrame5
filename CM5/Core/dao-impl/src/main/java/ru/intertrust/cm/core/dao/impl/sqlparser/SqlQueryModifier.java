@@ -6,6 +6,7 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTF
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -371,7 +372,7 @@ public class SqlQueryModifier {
                             FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
                             if (fieldConfig instanceof ReferenceFieldConfig) {
-                                column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
+                                column.setColumnName(wrap(getReferenceTypeColumnName(column.getColumnName())));
                             }
                         }
                     }
@@ -381,7 +382,7 @@ public class SqlQueryModifier {
                         FieldConfig fieldConfig = columnToConfigMapForSelectItems.get(getColumnName(column));
 
                         if (fieldConfig instanceof ReferenceFieldConfig) {
-                            column.setColumnName(getReferenceTypeColumnName(column.getColumnName()));
+                            column.setColumnName(wrap(getReferenceTypeColumnName(column.getColumnName())));
                         }
                     }
 
@@ -665,7 +666,7 @@ public class SqlQueryModifier {
         jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
 
         EqualsTo idEqualsTo = new EqualsTo();
-        idEqualsTo.setLeftExpression(new Column(table, columnName));
+        idEqualsTo.setLeftExpression(new Column(table, wrap(columnName)));
         idEqualsTo.setRightExpression(jdbcNamedParameter);
         return idEqualsTo;
     }
@@ -675,7 +676,7 @@ public class SqlQueryModifier {
         jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
 
         NotEqualsTo idNotEqualsTo = new NotEqualsTo();
-        idNotEqualsTo.setLeftExpression(new Column(table, columnName));
+        idNotEqualsTo.setLeftExpression(new Column(table, wrap(columnName)));
         idNotEqualsTo.setRightExpression(jdbcNamedParameter);
         return idNotEqualsTo;
     }
@@ -790,7 +791,7 @@ public class SqlQueryModifier {
 
                             if (selectExpressionItem.getAlias() != null
                                     && column.getColumnName().equalsIgnoreCase(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))) {
-                                column.setColumnName(selectColumn.getColumnName());
+                                column.setColumnName(wrap(selectColumn.getColumnName()));
 
                                 return DaoUtils.unwrap(fromItem.getName());
                             }
@@ -986,7 +987,7 @@ public class SqlQueryModifier {
 
     private String createServiceColumnAlias(SelectExpressionItem selectExpressionItem, String postfix) {
         String baseAlias = DaoUtils.unwrap(selectExpressionItem.getAlias().getName());
-        String serviceColumnAlias = DaoUtils.wrap(getServiceColumnName(baseAlias, postfix));
+        String serviceColumnAlias = wrap(getServiceColumnName(baseAlias, postfix));
         return serviceColumnAlias;
     }
 

@@ -603,14 +603,13 @@ public class CrudServiceIT extends IntegrationTestBase {
         paramsComplexKey.put("dateTimeWithTimeZoneField", new DateTimeWithTimeZoneValue(new DateTimeWithTimeZone(2, 2014, 3, 3)));
         paramsComplexKey.put("longField", new LongValue(1004L));
         paramsComplexKey.put("referenceField", new ReferenceValue(organizationId));
-        paramsComplexKey.put("textField", new StringValue("txt"));
         paramsComplexKey.put("timelessDateField", new TimelessDateValue(new TimelessDate(2014, 3, 3)));
         paramsComplexKey.put("decimalField", new DecimalValue(new BigDecimal("1.2")));
 
         DomainObject do2 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
         assertEquals(employeeTestUniqueKey.getId(), do2.getId());
 
-        paramsComplexKey.put("textField", new StringValue("key2err"));
+        paramsComplexKey.put("stringField", new StringValue("key2err"));
         try {
             crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
             assertTrue(false);
@@ -618,7 +617,7 @@ public class CrudServiceIT extends IntegrationTestBase {
             assertTrue(true);
         }
 
-        paramsComplexKey.put("textField", new StringValue("txt"));
+        paramsComplexKey.put("stringField", new StringValue("str"));
         DomainObject do3 = crudService.findAndLockByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
         assertEquals(employeeTestUniqueKey.getId(), do3.getId());
 

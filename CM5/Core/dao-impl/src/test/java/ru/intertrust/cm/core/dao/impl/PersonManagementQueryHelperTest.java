@@ -13,15 +13,15 @@ import static org.mockito.Mockito.when;
 
 public class PersonManagementQueryHelperTest {
 
-    private static final String ACCESS_RIGHTS_PART = " and exists (select a.object_id from person_read a  " +
+    private static final String ACCESS_RIGHTS_PART = " and exists (select a.\"object_id\" from \"person_read\" a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
+            + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
 
-    private static final String ACCESS_RIGHTS_PART2 = " and exists (select a.object_id from user_group_read a  " +
+    private static final String ACCESS_RIGHTS_PART2 = " and exists (select a.\"object_id\" from \"user_group_read\" a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"user_group\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
+            + "inner join \"user_group\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
 
     private final PersonManagementQueryHelper queryHelper = new PersonManagementQueryHelper();
 
@@ -71,7 +71,7 @@ public class PersonManagementQueryHelperTest {
         String expectedQuery = "select user_group.* from \"user_group\" user_group  inner join \"group_group\" gg on " +
                 "(gg.\"parent_group_id\" = user_group.\"id\" and gg.\"parent_group_id_type\" = user_group.\"id_type\") " +
                 "where gg.\"child_group_id\"=:id and gg.\"child_group_id_type\"=:id_type and " +
-                "(\"user_group\".\"id\" <> :id or \"user_group\".\"id_type\" <> :id_type)" + ACCESS_RIGHTS_PART2;
+                "(user_group.\"id\" <> :id or user_group.\"id_type\" <> :id_type)" + ACCESS_RIGHTS_PART2;
         Assert.assertEquals(expectedQuery, queryHelper.generateFindAllParentGroups("User_Group", accessToken));
     }
 
@@ -90,7 +90,7 @@ public class PersonManagementQueryHelperTest {
         String expectedQuery = "select user_group.* from \"user_group\" user_group  inner join \"group_group\" gg on " +
                 "(gg.\"child_group_id\" = user_group.\"id\" and gg.\"child_group_id_type\" = user_group.\"id_type\") " +
                 "where gg.\"parent_group_id\"=:id and gg.\"parent_group_id_type\"=:id_type and " +
-                "(\"user_group\".\"id\" <> :id or \"user_group\".\"id_type\" <> :id_type)" + ACCESS_RIGHTS_PART2;
+                "(user_group.\"id\" <> :id or user_group.\"id_type\" <> :id_type)" + ACCESS_RIGHTS_PART2;
         Assert.assertEquals(expectedQuery, queryHelper.generateFindAllChildGroups("User_Group", accessToken));
     }
 
@@ -98,8 +98,8 @@ public class PersonManagementQueryHelperTest {
     public void tesGenerateFindDynamicGroup() throws Exception {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select user_group.* from \"user_group\" user_group " +
-                "where \"user_group\".\"object_id\"=:id and \"user_group\".\"object_id_type\"=:id_type and " +
-                "\"user_group\".\"group_name\"=:name" + ACCESS_RIGHTS_PART2;
+                "where user_group.\"object_id\"=:id and user_group.\"object_id_type\"=:id_type and " +
+                "user_group.\"group_name\"=:name" + ACCESS_RIGHTS_PART2;
         Assert.assertEquals(expectedQuery, queryHelper.generateFindDynamicGroup("User_Group", accessToken));
     }
 

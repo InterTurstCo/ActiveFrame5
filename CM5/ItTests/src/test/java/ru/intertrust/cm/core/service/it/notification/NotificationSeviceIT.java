@@ -86,7 +86,7 @@ public class NotificationSeviceIT extends IntegrationTestBase {
 
     private void setPersonProfile(String person, String ppName) {
         Id personId = personService.findPersonByLogin(person).getId();
-        DomainObject personProfileDo = findDomainObject("person_profile", "empty", ppName);
+        DomainObject personProfileDo = findDomainObject("profile", "name", ppName);
         DomainObject person1do = crudService.find(personId);
         person1do.setReference("profile", personProfileDo.getId());
         crudService.save(person1do);

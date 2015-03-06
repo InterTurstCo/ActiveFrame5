@@ -227,12 +227,12 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                 aclQuery.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalDomainObjectType).append(".")
                         .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
             }
-            aclQuery.append(" where gm.person_id = ").append(SqlQueryModifier.USER_ID_PARAM);
+            aclQuery.append(" where gm.\"person_id\" = ").append(SqlQueryModifier.USER_ID_PARAM);
 
-            aclQuery.append(" and rt.id = ");
+            aclQuery.append(" and rt.\"id\" = ");
             if (!isAuditLog) {
                 //topLevelParentType
-                aclQuery.append(domainObjectType).append(".").append(Configuration.ID_COLUMN);
+                aclQuery.append(domainObjectType).append(".").append(wrap(Configuration.ID_COLUMN));
 
             } else {
                 //topLevelAuditTable

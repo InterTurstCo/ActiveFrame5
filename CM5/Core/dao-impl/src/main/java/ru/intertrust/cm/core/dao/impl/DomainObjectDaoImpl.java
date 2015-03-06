@@ -1009,12 +1009,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(configurationExplorer, domainObjectType);
             query.append("select distinct t.* from " + domainObjectType + " t ");
-            query.append(" inner join ").append(aclReadTable).append(" r on t.id = r.object_id ");
+            query.append(" inner join ").append(wrap(aclReadTable)).append(" r on t.id = r.object_id ");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
             query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                     .append(wrap("child_group_id")).append(" = gm." + wrap("usergroup"));
-            query.append(" where gm.person_id = :user_id and t.id in (:object_ids) ");
+            query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and t.").append(wrap("id")).append(" in (:object_ids) ");
 
             aclParameters = domainObjectQueryHelper.initializeParameters(accessToken);
 
@@ -1259,7 +1259,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(" where 1=1");
 
         if (exactType) {
-            query.append(" and ").append(tableAlias).append(".").append(TYPE_COLUMN).append(" = :").append(RESULT_TYPE_ID);
+            query.append(" and ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = :").append(RESULT_TYPE_ID);
         }
 
         if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
@@ -1278,7 +1278,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             query.append(" and ");
 
-            query.append("exists (select a.object_id from ").append(aclReadTable).append(" a");
+            query.append("exists (select a.").append(wrap("object_id")).append(" from ").append(wrap(aclReadTable)).append(" a");
             query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
                     .append(" = gg.").append(wrap("parent_group_id"));
             query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
@@ -1286,8 +1286,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on a.")
                     .append(DaoUtils.wrap("object_id"))
                     .append(" = rt.").append(DaoUtils.wrap("access_object_id"));            
-            query.append(" where gm.person_id = :user_id and ").append(rootType).append(".id = ")
-                    .append(tableAlias).append(".ID)");
+            query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and ").
+                    append(rootType).append(".").append(wrap("id")).append(" = ").append(tableAlias).append(".").append(wrap("id")).append(")");
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1696,7 +1696,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 append(" = :").append(PARAM_DOMAIN_OBJECT_TYPE_ID);
 
         if (exactType) {
-            query.append(" and ").append(tableHavingLinkedFieldAlias).append(".").append(TYPE_COLUMN).
+            query.append(" and ").append(tableHavingLinkedFieldAlias).append(".").append(wrap(TYPE_COLUMN)).
                     append(" = :").append(RESULT_TYPE_ID);
         }
 
@@ -1719,7 +1719,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder query = new StringBuilder();
         query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
-                append(", ").append(tableAlias).append(".").append(getReferenceTypeColumnName(ID_COLUMN)).
+                append(", ").append(tableAlias).append(".").append(wrap(getReferenceTypeColumnName(ID_COLUMN))).
                 append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
                 append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
                 append(" = :").append(PARAM_DOMAIN_OBJECT_ID).
@@ -1727,7 +1727,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 .append(" = :").append(PARAM_DOMAIN_OBJECT_TYPE_ID);
 
         if (exactType) {
-            query.append(" and ").append(tableAlias).append(".").append(TYPE_COLUMN).
+            query.append(" and ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).
                     append(" = :").append(RESULT_TYPE_ID);
         }
 
@@ -1764,7 +1764,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             String rootType = configurationExplorer.getDomainObjectRootType(linkedType).toLowerCase();
             
-            query.append(" and exists (select r.object_id from ").append(childAclReadTable).append(" r ");
+            query.append(" and exists (select r." + wrap("object_id") + " from ").append(wrap(childAclReadTable)).append(" r ");
 
             query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
                     .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
@@ -1778,7 +1778,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
             }
 
-            query.append("where gm.person_id = :user_id and rt.id = ");
+            query.append("where gm.").append(wrap("person_id")).append(" = :user_id and rt.").append(wrap("id")).append(" = ");
             if (!isAuditLog) {
                 query.append(originalLinkedType).append(".").append(DaoUtils.wrap(ID_COLUMN));
 
@@ -2334,8 +2334,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append("select ");
         query.append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(", ");
         query.append(tableAlias).append(".").append(wrap(TYPE_COLUMN));
-        query.append(" from ");
-        query.append(wrap(tableAlias));
+        query.append(" from ").append(getSqlName(domainObjectType)).append(" ").append(tableAlias);
         query.append(" where ");
 
         int paramCounter = 0;

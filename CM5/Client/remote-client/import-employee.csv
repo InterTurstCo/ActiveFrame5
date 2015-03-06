@@ -2,12 +2,12 @@ TYPE_NAME=Employee;KEYS=Login,Name;EMPTY_STRING_SYMBOL=0;;;;;
 Login;FirstName;LastName;EMail;Name;Department;Position;Phone
 person1;Иван;Иванов;ivanov@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-01
 person2;Петр;Петров;petrov@inttrast.ru;Сотрудник 2;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-02
-person3;Сидор;Сидоров;_;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03
-person4;Егор;Егоров;0;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04
-person5;Сперидон;Сперидонов;;Сотрудник 5;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-05
-person6;Алексей;Алексеев;;Сотрудник 6;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-06
-person7;Семен;Семенов;;Сотрудник 7;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-07
-person8;Григорий;Григорьев;;Сотрудник 8;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-08
-person9;Иннакентий;Иннакеньев;;Сотрудник 9;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-09
-person10;Сергей;Сергеев;;Сотрудник 10;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-10
-person11;Михаил;Михайлов;;Сотрудник 11;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-11
+person3;Сидор;Сидоров;person3@inttrast.ru;Сотрудник 3;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-03
+person4;Егор;Егоров;person4@inttrast.ru;Сотрудник 4;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-04
+person5;Сперидон;Сперидонов;person5@inttrast.ru;Сотрудник 5;"department.name=""Подразделение 1""";Инженер;8 (495) 777-55-05
+person6;Алексей;Алексеев;person6@inttrast.ru;Сотрудник 6;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-06
+person7;Семен;Семенов;person7@inttrast.ru;Сотрудник 7;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-07
+person8;Григорий;Григорьев;person8@inttrast.ru;Сотрудник 8;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-08
+person9;Иннакентий;Иннакеньев;person9@inttrast.ru;Сотрудник 9;"department.name=""Подразделение 2""";Инженер;8 (495) 777-55-09
+person10;Сергей;Сергеев;person10@inttrast.ru;Сотрудник 10;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-10
+person11;Михаил;Михайлов;person11@inttrast.ru;Сотрудник 11;select t.id from department t where t.name='Подразделение 2';Инженер;8 (495) 777-55-11

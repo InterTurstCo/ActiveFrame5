@@ -1,3 +1,3 @@
-TYPE_NAME=Employee;KEYS=Login,Name;;;;;;
+TYPE_NAME=Employee;KEYS=Login,Name;;;;;;;
 Login;FirstName;LastName;EMail;Name;Department;Position;Phone;profile
-person001;Иван;Иванов;ivanov001@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-00-01;select id from person_profile where empty='001'
+person001;Иван;Иванов;ivanov001@inttrast.ru;Сотрудник 1;"department.name=""Подразделение 1""";Инженер;8 (495) 777-00-01;select id from profile where name='001'

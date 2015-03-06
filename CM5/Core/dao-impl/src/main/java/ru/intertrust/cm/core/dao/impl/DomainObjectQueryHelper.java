@@ -163,7 +163,7 @@ public class DomainObjectQueryHelper {
                 String topLevelAuditTable = getALTableSqlName(toplevelParentType);
                 String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(toplevelParentType);
 
-                query.append(" and exists (select a.object_id from ").append(aclReadTable).append(" a ");
+                query.append(" and exists (select a.\"object_id\" from ").append(wrap(aclReadTable)).append(" a ");
                 query.append(" inner join ").append(wrap("group_group")).append(" gg on a.")
                         .append(wrap("group_id")).append(" = gg.").append(wrap("parent_group_id"));
                 query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
@@ -176,13 +176,13 @@ public class DomainObjectQueryHelper {
                             .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
                 }
 
-                query.append(" where gm.person_id = :user_id and ");
+                query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and ");
 
                 if (isAuditLog) {
-                    query.append("o.id = ").append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(")");
+                    query.append("o.").append(wrap("id")).append(" = ").append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(")");
 
                 } else {
-                    query.append("o.id = :id)");
+                    query.append("o.").append(wrap("id")).append(" = :id)");
                 }
             }
 

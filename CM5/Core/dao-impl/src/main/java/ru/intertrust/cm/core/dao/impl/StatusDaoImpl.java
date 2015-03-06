@@ -16,6 +16,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
 
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+
 /**
  * Реализация сервиса работы со статусами.
  * @author atsvetkov
@@ -64,7 +66,7 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     private Id readStatusIdByName(String statusName) {
-        String query = "select s.* from " + GenericDomainObject.STATUS_DO + " s where s.name=:name";
+        String query = "select s.* from " + wrap(GenericDomainObject.STATUS_DO) + " s where s." + wrap("name") + "=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         DomainObject statusDO = jdbcTemplate.query(query, paramMap,

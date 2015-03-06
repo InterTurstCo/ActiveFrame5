@@ -13,15 +13,15 @@ import static org.mockito.Mockito.when;
 
 public class SchedulerQueryHelperTest {
 
-    private static final String ACCESS_RIGHTS_PART = " and exists (select a.object_id from schedule_read a  " +
+    private static final String ACCESS_RIGHTS_PART = " and exists (select a.\"object_id\" from \"schedule_read\" a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
+            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
 
-    private static final String ACCESS_RIGHTS_PART2 = " and exists (select a.object_id from schedule_read a  " +
+    private static final String ACCESS_RIGHTS_PART2 = " and exists (select a.\"object_id\" from \"schedule_read\" a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.person_id = :user_id and o.id = :id)";
+            + "inner join \"schedule\" o on (o.\"access_object_id\" = a.\"object_id\") where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
 
     private final SchedulerQueryHelper queryHelper = new SchedulerQueryHelper();
 

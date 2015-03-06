@@ -421,7 +421,7 @@ public class CollectionsIT extends IntegrationTestBase {
 
     @Test
     public void testFindCollectionByQueryWithCastExpression() throws LoginException {
-        String query = "select c.id,  cast (c.name as char(3))  from country c";
+        String query = "select c.id,  substr(c.name, 1, 3)  from country c";
         List<Value> params = new ArrayList<Value>();
 
         IdentifiableObjectCollection collection = null;
@@ -736,7 +736,7 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
 
         query = "select id, name, \"created_by\", '' as test from (select s.id, s.name, s.status,  " +
-        		"coalesce('<id>' || substring(created_by.\"name\", 1, 5) || ':' || '</>', '<id></><shortName></>') as \"created_by\", '' as test2 from schedule s inner join schedule created_by on s.id = created_by.id) t";
+        		"coalesce('<id>' || substr(created_by.\"name\", 1, 5) || ':' || '</>', '<id></><shortName></>') as \"created_by\", '' as test2 from schedule s inner join schedule created_by on s.id = created_by.id) t";
         params = new ArrayList<Value>();
         
         collection = collectionService.findCollectionByQuery(query, params);

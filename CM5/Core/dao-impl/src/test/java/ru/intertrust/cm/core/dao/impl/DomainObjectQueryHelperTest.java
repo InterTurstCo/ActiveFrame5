@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DomainObjectQueryHelperTest {
 
-    private static final String ACCESS_RIGHTS_PART = " and exists (select a.object_id from person_read a  " +
+    private static final String ACCESS_RIGHTS_PART = " and exists (select a.\"object_id\" from \"person_read\" a  " +
             "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
             + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
             + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") ";
@@ -40,7 +40,7 @@ public class DomainObjectQueryHelperTest {
     public void testGenerateFindQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id" +
-                ACCESS_RIGHTS_PART + "where gm.person_id = :user_id and o.id = :id)";
+                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, false));
     }
 
@@ -48,7 +48,7 @@ public class DomainObjectQueryHelperTest {
     public void testGenerateFindQueryWithLock() throws Exception {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id"
-                + ACCESS_RIGHTS_PART + "where gm.person_id = :user_id and o.id = :id) for update";
+                + ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id) for update";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, true));
     }
 
