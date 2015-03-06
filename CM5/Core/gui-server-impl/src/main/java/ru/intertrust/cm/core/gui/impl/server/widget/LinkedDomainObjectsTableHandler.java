@@ -69,7 +69,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     @Autowired
     protected FieldPathHelper fieldPathHelper;
 
-    @Deprecated
+    @Autowired
     private ProfileService profileService;
 
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
