@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -34,6 +36,7 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -74,6 +77,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
     private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
+    private static final String DEFAULT_VIEW_ACCESS_CHECKER = "default.view.access.checker";
+    private static final String DEFAULT_CREATE_NEW_ACCESS_CHECKER = "default.create.new.access.checker";
 
     private LinkedDomainObjectsTableConfig widgetConfig;
     private HashMap<String, FormConfig> formConfigByDomainObjectType = new HashMap<>();
@@ -100,24 +105,46 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         state.setPopupTitlesHolder(popupTitlesHolder);
         state.setIds(ids);
 
-        String linkedFormName = widgetConfig.getLinkedFormConfig().getName();
-        if (linkedFormName != null && !linkedFormName.isEmpty()) {
-            FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
-            state.setObjectTypeName(defaultFormConfig.getDomainObjectType());
-        }
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
         ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
-        List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids : getNotLimitedIds(widgetConfig, ids, filtersParams, false);
+        List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids
+                : getNotLimitedIds(widgetConfig, ids, filtersParams, false);
         state.setFilteredItemsNumber(idsForItemsGenerating.size());
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
-        List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating);
+        CreatedObjectsConfig restrictedCreatedObjectsConfig = createRestrictedCreateObjectsConfig(root);
+        state.setRestrictedCreatedObjectsConfig(restrictedCreatedObjectsConfig);
+        List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating, state.hasAllowedCreationDoTypes());
         state.setRowItems(rowItems);
         state.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
                 context.getWidgetConfigsById().values()));
+
         return state;
+    }
+
+    private CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root) {
+        CreatedObjectsConfig restrictedCreatedObjectsConfig = null;
+        if (widgetConfig.getCreatedObjectsConfig() != null) {
+            ObjectCloner cloner = new ObjectCloner();
+            restrictedCreatedObjectsConfig = cloner.cloneObject(widgetConfig.getCreatedObjectsConfig(),
+                    CreatedObjectsConfig.class);
+            abandonAccessed(root, restrictedCreatedObjectsConfig, null);
+        } else {
+            restrictedCreatedObjectsConfig = new CreatedObjectsConfig();
+            List<CreatedObjectConfig> createdObjectConfigs = new ArrayList<CreatedObjectConfig>(1);
+            restrictedCreatedObjectsConfig.setCreateObjectConfigs(createdObjectConfigs);
+            String linkedFormName = widgetConfig.getLinkedFormConfig().getName();
+            if (linkedFormName != null && !linkedFormName.isEmpty()) {
+                FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
+                CreatedObjectConfig createdObjectConfig = new CreatedObjectConfig();
+                createdObjectConfig.setDomainObjectType(defaultFormConfig.getDomainObjectType());
+                createdObjectConfig.setText(defaultFormConfig.getDomainObjectType());
+                createdObjectConfigs.add(createdObjectConfig);
+            }
+        }
+        return restrictedCreatedObjectsConfig;
     }
 
 
@@ -146,7 +173,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
-                                           List<Id> selectedIds) {
+                                           List<Id> selectedIds, boolean hasAllowedCreationDoTypes) {
         List<RowItem> rowItems = new ArrayList<>();
         if (selectedIds.isEmpty()) {
             return rowItems;
@@ -158,7 +185,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
         for (DomainObject domainObject : domainObjects) {
             RowItem rowItem;
-            rowItem = map(domainObject, summaryTableColumnConfigs);
+            rowItem = map(domainObject, summaryTableColumnConfigs, hasAllowedCreationDoTypes);
             rowItem.setObjectId(domainObject.getId());
             rowItems.add(rowItem);
         }
@@ -252,7 +279,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     // Column -> Pattern -> Domain Object Type
-    public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs) {
+    public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs, boolean hasAllowedCreationDoTypes) {
         RowItem rowItem = new RowItem();
         rowItem.setDomainObjectType(domainObject.getTypeName());
         Map<String, Boolean> rowAccessMatrix = new HashMap<>();
@@ -260,6 +287,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         rowAccessMatrix.put(DEFAULT_EDIT_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
         defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_DELETE_ACCESS_CHECKER);
         rowAccessMatrix.put(DEFAULT_DELETE_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+        defaultAccessChecker = (AccessChecker) applicationContext.getBean(DEFAULT_VIEW_ACCESS_CHECKER);
+        rowAccessMatrix.put(DEFAULT_VIEW_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
+        rowAccessMatrix.put(DEFAULT_CREATE_NEW_ACCESS_CHECKER, hasAllowedCreationDoTypes);
 
         HashMap<String, EnumBoxConfig> enumBoxConfigsByFieldPath = getEnumBoxConfigs(domainObject.getTypeName());
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
@@ -390,7 +420,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         boolean collectionNameConfigured = refConfig != null;
         List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids
                 : getNotLimitedIds(config, ids, filtersParams, true);
-        List<RowItem> rowItems = generateRowItems(config, idsForItemsGenerating);
+        CreatedObjectsConfig createdObjectsConfig = createRestrictedCreateObjectsConfig(null);
+        boolean hasAllowedCreationDoTypes = !createdObjectsConfig.getCreateObjectConfigs().isEmpty();
+        List<RowItem> rowItems = generateRowItems(config, idsForItemsGenerating, hasAllowedCreationDoTypes);
 
         return new LinkedTableTooltipResponse(rowItems);
     }

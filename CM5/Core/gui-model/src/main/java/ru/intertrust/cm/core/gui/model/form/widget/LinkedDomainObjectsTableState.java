@@ -4,6 +4,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.*;
@@ -20,6 +21,7 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     private int filteredItemsNumber;
     private Map<String, PopupTitlesHolder> typeTitleMap;
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
+    private CreatedObjectsConfig restrictedCreatedObjectsConfig;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -53,11 +55,11 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
     public List<RowItem> getRowItems() {
         return rowItems;
     }
-
+    @Deprecated
     public void setObjectTypeName(String objectTypeName) {
         this.objectTypeName = objectTypeName;
     }
-
+    @Deprecated
     public String getObjectTypeName() {
         return objectTypeName;
     }
@@ -118,6 +120,14 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
         return editedFormStates;
     }
 
+    public CreatedObjectsConfig getRestrictedCreatedObjectsConfig() {
+        return restrictedCreatedObjectsConfig;
+    }
+
+    public void setRestrictedCreatedObjectsConfig(CreatedObjectsConfig restrictedCreatedObjectsConfig) {
+        this.restrictedCreatedObjectsConfig = restrictedCreatedObjectsConfig;
+    }
+
     @Override
     public boolean mayContainNestedFormStates() {
         return true;
@@ -149,6 +159,10 @@ public class LinkedDomainObjectsTableState extends LinkEditingWidgetState {
 
     public void decrementFilteredItemsNumber(){
         filteredItemsNumber--;
+    }
+
+    public boolean hasAllowedCreationDoTypes(){
+        return !restrictedCreatedObjectsConfig.getCreateObjectConfigs().isEmpty();
     }
 
 }

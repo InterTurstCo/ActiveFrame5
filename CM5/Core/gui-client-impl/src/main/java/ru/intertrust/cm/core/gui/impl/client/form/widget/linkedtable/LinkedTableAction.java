@@ -18,16 +18,22 @@ public abstract class LinkedTableAction implements Component {
     protected FormState rowFormState;
 
     void perform(final Id objectId, final int rowIndex) {
+        if (getServerComponentName() == null) {
+            performClientAction(objectId, rowIndex);
+        } else {
+            performServerClientAction(objectId, rowIndex);
+        }
+
+    }
+
+    private void performServerClientAction(final Id objectId, final int rowIndex) {
         LinkedTableActionRequest request = new LinkedTableActionRequest();
         request.setObjectId(objectId);
         Command command = new Command("execute", getServerComponentName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-                execute(objectId, rowIndex);
-                if (callback != null) {
-                    callback.onPerform();
-                }
+                performClientAction(objectId, rowIndex);
             }
 
             @Override
@@ -35,7 +41,13 @@ public abstract class LinkedTableAction implements Component {
                 GWT.log("something was going wrong while obtaining hyperlink", caught);
             }
         });
+    }
 
+    private void performClientAction(Id objectId, int rowIndex) {
+        execute(objectId, rowIndex);
+        if (callback != null) {
+            callback.onPerform();
+        }
     }
 
     protected abstract void execute(Id id, int rowIndex);

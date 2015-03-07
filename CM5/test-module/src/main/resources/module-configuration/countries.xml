@@ -844,6 +844,9 @@
                         </formatting>
                     </summary-table-column>
                     <summary-table-column header="Население" widget-id="4">
+                        <action type="edit">
+
+                        </action>
                         <pattern value="{population}"/>
                     </summary-table-column>
                     <summary-table-column header="Категория" widget-id="city_category">

@@ -81,6 +81,15 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/icon-close.png")
     ImageResource closeIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-edit.png")
+    ImageResource editIm();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-delete.png")
+    ImageResource deleteIm();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-edit.png")
+    ImageResource viewIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

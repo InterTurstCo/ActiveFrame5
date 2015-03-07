@@ -49,6 +49,9 @@ public interface CommonCssResource extends CssResource {
     @ClassName("deleteButton")
     String deleteButton();
 
+    @ClassName("viewButton")
+    String viewButton();
+
     @ClassName("arrowDownButton")
     String arrowDownButton();
 

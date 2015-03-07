@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.gui.model.action.LinkedTableActionResponse;
 /**
  * Created by andrey on 21.12.14.
  */
+@Deprecated //looks like stub and not used for now
 @ComponentName("default.delete.table.action")
 public class DefaultDeleteActionHandler extends LinkedTableActionHandler {
     @Override

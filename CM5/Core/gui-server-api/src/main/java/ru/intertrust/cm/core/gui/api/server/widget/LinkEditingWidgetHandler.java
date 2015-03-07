@@ -104,7 +104,7 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
                 while (iterator.hasNext()) {
                     CreatedObjectConfig createdObjectConfig = iterator.next();
                     String domainObjectType = createdObjectConfig.getDomainObjectType();
-                    Id rootId = root.getId();
+                    Id rootId = root == null ? null : root.getId();
                     boolean displayingCreateButton = fillParentOnAddConfig == null
                             ? accessVerificationService.isCreatePermitted(domainObjectType)
                             : (rootId == null || accessVerificationService.isCreateChildPermitted(domainObjectType, root.getId()));

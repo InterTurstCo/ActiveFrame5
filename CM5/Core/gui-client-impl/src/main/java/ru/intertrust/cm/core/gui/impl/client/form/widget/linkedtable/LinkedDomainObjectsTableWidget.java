@@ -76,18 +76,23 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         view.add(table);
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
-                    localEventBus,currentState);
+                    localEventBus, currentState);
         } else {
-            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table,currentState);
+            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table, currentState);
         }
 
         model.addDataDisplay(table);
         drawTooltipButtonIfRequired();
         if (addButton != null) {
-            if (addButtonHandlerRegistration != null) {
-                addButtonHandlerRegistration.removeHandler();
+            if (currentState.hasAllowedCreationDoTypes()) {
+                if (addButtonHandlerRegistration != null) {
+                    addButtonHandlerRegistration.removeHandler();
+                }
+                addButtonHandlerRegistration = addHandlersToAddButton(addButton);
+
+            } else {
+                addButton.removeFromParent();
             }
-            addButtonHandlerRegistration = addHandlersToAddButton(addButton);
         }
     }
 
@@ -109,12 +114,13 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
+        localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
         VerticalPanel hp = new VerticalPanel();
         addButton = createAddButton();
         addButton.removeStyleName("gwt-Button");
         addButton.addStyleName("lightButton ldotCreate");
         hp.add(addButton);
-        localEventBus.addHandler(LinkedTableRowDeletedEvent.TYPE, this);
+
         return hp;
     }
 
@@ -135,7 +141,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
 
     private HandlerRegistration addHandlersToAddButton(Button button) {
-        final CreatedObjectsConfig createdObjectsConfig = currentState.getLinkedDomainObjectsTableConfig().getCreatedObjectsConfig();
+        final CreatedObjectsConfig createdObjectsConfig = currentState.getRestrictedCreatedObjectsConfig();
         if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
             return button.addClickHandler(new ClickHandler() {
                 @Override
@@ -144,9 +150,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                     selectDomainObjectTypePopup.show();
                 }
             });
-        } else {
-            return button.addClickHandler(new OpenFormClickHandler(currentState.getObjectTypeName(), null));
         }
+        return null;
     }
 
     class OpenFormClickHandler implements ClickHandler {

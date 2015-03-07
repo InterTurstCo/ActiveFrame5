@@ -3069,9 +3069,18 @@ a:active .icon.back {
     z-index: 20;
 }
 
-.linked-table-label{
+.linkedTableActionLabel{
     font-size: 100%;
     padding-left: 8px;
     text-decoration: underline;
+    vertical-align: text-top;
     cursor: pointer;
+    color: blue;
+}
+
+.linkedTableActionImage{
+    cursor: pointer;
+}
+
+.linkedTableActionImageWrapper{
 }

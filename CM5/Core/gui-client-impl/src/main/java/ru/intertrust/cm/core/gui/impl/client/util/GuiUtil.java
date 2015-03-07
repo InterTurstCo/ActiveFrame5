@@ -297,7 +297,7 @@ public final class GuiUtil {
         LinkedFormConfig linkedFormConfig = config.getLinkedFormConfig();
         String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
 
-        return modalWidth == null ? config.getModalHeight() : modalWidth;
+        return modalWidth == null ? config.getModalWidth() : modalWidth;
     }
 
     private static LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {

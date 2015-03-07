@@ -16,7 +16,7 @@ public class DefaultDeleteLinkedTableAction extends LinkedTableAction {
 
     @Override
     protected String getServerComponentName() {
-        return "default.delete.table.action";
+        return null;
     }
 
     @Override

@@ -6,15 +6,17 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 
 /**
- * Created by andrey on 19.12.14.
+ * @author Yaroslav Bondarchuk
+ *         Date: 05.03.2015
+ *         Time: 7:58
  */
-@ComponentName("default.edit.access.checker")
-public class DefaultEditAccessChecker implements AccessChecker {
+@ComponentName("default.view.access.checker")
+public class DefaultViewAccessChecker implements AccessChecker{
     @Autowired
     private AccessVerificationService accessVerificationService;
 
     @Override
     public boolean checkAccess(Id objectId) {
-        return objectId != null && accessVerificationService.isWritePermitted(objectId);
+        return objectId != null && accessVerificationService.isReadPermitted(objectId);
     }
 }
