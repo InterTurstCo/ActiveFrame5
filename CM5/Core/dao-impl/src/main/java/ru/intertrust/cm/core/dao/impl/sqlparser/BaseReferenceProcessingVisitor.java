@@ -166,6 +166,9 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         String referenceParamName = paramName;
         String referenceTypeParamName = paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 
+        if(referenceValue == null || referenceValue.get() == null){
+            throw new IllegalArgumentException("Reference value passed as a parameter is null or empty, param name: " + paramName);
+        }
         long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
 
         jdbcParameters.put(referenceParamName, ((RdbmsId) referenceValue.get()).getId());

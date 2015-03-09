@@ -605,6 +605,7 @@ public class CrudServiceIT extends IntegrationTestBase {
         paramsComplexKey.put("referenceField", new ReferenceValue(organizationId));
         paramsComplexKey.put("timelessDateField", new TimelessDateValue(new TimelessDate(2014, 3, 3)));
         paramsComplexKey.put("decimalField", new DecimalValue(new BigDecimal("1.2")));
+        paramsComplexKey.put("textField", new StringValue("txt"));
 
         DomainObject do2 = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
         assertEquals(employeeTestUniqueKey.getId(), do2.getId());
@@ -629,8 +630,8 @@ public class CrudServiceIT extends IntegrationTestBase {
             assertTrue(true);
         }
 
-        crudService.delete(employeeTestUniqueKey.getId());
-        crudService.delete(organizationId);
+//        crudService.delete(employeeTestUniqueKey.getId());
+//        crudService.delete(organizationId);
 
         DomainObject country = createCountryDomainObject();
         String countryName = country.getString("Name");

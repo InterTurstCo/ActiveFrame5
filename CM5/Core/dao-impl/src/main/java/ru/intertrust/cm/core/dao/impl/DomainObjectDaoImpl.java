@@ -2291,13 +2291,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String name = uniqueKeyFieldConfig.getName().toLowerCase();
 
             Value value = uniqueKeyValues.get(name);
-            if (value instanceof ReferenceValue) {
-                RdbmsId id = (RdbmsId) ((ReferenceValue) value).get();
-                params.add(new LongValue(id.getId()));
-                params.add(new LongValue(id.getTypeId()));
-            } else {
-                params.add(value);
-            }
+            //ссылочные параметры обрабатываются в collectionsDao.findCollectionByQuery()
+            params.add(value);
         }
 
         IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
@@ -2345,11 +2340,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
             String name = uniqueKeyFieldConfig.getName();
             query.append(tableAlias).append(".").append(wrap(name))
-                    .append(" = {").append(paramCounter++).append("} ");
-            if (FieldType.REFERENCE == configurationExplorer.getFieldConfig(domainObjectType, name).getFieldType()){
-                query.append(" and ").append(tableAlias).append(".").append(wrap(name + REFERENCE_TYPE_POSTFIX))
-                        .append(" = {").append(paramCounter++).append("} ");
-            }
+                    .append(" = {").append(paramCounter++).append("} ");           
         }
 
         return query.toString();
