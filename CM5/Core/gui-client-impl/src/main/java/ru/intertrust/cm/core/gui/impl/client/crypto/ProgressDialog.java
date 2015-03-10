@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.client.crypto;
 
+import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.SimpleTextTooltip;
+
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -16,6 +19,7 @@ public class ProgressDialog extends DialogBox {
     private VerticalPanel panel;
     private int height;
     private int width;
+    private Image progressBar;
 
     public ProgressDialog() {
         // Set the dialog box's caption.
@@ -44,7 +48,7 @@ public class ProgressDialog extends DialogBox {
 
         label = new Label("Message");
         
-        Image progressBar = new Image();
+        progressBar = new Image();
         progressBar.setUrl("CMJSpinner.gif");
         
         height = 250;
@@ -94,5 +98,16 @@ public class ProgressDialog extends DialogBox {
     public int getWidth(){
         return width;
     }
-    
+
+    public void showSuccess() {
+        label.setText("Подпись завершена успешно");
+        panel.remove(progressBar);
+        final Timer closeTimer = new Timer() {
+            @Override
+            public void run() {
+                ProgressDialog.this.hide();
+            }
+        };
+        closeTimer.scheduleRepeating(2000);        
+    }    
 }

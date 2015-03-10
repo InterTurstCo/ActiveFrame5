@@ -134,7 +134,7 @@ public class DigitalSignatureAction extends Action {
 
             @Override
             public void onSuccess(Void result) {
-                progress.hide();
+                progress.showSuccess();
             }
         });
 
