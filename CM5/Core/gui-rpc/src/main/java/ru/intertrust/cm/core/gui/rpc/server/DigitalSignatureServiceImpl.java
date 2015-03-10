@@ -13,6 +13,7 @@ import org.apache.commons.codec.binary.Hex;
 
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.config.crypto.SignedData;
 import ru.intertrust.cm.core.config.crypto.SignedDataItem;
 import ru.intertrust.cm.core.config.crypto.SignedResult;
@@ -91,6 +92,11 @@ public class DigitalSignatureServiceImpl extends BaseService implements DigitalS
         for (SignedResultItem signedResultItem : result.getSignedResultItems()) {
             cryptoService.saveSignedResult(signedResultItem);
         }
+    }
+
+    @Override
+    public List<DocumentVerifyResult> verify(Id documentId) {        
+        return cryptoService.verify(documentId);
     }
 
 }

@@ -19,10 +19,12 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.crypto.CryptoBean;
 import ru.intertrust.cm.core.business.api.crypto.CryptoService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureDataService;
 import ru.intertrust.cm.core.business.api.crypto.SignatureStorageService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
 import ru.intertrust.cm.core.business.api.dto.crypto.VerifyResult;
@@ -49,6 +51,8 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private AttachmentService attachmentService;
+    @Autowired
+    private CrudService crudService;
 
     private CryptoBean cryptoBean;
     private Map<String, TypeCryptoSettingsConfig> typeCryptoConfigs = new Hashtable<String, TypeCryptoSettingsConfig>();
@@ -79,39 +83,46 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
 
     @Override
     public List<DocumentVerifyResult> verify(Id documentId) {
-        String signedType = domainObjectTypeIdCache.getName(documentId);
-        TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
+        String rootType = domainObjectTypeIdCache.getName(documentId);
+        TypeCryptoSettingsConfig rootConfig = getTypeCryptoSettingsConfig(rootType);
         InputStream contentStream = null;
         try {
-            if (config != null) {
+            if (rootConfig != null) {
                 List<DocumentVerifyResult> result = new ArrayList<DocumentVerifyResult>();
                 
-                String signatureStorageBeanName = config.getSignatureStorageBeanName();
-                SignatureStorageService signatureStorageService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
-                List<SignedResultItem> signes = signatureStorageService.loadSignature(config.getSignatureStorageBeanSettings(), documentId);
-
                 List<Id> signedDocuments = getBatchForSignature(documentId);
                 //Цикл по подписанным документам в пачке
                 for (Id id : signedDocuments) {
                     DocumentVerifyResult verifyResult = new DocumentVerifyResult();
                     verifyResult.setDocumentId(id);
+                    DomainObject signedDo = crudService.find(id);
                     
-                    contentStream = getContentForSignature(id).getContent();
+                    //Получение всех подписей
+                    String signedType = domainObjectTypeIdCache.getName(id);
+                    TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
+                    String signatureStorageBeanName = config.getSignatureStorageBeanName();
+                    SignatureStorageService signatureStorageService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
+                    List<SignedResultItem> signes = signatureStorageService.loadSignature(config.getSignatureStorageBeanSettings(), id);                    
+                    
                     //Цикл по всем подписям
                     for (SignedResultItem signedResultItem : signes) {
                         if (signedResultItem.getId().equals(id)){
+                            SignedDataItem signedDataItem = getContentForSignature(id); 
+                            contentStream = signedDataItem.getContent();
+                            verifyResult.setDocumentName(signedDataItem.getName());
+                            
                             VerifyResult oneResult = cryptoBean.verify(contentStream, Base64.decodeBase64(signedResultItem.getSignature()));
                             verifyResult.getSignerInfos().addAll(oneResult.getSignerInfos());
+                            contentStream.close();
+                            contentStream = null;
                         }
                     }
-                    contentStream.close();
-                    contentStream = null;
                     result.add(verifyResult);
                 }
 
                 return result;
             } else {
-                throw new FatalException("Type crypto settings not found for type " + signedType);
+                throw new FatalException("Type crypto settings not found for type " + rootType);
             }
         } catch (FatalException ex) {
             throw ex;

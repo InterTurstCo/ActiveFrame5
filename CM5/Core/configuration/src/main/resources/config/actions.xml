@@ -82,4 +82,7 @@
                 text="ЭЦП" tooltip="Подписать документ с помощью ЭЦП" order="100"
                 dirtySensitivity="true" permissions="Read"/>
     
+    <act:action name="aVerifyDigitalSignature" componentName="verify.digital.signature.action"
+                text="Проверить ЭЦП" tooltip="Проверить ЭЦП документа" order="100"
+                dirtySensitivity="true" permissions="Read"/>
 </configuration>

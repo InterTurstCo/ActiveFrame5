@@ -20,6 +20,7 @@ public class ProgressDialog extends DialogBox {
     private int height;
     private int width;
     private Image progressBar;
+    private Button ok;
 
     public ProgressDialog() {
         // Set the dialog box's caption.
@@ -36,7 +37,7 @@ public class ProgressDialog extends DialogBox {
 
         // DialogBox is a SimplePanel, so you have to set its widget 
         // property to whatever you want its contents to be.
-        Button ok = new Button("Прервать");
+        ok = new Button("Прервать");
         ok.removeStyleName("gwt-Button");
         ok.addStyleName("lightButton");
         ok.addClickHandler(new ClickHandler() {
@@ -101,6 +102,8 @@ public class ProgressDialog extends DialogBox {
 
     public void showSuccess() {
         label.setText("Подпись завершена успешно");
+        ok.setText("Закрыть");
+        
         panel.remove(progressBar);
         final Timer closeTimer = new Timer() {
             @Override

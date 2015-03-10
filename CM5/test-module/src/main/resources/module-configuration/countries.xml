@@ -197,7 +197,7 @@
             </act:simple-action>
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aDigitalSignature"/>
-            
+            <act:action-ref name-ref="aVerifyDigitalSignature"/>
         </act:tool-bar>
         <markup>
             <header>
