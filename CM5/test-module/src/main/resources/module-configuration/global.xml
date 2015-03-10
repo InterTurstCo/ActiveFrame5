@@ -61,8 +61,8 @@
                        img="resources/common/images/lucem-theme-preview.png"/>
             </themes>
             <languages>
-                <language name = "en" display-name="English" img="images/flags/United Kingdom(Great Britain).png"/>
                 <language name = "ru" display-name="Русский" img="images/flags/Russian Federation.png"/>
+                <language name = "en" display-name="English" img="images/flags/United Kingdom(Great Britain).png"/>
                 <language name = "ua" display-name="Українська" img="images/flags/Ukraine.png"/>
             </languages>
         </settings-popup>

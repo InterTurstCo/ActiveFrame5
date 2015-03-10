@@ -2,12 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.panel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.LanguageConfig;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemeConfig;
@@ -20,18 +15,12 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.ResetPluginSettingsActionContext;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_LANG_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_THEME_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_ALL_SETTINGS_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_SETTINGS_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_LANG;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_THEME;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.RESET_ALL_SETTINGS;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.RESET_SETTINGS;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -46,38 +35,40 @@ public class SettingsPopup extends PopupPanel{
         initPopup(settingsPopupConfig);
     }
     private void initPopup(SettingsPopupConfig settingsPopupConfig) {
-        if (settingsPopupConfig != null) {
-            this.setStyleName("setting-popup-panel");
-
-            AbsolutePanel header = new AbsolutePanel();
-            header.setStyleName("srch-corner");
-            final VerticalPanel body = new VerticalPanel();
-            AbsolutePanel container = new AbsolutePanel();
-            container.setStyleName("settings-popup");
-            container.getElement().getStyle().clearOverflow();
-            Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
-            if(themeMap != null){
-                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME_KEY, CHOOSE_THEME), "menuImage chooseTheme",
-                        new ThemePopupDomHandler(themeMap)));
-            }
-            if (settingsPopupConfig.getLanguagesConfig() != null) {
-                List<LanguageConfig> languageConfigs = settingsPopupConfig.getLanguagesConfig().getLanguageConfigs();
-                Map<String, LanguageConfig> languageMap = new HashMap<>();
-                for (LanguageConfig languageConfig : languageConfigs) {
-                    languageMap.put(languageConfig.getName(), languageConfig);
-                }
-                if (!languageMap.isEmpty()) {
-                    body.add(createMenuItem(LocalizeUtil.get(CHOOSE_LANG_KEY, CHOOSE_LANG), "menuImage chooseTheme",
-                            new LocalePopupDomHandler(languageMap)));
-                }
-            }
-            body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS_KEY, RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
-            body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS_KEY, RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
-
-            container.add(header);
-            container.add(body);
-            this.add(container);
+        if (settingsPopupConfig == null) {
+            return;
         }
+
+        this.setStyleName("setting-popup-panel");
+
+        AbsolutePanel header = new AbsolutePanel();
+        header.setStyleName("srch-corner");
+        final VerticalPanel body = new VerticalPanel();
+        AbsolutePanel container = new AbsolutePanel();
+        container.setStyleName("settings-popup");
+        container.getElement().getStyle().clearOverflow();
+        Map<String, ThemeConfig> themeMap = GlobalThemesManager.getThemeNameImageMap();
+        if(themeMap != null){
+            body.add(createMenuItem(LocalizeUtil.get(CHOOSE_THEME_KEY, CHOOSE_THEME), "menuImage chooseTheme",
+                    new ThemePopupDomHandler(themeMap)));
+        }
+        if (settingsPopupConfig.getLanguagesConfig() != null) {
+            List<LanguageConfig> languageConfigs = settingsPopupConfig.getLanguagesConfig().getLanguageConfigs();
+            Map<String, LanguageConfig> languageMap = new LinkedHashMap<>();
+            for (LanguageConfig languageConfig : languageConfigs) {
+                languageMap.put(languageConfig.getName(), languageConfig);
+            }
+            if (!languageMap.isEmpty()) {
+                body.add(createMenuItem(LocalizeUtil.get(CHOOSE_LANG_KEY, CHOOSE_LANG), "menuImage chooseTheme",
+                        new LocalePopupDomHandler(languageMap)));
+            }
+        }
+        body.add(createMenuItem(LocalizeUtil.get(RESET_SETTINGS_KEY, RESET_SETTINGS), "menuImage resetSettings",new ResetPluginSettingDomHandler()));
+        body.add(createMenuItem(LocalizeUtil.get(RESET_ALL_SETTINGS_KEY, RESET_ALL_SETTINGS), "menuImage resetAllSettings",new ResetAllSettingDomHandler()));
+
+        container.add(header);
+        container.add(body);
+        this.add(container);
     }
 
 
