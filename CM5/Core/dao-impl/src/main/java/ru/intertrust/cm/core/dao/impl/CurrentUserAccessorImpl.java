@@ -54,6 +54,7 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             if (Boolean.TRUE.equals(getEjbContext().getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
             } else if (getEjbContext().isCallerInRole("system")
+                    || getEjbContext().getCallerPrincipal().getName().equals("guest")
                     || getEjbContext().getCallerPrincipal().getName().equals("anonymous")) {
                 // TODO возможно стоит подумать над иным пользователем, например system
                 result = "admin";
