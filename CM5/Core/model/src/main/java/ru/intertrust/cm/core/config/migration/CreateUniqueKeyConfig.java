@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.migration;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 /**
  * Java модель конфигурации создания уникального ключа при миграции
  */
-public class CreateUniqueKeyConfig {
+public class CreateUniqueKeyConfig implements Dto {
 
     @Attribute
     private String type;

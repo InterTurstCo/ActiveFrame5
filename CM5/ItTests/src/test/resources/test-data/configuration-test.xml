@@ -1,6 +1,6 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        >
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <domain-object-type name="NewDOType12345" audit-log="true" initial-status="Active">
         <fields>

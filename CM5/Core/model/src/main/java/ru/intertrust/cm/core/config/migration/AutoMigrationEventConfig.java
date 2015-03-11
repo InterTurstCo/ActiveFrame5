@@ -1,14 +1,16 @@
 package ru.intertrust.cm.core.config.migration;
 
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Java модель конфигурации события миграции
  */
-public class AutoMigrationEventConfig {
+public class AutoMigrationEventConfig implements Dto {
 
     @ElementList(entry="rename-field", inline=true, required = false)
     private List<RenameFieldConfig> renameFieldConfigs = new ArrayList<>();

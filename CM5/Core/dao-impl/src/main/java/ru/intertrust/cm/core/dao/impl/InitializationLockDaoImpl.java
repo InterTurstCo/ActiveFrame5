@@ -9,11 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.InitializationLockDao;
-import ru.intertrust.cm.core.dao.api.MD5Service;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
 /**
@@ -61,10 +57,10 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     @Autowired
     private MD5Service md5Service;
-    
+
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-    
+    private DatabaseInfo databaseInfo;
+
     private BasicQueryHelper queryHelper;
 
     public void setJdbcTemplate(JdbcOperations jdbcTemplate) {
@@ -133,8 +129,8 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
 
     protected BasicQueryHelper getQueryHelper() {
         if (queryHelper == null) {
-            String dbVendor = System.getProperty("db.vendor");
-            if ("oracle".equalsIgnoreCase(dbVendor)) {
+            DatabaseInfo.Vendor dbVendor = databaseInfo.getDatabaseVendor();
+            if (DatabaseInfo.Vendor.ORACLE.equals(dbVendor)) {
                 return new OracleQueryHelper(domainObjectTypeIdDao, md5Service);
             } else {
                 return new PostgreSqlQueryHelper(domainObjectTypeIdDao, md5Service);

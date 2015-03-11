@@ -39,6 +39,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.dao.api.DatabaseInfo;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -75,6 +76,8 @@ public class CollectionsIT extends IntegrationTestBase {
     protected AuthenticationService authenticationService; 
 
     private ConfigurationExplorer configurationExplorer;
+
+    private DatabaseInfo databaseInfo;
 
     /**
      * Предотвращает загрузку данных для каждого теста. Данные загружаются один раз для всех тестов в данном классе.
@@ -123,6 +126,7 @@ public class CollectionsIT extends IntegrationTestBase {
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
         authenticationService = applicationContext.getBean(AuthenticationService.class);
         configurationExplorer = applicationContext.getBean(ConfigurationExplorer.class);
+        databaseInfo = applicationContext.getBean(DatabaseInfo.class);
     }
 
     @Test
@@ -197,13 +201,17 @@ public class CollectionsIT extends IntegrationTestBase {
 
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
-        
-        query = "select date(CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END) AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+
+        if (DatabaseInfo.Vendor.ORACLE.equals(databaseInfo.getDatabaseVendor())) {
+            query = "select to_date(CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END) AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+        } else {
+            query = "select date(CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END) AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+        }
 
         collection = collectionService.findCollectionByQuery(query);
         assertNotNull(collection);
 
-        query = "select (CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END)::date AS timeless_date, tf.dateTimeField1 from time_field_test tf";
+        query = "select (CASE WHEN tf.timelessDateField1 IS NOT NULL THEN tf.timelessDateField1 ELSE tf.timelessDateField2 END) AS timeless_date, tf.dateTimeField1 from time_field_test tf";
 
         collection = collectionService.findCollectionByQuery(query);
         assertNotNull(collection);

@@ -22,6 +22,7 @@ import javax.ejb.EJBException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.jboss.arquillian.core.api.annotation.Inject;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Rule;
@@ -47,6 +48,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.dao.api.DatabaseInfo;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
@@ -83,7 +85,6 @@ public class CrudServiceIT extends IntegrationTestBase {
             lc.logout();
         }
         initializeSpringBeans();
-
     }
 
     private void initializeSpringBeans() {

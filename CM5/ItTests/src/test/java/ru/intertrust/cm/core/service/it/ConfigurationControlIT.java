@@ -33,14 +33,13 @@ public class ConfigurationControlIT extends IntegrationTestBase {
     public void testConfigurationLoaded() throws IOException {
         byte[] fileBytes = readFile("test-data/configuration-test.xml");
         String configuration = new String(fileBytes);
-        configurationControlService.updateConfiguration(configuration, "configuration-tex");
+        configurationControlService.updateConfiguration(configuration, "configuration-tex.xml");
 
         fileBytes = readFile("test-data/actions-test.xml");
         String toolBarConfiguration = new String(fileBytes);
         configurationControlService.updateConfiguration(toolBarConfiguration, "actions-test.xml");
 
-        // Check that new domain object type is not loaded
-        assertNull(configurationService.getDomainObjectTypeConfig("NewDOType12345"));
+        assertNotNull(configurationService.getDomainObjectTypeConfig("NewDOType12345"));
 
         // Check that existing domain object type is not modified
         DomainObjectTypeConfig doTypeConfig  = configurationService.getDomainObjectTypeConfig("notification");

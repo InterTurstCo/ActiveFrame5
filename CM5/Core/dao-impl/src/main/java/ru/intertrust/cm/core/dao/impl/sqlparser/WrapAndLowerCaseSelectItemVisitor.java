@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
+import net.sf.jsqlparser.statement.select.*;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
@@ -16,6 +13,15 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 */
 class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
 
+    private FromItem fromItem;
+
+    public WrapAndLowerCaseSelectItemVisitor() {
+    }
+
+    public WrapAndLowerCaseSelectItemVisitor(FromItem fromItem) {
+        this.fromItem = fromItem;
+    }
+
     @Override
     public void visit(AllColumns allColumns) {
     }
@@ -23,7 +29,13 @@ class WrapAndLowerCaseSelectItemVisitor implements SelectItemVisitor {
     @Override
     public void visit(AllTableColumns allTableColumns) {
         if (allTableColumns.getTable() != null && allTableColumns.getTable().getName() != null) {
-            allTableColumns.getTable().setName(DaoUtils.wrap(allTableColumns.getTable().getName().toLowerCase()));
+            if(fromItem != null && fromItem.getAlias() != null &&
+                    allTableColumns.getTable().getName().equalsIgnoreCase(fromItem.getAlias().getName())) {
+                // Don't wrap alias
+                allTableColumns.getTable().setName(allTableColumns.getTable().getName().toLowerCase());
+            } else {
+                allTableColumns.getTable().setName(DaoUtils.wrap(allTableColumns.getTable().getName().toLowerCase()));
+            }
         }
     }
 

@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
-public class BeforeImportConfig {
+public class BeforeImportConfig implements Dto {
     @Attribute(name="import-type")
     private String importType;
     

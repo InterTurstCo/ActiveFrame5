@@ -93,7 +93,7 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     private String readStatusNameById(Id statusId) {
-        String query = "select s.* from " + GenericDomainObject.STATUS_DO + " s where s.id=:id";
+        String query = "select s.* from " + wrap(GenericDomainObject.STATUS_DO) + " s where s." + wrap("id") + "=:id";
         Map<String, Object> paramMap = new HashMap<String, Object>();
 
         if (statusId == null) {

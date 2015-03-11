@@ -16,7 +16,7 @@ public class WrapAndLowerCaseSelectVisitor implements SelectVisitor {
     public void visit(PlainSelect plainSelect) {
         if (plainSelect.getSelectItems() != null) {
             for (SelectItem selectItem : plainSelect.getSelectItems()) {
-                selectItem.accept(new WrapAndLowerCaseSelectItemVisitor());
+                selectItem.accept(new WrapAndLowerCaseSelectItemVisitor(plainSelect.getFromItem()));
             }
         }
 
@@ -36,7 +36,7 @@ public class WrapAndLowerCaseSelectVisitor implements SelectVisitor {
 
         if (plainSelect.getDistinct() != null && plainSelect.getDistinct().getOnSelectItems() != null) {
             for (SelectItem selectItem : plainSelect.getDistinct().getOnSelectItems()) {
-                selectItem.accept(new WrapAndLowerCaseSelectItemVisitor());
+                selectItem.accept(new WrapAndLowerCaseSelectItemVisitor(plainSelect.getFromItem()));
             }
         }
 

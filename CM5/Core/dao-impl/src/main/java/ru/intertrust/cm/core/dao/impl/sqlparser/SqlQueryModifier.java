@@ -390,7 +390,7 @@ public class SqlQueryModifier {
                idTypeSelectExpressionItem.setExpression(idTypeExpression);
                     if (selectExpressionItem.getAlias() != null) {
                         idTypeSelectExpressionItem.setAlias(
-                                new Alias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName()))));
+                                new Alias(getReferenceTypeColumnName(DaoUtils.unwrap(selectExpressionItem.getAlias().getName())), false));
                     }
                      
                     if (!containsExpressionInPlainselect(plainSelect, idTypeSelectExpressionItem)) {
@@ -401,7 +401,7 @@ public class SqlQueryModifier {
                 Alias alias = selectExpressionItem.getAlias();
                 if (selectExpressionItem.getExpression() instanceof NullValue) {
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX)));
+                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX), false));
                     referenceFieldTypeItem.setExpression(new NullValue());
                     selectItems.add(referenceFieldTypeItem);
                 } else if (selectExpressionItem.getExpression() instanceof StringValue) {
@@ -414,7 +414,7 @@ public class SqlQueryModifier {
                     selectItems.set(selectItems.size() - 1, referenceFieldIdItem);
 
                     SelectExpressionItem referenceFieldTypeItem = new SelectExpressionItem();
-                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX)));
+                    referenceFieldTypeItem.setAlias(new Alias(getServiceColumnName(DaoUtils.unwrap(alias.getName()), REFERENCE_TYPE_POSTFIX), false));
                     referenceFieldTypeItem.setExpression(new LongValue(String.valueOf(id.getTypeId())));
                     selectItems.add(referenceFieldTypeItem);
                 } else {

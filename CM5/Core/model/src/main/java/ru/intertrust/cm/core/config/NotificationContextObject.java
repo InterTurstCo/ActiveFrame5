@@ -3,8 +3,9 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementUnion;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
-public class NotificationContextObject {
+public class NotificationContextObject implements Dto {
 
     @Attribute(required = true)
     private String name;

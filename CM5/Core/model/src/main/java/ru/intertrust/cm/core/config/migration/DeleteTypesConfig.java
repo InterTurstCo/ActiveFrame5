@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.migration;
 
 import org.simpleframework.xml.ElementList;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.List;
 /**
  * Java модель конфигурации удаляемых при миграции типов
  */
-public class DeleteTypesConfig {
+public class DeleteTypesConfig implements Dto {
 
     @ElementList(entry="type", inline=true)
     private List<DeleteTypesTypeConfig> types = new ArrayList<>();

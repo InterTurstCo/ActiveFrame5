@@ -136,7 +136,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
                     if (needToAddAclSubQuery(table)) {
                         SubSelect replace = createAclSubQuery(table.getName());
                         if (table.getAlias() == null) {
-                            replace.setAlias(new Alias(table.getName()));
+                            replace.setAlias(new Alias(table.getName(), false));
                         } else {
                             replace.setAlias(table.getAlias());
                         }
@@ -163,7 +163,7 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             if (needToAddAclSubQuery(table)) {
                 SubSelect replace = createAclSubQuery(table.getName());
                 if (table.getAlias() == null) {
-                    replace.setAlias(new Alias(table.getName()));
+                    replace.setAlias(new Alias(table.getName(), false));
                 } else {
                     replace.setAlias(table.getAlias());
                 }
@@ -211,33 +211,42 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
            
             StringBuilder aclQuery = new StringBuilder();
             
-            aclQuery.append("Select * from ").append(DaoUtils.wrap(originalDomainObjectType))
-                    .append(" " + originalDomainObjectType + " where exists (select r.").append(DaoUtils.wrap("object_id"))
-                    .append("from ")
-                    .append(DaoUtils.wrap(aclReadTable)).append(" r ");
-            aclQuery.append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
-                    .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
-            aclQuery.append("inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id"))
-                    .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-            aclQuery.append("inner join ").append(DaoUtils.wrap(topLevelParentType)).append(" rt on r.")
-                    .append(DaoUtils.wrap("object_id"))
-                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
+            aclQuery.append("Select ").append(originalDomainObjectType).append(".* from ").
+                    append(DaoUtils.wrap(originalDomainObjectType)).append(" ").append(originalDomainObjectType);
+
             if (isAuditLog) {
                 aclQuery.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalDomainObjectType).append(".")
                         .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
             }
-            aclQuery.append(" where gm.\"person_id\" = ").append(SqlQueryModifier.USER_ID_PARAM);
 
-            aclQuery.append(" and rt.\"id\" = ");
-            if (!isAuditLog) {
-                //topLevelParentType
-                aclQuery.append(domainObjectType).append(".").append(wrap(Configuration.ID_COLUMN));
-
-            } else {
-                //topLevelAuditTable
-                aclQuery.append("pal.").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+            if (!topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
+                aclQuery.append(" inner join ").append(DaoUtils.wrap(topLevelParentType)).append(" rt on rt.").
+                        append(wrap(Configuration.ID_COLUMN)).append(" = ");
+                if (isAuditLog) {
+                    aclQuery.append("pal.").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+                } else {
+                    aclQuery.append(originalDomainObjectType).append(".").append(wrap(Configuration.ID_COLUMN));
+                }
             }
+
+            aclQuery.append(" where exists (select r.").append(DaoUtils.wrap("object_id"))
+                    .append(" from ")
+                    .append(DaoUtils.wrap(aclReadTable)).append(" r ");
+            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
+                    .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
+            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                    .append(DaoUtils.wrap("child_group_id"))
+                    .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+
+            aclQuery.append(" where gm.\"person_id\" = ").append(SqlQueryModifier.USER_ID_PARAM).
+                     append(" and r.").append(wrap("object_id")).append(" = ");
+
+            if (topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
+                aclQuery.append(originalDomainObjectType).append(".").append(wrap("access_object_id"));
+            } else {
+                aclQuery.append("rt.").append(wrap("access_object_id"));
+            }
+
             aclQuery.append(")");
 
             aclQueryString = aclQuery.toString();
