@@ -46,7 +46,7 @@ public class PopupSelectAttachmentUploaderView extends AttachmentUploaderView {
     public PopupSelectAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
         super(state, eventBus, parent);
         presenterFactory = new EditableNonDeletablePresenterFactory(state.getActionLinkConfig(),
-                state.getImagesConfig());
+                state.getImagesConfig(), state.getDigitalSignaturesConfig());
         init();
     }
 

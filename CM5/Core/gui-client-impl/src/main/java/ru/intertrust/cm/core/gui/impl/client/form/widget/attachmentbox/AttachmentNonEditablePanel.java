@@ -20,7 +20,7 @@ public class AttachmentNonEditablePanel extends AbstractNoneEditablePanel implem
 
     public AttachmentNonEditablePanel(SelectionStyleConfig selectionStyleConfig, AttachmentBoxState state) {
         super(selectionStyleConfig);
-        factory = new NonEditablePresenterFactory(state.getImagesConfig());
+        factory = new NonEditablePresenterFactory(state.getImagesConfig(), state.getDigitalSignaturesConfig());
         attachments = state.getAttachments();
     }
 

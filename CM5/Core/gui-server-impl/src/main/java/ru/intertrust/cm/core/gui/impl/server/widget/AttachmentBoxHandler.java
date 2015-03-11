@@ -92,6 +92,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         state.setAddButtonConfig(prepareAddButtonConfig(widgetConfig.getAddButtonConfig(), fieldPath,
                 widgetConfig.getAttachmentType().getName()));
         state.setClearAllButtonConfig(widgetConfig.getClearButtonConfig());
+        state.setDigitalSignaturesConfig(widgetConfig.getDigitalSignaturesConfig());
         return state;
     }
 
@@ -143,12 +144,13 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             try (InputStream fileData = new FileInputStream(fileToSave);
                  RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
                 DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject,
-                        attachmentType, filePath, contentLength);
+                        attachmentType);
 
                 DomainObject savedDo;
                 savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
                 newObjects.add(savedDo);
                 fileToSave.delete();
+                attachmentItem.setDomainObjectType(savedDo.getTypeName());
                 attachmentItem.setId(savedDo.getId());
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -166,7 +168,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     private DomainObject createAttachmentDomainObject(AttachmentItem attachmentItem, DomainObject parentDomainObject,
-                                  String attachmentType, String filePath, long contentLength) throws IOException {
+                                  String attachmentType) throws IOException {
         DomainObject attachmentDomainObject = attachmentService.
                 createAttachmentDomainObjectFor(parentDomainObject.getId(), attachmentType);
         attachmentDomainObject.setValue(NAME, new StringValue(attachmentItem.getName()));
@@ -234,7 +236,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             attachmentItem.setContentLength(humanReadableContentLength);
         }
         attachmentItem.setId(object.getId());
-
+        attachmentItem.setDomainObjectType(object.getTypeName());
         return attachmentItem;
     }
 

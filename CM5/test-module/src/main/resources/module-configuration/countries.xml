@@ -682,22 +682,25 @@
             </label>
             <attachment-box id="country_attachment">
                 <field-path value="country_attachment^country"/>
-                <images-only>
+                <!--images-only>
                     <read-only-preview  preserve-proportion="true"/>
                     <small-preview display="true" preserve-proportion="true"/>
                     <large-preview display="true" preserve-proportion="true" width="400px" height="300px"/>
-                </images-only>
+                </images-only-->
                 <attachment-type-ref name="country_attachment"/>
                 <scanner enabled="true"/>
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
-                <accepted-types>
-                    <accepted-type extensions=".txt" mime-type="text/plain"/> <!-- non-image type, will be ignored -->
-                    <accepted-type extensions=".png" mime-type="image/png"/>
+                <!--accepted-types>
+                    <accepted-type extensions=".txt" mime-type="text/plain"/!--> <!-- non-image type, will be ignored -->
+                    <!--accepted-type extensions=".png" mime-type="image/png"/>
                     <accepted-type extensions=".jpg, .jpeg" mime-type="image/jpeg"/>
-                </accepted-types>
+                </accepted-types-->
+                <digital-signatures>
+                    <digital-signature type="country_attachment"/>
+                </digital-signatures>
             </attachment-box>
 
             <label id="flagAttachmentLbl">

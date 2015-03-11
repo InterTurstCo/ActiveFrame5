@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ChoiceStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DigitalSignaturesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ImagesOnlyConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 
@@ -32,6 +33,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
     private AddButtonConfig addButtonConfig;
     private ChoiceStyleConfig choiceStyleConfig;
     private ClearAllButtonConfig clearAllButtonConfig;
+    private DigitalSignaturesConfig digitalSignaturesConfig;
 
     @Override
     public ArrayList<Id> getIds() {
@@ -140,6 +142,14 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         this.clearAllButtonConfig = clearAllButtonConfig;
     }
 
+    public DigitalSignaturesConfig getDigitalSignaturesConfig() {
+        return digitalSignaturesConfig;
+    }
+
+    public void setDigitalSignaturesConfig(DigitalSignaturesConfig digitalSignaturesConfig) {
+        this.digitalSignaturesConfig = digitalSignaturesConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -164,6 +174,8 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
             return false;
         if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
             return false;
+        if (digitalSignaturesConfig != null ? !digitalSignaturesConfig.equals(that.digitalSignaturesConfig) : that.digitalSignaturesConfig != null)
+            return false;
         return true;
     }
 
@@ -178,6 +190,7 @@ public class AttachmentBoxState extends LinkEditingWidgetState {
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
         result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
+        result = 31 * result + (digitalSignaturesConfig != null ? digitalSignaturesConfig.hashCode() : 0);
         return result;
     }
 

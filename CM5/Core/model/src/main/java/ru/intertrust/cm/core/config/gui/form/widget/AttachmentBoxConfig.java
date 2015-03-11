@@ -44,6 +44,9 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "clear-all-button", required = false)
     private ClearAllButtonConfig clearButtonConfig;
 
+    @Element(name = "digital-signatures", required = false)
+    private DigitalSignaturesConfig digitalSignaturesConfig;
+
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
         singleChoice.setSingleChoice(false);
@@ -118,6 +121,10 @@ public class AttachmentBoxConfig extends WidgetConfig {
         return clearButtonConfig;
     }
 
+    public DigitalSignaturesConfig getDigitalSignaturesConfig() {
+        return digitalSignaturesConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -145,6 +152,8 @@ public class AttachmentBoxConfig extends WidgetConfig {
             return false;
         if (choiceStyleConfig != null ? !choiceStyleConfig.equals(that.choiceStyleConfig) : that.choiceStyleConfig != null)
             return false;
+        if (digitalSignaturesConfig != null ? !digitalSignaturesConfig.equals(that.digitalSignaturesConfig) : that.digitalSignaturesConfig != null)
+            return false;
         return true;
     }
 
@@ -161,6 +170,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
         result = 31 * result + (deleteButtonConfig != null ? deleteButtonConfig.hashCode() : 0);
         result = 31 * result + (addButtonConfig != null ? addButtonConfig.hashCode() : 0);
         result = 31 * result + (choiceStyleConfig != null ? choiceStyleConfig.hashCode() : 0);
+        result = 31 * result + (digitalSignaturesConfig != null ? digitalSignaturesConfig.hashCode() : 0);
         return result;
     }
 

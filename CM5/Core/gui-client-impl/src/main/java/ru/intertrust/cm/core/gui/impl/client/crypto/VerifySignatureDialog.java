@@ -1,13 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.crypto;
 
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
-import ru.intertrust.cm.core.business.api.dto.crypto.SignerInfo;
-
 import com.google.gwt.cell.client.DateCell;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -21,6 +14,12 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import ru.intertrust.cm.core.business.api.dto.crypto.DocumentVerifyResult;
+import ru.intertrust.cm.core.business.api.dto.crypto.SignerInfo;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class VerifySignatureDialog extends DialogBox {
     private CellTable<SignInfo> table;
@@ -43,6 +42,7 @@ public class VerifySignatureDialog extends DialogBox {
 
         removeStyleName("gwt-DialogBox ");
         addStyleName("popup-body");
+        addStyleName("verifySignaturePopup");
 
         // DialogBox is a SimplePanel, so you have to set its widget 
         // property to whatever you want its contents to be.

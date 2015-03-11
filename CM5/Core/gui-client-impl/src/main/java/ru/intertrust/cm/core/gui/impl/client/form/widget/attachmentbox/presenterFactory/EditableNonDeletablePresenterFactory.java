@@ -2,10 +2,12 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presente
 
 import com.google.gwt.event.dom.client.ClickHandler;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DigitalSignaturesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ImagesOnlyConfig;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.ActionPresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenter;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.DigitalSignaturePresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.ImagePresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.TextPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -21,10 +23,13 @@ public class EditableNonDeletablePresenterFactory implements AttachmentElementPr
 
     private final ActionLinkConfig actionLinkConfig;
     private final ImagesOnlyConfig imageConfig;
+    private final DigitalSignaturesConfig digitalSignaturesConfig;
 
-    public EditableNonDeletablePresenterFactory(ActionLinkConfig actionLinkConfig, ImagesOnlyConfig imageConfig) {
+    public EditableNonDeletablePresenterFactory(ActionLinkConfig actionLinkConfig, ImagesOnlyConfig imageConfig,
+                                                DigitalSignaturesConfig digitalSignaturesConfig) {
         this.actionLinkConfig = actionLinkConfig;
         this.imageConfig = imageConfig;
+        this.digitalSignaturesConfig = digitalSignaturesConfig;
     }
 
     @Override
@@ -40,6 +45,7 @@ public class EditableNonDeletablePresenterFactory implements AttachmentElementPr
     private AttachmentElementPresenter createEditableTextPresenter(final AttachmentItem item) {
         AttachmentElementPresenter presenter = new TextPresenter(item.getTitle(), new DownloadAttachmentHandler(item));
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
+        presenter = new DigitalSignaturePresenter(presenter, item, digitalSignaturesConfig);
         return presenter;
     }
 
@@ -47,6 +53,7 @@ public class EditableNonDeletablePresenterFactory implements AttachmentElementPr
         AttachmentElementPresenter presenter = new ImagePresenter(item, imageConfig.getSmallPreviewConfig(),
                 imageConfig.getLargePreviewConfig(), attachments);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
+        presenter = new DigitalSignaturePresenter(presenter, item, digitalSignaturesConfig);
         return presenter;
     }
 

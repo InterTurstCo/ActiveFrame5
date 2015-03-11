@@ -422,3 +422,7 @@ table.hierarh-browser-inline td {
     cursor: default !important;
 
 }
+
+.verifySignaturePopup {
+    z-index: 105;
+}

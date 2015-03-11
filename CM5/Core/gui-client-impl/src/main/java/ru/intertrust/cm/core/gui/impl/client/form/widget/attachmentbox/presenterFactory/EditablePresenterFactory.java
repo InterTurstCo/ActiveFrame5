@@ -3,11 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presente
 import com.google.gwt.event.dom.client.ClickHandler;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DigitalSignaturesConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ImagesOnlyConfig;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DownloadAttachmentHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.ActionPresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.AttachmentElementPresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.DeleteButtonPresenter;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.DigitalSignaturePresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.ImagePresenter;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenter.TextPresenter;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -23,12 +25,14 @@ public class EditablePresenterFactory implements AttachmentElementPresenterFacto
     private final ActionLinkConfig actionLinkConfig;
     private final ImagesOnlyConfig imageConfig;
     private final DeleteButtonConfig deleteButtonConfig;
+    private final DigitalSignaturesConfig digitalSignaturesConfig;
 
     public EditablePresenterFactory(ActionLinkConfig actionLinkConfig, ImagesOnlyConfig imageConfig,
-                                    DeleteButtonConfig deleteButtonConfig) {
+                                    DeleteButtonConfig deleteButtonConfig, DigitalSignaturesConfig digitalSignaturesConfig) {
         this.actionLinkConfig = actionLinkConfig;
         this.imageConfig = imageConfig;
         this.deleteButtonConfig = deleteButtonConfig;
+        this.digitalSignaturesConfig = digitalSignaturesConfig;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class EditablePresenterFactory implements AttachmentElementPresenterFacto
         AttachmentElementPresenter presenter = new TextPresenter(item.getTitle(), new DownloadAttachmentHandler(item));
         presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
+        presenter = new DigitalSignaturePresenter(presenter, item, digitalSignaturesConfig);
         return presenter;
     }
 
@@ -54,6 +59,7 @@ public class EditablePresenterFactory implements AttachmentElementPresenterFacto
                 imageConfig.getLargePreviewConfig(), attachments);
         presenter = new DeleteButtonPresenter(presenter, item, deleteButtonConfig, deleteHandler);
         presenter = new ActionPresenter(presenter, actionLinkConfig, item);
+        presenter = new DigitalSignaturePresenter(presenter, item, digitalSignaturesConfig);
         return presenter;
     }
 

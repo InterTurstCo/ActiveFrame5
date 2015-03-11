@@ -15,6 +15,7 @@ public class AttachmentItem implements Dto {
     private String description;
     private String contentLength;
     private Id id;
+    private String domainObjectType;
 
     public Id getId() {
         return id;
@@ -58,6 +59,14 @@ public class AttachmentItem implements Dto {
 
     public String getTitle() {
         return contentLength == null ? name : name + " (" + contentLength + ")";
+    }
+
+    public String getDomainObjectType() {
+        return domainObjectType;
+    }
+
+    public void setDomainObjectType(String domainObjectType) {
+        this.domainObjectType = domainObjectType;
     }
 
     @Override

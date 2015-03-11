@@ -39,7 +39,7 @@ public class PopupAttachmentUploaderView extends AttachmentUploaderView {
     public PopupAttachmentUploaderView(AttachmentBoxState state, EventBus eventBus, BaseWidget parent) {
         super(state, eventBus, parent);
         presenterFactory = new EditableNonDeletablePresenterFactory(state.getActionLinkConfig(),
-                state.getImagesConfig());
+                state.getImagesConfig(), state.getDigitalSignaturesConfig());
         init();
     }
 

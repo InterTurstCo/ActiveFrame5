@@ -10,34 +10,26 @@ import ru.intertrust.cm.core.gui.impl.client.crypto.VerifySignatureDialog;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.crypto.VerifySignatureResponse;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
 
-@ComponentName("verify.digital.signature.action")
-public class VerifyDigitalSignatureAction extends Action {
-  //  private DigitalSignatureServiceAsync digitalSignatureService;
+@ComponentName("verify.signature.attachment.action")
+public class VerifySignatureAttachmentAction extends AttachmentActionLinkHandler {
 
     @Override
     public Component createNew() {
-        return new VerifyDigitalSignatureAction();
+        return new VerifySignatureAttachmentAction();
     }
 
     @Override
-    protected void execute() {
-        //Получаем ID ДО
-        final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-        final FormState formState = editor.getFormState();
-        Id id = formState.getObjects().getRootNode().getDomainObject().getId();
-        
+    public void execute() {
+       Id id = this.attachmentItem.getId();
         final VerifySignatureDialog dialog = new VerifySignatureDialog();
         dialog.show();
 
         final Command command = new Command("verify", "digital.signature", id);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-            
             @Override
             public void onSuccess(Dto result) {
                 VerifySignatureResponse response = (VerifySignatureResponse)result;

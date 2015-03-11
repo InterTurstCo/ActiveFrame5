@@ -2098,6 +2098,7 @@
                     <xs:element type="con:addButtonType" name="add-button" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:clearAllButtonType" name="clear-all-button" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:deleteButtonType" name="delete-button" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:digitalSignaturesType" name="digital-signatures" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required" />
             </xs:extension>
@@ -2157,6 +2158,16 @@
         </xs:attribute>
     </xs:complexType>
 
+    <xs:complexType name="digitalSignaturesType">
+        <xs:sequence minOccurs="1">
+            <xs:element name="digital-signature" type="con:digitalSignatureType" maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="digitalSignatureType">
+        <xs:attribute name="type" use="required"/>
+    </xs:complexType>
 
     <xs:complexType name="widgetType">
         <xs:simpleContent>

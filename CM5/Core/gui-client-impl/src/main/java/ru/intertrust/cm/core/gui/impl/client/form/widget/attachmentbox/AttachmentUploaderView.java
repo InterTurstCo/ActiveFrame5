@@ -84,7 +84,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
         this.singleChoice = state.isSingleChoice();
         this.eventBus = eventBus;
         presenterFactory = new EditablePresenterFactory(state.getActionLinkConfig(),
-                state.getImagesConfig(), state.getDeleteButtonConfig());
+                state.getImagesConfig(), state.getDeleteButtonConfig(), state.getDigitalSignaturesConfig());
         uploadPresenterFactory = new UploadProgressPresenterFactory(state.getActionLinkConfig(),
                 state.getDeleteButtonConfig(), eventBus);
         this.parent = parent;

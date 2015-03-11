@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action;
 
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.crypto.SignedResult;
 import ru.intertrust.cm.core.config.crypto.SignedResultItem;
@@ -9,19 +11,18 @@ import ru.intertrust.cm.core.gui.api.client.DigitalSignatureClientComponent;
 import ru.intertrust.cm.core.gui.api.client.DigitalSignatureComponentInitHandler;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.crypto.ProgressDialog;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.crypto.DigitalSignatureConfig;
 import ru.intertrust.cm.core.gui.model.crypto.GuiSignedData;
 import ru.intertrust.cm.core.gui.model.crypto.GuiSignedDataItem;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
-import ru.intertrust.cm.core.gui.rpc.api.DigitalSignatureServiceAsync;
-
-import com.google.gwt.user.client.rpc.AsyncCallback;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 @ComponentName("digital.signature.action")
 public class DigitalSignatureAction extends Action {
-    private DigitalSignatureServiceAsync digitalSignatureService;
+    //private DigitalSignatureServiceAsync digitalSignatureService;
     private ProgressDialog progress;
 
     @Override
@@ -36,11 +37,11 @@ public class DigitalSignatureAction extends Action {
         progress.setModal(true);
         progress.show();
 
-        digitalSignatureService = DigitalSignatureServiceAsync.Impl.getInstance();
-        digitalSignatureService.getConfig(new AsyncCallback<DigitalSignatureConfig>() {
-
+        final Command command = new Command("getConfig", "digital.signature", null);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
-            public void onSuccess(DigitalSignatureConfig digitalSignatureConfig) {
+            public void onSuccess(Dto result) {
+                DigitalSignatureConfig digitalSignatureConfig = (DigitalSignatureConfig)result;
                 signData(digitalSignatureConfig);
             }
 
@@ -62,8 +63,8 @@ public class DigitalSignatureAction extends Action {
         Id id = formState.getObjects().getRootNode().getDomainObject().getId();
 
         progress.setMessage("Получение подписываемого контента");
-        digitalSignatureService.getSignedData(id, new AsyncCallback<GuiSignedData>() {
-
+        final Command command = new Command("getSignedData", "digital.signature", id);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 progress.hide();
@@ -71,7 +72,8 @@ public class DigitalSignatureAction extends Action {
             }
 
             @Override
-            public void onSuccess(final GuiSignedData result) {
+            public void onSuccess(Dto guiSignedData) {
+                final GuiSignedData result = (GuiSignedData)guiSignedData;
                 try {
                     final SignedResult signResult = new SignedResult();
                     signResult.setRootId(result.getRootId());
@@ -124,8 +126,8 @@ public class DigitalSignatureAction extends Action {
     }
 
     private void saveSignResults(SignedResult signResult) {
-        digitalSignatureService.saveSignResult(signResult, new AsyncCallback<Void>() {
-
+        final Command command = new Command("saveSignResult", "digital.signature", signResult);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 progress.hide();
@@ -133,7 +135,7 @@ public class DigitalSignatureAction extends Action {
             }
 
             @Override
-            public void onSuccess(Void result) {
+            public void onSuccess(Dto result) {
                 progress.showSuccess();
             }
         });
