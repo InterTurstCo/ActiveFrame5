@@ -32,8 +32,6 @@ import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseeGroup;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
@@ -43,8 +41,15 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.SchedulerDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
+import static ru.intertrust.cm.core.business.api.ScheduleService.*;
 
 @Stateless(name = "SchedulerBean")
 @Interceptors(SpringBeanAutowiringInterceptor.class)
@@ -273,8 +278,8 @@ public class SchedulerBean {
     private boolean isScheduleComplete(DomainObject task) {
         boolean result = false;
 
-        //Получаем рассписание в базе
-        ru.intertrust.cm.core.business.api.schedule.Schedule schedule = scheduleService.getTaskSchedule(task.getId());
+        // Получаем рассписание в базе
+        ru.intertrust.cm.core.business.api.schedule.Schedule schedule = getScheduleFromTask(task);
 
         //Получаем текущие значения даты и времени
         Calendar calendar = Calendar.getInstance();
@@ -294,6 +299,24 @@ public class SchedulerBean {
         result = result && isScheduleFieldComplete(schedule.getMinute(), minute);
 
         return result;
+    }
+    
+    public ru.intertrust.cm.core.business.api.schedule.Schedule getScheduleFromTask(DomainObject task) {
+        try {
+            ru.intertrust.cm.core.business.api.schedule.Schedule result = new ru.intertrust.cm.core.business.api.schedule.Schedule();
+            result.setDayOfMonth(task.getString(SCHEDULE_DAY_OF_MONTH));
+            result.setDayOfWeek(task.getString(SCHEDULE_DAY_OF_WEEK));
+            result.setHour(task.getString(SCHEDULE_HOUR));
+            result.setMinute(task.getString(SCHEDULE_MINUTE));
+            result.setMonth(task.getString(SCHEDULE_MONTH));
+            result.setYear(task.getString(SCHEDULE_YEAR));
+            return result;
+        } catch (AccessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in getTaskSchedule", ex);
+            throw new UnexpectedException("ScheduleService", "getTaskSchedule", "taskId:" + (task != null ? task.getId() : null), ex);
+        }
     }
 
     /**
