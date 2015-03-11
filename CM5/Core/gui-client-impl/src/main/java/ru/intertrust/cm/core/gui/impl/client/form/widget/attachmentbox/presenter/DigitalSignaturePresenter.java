@@ -5,6 +5,9 @@ import com.google.gwt.user.client.ui.Panel;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionLinkConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DigitalSignatureConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.DigitalSignaturesConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import java.util.HashSet;
@@ -34,7 +37,8 @@ public class DigitalSignaturePresenter  implements AttachmentElementPresenter{
         if (isDigitalSignature(item)) {
             ActionLinkConfig actionConfig = new ActionLinkConfig();
             actionConfig.setActionName("verify.signature.attachment.action");
-            actionConfig.setText("ЭЦП"); //TODO: localize
+            actionConfig.setText(LocalizeUtil.get(LocalizationKeys.DIGITAL_SIGNATURE_KEY, BusinessUniverseConstants
+                    .DIGITAL_SIGNATURE));
             return new ActionPresenter(presenter, actionConfig, item).presentElement();
         }
         return element;

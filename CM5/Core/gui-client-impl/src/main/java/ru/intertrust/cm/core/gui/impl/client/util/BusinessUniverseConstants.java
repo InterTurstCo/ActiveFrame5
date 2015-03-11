@@ -152,7 +152,9 @@ public class BusinessUniverseConstants {
 
     public static final String EXECUTION_ACTION_ERROR = "Ошибка выполнения действия: ";
     public static final String DATE_FORMAT_ERROR = "Ошибка в формате даты: ";
+    public static final String OBJECT_NOT_SAVED = "Объект должен быть сохранен перед выполнением операции";
 
+    public static final String DIGITAL_SIGNATURE = "ЭЦП";
 
     private BusinessUniverseConstants() {
     }

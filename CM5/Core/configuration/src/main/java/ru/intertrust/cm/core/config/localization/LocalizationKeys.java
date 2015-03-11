@@ -113,6 +113,10 @@ public class LocalizationKeys {
     public static final String AUTHORIZATION_WRONG_PSW_ERROR_KEY = "WrongPswError";
     public static final String AUTHORIZATION_CONNECTION_ERROR_KEY = "NoConnectionError";
 
+    public static final String OBJECT_NOT_SAVED_KEY = "ObjectMustBeSaved";
+
+    public static final String DIGITAL_SIGNATURE_KEY = "DigitalSignature";
+
     public static final Map<String, String> validationMessages = new HashMap<>(); //<key, defaultValue>
     static {
         validationMessages.put("validate.not-empty", "Поле ${field-name} не должно быть пустым!");

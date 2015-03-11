@@ -28,10 +28,14 @@ public class VerifyDigitalSignatureAction extends Action {
     @Override
     protected void execute() {
         //Получаем ID ДО
+        Id id;
         final IsDomainObjectEditor editor = (IsDomainObjectEditor) getPlugin();
-        final FormState formState = editor.getFormState();
-        Id id = formState.getObjects().getRootNode().getDomainObject().getId();
-        
+        if (editor != null) {
+            final FormState formState = editor.getFormState();
+            id = formState.getObjects().getRootNode().getDomainObject().getId();
+        } else {
+            id = getInitialContext().getRootObjectId();
+        }
         final VerifySignatureDialog dialog = new VerifySignatureDialog();
         dialog.show();
 

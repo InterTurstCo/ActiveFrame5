@@ -1169,13 +1169,20 @@
                 <collection-ref name="Countries"/>
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
-                        <action component-name="download.attachment.table.action"
-                                access-checker="download.attachment.access.checker"
-                                new-objects-access-checker="upload.attachment.access.checker"
-                                tooltip="Скачать">
-                            <display position="before" tooltip="Скачать">
+                        <!--<action component-name="download.attachment.table.action"-->
+                                <!--access-checker="download.attachment.access.checker"-->
+                                <!--new-objects-access-checker="upload.attachment.access.checker"-->
+                                <!--tooltip="Скачать">-->
+                            <!--<display position="before" tooltip="Скачать">-->
+                                <!--<image url="/images/icons/ico-save.gif"/>-->
+                                <!--<text value="Скачать"/>-->
+                            <!--</display>-->
+                        <!--</action>-->
+                        <action component-name="verify.signature.table.action"
+                                tooltip="ЭЦП">
+                            <display position="before" tooltip="ЭЦП">
                                 <image url="/images/icons/ico-save.gif"/>
-                                <text value="Скачать"/>
+                                <text value="ЭЦП"/>
                             </display>
                         </action>
                         <pattern value="{name}"/>
