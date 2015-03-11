@@ -40,7 +40,7 @@
                      jndi-name="java:comp/TransactionSynchronizationRegistry"
                      expected-type="javax.transaction.TransactionSynchronizationRegistry" />
 
-    <jee:jndi-lookup id="dataSource" jndi-name="java:jboss/datasources/CM5" />
+    <jee:jndi-lookup id="dataSource" jndi-name="java:openejb/Resource/CM5" />
 
     <bean id="transactionManager"
           class="org.springframework.transaction.jta.JtaTransactionManager" />
