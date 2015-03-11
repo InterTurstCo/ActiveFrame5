@@ -23,7 +23,7 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class ConfigurationClassesCache {
 
-    private static final String SEARCH_CLASS_PATH = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "**/*.class";
+    private static final String SEARCH_CLASS_PATH = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "ru/intertrust/cm/**/*.class";
 
     private static ConfigurationClassesCache instance = new ConfigurationClassesCache();
     private Map<String, Class> tagToClassMap = new ConcurrentHashMap<>();
