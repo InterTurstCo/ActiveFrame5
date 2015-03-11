@@ -38,7 +38,9 @@
             server-component-name="bouncycastleCryptoBean"
             hash-on-server="true">
             <provider-settings>
-                <cades-crypto-settings-config ts-address="http://cryptopro.ru/tsp/" />
+                <!-- cades-crypto-settings-config ts-address="http://cryptopro.ru/tsp/" /-->
+                <cades-crypto-settings-config ts-address="http://testca.cryptopro.ru/tsp/" />
+                
             </provider-settings>
         </crypto-settings>
        <collection-query-cache max-size="1000" />
