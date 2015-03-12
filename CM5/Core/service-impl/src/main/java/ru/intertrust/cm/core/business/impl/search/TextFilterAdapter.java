@@ -44,7 +44,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         }
         if (baseField != null) {
             List<String> langIds = configHelper.getSupportedLanguages();
-            ArrayList<String> fields = new ArrayList<>(langIds);
+            ArrayList<String> fields = new ArrayList<>(langIds.size());
             for (String langId : langIds) {
                 fields.add(makeSolrSpecialFieldName(baseField, langId));
             }

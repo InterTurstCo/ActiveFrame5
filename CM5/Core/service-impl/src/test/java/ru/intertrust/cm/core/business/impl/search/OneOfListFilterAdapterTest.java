@@ -4,23 +4,40 @@ import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 
+@RunWith(MockitoJUnitRunner.class)
 public class OneOfListFilterAdapterTest {
 
-    OneOfListFilterAdapter adapter = new OneOfListFilterAdapter();
+    @InjectMocks private OneOfListFilterAdapter adapter = new OneOfListFilterAdapter();
+
+    @Mock private SearchConfigHelper configHelper;
+
+    @Before
+    public void init() {
+        MockitoAnnotations.initMocks(adapter);
+    }
 
     @Test
     public void testSingleValue() {
         Id id = mock(Id.class);
         when(id.toStringRepresentation()).thenReturn("id001");
         OneOfListFilter filter = new OneOfListFilter("TestField", Arrays.asList(new ReferenceValue(id)));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.REF));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_r_testfield:(id001)", result);
@@ -36,6 +53,8 @@ public class OneOfListFilterAdapterTest {
         when(id3.toStringRepresentation()).thenReturn("id003");
         OneOfListFilter filter = new OneOfListFilter("TestField",
                 Arrays.asList(new ReferenceValue(id1), new ReferenceValue(id2), new ReferenceValue(id3)));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.REF));
         SearchQuery query = mock(SearchQuery.class);
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_r_testfield:(id001 OR id002 OR id003)", result);

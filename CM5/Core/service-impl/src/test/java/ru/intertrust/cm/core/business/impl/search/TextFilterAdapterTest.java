@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +37,8 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("Area1", "Area2"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList("ru", "en"));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("(cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)"
@@ -49,6 +52,8 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:(Simple)", result);
@@ -81,6 +86,8 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:( \\( \\) \\[ \\] \\{ \\} \\: \" \" \\\\ \\( \\) \\[ \\] \\{ \\} \\: \\\" )",
@@ -93,6 +100,8 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         @SuppressWarnings("unused")
         String result = adapter.getFilterString(filter, query);
@@ -104,6 +113,8 @@ public class TextFilterAdapterTest {
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         @SuppressWarnings("unused")
         String result = adapter.getFilterString(filter, query);
