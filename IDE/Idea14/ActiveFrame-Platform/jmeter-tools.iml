@@ -17,7 +17,7 @@
     <orderEntry type="library" name="Maven: org.beanshell:bsh:2.0b5" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk15:1.45" level="project" />
     <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk15:1.45" level="project" />
-    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.6" level="project" />
+    <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.9" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-httpclient:commons-httpclient:3.1" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
@@ -104,11 +104,6 @@
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: commons-digester:commons-digester:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.lowagie:itext:2.1.7.js2" level="project" />
-    <orderEntry type="library" name="Maven: bouncycastle:bcmail-jdk14:138" level="project" />
-    <orderEntry type="library" name="Maven: bouncycastle:bcprov-jdk14:138" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bctsp-jdk14:1.38" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcprov-jdk14:1.38" level="project" />
-    <orderEntry type="library" name="Maven: org.bouncycastle:bcmail-jdk14:1.38" level="project" />
     <orderEntry type="library" name="Maven: jfree:jcommon:1.0.15" level="project" />
     <orderEntry type="library" name="Maven: jfree:jfreechart:1.0.12" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.castor:castor:1.2" level="project" />

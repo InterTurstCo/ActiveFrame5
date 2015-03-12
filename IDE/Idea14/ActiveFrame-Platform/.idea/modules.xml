@@ -3,10 +3,12 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/bootstrap.iml" filepath="$PROJECT_DIR$/bootstrap.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/../../../CM5/bouncycastle-crypto-service/bouncycastle-crypto-service.iml" filepath="$PROJECT_DIR$/../../../CM5/bouncycastle-crypto-service/bouncycastle-crypto-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/client.iml" filepath="$PROJECT_DIR$/client.iml" group="client and modules" />
       <module fileurl="file://$PROJECT_DIR$/cm-sochi.iml" filepath="$PROJECT_DIR$/cm-sochi.iml" />
       <module fileurl="file://$PROJECT_DIR$/configuration.iml" filepath="$PROJECT_DIR$/configuration.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/core.iml" filepath="$PROJECT_DIR$/core.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/../../../CM5/crypto-pro-service/crypto-pro-service.iml" filepath="$PROJECT_DIR$/../../../CM5/crypto-pro-service/crypto-pro-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/dao-api.iml" filepath="$PROJECT_DIR$/dao-api.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/dao-impl.iml" filepath="$PROJECT_DIR$/dao-impl.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/dataset-generator.iml" filepath="$PROJECT_DIR$/dataset-generator.iml" group="performance and modules" />
@@ -36,4 +38,3 @@
     </modules>
   </component>
 </project>
-

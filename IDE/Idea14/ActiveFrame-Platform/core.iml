@@ -4,6 +4,7 @@
     <output url="file://$MODULE_DIR$/../../../CM5/Core/target/classes" />
     <output-test url="file://$MODULE_DIR$/../../../CM5/Core/target/test-classes" />
     <content url="file://$MODULE_DIR$/../../../CM5/Core">
+      <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Core/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/../../../CM5/Core/target" />
     </content>
     <orderEntry type="inheritedJdk" />

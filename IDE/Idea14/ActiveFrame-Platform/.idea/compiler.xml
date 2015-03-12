@@ -23,7 +23,9 @@
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
         <module name="bootstrap" />
+        <module name="bouncycastle-crypto-service" />
         <module name="configuration" />
+        <module name="crypto-pro-service" />
         <module name="dao-api" />
         <module name="dao-impl" />
         <module name="dataset-generator" />
@@ -53,10 +55,12 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="bootstrap" target="1.7" />
+      <module name="bouncycastle-crypto-service" target="1.7" />
       <module name="client" target="1.7" />
       <module name="cm-sochi" target="1.7" />
       <module name="configuration" target="1.7" />
       <module name="core" target="1.7" />
+      <module name="crypto-pro-service" target="1.7" />
       <module name="dao-api" target="1.7" />
       <module name="dao-impl" target="1.7" />
       <module name="dataset-generator" target="1.7" />
@@ -87,4 +91,3 @@
     </bytecodeTargetLevel>
   </component>
 </project>
-
