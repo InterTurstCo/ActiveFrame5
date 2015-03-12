@@ -332,7 +332,6 @@ public class LinkedTableUtil {
                                                   LinkedDomainObjectsTableState state, final EventBus eventBus) {
         LinkedTableAction action = ComponentRegistry.instance.get(DEFAULT_DELETE_ACTION_COMPONENT);
         FormState rowFormState = obtainFormStateForRow(columnContext, state);
-        action.perform(columnContext.getObjectId(), context.getIndex());
         action.setRowFormState(rowFormState);
         action.setCallback(new PostPerformCallback() {
             @Override
@@ -341,6 +340,7 @@ public class LinkedTableUtil {
                 deleteFieldUpdater.update(context.getIndex(), columnContext.getRowItem(), columnContext);
             }
         });
+        action.perform(columnContext.getObjectId(), context.getIndex());
     }
 
     private static void withCheckAccessDo(ColumnContext columnContext, CheckAccessCallback callback, String accessChecker) {
