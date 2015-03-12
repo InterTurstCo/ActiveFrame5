@@ -10,7 +10,8 @@ public class TextFieldNameDecorator implements Iterable<String> {
     final Iterable<String> langIds;
     String solrField;
     String sourceField;
-    String typeInfix;
+    //String typeInfix;
+    boolean multiValued;
 
     TextFieldNameDecorator(String solrField, Iterable<String> langIds) {
         this.solrField = solrField;
@@ -20,7 +21,8 @@ public class TextFieldNameDecorator implements Iterable<String> {
     TextFieldNameDecorator(Iterable<String> langIds, String sourceField, boolean multiValued) {
         this.langIds = langIds;
         this.sourceField = sourceField.toLowerCase();
-        this.typeInfix = SearchFieldType.getFieldType(FieldType.STRING, multiValued).getInfix();
+        //this.typeInfix = SearchFieldType.getFieldType(FieldType.STRING, multiValued).getInfix();
+        this.multiValued = multiValued;
     }
 
     @Override
@@ -32,9 +34,17 @@ public class TextFieldNameDecorator implements Iterable<String> {
                 String langId = super.next();
                 StringBuilder fieldName = new StringBuilder();
                 if (solrField == null) {
-                    fieldName.append(SolrFields.FIELD_PREFIX)
-                            .append(langId.isEmpty() ? typeInfix : langId + "_")
-                            .append(sourceField);
+                    fieldName.append(SolrFields.FIELD_PREFIX);
+                    if (langId.isEmpty()) {
+                        fieldName.append(SearchFieldType.getFieldType(FieldType.STRING, multiValued).getInfix());
+                    } else {
+                        fieldName.append(langId);
+                        if (multiValued) {
+                            fieldName.append("s");
+                        }
+                        fieldName.append("_");
+                    }
+                    fieldName.append(sourceField);
                 } else {
                     fieldName.append(solrField);
                     if (!langId.isEmpty()) {

@@ -22,17 +22,17 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         if (SearchFilter.EVERYWHERE.equals(field)) {
             throw new SearchException("Поиск пустого значения может осущетсвляться только в конкретном поле");
         }
-        Set<SearchConfigHelper.FieldDataType> types = configHelper.getFieldTypes(field, query.getAreas());
+        Set<SearchFieldType> types = configHelper.getFieldTypes(field, query.getAreas());
         StringBuilder result = new StringBuilder();
         boolean multiple = false;
-        for (SearchConfigHelper.FieldDataType type : types) {
-            SearchFieldType solrType = SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued());
+        for (SearchFieldType solrType : types) {
+            //SearchFieldType solrType = SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued());
             Set<String> infixes = new HashSet<>();
             if (SearchFieldType.TEXT == solrType || SearchFieldType.TEXT_MULTI == solrType) {
                 for (String area : query.getAreas()) {
                     for (String langId : configHelper.getSupportedLanguages(field, area)) {
                         infixes.add(langId.isEmpty() ? solrType.getInfix()
-                                : langId + (type.isMultivalued() ? "s_" : "_"));
+                                : langId + (solrType == SearchFieldType.TEXT_MULTI ? "s_" : "_"));
                     }
                 }
             } else {

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -41,12 +43,50 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             baseField = SolrFields.CONTENT;
         }
         if (baseField != null) {
-            return new TextFieldNameDecorator(baseField, configHelper.getSupportedLanguages());
+            List<String> langIds = configHelper.getSupportedLanguages();
+            ArrayList<String> fields = new ArrayList<>(langIds);
+            for (String langId : langIds) {
+                fields.add(makeSolrSpecialFieldName(baseField, langId));
+            }
+            return fields;
         }
         final HashSet<String> langIds = new HashSet<>();
         for (String area : areaNames) {
             langIds.addAll(configHelper.getSupportedLanguages(name, area));
         }
-        return new TextFieldNameDecorator(langIds, name, false);
+        Set<SearchFieldType> types = configHelper.getFieldTypes(name, areaNames);
+        ArrayList<String> fields = new ArrayList<>(langIds.size());
+        for (String langId : langIds) {
+            if (types.contains(SearchFieldType.TEXT)) {
+                fields.add(makeSolrFieldName(name, langId, SearchFieldType.TEXT));
+            }
+            if (types.contains(SearchFieldType.TEXT_MULTI)) {
+                fields.add(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI));
+            }
+        }
+        return fields;
+    }
+
+    private static String makeSolrFieldName(String field, String langId, SearchFieldType type) {
+        StringBuilder result = new StringBuilder(SolrFields.FIELD_PREFIX);
+        if (langId == null || langId.isEmpty()) {
+            result.append(type.getInfix());
+        } else {
+            result.append(langId);
+            if (type == SearchFieldType.TEXT_MULTI) {
+                result.append("s");
+            }
+            result.append("_");
+        }
+        result.append(field.toLowerCase());
+        return result.toString();
+    }
+
+    private static String makeSolrSpecialFieldName(String field, String langId) {
+        StringBuilder result = new StringBuilder(field);
+        if (langId != null && !langId.isEmpty()) {
+            result.append("_").append(langId);
+        }
+        return result.toString();
     }
 }

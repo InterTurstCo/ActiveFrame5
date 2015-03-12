@@ -242,33 +242,33 @@ public class SearchConfigHelperTest {
     public void testGetFieldTypes_Once() {
         // Поле встречается один раз в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchConfigHelper.FieldDataType> types = testee.getFieldTypes("Long_C", areas);
+        Set<SearchFieldType> types = testee.getFieldTypes("Long_C", areas);
         assertTrue("Поле Long_C должно иметь тип LONG, а не " + types,
-                types.size() == 1 && types.contains(new SearchConfigHelper.FieldDataType(FieldType.LONG)));
+                types.size() == 1 && types.contains(SearchFieldType.LONG));
     }
 
     @Test
     public void testGetFieldTypes_TwiceSameArea() {
         // Поле встречается 2 раза в одной области поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchConfigHelper.FieldDataType> types = testee.getFieldTypes("DateTime_D", areas);
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_D", areas);
         assertTrue("Поле Long_C должно иметь тип DATE, а не " + types,
-                types.size() == 1 && types.contains(new SearchConfigHelper.FieldDataType(FieldType.DATETIME)));
+                types.size() == 1 && types.contains(SearchFieldType.DATE));
     }
 
     @Test
     public void testGetFieldTypes_TwiceDifferentAreas() {
         // Поле встречается 2 раза в разных областях поиска
         HashSet<String> areas = new HashSet<>(Arrays.asList("Area_A", "Area_B"));
-        Set<SearchConfigHelper.FieldDataType> types = testee.getFieldTypes("String_A", areas);
+        Set<SearchFieldType> types = testee.getFieldTypes("String_A", areas);
         assertTrue("Поле Long_C должно иметь тип STRING, а не " + types,
-                types.size() == 1 && types.contains(new SearchConfigHelper.FieldDataType(FieldType.STRING)));
+                types.size() == 1 && types.contains(SearchFieldType.TEXT));
     }
 
     @Test
     public void testGetFieldTypes_None() {
         // Поле отсутствует в заданной области поиска (но присутствует в другой)
-        Set<SearchConfigHelper.FieldDataType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"));
+        Set<SearchFieldType> types = testee.getFieldTypes("DateTime_C", Collections.singleton("Area_B"));
         assertTrue("Поле DateTime_C отсутствует в конфигурации области Area_B", types.size() == 0);
     }
 

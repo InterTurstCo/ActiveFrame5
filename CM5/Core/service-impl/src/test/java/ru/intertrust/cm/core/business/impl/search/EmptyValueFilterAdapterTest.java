@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -27,8 +26,9 @@ public class EmptyValueFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testStringField() {
-        SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(Collections.singleton(type));
+        //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.STRING);
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection()))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT));
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         SearchQuery query = mock(SearchQuery.class);
         when(query.getAreas()).thenReturn(Arrays.asList("TestArea"));
@@ -41,8 +41,9 @@ public class EmptyValueFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testLongField() {
-        SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.LONG);
-        when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(Collections.singleton(type));
+        //SearchConfigHelper.FieldDataType type = new SearchConfigHelper.FieldDataType(FieldType.LONG);
+        when(configHelper.getFieldTypes(eq("TestField"), anyCollection()))
+                .thenReturn(Collections.singleton(SearchFieldType.LONG));
         SearchQuery query = mock(SearchQuery.class);
 
         EmptyValueFilter filter = new EmptyValueFilter("TestField");
@@ -53,12 +54,13 @@ public class EmptyValueFilterAdapterTest {
     @Test
     @SuppressWarnings("unchecked")
     public void testDifferentTypeField() {
-        SearchConfigHelper.FieldDataType typeRef = new SearchConfigHelper.FieldDataType(FieldType.REFERENCE);
-        SearchConfigHelper.FieldDataType typeMDate = new SearchConfigHelper.FieldDataType(FieldType.DATETIME, true);
-        SearchConfigHelper.FieldDataType typeText = new SearchConfigHelper.FieldDataType(FieldType.TEXT);
-        SearchConfigHelper.FieldDataType typeMText = new SearchConfigHelper.FieldDataType(FieldType.TEXT, true);
+        //SearchConfigHelper.FieldDataType typeRef = new SearchConfigHelper.FieldDataType(FieldType.REFERENCE);
+        //SearchConfigHelper.FieldDataType typeMDate = new SearchConfigHelper.FieldDataType(FieldType.DATETIME, true);
+        //SearchConfigHelper.FieldDataType typeText = new SearchConfigHelper.FieldDataType(FieldType.TEXT);
+        //SearchConfigHelper.FieldDataType typeMText = new SearchConfigHelper.FieldDataType(FieldType.TEXT, true);
         when(configHelper.getFieldTypes(eq("TestField"), anyCollection())).thenReturn(
-                new LinkedHashSet<>(Arrays.asList(typeRef, typeMDate, typeText, typeMText)));
+                new LinkedHashSet<>(Arrays.asList(SearchFieldType.REF, SearchFieldType.DATE_MULTI,
+                        SearchFieldType.TEXT, SearchFieldType.TEXT_MULTI)));
         when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaA"))).thenReturn(Arrays.asList(""));
         when(configHelper.getSupportedLanguages(eq("TestField"), eq("AreaB"))).thenReturn(
                 Arrays.asList("ru", "en"), Arrays.asList("ru", "fr"));

@@ -489,8 +489,8 @@ public class SearchConfigHelper {
         }        
     }
 
-    public Set<FieldDataType> getFieldTypes(String name, Collection<String> areas) {
-        Set<FieldDataType> types = new HashSet<>();
+    public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
+        Set<SearchFieldType> types = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             if (areas.contains(area.getName())) {
@@ -501,11 +501,12 @@ public class SearchConfigHelper {
     }
 
     private void findFieldTypes(String fieldName, Collection<? extends IndexedDomainObjectConfig> configs,
-            Set<FieldDataType> types) {
+            Set<SearchFieldType> types) {
         for (IndexedDomainObjectConfig config : configs) {
             for (IndexedFieldConfig field : config.getFields()) {
                 if (fieldName.equalsIgnoreCase(field.getName())) {
-                    types.add(getFieldType(field, config.getType()));
+                    FieldDataType type = getFieldType(field, config.getType());
+                    types.add(SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued()));
                     break;      // No more fields with this name should be in this object config
                 }
             }
