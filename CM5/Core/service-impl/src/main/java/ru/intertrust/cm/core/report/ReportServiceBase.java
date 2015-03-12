@@ -50,7 +50,7 @@ public class ReportServiceBase {
     @Autowired
     protected AccessControlService accessControlService;
 
-    @Inject
+    @Autowired
     protected AttachmentService attachmentService;
 
     /**
