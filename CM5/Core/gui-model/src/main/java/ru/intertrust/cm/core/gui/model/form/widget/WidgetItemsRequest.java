@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 
 import java.util.ArrayList;
 
@@ -24,7 +24,7 @@ public class WidgetItemsRequest implements Dto {
     public String getSelectionPattern() {
         return selectionPattern;
     }
-    private ComplicatedFiltersParams complicatedFiltersParams;
+    private ComplexFiltersParams complexFiltersParams;
 
     public void setSelectionPattern(String selectionPattern) {
         this.selectionPattern = selectionPattern;
@@ -70,11 +70,11 @@ public class WidgetItemsRequest implements Dto {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
-    public ComplicatedFiltersParams getComplicatedFiltersParams() {
-        return complicatedFiltersParams;
+    public ComplexFiltersParams getComplexFiltersParams() {
+        return complexFiltersParams;
     }
 
-    public void setComplicatedFiltersParams(ComplicatedFiltersParams complicatedFiltersParams) {
-        this.complicatedFiltersParams = complicatedFiltersParams;
+    public void setComplexFiltersParams(ComplexFiltersParams complexFiltersParams) {
+        this.complexFiltersParams = complexFiltersParams;
     }
 }

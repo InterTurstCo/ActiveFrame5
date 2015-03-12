@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.api.server.filters;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ import java.util.List;
  *         Time: 13:24
  */
 public interface CollectionExtraFiltersBuilder {
-    boolean prepareCollectionExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters);
+    boolean prepareCollectionExtraFilters(CollectionExtraFiltersConfig config, ComplexFiltersParams params, List<Filter> filters);
 }

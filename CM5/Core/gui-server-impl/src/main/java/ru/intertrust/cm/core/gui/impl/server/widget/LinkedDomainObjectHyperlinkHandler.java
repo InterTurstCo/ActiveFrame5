@@ -26,7 +26,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -76,7 +76,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
             DomainObject firstDomainObject = crudService.find(id);
             state.setDomainObjectType(firstDomainObject.getTypeName());
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(rootId);
+            ComplexFiltersParams filtersParams = new ComplexFiltersParams(rootId);
             CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
             boolean collectionNameConfigured = refConfig != null;
             List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? selectedIds
@@ -114,7 +114,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
     }
 
     private List<Id> getNotLimitedIds(LinkedDomainObjectHyperlinkConfig widgetConfig,
-                                                                     List<Id> selectedIds, ComplicatedFiltersParams filtersParams,
+                                                                     List<Id> selectedIds, ComplexFiltersParams filtersParams,
                                                                      boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
@@ -173,7 +173,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
         collectionRefConfig.setName(collectionName);
         widgetConfig.setCollectionRefConfig(collectionRefConfig);
         List<Id> selectedIds = widgetItemsRequest.getSelectedIds();
-        ComplicatedFiltersParams filtersParams = widgetItemsRequest.getComplicatedFiltersParams();
+        ComplexFiltersParams filtersParams = widgetItemsRequest.getComplexFiltersParams();
         List<Id> idsForItemsGenerating = getNotLimitedIds(widgetConfig, selectedIds, filtersParams, true);
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         WidgetServerUtil.doLimit(idsForItemsGenerating, limit);

@@ -32,7 +32,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -359,8 +359,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             tooltip.showRelativeTo(impl);
             return;
         }
-        ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer());
+        ComplexFiltersParams filtersParams =
+                GuiUtil.createComplexFiltersParams(getContainer());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
                 currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
@@ -381,8 +381,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     }
 
     private void getWidgetItems(final TooltipCallback tooltipCallback) {
-        ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer());
+        ComplexFiltersParams filtersParams =
+                GuiUtil.createComplexFiltersParams(getContainer());
         LinkedTableTooltipRequest request = new LinkedTableTooltipRequest(currentState.getLinkedDomainObjectsTableConfig(),
                 currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);

@@ -55,7 +55,7 @@ public abstract class NodeContentManager {
         nodeContentRequest.setParentId(parentId);
         nodeContentRequest.setNodeCollectionDefConfig(nodeConfig);
         nodeContentRequest.setFormattingConfig(config.getFormattingConfig());
-        nodeContentRequest.setComplicatedFiltersParams(GuiUtil.createComplicatedFiltersParams(widgetsContainer, widgetIdComponentNames));
+        nodeContentRequest.setComplexFiltersParams(GuiUtil.createComplexFiltersParams(widgetsContainer, widgetIdComponentNames));
         return nodeContentRequest;
     }
 

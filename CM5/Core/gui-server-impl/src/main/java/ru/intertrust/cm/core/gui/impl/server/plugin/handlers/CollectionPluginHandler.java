@@ -23,7 +23,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
@@ -141,7 +141,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         if (params == null) {
             return;
         }
-        ComplicatedFiltersParams tbFiltersParams = (ComplicatedFiltersParams) params.getComplicatedFiltersParams();
+        ComplexFiltersParams tbFiltersParams = (ComplexFiltersParams) params.getComplexFiltersParams();
         if (params.isDisplayOnlySelectedIds()) { //main content not editable
             filterBuilder.prepareIncludedIdsFilter(params.getIds(), filters);
             filterBuilder.prepareSelectionFilters(params.getSelectionFiltersConfig(), tbFiltersParams, filters);
@@ -259,7 +259,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         int limit = request.getLimit();
         List<Filter> filters = new ArrayList<>();
         prepareTableBrowserFilters(tableBrowserParams, filters);
-        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplicatedFiltersParams(), filters);
+        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplexFiltersParams(), filters);
         InitialFiltersConfig initialFiltersConfig = request.getInitialFiltersConfig();
 
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.

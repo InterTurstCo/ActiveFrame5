@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 
 import java.util.List;
 
@@ -15,12 +15,12 @@ import java.util.List;
 public class LinkedTableTooltipRequest implements Dto {
     private LinkedDomainObjectsTableConfig config;
     private List<Id> selectedIds;
-    private ComplicatedFiltersParams filtersParams;
+    private ComplexFiltersParams filtersParams;
 
     public LinkedTableTooltipRequest() {
     }
 
-    public LinkedTableTooltipRequest(LinkedDomainObjectsTableConfig config, List<Id> selectedIds, ComplicatedFiltersParams filtersParams) {
+    public LinkedTableTooltipRequest(LinkedDomainObjectsTableConfig config, List<Id> selectedIds, ComplexFiltersParams filtersParams) {
         this.config = config;
         this.selectedIds = selectedIds;
         this.filtersParams = filtersParams;
@@ -34,7 +34,7 @@ public class LinkedTableTooltipRequest implements Dto {
         return selectedIds;
     }
 
-    public ComplicatedFiltersParams getFiltersParams() {
+    public ComplexFiltersParams getFiltersParams() {
         return filtersParams;
     }
 }

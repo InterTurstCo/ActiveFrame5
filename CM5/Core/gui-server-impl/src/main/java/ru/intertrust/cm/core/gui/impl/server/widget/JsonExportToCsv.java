@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
 import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
 import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import javax.servlet.ServletException;
@@ -171,7 +171,7 @@ public class JsonExportToCsv {
                 .getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
         InitialFiltersParams simpleFiltersParams = new InitialFiltersParams(excludedFilterFields, filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, simpleFiltersParams, filters);
-        ComplicatedFiltersParams hierarchyFiltersParams = new ComplicatedFiltersParams();
+        ComplexFiltersParams hierarchyFiltersParams = new ComplexFiltersParams();
         filterBuilder.prepareExtraFilters(hierarchicalFiltersConfig, hierarchyFiltersParams, filters);
         return filters;
     }

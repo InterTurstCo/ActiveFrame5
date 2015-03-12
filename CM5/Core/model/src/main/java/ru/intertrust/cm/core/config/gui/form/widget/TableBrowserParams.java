@@ -16,7 +16,7 @@ import java.util.HashSet;
  */
 //TODO rename to ParentWidgetParams
 public class TableBrowserParams implements Dto {
-    private Dto complicatedFiltersParams;
+    private Dto complexFiltersParams;
     private Collection<Id> ids;
     private boolean displayOnlySelectedIds;
     private boolean displayChosenValues;
@@ -63,12 +63,12 @@ public class TableBrowserParams implements Dto {
         return this;
     }
 
-    public Dto getComplicatedFiltersParams() {
-        return complicatedFiltersParams;
+    public Dto getComplexFiltersParams() {
+        return complexFiltersParams;
     }
 
-    public TableBrowserParams setComplicatedFiltersParams(Dto complicatedFiltersParams) {
-        this.complicatedFiltersParams = complicatedFiltersParams;
+    public TableBrowserParams setComplexFiltersParams(Dto complexFiltersParams) {
+        this.complexFiltersParams = complexFiltersParams;
         return this;
     }
 

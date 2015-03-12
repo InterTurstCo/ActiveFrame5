@@ -33,7 +33,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.Browser;
 import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -140,22 +140,22 @@ public final class GuiUtil {
         action.setPlugin(formPlugin);
         return action;
     }
-    public static ComplicatedFiltersParams createComplicatedFiltersParams(String filterValue, String filterName, WidgetsContainer container,
-                                                                          Collection<WidgetIdComponentName> widgetsIds){
-        ComplicatedFiltersParams params = createComplicatedFiltersParams(container);
+    public static ComplexFiltersParams createComplexFiltersParams(String filterValue, String filterName, WidgetsContainer container,
+                                                                  Collection<WidgetIdComponentName> widgetsIds){
+        ComplexFiltersParams params = createComplexFiltersParams(container);
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
         params.setWidgetValuesMap(getOtherWidgetsValues(container, widgetsIds));
         return params;
     }
 
-    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container,
-                                                                          Collection<WidgetIdComponentName> widgetsIds){
-        return createComplicatedFiltersParams(null, null, container, widgetsIds);
+    public static ComplexFiltersParams createComplexFiltersParams(WidgetsContainer container,
+                                                                  Collection<WidgetIdComponentName> widgetsIds){
+        return createComplexFiltersParams(null, null, container, widgetsIds);
     }
 
-    public static ComplicatedFiltersParams createComplicatedFiltersParams(WidgetsContainer container){
-        ComplicatedFiltersParams params = new ComplicatedFiltersParams();
+    public static ComplexFiltersParams createComplexFiltersParams(WidgetsContainer container){
+        ComplexFiltersParams params = new ComplexFiltersParams();
         params.setRootId(getParentId(container));
         return params;
     }

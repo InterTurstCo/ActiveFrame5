@@ -42,7 +42,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.ExpandHierarchicalCollectionData;
@@ -198,7 +198,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private TableBrowserParams createTableBrowserParams(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
-                .setComplicatedFiltersParams(createFiltersParams())
+                .setComplexFiltersParams(createFiltersParams())
                 .setIds(currentState.getIds())
                 .setDisplayOnlySelectedIds(displayOnlyChosenIds)
                 .setDisplayCheckBoxes(displayCheckBoxes == null ? !currentState.isSingleChoice() : displayCheckBoxes)
@@ -209,13 +209,13 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return tableBrowserParams;
     }
 
-    private ComplicatedFiltersParams createFiltersParams() {
+    private ComplexFiltersParams createFiltersParams() {
         Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
         String filterName = currentState.getTableBrowserConfig().getInputTextFilterConfig().getName();
         String filterValue = viewHolder.getChildViewHolder() == null ? null
                 : ((TableBrowserItemsView) (viewHolder.getChildViewHolder().getWidget())).getFilterValue();
         WidgetsContainer container = getContainer();
-        return GuiUtil.createComplicatedFiltersParams(filterValue, filterName, container, widgetsIdsComponentNames);
+        return GuiUtil.createComplexFiltersParams(filterValue, filterName, container, widgetsIdsComponentNames);
 
     }
     private boolean isDisplayChosenValues(Boolean displayOnlyIncludedIds, Boolean displayCheckBoxes){
@@ -511,8 +511,8 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             widgetItemsRequest.setFormattingConfig(tableBrowserConfig.getFormattingConfig());
             widgetItemsRequest.setSelectionSortCriteriaConfig(tableBrowserConfig.getSelectionSortCriteriaConfig());
             widgetItemsRequest.setSelectionFiltersConfig(tableBrowserConfig.getSelectionFiltersConfig());
-            ComplicatedFiltersParams params = GuiUtil.createComplicatedFiltersParams(getContainer());
-            widgetItemsRequest.setComplicatedFiltersParams(params);
+            ComplexFiltersParams params = GuiUtil.createComplexFiltersParams(getContainer());
+            widgetItemsRequest.setComplexFiltersParams(params);
             Command command = new Command("fetchTableBrowserItems", getName(), widgetItemsRequest);
             BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                 @Override

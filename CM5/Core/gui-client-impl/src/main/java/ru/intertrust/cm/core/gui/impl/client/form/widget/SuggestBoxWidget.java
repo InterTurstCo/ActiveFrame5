@@ -45,7 +45,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipButtonCl
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -350,7 +350,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         result.setDropdownPattern(dropDownPatternConfig);
         result.setSelectionPattern(suggestBoxConfig.getSelectionPatternConfig().getValue());
         result.setExcludeIds(new LinkedHashSet<Id>(currentState.getSelectedIds()));
-        result.setComplicatedFiltersParams(createFiltersParams(requestQuery));
+        result.setComplexFiltersParams(createFiltersParams(requestQuery));
         result.setDefaultSortCriteriaConfig(suggestBoxConfig.getDefaultSortCriteriaConfig());
         result.setFormattingConfig(suggestBoxConfig.getFormattingConfig());
         result.setCollectionExtraFiltersConfig(suggestBoxConfig.getCollectionExtraFiltersConfig());
@@ -372,11 +372,11 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         return calculatedPageSize >= pageSizeFromConfig ? calculatedPageSize : pageSizeFromConfig;
     }
 
-    private ComplicatedFiltersParams createFiltersParams(String requestQuery) {
+    private ComplexFiltersParams createFiltersParams(String requestQuery) {
         Collection<WidgetIdComponentName> widgetsIdsComponentNames = currentState.getExtraWidgetIdsComponentNames();
         String filterName = suggestBoxConfig.getInputTextFilterConfig().getName();
         WidgetsContainer container = getContainer();
-        return GuiUtil.createComplicatedFiltersParams(requestQuery, filterName, container, widgetsIdsComponentNames);
+        return GuiUtil.createComplexFiltersParams(requestQuery, filterName, container, widgetsIdsComponentNames);
     }
 
     @Override

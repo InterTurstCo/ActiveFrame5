@@ -8,7 +8,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.UniqueKeyValueConfig;
  *         Date: 01.11.2014
  *         Time: 17:34
  */
-public abstract class ComplicatedParamConfig extends ParamConfig {
+public abstract class ComplexParamConfig extends ParamConfig {
 
     @Element(name = "unique-key-value", required = false)
     private UniqueKeyValueConfig uniqueKeyValueConfig;
@@ -33,7 +33,7 @@ public abstract class ComplicatedParamConfig extends ParamConfig {
         }
         if (!super.equals(o)) return false;
 
-        ComplicatedParamConfig that = (ComplicatedParamConfig) o;
+        ComplexParamConfig that = (ComplexParamConfig) o;
 
         if (uniqueKeyValueConfig != null ? !uniqueKeyValueConfig.equals(that.uniqueKeyValueConfig)
                 : that.uniqueKeyValueConfig != null) {

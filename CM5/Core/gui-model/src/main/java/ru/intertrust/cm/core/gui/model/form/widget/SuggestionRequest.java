@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 
 import java.util.LinkedHashSet;
 
@@ -28,7 +28,7 @@ public class SuggestionRequest implements Dto {
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     private boolean tooltipContent;
     private LazyLoadState lazyLoadState;
-    private ComplicatedFiltersParams complicatedFiltersParams;
+    private ComplexFiltersParams complexFiltersParams;
 
     public String getCollectionName() {
         return collectionName;
@@ -110,11 +110,11 @@ public class SuggestionRequest implements Dto {
         this.lazyLoadState = lazyLoadState;
     }
 
-    public ComplicatedFiltersParams getComplicatedFiltersParams() {
-        return complicatedFiltersParams;
+    public ComplexFiltersParams getComplexFiltersParams() {
+        return complexFiltersParams;
     }
 
-    public void setComplicatedFiltersParams(ComplicatedFiltersParams complicatedFiltersParams) {
-        this.complicatedFiltersParams = complicatedFiltersParams;
+    public void setComplexFiltersParams(ComplexFiltersParams complexFiltersParams) {
+        this.complexFiltersParams = complexFiltersParams;
     }
 }

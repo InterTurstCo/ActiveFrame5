@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFiltersConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ComplicatedParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ComplexParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.TooltipWidgetState;
@@ -62,7 +62,7 @@ public class WidgetUtil {
         if(filtersConfig != null && isNotEmpty(filtersConfig.getFilterConfigs())){
         List<? extends AbstractFilterConfig> filtersConfigs = filtersConfig.getFilterConfigs();
             List<String> result = new ArrayList<String>();
-            for (AbstractFilterConfig<? extends ComplicatedParamConfig> config : filtersConfigs) {
+            for (AbstractFilterConfig<? extends ComplexParamConfig> config : filtersConfigs) {
                 fillWidgetsIds(config.getParamConfigs(), result);
             }
 
@@ -84,9 +84,9 @@ public class WidgetUtil {
         return result;
     }
 
-    private static void fillWidgetsIds(List<? extends ComplicatedParamConfig> paramConfigs, List<String> widgetsIds) {
+    private static void fillWidgetsIds(List<? extends ComplexParamConfig> paramConfigs, List<String> widgetsIds) {
         if(isNotEmpty(paramConfigs)){
-            for (ComplicatedParamConfig paramConfig : paramConfigs) {
+            for (ComplexParamConfig paramConfig : paramConfigs) {
                 String widgetId = paramConfig.getWidgetId();
                 if(widgetId != null){
                     widgetsIds.add(widgetId);

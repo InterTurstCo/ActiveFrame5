@@ -9,7 +9,7 @@ import org.simpleframework.xml.Root;
  *         Time: 17:41
  */
 @Root(name = "param")
-public class ExtraParamConfig extends ComplicatedParamConfig {
+public class ExtraParamConfig extends ComplexParamConfig {
     @Attribute(name = "widget-id", required = false)
     private String widgetId;
 

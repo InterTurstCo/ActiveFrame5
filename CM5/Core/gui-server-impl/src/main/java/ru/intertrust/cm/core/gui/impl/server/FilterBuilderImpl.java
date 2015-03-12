@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.gui.api.server.filters.SelectionFiltersBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import java.util.Collection;
@@ -42,12 +42,12 @@ public class FilterBuilderImpl implements FilterBuilder {
     }
 
     @Override
-    public boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters) {
+    public boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplexFiltersParams params, List<Filter> filters) {
         return selectionFiltersBuilder.prepareSelectionFilters(config, params, filters);
     }
 
     @Override
-    public boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters) {
+    public boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplexFiltersParams params, List<Filter> filters) {
         return collectionExtraFiltersBuilder.prepareCollectionExtraFilters(config, params, filters);
     }
 

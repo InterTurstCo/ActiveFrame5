@@ -12,26 +12,26 @@ import java.util.Set;
  *         Date: 02.11.2014
  *         Time: 19:31
  */
-public class ComplicatedFiltersParams implements Dto {
+public class ComplexFiltersParams implements Dto {
     private Id rootId;
     private String inputFilterValue;
     private String inputFilterName;
     private Map<WidgetIdComponentName, WidgetState> widgetValuesMap;
 
-    public ComplicatedFiltersParams() {
+    public ComplexFiltersParams() {
     }
 
-    public ComplicatedFiltersParams(Id rootId) {
+    public ComplexFiltersParams(Id rootId) {
         this.rootId = rootId;
     }
 
-    public ComplicatedFiltersParams(Id rootId, Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
+    public ComplexFiltersParams(Id rootId, Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
         this(rootId);
         this.widgetValuesMap = widgetValuesMap;
     }
 
-    public ComplicatedFiltersParams(Id rootId, String inputFilterValue, String inputFilterName,
-                                    Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
+    public ComplexFiltersParams(Id rootId, String inputFilterValue, String inputFilterName,
+                                Map<WidgetIdComponentName, WidgetState> widgetValuesMap) {
         this(rootId, widgetValuesMap);
         this.inputFilterValue = inputFilterValue;
         this.inputFilterName = inputFilterName;

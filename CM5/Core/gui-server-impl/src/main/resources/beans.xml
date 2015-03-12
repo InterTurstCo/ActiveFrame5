@@ -65,12 +65,12 @@
           lazy-init="true" abstract="true"/>
     <bean id="initialFiltersBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.InitialFiltersBuilderImpl"
            lazy-init="true" />
-    <bean id="complicatedFilterBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.ComplicatedFiltersBuilder"
+    <bean id="complexFilterBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.ComplexFiltersBuilder"
            lazy-init="true" abstract="true" parent="abstractFilterBuilder"/>
     <bean id="selectionFiltersBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.SelectionFiltersBuilderImpl"
-          parent="complicatedFilterBuilder" lazy-init="true"/>
+          parent="complexFilterBuilder" lazy-init="true"/>
     <bean id="collectionExtraFiltersBuilder" class="ru.intertrust.cm.core.gui.impl.server.filters.CollectionExtraFiltersBuilderImpl"
-          parent="complicatedFilterBuilder" lazy-init="true"/>
+          parent="complexFilterBuilder" lazy-init="true"/>
     <bean id="filtersBuilder" class="ru.intertrust.cm.core.gui.impl.server.FilterBuilderImpl"/>
 
     <bean id="sortOrderHelper" class="ru.intertrust.cm.core.gui.impl.server.SorOrderHelperImpl" lazy-init="true"/>

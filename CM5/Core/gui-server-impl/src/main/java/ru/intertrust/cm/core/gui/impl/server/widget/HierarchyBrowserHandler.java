@@ -21,7 +21,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.WidgetIdComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -74,7 +74,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
             for (NodeCollectionDefConfig nodeDefConfig : nodeConfigs) {
                 hasSelectionFilters = hasSelectionFilters || hasSelectionFilters(nodeDefConfig);
                 noLimit = noLimit && hasNoLimit(nodeConfig);
-                ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
+                ComplexFiltersParams filtersParams = new ComplexFiltersParams(root.getId());
                 generateChosenItems(nodeDefConfig, formattingConfig, selectedIds, chosenItems, filtersParams, false);
 
             }
@@ -110,7 +110,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     private void generateChosenItems(NodeCollectionDefConfig nodeConfig,
                                      FormattingConfig formattingConfig, List<Id> selectedIds,
-                                     Set<HierarchyBrowserItem> items, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
+                                     Set<HierarchyBrowserItem> items, ComplexFiltersParams filtersParams, boolean tooltipContent) {
         String collectionName = nodeConfig.getCollection();
         SelectionFiltersConfig selectionFiltersConfig = nodeConfig.getSelectionFiltersConfig();
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
@@ -257,7 +257,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> chosenIds = nodeContentRequest.getChosenIds();
 
         DomainObject parent = parentId == null ? null : crudService.find(parentId);
-        ComplicatedFiltersParams complicatedFiltersParams = nodeContentRequest.getComplicatedFiltersParams();
+        ComplexFiltersParams complexFiltersParams = nodeContentRequest.getComplexFiltersParams();
         for (NodeCollectionDefConfig nodeConfig : nodeCollectionDefConfigs) {
 
             String collectionName = nodeConfig.getCollection();
@@ -272,7 +272,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                 String inputTextFilterName = nodeConfig.getInputTextFilterConfig().getName();
                 filters = addInputTextFilter(inputTextFilterName, inputText, filters);
             }
-            filterBuilder.prepareExtraFilters(nodeConfig.getCollectionExtraFiltersConfig(), complicatedFiltersParams, filters);
+            filterBuilder.prepareExtraFilters(nodeConfig.getCollectionExtraFiltersConfig(), complexFiltersParams, filters);
             DefaultSortCriteriaConfig sortCriteriaConfig = nodeConfig.getDefaultSortCriteriaConfig();
             SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig);
 
@@ -373,7 +373,7 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
         ArrayList<Id> selectedIds = request.getSelectedIds();
         FormattingConfig formattingConfig = config.getFormattingConfig();
         Set<HierarchyBrowserItem> chosenItems = new LinkedHashSet<HierarchyBrowserItem>();
-        ComplicatedFiltersParams filtersParams = request.getFiltersParams();
+        ComplexFiltersParams filtersParams = request.getFiltersParams();
         for (String collectionName : collectionNames) {
             NodeCollectionDefConfig nodeCollectionConfig = collectionNameNodeMap.get(collectionName);
             generateChosenItems(nodeCollectionConfig, formattingConfig, selectedIds, chosenItems, filtersParams, true);

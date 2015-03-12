@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
@@ -61,7 +61,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
             SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, selectionSortCriteriaConfig);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
 
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
+            ComplexFiltersParams filtersParams = new ComplexFiltersParams(root.getId());
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
@@ -103,7 +103,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, selectionSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
         boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig,
-                widgetItemsRequest.getComplicatedFiltersParams(),filters);
+                widgetItemsRequest.getComplexFiltersParams(),filters);
         IdentifiableObjectCollection collection = null;
         boolean hasLostItems = false;
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);

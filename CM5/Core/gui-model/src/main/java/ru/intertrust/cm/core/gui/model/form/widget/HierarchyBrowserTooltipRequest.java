@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 
 import java.util.ArrayList;
 
@@ -15,12 +15,12 @@ import java.util.ArrayList;
 public class HierarchyBrowserTooltipRequest implements Dto {
     private HierarchyBrowserConfig hierarchyBrowserConfig;
     private ArrayList<Id> selectedIds;
-    private ComplicatedFiltersParams filtersParams;
+    private ComplexFiltersParams filtersParams;
     public HierarchyBrowserTooltipRequest() {
     }
 
     public HierarchyBrowserTooltipRequest(HierarchyBrowserConfig hierarchyBrowserConfig, ArrayList<Id> selectedIds,
-                                          ComplicatedFiltersParams filtersParams) {
+                                          ComplexFiltersParams filtersParams) {
 
         this.hierarchyBrowserConfig = hierarchyBrowserConfig;
         this.selectedIds = selectedIds;
@@ -31,7 +31,7 @@ public class HierarchyBrowserTooltipRequest implements Dto {
         return hierarchyBrowserConfig;
     }
 
-    public ComplicatedFiltersParams getFiltersParams() {
+    public ComplexFiltersParams getFiltersParams() {
         return filtersParams;
     }
 

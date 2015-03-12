@@ -29,7 +29,7 @@ import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
 import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -108,7 +108,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = widgetConfig.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;
-        ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
+        ComplexFiltersParams filtersParams = new ComplexFiltersParams(root.getId());
         List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids
                 : getNotLimitedIds(widgetConfig, ids, filtersParams, false);
         state.setFilteredItemsNumber(idsForItemsGenerating.size());
@@ -149,7 +149,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
 
     private List<Id> getNotLimitedIds(LinkedDomainObjectsTableConfig widgetConfig,
-                                      List<Id> selectedIds, ComplicatedFiltersParams filtersParams, boolean tooltipContent) {
+                                      List<Id> selectedIds, ComplexFiltersParams filtersParams, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
         filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams, filters);
@@ -167,7 +167,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         }
         List<Id> selectedFilteredIds = new ArrayList<>();
         for (IdentifiableObject object : collection) {
-            selectedFilteredIds.add(object.getId());
+            selectedFilteredIds.add(object.getId());// todo: in many to many - NOT ID!
         }
         return selectedFilteredIds;
     }
@@ -414,7 +414,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         LinkedTableTooltipRequest request = (LinkedTableTooltipRequest) inputParams;
         LinkedDomainObjectsTableConfig config = request.getConfig();
         List<Id> ids = request.getSelectedIds();
-        ComplicatedFiltersParams filtersParams = request.getFiltersParams();
+        ComplexFiltersParams filtersParams = request.getFiltersParams();
         SelectionFiltersConfig selectionFiltersConfig = config.getSelectionFiltersConfig();
         CollectionRefConfig refConfig = config.getCollectionRefConfig();
         boolean collectionNameConfigured = refConfig != null;

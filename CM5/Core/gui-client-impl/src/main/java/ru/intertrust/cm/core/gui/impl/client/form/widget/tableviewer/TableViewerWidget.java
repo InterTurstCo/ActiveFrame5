@@ -25,7 +25,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWidgetHelper;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -114,9 +114,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private TableBrowserParams createTableBrowserParams(TableViewerConfig config) {
-        ComplicatedFiltersParams filtersParams = GuiUtil.createComplicatedFiltersParams(getContainer());
+        ComplexFiltersParams filtersParams = GuiUtil.createComplexFiltersParams(getContainer());
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
-                .setComplicatedFiltersParams(filtersParams)
+                .setComplexFiltersParams(filtersParams)
                 .setIds(new ArrayList<Id>())
                 .setDisplayOnlySelectedIds(false)
                 .setDisplayCheckBoxes(false)

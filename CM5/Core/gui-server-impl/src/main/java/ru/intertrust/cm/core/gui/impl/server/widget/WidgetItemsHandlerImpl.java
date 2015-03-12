@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -85,7 +85,7 @@ public class WidgetItemsHandlerImpl implements WidgetItemsHandler {
         SelectionSortCriteriaConfig selectionSortCriteriaConfig = widgetItemsRequest.getSelectionSortCriteriaConfig();
         SortOrder sortOrder = sortOrderHelper.buildSortOrder(collectionName, selectionSortCriteriaConfig);
         SelectionFiltersConfig selectionFiltersConfig = widgetItemsRequest.getSelectionFiltersConfig();
-        ComplicatedFiltersParams filtersParams = widgetItemsRequest.getComplicatedFiltersParams();
+        ComplexFiltersParams filtersParams = widgetItemsRequest.getComplexFiltersParams();
         boolean selectionFiltersWereApplied = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
         Integer limit = WidgetUtil.getLimit(selectionFiltersConfig);
         IdentifiableObjectCollection collection = null;

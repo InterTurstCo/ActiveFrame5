@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.tooltip.ShowTooltipEventHandl
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TooltipWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetItemsResponse;
@@ -66,9 +66,9 @@ public abstract class TooltipWidget extends BaseWidget implements ShowTooltipEve
         request.setFormattingConfig(config.getFormattingConfig());
         request.setSelectionSortCriteriaConfig(config.getSelectionSortCriteriaConfig());
         request.setSelectionFiltersConfig(config.getSelectionFiltersConfig());
-        ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer());
-        request.setComplicatedFiltersParams(filtersParams);
+        ComplexFiltersParams filtersParams =
+                GuiUtil.createComplexFiltersParams(getContainer());
+        request.setComplexFiltersParams(filtersParams);
         return request;
     }
 

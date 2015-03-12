@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetItemsHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -70,7 +70,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
             List<Filter> filters = new ArrayList<Filter>();
             filterBuilder.prepareIncludedIdsFilter(selectedIds, filters);
             SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
-            ComplicatedFiltersParams filtersParams = new ComplicatedFiltersParams(root.getId());
+            ComplexFiltersParams filtersParams = new ComplexFiltersParams(root.getId());
             boolean hasSelectionFilters = filterBuilder.prepareSelectionFilters(selectionFiltersConfig, filtersParams,filters);
             int limit = WidgetUtil.getLimit(selectionFiltersConfig);
             boolean noLimit = limit == -1;
@@ -108,7 +108,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         if (!suggestionRequest.getExcludeIds().isEmpty()) {
             filters.add(FilterBuilderUtil.prepareFilter(suggestionRequest.getExcludeIds(), FilterBuilderUtil.EXCLUDED_IDS_FILTER));
         }
-        ComplicatedFiltersParams filtersParams = suggestionRequest.getComplicatedFiltersParams();
+        ComplexFiltersParams filtersParams = suggestionRequest.getComplexFiltersParams();
         filterBuilder.prepareExtraFilters(suggestionRequest.getCollectionExtraFiltersConfig(), filtersParams, filters);
         DefaultSortCriteriaConfig sortCriteriaConfig = suggestionRequest.getDefaultSortCriteriaConfig();
         LazyLoadState lazyLoadState = suggestionRequest.getLazyLoadState();

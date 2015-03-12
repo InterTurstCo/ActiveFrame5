@@ -8,7 +8,7 @@ import org.simpleframework.xml.Root;
  *         Time: 17:45
  */
 @Root(name = "param")
-public class SelectionParamConfig extends ComplicatedParamConfig {
+public class SelectionParamConfig extends ComplexParamConfig {
 
     @Override
     public String getWidgetId() {

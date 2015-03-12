@@ -13,11 +13,7 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
-import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.HierarchyBrowserConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
@@ -35,13 +31,8 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipSizer;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipRequest;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserTooltipResponse;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserUpdaterContext;
-import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
@@ -51,17 +42,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OPEN_IN_FULL_WINDOW_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN_IN_FULL_WINDOW;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 10.12.13
@@ -614,8 +596,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     private void fetchWidgetItems(final TooltipCallback tooltipCallback) {
         final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
-        ComplicatedFiltersParams filtersParams =
-                GuiUtil.createComplicatedFiltersParams(getContainer());
+        ComplexFiltersParams filtersParams =
+                GuiUtil.createComplexFiltersParams(getContainer());
         final HierarchyBrowserTooltipRequest request = new HierarchyBrowserTooltipRequest(config, currentState.getIds(), filtersParams);
         Command command = new Command("fetchWidgetItems", getName(), request);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

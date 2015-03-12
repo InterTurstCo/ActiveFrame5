@@ -2,12 +2,12 @@ package ru.intertrust.cm.core.gui.impl.server.filters;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ComplicatedParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ComplexParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.NullFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.gui.api.server.filters.CollectionExtraFiltersBuilder;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.List;
@@ -18,23 +18,23 @@ import java.util.List;
  *         Time: 14:01
  */
 
-public class CollectionExtraFiltersBuilderImpl extends ComplicatedFiltersBuilder<CollectionExtraFiltersConfig>
+public class CollectionExtraFiltersBuilderImpl extends ComplexFiltersBuilder<CollectionExtraFiltersConfig>
         implements CollectionExtraFiltersBuilder{
 
     @Override
-    public boolean prepareCollectionExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params,
+    public boolean prepareCollectionExtraFilters(CollectionExtraFiltersConfig config, ComplexFiltersParams params,
                                                  List<Filter> filters) {
-        return prepareComplicatedFilters(config, params, filters);
+        return prepareComplexFilters(config, params, filters);
     }
 
     @Override
-    boolean prepareComplicatedFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params,
-                                      List<Filter> filters) {
+    boolean prepareComplexFilters(CollectionExtraFiltersConfig config, ComplexFiltersParams params,
+                                  List<Filter> filters) {
         boolean filtersWerePrepared = false;
         if (config != null && WidgetUtil.isNotEmpty(config.getFilterConfigs())) {
             List<ExtraFilterConfig> filtersConfigs = config.getFilterConfigs();
-            for (NullFilterConfig<? extends ComplicatedParamConfig> filterConfig : filtersConfigs) {
-                Filter filter = prepareComplicatedFilter(filterConfig, params);
+            for (NullFilterConfig<? extends ComplexParamConfig> filterConfig : filtersConfigs) {
+                Filter filter = prepareComplexFilter(filterConfig, params);
                 if (filter != null) {
                     filters.add(filter);
                     filtersWerePrepared = true;
@@ -45,7 +45,7 @@ public class CollectionExtraFiltersBuilderImpl extends ComplicatedFiltersBuilder
         return prepareInputTextFilter(params, filters) || filtersWerePrepared;
     }
 
-    private boolean prepareInputTextFilter(ComplicatedFiltersParams params, List<Filter> filters) {
+    private boolean prepareInputTextFilter(ComplexFiltersParams params, List<Filter> filters) {
         boolean result = false;
         if (params != null) {
             String text = params.getInputFilterValue();

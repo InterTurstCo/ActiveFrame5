@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfi
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.filters.ComplicatedFiltersParams;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 
 import java.util.Collection;
@@ -34,7 +34,7 @@ public interface FilterBuilder {
     /**
      *
      * @deprecated use
-     * boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters)
+     * boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplexFiltersParams params, List<Filter> filters)
      */
     @Deprecated
     boolean prepareSelectionFilters(AbstractFiltersConfig  selectionFiltersConfig,
@@ -42,9 +42,9 @@ public interface FilterBuilder {
 
     boolean prepareInitialFilters(InitialFiltersConfig config, InitialFiltersParams params,List<Filter> filters);
 
-    boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters);
+    boolean prepareSelectionFilters(SelectionFiltersConfig config, ComplexFiltersParams params, List<Filter> filters);
 
-    boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplicatedFiltersParams params, List<Filter> filters);
+    boolean prepareExtraFilters(CollectionExtraFiltersConfig config, ComplexFiltersParams params, List<Filter> filters);
 
     void prepareIncludedIdsFilter(Collection<Id> ids, List<Filter> filters);
 
