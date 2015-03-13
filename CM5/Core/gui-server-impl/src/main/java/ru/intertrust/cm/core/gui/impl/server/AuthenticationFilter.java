@@ -65,12 +65,12 @@ public class AuthenticationFilter implements Filter {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
             if (request.getUserPrincipal() != null) {
-                try {
+                /*try {
                     request.logout();
                     //System.out.println(Thread.currentThread().getId() + " => log out");
                 } catch (ServletException e) {
                     log.error("request logout failed", e);
-                }
+                }*/
             } else {
                 log.info(Thread.currentThread().getId() + " => no user principal. Do NOT log out");
             }
