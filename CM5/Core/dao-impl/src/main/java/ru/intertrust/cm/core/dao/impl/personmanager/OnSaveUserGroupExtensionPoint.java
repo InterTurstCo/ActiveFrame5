@@ -125,6 +125,10 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.name());
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.name());
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.name());
+        
 
     }
 

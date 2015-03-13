@@ -188,7 +188,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllParentGroup(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
         if (personGroups != null) {
             return personGroups;
         } else {
@@ -196,7 +196,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
             String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
             personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
             return personGroups;
         }
     }
