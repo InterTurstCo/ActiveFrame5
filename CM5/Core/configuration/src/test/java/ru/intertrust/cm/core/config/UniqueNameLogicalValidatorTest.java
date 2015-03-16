@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.beans.FatalBeanException;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -33,7 +34,7 @@ public class UniqueNameLogicalValidatorTest {
         // Check for valid configuration
         createConfigurationExplorer(DOMAIN_OBJECTS_CONFIG_PATH);
 
-        expectedException.expect(ConfigurationException.class);
+        expectedException.expect(FatalBeanException.class);
         expectedException.expectMessage("Configuration of domain-object-type with name 'Duplicated_Name' was validated with errors.Count: 1 Content:\n" +
                 "There are top level configurations with identical name\n");
 

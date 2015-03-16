@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -118,7 +119,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         }
 
         if (!logicalErrorsList.isEmpty()) {
-            throw new ConfigurationException(LogicalErrors.toString(logicalErrorsList));
+            throw new FatalBeanException("Configuration validation failed",
+                    new ConfigurationException(LogicalErrors.toString(logicalErrorsList)));
         }
     }
 
