@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -11,6 +13,11 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.core.env.Environment;
 
 import ru.intertrust.cm.core.business.api.ScriptContext;
 import ru.intertrust.cm.core.business.api.ScriptService;
@@ -28,8 +35,16 @@ public class JavaScriptServiceImpl implements ScriptService {
 
     private static final String CONTEXT_OBJECT = "ctx";
 
+    @Autowired
+    protected ApplicationContext applicationContext;
+
+    @Autowired
+    protected Environment environment;
+    
     private ScriptEngine engine;
     private Map<String, CompiledScript> compiledScripts = new Hashtable<String, CompiledScript>();
+    
+    private Map<String, Object> injectBeans;
 
     @PostConstruct
     private void init() {
@@ -57,6 +72,7 @@ public class JavaScriptServiceImpl implements ScriptService {
             Bindings bindings = new SimpleBindings();
             bindings.put(SESSION_OBJECT, new Session());
             bindings.put(CONTEXT_OBJECT, context);
+            injectBeans(bindings);
 
             Object evaluateResult = compiledScript.eval(bindings);
             if (context.getResult() == null) {
@@ -68,4 +84,29 @@ public class JavaScriptServiceImpl implements ScriptService {
         }
     }
 
+    protected void injectBeans(Bindings bindings) {
+        if (injectBeans == null){
+            injectBeans = new Hashtable<String, Object>();
+            ApplicationContext context = getInjectedApplicationContext();
+            String[] beanDefinitionNames = context.getBeanDefinitionNames();
+
+            for (String beanDefinitionName : beanDefinitionNames) {
+                if (context.isSingleton(beanDefinitionName) && 
+                        !((AbstractApplicationContext)context).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
+                    Object bean = context.getBean(beanDefinitionName);
+                    injectBeans.put(beanDefinitionName, bean);
+                }
+            }
+            //Добавляем переменные из server.properties
+            injectBeans.put("environment", environment);
+        }
+        
+        for (String beanName : injectBeans.keySet()) {
+            bindings.put(beanName, injectBeans.get(beanName));
+        }
+    }
+    
+    protected ApplicationContext getInjectedApplicationContext(){
+        return applicationContext;
+    }    
 }

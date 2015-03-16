@@ -81,7 +81,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     private IdentifiableObjectCollection getProfileValues(Id profileId){
-        String query = "select pv.id from profile_value pv where pv.profile = {0}";
+        //String query = "select pv.id from profile_value pv where pv.profile = {0}";
+        String query = "select id from profile_value where profile = {0}";
         List<Value> params = new ArrayList<Value>();
         params.add(new ReferenceValue(profileId));
         IdentifiableObjectCollection profileValues = collectionsService.findCollectionByQuery(query, params);
