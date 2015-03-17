@@ -233,7 +233,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         }
         if (groupList instanceof BookmarkListConfig) {
 
-            final BookmarksHelper bodyTabPanel = new BookmarksHelper();
+            final BookmarksHelper bodyTabPanel = new BookmarksHelper(eventBus);
             bodyTabPanel.asWidget().setLayoutData(BusinessUniverseConstants.FOOTER_LONG);
             addStyleHandlersForBookMarks(bodyTabPanel);
             List<TabGroupConfig> bookmarkTabs = ((BookmarkListConfig) groupList).getTabGroupConfigs();
@@ -246,7 +246,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
 
         if (groupList instanceof HidingGroupListConfig) {
 
-            HiddenGroupHelper bodyTabPanel = new HiddenGroupHelper();
+            HiddenGroupHelper bodyTabPanel = new HiddenGroupHelper(eventBus);
             List<TabGroupConfig> bookmarkTabs = ((HidingGroupListConfig) groupList).getTabGroupConfigs();
             for (TabGroupConfig tab : bookmarkTabs) {
                 String initialSate = tab.getInitialState();

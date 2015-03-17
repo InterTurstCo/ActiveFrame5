@@ -6,6 +6,8 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,8 +20,14 @@ import com.google.gwt.user.client.ui.Widget;
 public class HiddenGroupHelper implements IsWidget {
     private static final String CLOSED = "closed";
     private AbsolutePanel rootPanel;
-
+    private EventBus eventBus;
+    @Deprecated //use public HiddenGroupHelper(EventBus eventBus)instead
     public HiddenGroupHelper() {
+        rootPanel = new AbsolutePanel();
+        rootPanel.setStyleName("hidden-group-root-div");
+    }
+    public HiddenGroupHelper(EventBus eventBus) {
+        this.eventBus = eventBus;
         rootPanel = new AbsolutePanel();
         rootPanel.setStyleName("hidden-group-root-div");
     }
@@ -56,6 +64,7 @@ public class HiddenGroupHelper implements IsWidget {
                 if (!contentPanel.isVisible()) {
                     contentPanel.setVisible(true);
                     style = "hidden-group-select";
+                    eventBus.fireEvent(new ParentTabSelectedEvent(contentPanel));
                 }
                 else {
                     contentPanel.setVisible(false);
