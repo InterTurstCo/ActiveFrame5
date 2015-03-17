@@ -36,6 +36,7 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.PlainSelect;
@@ -718,7 +719,7 @@ public class SqlQueryModifier {
 
             if (forSubSelect) {
                 for (Object selectItem : plainSelect.getSelectItems()) {
-                    if (selectItem instanceof AllColumns) {
+                    if (selectItem instanceof AllColumns || selectItem instanceof AllTableColumns) {
                         return DaoUtils.unwrap(fromItem.getName());
                     }
                 }
