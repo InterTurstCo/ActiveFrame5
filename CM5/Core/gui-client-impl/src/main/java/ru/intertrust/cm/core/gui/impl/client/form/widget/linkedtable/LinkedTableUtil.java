@@ -39,15 +39,33 @@ public class LinkedTableUtil {
 
     public static final String ACTION_IMAGE_SELECTOR = "action-image";
     public static final String ACTION_TEXT_SELECTOR = "action-text";
-    public static final String EDIT_BUTTON_SELECTOR = "editButton";
-    public static final String DELETE_BUTTON_SELECTOR = "deleteButton";
 
     public static final String DEFAULT_EDIT_ACTION_COMPONENT = "default.edit.table.action";
     public static final String DEFAULT_DELETE_ACTION_COMPONENT = "default.delete.table.action";
     public static final String DEFAULT_VIEW_ACTION_COMPONENT = "default.view.table.action";
 
     enum ActionTypes {
-        edit, delete, view, view_or_edit
+
+        edit("editActionStyle"), delete("deleteActionStyle"), view("viewActionStyle"), view_or_edit("viewOrEditActionStyle");
+        private String styleClassName;
+
+        ActionTypes(String styleClassName) {
+            this.styleClassName = styleClassName;
+        }
+
+        public String getStyleClassName() {
+            return styleClassName;
+        }
+
+        public static ActionTypes forName(String name) {
+            for (ActionTypes actionTypes : ActionTypes.values()) {
+                if (actionTypes.name().equalsIgnoreCase(name)) {
+                    return actionTypes;
+                }
+
+            }
+            return null;
+        }
     }
 
     public static void configureEditableTable(SummaryTableConfig summaryTableConfig, CellTable<RowItem> table,
@@ -110,10 +128,8 @@ public class LinkedTableUtil {
 
     static class ActionsCell extends AbstractCell<ColumnContext> {
         private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
-        private static final String DEFAULT_EDIT_NEWOBJECT_ACCESS_CHECKER = "default.edit.newobject.access.checker";
         private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
         private static final String DEFAULT_VIEW_ACCESS_CHECKER = "default.view.access.checker";
-        private static final String DEFAULT_DELETE_NEWOBJECT_ACCESS_CHECKER = "default.delete.newobject.access.checker";
         private SummaryTableActionsColumnConfig summaryTableActionsColumnConfig;
         private List<SummaryTableColumnConfig> summaryTableColumnConfigs;
         private EventBus localEventBus;
@@ -132,6 +148,7 @@ public class LinkedTableUtil {
         @Override
         public void render(Context context, ColumnContext columnContext, SafeHtmlBuilder sb) {
             final HorizontalPanel container = new HorizontalPanel();
+            container.addStyleName("columnWrapper");
             if (summaryTableActionsColumnConfig != null) {
                 for (final SummaryTableActionColumnConfig summaryTableActionColumnConfig :
                         summaryTableActionsColumnConfig.getSummaryTableActionColumnConfig()) {
@@ -177,7 +194,7 @@ public class LinkedTableUtil {
 
         private boolean shouldDrawDefaultActionButton(ActionTypes actionType, boolean editable) {
             boolean result = editable;
-            if(editable) {
+            if (editable) {
                 for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableColumnConfigs) {
                     SummaryTableActionColumnConfig summaryTableActionColumnConfig = summaryTableColumnConfig.getSummaryTableActionColumnConfig();
                     if (summaryTableActionColumnConfig != null && actionType.name().equalsIgnoreCase(summaryTableActionColumnConfig.getType())) {
@@ -195,10 +212,10 @@ public class LinkedTableUtil {
             String text = columnDisplayConfig.getColumnDisplayTextConfig().getValue();
             String url = columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
             String componentName = summaryTableActionColumnConfig.getComponentName();
-            String type = summaryTableActionColumnConfig.getType();
+            ActionTypes type = ActionTypes.forName(summaryTableActionColumnConfig.getType());
             if (url != null) {
                 Image actionImage = new Image(GlobalThemesManager.getResourceFolder() + url);
-                String styleName = type == null ? ACTION_IMAGE_SELECTOR : type;
+                String styleName = type == null ? ACTION_IMAGE_SELECTOR : type.getStyleClassName();
                 actionImage.addStyleName(styleName);
                 actionImage.addStyleName("linkedTableActionImage");
                 Panel imageWrapper = new AbsolutePanel();
@@ -209,7 +226,7 @@ public class LinkedTableUtil {
             if (text != null) {
                 Label actionText = new Label(text);
                 actionText.addStyleName(componentName);
-                String styleName = type == null ? ACTION_TEXT_SELECTOR : type;
+                String styleName = type == null ? ACTION_TEXT_SELECTOR : type.getStyleClassName();
                 actionText.addStyleName(styleName);
                 actionText.setStyleName("linkedTableActionLabel");
                 container.add(actionText);
@@ -269,13 +286,13 @@ public class LinkedTableUtil {
                 for (SummaryTableActionColumnConfig summaryTableActionColumnConfig : summaryTableActionsColumnConfig.getSummaryTableActionColumnConfig()) {
                     if (summaryTableActionColumnConfig.getComponentName() == null) {
                         if (as.getClassName().contains(ActionTypes.view.name())
-                                || (as.getClassName().contains(ActionTypes.view_or_edit.name()) && !currentState.isEditable())) {
+                                || (as.getClassName().contains(ActionTypes.view_or_edit.getStyleClassName()) && !editable)) {
                             createDefaultViewAction(context, columnContext, currentState);
                         }
-                    } else if (currentState.isEditable() && (as.getClassName().contains(ActionTypes.edit.name())
-                            || as.getClassName().contains(ActionTypes.view_or_edit.name()))) {
+                    } else if (editable && (as.getClassName().contains(ActionTypes.edit.getStyleClassName())
+                            || as.getClassName().contains(ActionTypes.view_or_edit.getStyleClassName()))) {
                         createDefaultEditAction(context, columnContext, currentState, valueUpdater);
-                    } else if (as.getClassName().contains(ActionTypes.delete.name())) {
+                    } else if (as.getClassName().contains(ActionTypes.delete.getStyleClassName())) {
                         createDefaultDeleteAction(context, columnContext, currentState, localEventBus);
                     } else {
                         String componentName = summaryTableActionColumnConfig.getComponentName();
@@ -288,10 +305,10 @@ public class LinkedTableUtil {
                     }
                 }
             }
-            if (className.contains(EDIT_BUTTON_SELECTOR)) {
+            if (className.contains(ActionTypes.edit.getStyleClassName())) {
                 createDefaultEditAction(context, columnContext, currentState, valueUpdater);
 
-            } else if (className.contains(DELETE_BUTTON_SELECTOR)) {
+            } else if (className.contains(ActionTypes.delete.getStyleClassName())) {
                 createDefaultDeleteAction(context, columnContext, currentState, localEventBus);
 
             }
@@ -363,21 +380,21 @@ public class LinkedTableUtil {
     private static Button createDeleteButton() {
         Button deleteButton = new Button();
         deleteButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().deleteButton());
-        deleteButton.addStyleName(DELETE_BUTTON_SELECTOR);
+        deleteButton.addStyleName(ActionTypes.delete.getStyleClassName());
         return deleteButton;
     }
 
     private static Button createEditButton() {
         Button editButton = new Button();
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
-        editButton.addStyleName(EDIT_BUTTON_SELECTOR);
+        editButton.addStyleName(ActionTypes.edit.getStyleClassName());
         return editButton;
     }
 
     private static Button createViewButton() {
         Button viewButton = new Button();
         viewButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().viewButton());
-        viewButton.addStyleName(ActionTypes.view.name());
+        viewButton.addStyleName(ActionTypes.view.getStyleClassName());
         return viewButton;
     }
 
@@ -411,6 +428,7 @@ public class LinkedTableUtil {
         @Override
         public void render(Context context, final ColumnContext columnContext, SafeHtmlBuilder safeHtmlBuilder) {
             final HorizontalPanel container = new HorizontalPanel();
+            container.addStyleName("columnWrapper");
             final SummaryTableActionColumnConfig summaryTableActionColumnConfig = summaryTableColumnConfig.getSummaryTableActionColumnConfig();
             if (summaryTableActionColumnConfig != null) {
                 if (summaryTableActionColumnConfig.getColumnDisplayConfig() != null) {
@@ -431,8 +449,8 @@ public class LinkedTableUtil {
                         @Override
                         public void onSuccess() {
                             Widget actionableCellText = new Label(columnContext.getValue());
-                            String type = summaryTableActionColumnConfig.getType();
-                            String styleName = type == null ? ACTION_TEXT_SELECTOR : type;
+                            ActionTypes type = ActionTypes.forName(summaryTableActionColumnConfig.getType());
+                            String styleName = type == null ? ACTION_TEXT_SELECTOR : type.getStyleClassName();
                             actionableCellText.setStyleName("linkedTableActionLabel");
                             actionableCellText.addStyleName(styleName);
                             container.add(actionableCellText);
@@ -463,10 +481,10 @@ public class LinkedTableUtil {
             ColumnDisplayConfig columnDisplayConfig = summaryTableActionColumnConfig.getColumnDisplayConfig();
             String url = columnDisplayConfig.getColumnDisplayImageConfig() == null ? null
                     : columnDisplayConfig.getColumnDisplayImageConfig().getUrl();
-            String type = summaryTableActionColumnConfig.getType();
+            ActionTypes type = ActionTypes.forName(summaryTableActionColumnConfig.getType());
             if (url != null) {
                 Image actionImage = new Image(GlobalThemesManager.getResourceFolder() + url);
-                String styleName = type == null ? ACTION_IMAGE_SELECTOR : type;
+                String styleName = type == null ? ACTION_IMAGE_SELECTOR : type.getStyleClassName();
                 actionImage.addStyleName(styleName);
                 actionImage.addStyleName("linkedTableActionImage");
                 Panel imageWrapper = new AbsolutePanel();
@@ -479,7 +497,7 @@ public class LinkedTableUtil {
             if (text != null) {
                 Label actionText = new Label(text);
                 actionText.setStyleName("linkedTableActionLabel");
-                String styleName = type == null ? ACTION_TEXT_SELECTOR : type;
+                String styleName = type == null ? ACTION_TEXT_SELECTOR : type.getStyleClassName();
                 actionText.addStyleName(styleName);
                 container.add(actionText);
             }
@@ -497,14 +515,14 @@ public class LinkedTableUtil {
                                    ValueUpdater<ColumnContext> valueUpdater) {
             EventTarget eventTarget = event.getEventTarget();
             Element as = Element.as(eventTarget);
-            if (as.getClassName().contains(ActionTypes.view.name())
-                    || (as.getClassName().contains(ActionTypes.view_or_edit.name()) && !editable)) {
+            if (as.getClassName().contains(ActionTypes.view.getStyleClassName())
+                    || (as.getClassName().contains(ActionTypes.view_or_edit.getStyleClassName()) && !editable)) {
                 createDefaultViewAction(context, columnContext, currentState);
 
-            } else if (editable && (as.getClassName().contains(ActionTypes.edit.name())
-                    || as.getClassName().contains(ActionTypes.view_or_edit.name()))) {
+            } else if (editable && (as.getClassName().contains(ActionTypes.edit.getStyleClassName())
+                    || as.getClassName().contains(ActionTypes.view_or_edit.getStyleClassName()))) {
                 createDefaultEditAction(context, columnContext, currentState, valueUpdater);
-            } else if (editable && as.getClassName().contains(ActionTypes.delete.name())) {
+            } else if (editable && as.getClassName().contains(ActionTypes.delete.getStyleClassName())) {
                 createDefaultDeleteAction(context, columnContext, currentState, eventBus);
             } else if (as.getClassName().contains(ACTION_IMAGE_SELECTOR) || as.getClassName().contains(ACTION_TEXT_SELECTOR)) {
                 String componentName = summaryTableColumnConfig.getSummaryTableActionColumnConfig().getComponentName();
