@@ -3084,3 +3084,7 @@ a:active .icon.back {
 
 .linkedTableActionImageWrapper{
 }
+
+.columnWrapper tr td {
+    vertical-align: middle !important;
+}

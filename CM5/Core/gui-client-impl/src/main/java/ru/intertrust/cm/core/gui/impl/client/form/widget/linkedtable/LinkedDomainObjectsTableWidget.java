@@ -143,13 +143,18 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
     private HandlerRegistration addHandlersToAddButton(Button button) {
         final CreatedObjectsConfig createdObjectsConfig = currentState.getRestrictedCreatedObjectsConfig();
         if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
-            return button.addClickHandler(new ClickHandler() {
-                @Override
-                public void onClick(ClickEvent event) {
-                    SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
-                    selectDomainObjectTypePopup.show();
-                }
-            });
+            if (createdObjectsConfig.getCreateObjectConfigs().size() == 1) {
+                String domainObjectType = createdObjectsConfig.getCreateObjectConfigs().get(0).getDomainObjectType();
+                button.addClickHandler(new OpenFormClickHandler(domainObjectType, null));
+            } else {
+                return button.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
+                        selectDomainObjectTypePopup.show();
+                    }
+                });
+            }
         }
         return null;
     }

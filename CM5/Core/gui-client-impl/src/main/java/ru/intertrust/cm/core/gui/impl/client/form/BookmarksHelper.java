@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.form;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.*;
+import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 
 /**
@@ -24,8 +26,23 @@ public class BookmarksHelper implements IsWidget {
     private HTML insideVerticalTabLabel;
     private FocusPanel divLeftButton;
     private FocusPanel divRightButton;
+    private EventBus eventBus;
 
+    @Deprecated //use public BookmarksHelper(EventBus eventBus) instead
     public BookmarksHelper() {
+       init();
+    }
+    public BookmarksHelper(EventBus eventBus){
+        this.eventBus = eventBus;
+        init();
+    }
+    private void init(){
+        initMarkup();
+        setStyle();
+        initHandlers();
+    }
+
+    private void initMarkup(){
         rootDiv = new AbsolutePanel();
         divLeft = new AbsolutePanel();
         divLeft.setHeight("100%");
@@ -54,8 +71,6 @@ public class BookmarksHelper implements IsWidget {
 
         rootDiv.add(divRight);
 
-        setStyle();
-        init();
     }
 
     @SuppressWarnings("deprecation")
@@ -82,6 +97,7 @@ public class BookmarksHelper implements IsWidget {
                     if (i == index) {
                         decoratedDivRight.getWidget(i).setVisible(true);
                         decoratedDivLeft.getWidget(i).setStyleName("bookmarks-link-active");
+                        eventBus.fireEvent(new ParentTabSelectedEvent(decoratedDivRight.getWidget(i)));
                     }
                     else {
                         decoratedDivRight.getWidget(i).setVisible(false);
@@ -98,7 +114,7 @@ public class BookmarksHelper implements IsWidget {
         divRightButton.addClickHandler(handler);
     }
 
-    private void init() {
+    private void initHandlers() {
 
         divLeftButton.addClickHandler(new ClickHandler() {
             @Override
