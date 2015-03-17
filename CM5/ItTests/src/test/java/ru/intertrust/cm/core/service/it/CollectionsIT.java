@@ -155,6 +155,20 @@ public class CollectionsIT extends IntegrationTestBase {
         assertNotNull(collection);
 //        assertTrue(collection.size() >= 1);
 
+        query = "select * from country c join person p on p.id = c.created_by join country_union cu on cu.id = c.country_union where c.created_by = {0}";
+        params = new ArrayList<Value>();
+        Integer personTypeid = domainObjectTypeIdCache.getId("Person");
+        
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from employee e join organization o on o.boss = e.id join department d on d.boss = e.id where d.boss = {0}";
+        params = new ArrayList<Value>();
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 2)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
         query = "SELECT d.id FROM (SELECT id FROM employee) e join department d on d.boss = e.id WHERE d.boss={0}";
         params = new ArrayList<Value>();
         Integer employeeTypeid = domainObjectTypeIdCache.getId("Employee");
@@ -216,6 +230,32 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query);
         assertNotNull(collection);
 
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+        query = "select * from country c join person p on p.id = c.updated_by join country_union cu on cu.id = c.country_union where cu.created_by = {0}";
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId("Person");
+        
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        query = "select * from country c join person p on p.id = c.updated_by join country_union cu on cu.id = c.country_union where cu.created_by = {0}";
+        params = new ArrayList<Value>();
+        personTypeid = domainObjectTypeIdCache.getId("Person");
+        
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        
+        query = "select * from employee e join organization o on o.boss = e.id join department d on d.boss = e.id where d.boss = {0}";
+        params = new ArrayList<Value>();
+        params.add(new ReferenceValue(new RdbmsId(personTypeid, 2)));
+        collection = collectionService.findCollectionByQuery(query, params);
+        assertNotNull(collection);
+
+        lc.logout();
     }
     
     @Test

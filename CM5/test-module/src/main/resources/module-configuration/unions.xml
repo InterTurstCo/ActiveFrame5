@@ -15,6 +15,22 @@
             <attachment-type name="country_union_attachment" />
         </attachment-types>
     </domain-object-type>
+    
+    <domain-object-type name="country_union_test" extends="country" initial-status="Active">
+        <fields>
+            <string name="name2" length="128" not-null="true">
+                <constraints>
+                    <simple-constraint value="not-empty"/>
+                </constraints>
+            </string>
+             <reference name="boss" type="person">
+            </reference>
+        </fields>
+        <attachment-types>
+            <attachment-type name="country_union_test_attachment" />
+        </attachment-types>
+    </domain-object-type>
+
     <form name="country_union_form" domain-object-type="country_union" is-default="true"
           debug="false" min-width="900px">
         <markup>
