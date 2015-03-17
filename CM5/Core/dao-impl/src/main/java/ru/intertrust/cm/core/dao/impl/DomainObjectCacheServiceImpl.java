@@ -339,7 +339,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         String objectCollectionKey = generateObjectCollectionKey(parentId, key);
 
         List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
-        return cloneObjects(domainObjects);
+//        return cloneObjects(domainObjects);
+        return null;
+
     }
 
     private List<DomainObject> cloneObjects(List<DomainObject> domainObjects) {
