@@ -59,6 +59,16 @@ public class ConfigurationStorageBuilder {
         typeMap.put(config.getName(), config);
     }
 
+    public void fillLocalizedConfigMaps(TopLevelConfig config) {
+        if (!(config instanceof LocalizableConfig)) {
+            return;
+        }
+
+        for (String locale : MessageResourceProvider.getAvailableLocales()) {
+            fillLocalizedConfigMap(locale, (LocalizableConfig) config);
+        }
+    }
+
     private void fillLocalizedConfigMap(String locale, LocalizableConfig config) {
         Pair<String, Class<?>> key = new Pair<String, Class<?>>(locale, config.getClass());
         CaseInsensitiveMap<LocalizableConfig> typeMap = configurationStorage.localizedConfigMap.get(key);

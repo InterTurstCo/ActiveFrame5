@@ -28,6 +28,7 @@ public class TopLevelConfigUpdateHandler extends ConfigurationUpdateHandler<TopL
         ConfigurationStorageBuilder configurationStorageBuilder = new ConfigurationStorageBuilder(configurationExplorer, configStorage);
         configurationStorageBuilder.fillGlobalSettingsCache(config);
         configurationStorageBuilder.fillTopLevelConfigMap(config);
+        configurationStorageBuilder.fillLocalizedConfigMaps(config);
     }
 
     @Override
