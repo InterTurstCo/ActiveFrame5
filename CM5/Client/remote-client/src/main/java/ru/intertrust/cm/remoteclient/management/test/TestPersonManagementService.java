@@ -93,7 +93,7 @@ public class TestPersonManagementService extends ClientBase {
             addGroupToGroup("group1", "group3");
             assertTrue("Group in group",
                     personService.isGroupInGroup(groupIds.get("group1"), groupIds.get("group3"), false));
-
+            
             addGroupToGroup("group1", "group4");
             addGroupToGroup("group2", "group5");
             addGroupToGroup("group2", "group6");
@@ -124,7 +124,7 @@ public class TestPersonManagementService extends ClientBase {
             assertTrue("Person list", personService.getPersonsInGroup(groupIds.get("group1")).size() == 1);
             assertTrue("Person list", personService.getAllPersonsInGroup(groupIds.get("group1")).size() == 7);
             //Групп больше так как прибавляется группа AllPersons и контекстная группа для пользователя Person
-            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 5);
+            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 11);
             assertTrue("Group list", personService.getAllParentGroup(groupIds.get("group12")).size() == 2);
             assertTrue("Group list", personService.getChildGroups(groupIds.get("group2")).size() == 2);
             assertTrue("Group list", personService.getAllChildGroups(groupIds.get("group2")).size() == 6);
@@ -163,7 +163,7 @@ public class TestPersonManagementService extends ClientBase {
                         personService.isPersonInGroup(groupIds.get("group" + i), personIds.get("person" + i)));
 
                 crudService.delete(groupIds.get("group" + i));
-                crudService.delete(personIds.get("person" + i));
+//                crudService.delete(personIds.get("person" + i));
             }
 
             log("Test complete");
