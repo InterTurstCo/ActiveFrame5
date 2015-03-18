@@ -70,11 +70,16 @@ public class SqlLogger {
         long executionTime = System.currentTimeMillis() - startTime;
 
         Long preparationTime = readAndResetPreparationTime();
-        
+
         String query = getSqlQuery(joinPoint);
 
         int rows = countSqlRows(returnValue, query);
-
+        // если preparationTime не установлено, то используется дефолтное значение 0, чтобы привести все логи к одному
+        // виду
+        if (preparationTime == null) {
+            preparationTime = new Long(0);
+        }
+        
         boolean logWarn = executionTime >= minWarnTime || rows >= minRowsNum;
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             query = resolveParameters(query, joinPoint, true);
@@ -201,19 +206,15 @@ public class SqlLogger {
     }
 
     public String formatLogEntry(String query, Long preparationTime, long executionTime, int rows) {
-        if (preparationTime != null) {
 
-            Long totalTime = preparationTime != null ? preparationTime + executionTime : null;
-            StringBuilder traceStringBuilder = new StringBuilder();
+        Long totalTime = preparationTime != null ? preparationTime + executionTime : null;
+        StringBuilder traceStringBuilder = new StringBuilder();
 
-            Formatter formatter = new Formatter(traceStringBuilder);
-            String format = "SQL Trace: %1$6s {%2$s-preparation} {%3$s-execution}  %4$7s: %5$s";
-            formatter.format(format, totalTime, preparationTime, executionTime, "[" + rows + "]", query);
-            return traceStringBuilder.toString();
+        Formatter formatter = new Formatter(traceStringBuilder);
+        String format = "SQL Trace: %1$6s (%2$s+%3$s)  %4$7s: %5$s";
+        formatter.format(format, totalTime, preparationTime, executionTime, "[" + rows + "]", query);
+        return traceStringBuilder.toString();
 
-        } else {
-            return formatLogEntry(query, executionTime, rows);
-        }
     }
     
     private Map<String, Object> getParametersMap(Object[] methodArgs) {
