@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,17 +33,50 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    private CollectionQueryLogTimer collectionQueryLogTimer;
+    
+    public static class CollectionQueryLogTimer {
+        private static final int LOG_TIME_INTERVAL = 10000;
+        private Long startTime;
+
+        public CollectionQueryLogTimer() {
+            startTime = System.currentTimeMillis();
+        }
+
+        public Long getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(Long startTime) {
+            this.startTime = startTime;
+        }
+
+        public boolean canWrite() {
+
+            Long checkTime = System.currentTimeMillis();
+            if (checkTime - startTime > LOG_TIME_INTERVAL) {
+                startTime = checkTime;
+                return true;
+            }
+            return false;
+        }
+    }
+    
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
 
+    public void init() {
+        collectionQueryLogTimer = new CollectionQueryLogTimer();
+    }
+    
     /**
      * Ключ для идентификации SQL запроса коллекции в кеше. Состоит из параметров запроса.
      * @author atsvetkov
      */
     public static class CollectionQueryKey {
         private String collectionNameOrQuery;
-        private List<FilterForCache> filtersForCache = new ArrayList<>();
+        private Set<FilterForCache> filtersForCache = new HashSet<>();
         private SortOrder sortOrder;
         private Integer offset;
         private Integer limit;
@@ -103,7 +136,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
                 return false;
             }
 
-            if (!equalCollections(filtersForCache, other.filtersForCache)) {
+            if (!filtersForCache.equals(other.filtersForCache)) {
                 return false;
             }
 
@@ -141,19 +174,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             }
             return true;
         }
-
-        boolean equalCollections(List<? extends Filter> filters1, List<? extends Filter> filters2) {
-            if (filters1 == null) {
-                if (filters2 != null) {
-                    return false;
-                }
-            } else if (!(filters1.size() == filters2.size() && filters1.containsAll(filters2))) {
-                return false;
-            }
-
-            return true;
-        }
-        
+       
     }
     
     /**
@@ -204,9 +225,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             result = prime * result + ((filter == null) ? 0 : filter.hashCode());
             Set<Integer> paramNames = parameterMap != null ? parameterMap.keySet() : null;
             if (paramNames != null) {
-                for (Integer param : paramNames) {
-                    result = prime * result + ((param == null) ? 0 : param.hashCode());
-                }
+                result = prime * result + paramNames.hashCode();
             }           
             
             return result;
@@ -229,13 +248,23 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     public void putCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, CollectionQueryEntry queryEntry) {
         if (collectionQueryCache.size() > getCacheMaxSize()) {
-            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+            writeLog();
             return;
         }
         if (collectionNameOrQuery != null) {
             CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, accessToken);
             collectionQueryCache.put(key, queryEntry);
         }
+    }
+
+    private void writeLog() {
+        if (isAllowedToWriteLog()) {
+            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+        }
+    }
+
+    private boolean isAllowedToWriteLog() {
+        return getCacheMaxSize() > 0 && collectionQueryLogTimer.canWrite();
     }
 
     @Override
@@ -250,7 +279,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Override
     public void putCollectionCountQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry) {
         if (collectionQueryCache.size() > getCacheMaxSize()) {
-            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+            writeLog();
             return;
         }
         if (collectionNameOrQuery != null) {

@@ -312,6 +312,27 @@ public class CollectionsDaoImplTest {
 
         collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
+
+        //значения фильтра в ключе кеша не должны использоваться
+        filter = new Filter();
+        filter.setFilter("byDepartment");       
+        filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
+        filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
+
+        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        assertNotNull(collectionQueryEntry);
+
+        //очередность параметров в фильтре не должна влиять на кеширование запроса
+        filter = new Filter();
+        filter.setFilter("byDepartment");       
+        filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
+        filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
+
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        assertNotNull(collectionQueryEntry);
+
         
         filter = new Filter();
         filter.setFilter("byDepartment1");       
