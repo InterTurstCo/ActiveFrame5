@@ -81,7 +81,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         private Integer offset;
         private Integer limit;
         private AccessToken accessToken;
-        
+
         public CollectionQueryKey(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, Integer offset, Integer limit,
                 AccessToken accessToken) {
             this.collectionNameOrQuery = collectionNameOrQuery;
@@ -94,7 +94,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             this.offset = offset;
             this.limit = limit;
             this.accessToken = accessToken;
-        }       
+        }
 
         @Override
         public int hashCode() {
@@ -103,14 +103,13 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             result = prime * result + ((accessToken == null) ? 0 : (accessToken.isDeferred() ? 1 : 0));
             result = prime * result + ((collectionNameOrQuery == null) ? 0 : collectionNameOrQuery.hashCode());
             result = prime * result + ((filtersForCache == null) ? 0 : filtersForCache.hashCode());
-            
+
             result = prime * result + ((limit == null) ? 0 : limit.hashCode());
             result = prime * result + ((offset == null) ? 0 : offset.hashCode());
             result = prime * result + ((sortOrder == null) ? 0 : sortOrder.hashCode());
             return result;
         }
 
-        
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -174,7 +173,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             }
             return true;
         }
-       
+
     }
     
     /**
@@ -191,8 +190,12 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
 
             Filter another = (Filter) o;
 
@@ -206,7 +209,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
             Set paramNames = parameterMap != null ? parameterMap.keySet() : null;
             Set anotherParamNames = another.getParameterMap() != null ? another.getParameterMap().keySet() : null;
-            
+
             if (paramNames == null) {
                 if (anotherParamNames != null) {
                     return false;
@@ -214,24 +217,19 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             } else if (!paramNames.equals(anotherParamNames)) {
                 return false;
             }
-            
+
             return true;
         }
 
         @Override
         public int hashCode() {
-        final int prime = 31;
-            int result = 1;
-            result = prime * result + ((filter == null) ? 0 : filter.hashCode());
+            int result = 31 + ((filter == null) ? 0 : filter.hashCode());
             Set<Integer> paramNames = parameterMap != null ? parameterMap.keySet() : null;
             if (paramNames != null) {
-                result = prime * result + paramNames.hashCode();
-            }           
-            
+                result = 31 * result + paramNames.hashCode();
+            }
             return result;
         }
-
-        
     }
     
     @Override
