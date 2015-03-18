@@ -737,7 +737,7 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="notification_text">
+    <access-matrix type="notification_text" read-everybody="true">
         <create>
             <permit-group name="AllPersons" />
         </create>
