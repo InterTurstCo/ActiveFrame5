@@ -30,9 +30,6 @@
 
     <!-- Динамическая группа для тестов  -->
     <dynamic-group name="AllPersonsExceptPerson2">
-        <context>
-            <domain-object type="Person" />
-        </context>
         <members>
             <track-domain-objects type="Person">
                 <get-person>
@@ -154,7 +151,7 @@
         </status>
     </access-matrix>
 
-<access-matrix type="city_test">
+    <access-matrix type="city_test">
         <create>
             <permit-group name="AllPersons" />
         </create>            
