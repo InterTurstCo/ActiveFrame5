@@ -117,6 +117,9 @@ public class FormLogicalValidator implements ConfigurationValidator {
             return;
         }
         TableLayoutConfig table = header.getTableLayout();
+        if (table == null) {
+            return;
+        }
 
         validateWidgetsExisting(table, data, logicalErrors);
         validateTableAlignAndDimensions(table, logicalErrors);
