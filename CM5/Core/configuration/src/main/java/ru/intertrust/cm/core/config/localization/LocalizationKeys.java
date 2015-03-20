@@ -105,6 +105,8 @@ public class LocalizationKeys {
     public static final String GUI_EXCEPTION_SORT_FIELD_NOT_FOUND = "GuiException.SortingFieldNotFound";
     public static final String GUI_EXCEPTION_VERSION_ERROR = "GuiException.VersionError";
 
+    public static final String GUI_EXCEPTION_FILE_IS_UPLOADING_KEY = "GuiException.FileIsUploading";
+
     public static final String USER_NAME_KEY = "UserName";
     public static final String PASSWORD_KEY = "Password";
     public static final String SIGN_ON_KEY = "SignOn";

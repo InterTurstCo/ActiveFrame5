@@ -19,7 +19,9 @@ import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
@@ -32,6 +34,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
@@ -41,6 +44,8 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.STATE_KEY;
 
 
@@ -76,9 +81,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         view.add(table);
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
-                    localEventBus,currentState);
+                    localEventBus, currentState);
         } else {
-            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table,currentState);
+            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table, currentState);
         }
 
         model.addDataDisplay(table);
@@ -225,6 +230,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         DialogBoxAction saveAction = new DialogBoxAction() {
             @Override
             public void execute(FormPlugin formPlugin) {
+                if (Application.getInstance().isInUploadProcess()) {
+                    throw new GuiException(LocalizeUtil.get(GUI_EXCEPTION_FILE_IS_UPLOADING_KEY,
+                            COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES));
+                }
                 if (currentState.isSingleChoice() && model.getList().size() >= 1) {
                     currentState.clearPreviousStates();
                     model.getList().clear();
@@ -258,13 +267,14 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 .withWidgetsContainer(getContainer())
                 .withTypeTitleMap(currentState.getTypeTitleMap())
                 .withFormResizable(isFormResizable(domainObjectType))
-                .buildDialogBox();;
+                .buildDialogBox();
+        ;
 
         lfb.display();
 
     }
 
-    private boolean isFormResizable(String domainObjectType){
+    private boolean isFormResizable(String domainObjectType) {
         return GuiUtil.isFormResizable(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()
                 .getLinkedFormMappingConfig(), currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig());
     }
@@ -568,6 +578,10 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             DialogBoxAction saveAction = new DialogBoxAction() {
                 @Override
                 public void execute(FormPlugin formPlugin) {
+                    if (Application.getInstance().isInUploadProcess()) {
+                        throw new GuiException(LocalizeUtil.get(GUI_EXCEPTION_FILE_IS_UPLOADING_KEY,
+                                COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES));
+                    }
                     FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
                         @Override
                         public boolean exclude(BaseWidget widget) {

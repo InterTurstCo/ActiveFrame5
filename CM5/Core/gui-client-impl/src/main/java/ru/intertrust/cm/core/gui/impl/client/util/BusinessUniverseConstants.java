@@ -155,7 +155,7 @@ public class BusinessUniverseConstants {
     public static final String OBJECT_NOT_SAVED = "Объект должен быть сохранен перед выполнением операции";
 
     public static final String DIGITAL_SIGNATURE = "ЭЦП";
-
+    public static final String COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES = "Could not execute action during uploading files";
     private BusinessUniverseConstants() {
     }
 }

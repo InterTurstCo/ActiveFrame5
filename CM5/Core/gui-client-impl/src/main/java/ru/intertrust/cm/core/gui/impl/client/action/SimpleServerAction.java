@@ -3,20 +3,15 @@ package ru.intertrust.cm.core.gui.impl.client.action;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -29,7 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Denis Mitavskiy
@@ -40,6 +36,9 @@ public abstract class SimpleServerAction extends Action {
     private List<ActionSuccessListener> successListeners = new ArrayList<ActionSuccessListener>();
 
     protected void execute() {
+        if(Application.getInstance().isInUploadProcess()){
+            throw new GuiException(LocalizeUtil.get(GUI_EXCEPTION_FILE_IS_UPLOADING_KEY, COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES));
+        }
         AsyncCallback<Dto> callback = new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
@@ -85,7 +84,7 @@ public abstract class SimpleServerAction extends Action {
 
     protected String getDefaultOnSuccessMessage() {
         return LocalizeUtil.get(LocalizationKeys.DONE_SUCCESSFULLY_MESSAGE_KEY,
-                BusinessUniverseConstants.DONE_SUCCESSFULLY_MESSAGE);
+                DONE_SUCCESSFULLY_MESSAGE);
     }
 
     public void addActionSuccessListener(ActionSuccessListener listener) {

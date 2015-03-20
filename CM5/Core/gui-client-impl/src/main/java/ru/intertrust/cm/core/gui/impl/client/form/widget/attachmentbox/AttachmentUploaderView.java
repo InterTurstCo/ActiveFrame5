@@ -10,17 +10,12 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FileUpload;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.FormPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ClearAllButtonConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.StyledDialogBox;
@@ -28,8 +23,7 @@ import ru.intertrust.cm.core.gui.impl.client.attachment.ExtensionValidator;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadCompletedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.UploadUpdatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory
-        .AttachmentElementPresenterFactory;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.AttachmentElementPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.EditablePresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.presenterFactory.UploadProgressPresenterFactory;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.support.ButtonForm;
@@ -266,6 +260,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                     String filename = inputElement.getValue();
                     if(filename.length() > 0 && extensionValidator.isFilesExtensionValid(filename)) {
                         submitForm.submit();
+                        Application.getInstance().setInUploadProcess(true);
                     } else {
                         final StyledDialogBox alert = new StyledDialogBox("Выбраный файл не поддерживается!", true);
                         alert.addOkButtonClickHandler(new ClickHandler() {
@@ -350,6 +345,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
                 String fileNames = inputElement.getValue();
                 if(fileNames.length() > 0 && extensionValidator.isFilesExtensionValid(fileNames)) {
                     submitForm.submit();
+                    Application.getInstance().setInUploadProcess(true);
                 }   else {
                     final StyledDialogBox alert = new StyledDialogBox("Выбранный файл не поддерживается!", true);
                     alert.addOkButtonClickHandler(new ClickHandler() {
@@ -439,6 +435,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
             if (dontShowNewRow) {
                 dontShowNewRow = false;
+                Application.getInstance().setInUploadProcess(false);
                 return;
             }
             String filePaths = event.getResults();
@@ -453,6 +450,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             }
             mainBoxPanel.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
             submitForm.reset();
+            Application.getInstance().setInUploadProcess(false);
         }
     }
 

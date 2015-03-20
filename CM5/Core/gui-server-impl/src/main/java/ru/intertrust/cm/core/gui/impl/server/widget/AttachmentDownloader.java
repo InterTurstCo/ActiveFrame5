@@ -16,11 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
@@ -83,7 +79,7 @@ public class AttachmentDownloader {
         response.setBufferSize(BUFFER_SIZE);
         response.setCharacterEncoding("UTF-8");
 
-        filename = URLEncoder.encode(filename, "UTF-8");
+        filename = URLEncoder.encode(filename, "UTF-8").replaceAll("\\+","%20");
         //For Firefox encoding issue
         String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*=UTF-8''" + filename
                 :"attachment; filename=\"" + filename + "\"";

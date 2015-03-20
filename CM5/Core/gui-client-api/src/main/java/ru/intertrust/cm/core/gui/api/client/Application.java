@@ -47,7 +47,7 @@ public class Application {
     private String version;
     private String currentLocale;
     private Map<String, String> localizedResources = new HashMap<>();
-
+    private boolean inUploadProcess;
     public String getVersion() {
         return version;
     }
@@ -177,5 +177,13 @@ public class Application {
         glassPopup.setGlassStyleName("transparentGlass");
         glassPopup.setStyleName("PopupPanelPreloader");
         return glassPopup;
+    }
+
+    public boolean isInUploadProcess() {
+        return inUploadProcess;
+    }
+
+    public void setInUploadProcess(boolean inUploadProcess) {
+        this.inUploadProcess = inUploadProcess;
     }
 }
