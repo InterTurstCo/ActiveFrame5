@@ -42,6 +42,7 @@ import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
@@ -475,7 +476,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      * @param id
      * @return
      */
-    private String getMatrixRefType(String childType, String parentType, RdbmsId id){
+    private String getMatrixRefType(String childType, String parentType, final RdbmsId id){
     	String rootForChildType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, childType);
     	String rootForParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, parentType);
     	String query = "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
@@ -488,7 +489,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 			@Override
 			public Integer extractData(ResultSet rs) throws SQLException,
 					DataAccessException {
-				rs.next();
+                if (!rs.next()) {
+                    throw new ObjectNotFoundException(id);
+                }
 				return rs.getInt("id_type");
 			}});
         
