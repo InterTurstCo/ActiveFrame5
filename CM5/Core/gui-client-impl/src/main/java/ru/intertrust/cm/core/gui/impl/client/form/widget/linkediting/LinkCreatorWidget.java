@@ -10,23 +10,19 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkEditingWidgetConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
-import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.DomainObjectTypeSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.SelectTypePopup;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.LinkCreatingButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.EditableTooltipWidget;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkCreatorWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
@@ -40,13 +36,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createNewFormPluginConfig;
-import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createSaveAction;
-
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SAVE_BUTTON_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.SAVE_BUTTON;
+import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createNewFormPluginConfig;
+import static ru.intertrust.cm.core.gui.impl.client.util.GuiUtil.createSaveAction;
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 26.10.2014
@@ -139,13 +134,15 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
     private void createAndShowFormDialogBox(final String title, final String domainObjectType,
                                             final LinkedFormMappingConfig mappingConfig,
                                             Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        String width = GuiUtil.getModalWidth(domainObjectType, mappingConfig, null);
+        String height = GuiUtil.getModalHeight(domainObjectType, mappingConfig, null);
+        boolean resizable = GuiUtil.isFormResizable(domainObjectType, mappingConfig, null);
+        final FormDialogBox createItemDialogBox = new FormDialogBox(title, width, height, resizable);
+
+
 
         FormPluginConfig config = createNewFormPluginConfig(domainObjectType, mappingConfig, getContainer(),
                 parentWidgetIdsForNewFormMap);
-        LinkedFormConfig linkedFormConfig = getLinkedFormConfig(domainObjectType, mappingConfig);
-        String width = linkedFormConfig != null ? linkedFormConfig.getModalWidth() : null;
-        String height = linkedFormConfig != null ? linkedFormConfig.getModalHeight() : null;
-        final FormDialogBox createItemDialogBox = new FormDialogBox(title, width, height);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, localEventBus, getContainer());
         createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
             @Override
@@ -169,17 +166,6 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
                 createItemDialogBox.hide();
             }
         });
-    }
-
-    private LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
-        if (mappingConfig != null) {
-            for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
-                if (domainObjectType.equals(linkedFormConfig.getDomainObjectType())) {
-                    return linkedFormConfig;
-                }
-            }
-        }
-        return null;
     }
     //TODO selection-filters applying
     protected void updateWidgetView(IdentifiableObject identifiableObject) {

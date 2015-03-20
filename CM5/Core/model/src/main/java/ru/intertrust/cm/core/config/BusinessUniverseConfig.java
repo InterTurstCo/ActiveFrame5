@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
+import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -33,6 +34,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     @Element(name = "settings-popup", required = false)
     private SettingsPopupConfig settingsPopupConfig;
+
+    @Element(name = "extended-search-popup", required = false)
+    private ExtendedSearchPopupConfig extendedSearchPopupConfig;
 
     public LogoConfig getLogoConfig() {
         return logoConfig;
@@ -86,6 +90,13 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         this.sideBarOpenningTimeConfig = sideBarOpenningTimeConfig;
     }
 
+    public ExtendedSearchPopupConfig getExtendedSearchPopupConfig() {
+        return extendedSearchPopupConfig;
+    }
+
+    public void setExtendedSearchPopupConfig(ExtendedSearchPopupConfig extendedSearchPopupConfig) {
+        this.extendedSearchPopupConfig = extendedSearchPopupConfig;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -107,6 +118,10 @@ public class BusinessUniverseConfig implements LocalizableConfig {
             return false;
         if (sideBarOpenningTimeConfig != null ? !sideBarOpenningTimeConfig.equals(that.sideBarOpenningTimeConfig) : that.sideBarOpenningTimeConfig != null)
             return false;
+        if (extendedSearchPopupConfig != null ? !extendedSearchPopupConfig.equals(that.extendedSearchPopupConfig)
+                : that.extendedSearchPopupConfig != null){
+            return false;
+        }
 
         return true;
     }

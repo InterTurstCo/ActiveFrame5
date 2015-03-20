@@ -293,3 +293,21 @@
 .addDoBtn:hover {
     cursor: pointer;
 }
+
+@sprite .rightBottomResizeCursorArea{
+    gwt-image: 'rightBottomResizeAreaIm';
+    position: absolute!important;
+    bottom: 0;
+    right: 0;
+    height: 20px;
+    width: 20px;
+}
+
+@sprite .leftBottomResizeCursorArea{
+    gwt-image: 'leftBottomResizeAreaIm';
+    position: absolute!important;
+    bottom: 0;
+    left: 0;
+    height: 20px;
+    width: 20px;
+}

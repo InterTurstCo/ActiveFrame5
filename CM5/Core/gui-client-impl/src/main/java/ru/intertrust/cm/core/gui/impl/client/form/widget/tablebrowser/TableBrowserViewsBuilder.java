@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ClearAllConfigu
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.OpenCollectionConfiguredButton;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkNoneEditablePanel;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.TableBrowserState;
 
 /**
@@ -24,7 +25,10 @@ public class TableBrowserViewsBuilder {
     public static final int DEFAULT_TABLE_HEIGHT = 300;
     public static final int DEFAULT_TABLE_WIDTH = 500;
     public static final int DEFAULT_HEIGHT_OFFSET = 100;
-
+    public static final int MINIMAL_DIALOG_WIDTH= 300;
+    public static final int MINIMAL_DIALOG_HEIGHT = 200;
+    public static final int MINIMAL_TABLE_WIDTH = 300;
+    public static final int MINIMAL_TABLE_HEIGHT = 200;
     private int dialogWidth;
     private int dialogHeight;
     private int tableHeight;
@@ -95,7 +99,8 @@ public class TableBrowserViewsBuilder {
         CollectionDialogBox dialogBox = new CollectionDialogBox()
                 .withDialogWidth(dialogWidth)
                 .setDialogHeight(dialogHeight)
-                .setPluginPanel(pluginPanel);
+                .setPluginPanel(pluginPanel)
+                .setResizable(GuiUtil.isDialogWindowResizable(state.getTableBrowserConfig().getDialogWindowConfig()));
         dialogBox.init();
         return dialogBox;
 
@@ -137,7 +142,8 @@ public class TableBrowserViewsBuilder {
         private ViewHolder buildViewHolder() {
 
             if (state.isTableView()) {
-                TableBrowserCollection collection = createTableBrowserCollection(true, false);
+                TableBrowserCollection collection = createTableBrowserCollection(true, false,
+                        state.getTableBrowserConfig().isResizable());
                 return new TableBrowserCollectionViewHolder(collection);
             } else {
                 SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
@@ -154,7 +160,8 @@ public class TableBrowserViewsBuilder {
             TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
                     hasLinkedFormMappings, parent);
             if (state.isTableView()) {
-                TableBrowserCollection collection = createTableBrowserCollection(false, true);
+                TableBrowserCollection collection = createTableBrowserCollection(false, true,
+                        state.getTableBrowserConfig().isResizable());
                 TableBrowserCollectionViewHolder itemsWidgetChildViewHolder = new TableBrowserCollectionViewHolder(collection);
                 TableBrowserItemsViewHolder editableWidgetChildViewHolder = new TableBrowserItemsViewHolder(itemsWidget);
                 editableWidgetChildViewHolder.setChildViewHolder(itemsWidgetChildViewHolder);
@@ -224,13 +231,14 @@ public class TableBrowserViewsBuilder {
     }
 
     private TableBrowserCollection createTableBrowserCollection(Boolean displayOnlySelectedIds,
-                                                                Boolean displayCheckBoxes) {
+                                                                Boolean displayCheckBoxes, Boolean resizable) {
         TableBrowserCollection result = new TableBrowserCollection()
                 .withEventBus(eventBus)
                 .withPluginPanel(createWidgetCollectionPluginPanel())
                 .withHeight(tableHeight)
                 .withDisplayOnlyChosenIds(displayOnlySelectedIds)
                 .withDisplayCheckBoxes(displayCheckBoxes)
+                .withResizable(resizable)
                 .createView();
 
         return result;

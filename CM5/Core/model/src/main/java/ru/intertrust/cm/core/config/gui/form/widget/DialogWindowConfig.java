@@ -18,6 +18,9 @@ public class DialogWindowConfig implements Dto{
     @Attribute(name="height")
     private String height;
 
+    @Attribute(name = "resizable", required = false)
+    private boolean resizable;
+
     public String getWidth() {
         return width;
     }
@@ -32,6 +35,14 @@ public class DialogWindowConfig implements Dto{
 
     public void setHeight(String height) {
         this.height = height;
+    }
+
+    public boolean isResizable() {
+        return resizable;
+    }
+
+    public void setResizable(boolean resizable) {
+        this.resizable = resizable;
     }
 
     @Override
@@ -49,6 +60,9 @@ public class DialogWindowConfig implements Dto{
         if (width != null ? !width.equals(that.width) : that.width != null) {
             return false;
         }
+        if (resizable != that.resizable) {
+            return false;
+        }
 
         return true;
     }
@@ -57,6 +71,7 @@ public class DialogWindowConfig implements Dto{
     public int hashCode() {
         int result = width != null ? width.hashCode() : 0;
         result = 31 * result + (height != null ? height.hashCode() : 0);
+        result = 31 * result + (resizable ? 1 : 0);
         return result;
     }
 }

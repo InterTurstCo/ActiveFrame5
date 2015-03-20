@@ -14,6 +14,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.DialogBoxUtils;
+import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 
@@ -23,6 +25,9 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
  *         Time: 10:25
  */
 public class FormDialogBox extends DialogBox {
+    private static final String DEFAULT_HEIGHT = "250px";
+    private static final int MINIMAL_HEIGHT = 200;
+    private static final int MINIMAL_WIDTH = 350;
     private PluginPanel formPluginPanel;
     private AbsolutePanel buttonsPanel;
     private String headerTitle;
@@ -31,21 +36,27 @@ public class FormDialogBox extends DialogBox {
 
     public FormDialogBox(String headerTitle) {
         this.headerTitle = headerTitle;
-        init();
+        init(false);
     }
-
+    @Deprecated
     public FormDialogBox(String headerTitle, String modalWidth, String modalHeight) {
         this.headerTitle = headerTitle;
-        this.modalWidth  = modalWidth;
+        this.modalWidth = modalWidth;
         this.modalHeight = modalHeight;
-        init();
+        init(false);
+    }
+    public FormDialogBox(String headerTitle, String modalWidth, String modalHeight, boolean resizable) {
+        this.headerTitle = headerTitle;
+        this.modalWidth = modalWidth;
+        this.modalHeight = modalHeight;
+        init(resizable);
     }
 
     public FormDialogBox() {
-        init();
+        init(false);
     }
 
-    private void init() {
+    private void init(boolean resizable) {
         // Enable animation.
         this.setAnimationEnabled(true);
         this.setModal(true);
@@ -63,10 +74,12 @@ public class FormDialogBox extends DialogBox {
         if (modalWidth != null) {
             panel.setWidth(modalWidth);
         }
-        if (modalHeight != null) {
-            panel.setHeight(modalHeight);
-        }
-        this.add(panel);
+        panel.setHeight(getHeight());
+
+        ResizablePanel resizablePanel = new RightSideResizablePanel(MINIMAL_WIDTH, MINIMAL_HEIGHT,true, resizable);
+        resizablePanel.addStyleName("dialogResizablePanel");
+        resizablePanel.wrapWidget(panel);
+        this.add(resizablePanel);
     }
 
 
@@ -112,6 +125,9 @@ public class FormDialogBox extends DialogBox {
         formPluginPanel.open(formPlugin);
         return formPlugin;
 
+    }
+    private String getHeight(){
+        return modalHeight == null ? DEFAULT_HEIGHT : modalHeight;
     }
 
 }

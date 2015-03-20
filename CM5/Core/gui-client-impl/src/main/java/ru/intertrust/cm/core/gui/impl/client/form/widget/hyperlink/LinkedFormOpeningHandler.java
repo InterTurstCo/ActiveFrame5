@@ -29,14 +29,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.Arrays;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHANGE_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OPEN_IN_FULL_WINDOW_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHANGE_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OPEN_IN_FULL_WINDOW;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * Created by andrey on 20.10.14.
@@ -59,8 +53,8 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
 
     protected void createEditableFormDialogBox(HasLinkedFormMappings widget) {
         final FormPluginConfig config = createFormPluginConfig(widget, true);
-
-        final FormDialogBox editableFormDialogBox = new FormDialogBox(popupTitle, getModalWidth(widget), getModalHeight(widget));
+        boolean resizable = GuiUtil.isFormResizable(domainObjectType, widget.getLinkedFormMappingConfig(), widget.getLinkedFormConfig());
+        final FormDialogBox editableFormDialogBox = new FormDialogBox(popupTitle, getModalWidth(widget), getModalHeight(widget), resizable);
         final FormPlugin formPluginEditable = editableFormDialogBox.createFormPlugin(config, eventBus);
         editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
             @Override
@@ -106,8 +100,10 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
     }
 
     protected void createNonEditableFormDialogBox(HasLinkedFormMappings widget) {
+        boolean resizable = GuiUtil.isFormResizable(domainObjectType, widget.getLinkedFormMappingConfig(),
+                widget.getLinkedFormConfig());
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(popupTitle,
-               getModalWidth(widget), getModalHeight(widget));
+               getModalWidth(widget), getModalHeight(widget), resizable);
         final FormPluginConfig config = createFormPluginConfig(widget, false);
         final FormPlugin plugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {

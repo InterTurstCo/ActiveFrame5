@@ -90,6 +90,12 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/icon-edit.png")
     ImageResource viewIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/rightBottomResizeArea.jpg")
+    ImageResource rightBottomResizeAreaIm();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/leftBottomResizeArea.jpg")
+    ImageResource leftBottomResizeAreaIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

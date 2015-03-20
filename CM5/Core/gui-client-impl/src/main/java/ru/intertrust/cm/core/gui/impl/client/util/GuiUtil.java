@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.title.AbstractTitleRepresentationConfig;
 import ru.intertrust.cm.core.config.gui.form.title.TitleConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
@@ -311,6 +312,17 @@ public final class GuiUtil {
         return null;
     }
 
+    public static boolean isFormResizable(String domainObjectType, LinkedFormMappingConfig linkedFormMappingConfig,
+                                          LinkedFormConfig lowPriorityLinkedFormConfig){
+        boolean result = false;
+        LinkedFormConfig linkedFormConfig = getLinkedFormConfig(domainObjectType, linkedFormMappingConfig);
+        if(linkedFormConfig == null){
+            result = lowPriorityLinkedFormConfig != null && lowPriorityLinkedFormConfig.isResizable();
+        } else {
+            result = linkedFormConfig.isResizable();
+        }
+        return result;
+    }
     public static FormState createParentFormStatesHierarchy(WidgetsContainer container, Collection<String> widgetsIds){
         if(WidgetUtil.isEmpty(widgetsIds)){
             return null;
@@ -355,12 +367,16 @@ public final class GuiUtil {
         Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
         for (BaseWidget widget : container.getWidgets()) {
             if(widget.isEditable()){
-            WidgetState widgetState = widget.getCurrentState();
-            widgetStateMap.put(widget.getDisplayConfig().getId(), widgetState);
+                WidgetState widgetState = widget.getCurrentState();
+                widgetStateMap.put(widget.getDisplayConfig().getId(), widgetState);
             }
         }
         FormState formState = new FormState();
         formState.setWidgetStateMap(widgetStateMap);
         return formState;
+    }
+
+    public static boolean isDialogWindowResizable(DialogWindowConfig dialogWindowConfig){
+       return dialogWindowConfig != null && dialogWindowConfig.isResizable();
     }
 }

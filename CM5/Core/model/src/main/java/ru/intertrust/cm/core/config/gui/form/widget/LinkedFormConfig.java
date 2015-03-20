@@ -28,6 +28,9 @@ public class LinkedFormConfig implements Dto{
     @Attribute(name = "modal-height", required = false)
     private String modalHeight;
 
+    @Attribute(name = "resizable", required = false)
+    private boolean resizable;
+
     @Element(name = "title", required = false)
     private TitleConfig titleConfig;
 
@@ -71,6 +74,14 @@ public class LinkedFormConfig implements Dto{
         return modalHeight;
     }
 
+    public boolean isResizable() {
+        return resizable;
+    }
+
+    public void setResizable(boolean resizable) {
+        this.resizable = resizable;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -100,6 +111,9 @@ public class LinkedFormConfig implements Dto{
         if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight!= null) {
             return false;
         }
+        if (resizable != that.resizable) {
+            return false;
+        }
         return true;
     }
 
@@ -111,6 +125,7 @@ public class LinkedFormConfig implements Dto{
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
         result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
         result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
+        result = 31 * result + (resizable ? 1 : 0);
         return result;
     }
 }

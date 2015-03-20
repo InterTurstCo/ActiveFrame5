@@ -3,18 +3,18 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
+import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.OK_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.TableBrowserViewsBuilder.MINIMAL_DIALOG_HEIGHT;
+import static ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.TableBrowserViewsBuilder.MINIMAL_DIALOG_WIDTH;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.OK_BUTTON;
 
@@ -29,6 +29,7 @@ public class CollectionDialogBox extends DialogBox {
     private PluginPanel pluginPanel;
     private Button okButton;
     private Button cancelButton;
+    private boolean resizable;
 
     public CollectionDialogBox withDialogWidth(int dialogWidth) {
         this.dialogWidth = dialogWidth;
@@ -42,6 +43,11 @@ public class CollectionDialogBox extends DialogBox {
 
     public CollectionDialogBox setPluginPanel(PluginPanel pluginPanel) {
         this.pluginPanel = pluginPanel;
+        return this;
+    }
+
+    public CollectionDialogBox setResizable(boolean resizable) {
+        this.resizable = resizable;
         return this;
     }
 
@@ -74,9 +80,11 @@ public class CollectionDialogBox extends DialogBox {
         dialogBoxContent.addStyleName("table-browser-dialog-box-content");
 
         dialogBoxContent.add(buttonsContainer);
-        this.add(dialogBoxContent);
-        this.setWidth(dialogWidth + "px");
-        this.setHeight(dialogHeight + "px");
+        ResizablePanel resizablePanel = new RightSideResizablePanel(MINIMAL_DIALOG_WIDTH, MINIMAL_DIALOG_HEIGHT, true, resizable);
+        resizablePanel.wrapWidget(dialogBoxContent);
+        this.add(resizablePanel);
+        resizablePanel.setWidth(dialogWidth + "px");
+        resizablePanel.setHeight(dialogHeight + "px");
         dialogBoxContent.add(pluginPanel);
         initCaption();
 

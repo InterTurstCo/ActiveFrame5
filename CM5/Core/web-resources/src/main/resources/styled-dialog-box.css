@@ -106,7 +106,10 @@
 }
 
 .dialogBoxBody .form-dialog-box-content {
-    height: 250px;
+    /*height: 250px;*/
+}
+.form-dialog-box-content .frm-pnl-top {
+    top: 0px!important;
 }
 
 .dialogBoxBody .dialog-box-header {

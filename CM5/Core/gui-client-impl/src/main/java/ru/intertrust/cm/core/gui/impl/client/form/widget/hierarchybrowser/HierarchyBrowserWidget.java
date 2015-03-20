@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.FormDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.tooltip.TooltipSizer;
+import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -305,7 +306,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         final String collectionName = item.getNodeCollectionName();
         final HierarchyBrowserDisplay display = event.getHyperlinkDisplay();
         final boolean tooltipContent = event.isTooltipContent();
-        if (UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
+        if (BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
             return;
         }
         NodeCollectionDefConfig nodeCollectionDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
@@ -314,8 +315,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         LinkedFormMappingConfig linkedFormMappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
         final String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, null);
         final String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, null);
-        final String title = currentState.getHyperlinkPopupTitle(collectionName, domainObjectType);
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
+        final String title = currentState.getHyperlinkPopupTitle(collectionName,domainObjectType);
+        final boolean resizable = GuiUtil.isFormResizable(domainObjectType, linkedFormMappingConfig, null);
+        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight, resizable);
         final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
         noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {
 
@@ -335,7 +337,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                 noneEditableFormDialogBox.hide();
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight);
+                final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight, resizable);
                 final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
                 editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
                     @Override
@@ -486,7 +488,8 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         LinkedFormMappingConfig linkedFormMappingConfig = nodeConfig.getLinkedFormMappingConfig();
         final String modalHeight = GuiUtil.getModalHeight(domainObjectTypeToCreate, linkedFormMappingConfig, null);
         final String modalWidth = GuiUtil.getModalWidth(domainObjectTypeToCreate, linkedFormMappingConfig, null);
-        final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight);
+        final boolean resizable = GuiUtil.isFormResizable(domainObjectTypeToCreate, linkedFormMappingConfig, null);
+        final FormDialogBox createItemDialogBox = new FormDialogBox(newObjectTitle, modalWidth, modalHeight, resizable);
         final FormPlugin createFormPlugin = createItemDialogBox.createFormPlugin(config, eventBus, getContainer());
         createItemDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
             @Override
@@ -534,7 +537,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         hyperlinkContentManager.updateHyperlink();
     }
 
-    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta) {
+    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta){
         NodeCollectionDefConfig nodeDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
         if (nodeDefConfig.isChildrenRecursive()) {
             List<NodeCollectionDefConfig> nodeDefConfigs = nodeDefConfig.getNodeCollectionDefConfigs();

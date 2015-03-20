@@ -3,16 +3,11 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.RadioButton;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -31,19 +26,10 @@ import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CLOSE_BUTTON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FIND_BUTTON_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CLOSE_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXTENDED_SEARCH_ERROR_MESSAGE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FIND_BUTTON;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 // визуализация плагина расширенного поиска
 public class ExtendedSearchPluginView extends PluginView {
@@ -78,10 +64,11 @@ public class ExtendedSearchPluginView extends PluginView {
     private ExtSearchDialogBox extSearchDialogBox;
 
     private Map<String, String> valueToDisplayText;
-
+    private ExtendedSearchPopupConfig popupConfig;
     public ExtendedSearchPluginView(Plugin plugin, ExtendedSearchPluginData extendedSearchPluginData) {
         super(plugin);
         this.valueToDisplayText = extendedSearchPluginData.getValueToDisplayText();
+        this.popupConfig = extendedSearchPluginData.getExtendedSearchPopupConfig();
         container = new AbsolutePanel();
         container.addStyleName("srch-container");
 
@@ -224,6 +211,7 @@ public class ExtendedSearchPluginView extends PluginView {
 
     public void setSearchPopup(ExtSearchDialogBox extSearchDialogBox) {
         this.extSearchDialogBox = extSearchDialogBox;
+        extSearchDialogBox.setUpDialogWindow(popupConfig);
     }
 
     // отправка данных в поисковый сервис
@@ -314,5 +302,9 @@ public class ExtendedSearchPluginView extends PluginView {
             }
         }
         return displayText;
+    }
+
+    public ScrollPanel getScrollSearchForm() {
+        return scrollSearchForm;
     }
 }

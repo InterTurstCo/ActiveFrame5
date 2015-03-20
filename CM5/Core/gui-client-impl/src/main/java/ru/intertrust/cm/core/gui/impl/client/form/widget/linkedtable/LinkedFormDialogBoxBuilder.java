@@ -3,16 +3,12 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
@@ -24,6 +20,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListene
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -36,15 +34,17 @@ import java.util.Map;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCEL_BUTTON_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCEL_BUTTON;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CORRECT_VALIDATION_ERRORS_BEFORE_SAVING_MESSAGE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+
+
 
 
 /**
  * Created by andrey on 27.02.14.
  */
 public class LinkedFormDialogBoxBuilder {
-
+    private static final int MINIMAL_HEIGHT = 200;
+    private static final int MINIMAL_WIDTH = 300;
     private DialogBoxAction saveAction;
     private DialogBoxAction cancelAction;
     private FormState formState;
@@ -60,6 +60,7 @@ public class LinkedFormDialogBoxBuilder {
     private WidgetsContainer parentWidgetsContainer;
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
     private boolean editable = true;
+    private boolean resizable;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -192,12 +193,14 @@ public class LinkedFormDialogBoxBuilder {
         // create dialog box
         final DialogBox db = new DialogBox();
         db.removeStyleName("gwt-DialogBox");
-        db.addStyleName("popup-body popup-z-index");
+        db.addStyleName("dialogBoxBody");
         db.setModal(true);
-        Panel buttons = new FlowPanel();
+        Panel buttonsPanel = new AbsolutePanel();
+        buttonsPanel.addStyleName("buttons-panel");
+        buttonsPanel.getElement().getStyle().clearPosition();
         // create buttons
         if (editable) {
-            Button saveButton = new Button("Сохранить");
+            Button saveButton = new Button(LocalizeUtil.get(LocalizationKeys.SAVE_BUTTON_KEY, SAVE_BUTTON));
             saveButton.setStyleName("lnfm-save-button darkButton");
             decorateButton(saveButton);
             if (saveAction != null) {
@@ -212,7 +215,7 @@ public class LinkedFormDialogBoxBuilder {
                     }
                 });
             }
-            buttons.add(saveButton);
+            buttonsPanel.add(saveButton);
         }
         Button cancelButton = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
         cancelButton.setStyleName("lnfm-cancel-button darkButton");
@@ -228,24 +231,19 @@ public class LinkedFormDialogBoxBuilder {
                 db.hide();
             }
         });
+        VerticalPanel panel = new VerticalPanel();
+        panel.addStyleName("form-dialog-box-content");
 
-        buttons.addStyleName("linkedFormButtonsPanel");
+        linkedFormPluginPanel.asWidget().addStyleName("frm-pnl-top");
+        panel.add(linkedFormPluginPanel);
 
-        buttons.add(cancelButton);
-        ScrollPanel bodyPanel = new ScrollPanel();
-        bodyPanel.setStyleName("linkedFormBodyPanel");
-        Panel container = new FlowPanel();
-        Panel formPluginWrapper = new FlowPanel();
-        formPluginWrapper.setWidth(width);
-        formPluginWrapper.setHeight(height);
-        formPluginWrapper.add(linkedFormPluginPanel);
-        container.add(formPluginWrapper);
-        container.add(buttons);
-        bodyPanel.add(container);
-        Panel panel = new AbsolutePanel();
-        panel.add(bodyPanel);
-        panel.add(buttons);
-        db.setWidget(panel);
+        buttonsPanel.add(cancelButton);
+        panel.add(buttonsPanel);
+        panel.setWidth(width);
+        panel.setHeight(height);
+        ResizablePanel resizablePanel = new RightSideResizablePanel(MINIMAL_WIDTH, MINIMAL_HEIGHT, true, resizable);
+        resizablePanel.wrapWidget(panel);
+        db.add(resizablePanel);
 
         return db;
     }
@@ -314,6 +312,11 @@ public class LinkedFormDialogBoxBuilder {
 
     public LinkedFormDialogBoxBuilder withLinkedFormMapping(LinkedFormMappingConfig linkedFormMappingConfig) {
         this.linkedFormMappingConfig = linkedFormMappingConfig;
+        return this;
+    }
+
+    public LinkedFormDialogBoxBuilder withFormResizable(boolean resizable) {
+        this.resizable = resizable;
         return this;
     }
 }

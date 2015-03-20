@@ -335,7 +335,7 @@
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form" inline="true"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                 </linked-form-mapping>
@@ -444,7 +444,7 @@
                 <default-sort-criteria column-field="name" order="desc"/>
                 <display-values-as-links value="true"/>
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee">
                         <title>
@@ -508,7 +508,8 @@
                  </collection-extra-filters>
              </suggest-box>
 
-             <table-browser id="l_tablebrowser">
+             <table-browser id="l_tablebrowser" resizable="true">
+                 <dialog-window resizable="true" height="400px" width="700px"/>
                  <field-path
                          value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                  <collection-ref name="Organizations"/>
@@ -532,7 +533,7 @@
                 <display-values-as-links value="true"/>
 
                 <linked-form-mapping>
-                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px" modal-width="700px"/>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px" modal-width="700px" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
                     <linked-form name="employee_form" domain-object-type="Employee"/>
                     <linked-form name="developer_form2" domain-object-type="Developer">
@@ -651,6 +652,7 @@
             <hierarchy-browser id="recursive">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department"/>
+                <dialog-window resizable="true" width="900" height="300"/>
                 <node-collection-def collection="organizations"
                                      title="Организацию">
                     <root-node-link title="Организации"/>
@@ -765,6 +767,7 @@
 
             </hierarchy-browser>
             <hierarchy-browser id="2c">
+                <dialog-window height="300px" width="800px" resizable="true"/>
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
 
@@ -802,7 +805,7 @@
                     </created-objects>
                     <linked-form-mapping>
 
-                        <linked-form name="organization_form" domain-object-type="organization" modal-height="500px" modal-width="400px"/>
+                        <linked-form name="organization_form" domain-object-type="organization" modal-height="500px" modal-width="400px" resizable="true"/>
 
                     </linked-form-mapping>
                     <!--<selection-filters row-limit="1"></selection-filters>-->

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -17,6 +18,9 @@ import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
  */
 @Root(name = "table-browser")
 public class TableBrowserConfig extends LinkEditingWidgetConfig {
+    @Attribute(name = "resizable", required = false)
+    private boolean resizable;
+
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 
@@ -226,6 +230,14 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
+    public boolean isResizable() {
+        return resizable;
+    }
+
+    public void setResizable(boolean resizable) {
+        this.resizable = resizable;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -316,6 +328,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
                 : that.collectionExtraFiltersConfig != null) {
             return false;
         }
+        if (resizable != that.resizable) {
+            return false;
+        }
 
         return true;
     }
@@ -342,6 +357,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
+        result = 31 * result + (resizable ? 1 : 0);
         return result;
     }
 

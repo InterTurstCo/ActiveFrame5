@@ -6,19 +6,8 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchQuery;
-import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -49,23 +38,11 @@ import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * User: IPetrov
@@ -132,6 +109,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             if (!arrayTargetObjects.isEmpty()) {
                 searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
             }
+        }
+        List<BusinessUniverseConfig> businessUniverseConfigs = (List<BusinessUniverseConfig>) configurationService
+                .getConfigs(BusinessUniverseConfig.class);
+        if(!businessUniverseConfigs.isEmpty()){
+            extendedSearchPluginData.setExtendedSearchPopupConfig(businessUniverseConfigs.get(0).getExtendedSearchPopupConfig());
         }
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);

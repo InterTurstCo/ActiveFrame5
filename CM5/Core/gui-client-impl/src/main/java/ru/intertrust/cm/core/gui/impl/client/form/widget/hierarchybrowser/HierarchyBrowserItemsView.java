@@ -147,8 +147,6 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     public void display(List<HierarchyBrowserItem> items, boolean shouldDrawTooltipButton) {
         displayChosenItems(items, shouldDrawTooltipButton);
     }
-
-
 }
 
 

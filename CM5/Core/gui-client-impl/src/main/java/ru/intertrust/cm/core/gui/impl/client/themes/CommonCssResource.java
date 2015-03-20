@@ -75,4 +75,10 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("closeBtn")
     String closeBtn();
+
+    @ClassName("rightBottomResizeCursorArea")
+    String rightBottomResizeCursorArea();
+
+    @ClassName("leftBottomResizeCursorArea")
+    String leftBottomResizeCursorArea();
 }

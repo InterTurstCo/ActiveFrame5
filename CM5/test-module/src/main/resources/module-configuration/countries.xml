@@ -741,7 +741,7 @@
             </attachment-box>
 
 
-            <table-browser id="17a" read-only="false">
+            <table-browser id="17a" read-only="false" resizable="true">
                 <field-path value="city^country"/>
                 <collection-ref name="Cities"/>
 

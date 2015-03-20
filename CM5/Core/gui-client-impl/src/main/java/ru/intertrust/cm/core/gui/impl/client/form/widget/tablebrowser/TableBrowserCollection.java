@@ -5,8 +5,15 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.PanelResizeListener;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRequestEvent;
+import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
+
+import static ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.TableBrowserViewsBuilder.MINIMAL_TABLE_HEIGHT;
+import static ru.intertrust.cm.core.gui.impl.client.form.widget.tablebrowser.TableBrowserViewsBuilder.MINIMAL_TABLE_WIDTH;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -14,18 +21,19 @@ import ru.intertrust.cm.core.gui.impl.client.event.tablebrowser.OpenCollectionRe
  *         Time: 7:30
  */
 public class TableBrowserCollection extends Composite {
-
+    private static int HEIGHT_RESIZE_OFFSET = 10;
     private EventBus eventBus;
-    private AbsolutePanel root;
+    private ResizablePanel root;
     private Boolean displayOnlyChosenIds;
     private Boolean displayCheckBoxes;
 
     private PluginPanel pluginPanel;
     private Panel pluginWrapper;
     private int height;
+    private boolean resizable;
 
     public TableBrowserCollection() {
-        this.root = new AbsolutePanel();
+        this.root = new RightSideResizablePanel(MINIMAL_TABLE_WIDTH, MINIMAL_TABLE_HEIGHT, true);
 
         initWidget(root);
     }
@@ -51,6 +59,10 @@ public class TableBrowserCollection extends Composite {
         this.height = height;
         return this;
     }
+    public TableBrowserCollection withResizable(boolean resizable){
+        this.resizable = resizable;
+        return this;
+    }
 
     public TableBrowserCollection createView(){
         root.addStyleName("tableWrapper");
@@ -59,8 +71,17 @@ public class TableBrowserCollection extends Composite {
         pluginWrapper.setStyleName("collectionPluginWrapper");
         pluginWrapper.getElement().getStyle().setHeight(height, Style.Unit.PX);
         pluginWrapper.add(pluginPanel);
-        root.add(pluginWrapper);
+        root.setResizable(resizable);
+        root.wrapWidget(pluginWrapper);
+        root.addResizeListener(new PanelResizeListener() {
+            @Override
+            public void onPanelResize(int width, int height) {
+                CollectionPluginView view = (CollectionPluginView) pluginPanel.getCurrentPlugin().getView();
+                view.resetBodyHeight();
+                pluginWrapper.getElement().getStyle().setHeight(height - HEIGHT_RESIZE_OFFSET, Style.Unit.PX);
 
+            }
+        });
         return this;
     }
 

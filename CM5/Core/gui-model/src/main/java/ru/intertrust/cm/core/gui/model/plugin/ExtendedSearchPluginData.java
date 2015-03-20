@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +22,8 @@ public class ExtendedSearchPluginData extends PluginData {
     private HashMap<String, String> targetCollectionNames;
 
     private Map<String, String> valueToDisplayText;
+
+    private ExtendedSearchPopupConfig extendedSearchPopupConfig;
 
     public HashMap<String, String> getTargetCollectionNames() {
         return targetCollectionNames;
@@ -51,5 +55,13 @@ public class ExtendedSearchPluginData extends PluginData {
 
     public void setValueToDisplayText(Map<String, String> valueToDisplayText) {
         this.valueToDisplayText = valueToDisplayText;
+    }
+
+    public ExtendedSearchPopupConfig getExtendedSearchPopupConfig() {
+        return extendedSearchPopupConfig;
+    }
+
+    public void setExtendedSearchPopupConfig(ExtendedSearchPopupConfig extendedSearchPopupConfig) {
+        this.extendedSearchPopupConfig = extendedSearchPopupConfig;
     }
 }

@@ -4,35 +4,29 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.EventListener;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.DialogWindowConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.NodeCollectionDefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.api.client.PanelResizeListener;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.HierarchyBrowserShowTooltipEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
+import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserItem;
 import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.hierarchybrowser.HierarchyBrowserUtil;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CANCELLATION_BUTTON_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.DONE_BUTTON_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.form.widget.hierarchybrowser.HierarchyBrowserNodeView.NODE_VIEW_HEIGHT_FACTOR;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CANCELLATION_BUTTON;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DONE_BUTTON;
 
@@ -45,6 +39,18 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
 
     public static final int DEFAULT_WIDTH = 1000;
     public static final int DEFAULT_HEIGHT = 400;
+    public static final int MINIMAL_WIDTH = 500;
+    public static final int MINIMAL_HEIGHT = 300;
+    private static final int MAIN_CONTENT_MARGIN = 5;
+
+    private static final Double LINKS_SECTION_WIDTH_FACTOR = 0.1;
+    private static final Double POPUP_CHOSEN_CONTENT_HEIGHT_FACTOR = 0.10;
+    private static final Double NODE_SECTION_WIDTH_FACTOR = 0.9;
+
+
+    private double nodeSectionWidth;
+    private double nodeSectionHeight;
+
     private HierarchyBrowserItemsView popupChosenContent;
     private HorizontalPanel nodesSection;
     private DialogBox dialogBox;
@@ -59,10 +65,13 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
     private SelectionStyleConfig selectionStyleConfig;
     private boolean displayAsHyperlinks;
     private Button cancelButton;
-    private double nodeSectionWidth;
+
     private String title;
     private boolean shouldDrawTooltipButton;
     private CaptionCloseButton captionCloseButton;
+    private ResizablePanel resizablePanel;
+
+    private boolean resizable;
 
     public HierarchyBrowserMainPopup(EventBus eventBus, HierarchyBrowserWidgetState state) {
         this.eventBus = eventBus;
@@ -78,6 +87,7 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
                 dialogWindowConfig.getWidth() : null, HierarchyBrowserMainPopup.DEFAULT_WIDTH);
         popupHeight = HierarchyBrowserUtil.getSizeFromString(dialogWindowConfig != null ?
                 dialogWindowConfig.getHeight() : null, HierarchyBrowserMainPopup.DEFAULT_HEIGHT);
+        this.resizable = GuiUtil.isDialogWindowResizable(dialogWindowConfig);
 
     }
 
@@ -85,23 +95,30 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         dialogBox.hide();
     }
 
-    private VerticalPanel initPopup() {
-        VerticalPanel root = new VerticalPanel();
+    private Widget initPopup() {
+        resizablePanel = new RightSideResizablePanel(MINIMAL_WIDTH, MINIMAL_HEIGHT, true, resizable);
+        final VerticalPanel root = new VerticalPanel();
 
         HorizontalPanel linksAndNodesSection = new HorizontalPanel();
         linksAndNodesSection.addStyleName("grey-background");
         VerticalPanel linksSection = new VerticalPanel();
-        linksSection.setWidth(0.1 * popupWidth + "px");
-
+        linksSection.addStyleName("hierarchyLinksSection");
+        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(linksAndNodesSection, null, NODE_VIEW_HEIGHT_FACTOR));
+        linksSection.setWidth(LINKS_SECTION_WIDTH_FACTOR * popupWidth + "px");
+        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(linksSection, LINKS_SECTION_WIDTH_FACTOR, null));
         popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
-        popupChosenContent.setHeight(0.13 * popupHeight + "px");
+        popupChosenContent.setHeight(POPUP_CHOSEN_CONTENT_HEIGHT_FACTOR * popupHeight + "px");
+        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(popupChosenContent, null, POPUP_CHOSEN_CONTENT_HEIGHT_FACTOR));
         popupChosenContent.asWidget().addStyleName("popup-chosen-content");
 
         ScrollPanel scrollPanel = new ScrollPanel();
         scrollPanel.addStyleName("node-section-scroll");
         nodesSection = new HorizontalPanel();
-        nodeSectionWidth = 0.90 * popupWidth;
+        nodeSectionWidth = NODE_SECTION_WIDTH_FACTOR * popupWidth;
+        nodeSectionHeight = NODE_VIEW_HEIGHT_FACTOR * popupHeight;
+        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(nodesSection, NODE_SECTION_WIDTH_FACTOR, null));
         scrollPanel.setWidth(nodeSectionWidth + "px");
+        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(scrollPanel, NODE_SECTION_WIDTH_FACTOR, null));
         nodesSection.addStyleName("node-section");
         scrollPanel.add(nodesSection);
         addNodeLink(linksSection);
@@ -111,10 +128,24 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         root.add(popupChosenContent);
         root.add(linksAndNodesSection);
         root.add(buttonsPanel);
+/*
+        root.setSize("100%", "100%");
+        root.getElement().getStyle().setMarginRight(10, Style.Unit.PX);*/
+        root.addStyleName("mainPopupContent");
+        resizablePanel.wrapWidget(root);
 
-        root.setWidth(popupWidth + "px");
-        root.getElement().getStyle().setMarginRight(10, Style.Unit.PX);
-        return root;
+        resizablePanel.addResizeListener(new PanelResizeListener() {
+            @Override
+            public void onPanelResize(int width, int height) {
+                root.setSize(width + MAIN_CONTENT_MARGIN +"px", height + "px");
+                nodeSectionWidth = NODE_SECTION_WIDTH_FACTOR * width;
+                nodeSectionHeight = NODE_VIEW_HEIGHT_FACTOR * height;
+                dialogBox.getElement().getFirstChildElement().getFirstChildElement().getStyle().clearHeight();//ugly, should be changed
+                dialogBox.getElement().getFirstChildElement().getFirstChildElement().getStyle().clearWidth();
+                adjustNodeWidth();
+            }
+        });
+        return resizablePanel;
     }
 
     public void addNodeLink(VerticalPanel linksSection) {
@@ -125,10 +156,9 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         linkLabel.setStyleName("node-link");
 
         linkLabel.setText(title);
-        linkLabel.getElement().getStyle().setColor("white");
+      //  linkLabel.getElement().getStyle().setColor("white");
         Image arrow = new Image("images/arrow-right.png");
-        arrow.removeStyleName("gwt-Image");
-        arrow.addStyleName("link-arrow");
+        arrow.setStyleName("link-arrow");
         nodePanel.add(linkLabel);
         nodePanel.add(arrow);
         linksSection.add(nodePanel);
@@ -142,10 +172,9 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         dialogBox = new DialogBox();
 
         dialogBox.setAnimationEnabled(true);
-        dialogBox.removeStyleName("gwt-DialogBox ");
-        dialogBox.addStyleName("popup-body");
+        dialogBox.setStyleName("popup-body");
         dialogBox.setModal(true);
-        dialogBox.add(initPopup());
+        dialogBox.setWidget(initPopup());
         popupChosenContent.setTooltipClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -208,8 +237,10 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
                 }
             }
         }
-        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus,  (int) (0.6 * popupHeight),
-               displayAsHyperlinks);
+
+        HierarchyBrowserNodeView nodeView = new HierarchyBrowserNodeView(eventBus,  (int)nodeSectionHeight,  displayAsHyperlinks);
+
+        resizablePanel.addResizeListener(nodeView.getPanelResizeListener());
         nodesSection.add(nodeView);
         nodeView.drawNode(parentId, parentCollectionName, items, nodeConfigs);
         containerMap.put(nodeType, nodeView);

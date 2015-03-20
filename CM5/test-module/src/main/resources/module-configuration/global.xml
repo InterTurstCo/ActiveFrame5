@@ -46,6 +46,9 @@
        <collection-query-cache max-size="1000" />
     </global-settings>
     <business-universe>
+        <extended-search-popup>
+            <dialog-window height="600px" width="650px" resizable="true"/>
+        </extended-search-popup>
         <!--<side-bar-openning-time default-value="3000"/>-->
         <login-screen display-product-version="true" display-core-version="true">
                 <product-title style="text"/>

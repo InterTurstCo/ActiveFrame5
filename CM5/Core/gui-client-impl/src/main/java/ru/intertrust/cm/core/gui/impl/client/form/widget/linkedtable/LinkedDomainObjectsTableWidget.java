@@ -76,9 +76,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         view.add(table);
         if (isEditable()) {
             LinkedTableUtil.configureEditableTable(summaryTableConfig, table, new TableFieldUpdater(model, false),
-                    localEventBus, currentState);
+                    localEventBus,currentState);
         } else {
-            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table, currentState);
+            LinkedTableUtil.configureNoneEditableTable(summaryTableConfig, table,currentState);
         }
 
         model.addDataDisplay(table);
@@ -257,10 +257,34 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 .withParentWidgetIds(currentState.getParentWidgetIdsForNewFormMap())
                 .withWidgetsContainer(getContainer())
                 .withTypeTitleMap(currentState.getTypeTitleMap())
-                .buildDialogBox();
+                .withFormResizable(isFormResizable(domainObjectType))
+                .buildDialogBox();;
 
         lfb.display();
 
+    }
+
+    private boolean isFormResizable(String domainObjectType){
+        return GuiUtil.isFormResizable(domainObjectType, currentState.getLinkedDomainObjectsTableConfig()
+                .getLinkedFormMappingConfig(), currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig());
+    }
+
+    private String getModalHeight(String domainObjectType) {
+        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
+                .getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
+
+        return modalHeight == null ? currentState.getLinkedDomainObjectsTableConfig().getModalHeight() : modalHeight;
+    }
+
+    private String getModalWidth(String domainObjectType) {
+        LinkedFormMappingConfig linkedFormMappingConfig = currentState.getLinkedDomainObjectsTableConfig()
+                .getLinkedFormMappingConfig();
+        LinkedFormConfig linkedFormConfig = currentState.getLinkedDomainObjectsTableConfig().getLinkedFormConfig();
+        String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, linkedFormConfig);
+
+        return modalWidth == null ? currentState.getLinkedDomainObjectsTableConfig().getModalWidth() : modalWidth;
     }
 
     private void insertInCorrectModel(RowItem rowItem) {
@@ -591,6 +615,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                         .withPopupTitlesHolder(currentState.getPopupTitlesHolder())
                         .withLinkedFormMapping(currentState.getLinkedDomainObjectsTableConfig().getLinkedFormMappingConfig())
                         .withTypeTitleMap(currentState.getTypeTitleMap())
+                        .withFormResizable(isFormResizable(pooledEditedFormState.getRootDomainObjectType()))
                         .buildDialogBox();
 
             } else {
