@@ -138,10 +138,13 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             String linkedFormName = widgetConfig.getLinkedFormConfig().getName();
             if (linkedFormName != null && !linkedFormName.isEmpty()) {
                 FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
+                String domainObjectType = defaultFormConfig.getDomainObjectType();
+                if(accessVerificationService.isCreatePermitted(domainObjectType)){
                 CreatedObjectConfig createdObjectConfig = new CreatedObjectConfig();
-                createdObjectConfig.setDomainObjectType(defaultFormConfig.getDomainObjectType());
-                createdObjectConfig.setText(defaultFormConfig.getDomainObjectType());
+                createdObjectConfig.setDomainObjectType(domainObjectType);
+                createdObjectConfig.setText(domainObjectType);
                 createdObjectConfigs.add(createdObjectConfig);
+                }
             }
         }
         return restrictedCreatedObjectsConfig;
@@ -555,14 +558,14 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     private Map<String, WidgetState> createWidgetStateByFieldPath(String formName, Map<String, WidgetState> widgetStateMap) {
-        Map<String, WidgetState> fieldPathMap = new HashMap<>();
+        Map<String, WidgetState> fieldPathMap = new CaseInsensitiveHashMap<>();
         List<WidgetConfig> widgetConfigs = getWidgetConfigs(formName);
         for (WidgetConfig widgetConfig : widgetConfigs) {
             String widgetId = widgetConfig.getId();
             WidgetState state = widgetStateMap.get(widgetId);
             String fpv = widgetConfig.getFieldPathConfig() == null ? null : widgetConfig.getFieldPathConfig().getValue();
             if (state != null && fpv != null) {
-                fieldPathMap.put(fpv.toLowerCase(), state);
+                fieldPathMap.put(fpv, state);
             }
 
         }

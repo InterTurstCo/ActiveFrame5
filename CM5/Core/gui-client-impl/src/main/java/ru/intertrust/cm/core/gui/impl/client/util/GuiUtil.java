@@ -302,7 +302,7 @@ public final class GuiUtil {
     }
 
     private static LinkedFormConfig getLinkedFormConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig) {
-        if (mappingConfig != null) {
+        if (mappingConfig != null && domainObjectType != null) {
             for (LinkedFormConfig linkedFormConfig : mappingConfig.getLinkedFormConfigs()) {
                 if (domainObjectType.equalsIgnoreCase(linkedFormConfig.getDomainObjectType())) {
                     return linkedFormConfig;
