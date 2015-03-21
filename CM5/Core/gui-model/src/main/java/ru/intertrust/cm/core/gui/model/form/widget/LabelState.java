@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
@@ -13,6 +14,7 @@ public class LabelState extends WidgetState {
     private String fontStyle;
     private String fontSize;
     private String relatedWidgetId;
+    private String textDecoration;
 
     public LabelState() {
     }
@@ -67,6 +69,14 @@ public class LabelState extends WidgetState {
 
     public void setFontSize(String fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public String getTextDecoration() {
+        return textDecoration;
+    }
+
+    public void setTextDecoration(String textDecoration) {
+        this.textDecoration = textDecoration;
     }
 
     @Override

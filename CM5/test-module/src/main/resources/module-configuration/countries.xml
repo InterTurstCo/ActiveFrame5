@@ -539,6 +539,7 @@
              </suggest-box>-->
             <label id="cities_label">
                 <text>Города:</text>
+                <text-decoration value="underline"/>
             </label>
             <suggest-box id="cities">
                 <field-path value="city^country"/>

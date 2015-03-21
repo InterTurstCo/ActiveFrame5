@@ -2198,6 +2198,7 @@
                     <xs:element type="con:uiRendererType" name="renderer" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:forceRequiredAsterisk" name="force-required-asterisk" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:formattingType" name="formatting" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:textDecorationType" name="text-decoration" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" />
             </xs:extension>
@@ -3135,4 +3136,15 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="textDecorationType">
+       <xs:attribute type="con:textDecorationValueType" name="value"/>
+    </xs:complexType>
+    <xs:simpleType name="textDecorationValueType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="overline"/>
+            <xs:enumeration value="line-through"/>
+            <xs:enumeration value="underline"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

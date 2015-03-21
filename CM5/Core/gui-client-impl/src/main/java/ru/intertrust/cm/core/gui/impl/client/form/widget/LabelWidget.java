@@ -61,7 +61,7 @@ public class LabelWidget extends BaseWidget {
         state.setFontWeight(initialState.getFontWeight());
         state.setFontStyle(initialState.getFontStyle());
         state.setFontSize(initialState.getFontSize());
-
+        state.setTextDecoration(initialState.getTextDecoration());
         return state;
     }
 
@@ -92,10 +92,7 @@ public class LabelWidget extends BaseWidget {
         final String fontWeight = state.getFontWeight();
         final String fontStyle = state.getFontStyle();
         final String fontSize = state.getFontSize();
-        /*if (fontWeight == null && fontStyle == null && fontSize == null) {
-            return;
-        }
-        label.setStyleName("");*/
+        final String textDecoration = state.getTextDecoration();
         final Style style = label.getElement().getStyle();
         if (fontWeight != null) {
             style.setProperty("fontWeight", fontWeight);
@@ -105,6 +102,9 @@ public class LabelWidget extends BaseWidget {
         }
         if (fontSize != null) {
             style.setProperty("fontSize", fontSize);
+        }
+        if (textDecoration != null) {
+            style.setProperty("textDecoration", textDecoration);
         }
     }
 

@@ -128,12 +128,15 @@ public class LabelHandler extends ValueEditingWidgetHandler {
         FontStyleConfig fontStyleConfig = labelConfig.getFontStyle();
         FontWeightConfig fontWeightConfig = labelConfig.getFontWeight();
         FontSizeConfig fontSizeConfig = labelConfig.getFontSize();
+        TextDecorationConfig textDecorationConfig = labelConfig.getTextDecorationConfig();
         String fontSize = fontSizeConfig == null ? null : fontSizeConfig.getValue();
         String fontStyle = fontStyleConfig == null ? null : fontStyleConfig.getValue();
         String fontWeight = fontWeightConfig == null ? null : fontWeightConfig.getValue();
+        String textDecoration = textDecorationConfig == null ? null : textDecorationConfig.getValue();
         state.setFontSize(fontSize);
         state.setFontStyle(fontStyle);
         state.setFontWeight(fontWeight);
+        state.setTextDecoration(textDecoration);
 
     }
 
