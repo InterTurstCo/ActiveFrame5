@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
@@ -161,8 +160,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                     }
                 });
             }
-        } else {
-            addButton.getElement().getStyle().setVisibility(Style.Visibility.HIDDEN);
         }
         return null;
     }
