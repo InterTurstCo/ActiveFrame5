@@ -119,6 +119,9 @@ public class LocalizationKeys {
 
     public static final String DIGITAL_SIGNATURE_KEY = "DigitalSignature";
 
+    public static final String MOVE_COLUMN_HINT_KEY = "MoveColumnHint";
+    public static final String RESIZE_COLUMN_HINT_KEY = "ResizeColumnHint";
+
     public static final Map<String, String> validationMessages = new HashMap<>(); //<key, defaultValue>
     static {
         validationMessages.put("validate.not-empty", "Поле ${field-name} не должно быть пустым!");

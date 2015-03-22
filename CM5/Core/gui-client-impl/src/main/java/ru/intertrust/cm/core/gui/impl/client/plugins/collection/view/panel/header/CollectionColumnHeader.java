@@ -19,6 +19,7 @@ import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Event.NativePreviewEvent;
 import com.google.gwt.user.client.Event.NativePreviewHandler;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
@@ -30,13 +31,13 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.heade
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 import static com.google.gwt.dom.client.Style.Unit.PX;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.MOVE_COLUMN_HINT_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESIZE_COLUMN_HINT_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 public class CollectionColumnHeader extends Header<HeaderWidget> {
     private static final String MOVE = "";
     private static final String RESIZE = "";
-    private static final String MOVE_tt = "Click and drag to move column";
-    private static final String RESIZE_tt = "Click and drag to resize column";
     private static final Style.Cursor moveCursor = Cursor.MOVE;
     private static final Style.Cursor resizeCursor = Cursor.COL_RESIZE;
     private static final String RESIZE_COLOR = "gray";
@@ -311,11 +312,13 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
             mover = document.createDivElement();
             final int leftBound = target.getOffsetLeft() + target.getOffsetWidth();
             if (column.isMoveable()) {
-                left = createSpanElement(MOVE, MOVE_tt, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
+                String hint = LocalizeUtil.get(MOVE_COLUMN_HINT_KEY, MOVE_COLUMN_HINT);
+                left = createSpanElement(MOVE, hint, MOVE_COLOR, moveCursor, leftBound - 2 * RESIZE_HANDLE_WIDTH);
                 mover.appendChild(left);
             }
             if (column.isResizable()) {
-                right = createSpanElement(RESIZE, RESIZE_tt, null, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
+                String hint = LocalizeUtil.get(RESIZE_COLUMN_HINT_KEY, RESIZE_COLUMN_HINT);
+                right = createSpanElement(RESIZE, hint, null, resizeCursor, leftBound - RESIZE_HANDLE_WIDTH);
                 mover.appendChild(right);
             }
             source.appendChild(mover);
