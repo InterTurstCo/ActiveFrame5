@@ -151,7 +151,7 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="city_test">
+ <access-matrix type="city_test">
         <create>
             <permit-group name="AllPersons" />
         </create>            
@@ -186,6 +186,20 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="test_DO_2" matrix-reference-field="ref_DO_1" />
+
+    <access-matrix type="test_DO_3" read-everybody="false" matrix-reference-field="ref_DO_3_1" />
+
+    <access-matrix type="ref_DO_3_1" read-everybody="false" matrix-reference-field="ref_DO_3_2" />
+
+    <access-matrix type="ref_DO_3_2" read-everybody="true" />
+    
+    <access-matrix type="ref_DO_1" matrix-reference-field="ref_DO_2" />
+    
+    <access-matrix type="ref_DO_2" matrix-reference-field="ref_DO_3" />
+
+    <access-matrix type="ref_DO_3" read-everybody="true" />
+    
     <access-matrix type="employee_test" matrix-reference-field="Department" />
     
     <access-matrix type="employee_test_ref_matrix" matrix-reference-field="Department" />

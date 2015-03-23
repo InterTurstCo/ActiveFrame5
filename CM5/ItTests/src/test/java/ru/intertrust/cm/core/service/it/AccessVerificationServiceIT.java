@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.webcontext.ApplicationContextProvider;
 
@@ -37,6 +38,8 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
 
     @EJB
     private AccessVerificationService.Remote accessVerificationService;
+    
+    private ConfigurationExplorer configurationExplorer;
     
     protected DomainObjectTypeIdCache domainObjectTypeIdCache;
 
@@ -56,6 +59,7 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
     private void initializeSpringBeans() {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
+        configurationExplorer = applicationContext.getBean(ConfigurationExplorer.class);
     }
 
     @Test
@@ -115,6 +119,21 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
             departmentDomainObject.setReference("country", savedCountryObject.getId());
         }
         return departmentDomainObject;
+    }
+    
+    @Test
+    public void testIsReadPermited() throws LoginException {
+        assertFalse(configurationExplorer.isReadPermittedToEverybody("test_DO_1"));
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("test_DO_2"));
+        assertFalse(configurationExplorer.isReadPermittedToEverybody("test_DO_3"));
+
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("ref_DO_3"));
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("ref_DO_2"));
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("ref_DO_1"));
+
+        assertFalse(configurationExplorer.isReadPermittedToEverybody("ref_DO_3_1"));
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("ref_DO_3_2"));
+
     }
     
 }

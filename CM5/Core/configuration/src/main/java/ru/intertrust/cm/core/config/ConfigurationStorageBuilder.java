@@ -623,35 +623,24 @@ public class ConfigurationStorageBuilder {
     }
 
     private void fillReadPermittedToEverybodyMap() {
-        for (TopLevelConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
-            boolean readEverybody = isReadEverybodyForType(config.getName());
-
-            //Если readEverybody == false Дополнительная проверка на заимствование прав
-            if (!readEverybody) {
-                AccessMatrixConfig accessMatrixConfig =
-                        configurationExplorer.getAccessMatrixByObjectType(config.getName());
-                if (accessMatrixConfig != null && accessMatrixConfig.getMatrixReference() != null) {
-
-                    //Получение типа откуда заимствуем права и проверяем у полученного типа флаг ReadEverybody 
-                    String matrixReferenceType = fillMatrixReferenceTypeNameMap(config.getName());
-                    if (matrixReferenceType == null) {
-                        continue;  // todo: throw exception
-                    }
-                    readEverybody = isReadEverybodyForType(matrixReferenceType);
-                }
+        for (DomainObjectTypeConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
+            String domainObjectType = config.getName();
+            Boolean readEverybody = isReadEverybodyForType(domainObjectType);
+            
+            if (readEverybody == null) {
+                readEverybody = false;
             }
-
             configurationStorage.readPermittedToEverybodyMap.put(config.getName(), readEverybody);
         }
     }
 
     /**
-     * Получение флага ReadEverybody для типа с учетом иерархии типов
+     * Получение флага read-everybody для типа с учетом иерархии наследования типов и иерархии наследования матриц (связанных через атрибут martix-reference-field)
      * @param domainObjectType
      * @return
      */
-    private boolean isReadEverybodyForType(String domainObjectType) {
-        boolean result = false;
+    private Boolean isReadEverybodyForType(String domainObjectType) {
+        Boolean result = null;
 
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
@@ -665,19 +654,19 @@ public class ConfigurationStorageBuilder {
                 log.warn("No type defined in access matrix found: " + domainObjectType);
                 return false;
             }
+            // проход по иерархии родительских типов для доменного объекта. Проверка флага read-everybody в матрицах доступа для родительских типов.
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
                 String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
                 result = isReadEverybodyForType(parentDOType);
-            }else{
-                //domainObjectType является ДО верхнего уровня, и флаг read-everybody не определен.
-                //Получаем все дочерние типы и смотрим флаг у них. Возвращаем true если найден хотя бы один тип с флагом read-evrybody
-                //Валидатор конфигурации должен обеспечить чтобы если встречается хотя бы один тип с read-everybody то должна отсутствовать матрица у типов в данной иерархии с read-everybody = false
-                List<String> childTypes = getChildTypes(domainObjectType);
-                for (String childType : childTypes) {
-                    AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
-                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null){
-                        result = childMatrixConfig.isReadEverybody();
-                        break;
+            }
+
+            if (result == null) {
+                // проход по иерархии матриц, связанных через martix-reference-field, для матрицы переданного доменного
+                // объекта
+                if (accessMatrixConfig != null && accessMatrixConfig.getMatrixReference() != null) {
+                    String matrixReferenceTypeName = getParentTypeNameFromMatrixReference(accessMatrixConfig.getMatrixReference(), domainObjectTypeConfig);
+                    if (matrixReferenceTypeName != null) {
+                        result = isReadEverybodyForType(matrixReferenceTypeName);
                     }
                 }
             }
