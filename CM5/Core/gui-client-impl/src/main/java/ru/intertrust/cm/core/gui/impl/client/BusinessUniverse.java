@@ -23,26 +23,11 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
-import ru.intertrust.cm.core.gui.api.client.ActionManager;
-import ru.intertrust.cm.core.gui.api.client.Application;
-import ru.intertrust.cm.core.gui.api.client.BaseComponent;
-import ru.intertrust.cm.core.gui.api.client.CompactModeState;
-import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -56,6 +41,9 @@ import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.START_SIDEBAR_WIDTH;
 
 /**
  * @author Denis Mitavskiy
@@ -129,11 +117,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         footerButton.getElement().getStyle().clearPosition();
         root.add(footerButton);
         final AbsolutePanel centralDivPanel = new AbsolutePanel();
-        centralDivPanel.setStyleName("central-div-panel-test");
+        centralDivPanel.setStyleName(CENTRAL_SECTION_STYLE);
         centralDivPanel.getElement().setId(ComponentHelper.DOMAIN_ID);
         centralDivPanel.add(right);
 
-        header.setStyleName("header-section");
+        header.setStyleName(BusinessUniverseConstants.TOP_SECTION_STYLE);
         header.getElement().getStyle().clearDisplay();
         header.getElement().setId(ComponentHelper.HEADER_ID);
         action.setStyleName("action-section");
@@ -234,7 +222,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         }
         History.addValueChangeHandler(new HistoryValueChangeHandler());
-        navigationTreePanel.setVisibleWidth(BusinessUniverseConstants.START_SIDEBAR_WIDTH);
+        navigationTreePanel.setVisibleWidth(START_SIDEBAR_WIDTH);
         navigationTreePanel.open(navigationTreePlugin);
     }
 

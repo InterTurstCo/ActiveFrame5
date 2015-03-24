@@ -79,9 +79,21 @@ public class BusinessUniverseConstants {
     // Navigation styles
     public static final String LEFT_SECTION_ACTIVE_STYLE = "left-section-active";
     public static final String LEFT_SECTION_STYLE = "left-section";
+    public static final String LEFT_SECTION_COLLAPSED_STYLE = "left-sectionNone";
 
     public static final String CENTRAL_SECTION_STYLE = "central-div-panel-test";
+    public static final String CENTRAL_SECTION_FULL_SIZE_STYLE = "central-div-panel-test-full";
+    public static final String CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE = "centralPanelRightPanelOpen";
+    public static final String CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE = "centralPanelRightPanelOpenFull";
     public static final String CENTRAL_SECTION_ACTIVE_STYLE = "central-div-panel-test-active";
+
+    public static final String RIGHT_SECTION_COLLAPSED_STYLE = "stickerPanelOff";
+    public static final String RIGHT_SECTION_EXPANDED_STYLE = "stickerPanelOn";
+    public static final String RIGHT_SECTION_EXPANDED_FULL_STYLE = "stickerPanelOnFull";
+    public static final String RIGHT_SECTION_COLLAPSED_FULL_STYLE = "stickerPanelOffFull";
+
+    public static final String TOP_SECTION_COLLAPSED_STYLE = "header-sectionNone";
+    public static final String TOP_SECTION_STYLE = "header-section";
 
     //alert messages
     public static final String TASK_COMPLETE_MESSAGE = "Задача успешно завершена";

@@ -737,7 +737,7 @@ h1 {
     -webkit-transition: opacity 1.5s; /* For Safari 3.1 to 6.0 */
     transition: opacity 1.5s;
     opacity: 0;
-    z-index: 16;
+    display: none;
 }
 
 .left-section {
@@ -851,6 +851,19 @@ h1 {
     -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
     transition: margin 0.5s;
     margin: 70px 265px 0px 130px;
+}
+.centralPanelRightPanelOpenFull {
+    background: #fafafa;
+    display: block;
+    height: auto;
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: margin 0.5s;
+    margin: 0px 265px 0px 0px;
 }
 
 #action-bar-id {
@@ -2948,6 +2961,31 @@ a:active .icon.back {
     -webkit-transition: width 0.5s; /* For Safari 3.1 to 6.0 */
     transition: width 0.5s;
     width: 255px;
+    z-index: 11;
+}
+.stickerPanelOnFull {
+    border-radius: 5px 0 0;
+    background: #fafafa;
+    float: right;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: width 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: width 0.5s;
+    width: 255px;
+    z-index: 11;
+}
+.stickerPanelOffFull {
+    border-radius: 5px 0 0;
+    background: #fafafa;
+    float: right;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    -webkit-transition: width 0.5s; /* For Safari 3.1 to 6.0 */
+    transition: width 0.5s;
+    width: 0;
     z-index: 11;
 }
 

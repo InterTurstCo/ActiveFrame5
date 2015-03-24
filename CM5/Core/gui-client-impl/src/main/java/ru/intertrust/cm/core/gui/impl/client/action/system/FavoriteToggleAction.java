@@ -8,6 +8,8 @@ import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+
 /**
  * @author Sergey.Okolot
  */
@@ -15,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 public class FavoriteToggleAction extends ToggleAction {
     private Element right;
     private Element center;
-    private Element footer;
 
     @Override
     protected void execute() {
@@ -24,10 +25,11 @@ public class FavoriteToggleAction extends ToggleAction {
         right = DOM.getElementById(ComponentHelper.RIGHT_ID);
         center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
 
-        if(actionContext.isPushed()){
-            openRightPanel();;
+        if (actionContext.isPushed()) {
+            openRightPanel();
+            ;
         }
-        if(!actionContext.isPushed()){
+        if (!actionContext.isPushed()) {
             closeRightPanel();
         }
     }
@@ -37,13 +39,23 @@ public class FavoriteToggleAction extends ToggleAction {
         return new FavoriteToggleAction();
     }
 
-    private void openRightPanel(){
-        right.setClassName("stickerPanelOn");
-        center.setClassName("centralPanelRightPanelOpen");
+    private void openRightPanel() {
+        if (center.hasClassName(CENTRAL_SECTION_FULL_SIZE_STYLE)) {
+            center.setClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
+            right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
+        } else {
+            center.setClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
+            right.setClassName(RIGHT_SECTION_EXPANDED_STYLE);
+        }
     }
 
-    private void closeRightPanel(){
-        right.setClassName("stickerPanelOff");
-        center.setClassName("central-div-panel-test");
+    private void closeRightPanel() {
+        if (center.hasClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE)) {
+            center.setClassName(CENTRAL_SECTION_FULL_SIZE_STYLE);
+            right.setClassName(RIGHT_SECTION_COLLAPSED_FULL_STYLE);
+        } else {
+            center.setClassName(CENTRAL_SECTION_STYLE);
+            right.setClassName(RIGHT_SECTION_COLLAPSED_STYLE);
+        }
     }
 }
