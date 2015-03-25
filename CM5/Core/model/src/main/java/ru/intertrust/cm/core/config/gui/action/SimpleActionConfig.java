@@ -13,6 +13,11 @@ public class SimpleActionConfig extends ActionConfig {
     @Attribute(name = "action-handler")
     private String actionHandler;
 
+    @Override
+    public String getComponentName() {
+        return "simple.action";
+    }
+
     public String getActionHandler() {
         return actionHandler;
     }

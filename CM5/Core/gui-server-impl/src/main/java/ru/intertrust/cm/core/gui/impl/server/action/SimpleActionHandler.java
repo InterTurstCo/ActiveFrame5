@@ -139,4 +139,9 @@ public class SimpleActionHandler extends ActionHandler<SimpleActionContext, Simp
         }
         return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
     }
+
+    @Override
+    public HandlerStatusData getCheckStatusData() {
+        return new FormPluginHandlerStatusData();
+    }
 }
