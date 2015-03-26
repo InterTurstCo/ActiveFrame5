@@ -9,6 +9,7 @@
     <xs:element name="action-ref" type="act:actionRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action-group" type="act:actionGroupType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
@@ -92,6 +93,31 @@
         </xs:complexContent>
     </xs:complexType>
 
+
+
+    <xs:complexType name="actionGroupType">
+        <xs:complexContent>
+            <xs:extension base="act:baseActionType">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="act:abstract-action"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attributeGroup ref="act:actionAttributeGroup"/>
+                <xs:attributeGroup ref="act:activeAttributeGroup"/>
+                <xs:attribute name="name" type="xs:string" use="optional"/>
+                <xs:attribute name="text" type="xs:string" />
+                <xs:attribute name="image" type="xs:string" />
+                <xs:attribute name="imageClass" type="xs:string" />
+                <xs:attribute name="tooltip" type="xs:string"/>
+                <xs:attribute name="display" type="act:displayType"/>
+                <xs:attribute name="weight" type="xs:positiveInteger"/>
+                <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+
     <xs:complexType name="simpleActionType">
         <xs:complexContent>
             <xs:extension base="act:actionEntryType">
@@ -157,6 +183,7 @@
         <xs:attribute name="useDefault" type="xs:boolean" default="true" />
         <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
+
 
     <xs:simpleType name="displayType">
         <xs:restriction base="xs:string">

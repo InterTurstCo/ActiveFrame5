@@ -7,6 +7,7 @@ import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
+import ru.intertrust.cm.core.config.gui.action.ActionGroupConfig;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.themes.CommonCssResource;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -59,6 +60,37 @@ public final class ComponentHelper {
         };
         return safeHtml;
     }
+
+    public static SafeHtml createActionGroupHtmlItem(final ActionContext context) {
+        final ActionGroupConfig actionConfig = context.getActionConfig();
+        final SimplePanel wrapper = new SimplePanel();
+        if (actionConfig.getImageUrl() != null) {
+            final String imageUrl = GlobalThemesManager.getResourceFolder() + getImageAttr(actionConfig.getImageUrl(), context);
+            final Image image = new Image(imageUrl);
+            if (actionConfig.getImageClass() != null) {
+                image.setStyleName(actionConfig.getImageClass());
+            }
+            DOM.appendChild(wrapper.getElement(), image.getElement());
+        } else if (actionConfig.getImageClass() != null) {
+            final String imageClass = getImageClass(actionConfig.getImageClass(), context);
+            final SimplePanel panel = new SimplePanel();
+            panel.setStyleName(imageClass);
+            DOM.appendChild(wrapper.getElement(), panel.getElement());
+        }
+        if (actionConfig.getText() != null) {
+            final Anchor anchor = new Anchor(actionConfig.getText());
+            anchor.setStyleName("action-bar-button");
+            DOM.appendChild(wrapper.getElement(), anchor.getElement());
+        }
+        final SafeHtml safeHtml = new SafeHtml() {
+            @Override
+            public String asString() {
+                return wrapper.getElement().getInnerHTML();
+            }
+        };
+        return safeHtml;
+    }
+
 
     private static String getImageAttr(final String attrValue, ActionContext context) {
         final ActionDisplayType type = ((ActionConfig) context.getActionConfig()).getDisplay();

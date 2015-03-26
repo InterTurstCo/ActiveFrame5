@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Hyperlink;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -12,11 +14,7 @@ import com.google.gwt.user.client.ui.MenuItemSeparator;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
-import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
-import ru.intertrust.cm.core.config.gui.action.BaseAttributeConfig;
+import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -265,6 +263,20 @@ public abstract class PluginView implements IsWidget {
                 commandImpl.setParent(menuItem);
                 updateByConfig(menuItem, config);
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
+                addItem(menuItem);
+            } else if (config instanceof ActionGroupConfig) {
+                Command cmd = new Command() {
+                    public void execute() {
+                        Window.alert("You selected a menu item!");
+                    }
+                };
+                MenuBar mBar = new MenuBar();
+                mBar.addItem("Item 1", cmd).setTitle("Item 1");
+                mBar.addItem("Item 2", cmd).setTitle("Item 2");
+                mBar.addItem("Item 3", cmd).setTitle("Item 3");
+                final MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(context), mBar);
+                updateByConfig(menuItem, config);
+                menuItem.setTitle(((ActionGroupConfig) config).getTooltip());
                 addItem(menuItem);
             } else {
                 throw new IllegalArgumentException("Not support context " + context);

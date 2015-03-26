@@ -12,10 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
-import ru.intertrust.cm.core.config.gui.action.ActionSeparatorConfig;
+import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -64,6 +61,10 @@ public class ActionConfigBuilder {
         fillReferenceMap(configs);
         for (AbstractActionConfig config : configs) {
             if (config instanceof ActionSeparatorConfig) {
+                contextList.addContext(new ActionContext(config));
+                continue;
+            }
+            if (config instanceof ActionGroupConfig) {
                 contextList.addContext(new ActionContext(config));
                 continue;
             }
