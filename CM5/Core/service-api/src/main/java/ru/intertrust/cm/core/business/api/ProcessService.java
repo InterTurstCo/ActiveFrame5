@@ -20,8 +20,14 @@ public interface ProcessService {
     public static final String TASK_STATE_COMPLETE = "Complete";
     public static final String TASK_STATE_PRETERMIT = "Pretermit";
 
+    @Deprecated
     public static final String MAIN_ATTACHMENT = "MAIN_ATTACHMENT";
+    @Deprecated
     public static final String MAIN_ATTACHMENT_ID = "MAIN_ATTACHMENT_ID";
+    
+    public static final String CTX = "CTX";
+    public static final String CTX_ID = "CTX_ID";
+    
     public static final String SESSION = "SESSION";
 
     /**
