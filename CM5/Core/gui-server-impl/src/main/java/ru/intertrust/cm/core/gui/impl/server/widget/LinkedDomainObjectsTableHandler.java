@@ -31,7 +31,6 @@ import ru.intertrust.cm.core.gui.impl.server.util.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -197,18 +196,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Override
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
-        LinkedDomainObjectsTableState linkedDomainObjectsTableState = (LinkedDomainObjectsTableState) state;
-        final FormObjects formObjects = context.getFormObjects();
-        DomainObject rootDomainObject = formObjects.getRootNode().getDomainObject();
-        LinkedHashMap<String, FormState> newFormStates = linkedDomainObjectsTableState.getNewFormStates();
-        Set<Map.Entry<String, FormState>> entries = newFormStates.entrySet();
+        DomainObject rootDomainObject = context.getFormObjects().getRootNode().getDomainObject();
+        Collection<FormState> formStates = ((LinkedDomainObjectsTableState) state).getNewFormStates().values();
 
-        LinkedDomainObjectsTableConfig linkedDomainObjectsTableConfig = linkedDomainObjectsTableState.getLinkedDomainObjectsTableConfig();
-        FieldPath fieldPath = new FieldPath(linkedDomainObjectsTableConfig.getFieldPathConfig().getValue());
-        ArrayList<DomainObject> newObjects = new ArrayList<>(entries.size());
-        for (Map.Entry<String, FormState> entry : entries) {
-
-            FormState formState = entry.getValue();
+        ArrayList<DomainObject> newObjects = new ArrayList<>(formStates.size());
+        for (FormState formState : formStates) {
             DomainObject savedObject = null;
             String savedObjectType = formState.getRootDomainObjectType();
 
@@ -217,7 +209,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             if (!validationResult.isEmpty()) {
                 throw new ValidationException("Server-side validation failed", validationResult);
             }
-            FieldPath[] paths = FieldPath.createPaths(fieldPath.getPath());
+            FieldPath[] paths = context.getFieldPaths();
             for (FieldPath path : paths) {
                 if (!fieldPathHelper.typeMatchesFieldPath(savedObjectType, rootDomainObject.getTypeName(), path, false)) {
                     continue;
@@ -236,11 +228,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                     referencedObject.setReference(path.getLinkToParentName(), rootDomainObject);
                     crudService.save(referencedObject);
                 } else { // one-to-one reference
-                    // todo: not-null constraint will fail!
                     FormSaver formSaver = getFormSaver(formState, null);
                     savedObject = formSaver.saveForm();
-                    rootDomainObject.setReference(path.getFieldName(), savedObject);
-                    crudService.save(rootDomainObject);
                 }
                 if (savedObject != null) {
                     newObjects.add(savedObject);
@@ -248,7 +237,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 }
             }
             if (savedObject == null) {
-                log.error("Object not saved. Type: " + savedObjectType + " doesn't match field-path: " + fieldPath);
+                log.error("Object not saved. Type: " + savedObjectType + " doesn't match field-path: " + context.getFieldPathConfig().getValue());
             }
         }
         return newObjects;

@@ -11,4 +11,6 @@ public interface FieldPathHelper {
     String getReferencedObjectType(String rootObjectType, FieldPath path);
 
     boolean typeMatchesFieldPath(String type, String formRootObjectType, FieldPath path, boolean exactMatch);
+
+    boolean isDirectReference(String rootObjectType, FieldPath path);
 }

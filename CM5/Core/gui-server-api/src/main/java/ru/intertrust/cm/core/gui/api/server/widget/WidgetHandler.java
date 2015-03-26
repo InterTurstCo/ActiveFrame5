@@ -44,6 +44,10 @@ public abstract class WidgetHandler implements ComponentHandler {
 
     public abstract Value getValue(WidgetState state);
 
+    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
+        return null;
+    }
+
     protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern, FormattingConfig formattingConfig) {
         Pattern pattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
         Matcher matcher = pattern.matcher(displayPattern);
