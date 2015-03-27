@@ -230,6 +230,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 } else { // one-to-one reference
                     FormSaver formSaver = getFormSaver(formState, null);
                     savedObject = formSaver.saveForm();
+                    rootDomainObject.setReference(path.getFieldName(), savedObject);
+                    crudService.save(rootDomainObject);
                 }
                 if (savedObject != null) {
                     newObjects.add(savedObject);

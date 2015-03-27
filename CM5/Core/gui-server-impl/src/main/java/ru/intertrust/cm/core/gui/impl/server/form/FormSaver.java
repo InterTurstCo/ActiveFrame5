@@ -131,19 +131,25 @@ public class FormSaver extends FormProcessor {
             formObjects.setFieldValue(forcedValueFieldPath, forcedRootDomainObjectValues.get(forcedValueFieldPath));
         }
 
-        saveNewOneToOneObjects(directReferenceContexts);
 
         saveRootWithDirectlyLinkedObjects();
-
+        saveNewOneToOneObjects(directReferenceContexts);
         changeMultiBackReferences(multiBackReferenceContexts, rootDomainObject.isNew());
-
         saveNewBackReferencedObjects(multiBackReferenceContexts);
 
         DomainObject savedRootObject = formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
         if (afterSaveComponent != null) {
             savedRootObject = ((FormAfterSaveInterceptor) applicationContext.getBean(afterSaveComponent)).afterSave(formState, widgetConfigsById);
+            ((SingleObjectNode) formObjects.getNode(FieldPath.ROOT)).setDomainObject(savedRootObject);
         }
         return savedRootObject;
+    }
+
+    private void pushWidgetsAfterSave() {
+        for (WidgetConfig widgetConfig : widgetConfigsById.values()) {
+            final WidgetHandler handler = getWidgetHandler(widgetConfig);
+            handler.afterFormSave(formState, widgetConfig);
+        }
     }
 
     private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts, boolean isNew) {

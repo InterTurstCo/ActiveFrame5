@@ -181,6 +181,8 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             crudService.save(referencedObject);
         } else { // one-to-one reference
             savedDo = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+            parentDomainObject.setReference(fieldPath.getFieldName(), savedDo);
+            crudService.save(parentDomainObject);
         }
         return  savedDo;
     }
