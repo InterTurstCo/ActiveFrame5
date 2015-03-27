@@ -199,12 +199,6 @@
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
              <act:action-group name="testGroup" text="Группа действий" merged="false">
-                <act:action-ref name-ref="aCreate" text="Создать город">
-                    <act:action-params>
-                        <act:action-param name="create.object.type" value="city" />
-                    </act:action-params>
-                </act:action-ref>
-
                  <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
                                     permissions="Delete,Write,Create">
                      <act:action-params>
