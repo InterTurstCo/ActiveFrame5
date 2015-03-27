@@ -15,13 +15,15 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 public interface AfterCommitExtensionPointService {
     /**
      * Вызов точек расширения после транзакции
+     * @param savedDomainObjectsModificationMap
      * @param savedDomainObjects
      * @param createdDomainObjects
      * @param deletedDomainObjects
      * @param changeStatusDomainObjects
      */
     void afterCommit(
-            Map<Id, Map<String, FieldModification>> savedDomainObjects, 
+            Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap,
+            List<DomainObject> savedDomainObjects,
             List<Id> createdDomainObjects, 
             Map<Id, DomainObject> deletedDomainObjects,
             List<Id> changeStatusDomainObjects);

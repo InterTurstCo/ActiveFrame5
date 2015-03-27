@@ -34,12 +34,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -2347,7 +2344,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
     
     private class DomainObjectActionListener implements ActionListener {
-        Map<Id, Map<String, FieldModification>> savedDomainObjects = new Hashtable<Id, Map<String, FieldModification>>(); 
+        Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new Hashtable<>();
+        List<DomainObject> savedDomainObjects = new ArrayList<>();
         List<Id> createdDomainObjects = new ArrayList<Id>(); 
         Map<Id, DomainObject> deletedDomainObjects = new Hashtable<Id, DomainObject>();
         List<Id> changeStatusDomainObjects = new ArrayList<Id>();
@@ -2356,7 +2354,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         @Override
         public void onAfterCommit() {
             //Точки расширения вызываем в специальном EJB чтобы открылась новая транзакция
-            afterCommitExtensionPointService.afterCommit(savedDomainObjects, createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
+            afterCommitExtensionPointService.afterCommit(savedDomainObjectsModificationMap, savedDomainObjects,
+                    createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
         }
 
         private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
@@ -2384,11 +2383,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         
         public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
+            if (isIgnoredOnSave(domainObject)) {
+                return;
+            }
+
+            if (!savedDomainObjects.contains(domainObject)) {
+                savedDomainObjects.add(domainObject);
+            }
+
             //Ишем не сохраняли ранее
-            Map<String, FieldModification> fields = savedDomainObjects.get(domainObject.getId());
+            Map<String, FieldModification> fields = savedDomainObjectsModificationMap.get(domainObject.getId());
             if (fields == null){
                 fields = new Hashtable<String, FieldModification>();
-                savedDomainObjects.put(domainObject.getId(), fields);
+                savedDomainObjectsModificationMap.put(domainObject.getId(), fields);
             }
             //Мержим информацию об измененных полях
             for (FieldModification newFieldModification : newFields) {
@@ -2412,6 +2419,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         public void onBeforeCommit() {
             // Ничего не делаем
             
+        }
+
+        private boolean isIgnoredOnSave(DomainObject domainObject) {
+            if (configurationExplorer.isAuditLogType(domainObject.getTypeName())) {
+                return true;
+            }
+
+            for (AutoCreatedType autoCreatedType : AutoCreatedType.values()) {
+                if (autoCreatedType.getTypeName().equalsIgnoreCase(domainObject.getTypeName())) {
+                    return true;
+                }
+            }
+
+            return false;
         }
         
     }
