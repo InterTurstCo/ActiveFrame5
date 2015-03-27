@@ -1359,6 +1359,60 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:attachmentTextBoxType" name="attachment-text-box" substitutionGroup="con:widget" />
+    <xs:complexType name="attachmentTextBoxType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element name="text" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element type="con:attachmentTextAreaType" name="attachment-text-area" substitutionGroup="con:widget" />
+    <xs:complexType name="attachmentTextAreaType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element name="text" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element type="con:richAttachmentTextAreaType" name="rich-attachment-text-area" substitutionGroup="con:widget" />
+    <xs:complexType name="richAttachmentTextAreaType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence>
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element name="text" minOccurs="0">
+                        <xs:simpleType>
+                            <xs:restriction base="xs:string">
+                            </xs:restriction>
+                        </xs:simpleType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <xs:complexType name="usersType">
         <xs:sequence>
             <xs:element type="con:userType" name="user" xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded" />
