@@ -24,7 +24,7 @@ public interface AfterCommitExtensionPointService {
     void afterCommit(
             Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap,
             List<DomainObject> savedDomainObjects,
-            List<Id> createdDomainObjects, 
+            List<DomainObject> createdDomainObjects,
             Map<Id, DomainObject> deletedDomainObjects,
             List<Id> changeStatusDomainObjects);
 }

@@ -250,7 +250,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             
             //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
-            listener.addCreatedDomainObject(createdObject.getId());            
+            listener.addCreatedDomainObject(createdObject);
         }
 
         return createdObjects;
@@ -382,7 +382,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Проверяет, являются ли переданные объекты аудит логом. Так как передается массив однотипных объектов,
      * то проверяется тип первого объекта. Если передан аудит лог объект - выбрасывается исключение.
-     * @param ids
+     * @param domainObjects
      */
     private void checkIfAuditLog(DomainObject[] domainObjects) {
         if (domainObjects[0] != null && configurationExplorer.isAuditLogType(domainObjects[0].getTypeName())) {
@@ -2346,7 +2346,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private class DomainObjectActionListener implements ActionListener {
         Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new Hashtable<>();
         List<DomainObject> savedDomainObjects = new ArrayList<>();
-        List<Id> createdDomainObjects = new ArrayList<Id>(); 
+        List<DomainObject> createdDomainObjects = new ArrayList<>();
         Map<Id, DomainObject> deletedDomainObjects = new Hashtable<Id, DomainObject>();
         List<Id> changeStatusDomainObjects = new ArrayList<Id>();
         
@@ -2366,8 +2366,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return result;
         }
 
-        public void addCreatedDomainObject(Id id){
-            createdDomainObjects.add(id);
+        public void addCreatedDomainObject(DomainObject domainObject){
+            if (isIgnoredOnCreateAndSave(domainObject)) {
+                return;
+            }
+            createdDomainObjects.add(domainObject);
         }
 
         public void addChangeStatusDomainObject(Id id){
@@ -2383,7 +2386,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         
         public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
-            if (isIgnoredOnSave(domainObject)) {
+            if (isIgnoredOnCreateAndSave(domainObject)) {
                 return;
             }
 
@@ -2421,7 +2424,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             
         }
 
-        private boolean isIgnoredOnSave(DomainObject domainObject) {
+        private boolean isIgnoredOnCreateAndSave(DomainObject domainObject) {
             if (configurationExplorer.isAuditLogType(domainObject.getTypeName())) {
                 return true;
             }
