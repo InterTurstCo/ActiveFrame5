@@ -47,7 +47,9 @@ import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -78,6 +80,10 @@ public class DoelResolver implements DoelEvaluator {
     private DomainObjectCacheServiceImpl domainObjectCacheService;
     @Autowired
     private DoelFunctionRegistry doelFunctionRegistry;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -412,7 +418,7 @@ public class DoelResolver implements DoelEvaluator {
      * @return измененный SQL запрос
      */
     private String applyAcl(PlainSelect select, AccessToken accessToken) {
-        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
 
         String query = null;
         if (!isSystemAccessToken(accessToken)) {
@@ -421,6 +427,10 @@ public class DoelResolver implements DoelEvaluator {
             query = select.toString();
         }
         return query;
+    }
+
+    private SqlQueryModifier createSqlQueryModifier() {
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {

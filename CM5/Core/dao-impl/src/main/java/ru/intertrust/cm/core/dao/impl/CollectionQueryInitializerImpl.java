@@ -24,6 +24,8 @@ import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
 import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
@@ -52,9 +54,14 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
     private ConfigurationExplorer configurationExplorer;
+    private UserGroupGlobalCache userGroupCache;
+    private CurrentUserAccessor currentUserAccessor;
 
-    public CollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer) {
+    public CollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+            CurrentUserAccessor currentUserAccessor) {
         this.configurationExplorer = configurationExplorer;
+        this.userGroupCache = userGroupCache;
+        this.currentUserAccessor = currentUserAccessor;
     }
 
     /**
@@ -204,7 +211,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, String query) {
 
-        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
 
         query = sqlQueryModifier.addServiceColumns(query);
 
@@ -231,7 +238,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @return измененный запрос
      */
     private String postProcessQuery(AccessToken accessToken, String query, int offset, int limit) {
-        SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
         query = sqlQueryModifier.addServiceColumns(query);
 
         SqlQueryParser sqlParser = new SqlQueryParser(query);
@@ -245,6 +252,10 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         query = applyOffsetAndLimit(selectBody.toString(), offset, limit);
         return query;
+    }
+
+    private SqlQueryModifier createSqlQueryModifier() {
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
     private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,

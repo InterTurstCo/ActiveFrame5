@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 
@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -26,6 +27,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 
@@ -126,11 +129,18 @@ public class SqlQueryModifierTest {
     @Mock
     private ConfigurationExplorer configurationExplorer;
 
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
+
     @Before
     public void setUp(){
         when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);    
         when(configurationExplorer.getDomainObjectRootType(anyString())).thenReturn("person");
         when(configurationExplorer.getConfig(eq(DomainObjectTypeConfig.class), anyString())).thenReturn(new DomainObjectTypeConfig());
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         
     }
     
@@ -140,7 +150,7 @@ public class SqlQueryModifierTest {
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         configuration.getConfigurationList().add(globalSettings);
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
 
         String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY);
 
@@ -159,7 +169,7 @@ public class SqlQueryModifierTest {
 
     @Test
     public void testAddAclQuery() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = createSqlQueryModifier();
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY);
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_ACL, modifiedQuery);
@@ -169,9 +179,13 @@ public class SqlQueryModifierTest {
         assertEquals(UNION_QUERY_WITH_ACL, modifiedQuery);
     }
 
+    private SqlQueryModifier createSqlQueryModifier() {
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+    }
+
     @Test
     public void testAddAclQueryToSqlWithoutWhereClause() {
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = createSqlQueryModifier();
         String modifiedQuery = collectionQueryModifier.addAclQuery(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
 
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED, modifiedQuery);
@@ -188,7 +202,7 @@ public class SqlQueryModifierTest {
         idsIncludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsIncludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = createSqlQueryModifier();
         SqlQueryParser sqlParser = new SqlQueryParser(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
         SelectBody selectBody = sqlParser.getSelectBody();
 
@@ -209,7 +223,7 @@ public class SqlQueryModifierTest {
         idsExcludedFilter2.addCriterion(0, new ReferenceValue(new RdbmsId(1, 101)));
         idsExcludedFilter2.addCriterion(1, new ReferenceValue(new RdbmsId(1, 102)));
 
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer);
+        SqlQueryModifier collectionQueryModifier = createSqlQueryModifier();
         SqlQueryParser sqlParser = new SqlQueryParser(PLAIN_SELECT_QUERY_WITHOUT_WHERE);
         SelectBody selectBody = sqlParser.getSelectBody();
 

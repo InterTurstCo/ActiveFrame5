@@ -13,9 +13,9 @@ import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 
 /**
  * Глобальный кеш. Кеширует информацию о пользователях: идентификатор пользователя для данного логина, вхождение
- * пользователя в статическую группу Superusers. Также кешируетидентификатор группы Superusers. 
+ * пользователя в статические группы Superusers, Administrators. Также кеширует идентификатор группы Superusers. 
  * Нужно сбрасывать этот
- * кеш после изменения логина пользователя (если это будет поддерживаться) и после изменения состава группы Superusers.
+ * кеш после изменения логина пользователя (если это будет поддерживаться) и после изменения состава групп Superusers, Administrators.
  * @author atsvetkov
  */
 public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
@@ -23,8 +23,11 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
 //    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
     
     private Map<Id, Boolean> personIdToIsSuperUserCache = new HashMap<Id, Boolean>();
+    private Map<Id, Boolean> personIdToIsAdministratorCache = new HashMap<Id, Boolean>();
     
     private Id superUsersGroupId = null;
+
+    private Id administratorsGroupId = null;
 
     @Autowired    
     private PersonManagementServiceDao personManagementService;
@@ -48,6 +51,13 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
         return superUsersGroupId;
     }
 
+    private Id getAdministratorsGroupId() {
+        if (administratorsGroupId == null) {
+            administratorsGroupId = personManagementService.getGroupId(GenericDomainObject.ADMINISTRATORS_STATIC_GROUP);
+        }
+        return administratorsGroupId;
+    }
+    
     @Override
     public boolean isPersonSuperUser(Id personId) {
 
@@ -63,8 +73,22 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     }
 
     @Override
+    public boolean isAdministrator(Id personId) {
+
+        boolean isAdministrator = false;
+        if (personIdToIsAdministratorCache.get(personId) != null) {
+            isAdministrator = personIdToIsAdministratorCache.get(personId);
+        } else {
+            isAdministrator = personManagementService.isPersonInGroup(getAdministratorsGroupId(), personId);
+            personIdToIsAdministratorCache.put(personId, isAdministrator);
+        }
+        return isAdministrator;
+    }
+
+    @Override
     public void cleanCache() {
         personIdToIsSuperUserCache.clear();
+        personIdToIsAdministratorCache.clear();
     }
 
 }

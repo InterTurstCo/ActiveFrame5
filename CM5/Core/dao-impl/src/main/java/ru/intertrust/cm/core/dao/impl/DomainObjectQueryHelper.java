@@ -6,7 +6,9 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -27,6 +29,20 @@ public class DomainObjectQueryHelper {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
+
+    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
+        this.currentUserAccessor = currentUserAccessor;
+    }
+
+    public void setUserGroupCache(UserGroupGlobalCache userGroupCache) {
+        this.userGroupCache = userGroupCache;
+    }
 
     /**
      * Устанавливает {@link #configurationExplorer}
@@ -151,10 +167,14 @@ public class DomainObjectQueryHelper {
                 permissionType = matrixRefType;
             }
 
+            Id personId = currentUserAccessor.getCurrentUserId();
+            boolean isAdministratorWithAlllPermissions = AccessControlUtility.isAdministratorWithAlllPermissions(personId, typeName, userGroupCache, configurationExplorer);
+
             //Получаем матрицу для permissionType
             AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
-            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()) {
+            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()
+                    || !isAdministratorWithAlllPermissions) {
 
                 //Таблица с правами на read получается с учетом наследования типов
                 String aclReadTable = AccessControlUtility

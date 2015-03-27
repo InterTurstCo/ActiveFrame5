@@ -9,6 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -18,8 +19,10 @@ import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 import java.util.ArrayList;
@@ -153,6 +156,12 @@ public class CollectionsDaoImplTest {
     private final CollectionsDaoImpl collectionsDaoImpl = new CollectionsDaoImpl();
 
     @Mock
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
+
+    @Mock
     private NamedParameterJdbcOperations jdbcTemplate;
 
     private ConfigurationExplorerImpl configurationExplorer;
@@ -173,6 +182,7 @@ public class CollectionsDaoImplTest {
     @Before
     public void setUp() throws Exception {
         initConfigurationExplorer();
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         collectionsDaoImpl.setCollectionQueryCache(collectionQueryCache);
 
     }

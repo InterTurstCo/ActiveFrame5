@@ -133,9 +133,11 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
         saveStaticGroups();
 
         if (!authenticationService.existsAuthenticationInfo(ADMIN_LOGIN)) {
-            insertAdminAuthenticationInfo();
+            insertSuperUserAuthenticationInfo();
         }
-        saveSuperUsersGroup();
+        if (!authenticationService.existsAuthenticationInfo(GenericDomainObject.ADMINISTRATOR_LOGIN)) {
+            insertAdministratorAuthenticationInfo();
+        }
     }
 
     /**
@@ -156,39 +158,12 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
 
         for (String staticGroupName : staticGroups) {
             if (!existsStaticGroup(staticGroupName)) {
-                if (!GenericDomainObject.SUPER_USERS_STATIC_GROUP.equals(staticGroupName)) {
-                    createUserGroup(staticGroupName);
-                }
+                createUserGroup(staticGroupName);
             }
         }
     }
     
-    /**
-     * Создает группу статическую группу {@link InitialDataLoaderImpl#SUPER_USERS_STATIC_GROUP}, если ее еще нет. Должен
-     * вызываться после создания Администратора, т.к. этот пользователь затем добавляется в эту группу.
-     */
-    private void saveSuperUsersGroup() {
-        Set<String> staticGroups = new HashSet<String>();
-
-        Collection<StaticGroupConfig> staticGroupConfigs =
-                configurationExplorer.getConfigs(StaticGroupConfig.class);
-
-        for (StaticGroupConfig staticGroup : staticGroupConfigs) {
-            String groupName = staticGroup.getName();
-            if (groupName != null) {
-                staticGroups.add(groupName);
-            }
-        }
-
-        if(staticGroups.contains(GenericDomainObject.SUPER_USERS_STATIC_GROUP)){
-            if (!existsStaticGroup(GenericDomainObject.SUPER_USERS_STATIC_GROUP)) {
-                createUserGroup(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
-                addAdminUserToSuperUsers();
-            }
-            
-        }
-    }
-
+    // TODO Delete
     private void addAdminUserToSuperUsers() {
         Id adminId = personServiceDao.findPersonByLogin(ADMIN_LOGIN).getId();
         Id superUsersGroupId = dynamicGroupService.getUserGroupByGroupName(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
@@ -246,12 +221,26 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
         domainObjectDao.save(statusDO, accessToken);
     }
 
-    private void insertAdminAuthenticationInfo() {
-        AuthenticationInfoAndRole admin = new AuthenticationInfoAndRole();
-        admin.setUserUid(ADMIN_LOGIN);
-        admin.setPassword(ADMIN_PASSWORD);
-        admin.setRole("admin");
-        authenticationService.insertAuthenticationInfoAndRole(admin);
+    private void insertSuperUserAuthenticationInfo() {
+        AuthenticationInfoAndRole superUser = new AuthenticationInfoAndRole();
+        superUser.setUserUid(ADMIN_LOGIN);
+        superUser.setPassword(ADMIN_PASSWORD);
+        superUser.setRole("admin");
+        
+        Id superUsersGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.SUPER_USERS_STATIC_GROUP);
+
+        authenticationService.insertAuthenticationInfoAndRole(superUser, superUsersGroupId);
+    }
+
+    private void insertAdministratorAuthenticationInfo() {
+        Id administratorsGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.ADMINISTRATORS_STATIC_GROUP);
+
+        AuthenticationInfoAndRole administratorAuthInfo = new AuthenticationInfoAndRole();
+        administratorAuthInfo.setUserUid(GenericDomainObject.ADMINISTRATOR_LOGIN);
+        administratorAuthInfo.setPassword(GenericDomainObject.ADMINISTRATOR_PASSWORD);
+        administratorAuthInfo.setRole("admin");
+      
+        authenticationService.insertAuthenticationInfoAndRole(administratorAuthInfo, administratorsGroupId);
     }
 
 }

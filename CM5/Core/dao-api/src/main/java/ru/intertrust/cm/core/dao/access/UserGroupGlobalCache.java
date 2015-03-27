@@ -16,11 +16,18 @@ public interface UserGroupGlobalCache {
     Id getUserIdByLogin(String login);
     
     /**
-     * Кеширует вхождение пользователя в статическую групру Superusers
+     * Проверка вхождения пользователя в статическую группу Superusers и кэширование этого флага.
      * @param personId идентификатор пользователя
      * @return true если пользователь входит в группу Superusers
      */
     boolean isPersonSuperUser(Id personId);
+    
+    /**
+     * Проверка вхождения пользователя в статическую группу Administrators и кэширование этого флага
+     * @param personId идентификатор пользователя
+     * @return true если пользователь входит в группу Administrators.
+     */
+    boolean isAdministrator(Id personId);
     
     /**
      * Очищает глобальный кещ.

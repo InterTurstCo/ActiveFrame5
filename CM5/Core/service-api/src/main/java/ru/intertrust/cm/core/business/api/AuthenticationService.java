@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.api;
 
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  * Сервис для работы с доменным объектом Authentication Info.
@@ -15,7 +16,7 @@ public interface AuthenticationService {
      * @param authenticationInfo {@link AuthenticationInfoAndRole} пользователь для сохранения
      * @return
      */
-    void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo);
+    void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo, Id userGroupId);
 
     /**
      * Проверяет сужествует ли пользователь с указанным логином.

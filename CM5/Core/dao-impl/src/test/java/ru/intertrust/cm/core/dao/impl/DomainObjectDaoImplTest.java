@@ -1,5 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,26 +24,31 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypesConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 /**
  * Юнит тест для DomainObjectDaoImpl
  *
@@ -67,6 +85,12 @@ public class DomainObjectDaoImplTest {
 
     private DomainObjectQueryHelper queryHelper;
 
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
+
     @Before
     public void setUp() throws Exception {
         initConfigs();
@@ -79,6 +103,8 @@ public class DomainObjectDaoImplTest {
         queryHelper = new DomainObjectQueryHelper();
         queryHelper.setConfigurationExplorer(configurationExplorer);
         domainObjectDaoImpl.setDomainObjectQueryHelper(queryHelper);
+        
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
     }
 
     @Test

@@ -38,7 +38,17 @@
             </track-domain-objects>
         </members>
     </dynamic-group>
-        
+
+    <dynamic-group name="AllPersonsExceptPerson1">
+        <members>
+            <track-domain-objects type="Person">
+                <get-person>
+                    <query>select p.id from person p where p.login not in ('person1')</query>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+    
 	<context-role name="test_outgoing_author">
         <context>
             <domain-object type="test_outgoing_document" />
@@ -183,6 +193,27 @@
             <create-child type="city_test">
                 <permit-group name="AllPersonsExceptPerson2" />
             </create-child>            
+        </status>
+    </access-matrix>
+
+    <access-matrix type="test_DO_No_Permissions">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersonsExceptPerson1" />
+            </read>
+            <write>
+                <permit-group name="AllPersonsExceptPerson1" />
+            </write>
+            <delete>
+                <permit-group name="AllPersonsExceptPerson1" />
+            </delete>
+
+            <execute-action name="action1">
+                <permit-group name="AllPersonsExceptPerson1" />
+            </execute-action>
         </status>
     </access-matrix>
 

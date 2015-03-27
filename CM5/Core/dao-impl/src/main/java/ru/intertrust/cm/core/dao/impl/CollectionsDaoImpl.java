@@ -29,6 +29,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
@@ -82,7 +83,19 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private CurrentUserAccessor currentUserAccessor;
 
     @Autowired
+    private UserGroupGlobalCache userGroupCache;
+
+    @Autowired
     private ServerComponentService serverComponentService;
+
+    
+    public CurrentUserAccessor getCurrentUserAccessor() {
+        return currentUserAccessor;
+    }
+
+    public UserGroupGlobalCache getUserGroupCache() {
+        return userGroupCache;
+    }
 
     public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -158,12 +171,12 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SelectBody selectBody = sqlParser.getSelectBody();
 
             Map<String, FieldConfig> columnToConfigMap =
-                    new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForParameters(selectBody);
-            columnToConfigMapForSelectItems = new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(selectBody);
+                    createSqlQueryModifier().buildColumnToConfigMapForParameters(selectBody);
+            columnToConfigMapForSelectItems = createSqlQueryModifier().buildColumnToConfigMapForSelectItems(selectBody);
 
             columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
-            SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
             collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(collectionQuery, filterValues, columnToConfigMap, parameters);
 
             collectionQuery = adjustParameterNamesForSpring(collectionQuery);
@@ -340,7 +353,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SelectBody selectBody = sqlParser.getSelectBody();
 
             columnToConfigMapForSelectItems =
-                    new SqlQueryModifier(configurationExplorer).buildColumnToConfigMapForSelectItems(selectBody);
+                    createSqlQueryModifier().buildColumnToConfigMapForSelectItems(selectBody);
 
             collectionQuery = wrapAndLowerCaseNames(collectionQuery);
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
@@ -387,7 +400,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
             SelectBody selectBody = sqlParser.getSelectBody();
 
-            SqlQueryModifier sqlQueryModifier = new SqlQueryModifier(configurationExplorer);
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
 
             Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(selectBody);
             columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(selectBody);
@@ -416,6 +429,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
+    }
+
+    private SqlQueryModifier createSqlQueryModifier() {
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
     private void addReferenceParameters(Map<String, Object> parameters, List<? extends Value> params) {
@@ -553,7 +570,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
-        return new CollectionQueryInitializerImpl(configurationExplorer);
+        return new CollectionQueryInitializerImpl(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
     /**
@@ -644,7 +661,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     if (criterion == null) {
                         parameters.put(parameterName, null);
                     }
-
+//                    //ссылочные параметры 
+//                    if(!(filter instanceof IdsIncludedFilter) && !(filter instanceof IdsExcludedFilter) && criterion instanceof ReferenceValue){
+//                        continue;
+//                    }
                     if (criterion instanceof Value) {
                         setParameter(parameterName, (Value) criterion, parameters);
                     } else if (criterion instanceof List) {

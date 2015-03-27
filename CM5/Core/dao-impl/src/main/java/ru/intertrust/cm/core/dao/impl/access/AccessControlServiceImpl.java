@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * Реализация службы контроля доступа.
@@ -124,7 +123,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser) {
+        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -150,6 +149,30 @@ public class AccessControlServiceImpl implements AccessControlService {
         return token;
     }
 
+    /**
+     * Если пользователь входит в группу {@link GenericDomainObject#ADMINISTRATORS_STATIC_GROUP} и для ДО не установлена
+     * матрица доступа, то пользователь имеет все права на данный ДО.
+     * @param personId
+     * @param objectId
+     * @return
+     */
+    private boolean isAdministratorWithAlllPermissions(Id personId, Id objectId) {
+        return userGroupCache.isAdministrator(personId) && ! hasAccessMatrix(objectId);
+    }
+    
+    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
+        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
+    }
+
+    private boolean hasAccessMatrix(Id objectId) {
+        if(objectId == null){
+            return false;
+        }
+        String domainObjectType = domainObjectTypeIdCache.getName(objectId);
+        AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
+        return accessMatrix != null;
+    }
+
     private Id getRelevantObjectId(Id id) {
         if (id == null) {
             return null;
@@ -168,19 +191,19 @@ public class AccessControlServiceImpl implements AccessControlService {
     public AccessToken createDomainObjectCreateToken(String login, String objectType, Id[] parentObjects)
             throws AccessException {
 
-       Id personId = getUserIdByLogin(login);
-       Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
 
-       boolean isSuperUser = isPersonSuperUser(personId);
+        boolean isSuperUser = isPersonSuperUser(personId);
 
-       if (isSuperUser) {
-           return new SuperUserAccessToken(new UserSubject(personIdInt));
-       }
+        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectType)) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
 
-       if (parentObjects != null && parentObjects.length > 0) {
-           AccessType accessType = new CreateChildAccessType(objectType);
-           return createAccessToken(login, parentObjects, accessType, true);
-       }
+        if (parentObjects != null && parentObjects.length > 0) {
+            AccessType accessType = new CreateChildAccessType(objectType);
+            return createAccessToken(login, parentObjects, accessType, true);
+        }
 
         if (isAllowedToCreateByStaticGroups(personId, objectType)) {
             List<String> parentTypes = new ArrayList<>();
@@ -190,7 +213,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
         }
 
-       throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
+        throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
    }
 
     private void collectParentTypes(String domainObjectType, List<String> parentTypes) {
@@ -230,7 +253,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser) {
+        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectType)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -291,7 +314,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser) {
+        if (isSuperUser ) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -325,7 +348,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser) {
+        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -801,7 +824,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
             boolean isSuperUser = isPersonSuperUser(personId);
 
-            if (isSuperUser) {
+            if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
                 return;
             }
 

@@ -61,7 +61,17 @@ import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
@@ -137,6 +147,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Autowired
     private AfterCommitExtensionPointService afterCommitExtensionPointService;
     
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
+  
     @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
@@ -1001,7 +1014,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
-        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(domainObjectType)) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, domainObjectType);
+
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(domainObjectType) || isAdministratorWithAlllPermissions)) {
 
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(configurationExplorer, domainObjectType);
@@ -1259,7 +1275,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(" and ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = :").append(RESULT_TYPE_ID);
         }
 
-        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, typeName);
+
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAlllPermissions)) {
+   
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = domainObjectQueryHelper.getRelevantType(typeName);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1744,8 +1764,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         
         // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
         linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
+
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, linkedType);
+
         //Добавляем учет ReadPermittedToEverybody
-        if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
+        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAlllPermissions)) {
          // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1786,6 +1810,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
+    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAlllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
+    }
+  
     private DomainObject[] create(DomainObject[] domainObjects, Integer type, AccessToken accessToken, String initialStatus) {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,

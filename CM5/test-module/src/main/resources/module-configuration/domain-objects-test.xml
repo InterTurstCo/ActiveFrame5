@@ -185,6 +185,20 @@
             <long name="population"/>
         </fields>        
     </domain-object-type>
+ 
+     <!-- Test DO for administrator permissions -->
+    <domain-object-type name="test_DO_No_Permissions" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+ 
+    <domain-object-type name="test_DO_Permissions" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+ 
 
     <!-- Test DO hierarchy for read-everybody flag -->
 
@@ -197,14 +211,14 @@
     <domain-object-type name="test_DO_2" initial-status="Active" extends="test_DO_1">
         <fields>
             <string name="name2" length="128" />
-            <reference name="ref_DO_1" type="ref_DO_1" />
+            <reference name="ref_DO_1" type="ref_DO_1" />           
         </fields>
     </domain-object-type>
 
     <domain-object-type name="test_DO_3" initial-status="Active" extends="test_DO_2">
         <fields>
-            <string name="name3" length="128" />
-            <reference name="ref_DO_3_1" type="ref_DO_1" />
+           <string name="name3" length="128" />
+           <reference name="ref_DO_3_1" type="ref_DO_1" />
         </fields>
     </domain-object-type>
 

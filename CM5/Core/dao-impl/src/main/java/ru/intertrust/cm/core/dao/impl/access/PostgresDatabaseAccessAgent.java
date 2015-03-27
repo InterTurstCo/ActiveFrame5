@@ -18,6 +18,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
@@ -36,6 +37,7 @@ import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
@@ -70,6 +72,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     @Autowired
     private AccessControlService accessControlService;
  
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
+    
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     public void setDomainObjetcTypeIdCache(DomainObjectTypeIdCache domainObjetcTypeIdCache) {
@@ -99,7 +104,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<String> opCode = new ArrayList<String>();
         boolean opRead = false;
         for (AccessType accessType : checkAccessType) {
-            //Особым образом обрабатываем RESD, так как права на чтение хранятся в другой таблице
+            //Особым образом обрабатываем READ, так как права на чтение хранятся в другой таблице
             if (accessType.equals(DomainObjectAccessType.READ)){
                 opRead = true;
             }else{
@@ -327,14 +332,19 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         //check configuration 
         for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
-            List<Id> idsOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
+            List<Id> idsOfOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
+            if (isAdministratorWithAlllPermissions(userId, domainObjectTypeId)) {
+                idsWithAllowedAccess.addAll(idsOfOneType);
+                continue;
+            }
+            
             //В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами получаем по каждому идентификатору результат отдельно
             String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjectTypeIdCache.getName(domainObjectTypeId));
             if (matrixRefType == null){
                 List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
                 idsWithAllowedAccess.addAll(checkedIds);
             }else{
-                for (Id id : idsOneType) {
+                for (Id id : idsOfOneType) {
                     if (checkDomainObjectAccess(userId, id, type)){
                         idsWithAllowedAccess.add(id);
                     }
@@ -343,6 +353,16 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         }
 
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);
+    }
+
+    private boolean isAdministratorWithAlllPermissions(int personId, Integer domainObjectTypeId) {
+        if (domainObjectTypeId == null) {
+            return false;
+        }
+        Integer personIdType = domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT);
+        String domainObjectType = domainObjectTypeIdCache.getName(domainObjectTypeId);
+        return userGroupCache.isAdministrator(new RdbmsId(personIdType, personId))
+                && (configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null);
     }
 
     /**
