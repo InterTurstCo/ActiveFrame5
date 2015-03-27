@@ -6,8 +6,10 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.Panel;
+import com.google.gwt.user.datepicker.client.CalendarModel;
 import com.google.gwt.user.datepicker.client.DatePicker;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformCalendarModel;
 
 import java.util.Date;
 
@@ -36,7 +38,9 @@ public class DateTimePicker extends Composite {
 
     private void initWidgetContent(boolean showTime, boolean showSeconds) {
         container = new AbsolutePanel();
-        picker = new DatePicker();
+        CalendarModel calendarModel = new PlatformCalendarModel();
+        picker = new PlatformDatePicker(calendarModel);
+
         picker.setValue(date);
         picker.setStyleName("datePickerDecorate");
         container.add(picker);

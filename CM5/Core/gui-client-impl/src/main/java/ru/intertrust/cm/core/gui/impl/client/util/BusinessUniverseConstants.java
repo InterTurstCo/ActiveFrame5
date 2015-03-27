@@ -157,10 +157,12 @@ public class BusinessUniverseConstants {
     public static final String MONTH_SWITCH_BUTTON = "Задачи дня";
     public static final String WEEK_SWITCH_BUTTON = "Суббота, Воскресенье";
 
-    public static final String[] MONTHS = {"январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август",
-            "сентябрь", "октябрь", "ноябрь", "декабрь"};
-    public static final String[] WEEK_DAYS = {"воскресенье", "понедельник", "вторник", "среда", "четверг", "пятница",
-            "суббота"};
+   /* public static final String[] MONTHS = {"JanuaryMonthShortStandalone", "FebruaryMonthShortStandalone", "MarchMonthShortStandalone",
+            "AprilMonthShortStandalone", "MayMonthShortStandalone", "JunMonthShortStandalone", "JulyMonthShortStandalone",
+            "AugustMonthShortStandalone", "SeptemberMonthShortStandalone", "OctoberMonthShortStandalone",
+            "NovemberMonthShortStandalone", "DecemberMonthShortStandalone"};
+    public static final String[] WEEK_DAYS = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday",
+            "Saturday"};*/
 
     public static final String EXECUTION_ACTION_ERROR = "Ошибка выполнения действия: ";
     public static final String DATE_FORMAT_ERROR = "Ошибка в формате даты: ";

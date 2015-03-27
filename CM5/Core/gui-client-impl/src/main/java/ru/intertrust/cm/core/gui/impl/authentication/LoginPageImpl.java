@@ -13,6 +13,7 @@ public class LoginPageImpl implements LoginPage {
 
     public void onModuleLoad() {
         final LoginWindow loginWindow = ComponentRegistry.instance.get("login.window");
+        loginWindow.getGlobalAndLoginWindowConfiguration();
         loginWindow.center();
         loginWindow.show();
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {

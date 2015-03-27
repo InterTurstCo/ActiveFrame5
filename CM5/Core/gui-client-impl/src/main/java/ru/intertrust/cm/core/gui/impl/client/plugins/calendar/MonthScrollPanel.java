@@ -16,9 +16,10 @@ import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarScrollEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.calendar.CalendarTodayEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 
 import java.util.Date;
+
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.MONTHS;
 
 /**
  * @author Sergey.Okolot
@@ -176,7 +177,7 @@ public class MonthScrollPanel extends HorizontalPanel implements RequiresResize,
 
 
         private MonthItem(final int monthIndex, final int year) {
-            super(LocalizeUtil.get(BusinessUniverseConstants.MONTHS[monthIndex]) + ", " + year);
+            super(LocalizeUtil.get(MONTHS[monthIndex]) + ", " + year);
             setStyleName("month-block");
             getElement().getStyle().setWidth(MONTH_SCROLL_ITEM_WIDTH, Style.Unit.PX);
             this.monthIndex = monthIndex;
