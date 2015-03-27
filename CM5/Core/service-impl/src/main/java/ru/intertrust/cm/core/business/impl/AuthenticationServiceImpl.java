@@ -75,7 +75,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authInfo.setValue("User_Uid", new StringValue(authenticationInfo.getUserUid()));
 
         AccessToken accessToken = accessControlService.createSystemAccessToken("AuthenticationService");
-        DomainObject createdAuthInfo = domainObjectDao.create(authInfo, accessToken);
+        DomainObject createdAuthInfo = domainObjectDao.save(authInfo, accessToken);
 
         RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
         GenericDomainObject role = new GenericDomainObject();
@@ -85,7 +85,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         StringValue roleName = new StringValue(authenticationInfo.getRole());
         role.setValue("Role", roleName);
         role.setValue("Authentication_Info", new ReferenceValue(id));
-        domainObjectDao.create(role, accessToken);
+        domainObjectDao.save(role, accessToken);
 
         Id adminGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.ADMINISTRATORS_STATIC_GROUP);
 
@@ -111,7 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         person.setString("FirstName", authenticationInfo.getUserUid());
         person.setString("Login", authenticationInfo.getUserUid());
         person.setString("EMail", authenticationInfo.getUserUid() + "@localhost.com");        
-        DomainObject adminPerson = domainObjectDao.create(person, accessToken);
+        DomainObject adminPerson = domainObjectDao.save(person, accessToken);
 
         if (adminPerson == null || adminPerson.getId() == null) {
             throw new FatalException("Admin peson was not created.");
