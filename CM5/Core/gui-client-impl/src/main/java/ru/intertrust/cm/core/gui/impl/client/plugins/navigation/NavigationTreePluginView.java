@@ -2,25 +2,14 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.MouseMoveEvent;
-import com.google.gwt.event.dom.client.MouseMoveHandler;
-import com.google.gwt.event.dom.client.MouseOutEvent;
-import com.google.gwt.event.dom.client.MouseOutHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -49,13 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_ACTIVE_STYLE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_ACTIVE_STYLE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.LEFT_SECTION_STYLE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_NAME;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 
 public class NavigationTreePluginView extends PluginView {
@@ -495,7 +478,7 @@ public class NavigationTreePluginView extends PluginView {
         public void onClick(ClickEvent event) {
             RootNodeButton source = (RootNodeButton) event.getSource();
             Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
-                    .getTitle()), plugin);
+                    .getName()), plugin);
             clearSelectedButton();
             source.setSelected(true);
         }

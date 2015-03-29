@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.HTML;
  *         Created on 26.09.2013.
  */
 public class RootNodeButton extends HTML {
+    private static int VISIBLE_CHARS_LENGTH = 15;
     private static final String SELECTED_STYLE = "selected";
     private static final String NON_SELECTED_STYLE = "non-selected";
 
@@ -18,6 +19,7 @@ public class RootNodeButton extends HTML {
 
     /**
      * todo will be used action config to initialize instance.
+     *
      * @param collectionCount
      * @param name
      * @param image
@@ -30,8 +32,8 @@ public class RootNodeButton extends HTML {
         this.displayText = displayText;
         setStyleName(NON_SELECTED_STYLE);
         getElement().getStyle().setCursor(Style.Cursor.POINTER);
-        if (name != null) {
-            setTitle(name);
+        if (displayText != null && displayText.length() >= VISIBLE_CHARS_LENGTH) {
+            setTitle(displayText);
         }
     }
 
@@ -53,7 +55,7 @@ public class RootNodeButton extends HTML {
     private static String getHtml(final String image, final String displayText, final Long collectionCount) {
         final StringBuilder builder =
                 new StringBuilder("<li><a><img width='60' height='50' border='0' alt='' src='")
-                        .append(image).append("'><span>").append(displayText).append("</span>");
+                        .append(image).append("'><span  style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\">").append(displayText).append("</span>");
         if (collectionCount != null) {
             builder.append("<small>").append(collectionCount).append("</small>");
         }
