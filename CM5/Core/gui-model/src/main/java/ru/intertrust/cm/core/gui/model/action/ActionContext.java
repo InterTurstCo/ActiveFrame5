@@ -5,6 +5,9 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 19.09.13
@@ -16,6 +19,8 @@ public class ActionContext implements Dto {
     private AbstractActionConfig actionConfig;
 
     private FormState confirmFormState;
+
+    private List<ActionContext> innerContexts;
 
     /**
      * Default constructor.
@@ -48,5 +53,15 @@ public class ActionContext implements Dto {
 
     public void setConfirmFormState(FormState confirmFormState) {
         this.confirmFormState = confirmFormState;
+    }
+
+    public List<ActionContext> getInnerContexts() {
+        if(innerContexts==null)
+            innerContexts = new ArrayList<>();
+        return innerContexts;
+    }
+
+    public void setInnerContexts(List<ActionContext> innerContexts) {
+        this.innerContexts = innerContexts;
     }
 }

@@ -28,6 +28,9 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
     @Attribute(required = false)
     private boolean disabled = false;
 
+    @Attribute(name = "display-empty-groups",required = false)
+    private boolean displayEmptyGroups = false;
+
     @Attribute(name = "name", required = false)
     private String name;
 
@@ -134,6 +137,14 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
 
     public void setDirtySensitivity(boolean dirtySensitivity) {
         this.dirtySensitivity = dirtySensitivity;
+    }
+
+    public boolean isDisplayEmptyGroups() {
+        return displayEmptyGroups;
+    }
+
+    public void setDisplayEmptyGroups(boolean displayEmptyGroups) {
+        this.displayEmptyGroups = displayEmptyGroups;
     }
 
     public List<AbstractActionConfig> getChildren() {

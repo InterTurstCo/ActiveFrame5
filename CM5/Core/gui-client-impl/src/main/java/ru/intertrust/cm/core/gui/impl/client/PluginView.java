@@ -265,6 +265,7 @@ public abstract class PluginView implements IsWidget {
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
                 addItem(menuItem);
             } else if (config instanceof ActionGroupConfig) {
+                //TODO: Проверить если нет вложенных контекстов и атрибут displayEmptyGroup=false то ничего не делать
                 Command cmd = new Command() {
                     public void execute() {
                         Window.alert("You selected a menu item!");

@@ -113,6 +113,7 @@
                 <xs:attribute name="display" type="act:displayType"/>
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+                <xs:attribute name="display-empty-groups" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

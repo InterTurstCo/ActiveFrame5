@@ -39,12 +39,18 @@ import java.util.Map;
  */
 public class ActionConfigBuilder {
 
-    @Autowired private ApplicationContext applicationContext;
-    @Autowired private ActionService actionService;
-    @Autowired private CurrentUserAccessor currentUserAccessor;
-    @Autowired private CrudService crudService;
-    @Autowired private ConfigurationExplorer configurationExplorer;
-    @Autowired private AccessVerificationService accessVerificationService;
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired
+    private ActionService actionService;
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    @Autowired
+    private CrudService crudService;
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private AccessVerificationService accessVerificationService;
 
     private final Map<String, ActionConfig> referenceMap = new HashMap<>();
     private final ActionContextList contextList = new ActionContextList();
@@ -57,15 +63,42 @@ public class ActionConfigBuilder {
         return contextList.getContexts();
     }
 
+    private List<ActionContext> fillActionGroupContext(AbstractActionConfig actionGroupConfig,final Map<String, Object> params){
+        List<ActionContext> newContexts = new ArrayList<>();
+        ActionContext currentContext;
+        for(AbstractActionConfig actionConfig : ((ActionGroupConfig) actionGroupConfig).getChildren()){
+            if (actionConfig instanceof ActionSeparatorConfig) {
+                newContexts.add(new ActionContext(actionConfig));
+                continue;
+            }
+            if (actionConfig instanceof ActionGroupConfig) {
+                ActionContext gContext = new ActionContext(actionConfig);
+                gContext.setInnerContexts(fillActionGroupContext(actionConfig,params));
+                newContexts.add(gContext);
+                continue;
+            }
+            if (actionConfig instanceof ActionRefConfig) {
+                actionConfig = resolveActionReference((ActionRefConfig) actionConfig);
+            }
+            currentContext = getContextForConfig(actionConfig, params);
+            if (currentContext != null)
+                newContexts.add(currentContext);
+        }
+        return newContexts;
+    }
+
     public void appendConfigs(final List<AbstractActionConfig> configs, final Map<String, Object> params) {
         fillReferenceMap(configs);
+        ActionContext currentContext;
         for (AbstractActionConfig config : configs) {
             if (config instanceof ActionSeparatorConfig) {
                 contextList.addContext(new ActionContext(config));
                 continue;
             }
             if (config instanceof ActionGroupConfig) {
-                contextList.addContext(new ActionContext(config));
+                ActionContext gContext = new ActionContext(config);
+                gContext.setInnerContexts(fillActionGroupContext(config,params));
+                contextList.addContext(gContext);
                 continue;
             }
             if (config instanceof ActionRefConfig) {
@@ -75,64 +108,72 @@ public class ActionConfigBuilder {
             if (!hasPermission(domainObject, (ActionConfig) config)) {
                 continue;
             }
-            final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
-            ActionHandler actionHandler = new FakeActionHandler();
-            final boolean hasHandler = applicationContext.containsBean(actionConfig.getComponentName());
-            if (hasHandler) {
-                actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
-            }
-            ActionHandler.Status status = ActionHandler.Status.APPLY;
-            if (actionConfig.getVisibilityChecker() != null) {
-                final boolean contains = applicationContext.containsBean(actionConfig.getVisibilityChecker());
-                if (contains) {
-                    final ActionVisibilityContext avContext = new ActionVisibilityContext()
-                            .setDomainObject(domainObject);
-                    ActionVisibilityChecker checker =
-                            (ActionVisibilityChecker) applicationContext.getBean(actionConfig.getVisibilityChecker());
-                    status = checker.isVisible(avContext) ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
-                } else {
-                    throw new ConfigurationException("VisibilityChecker with name '"
-                            + actionConfig.getVisibilityChecker() + "' not found");
-                }
-            }
-            if (ActionHandler.Status.APPLY == status) {
-                final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
-                statusData.initialize(params);
-                final boolean isNew = domainObject != null && domainObject.isNew();
-                if (!actionConfig.isVisibleWhenNew() && isNew) {
-                    status = ActionHandler.Status.SKIP;
-                } else {
-                    status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
-                }
-            }
-            if (ActionHandler.Status.APPLY == status && actionConfig.getVisibilityStateCondition() != null
-                    && domainObject != null) {
-                final StandardEvaluationContext context = new StandardEvaluationContext(domainObject);
-                final List<PropertyAccessor> accessors = new ArrayList<>();
-                accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
-                accessors.add(new ReferenceValuePropertyAccessor(crudService));
-                context.setPropertyAccessors(accessors);
-                context.setTypeComparator(new DomainObjectTypeComparator());
-                final ExpressionParser expressionParser = new SpelExpressionParser();
-                final boolean isVisible = expressionParser.parseExpression(actionConfig.getVisibilityStateCondition())
-                        .getValue(context, Boolean.class);
-                status = isVisible ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
-            }
-            if (ActionHandler.Status.APPLY == status) {
-                final FormMappingConfig formMappingConfig = (actionConfig.getBeforeConfig() != null
-                                            && actionConfig.getBeforeConfig().getLinkedDomainObjectConfig() != null)
-                        ? actionConfig.getBeforeConfig().getLinkedDomainObjectConfig().getFormMappingConfig()
-                        : null;
-                if (formMappingConfig != null) {
-                    final FormConfig formConfig =
-                            configurationExplorer.getConfig(FormConfig.class, formMappingConfig.getForm());
-                    formMappingConfig.setDomainObjectType(formConfig.getDomainObjectType());
-                }
-                final ActionContext actionContext = actionHandler.getActionContext(actionConfig);
-                actionContext.setActionConfig(actionConfig);
-                contextList.addContext(actionContext);
+            currentContext = getContextForConfig(config, params);
+            if (currentContext != null)
+                contextList.addContext(currentContext);
+        }
+    }
+
+    private ActionContext getContextForConfig(AbstractActionConfig config, final Map<String, Object> params) {
+        final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
+        final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
+        ActionHandler actionHandler = new FakeActionHandler();
+        final boolean hasHandler = applicationContext.containsBean(actionConfig.getComponentName());
+        if (hasHandler) {
+            actionHandler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
+        }
+        ActionHandler.Status status = ActionHandler.Status.APPLY;
+        if (actionConfig.getVisibilityChecker() != null) {
+            final boolean contains = applicationContext.containsBean(actionConfig.getVisibilityChecker());
+            if (contains) {
+                final ActionVisibilityContext avContext = new ActionVisibilityContext()
+                        .setDomainObject(domainObject);
+                ActionVisibilityChecker checker =
+                        (ActionVisibilityChecker) applicationContext.getBean(actionConfig.getVisibilityChecker());
+                status = checker.isVisible(avContext) ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
+            } else {
+                throw new ConfigurationException("VisibilityChecker with name '"
+                        + actionConfig.getVisibilityChecker() + "' not found");
             }
         }
+        if (ActionHandler.Status.APPLY == status) {
+            final ActionHandler.HandlerStatusData statusData = actionHandler.getCheckStatusData();
+            statusData.initialize(params);
+            final boolean isNew = domainObject != null && domainObject.isNew();
+            if (!actionConfig.isVisibleWhenNew() && isNew) {
+                status = ActionHandler.Status.SKIP;
+            } else {
+                status = actionHandler.getHandlerStatus(config.getRendered(), statusData);
+            }
+        }
+        if (ActionHandler.Status.APPLY == status && actionConfig.getVisibilityStateCondition() != null
+                && domainObject != null) {
+            final StandardEvaluationContext context = new StandardEvaluationContext(domainObject);
+            final List<PropertyAccessor> accessors = new ArrayList<>();
+            accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
+            accessors.add(new ReferenceValuePropertyAccessor(crudService));
+            context.setPropertyAccessors(accessors);
+            context.setTypeComparator(new DomainObjectTypeComparator());
+            final ExpressionParser expressionParser = new SpelExpressionParser();
+            final boolean isVisible = expressionParser.parseExpression(actionConfig.getVisibilityStateCondition())
+                    .getValue(context, Boolean.class);
+            status = isVisible ? ActionHandler.Status.APPLY : ActionHandler.Status.SKIP;
+        }
+        if (ActionHandler.Status.APPLY == status) {
+            final FormMappingConfig formMappingConfig = (actionConfig.getBeforeConfig() != null
+                    && actionConfig.getBeforeConfig().getLinkedDomainObjectConfig() != null)
+                    ? actionConfig.getBeforeConfig().getLinkedDomainObjectConfig().getFormMappingConfig()
+                    : null;
+            if (formMappingConfig != null) {
+                final FormConfig formConfig =
+                        configurationExplorer.getConfig(FormConfig.class, formMappingConfig.getForm());
+                formMappingConfig.setDomainObjectType(formConfig.getDomainObjectType());
+            }
+            final ActionContext actionContext = actionHandler.getActionContext(actionConfig);
+            actionContext.setActionConfig(actionConfig);
+            return actionContext;
+        }
+        return null;
     }
 
     private ActionConfig resolveActionReference(final ActionRefConfig actionRefConfig) {
