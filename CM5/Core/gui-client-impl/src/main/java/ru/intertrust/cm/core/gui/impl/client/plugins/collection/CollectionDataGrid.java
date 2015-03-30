@@ -8,6 +8,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HeaderPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -32,6 +33,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     private EventBus eventBus;
     private CollectionPlugin plugin;
     private boolean displayCheckBoxes;
+    private Widget emptyTableWidget;
 
     public CollectionDataGrid(CollectionPlugin plugin, int pageNumber, Resources resources, EventBus eventBus) {
         super(pageNumber, resources);
@@ -55,9 +57,13 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
     private void setEmptyTableMessage() {
         String emptyTableText = LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE);
-        HTML emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
+        emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
         this.setEmptyTableWidget(emptyTableWidget);
 
+    }
+
+    public void setEmptyTableWidgetWidth(int width){
+        emptyTableWidget.setWidth(width + com.google.gwt.dom.client.Style.Unit.PX.getType());
     }
 
     public void setDisplayCheckBoxes(boolean displayCheckBoxes) {

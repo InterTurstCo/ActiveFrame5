@@ -778,12 +778,17 @@ public class CollectionPluginView extends PluginView {
 
     public void handleCollectionRowsResponse(List<CollectionRowItem> collectionRowItems, boolean clearPreviousRows) {
         columnHeaderController.saveFilterValues();
+        int tableBodyWidth = tableBody.getOffsetWidth();
         if (clearPreviousRows) {
+
             insertRows(collectionRowItems);
         } else {
             insertMoreRows(collectionRowItems);
         }
         tableBody.flush();
+        if(listCount == 0){
+            tableBody.setEmptyTableWidgetWidth(tableBodyWidth);
+        }
         setUpScrollSelection( );
         columnHeaderController.updateFilterValues();
         columnHeaderController.setFocus();
