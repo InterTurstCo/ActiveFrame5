@@ -332,7 +332,7 @@ public class AccessControlServiceImpl implements AccessControlService {
                 if (type instanceof CreateChildAccessType){
                     childType = ((CreateChildAccessType)type).getChildType();
                 }
-                throw new AccessException("Person " + login + " not has permission to create domain object of type " + childType);
+                throw new AccessException("Person " + login + " doesn't have permission to create domain object of type " + childType);
             }
             token = new MultiObjectAccessToken(new UserSubject(personIdInt), ids, type, deferred);   
         }
