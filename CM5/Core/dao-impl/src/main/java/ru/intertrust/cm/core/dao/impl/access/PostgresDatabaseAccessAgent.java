@@ -319,9 +319,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public Id[] checkMultiDomainObjectAccess(int userId, Id[] objectIds, AccessType type) {
-        
+
         RdbmsId[] ids = Arrays.copyOf(objectIds, objectIds.length, RdbmsId[].class);
-        
+
         String opCode = makeAccessTypeCode(type);
         if (objectIds == null || objectIds.length == 0) {
             return new RdbmsId[0];
@@ -330,22 +330,26 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<Id> idsWithAllowedAccess = new ArrayList<Id>();
         IdSorterByType idSorterByType = new IdSorterByType(ids);
 
-        //check configuration 
+        Integer personIdType = domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT);
+        Id personId = new RdbmsId(personIdType, userId);
+
+        // check configuration
         for (final Integer domainObjectTypeId : idSorterByType.getDomainObjectTypeIds()) {
             List<Id> idsOfOneType = idSorterByType.getIdsOfType(domainObjectTypeId);
-            if (isAdministratorWithAlllPermissions(userId, domainObjectTypeId)) {
+            if (isAdministratorWithAlllPermissions(personId, domainObjectTypeId)) {
                 idsWithAllowedAccess.addAll(idsOfOneType);
                 continue;
             }
-            
-            //В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами получаем по каждому идентификатору результат отдельно
+
+            // В случае непосредственных прав вызываем метод для всех идентификаторов, в случае с косвенными правами
+            // получаем по каждому идентификатору результат отдельно
             String matrixRefType = configurationExplorer.getMatrixReferenceTypeName(domainObjectTypeIdCache.getName(domainObjectTypeId));
-            if (matrixRefType == null){
+            if (matrixRefType == null) {
                 List<Id> checkedIds = getIdsWithAllowedAccessByType(userId, opCode, idSorterByType, domainObjectTypeId);
                 idsWithAllowedAccess.addAll(checkedIds);
-            }else{
+            } else {
                 for (Id id : idsOfOneType) {
-                    if (checkDomainObjectAccess(userId, id, type)){
+                    if (checkDomainObjectAccess(userId, id, type)) {
                         idsWithAllowedAccess.add(id);
                     }
                 }
@@ -355,13 +359,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         return idsWithAllowedAccess.toArray(new Id[idsWithAllowedAccess.size()]);
     }
 
-    private boolean isAdministratorWithAlllPermissions(int personId, Integer domainObjectTypeId) {
+    private boolean isAdministratorWithAlllPermissions(Id personId, Integer domainObjectTypeId) {
         if (domainObjectTypeId == null) {
             return false;
         }
-        Integer personIdType = domainObjectTypeIdCache.getId(GenericDomainObject.PERSON_DOMAIN_OBJECT);
         String domainObjectType = domainObjectTypeIdCache.getName(domainObjectTypeId);
-        return userGroupCache.isAdministrator(new RdbmsId(personIdType, personId))
+        return userGroupCache.isAdministrator(personId)
                 && (configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null);
     }
 

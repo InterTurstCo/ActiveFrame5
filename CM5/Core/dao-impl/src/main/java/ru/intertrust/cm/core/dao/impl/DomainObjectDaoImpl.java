@@ -1015,9 +1015,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, domainObjectType);
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, domainObjectType);
 
-        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(domainObjectType) || isAdministratorWithAlllPermissions)) {
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(domainObjectType) || isAdministratorWithAllPermissions)) {
 
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(configurationExplorer, domainObjectType);
@@ -1276,9 +1276,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, typeName);
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, typeName);
 
-        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAlllPermissions)) {
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAllPermissions)) {
    
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = domainObjectQueryHelper.getRelevantType(typeName);
@@ -1766,10 +1766,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
 
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, linkedType);
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
 
         //Добавляем учет ReadPermittedToEverybody
-        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAlllPermissions)) {
+        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions)) {
          // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1810,8 +1810,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
-    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
-        return AccessControlUtility.isAdministratorWithAlllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
     }
   
     private DomainObject[] create(DomainObject[] domainObjects, Integer type, AccessToken accessToken, String initialStatus) {

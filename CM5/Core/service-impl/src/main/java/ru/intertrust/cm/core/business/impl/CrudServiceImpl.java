@@ -332,7 +332,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
         }
     }
 
-    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
         if (personId == null) {
             return false;
         }
@@ -426,9 +426,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
         AccessToken accessToken = null;
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, linkedType);
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
 
-        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAlllPermissions) {
+        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
             accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
         } else {
             String user = currentUserAccessor.getCurrentUser();

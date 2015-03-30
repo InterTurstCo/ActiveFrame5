@@ -159,8 +159,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     private boolean needToAddAclSubQuery(Table table) {
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAlllPermissions = isAdministratorWithAlllPermissions(personId, table.getName());
-        if (isAdministratorWithAlllPermissions) {
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, table.getName());
+        if (isAdministratorWithAllPermissions) {
             return false;
         }
         // если ДО нет в конфигурации, значит это системный ДО и для него проверка ACL не нужна.
@@ -168,8 +168,8 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
         return !configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName())) && isDomainObject;
     }
 
-    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
-        return AccessControlUtility.isAdministratorWithAlllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
     }
 
     private void processFromItem(PlainSelect plainSelect) {

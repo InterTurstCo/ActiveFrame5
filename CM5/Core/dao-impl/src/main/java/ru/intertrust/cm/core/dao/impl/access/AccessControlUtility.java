@@ -89,7 +89,7 @@ public class AccessControlUtility {
         return typeName;
     }
     
-    public static boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType, UserGroupGlobalCache userGroupCache,
+    public static boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType, UserGroupGlobalCache userGroupCache,
             ConfigurationExplorer configurationExplorer) {
         if (personId == null) {
             return false;

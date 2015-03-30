@@ -168,13 +168,13 @@ public class DomainObjectQueryHelper {
             }
 
             Id personId = currentUserAccessor.getCurrentUserId();
-            boolean isAdministratorWithAlllPermissions = AccessControlUtility.isAdministratorWithAlllPermissions(personId, typeName, userGroupCache, configurationExplorer);
+            boolean isAdministratorWithAllPermissions = AccessControlUtility.isAdministratorWithAllPermissions(personId, typeName, userGroupCache, configurationExplorer);
 
             //Получаем матрицу для permissionType
             AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
             if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()
-                    || !isAdministratorWithAlllPermissions) {
+                    || !isAdministratorWithAllPermissions) {
 
                 //Таблица с правами на read получается с учетом наследования типов
                 String aclReadTable = AccessControlUtility

@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -22,8 +22,8 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
 
 //    private Map<String, Id> loginToUserIdCache = new HashMap<String, Id>();
     
-    private Map<Id, Boolean> personIdToIsSuperUserCache = new HashMap<Id, Boolean>();
-    private Map<Id, Boolean> personIdToIsAdministratorCache = new HashMap<Id, Boolean>();
+    private Map<Id, Boolean> personIdToIsSuperUserCache = new ConcurrentHashMap<Id, Boolean>();
+    private Map<Id, Boolean> personIdToIsAdministratorCache = new ConcurrentHashMap<Id, Boolean>();
     
     private Id superUsersGroupId = null;
 

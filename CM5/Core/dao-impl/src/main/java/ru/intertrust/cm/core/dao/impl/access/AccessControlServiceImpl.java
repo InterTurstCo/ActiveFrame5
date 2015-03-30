@@ -123,7 +123,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
+        if (isSuperUser || isAdministratorWithAllPermissions(personId, objectId)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -156,11 +156,11 @@ public class AccessControlServiceImpl implements AccessControlService {
      * @param objectId
      * @return
      */
-    private boolean isAdministratorWithAlllPermissions(Id personId, Id objectId) {
+    private boolean isAdministratorWithAllPermissions(Id personId, Id objectId) {
         return userGroupCache.isAdministrator(personId) && ! hasAccessMatrix(objectId);
     }
     
-    private boolean isAdministratorWithAlllPermissions(Id personId, String domainObjectType) {
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
         return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
     }
 
@@ -196,7 +196,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectType)) {
+        if (isSuperUser || isAdministratorWithAllPermissions(personId, objectType)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -253,7 +253,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectType)) {
+        if (isSuperUser || isAdministratorWithAllPermissions(personId, objectType)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -348,7 +348,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
         boolean isSuperUser = isPersonSuperUser(personId);
 
-        if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
+        if (isSuperUser || isAdministratorWithAllPermissions(personId, objectId)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
@@ -824,7 +824,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
             boolean isSuperUser = isPersonSuperUser(personId);
 
-            if (isSuperUser || isAdministratorWithAlllPermissions(personId, objectId)) {
+            if (isSuperUser || isAdministratorWithAllPermissions(personId, objectId)) {
                 return;
             }
 
