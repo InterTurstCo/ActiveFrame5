@@ -265,20 +265,9 @@ public abstract class PluginView implements IsWidget {
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
                 addItem(menuItem);
             } else if (config instanceof ActionGroupConfig) {
-                //TODO: Проверить если нет вложенных контекстов и атрибут displayEmptyGroup=false то ничего не делать
-                Command cmd = new Command() {
-                    public void execute() {
-                        Window.alert("You selected a menu item!");
-                    }
-                };
-                MenuBar mBar = new MenuBar();
-                mBar.addItem("Item 1", cmd).setTitle("Item 1");
-                mBar.addItem("Item 2", cmd).setTitle("Item 2");
-                mBar.addItem("Item 3", cmd).setTitle("Item 3");
-                final MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(context), mBar);
-                updateByConfig(menuItem, config);
-                menuItem.setTitle(((ActionGroupConfig) config).getTooltip());
-                addItem(menuItem);
+                MenuItem menuItem = addSubmenu(context);
+                if (menuItem != null)
+                    addItem(menuItem);
             } else {
                 throw new IllegalArgumentException("Not support context " + context);
             }
@@ -287,6 +276,37 @@ public abstract class PluginView implements IsWidget {
         private void updateByConfig(UIObject uiobj, BaseAttributeConfig config) {
             if (config.getStyleClass() != null) {
                 uiobj.setStyleName(config.getStyleClass());
+            }
+        }
+
+        private MenuItem addSubmenu(ActionContext subContext) {
+            ActionGroupConfig config = subContext.getActionConfig();
+            if (!config.isDisplayEmptyGroups() && subContext.getInnerContexts().size() == 0)
+                return null;
+            else {
+                MenuBar mBar = new MenuBar();
+                for (ActionContext innerContext : subContext.getInnerContexts()) {
+                    AbstractActionConfig innerConfig = innerContext.getActionConfig();
+                    if (innerConfig instanceof ActionSeparatorConfig) {
+                        mBar.addSeparator();
+                    } else if (innerConfig instanceof ActionConfig) {
+                        final ScheduleCommandImpl commandImpl = new ScheduleCommandImpl(innerContext);
+                        final MenuItem menuItem = new MenuItem(ComponentHelper.createActionHtmlItem(innerContext), commandImpl);
+                        commandImpl.setParent(menuItem);
+                        updateByConfig(menuItem, config);
+                        menuItem.setTitle(((ActionConfig) innerConfig).getTooltip());
+                        mBar.addItem(menuItem);
+                    } else if (config instanceof ActionGroupConfig) {
+                        MenuItem innerItem = addSubmenu(innerContext);
+                        if (innerItem != null) {
+                            mBar.addItem(innerItem);
+                        }
+                    }
+                }
+                MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(subContext), mBar);
+                updateByConfig(menuItem, config);
+                menuItem.setTitle(config.getTooltip());
+                return menuItem;
             }
         }
     }
