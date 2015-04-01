@@ -109,7 +109,7 @@ public class NavigationTreePluginView extends PluginView {
                     pinButtonClick = true;
                     pinButton.setStyleName("icon pin-pressed");
                     // in case tree panel is in process of hiding, reopen it
-                    if (mouseHoldTimer != null ) {
+                    if (mouseHoldTimer != null) {
                         mouseHoldTimer.cancel();
                         mouseHoldTimer = null;
                     }
@@ -388,19 +388,29 @@ public class NavigationTreePluginView extends PluginView {
             public void onSelection(final SelectionEvent<TreeItem> event) {
                 ActionManager actionManager = Application.getInstance().getActionManager();
                 final TreeItem selectedItem = event.getSelectedItem();
-                actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
-                    @Override
-                    public void onAffirmative() {
-                        handleItemSelection(selectedItem);
-                    }
+                if (isNoNewPluginOpening(selectedItem)) {
+                    handleItemSelection(selectedItem);
+                } else {
+                    actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
+                        @Override
+                        public void onAffirmative() {
+                            handleItemSelection(selectedItem);
+                        }
 
-                    @Override
-                    public void onCancel() {
-                        //nothing to do
-                    }
-                });
+                        @Override
+                        public void onCancel() {
+                            //nothing to do
+                        }
+                    });
+                }
             }
         };
+    }
+
+    private boolean isNoNewPluginOpening(TreeItem selectedItem) {
+        Map<String, Object> treeItemUserObject = (Map<String, Object>) selectedItem.getUserObject();
+        return treeItemUserObject == null || treeItemUserObject.get(TREE_ITEM_PLUGIN_CONFIG) == null;
+
     }
 
     private LinkConfig buildRootLinks(final List<LinkConfig> linkConfigList,
