@@ -62,7 +62,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
     }
 
-    public void setEmptyTableWidgetWidth(int width){
+    public void setEmptyTableWidgetWidth(int width) {
         emptyTableWidget.setWidth(width + com.google.gwt.dom.client.Style.Unit.PX.getType());
     }
 
@@ -71,7 +71,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     }
 
     private class CollectionCellPreviewHandler implements CellPreviewEvent.Handler<CollectionRowItem> {
-        private int countClick = 0;
+        private Id clickedItemId;
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
@@ -122,7 +122,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
                     @Override
                     public void onCancel() {
-                        countClick = 0;
+                        clickedItemId = null;
                     }
                 });
             } else {
@@ -131,19 +131,20 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         }
 
         private void handleClick(final Id id) {
-            countClick++;
-            if (countClick == 1) {
+
+            if (id != clickedItemId) {
                 performOnClickAction(id);
                 Timer timer = new Timer() {
                     @Override
                     public void run() {
-                        countClick = 0;
+                        clickedItemId = null;
                     }
                 };
                 timer.schedule(500);
-            } else if (countClick == 2) {
+            } else {
                 performOnDoubleClickAction(id);
             }
+            clickedItemId = id;
         }
 
         public void performOnClickAction(Id id) {
