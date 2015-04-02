@@ -7,14 +7,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import ru.intertrust.cm.core.business.api.dto.AttachmentUploadPercentage;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.Client;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 
 /**
  * @author Denis Mitavskiy
@@ -25,8 +23,6 @@ public interface BusinessUniverseServiceAsync {
     void getBusinessUniverseInitialization(Client clientInfo, AsyncCallback<BusinessUniverseInitialization> async);
 
     void executeCommand(Command command, AsyncCallback<? extends Dto> async);
-
-    void getForm(Id domainObjectId, AsyncCallback<FormDisplayData> async);
 
     void getAttachmentUploadPercentage(AsyncCallback<AttachmentUploadPercentage> async);
 

@@ -1250,6 +1250,7 @@
         <xs:attribute type="con:formTypeType" name="type" />
         <xs:attribute type="xs:string" name="report-template" />
         <xs:attribute type="xs:string" name="default-value-setter" />
+        <xs:attribute type="xs:boolean" name="re-read-in-same-transaction" />
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">

@@ -50,6 +50,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     @Attribute(name = "default-value-setter", required = false)
     private String defaultValueSetter;
 
+    @Attribute(name = "re-read-in-same-transaction", required = false)
+    private boolean reReadInSameTransaction;
+
     @Element(name = "tool-bar", required = false)
     private ToolBarConfig toolbarConfig;
 
@@ -176,6 +179,14 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
         this.defaultValueSetterConfig = defaultValueSetterConfig;
     }
 
+    public boolean reReadInSameTransaction() {
+        return reReadInSameTransaction;
+    }
+
+    public void setReReadInSameTransaction(boolean reReadInSameTransaction) {
+        this.reReadInSameTransaction = reReadInSameTransaction;
+    }
+
     public CaseInsensitiveHashMap<WidgetConfig> getWidgetConfigsById() {
         if (widgetConfigurationConfig == null) {
             return new CaseInsensitiveHashMap<>(0);
@@ -204,6 +215,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
             return false;
         }
         if (debug != that.debug) {
+            return false;
+        }
+        if (reReadInSameTransaction != that.reReadInSameTransaction) {
             return false;
         }
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
