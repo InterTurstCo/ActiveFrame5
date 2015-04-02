@@ -444,7 +444,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         for (Value value : params) {
             if (value instanceof ReferenceValue) {
                 referenceValue = (ReferenceValue) value;
-                if (referenceValue != null) {
+                if (referenceValue != null && referenceValue.get() != null) {
                     String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
                     addParametersForReference(parameters, referenceValue, referenceParam);
 
@@ -483,7 +483,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                         continue;
                     }
                     String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex + "_" + index;
-                    addParametersForReference(parameters, referenceValue, referenceParam);
+                    addParametersForReference(parameters, refValue, referenceParam);
                     index++;
                 }
             }
