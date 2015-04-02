@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.model.FatalException;
@@ -49,6 +50,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private static final long serverId = new Random().nextLong();
 
     @Autowired private InitializationLockDao initializationLockDao;
+    @Autowired private DataStructureDao dataStructureDao;
     @Autowired private ConfigurationLoader configurationLoader;
     @Autowired private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired private InitialDataLoader initialDataLoader;
@@ -89,6 +91,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
                 configurationLoader.load();
                 executeInitialLoadingTasks();
+                dataStructureDao.gatherStatistics();
 
                 executorService.shutdownNow();
                 return;
@@ -121,7 +124,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new LockUpdaterTask());
 
-          //  MessageResourceProvider.setLocaleToResource(localizer.load());
+            //  MessageResourceProvider.setLocaleToResource(localizer.load());
 
             configurationLoader.update();
             executeInitialLoadingTasks();
