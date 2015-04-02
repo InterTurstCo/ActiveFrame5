@@ -284,7 +284,7 @@ public abstract class PluginView implements IsWidget {
             if (!config.isDisplayEmptyGroups() && subContext.getInnerContexts().size() == 0)
                 return null;
             else {
-                MenuBar mBar = new MenuBar();
+                MenuBar mBar = new MenuBar(true);
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
@@ -304,7 +304,7 @@ public abstract class PluginView implements IsWidget {
                     }
                 }
                 MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(subContext), mBar);
-                updateByConfig(menuItem, config);
+                updateByConfig(menuItem, config); 
                 menuItem.setTitle(config.getTooltip());
                 return menuItem;
             }
