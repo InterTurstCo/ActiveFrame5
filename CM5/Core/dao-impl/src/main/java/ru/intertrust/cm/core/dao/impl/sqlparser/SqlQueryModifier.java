@@ -54,6 +54,8 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
@@ -73,8 +75,13 @@ public class SqlQueryModifier {
 
     private ConfigurationExplorer configurationExplorer;
 
-    public SqlQueryModifier(ConfigurationExplorer configurationExplorer) {
+    private UserGroupGlobalCache userGroupCache;
+    private CurrentUserAccessor currentUserAccessor;
+
+    public SqlQueryModifier(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
         this.configurationExplorer = configurationExplorer;
+        this.userGroupCache = userGroupCache;
+        this.currentUserAccessor = currentUserAccessor;
     }
 
     /**
@@ -283,7 +290,7 @@ public class SqlQueryModifier {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
         
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer);
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
@@ -292,7 +299,7 @@ public class SqlQueryModifier {
     }
 
     public SelectBody addAclQuery(SelectBody selectBody) {
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer);
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);

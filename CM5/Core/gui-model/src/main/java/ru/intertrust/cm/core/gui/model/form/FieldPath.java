@@ -166,6 +166,10 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         return new ChildPathIterator();
     }
 
+    public Iterator<Element> elementsIterator() {
+        return new ElementsIterator();
+    }
+
     @Override
     public String toString() {
         return getPath();
@@ -482,6 +486,25 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         }
     }
 
+    private class ElementsIterator implements Iterator<Element> {
+        private int position = 0;
+
+        @Override
+        public boolean hasNext() {
+            return position != getElementCount();
+        }
+
+        @Override
+        public Element next() {
+            return elements[position++];
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException("Elements iteration doesn't support removals.");
+        }
+    }
+
     private static void testSort(List<FieldPath> paths) {
         Collections.sort(paths);
         for (FieldPath path : paths) {
@@ -490,7 +513,12 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
     }
 
     public static void main(String[] args) {
-        System.out.println(Arrays.toString("a^b.c".split("\\^|\\.")));
+        System.out.println(Arrays.toString(new FieldPath("x.a.b.c").getElements()));
+        final Iterator<Element> elementIterator = new FieldPath("x.a.b.c").elementsIterator();
+        while (elementIterator.hasNext()) {
+            System.out.println(elementIterator.next());
+        }
+        /*System.out.println(Arrays.toString("a^b.c".split("\\^|\\.")));
         FieldPath fieldPath = new FieldPath("a.b.dflal");
         System.out.println(Arrays.toString(fieldPath.getElements()));
         ArrayList<FieldPath> paths = new ArrayList<FieldPath>();
@@ -504,6 +532,6 @@ public class FieldPath implements Dto, Comparable<FieldPath> {
         paths.add(new FieldPath("a.b.c.dflal"));
         paths.add(new FieldPath("a.b.c"));
         paths.add(new FieldPath("a.b"));
-        testSort(paths);
+        testSort(paths);*/
     }
 }

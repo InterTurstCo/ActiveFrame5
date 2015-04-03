@@ -139,4 +139,54 @@ public class LocalizationKeys {
         validationMessages.put("validate.precision", "Значение поля ${field-name} должно иметь точность ${precision}");
         validationMessages.put("validate.scale", "Значение поля ${field-name} должно иметь ${scale} знаков после запятой");
     }
+    public static final String JANUARY_MONTH_SHORT_STANDALONE_KEY = "JanuaryMonthShortStandalone";
+    public static final String FEBRUARY_MONTH_SHORT_STANDALONE_KEY = "FebruaryMonthShortStandalone";
+    public static final String MARCH_MONTH_SHORT_STANDALONE_KEY = "MarchMonthShortStandalone";
+    public static final String APRIL_MONTH_SHORT_STANDALONE_KEY = "AprilMonthShortStandalone";
+    public static final String MAY_MONTH_SHORT_STANDALONE_KEY = "MayMonthShortStandalone";
+    public static final String JUN_MONTH_SHORT_STANDALONE_KEY = "JunMonthShortStandalone";
+    public static final String JULY_MONTH_SHORT_STANDALONE_KEY = "JulyMonthShortStandalone";
+    public static final String AUGUST_MONTH_SHORT_STANDALONE_KEY = "AugustMonthShortStandalone";
+    public static final String SEPTEMBER_MONTH_SHORT_STANDALONE_KEY = "SeptemberMonthShortStandalone";
+    public static final String OCTOBER_MONTH_SHORT_STANDALONE_KEY = "OctoberMonthShortStandalone";
+    public static final String NOVEMBER_MONTH_SHORT_STANDALONE_KEY = "NovemberMonthShortStandalone";
+    public static final String DECEMBER_MONTH_SHORT_STANDALONE_KEY = "DecemberMonthShortStandalone";
+    public static final String[] MONTHS = {JANUARY_MONTH_SHORT_STANDALONE_KEY , FEBRUARY_MONTH_SHORT_STANDALONE_KEY,
+            MARCH_MONTH_SHORT_STANDALONE_KEY, APRIL_MONTH_SHORT_STANDALONE_KEY, MAY_MONTH_SHORT_STANDALONE_KEY,
+            JUN_MONTH_SHORT_STANDALONE_KEY, JULY_MONTH_SHORT_STANDALONE_KEY,
+            AUGUST_MONTH_SHORT_STANDALONE_KEY, SEPTEMBER_MONTH_SHORT_STANDALONE_KEY, OCTOBER_MONTH_SHORT_STANDALONE_KEY,
+            NOVEMBER_MONTH_SHORT_STANDALONE_KEY, DECEMBER_MONTH_SHORT_STANDALONE_KEY};
+
+    public static final String SUNDAY_KEY = "Sunday";
+    public static final String MONDAY_KEY = "Monday";
+    public static final String TUESDAY_KEY = "Tuesday";
+    public static final String WEDNESDAY_KEY = "Wednesday";
+    public static final String THURSDAY_KEY = "Thursday";
+    public static final String FRIDAY_KEY = "Friday";
+    public static final String SATURDAY_KEY = "Saturday";
+    public static final String[] WEEK_DAYS = {SUNDAY_KEY, MONDAY_KEY, TUESDAY_KEY, WEDNESDAY_KEY, THURSDAY_KEY, FRIDAY_KEY,
+            SATURDAY_KEY};
+
+    public static final String SUNDAY_FIRST_CAPITAL_KEY = "SundayFirstCapital";
+    public static final String MONDAY_FIRST_CAPITAL_KEY = "MondayFirstCapital";
+    public static final String TUESDAY_FIRST_CAPITAL_KEY = "TuesdayFirstCapital";
+    public static final String WEDNESDAY_FIRST_CAPITAL_KEY = "WednesdayFirstCapital";
+    public static final String THURSDAY_FIRST_CAPITAL_KEY = "ThursdayFirstCapital";
+    public static final String FRIDAY_FIRST_CAPITAL_KEY = "FridayFirstCapital";
+    public static final String SATURDAY_FIRST_CAPITAL_KEY = "SaturdayFirstCapital";
+
+    public static final String JANUARY_MONTH_SHORT_KEY = "JanuaryMonthShort";
+    public static final String FEBRUARY_MONTH_SHORT_KEY = "FebruaryMonthShort";
+    public static final String MARCH_MONTH_SHORT_KEY = "MarchMonthShort";
+    public static final String APRIL_MONTH_SHORT_KEY = "AprilMonthShort";
+    public static final String MAY_MONTH_SHORT_KEY = "MayMonthShort";
+    public static final String JUN_MONTH_SHORT_KEY = "JunMonthShort";
+    public static final String JULY_MONTH_SHORT_KEY = "JulyMonthShort";
+    public static final String AUGUST_MONTH_SHORT_KEY = "AugustMonthShort";
+    public static final String SEPTEMBER_MONTH_SHORT_KEY = "SeptemberMonthShort";
+    public static final String OCTOBER_MONTH_SHORT_KEY = "OctoberMonthShort";
+    public static final String NOVEMBER_MONTH_SHORT_KEY = "NovemberMonthShort";
+    public static final String DECEMBER_MONTH_SHORT_KEY = "DecemberMonthShort";
+
+    public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
 }

@@ -113,7 +113,7 @@ public class CollectionsIT extends IntegrationTestBase {
         authenticationInfo.setUserUid(PERSON_2_LOGIN);
         authenticationInfo.setPassword(ADMIN);
         try {
-            authenticationService.insertAuthenticationInfoAndRole(authenticationInfo);
+            authenticationService.insertAuthenticationInfoAndRole(authenticationInfo, null);
         } catch (Exception e) {
             // auth info already exists. Just skip it.
             logger.warning("Authentication info already exists : " + authenticationInfo);

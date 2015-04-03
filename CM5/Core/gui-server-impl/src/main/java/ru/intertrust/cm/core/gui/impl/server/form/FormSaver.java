@@ -1,14 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormSaveExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
+import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
 import ru.intertrust.cm.core.gui.api.server.form.FormAfterSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.form.FormBeforeSaveInterceptor;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -27,6 +26,9 @@ import java.util.*;
  *         Time: 13:03
  */
 public class FormSaver extends FormProcessor {
+    @Autowired
+    private FieldPathHelper fieldPathHelper;
+
     private FormConfig formConfig;
     private FormState formState;
     private Map<FieldPath, Value> forcedRootDomainObjectValues;
@@ -88,6 +90,7 @@ public class FormSaver extends FormProcessor {
             toCreate.put(FieldPath.ROOT, new ObjectWithReferences(FieldPath.ROOT, new HashMap<String, FieldPath>(0)));
         }
         ArrayList<WidgetContext> multiBackReferenceContexts = new ArrayList<>();
+        ArrayList<WidgetContext> directReferenceContexts = new ArrayList<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState.mayContainNestedFormStates()) {
@@ -110,6 +113,10 @@ public class FormSaver extends FormProcessor {
                 continue;
             }
 
+            if (fieldPathHelper.isDirectReference(rootDomainObject.getTypeName(), firstFieldPath)) {
+                directReferenceContexts.add(context);
+            }
+
             Value newValue = getWidgetHandler(widgetConfig).getValue(widgetState);
             Value oldValue = context.getValue();
             FieldPath parentObjectPath = firstFieldPath.getParentPath();
@@ -124,17 +131,25 @@ public class FormSaver extends FormProcessor {
             formObjects.setFieldValue(forcedValueFieldPath, forcedRootDomainObjectValues.get(forcedValueFieldPath));
         }
 
+
         saveRootWithDirectlyLinkedObjects();
-
+        saveNewOneToOneObjects(directReferenceContexts);
         changeMultiBackReferences(multiBackReferenceContexts, rootDomainObject.isNew());
-
-        saveNewLinkedObjects();
+        saveNewBackReferencedObjects(multiBackReferenceContexts);
 
         DomainObject savedRootObject = formObjects.getRootNode().getDomainObject(); // after save its ID may be changed
         if (afterSaveComponent != null) {
             savedRootObject = ((FormAfterSaveInterceptor) applicationContext.getBean(afterSaveComponent)).afterSave(formState, widgetConfigsById);
+            ((SingleObjectNode) formObjects.getNode(FieldPath.ROOT)).setDomainObject(savedRootObject);
         }
         return savedRootObject;
+    }
+
+    private void pushWidgetsAfterSave() {
+        for (WidgetConfig widgetConfig : widgetConfigsById.values()) {
+            final WidgetHandler handler = getWidgetHandler(widgetConfig);
+            handler.afterFormSave(formState, widgetConfig);
+        }
     }
 
     private void changeMultiBackReferences(ArrayList<WidgetContext> multiBackReferenceContexts, boolean isNew) {
@@ -171,17 +186,34 @@ public class FormSaver extends FormProcessor {
         }
     }
 
-    private void saveNewLinkedObjects() { // todo: handle on link as well
-        for (WidgetConfig config : widgetConfigs) {
+    private void saveNewOneToOneObjects(ArrayList<WidgetContext> directReferenceContexts) {
+        for (final WidgetContext context : directReferenceContexts) {
+            final WidgetConfig config = context.getWidgetConfig();
+            WidgetHandler widgetHandler = getWidgetHandler(config);
+            final List<DomainObject> newLinkedObjects = widgetHandler.saveNewObjects(context, formState.getWidgetState(config.getId()));
+            if (newLinkedObjects == null) {
+                continue;
+            }
+            final FieldPath firstFieldPath = context.getFirstFieldPath();
+            for (DomainObject newObject : newLinkedObjects) { // actually, there should be maximum a single object from such widgets, it's for the future
+                formObjects.setFieldValue(firstFieldPath, new ReferenceValue(newObject.getId()));
+                toUpdate.add(firstFieldPath.getParentPath());
+            }
+        }
+    }
+
+    private void saveNewBackReferencedObjects(ArrayList<WidgetContext> multiBackReferenceContexts) { // todo: handle on link as well
+        for (final WidgetContext context : multiBackReferenceContexts) {
+            final WidgetConfig config = context.getWidgetConfig();
             WidgetState widgetState = formState.getWidgetState(config.getId());
             if (widgetState == null) { // ignore - such data shouldn't be saved
                 continue;
             }
             WidgetHandler widgetHandler = getWidgetHandler(config);
-            if (widgetHandler instanceof LinkEditingWidgetHandler) {
-                WidgetContext widgetContext = new WidgetContext(config, formObjects);
-                ((LinkEditingWidgetHandler) widgetHandler).saveNewObjects(widgetContext, widgetState);
+            if (!(widgetHandler instanceof LinkEditingWidgetHandler)) {
+                continue;
             }
+            widgetHandler.saveNewObjects(context, widgetState);
         }
     }
 

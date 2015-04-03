@@ -9,7 +9,6 @@
     <inherits name="ru.intertrust.cm.core.gui.impl.Login"/>
     <inherits name="com.google.gwt.json.JSON"/>
     <inherits name="com.google.gwt.resources.Resources" />
-    <extend-property name="locale" values="ru"/>
 
     <!-- for correct viewing names of GWT css classes -->
     <set-configuration-property name="CssResource.style" value="pretty"/>

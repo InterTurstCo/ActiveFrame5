@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 
+import java.util.Iterator;
+
 /**
  * @author Denis Mitavskiy
  *         Date: 17.02.2015
@@ -24,7 +26,7 @@ public class FieldPathHelperImpl implements FieldPathHelper {
             final String linkingObjectType = path.getLinkingObjectType();
             return ((ReferenceFieldConfig) configurationExplorer.getFieldConfig(linkingObjectType, linkToChildrenName)).getType();
         } else { // one-to-one reference
-            return ((ReferenceFieldConfig)configurationExplorer.getFieldConfig(rootObjectType, path.getFieldName())).getType();
+            return ((ReferenceFieldConfig) configurationExplorer.getFieldConfig(rootObjectType, path.getFieldName())).getType();
         }
     }
 
@@ -34,5 +36,26 @@ public class FieldPathHelperImpl implements FieldPathHelper {
         } else {
             return configurationExplorer.isAssignable(type, getReferencedObjectType(formRootObjectType, path));
         }
+    }
+
+    public boolean isDirectReference(String rootObjectType, FieldPath path) {
+        if (path.isOneToOneReference()) {
+            return true;
+        }
+        final Iterator<FieldPath.Element> elementIterator = path.elementsIterator();
+        String domainObjectType = rootObjectType;
+        while (elementIterator.hasNext()) {
+            final FieldPath.Element elt = elementIterator.next();
+            if (elt instanceof FieldPath.OneToOneDirectReference) {
+                domainObjectType = ((ReferenceFieldConfig) configurationExplorer.getFieldConfig(domainObjectType, elt.getName())).getType();
+            } else if (elt instanceof FieldPath.OneToOneBackReference) {
+                domainObjectType = ((FieldPath.OneToOneBackReference) elt).getLinkedObjectType();
+            } else if (elt instanceof FieldPath.Field) { // last element, no more else, it's not possible
+                return configurationExplorer.getFieldConfig(domainObjectType, elt.getName()) instanceof ReferenceFieldConfig;
+            } else { // multi back reference
+                return false;
+            }
+        }
+        return false;
     }
 }

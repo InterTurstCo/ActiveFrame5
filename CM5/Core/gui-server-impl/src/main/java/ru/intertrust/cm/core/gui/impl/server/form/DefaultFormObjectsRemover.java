@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.form;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.DomainObjectFieldsConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -74,6 +71,8 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
     protected HashMap<FieldPath, WidgetState> fieldPathStates;
     protected boolean attachmentsDeleted;
 
+    private HashSet<Id> deletedAttachments;
+
     public DefaultFormObjectsRemover() {
         this.rootAndOneToOneToDelete = new HashMap<>();
         this.oneToOneToUnlink = new HashSet<>();
@@ -104,7 +103,8 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
 
             findDeleteOperationsForChain(new ObjectWithReferences(fieldPath.getParentPath()), fieldPathConfigs.get(fieldPath).getOnRootDelete());
         }
-        cleanUpRootReferences();
+        final ArrayList<Id> attachmentsReferencedFromRoot = cleanUpRootReferences();
+        deleteAttachmentsReferencedFromRoot(attachmentsReferencedFromRoot);
         deleteMultiBackReferences(multiBackReferencesToDelete);
         deleteRootWithOneToOneChain();
     }
@@ -179,13 +179,14 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
         }
     }
 
-    private void cleanUpRootReferences() {
+    private ArrayList<Id> cleanUpRootReferences() {
         final DomainObject rootDomainObject = formObjects.getRootDomainObject();
         final DomainObjectTypeConfig typeConfig = configurationExplorer.getDomainObjectTypeConfig(rootDomainObject.getTypeName());
         final DomainObjectFieldsConfig fieldsConfig = typeConfig.getDomainObjectFieldsConfig();
         if (fieldsConfig == null || fieldsConfig.getFieldConfigs() == null) {
-            return;
+            return null;
         }
+        ArrayList<Id> attachmentsReferencedFromRoot = new ArrayList<>();
         boolean toSave = false;
         for (FieldConfig fieldConfig : fieldsConfig.getFieldConfigs()) {
             if (fieldConfig.getFieldType() != FieldType.REFERENCE || fieldConfig.isNotNull()) {
@@ -195,12 +196,17 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
             if (value == null || value.isEmpty()) {
                 continue;
             }
+            final String type = ((ReferenceFieldConfig) fieldConfig).getType();
+            if (configurationExplorer.isAttachmentType(type)) {
+                attachmentsReferencedFromRoot.add(((ReferenceValue) value).get());
+            }
             rootDomainObject.setValue(fieldConfig.getName(), null);
             toSave = true;
         }
         if (toSave) {
             crudService.save(rootDomainObject);
         }
+        return attachmentsReferencedFromRoot;
     }
 
     private void deleteRootWithOneToOneChain() {
@@ -238,6 +244,14 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
         final DomainObject domainObject = getSingleDomainObject(object.path);
         if (domainObject != null) {
             crudService.delete(domainObject.getId()); // todo: change to delete by DO - to support optimistic locking
+        }
+    }
+
+    private void deleteAttachmentsReferencedFromRoot(ArrayList<Id> ids) {
+        deletedAttachments = new HashSet<>(ids);
+        for (Id id : ids) {
+            attachmentService.deleteAttachment(id);
+            deletedAttachments.add(id);
         }
     }
 
@@ -346,6 +360,9 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
         }
         final List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(formObjects.getRootDomainObject().getId());
         for (DomainObject attachment : attachments) {
+            if (deletedAttachments.contains(attachment)) {
+                continue;
+            }
             attachmentService.deleteAttachment(attachment.getId());
         }
         attachmentsDeleted = true;

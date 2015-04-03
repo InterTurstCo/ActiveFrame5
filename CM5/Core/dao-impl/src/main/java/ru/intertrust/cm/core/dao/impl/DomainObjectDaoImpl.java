@@ -34,12 +34,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -64,7 +61,17 @@ import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.IdGenerator;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
@@ -140,6 +147,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Autowired
     private AfterCommitExtensionPointService afterCommitExtensionPointService;
     
+    @Autowired
+    private UserGroupGlobalCache userGroupCache;
+  
     @Autowired
     public void setDomainObjectCacheService(
             DomainObjectCacheServiceImpl domainObjectCacheService) {
@@ -253,7 +263,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             
             //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
-            listener.addCreatedDomainObject(createdObject.getId());            
+            listener.addCreatedDomainObject(createdObject);
         }
 
         return createdObjects;
@@ -385,7 +395,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     /**
      * Проверяет, являются ли переданные объекты аудит логом. Так как передается массив однотипных объектов,
      * то проверяется тип первого объекта. Если передан аудит лог объект - выбрасывается исключение.
-     * @param ids
+     * @param domainObjects
      */
     private void checkIfAuditLog(DomainObject[] domainObjects) {
         if (domainObjects[0] != null && configurationExplorer.isAuditLogType(domainObjects[0].getTypeName())) {
@@ -1004,7 +1014,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         Map<String, Object> aclParameters = new HashMap<String, Object>();
 
-        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(domainObjectType)) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, domainObjectType);
+
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(domainObjectType) || isAdministratorWithAllPermissions)) {
 
             String aclReadTable = AccessControlUtility
                     .getAclReadTableNameFor(configurationExplorer, domainObjectType);
@@ -1262,7 +1275,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(" and ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = :").append(RESULT_TYPE_ID);
         }
 
-        if (accessToken.isDeferred() && !configurationExplorer.isReadPermittedToEverybody(typeName)) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, typeName);
+
+        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAllPermissions)) {
+   
             // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             typeName = domainObjectQueryHelper.getRelevantType(typeName);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1747,8 +1764,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         
         // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
         linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
+
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
+
         //Добавляем учет ReadPermittedToEverybody
-        if (!configurationExplorer.isReadPermittedToEverybody(linkedType)) {
+        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions)) {
          // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
             linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
             //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
@@ -1789,6 +1810,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
     }
 
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
+    }
+  
     private DomainObject[] create(DomainObject[] domainObjects, Integer type, AccessToken accessToken, String initialStatus) {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
@@ -2347,8 +2372,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
     
     private class DomainObjectActionListener implements ActionListener {
-        Map<Id, Map<String, FieldModification>> savedDomainObjects = new Hashtable<Id, Map<String, FieldModification>>(); 
-        List<Id> createdDomainObjects = new ArrayList<Id>(); 
+        Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new Hashtable<>();
+        List<DomainObject> savedDomainObjects = new ArrayList<>();
+        List<DomainObject> createdDomainObjects = new ArrayList<>();
         Map<Id, DomainObject> deletedDomainObjects = new Hashtable<Id, DomainObject>();
         List<Id> changeStatusDomainObjects = new ArrayList<Id>();
         
@@ -2356,7 +2382,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         @Override
         public void onAfterCommit() {
             //Точки расширения вызываем в специальном EJB чтобы открылась новая транзакция
-            afterCommitExtensionPointService.afterCommit(savedDomainObjects, createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
+            afterCommitExtensionPointService.afterCommit(savedDomainObjectsModificationMap, savedDomainObjects,
+                    createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
         }
 
         private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
@@ -2367,8 +2394,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return result;
         }
 
-        public void addCreatedDomainObject(Id id){
-            createdDomainObjects.add(id);
+        public void addCreatedDomainObject(DomainObject domainObject){
+            if (isIgnoredOnCreateAndSave(domainObject)) {
+                return;
+            }
+            createdDomainObjects.add(domainObject);
         }
 
         public void addChangeStatusDomainObject(Id id){
@@ -2384,11 +2414,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
         
         public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
+            if (isIgnoredOnCreateAndSave(domainObject)) {
+                return;
+            }
+
+            if (!savedDomainObjects.contains(domainObject)) {
+                savedDomainObjects.add(domainObject);
+            }
+
             //Ишем не сохраняли ранее
-            Map<String, FieldModification> fields = savedDomainObjects.get(domainObject.getId());
+            Map<String, FieldModification> fields = savedDomainObjectsModificationMap.get(domainObject.getId());
             if (fields == null){
                 fields = new Hashtable<String, FieldModification>();
-                savedDomainObjects.put(domainObject.getId(), fields);
+                savedDomainObjectsModificationMap.put(domainObject.getId(), fields);
             }
             //Мержим информацию об измененных полях
             for (FieldModification newFieldModification : newFields) {
@@ -2412,6 +2450,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         public void onBeforeCommit() {
             // Ничего не делаем
             
+        }
+
+        private boolean isIgnoredOnCreateAndSave(DomainObject domainObject) {
+            if (configurationExplorer.isAuditLogType(domainObject.getTypeName())) {
+                return true;
+            }
+
+            for (AutoCreatedType autoCreatedType : AutoCreatedType.values()) {
+                if (autoCreatedType.getTypeName().equalsIgnoreCase(domainObject.getTypeName())) {
+                    return true;
+                }
+            }
+
+            return false;
         }
         
     }

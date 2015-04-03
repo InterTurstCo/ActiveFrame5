@@ -65,17 +65,11 @@ public class RightSideResizablePanel extends ResizablePanel {
         }
     }
     protected void handleMouseMove(Event event) {
-
-        //calculate and set the new size
-        if (bDragDrop && doNotBreakBoundaries(event)) {
             int height = event.getClientY() - this.getAbsoluteTop();
             this.setHeight(height + "px");
-
             int width = event.getClientX() - this.getAbsoluteLeft();
             this.setWidth(width + "px");
-
             notifyPanelResizeListeners(width, height);
-        }
     }
 
     protected boolean doNotBreakBoundaries(Event event){

@@ -64,17 +64,12 @@ public class LeftSideDialogBoxResizablePanel extends ResizablePanel {
         }
     }
     protected void handleMouseMove(Event event) {
-
-        //calculate and set the new size
-        if (bDragDrop && doNotBreakBoundaries(event)) {
-            Integer height = event.getClientY() - this.getAbsoluteTop();
+            int height = event.getClientY() - this.getAbsoluteTop();
             this.setHeight(height + "px");
             int width = this.getAbsoluteLeft() - event.getClientX() - DIALOG_BOX_MARGINS + this.getOffsetWidth();;
             db.setPopupPosition(event.getClientX(),db.getPopupTop());
             this.setWidth(width + "px");
-
             notifyPanelResizeListeners(this.getOffsetWidth(), height);
-        }
     }
 
     protected boolean doNotBreakBoundaries(Event event){

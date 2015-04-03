@@ -10,10 +10,13 @@ public class LocalizeUtil {
     private LocalizeUtil(){} //non-instantiable
 
     /**
-        Returns localized message for current locale. If there's no localized value for the key, returns the key.
+        Returns localized message for current locale. If there's no localized value for the key, returns the key surrounded by [].
      */
     public static String get(String key) {
-        return get(key, key);
+        StringBuilder sb = new StringBuilder("[");
+        sb.append(key);
+        sb.append("]");
+        return get(key, sb.toString());
     }
 
     public static String get(String key, String defaultValue) {

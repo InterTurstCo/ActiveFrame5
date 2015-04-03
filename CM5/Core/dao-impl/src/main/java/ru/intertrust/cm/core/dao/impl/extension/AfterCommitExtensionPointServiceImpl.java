@@ -38,12 +38,12 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjectMap, List<Id> createdDomainObjectIds,
-            Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjectIds) {
+    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap,
+                            List<DomainObject> savedDomainObjects, List<DomainObject> createdDomainObjects,
+                            Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjectIds) {
         AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
-        List<DomainObject> createdObjects = domainObjectDao.find(createdDomainObjectIds, sysAccessTocken);
-        for (DomainObject domainObject : createdObjects) {
+        for (DomainObject domainObject : createdDomainObjects) {
             if (domainObject != null) {
                 // Вызов точки расширения после создания после коммита
                 List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
@@ -72,7 +72,6 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             }
         }
 
-        List<DomainObject> savedDomainObjects = domainObjectDao.find(new ArrayList<>(savedDomainObjectMap.keySet()), sysAccessTocken);
         for (DomainObject domainObject : savedDomainObjects) {
             if (domainObject != null) {
 
@@ -83,7 +82,7 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 for (String typeName : parentTypes) {
                     AfterSaveAfterCommitExtensionHandler extension = extensionService
                             .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
-                    extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjectMap.get(domainObject.getId())));
+                    extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjectsModificationMap.get(domainObject.getId())));
                 }
             }
         }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
  *         Date: 26.10.13
  *         Time: 22:13
  */
-public abstract class LinkEditingWidgetState extends ValueEditingWidgetState {
+public abstract class LinkEditingWidgetState extends WidgetState {
     private boolean singleChoice;
     private PopupTitlesHolder popupTitlesHolder;
 

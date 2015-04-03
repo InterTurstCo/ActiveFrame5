@@ -10,6 +10,8 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -43,12 +45,6 @@ public interface GuiService {
      */
     Dto executeCommand(Command command, UserInfo userInfo) throws GuiException;
 
-    FormDisplayData getForm(String domainObjectType, UserInfo userInfo, FormViewerConfig formViewerConfig);
-
-    FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext,UserInfo userInfo, FormViewerConfig formViewerConfig);
-
-    FormDisplayData getForm(Id domainObjectId, UserInfo userInfo, FormViewerConfig formViewerConfig);
-
     FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo, FormViewerConfig formViewerConfig);
 
     FormDisplayData getForm(UserInfo userInfo, FormPluginConfig formPluginConfig);
@@ -59,6 +55,12 @@ public interface GuiService {
     FormDisplayData getReportForm(String reportName, String formName, UserInfo userInfo);
 
     DomainObject saveForm(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs);
+
+    DomainObject saveFormInNewTransaction(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs);
+
+    SimpleActionData executeSimpleAction(SimpleActionContext context);
+
+    SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context);
 
     String getUserUid();
 

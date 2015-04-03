@@ -7,7 +7,7 @@
     <source path="authentication"/>
 
     <define-property name="show.clear.settings.button" values="true,false"/>
-    <set-property name="show.clear.settings.button" value="true"/>
+    <set-property name="show.clear.settings.button" value="false"/>
 
     <entry-point class='ru.intertrust.cm.core.gui.impl.authentication.LoginPage'/>
 

@@ -7,12 +7,15 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
@@ -43,6 +46,16 @@ public abstract class WidgetHandler implements ComponentHandler {
     public abstract <T extends WidgetState> T getInitialState(WidgetContext context);
 
     public abstract Value getValue(WidgetState state);
+
+    public void afterFormSave(FormState formState, WidgetConfig widgetConfig) {
+    }
+
+    public void beforeFormDelete() {
+    }
+
+    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
+        return null;
+    }
 
     protected ArrayList<String> format(List<DomainObject> listToDisplay, String displayPattern, FormattingConfig formattingConfig) {
         Pattern pattern = Pattern.compile(FormatHandler.FIELD_PLACEHOLDER_PATTERN);
@@ -93,4 +106,9 @@ public abstract class WidgetHandler implements ComponentHandler {
         return true;
     }
 
+    protected FieldConfig getFieldConfig(WidgetContext context) {
+        final FieldPath fieldPath = context.getFirstFieldPath();
+        String parentType = context.getFormObjects().getParentNode(fieldPath).getType();
+        return configurationService.getFieldConfig(parentType, fieldPath.getFieldName());
+    }
 }

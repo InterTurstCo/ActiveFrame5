@@ -6,10 +6,15 @@
         <fields>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
+            <reference name="secret_text_1" type="a2_attachment"/>
+            <reference name="secret_text_2" type="a2_attachment"/>
         </fields>
         <uniqueKey>
             <field name="name1"/>
         </uniqueKey>
+        <attachment-types>
+            <attachment-type name="a2_attachment"/>
+        </attachment-types>
     </domain-object-type>
 
     <domain-object-type name="b2">
@@ -118,6 +123,30 @@
                         </tab-group>
                     </single-entry-group>
                 </tab>
+                <tab name="Секреты">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="secret_text_label_1"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="secret_text_1"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="right">
+                                        <widget id="secret_text_label_2"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="secret_text_2"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
             </body>
         </markup>
         <widget-config>
@@ -180,8 +209,24 @@
             <text-box id="c_name2">
                 <field-path value="b2|a2.c2|b2.name2"/>
             </text-box>
+
+            <label id="secret_text_label_1">
+                <field-path/>
+                <text>Secret Text 1:</text>
+            </label>
+            <attachment-text-box id="secret_text_1">
+                <field-path value="secret_text_1"/>
+            </attachment-text-box>
+
+            <label id="secret_text_label_2">
+                <field-path/>
+                <text>Secret Text 2:</text>
+            </label>
+            <attachment-text-area id="secret_text_2">
+                <field-path value="secret_text_2"/>
+            </attachment-text-area>
         </widget-config>
-        <form-objects-remover handler="custom.form.remover"/>
+        <!--<form-objects-remover handler="custom.form.remover"/>-->
     </form>
 
     <collection name="a2_collection" idField="id">

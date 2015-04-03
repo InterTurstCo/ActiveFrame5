@@ -65,7 +65,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
     private static final int INPUT_MARGIN = 35;
     private static final int ONE_SUGGESTION_HEIGHT = 15;
-    private static final int BOTTOM_MARGIN = 10;
+    private static final int SUGGESTIONS_MARGIN = 5;
+    private static final int HORIZONTAL_SCROLL_HEIGHT = 15;
     private static final int MINIMAL_SUGGEST_INPUT_WIDTH = 25;
     private SuggestBox suggestBox;
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
@@ -505,17 +506,41 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         }
 
-        private void changeSuggestionsPopupSize() {
+        private void changeSuggestionsPopupSize(int calculatePageSize) {
             final SuggestBoxDisplay display = (SuggestBoxDisplay) suggestBox.getSuggestionDisplay();
             Style popupStyle = display.getSuggestionPopup().getElement().getStyle();
+            display.getSuggestionPopup().getWidget().setWidth(container.getOffsetWidth() + Style.Unit.PX.getType());
             popupStyle.setWidth(container.getOffsetWidth(), Style.Unit.PX);
             int suggestionsSize = suggestions.size();
-            int pageSize = currentState.getSuggestBoxConfig().getPageSize();
-            boolean scrollable = suggestionsSize >= pageSize;
-            int suggestBottom = suggestBox.getAbsoluteTop() + suggestBox.getOffsetHeight() + BOTTOM_MARGIN;
-            int lazyLoadPanelHeight = scrollable ? getBelowHeight() : getSuggestionsHeight();
-            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, suggestBottom, scrollable);
+            boolean scrollable = calculatePageSize <= suggestionsSize;
+            int lazyLoadPanelHeight = scrollable ? getAvailableHeight() : getSuggestionsHeight();
+            int popupTop = calculatePopupTop(lazyLoadPanelHeight, scrollable);
 
+            display.setLazyLoadPanelHeight(lazyLoadPanelHeight, lastScrollPos, popupTop, scrollable);
+
+        }
+
+        private int calculatePopupTop(int lazyLoadPanelHeight, boolean scrollable) {
+            int result;
+            int belowHeight = getBelowHeight();
+            int aboveHeight = getAboveHeight();
+            int suggestBottom = suggestBox.getAbsoluteTop() + suggestBox.getOffsetHeight();
+
+            if (scrollable) {
+                Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+                int domainObjectTop = center == null ? HEIGHT_OFFSET : center.getAbsoluteTop();
+
+                result = aboveHeight > belowHeight ? domainObjectTop : suggestBottom;
+            } else {
+                if (lazyLoadPanelHeight <= belowHeight) {
+                    result = suggestBottom;
+                } else {
+                    boolean scrollIsNotVisible = ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay()).isHorizontalScrollNotVisible();
+                    int aboveTop = impl.getAbsoluteTop() - lazyLoadPanelHeight;
+                    result = scrollIsNotVisible ? aboveTop : aboveTop - HORIZONTAL_SCROLL_HEIGHT;
+                }
+            }
+            return result;
         }
 
         private int getBelowHeight() {
@@ -525,8 +550,10 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         private int getAboveHeight() {
             Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
-            int domainObjectHeight = center == null ? HEIGHT_OFFSET : center.getAbsoluteTop();
-            return suggestBox.getAbsoluteTop() - domainObjectHeight;
+            int domainObjectTop = center == null ? HEIGHT_OFFSET : center.getAbsoluteTop();
+            boolean scrollIsNotVisible = ((SuggestBoxDisplay) suggestBox.getSuggestionDisplay()).isHorizontalScrollNotVisible();
+            int aboveHeight = impl.getAbsoluteTop() - domainObjectTop;
+            return scrollIsNotVisible ? aboveHeight : aboveHeight - HORIZONTAL_SCROLL_HEIGHT;
         }
 
         private int getAvailableHeight() {
@@ -537,7 +564,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         public int getSuggestionsHeight() {
             int suggestionsSize = suggestions.size();
-            int calculatedHeight = suggestionsSize * ONE_SUGGESTION_HEIGHT + BOTTOM_MARGIN;
+            int calculatedHeight = suggestionsSize * ONE_SUGGESTION_HEIGHT + SUGGESTIONS_MARGIN;
             int aboveHeight = getAboveHeight();
             int belowHeight = getBelowHeight();
             int result;
@@ -835,7 +862,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     }
 
     private void fetchSuggestions(String requestQuery, final SuggestOracle.Request request, final SuggestOracle.Callback callback) {
-        SuggestionRequest suggestionRequest = createSuggestionRequest(requestQuery);
+        final SuggestionRequest suggestionRequest = createSuggestionRequest(requestQuery);
         Command command = new Command("obtainSuggestions", getName(), suggestionRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -859,7 +886,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                 SuggestOracle.Response response = new SuggestOracle.Response();
                 response.setSuggestions(suggestions);
                 callback.onSuggestionsReady(request, response);
-                presenter.changeSuggestionsPopupSize();
+                presenter.changeSuggestionsPopupSize(suggestionRequest.getLazyLoadState().getPageSize());
             }
 
             @Override

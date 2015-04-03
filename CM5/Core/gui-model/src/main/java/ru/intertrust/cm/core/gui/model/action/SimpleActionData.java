@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
@@ -9,6 +10,8 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 public class SimpleActionData extends ActionData {
 
     private FormPluginData pluginData;
+    private boolean contextSaved;
+    private Id savedMainObjectId;
 
     public FormPluginData getPluginData() {
         return pluginData;
@@ -16,5 +19,21 @@ public class SimpleActionData extends ActionData {
 
     public void setPluginData(FormPluginData pluginData) {
         this.pluginData = pluginData;
+    }
+
+    public boolean isContextSaved() {
+        return contextSaved;
+    }
+
+    public void setContextSaved(boolean contextSaved) {
+        this.contextSaved = contextSaved;
+    }
+
+    public Id getSavedMainObjectId() {
+        return savedMainObjectId;
+    }
+
+    public void setSavedMainObjectId(Id savedMainObjectId) {
+        this.savedMainObjectId = savedMainObjectId;
     }
 }

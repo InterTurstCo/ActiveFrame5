@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -62,6 +63,9 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired    
+    private UserGroupGlobalCache userGroupCache;
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
@@ -311,6 +315,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
         try {
             AccessToken accessToken = null;
+
             if (isReadPermittedToEverybody(domainObjectType)) {
                 accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
             } else {
@@ -325,6 +330,14 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
             logger.error("Unexpected exception caught in findAll", ex);
             throw new UnexpectedException("CrudService", "findAll", "domainObjectType:" + domainObjectType, ex);
         }
+    }
+
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        if (personId == null) {
+            return false;
+        }
+        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
+
     }
 
     @Override
@@ -412,7 +425,10 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
 
     private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
         AccessToken accessToken = null;
-        if (isReadPermittedToEverybody(linkedType)) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
+
+        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
             accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
         } else {
             String user = currentUserAccessor.getCurrentUser();

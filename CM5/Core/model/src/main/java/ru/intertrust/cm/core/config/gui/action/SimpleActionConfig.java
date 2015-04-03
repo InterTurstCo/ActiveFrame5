@@ -13,7 +13,19 @@ public class SimpleActionConfig extends ActionConfig {
     @Attribute(name = "action-handler")
     private String actionHandler;
 
+    @Attribute(name = "re-read-in-same-transaction", required = false)
+    private boolean reReadInSameTransaction;
+
+    @Override
+    public String getComponentName() {
+        return "simple.action";
+    }
+
     public String getActionHandler() {
         return actionHandler;
+    }
+
+    public boolean reReadInSameTransaction() {
+        return reReadInSameTransaction;
     }
 }

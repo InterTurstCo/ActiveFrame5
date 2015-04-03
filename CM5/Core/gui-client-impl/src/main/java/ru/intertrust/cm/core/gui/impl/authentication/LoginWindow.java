@@ -3,11 +3,7 @@ package ru.intertrust.cm.core.gui.impl.authentication;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.History;
@@ -15,13 +11,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.rpc.StatusCodeException;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.DialogBox;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PasswordTextBox;
-import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.ProductTitleConfig;
@@ -35,16 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_CONNECTION_ERROR_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_ERROR_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.AUTHORIZATION_WRONG_PSW_ERROR_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CORE_VERSION_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.PASSWORD_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.REMEMBER_ME_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.RESET_SETTINGS_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.SIGN_ON_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.USER_NAME_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.VERSION_KEY;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 
 /**
  * @author Denis Mitavskiy
@@ -52,7 +33,7 @@ import static ru.intertrust.cm.core.config.localization.LocalizationKeys.VERSION
  *         Time: 14:47
  */
 @ComponentName("login.window")
-public class LoginWindow  implements Component{
+public class LoginWindow implements Component {
     private DialogBox loginDialog;
     protected TextBox loginField;
     protected PasswordTextBox passwordField;
@@ -86,14 +67,6 @@ public class LoginWindow  implements Component{
         this.coreVersion = coreVersion;
     }
 
-    public DialogBox getLoginDialog() {
-        return loginDialog;
-    }
-
-    public void setLoginDialog(DialogBox loginDialog) {
-        this.loginDialog = loginDialog;
-    }
-
     public void show() {
         loginDialog.show();
     }
@@ -104,24 +77,18 @@ public class LoginWindow  implements Component{
 
     public LoginWindow() {
         initialToken = History.getToken();
-        //getGlobalAndLoginWindowConfiguration();
-        //String version = "";
         loginDialog = new DialogBox();
         loginDialog.getElement().addClassName("auth-DialogBox");
-
-        //loginDialog.setHTML("<span class = 'auth_small_logo'> </span>" + "<span class = 'auth_version'>" + version + "</span>");
-
-        //loginDialog.setText(" Аутентификация");
         loginField = new TextBox();
         loginField.getElement().setId("id_login");
         passwordField = new PasswordTextBox();
         //error message
         message = new Label();
         message.getElement().addClassName("auth-error-label");
-        loginName = new Label("Имя пользователя");
+        loginName = new Label();
         loginName.getElement().removeClassName(".gwt-Label");
         loginName.getElement().addClassName("auth-Label");
-        passwordLabel = new Label("Пароль");
+        passwordLabel = new Label();
         passwordLabel.getElement().removeClassName(".gwt-Label");
         passwordLabel.getElement().addClassName("auth-Label");
         loginField.setWidth("140px");
@@ -129,7 +96,7 @@ public class LoginWindow  implements Component{
 
         loginButton = new FocusPanel();
 
-        titleLogin = new Label("Войти");
+        titleLogin = new Label();
         titleLogin.getElement().addClassName("auth_button_title");
         loginButton.add(titleLogin);
 
@@ -151,10 +118,8 @@ public class LoginWindow  implements Component{
         AbsolutePanel memoryPanel = new AbsolutePanel();
         memoryPanel.setStyleName("auth_remember");
 
-        labelCheckBox = new Label("Запомнить меня");
+        labelCheckBox = new Label();
         labelCheckBox.setStyleName("auth_checkbox_title");
-//        enterPanel = new AbsolutePanel();
-//        enterPanel.setStyleName("darkButton");
         AbsolutePanel languagePanel = new AbsolutePanel();
         languagePanel.setStyleName("auth_language");
         rootPanel.add(decoratedContentPanel);
@@ -166,7 +131,6 @@ public class LoginWindow  implements Component{
         loginAndPasswordPanel.add(labelLoginPanel);
         loginAndPasswordPanel.add(labelPasswordPanel);
         loginAndPasswordPanel.add(memoryPanel);
-        //loginAndPasswordPanel.add(enterPanel);
         loginAndPasswordPanel.add(languagePanel);
 
         labelLoginPanel.add(loginName);
@@ -181,7 +145,6 @@ public class LoginWindow  implements Component{
         loginDialog.add(rootPanel);
         versionPanel = new AbsolutePanel();
         versionPanel.setStyleName("versionPanel");
-        //rootPanel.add(versionPanel);
 
 
         loginDialog.addDomHandler(new KeyDownHandler() {
@@ -190,7 +153,17 @@ public class LoginWindow  implements Component{
                 checkEnterKey(event);
             }
         }, KeyDownEvent.getType());
+        enterPanel = new AbsolutePanel();
+        enterPanel.setStyleName("darkButton");
 
+        loginAndPasswordPanel.add(enterPanel);
+        enterPanel.add(loginButton);
+        enterPanel.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                login();
+            }
+        }, ClickEvent.getType());
 
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
@@ -223,40 +196,37 @@ public class LoginWindow  implements Component{
             @Override
             public void onSuccess(LoginWindowInitialization loginWindowInitialization) {
                 localizedResources = loginWindowInitialization.getLocalizedResources();
-                if(loginWindowInitialization.getLoginScreenConfig() != null) {
+                if (loginWindowInitialization.getLoginScreenConfig() != null) {
                     LoginScreenConfig logoConfig = loginWindowInitialization.getLoginScreenConfig();
                     ProductTitleConfig productTitleConfig = logoConfig.getProductTitleConfig();
 
-                    if(logoConfig.isDisplaycoreVersion()){
-                        coreVersion =  loginWindowInitialization.getVersion();
+                    if (logoConfig.isDisplaycoreVersion()) {
+                        coreVersion = loginWindowInitialization.getVersion();
                         coreVersionPrefix = get(CORE_VERSION_KEY, "Версия платформы: ");
                     }
 
-                    if(logoConfig.isDisplayProductVersion() && loginWindowInitialization.getProductVersion() != null){
+                    if (logoConfig.isDisplayProductVersion() && loginWindowInitialization.getProductVersion() != null) {
                         productVersion = loginWindowInitialization.getProductVersion();
                         productVersionPrefix = get(VERSION_KEY, "Версия: ");
                     }
 
-                    if(productTitleConfig.getStyle().equals("text")){
-                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                    if (productTitleConfig.getStyle().equals("text")) {
+                        if (loginWindowInitialization.getGlobalProductTitle() != null) {
                             textApplicationLogo = loginWindowInitialization.getGlobalProductTitle().getTitle();
                             authSmallLogo = "";
                         }
 
                     }
 
-                    if(productTitleConfig.getStyle().equals("image")){
-                        if(loginWindowInitialization.getGlobalProductTitle() != null){
+                    if (productTitleConfig.getStyle().equals("image")) {
+                        if (loginWindowInitialization.getGlobalProductTitle() != null) {
                             authSmallLogo = "<img src=" + productTitleConfig.getImage() + " />";
                             textApplicationLogo = "";
                         }
                     }
 
                 }
-                loginDialog.setHTML("<div class='loginLogo'>" + authSmallLogo + textApplicationLogo + " </div>" );
-//                                    "<div class = 'coreVersion auth_version'>" + coreVersionPrefix + "<span class = ''>" + coreVersion + "</span></div>" +
-//                                    "<div class = 'productVersion auth_version'>" + productVersionPrefix + "<span class = ''>" + productVersion + "</span>" + "</span></div>");
-                com.google.gwt.dom.client.Node node = loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().getLastChild();
+                loginDialog.setHTML("<div class='loginLogo'>" + authSmallLogo + textApplicationLogo + " </div>");
                 Element divCoreVersion = DOM.createDiv();
                 divCoreVersion.setClassName("versionCore");
 
@@ -275,7 +245,9 @@ public class LoginWindow  implements Component{
                 passwordLabel.setText(get(PASSWORD_KEY, "Пароль"));
                 titleLogin.setText(get(SIGN_ON_KEY, "Войти"));
                 labelCheckBox.setText(get(REMEMBER_ME_KEY, "Запомнить меня"));
-                titleClearUserSettings.setText(get(RESET_SETTINGS_KEY, "Очистить настройки"));
+                if (titleClearUserSettings != null) {
+                    titleClearUserSettings.setText(get(RESET_SETTINGS_KEY, "Очистить настройки"));
+                }
             }
 
             @Override
@@ -301,9 +273,9 @@ public class LoginWindow  implements Component{
         StringBuilder queryParam = new StringBuilder();
         Map<String, List<String>> parameterMap = Window.Location.getParameterMap();
 
-        if (!parameterMap.containsKey("locale")) {
+        /*if (!parameterMap.containsKey("locale")) {
             queryParam.append("locale=ru");
-        }
+        }*/
         for (String paramName : parameterMap.keySet()) {
             if (!"targetPage".equals(paramName)) {
                 List<String> paramValues = parameterMap.get(paramName);
@@ -375,21 +347,10 @@ public class LoginWindow  implements Component{
 
             }
         });
-        //rootPanel.add(clearUserSettingsButton);
 
 
         loginAndPasswordPanel.add(clearUserSettingsButton);
-        enterPanel = new AbsolutePanel();
-        enterPanel.setStyleName("darkButton");
 
-        loginAndPasswordPanel.add(enterPanel);
-        enterPanel.add(loginButton);
-        enterPanel.addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                login();
-            }
-        }, ClickEvent.getType());
     }
 
     @Override
@@ -404,18 +365,6 @@ public class LoginWindow  implements Component{
 
     public TextBox getLoginField() {
         return loginField;
-    }
-
-    public void setLoginField(TextBox loginField) {
-        this.loginField = loginField;
-    }
-
-    public PasswordTextBox getPasswordField() {
-        return passwordField;
-    }
-
-    public void setPasswordField(PasswordTextBox passwordField) {
-        this.passwordField = passwordField;
     }
 
     public String get(String key, String defaultValue) {

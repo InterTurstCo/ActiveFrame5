@@ -9,7 +9,7 @@ import ru.intertrust.cm.core.gui.model.DateTimeContext;
  *         Date: 26.09.13
  *         Time: 12:29
  */
-public class DateBoxState extends ValueEditingWidgetState {
+public class DateBoxState extends WidgetState {
     // @default UID
     private static final long serialVersionUID = 1L;
 

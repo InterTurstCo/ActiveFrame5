@@ -37,16 +37,10 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
         lazyLoadPanel.getElement().getFirstChildElement().getStyle().setHeight(height, Style.Unit.PX);
     }
 
-    public void setLazyLoadPanelHeight(int height, int lastScrollPosition, boolean scrollable) {
-        setScrollHeight(height);
-        if (scrollable) {this.getSuggestionPopup().getElement().getStyle().setTop(500, Style.Unit.PX);
-           lazyLoadPanel.setVerticalScrollPosition(lastScrollPosition);
-        }
-
-    }
     public void setLazyLoadPanelHeight(int height, int lastScrollPosition, int topPosition, boolean scrollable) {
         setScrollHeight(height);
-        if (scrollable) {this.getSuggestionPopup().getElement().getStyle().setTop(topPosition, Style.Unit.PX);
+        this.getSuggestionPopup().getElement().getStyle().setTop(topPosition, Style.Unit.PX);
+        if (scrollable) {
             lazyLoadPanel.setVerticalScrollPosition(lastScrollPosition);
         }
 
@@ -69,6 +63,11 @@ public class SuggestBoxDisplay extends SuggestBox.DefaultSuggestionDisplay {
 
         return p;
 
+    }
+    public  boolean isHorizontalScrollNotVisible() {
+        int scrollMinHorizontal = lazyLoadPanel.getMinimumHorizontalScrollPosition();
+        int scrollMaxHorizontal = lazyLoadPanel.getMaximumHorizontalScrollPosition();
+        return scrollMinHorizontal == scrollMaxHorizontal;
     }
 
 

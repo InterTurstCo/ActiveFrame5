@@ -185,7 +185,74 @@
             <long name="population"/>
         </fields>        
     </domain-object-type>
-    
+ 
+     <!-- Test DO for administrator permissions -->
+    <domain-object-type name="test_DO_No_Permissions" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+ 
+    <domain-object-type name="test_DO_Permissions" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+ 
+
+    <!-- Test DO hierarchy for read-everybody flag -->
+
+    <domain-object-type name="test_DO_1" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_DO_2" initial-status="Active" extends="test_DO_1">
+        <fields>
+            <string name="name2" length="128" />
+            <reference name="ref_DO_1" type="ref_DO_1" />           
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_DO_3" initial-status="Active" extends="test_DO_2">
+        <fields>
+           <string name="name3" length="128" />
+           <reference name="ref_DO_3_1" type="ref_DO_1" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="ref_DO_3_1" initial-status="Active">
+        <fields>
+            <reference name="ref_DO_3_2" type="ref_DO_3_2" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="ref_DO_3_2" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="ref_DO_1" initial-status="Active">
+        <fields>
+            <reference name="ref_DO_2" type="ref_DO_2" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="ref_DO_2" initial-status="Active">
+        <fields>
+            <reference name="ref_DO_3" type="ref_DO_3" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="ref_DO_3" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+    <!-- End of test DO hierarchy for read-everybody flag -->
+
     <domain-object-type name="test_type_1" initial-status="Active">
         <fields>
             <string name="name" length="128" />

@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.CollectionQueryInitializerImpl;
 
 /**
@@ -10,8 +12,9 @@ import ru.intertrust.cm.core.dao.impl.CollectionQueryInitializerImpl;
  */
 public class OracleCollectionQueryInitializerImpl extends CollectionQueryInitializerImpl {
 
-    public OracleCollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer) {
-        super(configurationExplorer);
+    public OracleCollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+            CurrentUserAccessor currentUserAccessor) {
+        super(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
     @Override

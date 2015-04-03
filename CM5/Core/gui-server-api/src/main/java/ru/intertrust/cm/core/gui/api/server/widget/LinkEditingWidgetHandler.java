@@ -75,10 +75,6 @@ public abstract class LinkEditingWidgetHandler extends WidgetHandler {
         return result;
     }
 
-    public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
-        return null;
-    }
-
     /**
      * Метод возвращает true, если при разрыве связи со связанными объектами, сами связанные объекты удаляются. Если false,
      * то разрывается связь, а бывшие связанные объекты остаются в системе.

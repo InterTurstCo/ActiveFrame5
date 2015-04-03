@@ -28,6 +28,9 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
 
     public static final String SUPER_USERS_STATIC_GROUP = "Superusers";
     
+    public static final String ADMINISTRATOR_LOGIN = "administrator";
+    public static final String ADMINISTRATOR_PASSWORD = "administrator";
+
     /**
      * Создаёт доменный объект
      */

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.action.system;
 
 import com.google.gwt.dom.client.Element;
-import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
@@ -10,6 +9,8 @@ import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Sergey.Okolot
@@ -31,29 +32,49 @@ public class SizeToggleAction extends ToggleAction {
     }
 
     private void updateSize(final CompactModeState state) {
+        if (state.isExpanded()) {
+            expand();
+        } else {
+            collapse();
+        }
+    }
+
+    private void expand() {
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
-        if (state.isExpanded()) {
-//            header.getStyle().setDisplay(Style.Display.NONE);
-//            left.getStyle().setDisplay(Style.Display.NONE);
-            center.replaceClassName("central-div-panel-test", "central-div-panel-test-full");
-            left.replaceClassName("left-section", "left-sectionNone");
-            header.replaceClassName("header-section", "header-sectionNone");
 
-            if(Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()){
-                center.removeClassName("central-div-panel-test-active");
-            }
+        if (center.hasClassName(CENTRAL_SECTION_STYLE)) {
+            center.replaceClassName(CENTRAL_SECTION_STYLE, CENTRAL_SECTION_FULL_SIZE_STYLE);
         } else {
-//            header.getStyle().setDisplay(Style.Display.BLOCK);
-//            left.getStyle().setDisplay(Style.Display.BLOCK);
-            center.replaceClassName("central-div-panel-test-full", "central-div-panel-test");
-            left.replaceClassName("left-sectionNone", "left-section");
-            header.replaceClassName("header-sectionNone", "header-section");
+            center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
+            final Element right = DOM.getElementById(ComponentHelper.RIGHT_ID);
+            right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
+        }
+        left.replaceClassName(LEFT_SECTION_STYLE, LEFT_SECTION_COLLAPSED_STYLE);
+        header.replaceClassName(TOP_SECTION_STYLE, TOP_SECTION_COLLAPSED_STYLE);
 
-            if(Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
-                center.addClassName("central-div-panel-test-active");
-            }
+        if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
+            center.removeClassName(CENTRAL_SECTION_ACTIVE_STYLE);
+        }
+    }
+
+    private void collapse() {
+        final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
+        final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
+        final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+        if (center.hasClassName(CENTRAL_SECTION_FULL_SIZE_STYLE)) {
+            center.replaceClassName(CENTRAL_SECTION_FULL_SIZE_STYLE, CENTRAL_SECTION_STYLE);
+
+        } else {
+            center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
+
+        }
+        left.replaceClassName(LEFT_SECTION_COLLAPSED_STYLE, LEFT_SECTION_STYLE);
+        header.replaceClassName(TOP_SECTION_COLLAPSED_STYLE, TOP_SECTION_STYLE);
+
+        if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
+            center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
         }
     }
 

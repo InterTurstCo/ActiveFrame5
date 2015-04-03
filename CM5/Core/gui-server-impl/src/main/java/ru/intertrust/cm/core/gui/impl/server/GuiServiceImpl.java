@@ -6,10 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -18,24 +17,33 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
+import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.VersionUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Базовая реализация сервиса GUI
@@ -51,6 +59,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     @Autowired
     private ProfileService profileService;
+
+    @EJB
+    private GuiService newTransactionGuiService;
 
     private static Logger log = LoggerFactory.getLogger(GuiServiceImpl.class);
 
@@ -102,30 +113,9 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    public FormDisplayData getForm(final String domainObjectType, final UserInfo userInfo, FormViewerConfig formViewerConfig) {
-        FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectType, formViewerConfig);
-    }
-
-    @Override
-    public FormDisplayData getForm(String domainObjectType, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
-                                   FormViewerConfig formViewerConfig) {
-        FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectType, domainObjectUpdaterName, updaterContext, formViewerConfig);
-
-    }
-
-    @Override
-    public FormDisplayData getForm(final Id domainObjectId, final UserInfo userInfo, FormViewerConfig formViewerConfig) {
-        FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectId, formViewerConfig);
-    }
-
-    @Override
     public FormDisplayData getForm(Id domainObjectId, String domainObjectUpdaterName, Dto updaterContext, UserInfo userInfo,
                                    FormViewerConfig formViewerConfig) {
-        FormRetriever formRetriever = getFormRetriever(userInfo);
-        return formRetriever.getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
+        return getFormRetriever(userInfo).getForm(domainObjectId, domainObjectUpdaterName, updaterContext, formViewerConfig);
     }
 
     @Override
@@ -147,9 +137,17 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public DomainObject saveForm(final FormState formState, final UserInfo userInfo, List<ValidatorConfig>
             validatorConfigs) {
+        return saveFormImpl(formState, userInfo, validatorConfigs);
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public DomainObject saveFormInNewTransaction(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs) {
+        return saveFormImpl(formState, userInfo, validatorConfigs);
+    }
+
+    private DomainObject saveFormImpl(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs) {
         List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs,
                 profileService.getPersonLocale());
         if (!errorMessages.isEmpty()) {
@@ -160,6 +158,121 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
         formSaver.setContext(formState, null);
         return formSaver.saveForm();
+    }
+
+    public SimpleActionData executeSimpleAction(SimpleActionContext context) {
+        SimpleActionData result;
+        if (((SimpleActionConfig) context.getActionConfig()).reReadInSameTransaction()) {
+            result = executeSimpleActionImpl(context);
+        } else {
+            result = newTransactionGuiService.executeSimpleActionInNewTransaction(context);
+        }
+
+        final SimpleActionConfig config = context.getActionConfig();
+        FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
+        FormPluginConfig formPluginConfig = new FormPluginConfig(context.getRootObjectId());
+        formPluginConfig.setPluginState(context.getPluginState());
+        formPluginConfig.setFormViewerConfig(context.getViewerConfig());
+        final FormPluginData formPluginData = handler.initialize(formPluginConfig);
+        result.setPluginData(formPluginData);
+        if (config.getAfterConfig() != null) {
+            result.setOnSuccessMessage(config.getAfterConfig().getMessageConfig() == null
+                    ? null
+                    : config.getAfterConfig().getMessageConfig().getText());
+        }
+        return result;
+    }
+
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context) {
+        return executeSimpleActionImpl(context);
+    }
+
+    private SimpleActionData executeSimpleActionImpl(SimpleActionContext context) {
+        String locale = profileService.getPersonLocale();
+        final List<String> errorMessages =
+                PluginHandlerHelper.doServerSideValidation(context.getMainFormState(), applicationContext, locale);
+        if (context.getConfirmFormState() != null) {
+            errorMessages.addAll(PluginHandlerHelper.doServerSideValidation(
+                    context.getConfirmFormState(), applicationContext, locale));
+        }
+        if (!errorMessages.isEmpty()) {
+            throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION,
+                    "Server-side validation failed"), errorMessages);
+        }
+        final SimpleActionConfig config = context.getActionConfig();
+        final boolean isSaveContext = config.getBeforeConfig() == null
+                ? true
+                : config.getBeforeConfig().isSaveContext();
+        DomainObject mainDomainObject = null;
+        if (isSaveContext) {
+            mainDomainObject = saveSimpleActionContext(context, locale, errorMessages, config);
+        }
+        final SimpleActionData result;
+        if (SimpleActionContext.COMPONENT_NAME.equals(config.getActionHandler())) {
+            result = new SimpleActionData();
+        } else {
+            final ActionHandler delegate = (ActionHandler) applicationContext.getBean(config.getActionHandler());
+            result = (SimpleActionData) delegate.executeAction(context); // after commit???
+        }
+        if (isSaveContext) {
+            result.setContextSaved(true);
+            result.setSavedMainObjectId(mainDomainObject.getId());
+        }
+        return result;
+    }
+
+    private DomainObject saveSimpleActionContext(SimpleActionContext context, String locale, List<String> errorMessages,
+                                                 SimpleActionConfig config) {
+        DomainObject mainDomainObject;
+        final UserInfo userInfo = GuiContext.get().getUserInfo();
+        final FormState mainFormState = context.getMainFormState();
+        final FormState confirmFormState = context.getConfirmFormState();
+
+        List<ValidatorConfig> validators = config.isImmediate() ? null : config.getCustomValidators();
+        if (confirmFormState != null) {
+            // Если confirmState существует, должен быть и referenceFieldPath
+            final FieldPath path = FieldPath.createPaths(
+                    config.getBeforeConfig().getLinkedDomainObjectConfig().getReferenceFieldPath())[0];
+            if (path.isMultiBackReference()) {
+                throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_REF_PATH_NOT_SUPPORTED,
+                        "Reference ${path} not supported", new Pair("path", path)));
+            }
+            final FormSaver formSaver = (FormSaver) applicationContext.getBean("formSaver");
+            final Map<FieldPath, Value> values = new HashMap<>();
+            if (path.isOneToOneBackReference()) {
+                mainDomainObject = saveFormImpl(mainFormState, userInfo, validators);
+                values.put(FieldPath.createPaths(path.getLinkToParentName())[0],
+                        new ReferenceValue(mainDomainObject.getId()));
+                formSaver.setContext(confirmFormState, values);
+                formSaver.saveForm();
+            } else {
+                DomainObject confirmDomainObject = saveFormImpl(confirmFormState, userInfo, null);
+                values.put(path, new ReferenceValue(confirmDomainObject.getId()));
+                PluginHandlerHelper.doCustomServerSideValidation(mainFormState, validators, locale);
+                if (!errorMessages.isEmpty()) {
+                    throw new ValidationException(buildMessage(LocalizationKeys.SERVER_VALIDATION_EXCEPTION,
+                            "Server-side validation failed"), errorMessages);
+                }
+                formSaver.setContext(mainFormState, values);
+                mainDomainObject = formSaver.saveForm();
+            }
+        } else {
+            mainDomainObject = saveFormImpl(mainFormState, userInfo, validators);
+        }
+        return mainDomainObject;
+    }
+
+    private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
+        Map<String, String> paramsMap = new HashMap<>();
+        for (Pair<String, String> pair  : params) {
+            paramsMap.put(pair.getFirst(), pair.getSecond());
+        }
+        return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);
+    }
+
+    private String buildMessage(String message, String defaultValue) {
+        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
     }
 
     @Override

@@ -58,7 +58,6 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
-            dataStructureDao.gatherStatistics();
         } catch (ConfigurationException e) {
             throw e;
         } catch (Exception e) {

@@ -1,19 +1,18 @@
 package ru.intertrust.cm.core.gui.api.server.action;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.AfterActionExecutionConfig;
+import ru.intertrust.cm.core.config.gui.action.OnSuccessMessageConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
@@ -21,6 +20,11 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
+
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author Denis Mitavskiy
@@ -45,17 +49,24 @@ public abstract class ActionHandler<E extends ActionContext, T extends ActionDat
     private FormatHandler formatHandler;
 
 
-    public T executeAction(Dto context) {
-        final ActionConfig config = context == null ? null : (ActionConfig) ((E) context).getActionConfig();
-        final T result = executeAction((E) context);
-        if (result != null && config != null && config.getAfterConfig() != null) {
-            final DomainObject dobj = ((E) context).getRootObjectId() != null
-                    ? crudService.find(((E) context).getRootObjectId())
-                    : null;
-            final String successPattern = (config.getAfterConfig().getMessageConfig() == null)
-                    ? null
-                    : config.getAfterConfig().getMessageConfig().getText();
-            result.setOnSuccessMessage(parseMessage(successPattern, dobj));
+    public T executeAction(Dto contextDto) {
+        final E context = (E) contextDto;
+        final ActionConfig config = contextDto == null ? null : (ActionConfig) context.getActionConfig();
+        final T result = executeAction(context);
+        if (result != null) {
+            final Id rootObjectId;
+            if (result instanceof SimpleActionData) {
+                rootObjectId = ((SimpleActionData) result).getSavedMainObjectId();
+            } else {
+                rootObjectId = context.getRootObjectId();
+            }
+            final AfterActionExecutionConfig afterConfig = config.getAfterConfig();
+            if (config != null && afterConfig != null) {
+                final DomainObject dobj = rootObjectId != null ? crudService.find(rootObjectId) : null;
+                final OnSuccessMessageConfig messageConfig = afterConfig.getMessageConfig();
+                final String successPattern = messageConfig == null ? null : messageConfig.getText();
+                result.setOnSuccessMessage(parseMessage(successPattern, dobj));
+            }
         }
         return result;
     }

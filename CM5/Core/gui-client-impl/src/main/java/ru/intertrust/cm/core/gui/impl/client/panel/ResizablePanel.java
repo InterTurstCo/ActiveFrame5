@@ -105,14 +105,13 @@ public abstract class ResizablePanel extends AbsolutePanel {
                     break;
                 case Event.ONMOUSEMOVE:
                     //reset cursor-type
-                    handleMouseMove(event);
+                    wrapHandleMouseMove(event);
                     break;
                 case Event.ONMOUSEUP:
                     handleMouseUp();
                     break;
             }
-            event.preventDefault();
-            event.stopPropagation();
+
         } else {
             super.onBrowserEvent(event);
         }
@@ -121,6 +120,17 @@ public abstract class ResizablePanel extends AbsolutePanel {
     private void handleMouseOver(Event event) {
 
         changeCursorStyle(getCursor(event));
+
+    }
+
+    private void wrapHandleMouseMove(Event event) {
+        if (bDragDrop) {
+            if (doNotBreakBoundaries(event)) {
+                handleMouseMove(event);
+            }
+            event.preventDefault(); //to avoid selection effect
+            event.stopPropagation();
+        }
 
     }
 

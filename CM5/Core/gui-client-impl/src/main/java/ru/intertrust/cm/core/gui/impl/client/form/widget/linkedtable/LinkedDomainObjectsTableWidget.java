@@ -150,7 +150,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
             if (createdObjectsConfig.getCreateObjectConfigs().size() == 1) {
                 String domainObjectType = createdObjectsConfig.getCreateObjectConfigs().get(0).getDomainObjectType();
-                button.addClickHandler(new OpenFormClickHandler(domainObjectType, null));
+                return button.addClickHandler(new OpenFormClickHandler(domainObjectType, null));
             } else {
                 return button.addClickHandler(new ClickHandler() {
                     @Override

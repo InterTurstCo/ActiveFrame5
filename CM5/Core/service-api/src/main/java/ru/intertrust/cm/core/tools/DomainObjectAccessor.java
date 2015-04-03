@@ -51,6 +51,13 @@ public class DomainObjectAccessor implements Dto {
         load(id);
     }
 
+    /**
+     * Перезачитывание ДО из хранилища
+     */
+    public void reload(){
+        load(domainObject.getId());
+    }
+    
     private void load(Id id){
         // TODO как сделается нормальная работа с токенами заменить токен на
         // токен для конкретного пользователя
@@ -71,25 +78,15 @@ public class DomainObjectAccessor implements Dto {
      */
     public Object get(String fieldName) {
     	Object result = null;
-    	//Обновляем доменный объект
-    	load(domainObject.getId());
 
     	//Если fieldName - простое
-    	if (fieldName.indexOf(".")==-1){
+    	if (fieldName.indexOf(".")==-1 && fieldName.indexOf("^")==-1){
             Value value = domainObject.getValue(fieldName);
             if (value != null) {
                 result = value.get();
             }
-        //Если fieldName - составное (пример: Negotiator.Employee.Name)
+        //Если fieldName - DOEL (пример: Negotiator.Employee.Name)
     	}else{
-    		//Получаем имя поля (пример: Negotiator)
-    		//String value = fieldName.substring(0,fieldName.indexOf("."));
-    		//Получаем остальную часть строки (пример: Employee.Name)
-    		//String other = fieldName.substring(fieldName.indexOf(".")+1);
-    		//Получаем дочерний объект по имени поля (пример: Negotiator)
-    		//DomainObjectAccessor doa = new DomainObjectAccessor(domainObject.getReference(value));
-    		//Получаем у дочернего объекта значение поля (пример: Employee.Name)
-    		//result = doa.get(other);
     	    DoelEvaluator doelEvaluator = getDoelEvaluator();
     	    List<Value> values = doelEvaluator.evaluate(DoelExpression.parse(fieldName), domainObject.getId(), getAccessToken());
     	    if (values.size() > 0){

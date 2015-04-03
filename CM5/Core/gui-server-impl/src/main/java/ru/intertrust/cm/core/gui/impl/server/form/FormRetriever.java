@@ -6,24 +6,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.ExactTypesConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LabelConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -36,26 +25,14 @@ import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.form.FieldPath;
-import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.FormObjects;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.MultiObjectNode;
-import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
-import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
+import ru.intertrust.cm.core.gui.model.form.*;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -74,9 +51,6 @@ public class FormRetriever extends FormProcessor {
     @Autowired
     ProfileService profileService;
 
-    public FormDisplayData getForm(String domainObjectType, FormViewerConfig formViewerConfig) {
-        return getForm(domainObjectType, null, null, formViewerConfig);
-    }
     public FormDisplayData getForm(FormPluginConfig formPluginConfig) {
         DomainObject root = crudService.createDomainObject(formPluginConfig.getDomainObjectTypeToCreate());
         if (formPluginConfig.getDomainObjectUpdatorComponent() != null) {
@@ -86,15 +60,6 @@ public class FormRetriever extends FormProcessor {
         }
         return buildDomainObjectForm(root, formPluginConfig.getFormViewerConfig(), formPluginConfig.getParentFormState(),
                 formPluginConfig.getParentId());
-    }
-
-    public FormDisplayData getForm(String domainObjectType, String updaterComponentName, Dto updaterContext, FormViewerConfig formViewerConfig) {
-        DomainObject root = crudService.createDomainObject(domainObjectType);
-        if (updaterComponentName != null) {
-            DomainObjectUpdater domainObjectUpdater = (DomainObjectUpdater) applicationContext.getBean(updaterComponentName);
-            domainObjectUpdater.updateDomainObject(root, updaterContext);
-        }
-        return buildDomainObjectForm(root, formViewerConfig, null, null);
     }
 
     public FormDisplayData getForm(Id domainObjectId, FormViewerConfig formViewerConfig) {

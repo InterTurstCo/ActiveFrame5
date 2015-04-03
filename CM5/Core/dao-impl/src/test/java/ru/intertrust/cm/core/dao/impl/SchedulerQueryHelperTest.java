@@ -3,14 +3,23 @@ package ru.intertrust.cm.core.dao.impl;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SchedulerQueryHelperTest {
 
     private static final String ACCESS_RIGHTS_PART = " and exists (select a.\"object_id\" from \"schedule_read\" a  " +
@@ -29,6 +38,12 @@ public class SchedulerQueryHelperTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
+    
     @Before
     public void setUp() throws Exception {
         initConfigs();
@@ -137,6 +152,9 @@ public class SchedulerQueryHelperTest {
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         queryHelper.setConfigurationExplorer(configurationExplorer);
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
+        queryHelper.setCurrentUserAccessor(currentUserAccessor);
+        queryHelper.setUserGroupCache(userGroupCache);
     }
 
     private AccessToken createMockAccessToken() {

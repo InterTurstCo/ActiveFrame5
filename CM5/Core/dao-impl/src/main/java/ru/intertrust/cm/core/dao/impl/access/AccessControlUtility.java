@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 
@@ -86,4 +88,13 @@ public class AccessControlUtility {
         }
         return typeName;
     }
+    
+    public static boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType, UserGroupGlobalCache userGroupCache,
+            ConfigurationExplorer configurationExplorer) {
+        if (personId == null) {
+            return false;
+        }
+        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
+    }
+
 }

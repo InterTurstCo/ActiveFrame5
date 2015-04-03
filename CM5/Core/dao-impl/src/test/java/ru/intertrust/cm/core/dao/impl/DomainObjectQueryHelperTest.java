@@ -4,12 +4,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +36,11 @@ public class DomainObjectQueryHelperTest {
 
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
 
     @Before
     public void setUp() throws Exception {
@@ -119,6 +130,9 @@ public class DomainObjectQueryHelperTest {
 
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
+        domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
+        domainObjectQueryHelper.setUserGroupCache(userGroupCache);
     }
 
     private AccessToken createMockAccessToken() {

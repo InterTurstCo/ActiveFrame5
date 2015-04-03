@@ -14,6 +14,8 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessType;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.ArrayList;
@@ -75,6 +77,10 @@ public class PostgresDatabaseAccessAgentTest {
     private DomainObjectTypeIdCache domainObjetcTypeIdCache;
     @Mock
     private ConfigurationExplorer configurationExplorer;
+    @Mock
+    private CurrentUserAccessor currentUserAccessor;
+    @Mock
+    private UserGroupGlobalCache userGroupCache;
 
     private RdbmsId employeeId;
     private RdbmsId departmentId;
@@ -83,7 +89,7 @@ public class PostgresDatabaseAccessAgentTest {
     public void setUp() throws Exception {
         employeeId = new RdbmsId(1, 1);
         departmentId = new RdbmsId(2, 1);
-
+        when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
     }
 
     @Test

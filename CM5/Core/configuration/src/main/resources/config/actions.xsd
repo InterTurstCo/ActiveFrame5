@@ -123,6 +123,7 @@
         <xs:complexContent>
             <xs:extension base="act:actionEntryType">
                 <xs:attribute name="action-handler" type="xs:string" use="required"/>
+                <xs:attribute name="re-read-in-same-transaction" type="xs:boolean" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
  */
 public class SqlLoggerEnforcerImpl implements SqlLoggerEnforcer {
 
-    private ThreadLocal<Boolean> enforceLogging = new ThreadLocal<>();
+    private static ThreadLocal<Boolean> enforceLogging = new ThreadLocal<>();
 
     /**
      * {link SqlLoggerEnforcer#forceSqlLogging}

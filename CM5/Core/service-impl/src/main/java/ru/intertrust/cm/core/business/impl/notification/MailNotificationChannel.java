@@ -56,10 +56,13 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             //В случае если в конфигурации не указан host то канал отключаем
             if (mailSenderWrapper.getHost() != null) {
                 MimeMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
-                mailSenderWrapper.send(message);
-                logger.debug("Notification sent by MailNotificationChannel notificationType=" + notificationType
-                        + "; senderId="
-                        + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
+                //Почтовое сообщение могло быть не сформировано, например из за отсутствия адресата
+                if (message != null){
+                    mailSenderWrapper.send(message);
+                    logger.debug("Notification sent by MailNotificationChannel notificationType=" + notificationType
+                            + "; senderId="
+                            + senderId + "; addresseeId=" + addresseeId + "; priority=" + priority + "; context=" + context);
+                }
             }
         } catch (Exception ex) {
             throw new MailNotificationException("Error send mail", ex);
@@ -99,6 +102,12 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         mailSenderWrapper.getHost();
         GenericDomainObject addresseDO = (GenericDomainObject) domainObjectDao.find(addresseeId, systemAccessToken);
         String addresseMail = addresseDO.getString(EMAIL_FIELD);
+        
+        //Проверка на то что у адресата есть email. если нет то не формируем сообщения
+        if (addresseMail == null || addresseMail.isEmpty()){
+            logger.debug("Notification for addressee " + addresseeId + " not send. Person email field is empty.");
+            return null;
+        }
 
         Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
         String subject =

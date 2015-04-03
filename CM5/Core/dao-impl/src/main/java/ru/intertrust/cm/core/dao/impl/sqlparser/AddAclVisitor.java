@@ -77,9 +77,12 @@ import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -95,8 +98,13 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     private ConfigurationExplorer configurationExplorer;
 
-    public AddAclVisitor(ConfigurationExplorer configurationExplorer) {
+    private UserGroupGlobalCache userGroupCache;
+    private CurrentUserAccessor currentUserAccessor;
+
+    public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
         this.configurationExplorer = configurationExplorer;
+        this.userGroupCache = userGroupCache;
+        this.currentUserAccessor = currentUserAccessor;
     }
 
     @Override
@@ -150,9 +158,18 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
     }
 
     private boolean needToAddAclSubQuery(Table table) {
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, table.getName());
+        if (isAdministratorWithAllPermissions) {
+            return false;
+        }
         // если ДО нет в конфигурации, значит это системный ДО и для него проверка ACL не нужна.
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(table.getName())) != null;
         return !configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName())) && isDomainObject;
+    }
+
+    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
     }
 
     private void processFromItem(PlainSelect plainSelect) {

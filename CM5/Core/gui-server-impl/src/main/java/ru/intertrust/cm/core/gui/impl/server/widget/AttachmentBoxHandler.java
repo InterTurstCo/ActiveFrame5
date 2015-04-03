@@ -8,17 +8,8 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.config.gui.form.widget.AddButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.AttachmentBoxConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.DeleteButtonConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SelectionStyleConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SingleChoiceConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
@@ -36,15 +27,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.intertrust.cm.core.business.api.BaseAttachmentService.CONTENT_LENGTH;
-import static ru.intertrust.cm.core.business.api.BaseAttachmentService.DESCRIPTION;
-import static ru.intertrust.cm.core.business.api.BaseAttachmentService.NAME;
+import static ru.intertrust.cm.core.business.api.BaseAttachmentService.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -53,7 +41,8 @@ import static ru.intertrust.cm.core.business.api.BaseAttachmentService.NAME;
  */
 @ComponentName("attachment-box")
 public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
-    private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
+    private static final String TEMP_STORAGE_PATH_PROPERTY = "${attachment.temp.storage}";
+    private static String TEMP_STORAGE_PATH;
 
     @Autowired
     private AttachmentService attachmentService;
@@ -126,8 +115,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     public List<DomainObject> saveNewObjects(WidgetContext context, WidgetState state) {
-        AttachmentBoxState attachmentBoxState = (AttachmentBoxState) state;
-        List<AttachmentItem> attachmentItems = attachmentBoxState.getAttachments();
+        List<AttachmentItem> attachmentItems = ((AttachmentBoxState) state).getAttachments();
         DomainObject domainObject = context.getFormObjects().getRootNode().getDomainObject();
         List<DomainObject> newObjects = new ArrayList<>(attachmentItems.size());
 
@@ -138,22 +126,15 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             if (attachmentItem.getId() != null) {
                 continue;
             }
-            String filePath = getFilePath(attachmentItem);
-            File fileToSave = new File(filePath);
-            long contentLength = fileToSave.length();
+            File fileToSave = getTemporaryFile(attachmentItem);
             try (InputStream fileData = new FileInputStream(fileToSave);
                  RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
-                DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject,
-                        attachmentType);
-
-                DomainObject savedDo;
-                savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
+                DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject, attachmentType);
+                DomainObject savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
                 newObjects.add(savedDo);
                 fileToSave.delete();
                 attachmentItem.setDomainObjectType(savedDo.getTypeName());
                 attachmentItem.setId(savedDo.getId());
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -162,18 +143,25 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         return newObjects;
     }
 
-    private String getFilePath(AttachmentItem attachmentItem) {
-        String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
-        return pathForTempFilesStore + attachmentItem.getTemporaryName();
+    private File getTemporaryFile(AttachmentItem attachmentItem) {
+        return new File(getTemporaryStoragePath() + attachmentItem.getTemporaryName());
+    }
+
+    private String getTemporaryStoragePath() {
+        if (TEMP_STORAGE_PATH != null) {
+            return TEMP_STORAGE_PATH;
+        }
+        synchronized (AttachmentBoxHandler.class) {
+            TEMP_STORAGE_PATH = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH_PROPERTY);
+        }
+        return TEMP_STORAGE_PATH;
     }
 
     private DomainObject createAttachmentDomainObject(AttachmentItem attachmentItem, DomainObject parentDomainObject,
                                   String attachmentType) throws IOException {
-        DomainObject attachmentDomainObject = attachmentService.
-                createAttachmentDomainObjectFor(parentDomainObject.getId(), attachmentType);
+        DomainObject attachmentDomainObject = attachmentService.createAttachmentDomainObjectFor(parentDomainObject.getId(), attachmentType);
         attachmentDomainObject.setValue(NAME, new StringValue(attachmentItem.getName()));
-        attachmentDomainObject.setValue(DESCRIPTION, new StringValue(attachmentItem.
-                getDescription()));
+        attachmentDomainObject.setValue(DESCRIPTION, new StringValue(attachmentItem.getDescription()));
         return attachmentDomainObject;
     }
 

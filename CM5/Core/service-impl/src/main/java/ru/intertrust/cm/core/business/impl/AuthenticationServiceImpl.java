@@ -13,7 +13,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AuthenticationDao;
@@ -37,17 +36,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private DomainObjectDao domainObjectDao;
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
     private AccessControlService accessControlService;
 
     @Autowired
     private PersonManagementServiceDao personManagementServiceDao;
-
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
-    }
 
     public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
         this.domainObjectDao = domainObjectDao;
@@ -63,7 +55,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      *            {@link AuthenticationInfoAndRole}
      */
     @Override
-    public void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo) {
+    public void insertAuthenticationInfoAndRole(AuthenticationInfoAndRole authenticationInfo, Id userGroupId) {
 
         GenericDomainObject authInfo = new GenericDomainObject();
         authInfo.setTypeName("Authentication_Info");
@@ -75,49 +67,40 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authInfo.setValue("User_Uid", new StringValue(authenticationInfo.getUserUid()));
 
         AccessToken accessToken = accessControlService.createSystemAccessToken("AuthenticationService");
-        DomainObject createdAuthInfo = domainObjectDao.create(authInfo, accessToken);
-
-        RdbmsId id  = (RdbmsId)createdAuthInfo.getId();
-        GenericDomainObject role = new GenericDomainObject();
-        role.setTypeName("Employee_Role");
-        role.setCreatedDate(currentDate);
-        role.setModifiedDate(currentDate);
-        StringValue roleName = new StringValue(authenticationInfo.getRole());
-        role.setValue("Role", roleName);
-        role.setValue("Authentication_Info", new ReferenceValue(id));
-        domainObjectDao.create(role, accessToken);
-
-        Id adminGroupId = personManagementServiceDao.getGroupId(GenericDomainObject.ADMINISTRATORS_STATIC_GROUP);
-
-        if (adminGroupId == null) {
-            throw new FatalException("Administrators group not found.");
-        }
-        List<DomainObject> personsInAdministrators = personManagementServiceDao.getAllPersonsInGroup(adminGroupId);
-        if (personsInAdministrators == null || personsInAdministrators.size() == 0) {
-            DomainObject adminPerson = createAdminPerson(authenticationInfo, currentDate, accessToken);
-            personManagementServiceDao.addPersonToGroup(adminGroupId, adminPerson.getId());
-        }
-
+        DomainObject createdAuthInfo = domainObjectDao.save(authInfo, accessToken);
+        DomainObject authInfoPerson = createAutenticationInfoPerson(authenticationInfo, currentDate, accessToken);
+        
+        addPersonToGroupIfEmpty(authInfoPerson, userGroupId);
     }
 
-    private DomainObject createAdminPerson(AuthenticationInfoAndRole authenticationInfo, Date currentDate,
+    private void addPersonToGroupIfEmpty(DomainObject authInfoPerson, Id userGroupId) {
+        if (userGroupId != null) {
+            List<DomainObject> personsInGroup = personManagementServiceDao.getAllPersonsInGroup(userGroupId);
+
+            if (personsInGroup == null || personsInGroup.size() == 0) {
+
+                personManagementServiceDao.addPersonToGroup(userGroupId, authInfoPerson.getId());
+            }
+        }
+    }
+   
+    private DomainObject createAutenticationInfoPerson(AuthenticationInfoAndRole authenticationInfo, Date currentDate,
             AccessToken accessToken) {
-        //Создание персоны администратора
         GenericDomainObject person = new GenericDomainObject();
         person.setTypeName("Person");
         person.setCreatedDate(currentDate);
         person.setModifiedDate(currentDate);
         person.setString("Login", authenticationInfo.getUserUid());
         person.setString("FirstName", authenticationInfo.getUserUid());
-        person.setString("Login", authenticationInfo.getUserUid());
         person.setString("EMail", authenticationInfo.getUserUid() + "@localhost.com");        
-        DomainObject adminPerson = domainObjectDao.create(person, accessToken);
+        DomainObject adminPerson = domainObjectDao.save(person, accessToken);
 
         if (adminPerson == null || adminPerson.getId() == null) {
-            throw new FatalException("Admin peson was not created.");
+            throw new FatalException("Peson was not created: " + authenticationInfo.getUserUid());
         }
         return adminPerson;
     }
+
 
     /**
      * Проверяет сужествует ли пользователь с указанным логином.

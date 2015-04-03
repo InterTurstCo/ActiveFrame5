@@ -18,6 +18,21 @@ import java.util.Map;
  */
 public interface DomainObjectDao {
 
+    enum AutoCreatedType {
+
+        UserEventLog("user_event_log"), ObjectAccessLog("object_access_log");
+
+        private String typeName;
+
+        AutoCreatedType(String typeName) {
+            this.typeName = typeName;
+        }
+
+        public String getTypeName() {
+            return typeName;
+        }
+    }
+
     String REFERENCE_TYPE_POSTFIX = "_type";
     String TIME_ID_ZONE_POSTFIX = "_tz";
     String REFERENCE_POSTFIX = "_id";
