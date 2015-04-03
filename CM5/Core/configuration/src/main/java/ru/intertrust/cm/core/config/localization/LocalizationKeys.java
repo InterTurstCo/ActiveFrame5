@@ -187,4 +187,6 @@ public class LocalizationKeys {
     public static final String OCTOBER_MONTH_SHORT_KEY = "OctoberMonthShort";
     public static final String NOVEMBER_MONTH_SHORT_KEY = "NovemberMonthShort";
     public static final String DECEMBER_MONTH_SHORT_KEY = "DecemberMonthShort";
+
+    public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
 }

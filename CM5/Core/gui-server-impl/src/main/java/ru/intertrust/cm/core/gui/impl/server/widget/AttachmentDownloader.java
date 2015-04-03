@@ -33,7 +33,7 @@ public class AttachmentDownloader {
 
     private static final long MAX_AGE = 60*60*24*365;
     private static final int BUFFER_SIZE = 1024*64;
-
+    public static final String ATTACHMENT_TEMP_STORAGE_PLACEHOLDER = "${attachment.temp.storage}";
     @Autowired
     protected CrudService crudService;
     @Autowired
@@ -49,7 +49,7 @@ public class AttachmentDownloader {
 
     @PostConstruct
     public void init() {
-        attachmentTempStoragePath = propertyResolver.resolvePlaceholders("${attachment.temp.storage}");
+        attachmentTempStoragePath = propertyResolver.resolvePlaceholders(ATTACHMENT_TEMP_STORAGE_PLACEHOLDER);
     }
 
     @RequestMapping(value = "attachment-download", method = RequestMethod.GET)
