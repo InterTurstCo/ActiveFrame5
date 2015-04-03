@@ -198,7 +198,7 @@
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
-             <act:action-group name="testGroup" text="Группа действий" merged="false">
+             <act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
                  <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
                                     permissions="Delete,Write,Create">
                      <act:action-params>
