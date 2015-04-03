@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
@@ -31,7 +30,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
  * 
  */
 @ExtensionPoint(filter = "User_Group")
-public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler, BeforeDeleteExtensionHandler, AfterDeleteExtensionHandler {
+public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler, BeforeDeleteExtensionHandler {
 
     @Autowired
     private PersonManagementServiceDao personManagementService;
@@ -80,13 +79,10 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
      */
     @Override
     public void onBeforeDelete(DomainObject deletedDomainObject) {
+
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
         domainObjectDao.delete(groupGroupId, accessToken);
-    }
-
-    @Override
-    public void onAfterDelete(DomainObject deletedDomainObject) {
         clearCollectionCache();
     }
 
@@ -122,14 +118,12 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
     }
 
     private void clearCollectionCache() {
-        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.name());
-        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.name());
-        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.name());
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.name());
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.name());
         domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.name());
-        
-
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.name());
     }
 
 }

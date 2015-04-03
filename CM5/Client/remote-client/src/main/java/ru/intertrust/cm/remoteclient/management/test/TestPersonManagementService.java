@@ -1,7 +1,16 @@
 package ru.intertrust.cm.remoteclient.management.test;
 
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
@@ -9,6 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
+import static org.junit.Assert.assertEquals;
 /**
  * Класс для тестирования сервиса управления пользователями и группами
  * @author larin
@@ -48,6 +58,7 @@ public class TestPersonManagementService extends ClientBase {
             crudService =
                     (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class);
 
+            
             // Создание массива пользователей и групп
             for (int i = 1; i < 15; i++) {
                 // Поиск пользователя
@@ -124,7 +135,7 @@ public class TestPersonManagementService extends ClientBase {
             assertTrue("Person list", personService.getPersonsInGroup(groupIds.get("group1")).size() == 1);
             assertTrue("Person list", personService.getAllPersonsInGroup(groupIds.get("group1")).size() == 7);
             //Групп больше так как прибавляется группа AllPersons и контекстная группа для пользователя Person
-            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 11);
+            assertTrue("Group list", personService.getPersonGroups(personIds.get("person9")).size() == 7);
             assertTrue("Group list", personService.getAllParentGroup(groupIds.get("group12")).size() == 2);
             assertTrue("Group list", personService.getChildGroups(groupIds.get("group2")).size() == 2);
             assertTrue("Group list", personService.getAllChildGroups(groupIds.get("group2")).size() == 6);
@@ -172,6 +183,54 @@ public class TestPersonManagementService extends ClientBase {
         }
     }
 
+    private DomainObject createOrganizationDomainObject() {
+        DomainObject organizationDomainObject = crudService.createDomainObject("Organization");
+        organizationDomainObject.setString("Name", "Organization" + new Date());
+        return organizationDomainObject;
+    }
+
+    private DomainObject createDepartmentDomainObject(DomainObject savedOrganizationObject) {
+        DomainObject departmentDomainObject = crudService.createDomainObject("Department");
+        departmentDomainObject.setString("Name", "department1");
+        departmentDomainObject.setReference("Organization", savedOrganizationObject.getId());
+        return departmentDomainObject;
+    }
+    
+    private List<Id> getIdList(List<DomainObject> domainObjects) {
+        List<Id> foundIds = new ArrayList<Id>();
+        for (DomainObject domainObject : domainObjects) {
+            foundIds.add(domainObject.getId());
+        }
+        return foundIds;
+    }
+    
+    public void testFindAndDeleteList() throws Exception {
+
+        DomainObject organization1 = createOrganizationDomainObject();
+        
+        DomainObject savedOrganization1 = crudService.save(organization1);
+
+        DomainObject department = createDepartmentDomainObject(savedOrganization1);
+        DomainObject savedDepartment = crudService.save(department);
+        
+        Id[] objects = new Id[] {savedDepartment.getId(), savedOrganization1.getId()};
+        List<Id> objectIds = Arrays.asList(objects);
+
+        List<DomainObject> foundObjects = crudService.find(objectIds);
+
+        List<Id> foundIds = getIdList(foundObjects);
+        assertNotNull(foundObjects);
+        assertTrue("Find and Delete", foundObjects.size() == 2);
+
+        assertTrue("Find and Delete", foundIds.contains(savedDepartment.getId()));
+        assertTrue("Find and Delete", foundIds.contains(savedOrganization1.getId()));
+
+        crudService.delete(objectIds);
+        foundObjects = crudService.find(objectIds);
+        assertTrue("Find and Delete", foundObjects.size() == 0);
+
+    }
+    
     private int getStaticGroupCount(List<DomainObject> groups) {
         int result = 0;
         for (DomainObject group : groups) {
