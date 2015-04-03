@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
@@ -45,6 +46,9 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
     @Autowired
     private AccessControlService accessControlService;
 
+    @Autowired
+    private DomainObjectCacheService domainObjectCacheService; 
+
     /**
      * Входная точка точки расширения. Вызывается когда сохраняется доменный
      * обьект group_group_settings
@@ -66,8 +70,19 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
         for (DomainObject role : roles) {
             refreshRoleRoles(role.getId());
         }
+        clearCollectionCache();
     }
 
+    private void clearCollectionCache() {
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.name());
+        domainObjectCacheService.clearObjectCollectionByKey(DomainObjectCacheService.COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.name());
+        
+    }
+    
     private void refreshRoleRoles(Id parent) {
         // Получаем состав группы из конфигурации
         List<Id> childGroups = getAllChildGroupsIdByConfig(parent);
@@ -192,12 +207,12 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
 
     @Override
     public void onAfterDelete(DomainObject domainObject) {
-                
+
         Id parent = domainObject.getReference("parent_group_id");
 
         // Получаем роли, которые включают родительскую роль с учетом иерархии
         List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
-
+        clearCollectionCache();
         // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
         refreshRoleRoles(parent);
         for (DomainObject role : roles) {
