@@ -795,8 +795,12 @@ h1 {
 .left-section:hover {
     box-shadow: 5px 0 5px rgba(0, 0, 0, 0.5);
 }
-
-.central-div-panel-test {
+.central-div-panel-test,
+.central-div-panel-test-full,
+.central-div-panel-test-active,
+.centralPanelRightPanelOpen,
+.centralPanelLeftAndRightPanelOpen,
+.centralPanelRightPanelOpenFull{
     background: #fafafa;
     display: block;
     height: auto;
@@ -807,62 +811,27 @@ h1 {
     bottom: 0;
     -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
     transition: margin 0.5s;
+}
+.central-div-panel-test {
     margin: 70px 11px 0px 130px;
 }
 
 .central-div-panel-test-full {
-    background: #fafafa;
-    display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: margin 0.5s;
     margin: 11px;
     z-index: 17;
 }
 
 .central-div-panel-test-active {
-    background: #fafafa;
-    display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: margin 0.5s;
     margin: 70px 11px 11px 375px;
 }
 
 .centralPanelRightPanelOpen {
-    background: #fafafa;
-    display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: margin 0.5s;
     margin: 70px 265px 0px 130px;
 }
+.centralPanelLeftAndRightPanelOpen{
+    margin: 70px 265px 0px 375px;
+}
 .centralPanelRightPanelOpenFull {
-    background: #fafafa;
-    display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    -webkit-transition: margin 0.5s; /* For Safari 3.1 to 6.0 */
-    transition: margin 0.5s;
     margin: 0px 265px 0px 0px;
 }
 

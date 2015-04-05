@@ -174,23 +174,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         CurrentUserInfo currentUserInfo = getUserInfo(initializationInfo);
         CurrentVersionInfo version = getVersion(initializationInfo);
         headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version,
-                 initializationInfo.getHelperLink());
+                initializationInfo.getHelperLink());
 
         header.add(headerContainer);
 
         left.add(navigationTreePanel);
 
-        glEventBus.addHandler(SideBarResizeEvent.TYPE, new SideBarResizeEventHandler() {
-            @Override
-            public void sideBarFixPositionEvent(SideBarResizeEvent event) {
-                final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
-                if (!compactModeState.isExpanded()) {
-                    left.setStyleName(event.getStyleForLeftSector());
-                    centralDivPanel.setStyleName(event.getStyleForCenterSector());
-                }
-            }
-        });
-
+        glEventBus.addHandler(SideBarResizeEvent.TYPE, new BusinessUniverseSideBarEventHandler());
 
         // обработчик окончания расширенного поиска
         glEventBus.addHandler(ExtendedSearchCompleteEvent.TYPE, new ExtendedSearchCompleteEventHandler() {
@@ -275,44 +265,13 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 //int centralPanelHeight = event.getHeight() - 81;
 
                 centralPluginPanel.setVisibleWidth(centralPanelWidth);
-                //centralPluginPanel.setVisibleHeight(centralPanelHeight);
                 centralPluginPanel.asWidget().getElement().getFirstChildElement().addClassName
                         ("central-plugin-panel-table");
-                //centrInner.getElement().getStyle().setHeight(centralPanelHeight - 11, Style.Unit.PX);
                 Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
 
             }
         });
     }
-
-
-//    private void addStickerPanel() {
-//
-//        final FlowPanel flowPanel = new FlowPanel();
-//        final ToggleButton toggleBtn = new ToggleButton("sticker");
-//        final FocusPanel focusPanel = new FocusPanel();
-//        toggleBtn.addClickHandler(new ClickHandler() {
-//            @Override
-//            public void onClick(ClickEvent event) {
-//                if (toggleBtn.getValue()) {
-//
-//                    centralPluginWidth -= 300;
-//                    stickerPluginWidth = 300;
-//                } else {
-//                    centralPluginWidth += 300;
-//                    stickerPluginWidth = 30;
-//                }
-//
-//                centralPluginPanel.setVisibleWidth(centralPluginWidth);
-//                Application.getInstance().getEventBus().fireEvent(new PluginPanelSizeChangedEvent());
-//            }
-//        });
-//        flowPanel.add(toggleBtn);
-//        focusPanel.add(flowPanel);
-//        focusPanel.getElement().getStyle().setBackgroundColor("white");
-//        stickerPluginWidth = 30;
-//
-//    }
 
     private void addStickerPanel() {
         AbsolutePanel panel = new AbsolutePanel();
@@ -402,8 +361,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 message = "Ошибка поддержки истории: " + ex.getMessage();
             } else if (ex.getCause() instanceof HistoryException) {
                 message = "Ошибка поддержки истории: " + ex.getCause().getMessage();
-            }
-            else if (ex instanceof GuiException) {
+            } else if (ex instanceof GuiException) {
                 message = ex.getMessage();
             } else {
                 GWT.log("Uncaught exception escaped", ex);
@@ -416,9 +374,9 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     private static Throwable unwrap(Throwable e) {
-        if(e instanceof UmbrellaException) {
+        if (e instanceof UmbrellaException) {
             UmbrellaException ue = (UmbrellaException) e;
-            if(ue.getCauses().size() == 1) {
+            if (ue.getCauses().size() == 1) {
                 return unwrap(ue.getCauses().iterator().next());
             }
         }

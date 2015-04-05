@@ -84,6 +84,7 @@ public class BusinessUniverseConstants {
     public static final String CENTRAL_SECTION_STYLE = "central-div-panel-test";
     public static final String CENTRAL_SECTION_FULL_SIZE_STYLE = "central-div-panel-test-full";
     public static final String CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE = "centralPanelRightPanelOpen";
+    public static final String CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE = "centralPanelLeftAndRightPanelOpen";
     public static final String CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE = "centralPanelRightPanelOpenFull";
     public static final String CENTRAL_SECTION_ACTIVE_STYLE = "central-div-panel-test-active";
 
