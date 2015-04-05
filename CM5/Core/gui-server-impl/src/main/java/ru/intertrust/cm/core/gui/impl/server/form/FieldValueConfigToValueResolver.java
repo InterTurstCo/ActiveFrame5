@@ -86,7 +86,7 @@ public class FieldValueConfigToValueResolver {
             return new ReferenceValue(domainObjectByUniqueKey.getId());
         }
         if(fieldValueConfig.isSetParentObject()){
-            return parentId != null ? null : new ReferenceValue(parentId);
+            return parentId == null ? null : new ReferenceValue(parentId);
         }
         return literalFieldValueParser.textToValue(fieldValueConfig, fieldConfig);
     }
