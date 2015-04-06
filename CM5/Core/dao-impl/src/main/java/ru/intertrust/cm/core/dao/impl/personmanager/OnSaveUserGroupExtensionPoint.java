@@ -49,6 +49,7 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
 
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
+        clearCollectionCache();
         if (!personManagementService.isGroupInGroup(domainObject.getId(), domainObject.getId(), true)) {
             DomainObject groupGroup = createDomainObject("group_group");
             groupGroup.setReference("parent_group_id", domainObject.getId());
@@ -56,7 +57,6 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
             AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
             domainObjectDao.save(groupGroup, accessToken);
         }
-        clearCollectionCache();
     }
 
     /**
@@ -79,11 +79,10 @@ public class OnSaveUserGroupExtensionPoint implements AfterSaveExtensionHandler,
      */
     @Override
     public void onBeforeDelete(DomainObject deletedDomainObject) {
-
+        clearCollectionCache();
         Id groupGroupId = getGroupGroupId(deletedDomainObject.getId(), deletedDomainObject.getId());
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnSaveUserGroupExtensionPoint");
         domainObjectDao.delete(groupGroupId, accessToken);
-        clearCollectionCache();
     }
 
     /**
