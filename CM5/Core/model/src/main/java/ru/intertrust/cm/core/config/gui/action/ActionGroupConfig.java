@@ -59,7 +59,8 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
             @ElementList(entry = "action", type = ActionConfig.class, inline = true, required = false),
             @ElementList(entry = "simple-action", type = SimpleActionConfig.class, inline = true, required = false),
             @ElementList(entry = "action-ref", type = ActionRefConfig.class, inline = true, required = false),
-            @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false)
+            @ElementList(entry = "action-separator", type = ActionSeparatorConfig.class, inline = true, required = false),
+            @ElementList(entry = "action-group", type = ActionGroupConfig.class, inline = true, required = false)
     })
     private List<AbstractActionConfig> children;
 

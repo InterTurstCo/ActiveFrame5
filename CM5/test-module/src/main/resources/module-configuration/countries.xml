@@ -199,7 +199,7 @@
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
              <act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
-                 <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
+                <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 0"
                                     permissions="Delete,Write,Create">
                      <act:action-params>
                          <act:action-param name="param1" value="value1" />
@@ -226,12 +226,12 @@
                      <act:after-execution>
                          <act:on-success-message text="Country '{name}' saved"/>
                      </act:after-execution>
-                     <!--act:validators>
-                         <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
-                     </act:validators-->
                  </act:simple-action>
 
                  <act:action-ref name-ref="aSimpleAction2"/>
+                 <act:action-group name="innerGroup" text="Подменю">
+                     <act:action-ref name-ref="aSimpleAction2"/>
+                 </act:action-group>
             </act:action-group>
         </act:tool-bar>
         <markup>
