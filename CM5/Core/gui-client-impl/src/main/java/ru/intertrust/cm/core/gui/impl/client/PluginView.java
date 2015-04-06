@@ -285,6 +285,7 @@ public abstract class PluginView implements IsWidget {
                 return null;
             else {
                 MenuBar mBar = new MenuBar(true);
+                mBar.setStyleName("decorated-action-link");
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
@@ -304,7 +305,7 @@ public abstract class PluginView implements IsWidget {
                     }
                 }
                 MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(subContext), mBar);
-                updateByConfig(menuItem, config); 
+                updateByConfig(menuItem, config);
                 menuItem.setTitle(config.getTooltip());
                 return menuItem;
             }

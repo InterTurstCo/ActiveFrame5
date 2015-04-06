@@ -5,6 +5,7 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionDisplayType;
 import ru.intertrust.cm.core.config.gui.action.ActionGroupConfig;
@@ -72,7 +73,7 @@ public final class ComponentHelper {
             }
             DOM.appendChild(wrapper.getElement(), image.getElement());
         } else if (actionConfig.getImageClass() != null) {
-            final String imageClass = getGroupImageClass(actionConfig.getImageClass(), context);
+            final String imageClass = getImageClass(actionConfig.getImageClass(), context);
             final SimplePanel panel = new SimplePanel();
             panel.setStyleName(imageClass);
             DOM.appendChild(wrapper.getElement(), panel.getElement());
@@ -106,32 +107,14 @@ public final class ComponentHelper {
     }
 
     private static String getImageClass(final String imageClass, ActionContext context) {
-        final ActionDisplayType type = ((ActionConfig) context.getActionConfig()).getDisplay();
-        String result = ToggleAction.NO_IMAGE_ACTION_STYLE_NAME;
-        if (ActionDisplayType.toggleButton == type) {
-            CommonCssResource currentCommonCss = GlobalThemesManager.getCurrentTheme().commonCss();
-            final ToggleActionContext toggleActionContext = (ToggleActionContext) context;
-            switch (imageClass) {
-                case ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME:
-                    result = toggleActionContext.isPushed() ? currentCommonCss.favoritePanelOff()
-                            : currentCommonCss.favoritePanelOn();
-                    break;
-                case ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME:
-                    result = toggleActionContext.isPushed() ? currentCommonCss.formFullSizeOff()
-                            : currentCommonCss.formFullSizeOn();
-                    break;
-                case ToggleAction.CONFIGURATION_UPLOAD_ACTION_STYLE_NAME:
-                    result = currentCommonCss.configurationUploader();
-                    break;
-            }
-        } else {
-            result = imageClass;
+        ActionDisplayType type = null;
+        AbstractActionConfig config = context.getActionConfig();
+        if(config instanceof ActionConfig){
+            type = ((ActionConfig) context.getActionConfig()).getDisplay();
+        } else
+        if(config instanceof ActionGroupConfig) {
+            type = ((ActionGroupConfig) context.getActionConfig()).getDisplay();
         }
-        return result;
-    }
-
-    private static String getGroupImageClass(final String imageClass, ActionContext context) {
-        final ActionDisplayType type = ((ActionGroupConfig) context.getActionConfig()).getDisplay();
         String result = ToggleAction.NO_IMAGE_ACTION_STYLE_NAME;
         if (ActionDisplayType.toggleButton == type) {
             CommonCssResource currentCommonCss = GlobalThemesManager.getCurrentTheme().commonCss();

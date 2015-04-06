@@ -10,6 +10,7 @@
     <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-group" type="act:actionGroupType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action-ref-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
@@ -118,6 +119,19 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:complexType name="actionGroupRefType">
+        <xs:complexContent>
+            <xs:extension base="act:baseActionType">
+                <xs:attribute name="name-ref" type="xs:string" use="required"/>
+                <xs:attribute name="text" type="xs:string" use="optional"/>
+                <xs:attribute name="showText" type="xs:boolean" default="true"/>
+                <xs:attribute name="showImage" type="xs:boolean" default="true"/>
+                <xs:attribute name="order" type="xs:positiveInteger" />
+                <xs:attribute name="rendered" type="xs:string" default="true"/>
+                <xs:attribute name="merged" type="xs:boolean" default="false" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="simpleActionType">
         <xs:complexContent>
