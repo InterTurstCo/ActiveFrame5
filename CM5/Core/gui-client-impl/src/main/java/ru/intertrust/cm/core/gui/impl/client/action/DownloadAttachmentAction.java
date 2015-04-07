@@ -14,6 +14,8 @@ import ru.intertrust.cm.core.gui.model.action.AttachmentAvailabilityActionContex
 import ru.intertrust.cm.core.gui.model.action.DownloadAttachmentActionContext;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
+
 /**
  * @author Lesia Puhova
  *         Date: 23.12.2014
@@ -34,16 +36,17 @@ public class DownloadAttachmentAction extends Action {
         StringBuilder url = new StringBuilder(com.google.gwt.core.client.GWT.getHostPageBaseURL())
                 .append("attachment-download?");
         if (getTemporaryName() != null) {
-            url.append("tempName=").append(getTemporaryName()).append("&");
+            url.append(DOWNLOAD_TEMP_NAME).append(DOWNLOAD_EQUAL).append(getTemporaryName());
         } else if (getId() != null) {
-            url.append("id=").append(getId().toStringRepresentation());
+            url.append("&");
+            url.append(DOWNLOAD_ID).append(DOWNLOAD_EQUAL).append(getId().toStringRepresentation());
         }
 
         if (getId() != null || getTemporaryName() != null) {
             tryDownloadAttachment(url.toString());
 
         } else {
-            Window.alert("Вложений не обнаружено");
+            alertError();
         }
     }
 

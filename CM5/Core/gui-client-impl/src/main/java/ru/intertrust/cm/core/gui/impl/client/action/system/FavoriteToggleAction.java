@@ -27,7 +27,6 @@ public class FavoriteToggleAction extends ToggleAction {
 
         if (actionContext.isPushed()) {
             openRightPanel();
-            ;
         }
         if (!actionContext.isPushed()) {
             closeRightPanel();
@@ -43,6 +42,9 @@ public class FavoriteToggleAction extends ToggleAction {
         if (center.hasClassName(CENTRAL_SECTION_FULL_SIZE_STYLE)) {
             center.setClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
             right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
+        }else if(center.hasClassName(CENTRAL_SECTION_ACTIVE_STYLE)){
+            center.setClassName(CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE);
+            right.setClassName(RIGHT_SECTION_EXPANDED_STYLE);
         } else {
             center.setClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
             right.setClassName(RIGHT_SECTION_EXPANDED_STYLE);
@@ -53,7 +55,11 @@ public class FavoriteToggleAction extends ToggleAction {
         if (center.hasClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE)) {
             center.setClassName(CENTRAL_SECTION_FULL_SIZE_STYLE);
             right.setClassName(RIGHT_SECTION_COLLAPSED_FULL_STYLE);
-        } else {
+        } else if(center.hasClassName(CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE)){
+            center.setClassName(CENTRAL_SECTION_ACTIVE_STYLE);
+            right.setClassName(RIGHT_SECTION_COLLAPSED_STYLE);
+        }
+        else {
             center.setClassName(CENTRAL_SECTION_STYLE);
             right.setClassName(RIGHT_SECTION_COLLAPSED_STYLE);
         }

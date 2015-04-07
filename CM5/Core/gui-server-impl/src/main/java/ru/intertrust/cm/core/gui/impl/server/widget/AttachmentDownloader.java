@@ -17,11 +17,14 @@ import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -34,6 +37,7 @@ public class AttachmentDownloader {
     private static final long MAX_AGE = 60*60*24*365;
     private static final int BUFFER_SIZE = 1024*64;
     public static final String ATTACHMENT_TEMP_STORAGE_PLACEHOLDER = "${attachment.temp.storage}";
+    public static final String UTF_8 = "UTF-8";
     @Autowired
     protected CrudService crudService;
     @Autowired
@@ -55,7 +59,7 @@ public class AttachmentDownloader {
     @RequestMapping(value = "attachment-download", method = RequestMethod.GET)
     public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userAgent = request.getHeader("user-agent");
-        String id = request.getParameter("id");
+        String id = request.getParameter(DOWNLOAD_ID);
         String absolutePath = "";
         String filename;
         long contentLength;
@@ -70,16 +74,16 @@ public class AttachmentDownloader {
             filename = domainObject.getString("Name");
             contentLength = remoteFileData.available();
         } else {
-            filename = request.getParameter("tempName");
+            filename = getTempNameFromRequestQuery(request.getQueryString());
             absolutePath = attachmentTempStoragePath + filename;
             contentLength = new File(absolutePath).length();
         }
         response.setHeader("Content-Length", String.valueOf(contentLength));
         response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
         response.setBufferSize(BUFFER_SIZE);
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(UTF_8);
 
-        filename = URLEncoder.encode(filename, "UTF-8").replaceAll("\\+","%20");
+        filename = URLEncoder.encode(filename, UTF_8).replaceAll("\\+","%20");
         //For Firefox encoding issue
         String contentDispositionPart = userAgent.indexOf("Firefox") > 0 ? "attachment; filename*=UTF-8''" + filename
                 :"attachment; filename=\"" + filename + "\"";
@@ -90,6 +94,12 @@ public class AttachmentDownloader {
             stream(fileData, response.getOutputStream());
             response.flushBuffer();
         }
+    }
+
+    private String getTempNameFromRequestQuery(String requestQuery) throws UnsupportedEncodingException {
+        String decodedRequest = URLDecoder.decode(requestQuery, UTF_8);
+        String replacement = new StringBuilder(DOWNLOAD_TEMP_NAME).append(DOWNLOAD_EQUAL).toString();
+        return decodedRequest.replace(replacement,"");
     }
 
     private void stream(InputStream input, OutputStream output) throws IOException {

@@ -76,13 +76,11 @@ public class DownloadAttachmentActionHandler implements ComponentHandler {
     }
 
     private boolean availableFromTempDir(String tempName) throws IOException {
-        if (false) { //temporary not allowed from dir
-            String attachmentTempStoragePath = propertyResolver.resolvePlaceholders(ATTACHMENT_TEMP_STORAGE_PLACEHOLDER);
-            try (InputStream inputStream = new FileInputStream(attachmentTempStoragePath + tempName)) {
-                return true;
-            }
+        String attachmentTempStoragePath = propertyResolver.resolvePlaceholders(ATTACHMENT_TEMP_STORAGE_PLACEHOLDER);
+        try (InputStream inputStream = new FileInputStream(attachmentTempStoragePath + tempName)) {
+            return true;
         }
-        return false;
+
     }
 
     private RemoteInputStream createRemoteInputStream(Id id) {

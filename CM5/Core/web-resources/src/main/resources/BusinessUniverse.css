@@ -24,6 +24,9 @@ time, mark, audio, video {
     font: inherit;
     vertical-align: baseline;
 }
+body {
+    overflow: hidden;
+}
 
 *:focus {
     outline: 0;

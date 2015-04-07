@@ -22,6 +22,8 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
+import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.ExtensionPointException;
 
@@ -32,7 +34,7 @@ import ru.intertrust.cm.core.model.ExtensionPointException;
  * 
  */
 @ExtensionPoint(filter = "group_group_settings")
-public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler {
+public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler{
 
     @Autowired
     private PersonManagementServiceDao personManagementService;
@@ -55,6 +57,8 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
      */
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
+        clearCollectionCache();
+
         Id parent = domainObject.getReference("parent_group_id");
         Id child = domainObject.getReference("child_group_id");
         // Проверка на зацикливание
@@ -70,7 +74,6 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
         for (DomainObject role : roles) {
             refreshRoleRoles(role.getId());
         }
-        clearCollectionCache();
     }
 
     private void clearCollectionCache() {
@@ -207,12 +210,12 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
 
     @Override
     public void onAfterDelete(DomainObject domainObject) {
+        clearCollectionCache();
 
         Id parent = domainObject.getReference("parent_group_id");
 
         // Получаем роли, которые включают родительскую роль с учетом иерархии
         List<DomainObject> roles = personManagementService.getAllParentGroup(parent);
-        clearCollectionCache();
         // Вызываем пересчет состава ролей всех этих ролей и самой изменяемой роли
         refreshRoleRoles(parent);
         for (DomainObject role : roles) {

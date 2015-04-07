@@ -25,6 +25,9 @@ public class ModelConstants {
     //collection image sizes
     public static final String COLLECTION_IMAGE_WIDTH = "25px";
     public static final String COLLECTION_IMAGE_HEIGHT = "25px";
+    public static final String DOWNLOAD_TEMP_NAME= "tempName";
+    public static final String DOWNLOAD_ID = "id";
+    public static final String DOWNLOAD_EQUAL = "=";
 
 
 }

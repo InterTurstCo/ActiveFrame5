@@ -93,7 +93,7 @@ public class CollectionPluginView extends PluginView {
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
     private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
     private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
-
+    private boolean filteredByUser;
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
         this.eventBus = plugin.getLocalEventBus();
@@ -395,6 +395,7 @@ public class CollectionPluginView extends PluginView {
 
             }
         }
+        filteredByUser = true;
     }
 
     private void onKeyEscapePressed() {
@@ -409,6 +410,7 @@ public class CollectionPluginView extends PluginView {
                 initialFilters.clear();
             }
         }
+        filteredByUser = false;
 
     }
 
@@ -567,7 +569,7 @@ public class CollectionPluginView extends PluginView {
             }
         }
         root.add(tableBody);
-
+        tableBody.setEmptyTableMessage(!getPluginData().isEmbedded());
     }
 
     @Override
@@ -787,7 +789,11 @@ public class CollectionPluginView extends PluginView {
         }
         tableBody.flush();
         if(listCount == 0){
+            if(getPluginData().isEmbedded()){
+            tableBody.setEmptyTableMessage(filteredByUser);
+            }
             tableBody.setEmptyTableWidgetWidth(tableBodyWidth);
+
         }
         setUpScrollSelection( );
         columnHeaderController.updateFilterValues();
