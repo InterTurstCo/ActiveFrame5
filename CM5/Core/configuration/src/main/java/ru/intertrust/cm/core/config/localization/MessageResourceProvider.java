@@ -20,9 +20,15 @@ public class MessageResourceProvider {
     public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 
     private static Map<String, Map<String, String>> localeToResource = new HashMap<>();
+    private static String defaultLocale;
 
     public static void setLocaleToResource(Map<String, Map<String, String>> localeToResource) {
         MessageResourceProvider.localeToResource = localeToResource;
+        MessageResourceProvider.defaultLocale = findDefaultLocale();
+    }
+
+    public static String getDefaultLocale() {
+        return defaultLocale;
     }
 
     public static  Map<String, String> getMessages(String locale) {
@@ -64,6 +70,30 @@ public class MessageResourceProvider {
 
     public static Set<String> getAvailableLocales() {
         return localeToResource.keySet();
+    }
+
+    private static String findDefaultLocale() {
+        final Set<String> locales = MessageResourceProvider.getAvailableLocales();
+        if (locales == null || locales.isEmpty()) {
+            return null;
+        }
+        if (locales.contains("ru")) {
+            return "ru";
+        }
+        if (locales.contains("en")) {
+            return "en";
+        }
+        for (String locale : locales) {
+            if (locale.startsWith("ru")) {
+                return locale;
+            }
+        }
+        for (String locale : locales) {
+            if (locale.startsWith("en")) {
+                return locale;
+            }
+        }
+        return locales.iterator().next();
     }
 
     private static String createKey(String value, String classifier, Map<String, ? extends Object> context) {
