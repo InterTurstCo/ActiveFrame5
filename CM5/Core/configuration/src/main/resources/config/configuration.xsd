@@ -388,6 +388,7 @@
             <xs:element name="collection-mappings" type="con:collectionMappingsType" maxOccurs="unbounded" minOccurs="0"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element ref="act:action" />
+            <xs:element ref="act:action-group" />
             <xs:element ref="act:simple-action" />
             <xs:element ref="act:tool-bar" />
             <xs:element ref="act:menu-bar" />

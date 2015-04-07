@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.server;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.BaseActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
@@ -36,5 +37,5 @@ public interface ActionService {
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale);
 
-    ActionConfig getActionConfig(String name);
+    <T extends BaseActionConfig> T getActionConfig(String name, Class<T> type);
 }

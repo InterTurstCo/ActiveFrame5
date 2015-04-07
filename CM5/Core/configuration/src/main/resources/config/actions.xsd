@@ -10,7 +10,7 @@
     <xs:element name="action-separator" type="act:actionSeparatorType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action" type="act:actionEntryType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-group" type="act:actionGroupType" substitutionGroup="act:abstract-action"/>
-    <xs:element name="action-ref-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="action-group-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>

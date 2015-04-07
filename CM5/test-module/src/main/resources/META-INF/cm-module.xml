@@ -20,6 +20,7 @@
     <configuration-paths>
         <configuration-path>module-configuration/custom-config.xml</configuration-path>
         <configuration-path>module-configuration/domain-objects.xml</configuration-path>
+        <configuration-path>module-configuration/action-groups.xml</configuration-path>
         <configuration-path>module-configuration/countries.xml</configuration-path>
         <configuration-path>module-configuration/letters.xml</configuration-path>
         <configuration-path>module-configuration/unions.xml</configuration-path>

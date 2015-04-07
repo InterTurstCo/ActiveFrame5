@@ -28,7 +28,7 @@
             <attachment-type name="fauna_attachment"/>
         </attachment-types>
     </domain-object-type>
-    
+
     <domain-object-type name="superCountry" initial-status="Active" extends="country"/>
 
     <domain-object-type name="country_best_friend" initial-status="Active">
@@ -128,18 +128,19 @@
         </fields>
     </domain-object-type>
 
-    <act:simple-action name="aSimpleAction2" componentName="simple.action" action-handler="simple.action" text="Simple action 2"
+    <act:simple-action name="aSimpleAction2" componentName="simple.action" action-handler="simple.action"
+                       text="Simple action 2"
                        permissions="Delete,Write,Create">
         <act:action-params>
-            <act:action-param name="param1" value="value1" />
-            <act:action-param name="param2" value="value2" />
-            <act:action-param name="param3" value="value3" />
-            <act:action-param name="param4" value="value4" />
+            <act:action-param name="param1" value="value1"/>
+            <act:action-param name="param2" value="value2"/>
+            <act:action-param name="param3" value="value3"/>
+            <act:action-param name="param4" value="value4"/>
         </act:action-params>
         <act:before-execution>
             <act:confirmation-message text="Are you sure?"/>
             <act:linked-domain-object title="Заголовок доп. формы">
-                <act:reference field-path="description_form|country" />
+                <act:reference field-path="description_form|country"/>
                 <act:perform-validation value="true"/>
                 <act:form-mapping form="confirm_country">
                     <act:users>
@@ -161,21 +162,21 @@
         <act:tool-bar useDefault="true">
             <act:action-ref name-ref="aCreate" text="Создать город">
                 <act:action-params>
-                    <act:action-param name="create.object.type" value="city" />
+                    <act:action-param name="create.object.type" value="city"/>
                 </act:action-params>
             </act:action-ref>
             <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 1"
                                permissions="Delete,Write,Create">
                 <act:action-params>
-                    <act:action-param name="param1" value="value1" />
-                    <act:action-param name="param2" value="value2" />
-                    <act:action-param name="param3" value="value3" />
-                    <act:action-param name="param4" value="value4" />
+                    <act:action-param name="param1" value="value1"/>
+                    <act:action-param name="param2" value="value2"/>
+                    <act:action-param name="param3" value="value3"/>
+                    <act:action-param name="param4" value="value4"/>
                 </act:action-params>
                 <act:before-execution>
                     <act:confirmation-message text="Are you sure?"/>
                     <act:linked-domain-object title="Заголовок доп. формы">
-                        <act:reference field-path="description_form|country" />
+                        <act:reference field-path="description_form|country"/>
                         <act:perform-validation value="true"/>
                         <act:form-mapping form="confirm_country">
                             <act:users>
@@ -198,41 +199,8 @@
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
-             <act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
-                <act:simple-action componentName="simple.action" action-handler="simple.action" text="Simple action 0"
-                                    permissions="Delete,Write,Create">
-                     <act:action-params>
-                         <act:action-param name="param1" value="value1" />
-                         <act:action-param name="param2" value="value2" />
-                         <act:action-param name="param3" value="value3" />
-                         <act:action-param name="param4" value="value4" />
-                     </act:action-params>
-                     <act:before-execution>
-                         <act:confirmation-message text="Are you sure?"/>
-                         <act:linked-domain-object title="Заголовок доп. формы">
-                             <act:reference field-path="description_form|country" />
-                             <act:perform-validation value="true"/>
-                             <act:form-mapping form="confirm_country">
-                                 <act:users>
-                                     <act:user uid="admin"/>
-                                 </act:users>
-                                 <act:groups>
-                                     <act:group name="Administrators" priority="1"/>
-                                 </act:groups>
-                             </act:form-mapping>
-                         </act:linked-domain-object>
-                         <act:save-context value="true"/>
-                     </act:before-execution>
-                     <act:after-execution>
-                         <act:on-success-message text="Country '{name}' saved"/>
-                     </act:after-execution>
-                 </act:simple-action>
-
-                 <act:action-ref name-ref="aSimpleAction2"/>
-                 <act:action-group name="innerGroup" text="Подменю">
-                     <act:action-ref name-ref="aSimpleAction2"/>
-                     <act:action-ref name-ref="aVerifyDigitalSignature"/>
-                 </act:action-group>
+            <act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
+                <act:action-group-ref name-ref="testGroup"/>
             </act:action-group>
         </act:tool-bar>
         <markup>
@@ -303,7 +271,7 @@
                                     </td>
                                     <!-- suggest-box (Столица) -->
                                     <td h-align="left">
-                                        <widget id="cities" />
+                                        <widget id="cities"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -500,7 +468,7 @@
                 </formatting>
                 <act:action-ref name-ref="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
                     <act:action-params>
-                        <act:action-param name="base-url" value="https://www.google.com.ua" />
+                        <act:action-param name="base-url" value="https://www.google.com.ua"/>
                         <act:action-param name="domain-object-fields" value="id,created_date"/>
                         <act:action-param name="date-time-format" value="yyyy-MM-dd hh:mm:ss"/>
                         <act:action-param name="date-time-format-time-zone" value="Europe/Moscow"/>
@@ -581,11 +549,11 @@
                 <field-path value="city^country"/>
 
                 <collection-ref name="Cities"/>
-               <!-- <selection-filters row-limit="1">
-                    <selection-filter name="byName">
-                        <param name="0" value="А%" type="string"/>
-                    </selection-filter>
-                </selection-filters>-->
+                <!-- <selection-filters row-limit="1">
+                     <selection-filter name="byName">
+                         <param name="0" value="А%" type="string"/>
+                     </selection-filter>
+                 </selection-filters>-->
                 <!-- паттерн отображения значений выпадающего списка -->
                 <drop-down-pattern value="{name} {population}"/>
 
@@ -597,7 +565,7 @@
 
                 <!-- количество элементов, показываемых на одной странице выпадающего списка -->
                 <page-size>35</page-size>
-                   <display-values-as-links value="true"/>
+                <display-values-as-links value="true"/>
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
@@ -607,24 +575,24 @@
                 <selection-sort-criteria>
                     <sort-criterion field="name" order="asc"/>
                 </selection-sort-criteria>
-              <linked-form name="city_form">
-              <title>
-                  <existing-object>
-                      <pattern value="{id}, {created_date}"/>
-                      <formatting>
-                          <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
-                              <time-zone id="Europe/Kiev"/>
-                              <field-paths>
-                                  <field-path value="created_date"/>
-                              </field-paths>
-                          </date-format>
-                      </formatting>
-                  </existing-object>
-                  <new-object>
-                      <pattern value="new form "/>
+                <linked-form name="city_form">
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
 
-                  </new-object>
-              </title>
+                        </new-object>
+                    </title>
 
                 </linked-form>
             </suggest-box>
@@ -671,7 +639,7 @@
             <label id="test">
                 <text>TEST</text>
             </label>
-            <date-box id="10" >
+            <date-box id="10">
                 <field-path value="independence_day"/>
                 <time-zone-id>GMT-4</time-zone-id>
                 <pattern>dd.MM.yyyy HH:mm:ss</pattern>
@@ -732,9 +700,9 @@
                 <delete-button display="true"/>
                 <!--accepted-types>
                     <accepted-type extensions=".txt" mime-type="text/plain"/!--> <!-- non-image type, will be ignored -->
-                    <!--accepted-type extensions=".png" mime-type="image/png"/>
-                    <accepted-type extensions=".jpg, .jpeg" mime-type="image/jpeg"/>
-                </accepted-types-->
+                <!--accepted-type extensions=".png" mime-type="image/png"/>
+                <accepted-type extensions=".jpg, .jpeg" mime-type="image/jpeg"/>
+            </accepted-types-->
                 <digital-signatures>
                     <digital-signature type="country_attachment"/>
                 </digital-signatures>
@@ -755,7 +723,7 @@
                 <selection-style name="inline"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
-                <clear-all-button image="resources/defaulttheme/images/icons/icon-clear2.png" />
+                <clear-all-button image="resources/defaulttheme/images/icons/icon-clear2.png"/>
             </attachment-box>
 
             <label id="faunaAttachmentLbl">
@@ -774,7 +742,7 @@
                 <choice-style name="popup"/>
                 <add-button display="true"/>
                 <delete-button display="true"/>
-                <clear-all-button text="Очистить" />
+                <clear-all-button text="Очистить"/>
             </attachment-box>
 
 
@@ -783,7 +751,7 @@
                 <collection-ref name="Cities"/>
 
                 <collection-view-ref name="cities_default_view"/>
-             
+
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
@@ -797,7 +765,7 @@
                 <selection-style name="table"/>
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
-             <!--   <add-button image="..." text="Добавить"/>-->
+                <!--   <add-button image="..." text="Добавить"/>-->
                 <selection-sort-criteria>
                     <sort-criterion field="name" order="asc"/>
                 </selection-sort-criteria>
@@ -805,13 +773,13 @@
 
                 <create-new-button text="Создать"/>
                 <created-objects>
-                  <created-object domain-object-type="city" text="Город"/>
-               </created-objects>
-               <!-- <selection-filters row-limit="1">
-                    <selection-filter name="byNameforTableBrowser">
-                        <param name="0" value="А%" type="string"/>
-                    </selection-filter>
-                </selection-filters>-->
+                    <created-object domain-object-type="city" text="Город"/>
+                </created-objects>
+                <!-- <selection-filters row-limit="1">
+                     <selection-filter name="byNameforTableBrowser">
+                         <param name="0" value="А%" type="string"/>
+                     </selection-filter>
+                 </selection-filters>-->
                 <linked-form name="city_form">
                     <title>
                         <existing-object>
@@ -838,23 +806,23 @@
                                          max-tooltip-width="300px">
                 <field-path value="country_most_famous_city^country.city"/>
                 <linked-form name="city_form" inline="true">
-                        <title>
-                            <existing-object>
-                                <pattern value="{id}, {created_date}"/>
-                                <formatting>
-                                    <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
-                                        <time-zone id="Europe/Kiev"/>
-                                        <field-paths>
-                                            <field-path value="created_date"/>
-                                        </field-paths>
-                                    </date-format>
-                                </formatting>
-                            </existing-object>
-                            <new-object>
-                                <pattern value="new form "/>
+                    <title>
+                        <existing-object>
+                            <pattern value="{id}, {created_date}"/>
+                            <formatting>
+                                <date-format pattern="dd-mm-yyyy HH-mm-ss" style="short">
+                                    <time-zone id="Europe/Kiev"/>
+                                    <field-paths>
+                                        <field-path value="created_date"/>
+                                    </field-paths>
+                                </date-format>
+                            </formatting>
+                        </existing-object>
+                        <new-object>
+                            <pattern value="new form "/>
 
-                            </new-object>
-                        </title>
+                        </new-object>
+                    </title>
                 </linked-form>
                 <collection-ref name="Cities"/>
                 <selection-filters row-limit="1">
@@ -899,19 +867,19 @@
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
-           <!-- <label id="bad_label">
-                <pattern value="date {created_date}"/>
-                <field-path value="created_date"/>
-            <formatting>
+            <!-- <label id="bad_label">
+                 <pattern value="date {created_date}"/>
+                 <field-path value="created_date"/>
+             <formatting>
 
-                <date-format pattern="dd.MM.yyyy HH:mm" style="short">
-                <time-zone id="Etc/GMT+1"/>
-                    <field-paths>
-                        <field-path value="created_date"/>
-                    </field-paths>
-                </date-format>
-            </formatting>
-            </label>-->
+                 <date-format pattern="dd.MM.yyyy HH:mm" style="short">
+                 <time-zone id="Etc/GMT+1"/>
+                     <field-paths>
+                         <field-path value="created_date"/>
+                     </field-paths>
+                 </date-format>
+             </formatting>
+             </label>-->
         </widget-config>
         <widget-groups>
             <widget-group name="country-union-group">
@@ -1148,9 +1116,9 @@
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>
                 <single-choice value="false"/>
-               <selection-sort-criteria>
-                   <sort-criterion field="name" order="asc"/>
-               </selection-sort-criteria>
+                <selection-sort-criteria>
+                    <sort-criterion field="name" order="asc"/>
+                </selection-sort-criteria>
             </suggest-box>
             <suggest-box id="super_countries">
                 <field-path value="country"/>
@@ -1207,13 +1175,13 @@
                 <summary-table>
                     <summary-table-column header="Название" widget-id="2">
                         <!--<action component-name="download.attachment.table.action"-->
-                                <!--access-checker="download.attachment.access.checker"-->
-                                <!--new-objects-access-checker="upload.attachment.access.checker"-->
-                                <!--tooltip="Скачать">-->
-                            <!--<display position="before" tooltip="Скачать">-->
-                                <!--<image url="/images/icons/ico-save.gif"/>-->
-                                <!--<text value="Скачать"/>-->
-                            <!--</display>-->
+                        <!--access-checker="download.attachment.access.checker"-->
+                        <!--new-objects-access-checker="upload.attachment.access.checker"-->
+                        <!--tooltip="Скачать">-->
+                        <!--<display position="before" tooltip="Скачать">-->
+                        <!--<image url="/images/icons/ico-save.gif"/>-->
+                        <!--<text value="Скачать"/>-->
+                        <!--</display>-->
                         <!--</action>-->
                         <action component-name="verify.signature.table.action"
                                 tooltip="ЭЦП">
@@ -1237,7 +1205,6 @@
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
-
 
 
             <label id="titleExisting">
@@ -1476,7 +1443,8 @@
                     <user uid="person4"/>
                 </users>
                 <groups>
-                    <group name="EmployeeBosses"/> <!-- person1, person2 -->
+                    <group name="EmployeeBosses"/>
+                    <!-- person1, person2 -->
                 </groups>
             </hide-widget>
             <hide-widget widget-group-id="country-union-group">

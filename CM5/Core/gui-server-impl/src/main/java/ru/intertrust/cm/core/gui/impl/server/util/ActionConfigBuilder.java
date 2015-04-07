@@ -77,6 +77,13 @@ public class ActionConfigBuilder {
                 newContexts.add(gContext);
                 continue;
             }
+            if (actionConfig instanceof ActionGroupRefConfig) {
+                actionConfig = resolveActionGroupReference((ActionGroupRefConfig) actionConfig);
+                ActionContext gContext = new ActionContext(actionConfig);
+                gContext.setInnerContexts(fillActionGroupContext(actionConfig,params));
+                contextList.addContext(gContext);
+                continue;
+            }
             if (actionConfig instanceof ActionRefConfig) {
                 actionConfig = resolveActionReference((ActionRefConfig) actionConfig);
             }
@@ -96,6 +103,13 @@ public class ActionConfigBuilder {
                 continue;
             }
             if (config instanceof ActionGroupConfig) {
+                ActionContext gContext = new ActionContext(config);
+                gContext.setInnerContexts(fillActionGroupContext(config,params));
+                contextList.addContext(gContext);
+                continue;
+            }
+            if (config instanceof ActionGroupRefConfig) {
+                config = resolveActionGroupReference((ActionGroupRefConfig) config);
                 ActionContext gContext = new ActionContext(config);
                 gContext.setInnerContexts(fillActionGroupContext(config,params));
                 contextList.addContext(gContext);
@@ -179,7 +193,7 @@ public class ActionConfigBuilder {
     private ActionConfig resolveActionReference(final ActionRefConfig actionRefConfig) {
         ActionConfig config = referenceMap.get(actionRefConfig.getNameRef());
         if (config == null) {
-            config = actionService.getActionConfig(actionRefConfig.getNameRef());
+            config = actionService.getActionConfig(actionRefConfig.getNameRef(),ActionConfig.class);
             if (config == null) {  // for developers only
                 throw new IllegalArgumentException("Not defines action for action-ref " + actionRefConfig);
             }
@@ -199,6 +213,10 @@ public class ActionConfigBuilder {
                 }
             }
         }
+    }
+
+    private ActionGroupConfig resolveActionGroupReference(final ActionGroupRefConfig actionGroupRefConfig) {
+        return actionService.getActionConfig(actionGroupRefConfig.getNameRef(),ActionGroupConfig.class);
     }
 
     private boolean hasPermission(final DomainObject domainObject, final ActionConfig config) {

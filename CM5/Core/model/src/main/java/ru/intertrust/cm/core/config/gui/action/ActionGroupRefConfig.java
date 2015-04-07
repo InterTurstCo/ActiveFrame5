@@ -49,7 +49,7 @@ public class ActionGroupRefConfig extends BaseActionConfig {
 
     @Override
     public String toString() {
-        return new StringBuilder(ActionRefConfig.class.getSimpleName())
+        return new StringBuilder(ActionGroupRefConfig.class.getSimpleName())
                 .append(": nameRef=").append(nameRef)
                 .toString();
     }

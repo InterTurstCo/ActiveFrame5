@@ -82,7 +82,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                                 && domainObjectStatusIds.contains(domainObject.getStatus())) {
                             List<ActionContextActionConfig> actionConfigs = actionContextConfig.getAction();
                             for (ActionContextActionConfig actionContextActionConfig : actionConfigs) {
-                                ActionConfig actConfig = getActionConfig(actionContextActionConfig.getName());
+                                ActionConfig actConfig = getActionConfig(actionContextActionConfig.getName(),ActionConfig.class);
 
                                 final ActionContext actionContext;
                                 final boolean hasHandler = applicationContext.containsBean(actConfig.getComponentName());
@@ -107,7 +107,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
 
                 List<DomainObject> tasks = processService.getUserDomainObjectTasks(domainObject.getId());
                 for (DomainObject task : tasks) {
-                    ActionConfig actConfig = getActionConfig(task.getString("ActivityId"));
+                    ActionConfig actConfig = getActionConfig(task.getString("ActivityId"),ActionConfig.class);
                     final ActionContext actionContext;
                     boolean hasHandler = false;
                     if (actConfig == null) {
@@ -302,11 +302,12 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     }
 
     @Override
-    public ActionConfig getActionConfig(final String name) {
-        ActionConfig result = configurationExplorer.getLocalizedConfig(ActionConfig.class, name, profileService.getPersonLocale());
+    public <T extends BaseActionConfig> T getActionConfig(final String name, Class<T> type) {
+        T result = configurationExplorer.getLocalizedConfig(type, name, profileService.getPersonLocale());
         if (result == null) {
-            result = configurationExplorer.getLocalizedConfig(SimpleActionConfig.class, name, profileService.getPersonLocale());
+            result  =  type.cast(configurationExplorer.getLocalizedConfig(SimpleActionConfig.class, name, profileService.getPersonLocale()));
+            return result;
         }
-        return result;
+        return type.cast(result);
     }
 }
