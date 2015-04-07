@@ -46,7 +46,6 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         addStyleName("collection-plugin-view collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
-        setEmptyTableMessage();
 
 
     }
@@ -55,8 +54,9 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         return (ScrollPanel) panel.getContentWidget();
     }
 
-    private void setEmptyTableMessage() {
-        String emptyTableText = LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE);
+    public void setEmptyTableMessage(boolean displayMessage) {
+        String emptyTableText = displayMessage ? LocalizeUtil.get(LocalizationKeys.EMPTY_TABLE_KEY, BusinessUniverseConstants.EMPTY_TABLE)
+                : BusinessUniverseConstants.EMPTY_VALUE;
         emptyTableWidget = new HTML("<br/><div align='center'> <h1> " + emptyTableText + " </h1> </div>");
         this.setEmptyTableWidget(emptyTableWidget);
 
