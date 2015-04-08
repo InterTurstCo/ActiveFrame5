@@ -9,9 +9,11 @@ import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.DefaultLocaleConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.AccessException;
@@ -303,10 +305,8 @@ public class ProfileServiceImpl implements ProfileService {
         if (profile != null && profile.getString(ProfileService.LOCALE) != null) {
             return profile.getString(ProfileService.LOCALE);
         }
-        if (configurationService.getGlobalSettings().getDefaultLocaleConfig() != null) {
-            return configurationService.getGlobalSettings().getDefaultLocaleConfig().getName();
-        }
-        return null;
+        final DefaultLocaleConfig defaultLocaleConfig = configurationService.getGlobalSettings().getDefaultLocaleConfig();
+        return defaultLocaleConfig != null ? defaultLocaleConfig.getName() : MessageResourceProvider.getDefaultLocale();
     }
 
     @Override

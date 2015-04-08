@@ -37,6 +37,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectFinderService;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
 @Stateless(name = "NotificationSenderAsync")
@@ -77,7 +78,7 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
             try {
                 doSendNotification(sendNotificationInfo.getDomainObject(), sendNotificationInfo.getEventType(), sendNotificationInfo.getChangedFields());
             } catch (Throwable throwable) { // do not block other exceptions which might be successful
-                logger.error("Notification failed: " + throwable);
+                logger.error("Notification failed", throwable);
             }
         }
     }
@@ -131,22 +132,26 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
     private void doSendNotification(DomainObject domainObject, EventType eventType, List<FieldModification> changedFields) {
         Collection<NotificationConfig> notifications = configurationExplorer.getConfigs(NotificationConfig.class);
         for (NotificationConfig notificationConfig : notifications) {
-            List<TriggerConfig> notificationTriggers =
-                    notificationConfig.getNotificationTypeConfig().getNotificationTriggersConfig().getTriggers();
-            for (TriggerConfig triggerConfig : notificationTriggers) {
-                boolean isTriggered = false;
-                if (triggerConfig.getRefName() != null) {
-                    isTriggered = eventTrigger.isTriggered(triggerConfig.getRefName(), eventType.toString(),
-                            domainObject, changedFields);
-                } else {
-                    isTriggered = eventTrigger.isTriggered(triggerConfig, eventType.toString(),
-                            domainObject, changedFields);
-                }
+            try {
+                List<TriggerConfig> notificationTriggers =
+                        notificationConfig.getNotificationTypeConfig().getNotificationTriggersConfig().getTriggers();
+                for (TriggerConfig triggerConfig : notificationTriggers) {
+                    boolean isTriggered = false;
+                    if (triggerConfig.getRefName() != null) {
+                        isTriggered = eventTrigger.isTriggered(triggerConfig.getRefName(), eventType.toString(),
+                                domainObject, changedFields);
+                    } else {
+                        isTriggered = eventTrigger.isTriggered(triggerConfig, eventType.toString(),
+                                domainObject, changedFields);
+                    }
 
-                if (isTriggered) {
-                    sendNotification(domainObject, eventType, notificationConfig);
-                    break;
+                    if (isTriggered) {
+                        sendNotification(domainObject, eventType, notificationConfig);
+                        break;
+                    }
                 }
+            } catch (Throwable ex) {
+                throw new FatalException("Error send notification with type " + notificationConfig.getNotificationTypeConfig().getName(), ex);
             }
         }
     }

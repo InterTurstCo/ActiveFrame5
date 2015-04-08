@@ -6,7 +6,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 
 /**
  * Кешируемая информация о коллекции. Включает SQL запрос, конфигурацию колонок из запроса (необходима для отображения
- * результата запроса на {@link IdentifiableObjectCollection}) и подставляемые ссылочные параметры.
+ * результата запроса на {@link IdentifiableObjectCollection}).
  * @author atsvetkov
  */
 public class CollectionQueryEntry {
