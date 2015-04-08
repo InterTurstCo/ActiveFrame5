@@ -2,9 +2,11 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionExecutorConfig;
@@ -28,12 +30,15 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 public class ActionExecutorHandler extends LabelHandler {
     public static final String WIDGET_CONTEXT_ATTR = "widgetContext";
 
-    @Autowired private ActionService actionService;
-    @Autowired private ApplicationContext applicationContext;
+    @Autowired
+    private ActionService actionService;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public ActionExecutorState getInitialState(WidgetContext context) {
         final Map<String, Object> params = new HashMap<>();
+        DomainObject rootObject = context.getFormObjects().getRootDomainObject();
         params.put(WIDGET_CONTEXT_ATTR, context);
         final LabelState labelState = super.getInitialState(context);
         final ActionExecutorState result = new ActionExecutorState();
@@ -42,7 +47,7 @@ public class ActionExecutorHandler extends LabelHandler {
         final ActionRefConfig actionRefConfig = actionExecutorConfig.getActionRefConfig();
         if (actionRefConfig != null) {
             final ActionConfig actionConfig =
-                    PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getNameRef(),ActionConfig.class));
+                    PluginHandlerHelper.cloneActionConfig(actionService.getActionConfig(actionRefConfig.getNameRef(), ActionConfig.class));
             PluginHandlerHelper.fillActionConfigFromRefConfig(actionConfig, actionRefConfig);
             final boolean contains = applicationContext.containsBean(actionConfig.getComponentName());
             final ActionContext actionContext;
@@ -64,6 +69,8 @@ public class ActionExecutorHandler extends LabelHandler {
             } else {
                 actionContext = new ActionContext(actionConfig);
             }
+            if (context.getFormObjects().getRootDomainObject() != null)
+                actionContext.setRootObjectId(context.getFormObjects().getRootDomainObject().getId());
             result.setActionContext(actionContext);
         }
         return result;
