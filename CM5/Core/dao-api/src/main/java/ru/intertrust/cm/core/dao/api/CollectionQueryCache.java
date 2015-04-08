@@ -84,4 +84,9 @@ public interface CollectionQueryCache {
      */
     void putCollectionCountQuery(String collectionName, List<? extends Filter> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry);
 
+    /**
+     * Очистка кеша запросов.
+     */
+    void clearCollectionQueryCache();
+
 }

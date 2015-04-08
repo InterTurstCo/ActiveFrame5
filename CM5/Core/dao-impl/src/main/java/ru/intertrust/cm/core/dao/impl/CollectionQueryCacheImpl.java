@@ -304,4 +304,10 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     public void putCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken, CollectionQueryEntry queryEntry) {
         putCollectionQuery(collectionQuery, null, null, offset, limit, accessToken, queryEntry);
     }
+    
+    @Override
+    public void clearCollectionQueryCache() {
+        collectionQueryCache.clear();
+    }
+
 }
