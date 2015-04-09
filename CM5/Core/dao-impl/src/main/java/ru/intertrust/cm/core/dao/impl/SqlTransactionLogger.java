@@ -24,7 +24,7 @@ public class SqlTransactionLogger {
         long delay = endTime - startTime;
         StringBuilder timeInterval = new StringBuilder();        
         Formatter formatter = new Formatter(timeInterval);
-        String format = "(%1$TH.%1$TM.%1$TS:%1$TL, %2$TH.%2$TM.%2$TS:%2$TL) ";
+        String format = "(%1$TH.%1$TM.%1$TS:%1$TL - %2$TH.%2$TM.%2$TS:%2$TL) ";
         formatter.format(format, new Date(startTime), new Date(endTime));
 
         StringBuilder result = new StringBuilder();
