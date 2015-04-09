@@ -530,13 +530,13 @@ public class CollectionPluginView extends PluginView {
     private void buildPanel() {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
+        root.add(treeLinkWidget);
         boolean columnButtonsBuilt = buildColumnButtons(treeLinkWidget);
         boolean searchAreaBuilt = buildSearchArea(treeLinkWidget);
         boolean breadCrumbsBuilt = buildBreadCrumbs();
         if (breadCrumbsBuilt || columnButtonsBuilt || searchAreaBuilt) {
             tableBody.addStyleName("collection-plugin-view"); //header margin style
         }
-        root.add(treeLinkWidget);
         root.add(tableBody);
         tableBody.setEmptyTableMessage(!getPluginData().isEmbedded());
     }
