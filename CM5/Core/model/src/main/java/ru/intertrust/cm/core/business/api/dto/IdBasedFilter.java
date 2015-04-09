@@ -13,6 +13,10 @@ public class IdBasedFilter extends Filter {
     public IdBasedFilter() {
     }
 
+    public IdBasedFilter(Filter filter) {
+        super(filter);
+    }
+    
     public IdBasedFilter(List<ReferenceValue> ids) {
         if (ids == null) {
             return;

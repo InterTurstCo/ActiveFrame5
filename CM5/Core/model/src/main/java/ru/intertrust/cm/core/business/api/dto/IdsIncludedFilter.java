@@ -13,6 +13,10 @@ public class IdsIncludedFilter extends IdBasedFilter {
     public IdsIncludedFilter() {
     }
 
+    public IdsIncludedFilter(Filter filter) {
+        super(filter);
+    }
+
     public IdsIncludedFilter(List<ReferenceValue> idsIncluded) {
         super(idsIncluded);
     }

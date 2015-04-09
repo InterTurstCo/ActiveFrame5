@@ -13,6 +13,10 @@ public class IdsExcludedFilter extends IdBasedFilter {
     public IdsExcludedFilter() {
     }
 
+    public IdsExcludedFilter(Filter filter) {
+        super(filter);
+    }
+
     public IdsExcludedFilter(List<ReferenceValue> idsIncluded) {
         super(idsIncluded);
     }

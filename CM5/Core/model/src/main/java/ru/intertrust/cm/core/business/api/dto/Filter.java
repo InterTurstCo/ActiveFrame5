@@ -24,8 +24,22 @@ public class Filter implements Dto {
     protected HashMap<Integer, List<Value>> parameterMap = new HashMap<Integer, List<Value>>();
     private HashMap<Integer, Boolean> isSingleParameterMap = new HashMap<Integer, Boolean>();
     
+    public Filter() {
+
+    }
+
+    public Filter(Filter source) {
+        this.filter = source.getFilter();
+        this.parameterMap = source.getParameterMap();
+        this.isSingleParameterMap = source.getIsSingleParameterMap();
+    }
+
     public HashMap<Integer, List<Value>> getParameterMap() {
         return parameterMap;
+    }
+
+    public HashMap<Integer, Boolean> getIsSingleParameterMap() {
+        return isSingleParameterMap;
     }
 
     public static Filter create(final String filterName, final int index, final Value filterValue) {

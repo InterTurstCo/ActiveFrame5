@@ -235,18 +235,15 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         int index = 0;
         for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
-            final ObjectCloner cloner = new ObjectCloner();
-            IdsIncludedFilter clonedFilter = cloner.cloneObject(idsIncludedFilter, IdsIncludedFilter.class);
-
+            IdsIncludedFilter clonedFilter = new IdsIncludedFilter(idsIncludedFilter);
             clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
             processedFilters.add(clonedFilter);
             index++;
         }
+        
         index = 0;
         for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
-            final ObjectCloner cloner = new ObjectCloner();
-            IdsExcludedFilter clonedFilter = cloner.cloneObject(idsExcludedFilter, IdsExcludedFilter.class);
-
+            IdsExcludedFilter clonedFilter = new IdsExcludedFilter(idsExcludedFilter);
             clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
             processedFilters.add(clonedFilter);
             index++;
