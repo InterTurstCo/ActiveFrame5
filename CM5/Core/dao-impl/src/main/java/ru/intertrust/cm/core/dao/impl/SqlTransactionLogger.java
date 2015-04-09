@@ -2,13 +2,15 @@ package ru.intertrust.cm.core.dao.impl;
 
 
 import java.util.Date;
-import java.util.Formatter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+
 public class SqlTransactionLogger {
 
+    private static final String TIME_PATTERN = "HH:mm:ss.SSS";
     private static final Logger logger = LoggerFactory.getLogger(SqlTransactionLogger.class);
 
 
@@ -23,14 +25,12 @@ public class SqlTransactionLogger {
     private static String formatTransactionTrace(LogTransactionListener transactionListener, boolean isCommitted, long startTime, long endTime) {
         long delay = endTime - startTime;
         StringBuilder timeInterval = new StringBuilder();        
-        Formatter formatter = new Formatter(timeInterval);
-        String format = "(%1$TH.%1$TM.%1$TS:%1$TL - %2$TH.%2$TM.%2$TS:%2$TL) ";
-        formatter.format(format, new Date(startTime), new Date(endTime));
-
+        timeInterval.append(ThreadSafeDateFormat.format(new Date(startTime), TIME_PATTERN)).append(" - ").append(ThreadSafeDateFormat.format(new Date(endTime), TIME_PATTERN));
+        
         StringBuilder result = new StringBuilder();
         String transactionId = transactionListener.getTransactionId();
         result.append("\n----- Transaction ").append(transactionId).append(isCommitted ? " committed" : " rolled back");
-        result.append(" in ").append(delay).append(" ms ").append(timeInterval).append("-----\n");
+        result.append(" in ").append(delay).append(" ms (").append(timeInterval).append(")-----\n");
         
         result.append("-----SQL query total preparation time:  ").append(getTimeInMilliseconds(transactionListener.getPreparationTime())).append(" ms-----\n");
         
