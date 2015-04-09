@@ -133,7 +133,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public IdentifiableObjectCollection findCollection(String collectionName,
             List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         filterValues = processIdsFilters(filterValues);
         checkFilterValues(filterValues);
@@ -193,7 +193,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         addCurrentPersonParameter(collectionQuery, parameters);
 
-        long preparationTime = System.currentTimeMillis() - start;
+        long preparationTime = System.nanoTime() - start;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
@@ -220,8 +220,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
             processedFilters.add(filter);
         }
 
-        List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>();
-        List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>();
+        List<IdsIncludedFilter> idsIncludedFilters = new ArrayList<>(1);
+        List<IdsExcludedFilter> idsExcludedFilters = new ArrayList<>(1);
 
         for (Filter filter : filterValues) {
             if (filter instanceof IdsIncludedFilter) {
@@ -333,7 +333,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit,
             AccessToken accessToken) {
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -364,7 +364,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
-        long preparationTime = System.currentTimeMillis() - start;
+        long preparationTime = System.nanoTime() - start;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
@@ -379,7 +379,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
             int offset, int limit, AccessToken accessToken) {
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -422,7 +422,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
         fillParameterMap(params, parameters);
 
-        long preparationTime = System.currentTimeMillis() - start;
+        long preparationTime = System.nanoTime() - start;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
         IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
@@ -528,7 +528,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public int findCollectionCount(String collectionName,
             List<? extends Filter> filterValues, AccessToken accessToken) {
 
-        long start = System.currentTimeMillis();
+        long start = System.nanoTime();
 
         filterValues = processIdsFilters(filterValues);
 
@@ -563,7 +563,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
-        long preparationTime = System.currentTimeMillis() - start;
+        long preparationTime = System.nanoTime() - start;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
         return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);

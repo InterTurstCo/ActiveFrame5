@@ -47,6 +47,9 @@ public class SqlLogger {
     private Long minRowsNum;
     @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams:false}")
     private Boolean resolveParams;
+    @org.springframework.beans.factory.annotation.Value("${(sql.trace.output.for.e-tables:true}")
+    private Boolean excelTableFormat = true;
+    
 
     @Autowired
     private UserTransactionService userTransactionService;
@@ -70,26 +73,25 @@ public class SqlLogger {
         long executionTime = System.currentTimeMillis() - startTime;
 
         Long preparationTime = readAndResetPreparationTime();
-
-        String query = getSqlQuery(joinPoint);
-
-        int rows = countSqlRows(returnValue, query);
-        // если preparationTime не установлено, то используется дефолтное значение 0, чтобы привести все логи к одному
-        // виду
         if (preparationTime == null) {
             preparationTime = new Long(0);
         }
+        Long preparationTimeMillis = getTimeInMilliseconds(preparationTime);
+        
+        String query = getSqlQuery(joinPoint);
+
+        int rows = countSqlRows(returnValue, query);
         
         boolean logWarn = executionTime >= minWarnTime || rows >= minRowsNum;
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             query = resolveParameters(query, joinPoint, true);
-            logger.info(formatLogEntry(query, preparationTime, executionTime, rows));
+            logger.info(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
         } else if (logWarn && logger.isWarnEnabled()) {
             query = resolveParameters(query, joinPoint);
-            logger.warn(formatLogEntry(query, preparationTime, executionTime, rows));
+            logger.warn(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
         } else if (logger.isTraceEnabled()){
             query = resolveParameters(query, joinPoint);
-            logger.trace(formatLogEntry(query, preparationTime, executionTime, rows));
+            logger.trace(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
         }
 
         return returnValue;
@@ -149,13 +151,17 @@ public class SqlLogger {
         Object returnValue = joinPoint.proceed();
         long executionTime = System.currentTimeMillis() - startTime;
 
-        Long preparationTime = readAndResetPreparationTime();        
+        Long preparationTime = readAndResetPreparationTime();
+        if (preparationTime == null) {
+            preparationTime = new Long(0);
+        }
+        Long preparationTimeMillis = getTimeInMilliseconds(preparationTime);
         String query = getSqlQuery(joinPoint);
 
         int rows = countSqlRows(returnValue, query);
 
         query = resolveParameters(query, joinPoint);
-        String logEntry = formatLogEntry(query, preparationTime, executionTime, rows);
+        String logEntry = formatLogEntry(query, preparationTimeMillis, executionTime, rows);
 
         LogTransactionListener listener = null;
         listener = userTransactionService.getListener(LogTransactionListener.class);
@@ -165,8 +171,12 @@ public class SqlLogger {
         }
 
         listener.addSqlLogEntry(logEntry);
-
+        listener.addPreparationTime(preparationTime);
         return returnValue;
+    }
+
+    private long getTimeInMilliseconds(Long nanoTime) {
+        return Math.round(nanoTime/1000000d);
     }
 
     private Long readAndResetPreparationTime() {
@@ -196,25 +206,20 @@ public class SqlLogger {
         return query;
     }
 
-    private String formatLogEntry(String query, long timing, int rows) {
-        StringBuilder traceStringBuilder = new StringBuilder();
-        Formatter formatter = new Formatter(traceStringBuilder);
-        String format = "SQL Trace: %1$6s %2$7s: %3$s";
-        formatter.format(format, timing, "[" + rows + "]", query);
-
-        return traceStringBuilder.toString();
-    }
-
     public String formatLogEntry(String query, Long preparationTime, long executionTime, int rows) {
+        Long totalTime = preparationTime != null ? preparationTime + executionTime : executionTime;
 
-        Long totalTime = preparationTime != null ? preparationTime + executionTime : null;
         StringBuilder traceStringBuilder = new StringBuilder();
 
         Formatter formatter = new Formatter(traceStringBuilder);
-        String format = "SQL Trace: %1$6s (%2$s+%3$s)  %4$7s: %5$s";
-        formatter.format(format, totalTime, preparationTime, executionTime, "[" + rows + "]", query);
+        String format = null;
+        if (excelTableFormat) {
+            format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s";
+        } else {
+            format = "SQL Trace: %1$6s (%2$s+%3$s)  [%4$7s]: %5$s";
+        }
+        formatter.format(format, totalTime, preparationTime, executionTime, rows, query);
         return traceStringBuilder.toString();
-
     }
     
     private Map<String, Object> getParametersMap(Object[] methodArgs) {
@@ -342,5 +347,5 @@ public class SqlLogger {
         } else {
             queryWithParameters.append(value.toString());
         }
-    }
+    }    
 }

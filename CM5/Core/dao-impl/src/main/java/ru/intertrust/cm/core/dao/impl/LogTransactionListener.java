@@ -12,6 +12,7 @@ public class LogTransactionListener implements ActionListener {
     private long minTime;
     private String transactionId;
     private List<String> logEntries = new ArrayList<>();
+    private Long preparationTime = new Long(0);
 
     public LogTransactionListener(long startTime, String transactionId, long minTime) {
         this.startTime = startTime;
@@ -42,9 +43,11 @@ public class LogTransactionListener implements ActionListener {
     }
 
     private void printTransactionTrace(boolean isCommitted) {
-        long delay = System.currentTimeMillis() - startTime;
+        long endTime = System.currentTimeMillis();
+        long delay = endTime - startTime;
+        
         if (delay > minTime) {
-            SqlTransactionLogger.logTransactionTrace(this, isCommitted, delay);
+            SqlTransactionLogger.logTransactionTrace(this, isCommitted, startTime, endTime);
         }
     }
 
@@ -54,5 +57,12 @@ public class LogTransactionListener implements ActionListener {
         
     }
 
+    public void addPreparationTime(Long preparationTime) {
+        this.preparationTime += preparationTime;
+    }
+
+    public Long getPreparationTime() {
+        return preparationTime;
+    }
 
 }
