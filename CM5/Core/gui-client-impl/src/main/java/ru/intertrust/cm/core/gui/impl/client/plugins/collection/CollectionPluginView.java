@@ -94,6 +94,7 @@ public class CollectionPluginView extends PluginView {
     private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
     private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
     private boolean filteredByUser;
+
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
         this.eventBus = plugin.getLocalEventBus();
@@ -232,16 +233,16 @@ public class CollectionPluginView extends PluginView {
 
         handlerRegistrations.add(eventBus.addHandler(CollectionPluginResizeBySplitterEvent.TYPE, new
                 CollectionPluginResizeBySplitterEventHandler() {
-            @Override
-            public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
-                columnHeaderController.saveFilterValues();
-                tableBody.redraw();
-                columnHeaderController.setFocus();
-                columnHeaderController.updateFilterValues();
+                    @Override
+                    public void onCollectionPluginResizeBySplitter(CollectionPluginResizeBySplitterEvent event) {
+                        columnHeaderController.saveFilterValues();
+                        tableBody.redraw();
+                        columnHeaderController.setFocus();
+                        columnHeaderController.updateFilterValues();
 
-                fetchMoreItemsIfRequired();
-            }
-        }));
+                        fetchMoreItemsIfRequired();
+                    }
+                }));
 
         // обработчик обновления коллекции (строки в таблице)
         handlerRegistrations.add(eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
@@ -259,11 +260,11 @@ public class CollectionPluginView extends PluginView {
         // обработчик удаления элемента коллекции (строки в таблице)
         handlerRegistrations.add(eventBus.addHandler(DeleteCollectionRowEvent.TYPE, new
                 DeleteCollectionRowEventHandler() {
-            @Override
-            public void deleteCollectionRow(DeleteCollectionRowEvent event) {
-                delCollectionRow(event.getId());
-            }
-        }));
+                    @Override
+                    public void deleteCollectionRow(DeleteCollectionRowEvent event) {
+                        delCollectionRow(event.getId());
+                    }
+                }));
         final ScrollPanel scroll = tableBody.getScrollPanel();
         tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
             @Override
@@ -357,31 +358,31 @@ public class CollectionPluginView extends PluginView {
 
         handlerRegistrations.add(eventBus.addHandler(CollectionChangeSelectionEvent.TYPE, new
                 CollectionChangeSelectionEventHandler() {
-            @Override
-            public void changeCollectionSelection(CollectionChangeSelectionEvent event) {
-                Collection<Id> ids = getPluginData().getChosenIds();
-                final List<Id> changedIds = event.getId();
+                    @Override
+                    public void changeCollectionSelection(CollectionChangeSelectionEvent event) {
+                        Collection<Id> ids = getPluginData().getChosenIds();
+                        final List<Id> changedIds = event.getId();
 
-                boolean selected = event.isSelected();
-                if (selected) {
-                    ids.addAll(changedIds);
-                } else {
-                    ids.removeAll(changedIds);
-                }
-                TableBrowserParams tableBrowserParams = getPluginData().getTableBrowserParams();
-                if (tableBrowserParams != null && !tableBrowserParams.isDisplayCheckBoxes()) { //single choice
-                    final Id id = changedIds.get(0);
-                    CollectionRowItem item = GuiUtil.find(items, new Predicate<CollectionRowItem>() {
-                        @Override
-                        public boolean evaluate(CollectionRowItem input) {
-                            return input.getId().equals(id);
+                        boolean selected = event.isSelected();
+                        if (selected) {
+                            ids.addAll(changedIds);
+                        } else {
+                            ids.removeAll(changedIds);
                         }
-                    });
-                    selectionModel.setSelected(item, selected);
-                }
-                tableBody.redraw();
-            }
-        }));
+                        TableBrowserParams tableBrowserParams = getPluginData().getTableBrowserParams();
+                        if (tableBrowserParams != null && !tableBrowserParams.isDisplayCheckBoxes()) { //single choice
+                            final Id id = changedIds.get(0);
+                            CollectionRowItem item = GuiUtil.find(items, new Predicate<CollectionRowItem>() {
+                                @Override
+                                public boolean evaluate(CollectionRowItem input) {
+                                    return input.getId().equals(id);
+                                }
+                            });
+                            selectionModel.setSelected(item, selected);
+                        }
+                        tableBody.redraw();
+                    }
+                }));
 
     }
 
@@ -529,47 +530,73 @@ public class CollectionPluginView extends PluginView {
     private void buildPanel() {
         AbsolutePanel treeLinkWidget = new AbsolutePanel();
         treeLinkWidget.addStyleName("collection-plugin-view-container");
-        filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
-        filterButton.getElement().setAttribute("title", LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
-        treeLinkWidget.add(filterButton);
-        final Button columnManagerButton = new Button();
-        columnManagerButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP_KEY, COLUMNS_DISPLAY_TOOLTIP));
-        columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
-        columnManagerButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                columnHeaderController.showPopup(columnManagerButton);
-            }
-        });
-        treeLinkWidget.add(columnManagerButton);
-        Button columnWidthRecalculateButton = new Button();
-        columnWidthRecalculateButton.getElement().setAttribute("title", LocalizeUtil.get(COLUMNS_WIDTH_TOOLTIP_KEY, COLUMNS_WIDTH_TOOLTIP));
-        columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
-                .recalculateColumnsWidthBtn());
-        columnWidthRecalculateButton.addClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                columnHeaderController.changeTableWidthByCondition();
-            }
-        });
-        treeLinkWidget.add(columnWidthRecalculateButton);
-        AbsolutePanel containerForToolbar = new AbsolutePanel();
-        containerForToolbar.addStyleName("search-header");
+        boolean columnButtonsBuilt = buildColumnButtons(treeLinkWidget);
+        boolean searchAreaBuilt = buildSearchArea(treeLinkWidget);
+        boolean breadCrumbsBuilt = buildBreadCrumbs();
+        if (breadCrumbsBuilt || columnButtonsBuilt || searchAreaBuilt) {
+            tableBody.addStyleName("collection-plugin-view"); //header margin style
+        }
+        root.add(treeLinkWidget);
+        root.add(tableBody);
+        tableBody.setEmptyTableMessage(!getPluginData().isEmbedded());
+    }
+
+    private boolean buildSearchArea(Panel container){
+        boolean result = false;
         if (searchArea != null && !searchArea.isEmpty()) {
             FlowPanel simpleSearch = new FlowPanel();
             SimpleSearchPanel simpleSearchPanel = new SimpleSearchPanel(simpleSearch, eventBus);
-            treeLinkWidget.add(simpleSearchPanel);
+            container.add(simpleSearchPanel);
+            result = true;
         }
+        return result;
+    }
 
-        root.add(treeLinkWidget);
+    private boolean buildBreadCrumbs() {
+        boolean result = false;
         if (plugin.isShowBreadcrumbs()) {
             Panel breadCrumbsPanel = createBreadCrumbsPanel();
             if (breadCrumbsPanel != null) {
                 root.add(breadCrumbsPanel);
+                result = true;
             }
         }
-        root.add(tableBody);
-        tableBody.setEmptyTableMessage(!getPluginData().isEmbedded());
+        return result;
+    }
+
+    private boolean buildColumnButtons(Panel container) {
+        boolean result = false;
+        CollectionPluginData pluginData = getPluginData();
+        if (pluginData.hasColumnButtons()) {
+            if (pluginData.hasConfiguredFilters()) {
+                filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
+                filterButton.setTitle(LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
+                container.add(filterButton);
+            }
+            final Button columnManagerButton = new Button();
+            columnManagerButton.setTitle(LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP_KEY, COLUMNS_DISPLAY_TOOLTIP));
+            columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
+            columnManagerButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    columnHeaderController.showPopup(columnManagerButton);
+                }
+            });
+            container.add(columnManagerButton);
+            Button columnWidthRecalculateButton = new Button();
+            columnWidthRecalculateButton.setTitle(LocalizeUtil.get(COLUMNS_WIDTH_TOOLTIP_KEY, COLUMNS_WIDTH_TOOLTIP));
+            columnWidthRecalculateButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss()
+                    .recalculateColumnsWidthBtn());
+            columnWidthRecalculateButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    columnHeaderController.changeTableWidthByCondition();
+                }
+            });
+            container.add(columnWidthRecalculateButton);
+            result = true;
+        }
+        return result;
     }
 
     @Override
@@ -602,9 +629,9 @@ public class CollectionPluginView extends PluginView {
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 Collection<Id> chosenIds = getPluginData().getChosenIds();
-                if(value){
+                if (value) {
                     chosenIds.add(id);
-                }else{
+                } else {
                     chosenIds.remove(id);
                 }
             }
@@ -788,19 +815,19 @@ public class CollectionPluginView extends PluginView {
             insertMoreRows(collectionRowItems);
         }
         tableBody.flush();
-        if(listCount == 0){
-            if(getPluginData().isEmbedded()){
-            tableBody.setEmptyTableMessage(filteredByUser);
+        if (listCount == 0) {
+            if (getPluginData().isEmbedded()) {
+                tableBody.setEmptyTableMessage(filteredByUser);
             }
             tableBody.setEmptyTableWidgetWidth(tableBodyWidth);
 
         }
-        setUpScrollSelection( );
+        setUpScrollSelection();
         columnHeaderController.updateFilterValues();
         columnHeaderController.setFocus();
     }
 
-    private void setUpScrollSelection( ) {
+    private void setUpScrollSelection() {
         Set<Id> selectedItems = prepareSelectedIds();
         if (WidgetUtil.containsOneElement(selectedItems)) {
             Id selectedId = selectedItems.iterator().next();
@@ -827,8 +854,9 @@ public class CollectionPluginView extends PluginView {
         });
 
     }
+
     @Deprecated
-    public void setUpScroll(){
+    public void setUpScroll() {
 
     }
 
@@ -951,7 +979,8 @@ public class CollectionPluginView extends PluginView {
         }
         columnHeaderController.clearHandlers();
     }
-    public void resetBodyHeight(){
+
+    public void resetBodyHeight() {
         tableBody.getScrollPanel().getParent().getElement().getStyle().clearHeight();
     }
 }

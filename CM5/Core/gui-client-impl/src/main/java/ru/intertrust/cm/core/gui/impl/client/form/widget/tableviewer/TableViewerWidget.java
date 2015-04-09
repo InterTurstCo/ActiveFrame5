@@ -122,7 +122,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 .setDisplayCheckBoxes(false)
                 .setDisplayChosenValues(true)
                 .setPageSize(config.getPageSize())
-                .setCollectionExtraFiltersConfig(config.getCollectionExtraFiltersConfig());
+                .setCollectionExtraFiltersConfig(config.getCollectionExtraFiltersConfig())
+                .setHasColumnButtons(config.getCollectionTableButtonsConfig() == null ? true
+                        : config.getCollectionTableButtonsConfig().isDisplayAllPossible());
         return tableBrowserParams;
     }
 

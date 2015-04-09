@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
@@ -77,6 +78,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "collection-extra-filters",required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
+    @Element(name = "collection-table-buttons", required = false)
+    private CollectionTableButtonsConfig collectionTableButtonsConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -238,6 +242,14 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         this.resizable = resizable;
     }
 
+    public CollectionTableButtonsConfig getCollectionTableButtonsConfig() {
+        return collectionTableButtonsConfig;
+    }
+
+    public void setCollectionTableButtonsConfig(CollectionTableButtonsConfig collectionTableButtonsConfig) {
+        this.collectionTableButtonsConfig = collectionTableButtonsConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -331,6 +343,11 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         if (resizable != that.resizable) {
             return false;
         }
+        if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig)
+                : that.collectionTableButtonsConfig != null) {
+            return false;
+        }
+
 
         return true;
     }

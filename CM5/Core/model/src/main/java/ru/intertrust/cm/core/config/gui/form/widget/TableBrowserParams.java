@@ -24,6 +24,7 @@ public class TableBrowserParams implements Dto {
     private Integer pageSize;
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
     private SelectionFiltersConfig selectionFiltersConfig;
+    private boolean hasColumnButtons;
     public TableBrowserParams() {
     }
 
@@ -95,6 +96,15 @@ public class TableBrowserParams implements Dto {
 
     public TableBrowserParams setDisplayOnlySelectedIds(boolean displayOnlySelectedIds) {
         this.displayOnlySelectedIds = displayOnlySelectedIds;
+        return this;
+    }
+
+    public boolean hasColumnButtons() {
+        return hasColumnButtons;
+    }
+
+    public TableBrowserParams setHasColumnButtons(boolean hasColumnButtons) {
+        this.hasColumnButtons = hasColumnButtons;
         return this;
     }
 }

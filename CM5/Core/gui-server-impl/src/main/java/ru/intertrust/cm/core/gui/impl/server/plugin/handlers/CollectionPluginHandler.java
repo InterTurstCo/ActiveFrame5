@@ -105,6 +105,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setInitialFiltersConfig(initialFiltersConfig);
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap =
                 CollectionPluginHelper.getFilterNameColumnPropertiesMap(columnPropertyMap, initialFiltersConfig);
+        pluginData.setHasConfiguredFilters(hasConfiguredFilters(columnPropertyMap));
+        pluginData.setHasColumnButtons(tableBrowserParams == null ? true : tableBrowserParams.hasColumnButtons());
         InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
         pluginData.setDefaultSortCriteriaConfig(sortCriteriaConfig);
@@ -113,7 +115,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         SortOrder order = sortOrderHelper.buildSortOrder(collectionName, sortCriteriaConfig, collectionDisplayConfig);
 
         CollectionPluginHelper.addFilterByText(collectionViewerConfig, filters);
-        int initRowsNumber = collectionViewerConfig.getRowsChunk() >=0 ? collectionViewerConfig.getRowsChunk() : WidgetConstants.UNBOUNDED_LIMIT;
+        int initRowsNumber = collectionViewerConfig.getRowsChunk() >= 0 ? collectionViewerConfig.getRowsChunk() : WidgetConstants.UNBOUNDED_LIMIT;
         pluginData.setRowsChunk(initRowsNumber);
         if (displayChosenValues && collectionViewerConfig.getHierarchicalFiltersConfig() != null) {
             if (filterBuilder.prepareExtraFilters(collectionViewerConfig.getHierarchicalFiltersConfig(), null, filters)) {
@@ -326,6 +328,18 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         return list;
 
+    }
+    private boolean hasConfiguredFilters(Map<String, CollectionColumnProperties> columnPropertyMap){
+        boolean result = false;
+        for (CollectionColumnProperties collectionColumnProperties : columnPropertyMap.values()) {
+            String filterName = (String) collectionColumnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+            boolean hidden = (boolean) collectionColumnProperties.getProperty(CollectionColumnProperties.HIDDEN);
+            if(filterName != null && !hidden){
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
 }

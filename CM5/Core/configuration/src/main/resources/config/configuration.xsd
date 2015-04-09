@@ -1737,6 +1737,7 @@
                     <xs:element type="con:createdObjectsType" name="created-objects" minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:createNewButtonType" name="create-new-button" minOccurs="0" maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:collectionTableButtonsType" name="collection-table-buttons" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
                 <xs:attribute type="xs:boolean" name="resizable"/>
@@ -2989,6 +2990,7 @@
                     <xs:element type="xs:integer" name="page-size" nillable="false" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:defaultSortCriteriaType" name="default-sort-criteria" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:collectionTableButtonsType" name="collection-table-buttons" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" />
             </xs:extension>
@@ -3203,4 +3205,8 @@
             <xs:enumeration value="underline"/>
         </xs:restriction>
     </xs:simpleType>
+
+    <xs:complexType name="collectionTableButtonsType">
+        <xs:attribute type="xs:boolean" name="display-all-possible"/>
+    </xs:complexType>
 </xs:schema>

@@ -36,6 +36,8 @@ public class CollectionPluginData extends ActivePluginData {
     private boolean extendedSearchMarker;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
     private boolean embedded;
+    private boolean hasConfiguredFilters;
+    private boolean hasColumnButtons;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
@@ -164,5 +166,21 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setEmbedded(boolean embedded) {
         this.embedded = embedded;
+    }
+
+    public boolean hasConfiguredFilters() {
+        return hasConfiguredFilters;
+    }
+
+    public void setHasConfiguredFilters(boolean hasConfiguredFilters) {
+        this.hasConfiguredFilters = hasConfiguredFilters;
+    }
+
+    public boolean hasColumnButtons() {
+        return hasColumnButtons;
+    }
+
+    public void setHasColumnButtons(boolean hasColumnButtons) {
+        this.hasColumnButtons = hasColumnButtons;
     }
 }

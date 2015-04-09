@@ -205,7 +205,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 .setDisplayChosenValues(isDisplayChosenValues(displayOnlyChosenIds, displayCheckBoxes))
                 .setPageSize(tableBrowserConfig.getPageSize())
                 .setSelectionFiltersConfig(currentState.getWidgetConfig().getSelectionFiltersConfig())
-                .setCollectionExtraFiltersConfig(tableBrowserConfig.getCollectionExtraFiltersConfig());
+                .setCollectionExtraFiltersConfig(tableBrowserConfig.getCollectionExtraFiltersConfig())
+                .setHasColumnButtons(tableBrowserConfig.getCollectionTableButtonsConfig() == null ? false
+                        : tableBrowserConfig.getCollectionTableButtonsConfig().isDisplayAllPossible());
         return tableBrowserParams;
     }
 

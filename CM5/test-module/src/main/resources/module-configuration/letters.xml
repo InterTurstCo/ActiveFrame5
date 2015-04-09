@@ -917,6 +917,7 @@
                         <param name="3" value="Организация 4" type="string"/>
                     </extra-filter>
                 </collection-extra-filters>
+                <collection-table-buttons display-all-possible="false"/>
             </table-viewer>
         </widget-config>
     </form>

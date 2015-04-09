@@ -43,10 +43,9 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
         setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<>(this, false));
-        addStyleName("collection-plugin-view collection-plugin-view-container");
+        addStyleName("collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
-
 
     }
 

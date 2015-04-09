@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
@@ -29,6 +30,9 @@ public class TableViewerConfig extends WidgetConfig {
 
     @Element(name = "collection-extra-filters", required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
+    @Element(name = "collection-table-buttons", required = false)
+    private CollectionTableButtonsConfig collectionTableButtonsConfig;
 
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -70,6 +74,14 @@ public class TableViewerConfig extends WidgetConfig {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
+    public CollectionTableButtonsConfig getCollectionTableButtonsConfig() {
+        return collectionTableButtonsConfig;
+    }
+
+    public void setCollectionTableButtonsConfig(CollectionTableButtonsConfig collectionTableButtonsConfig) {
+        this.collectionTableButtonsConfig = collectionTableButtonsConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -98,6 +110,10 @@ public class TableViewerConfig extends WidgetConfig {
             return false;
         }
         if (pageSize != null ? !pageSize.equals(that.pageSize) : that.pageSize != null) {
+            return false;
+        }
+        if (collectionTableButtonsConfig != null ? !collectionTableButtonsConfig.equals(that.collectionTableButtonsConfig)
+                : that.collectionTableButtonsConfig != null) {
             return false;
         }
 

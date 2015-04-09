@@ -800,6 +800,7 @@
                     </title>
 
                 </linked-form>
+                <collection-table-buttons display-all-possible="true"/>
             </table-browser>
             <!--<linked-domain-objects-table id="city_table" modal-width="1200px" modal-height="305px">-->
             <linked-domain-objects-table id="city_table" modal-width="500px" modal-height="300px"
