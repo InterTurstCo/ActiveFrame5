@@ -69,7 +69,7 @@ public class ActionExecutorHandler extends LabelHandler {
             } else {
                 actionContext = new ActionContext(actionConfig);
             }
-            if (context.getFormObjects().getRootDomainObject() != null)
+            if (actionContext!=null && context.getFormObjects().getRootDomainObject() != null)
                 actionContext.setRootObjectId(context.getFormObjects().getRootDomainObject().getId());
             result.setActionContext(actionContext);
         }
