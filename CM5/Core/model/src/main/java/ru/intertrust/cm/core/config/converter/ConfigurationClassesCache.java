@@ -28,6 +28,8 @@ public class ConfigurationClassesCache {
     private static ConfigurationClassesCache instance = new ConfigurationClassesCache();
     private Map<String, Class> tagToClassMap = new ConcurrentHashMap<>();
     private Map<String, Class> migrationComponentNameToClassMap = new ConcurrentHashMap<>();
+    //Ввел переменную для указания строки поиска класов. Переменная необходима для работы тестов
+    private String searchClassPath = SEARCH_CLASS_PATH;
 
     /**
      * Возврящает экземпляр {@link ConfigurationClassesCache}
@@ -36,7 +38,7 @@ public class ConfigurationClassesCache {
     public static ConfigurationClassesCache getInstance() {
         return instance;
     }
-
+        
     private ConfigurationClassesCache() {
 
     }
@@ -80,7 +82,7 @@ public class ConfigurationClassesCache {
 
     private Resource[] readResources(ResourcePatternResolver resourcePatternResolver) {
         try {
-            return resourcePatternResolver.getResources(SEARCH_CLASS_PATH);
+            return resourcePatternResolver.getResources(searchClassPath);
         } catch (IOException e) {
             throw new FatalException("ResourcePatternResolver failed to find resources on classpath", e);
         }
@@ -119,6 +121,14 @@ public class ConfigurationClassesCache {
         } catch (Throwable e) {
             throw new FatalException("Failed to read metadata of '" + resource + "'", e);
         }
+    }
+
+    public String getSearchClassPath() {
+        return searchClassPath;
+    }
+
+    public void setSearchClassPath(String searchClassPath) {
+        this.searchClassPath = searchClassPath;
     }
 
 }

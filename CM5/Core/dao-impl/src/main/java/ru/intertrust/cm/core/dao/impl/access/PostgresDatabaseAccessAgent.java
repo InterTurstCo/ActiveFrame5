@@ -219,13 +219,11 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             for (ActionContextConfig actionContext : actionContexts) {
                 if (actionContext.getDomainObjectContext() != null) {
                     for (DomainObjectContextConfig domainObjectContextConfig : actionContext.getDomainObjectContext()) {
-                        if (actionContext.getDomainObjectContext() != null) {
-                            for (String domainObjectType : domainObjectContextConfig.getDomainObjectType()) {
-                                if (typeName.equals(domainObjectType) && actionContext.getAction() != null){
-                                    for (ActionContextActionConfig actionContextActionConfig : actionContext.getAction()) {
-                                        result.add(actionContextActionConfig.getName());
-                                    }
-                                }
+                        if (actionContext.getDomainObjectContext() != null &&
+                                typeName.equals(domainObjectContextConfig.getDomainObjectType()) &&
+                                actionContext.getAction() != null) {
+                            for (ActionContextActionConfig actionContextActionConfig : actionContext.getAction()) {
+                                result.add(actionContextActionConfig.getName());
                             }
                         }
                     }

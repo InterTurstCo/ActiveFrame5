@@ -11,11 +11,12 @@ import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 
 @Root(name="action-context")
 public class ActionContextConfig implements TopLevelConfig{
+    private static final long serialVersionUID = 7623941745498114136L;
 
     @Attribute(required = true)
     private String name;
 
-    @ElementList (entry = "domain-object-context", inline = true)
+    @ElementList (entry = "domain-object-context", inline = true, required=false)
     private List<DomainObjectContextConfig> domainObjectContext;
 
     @ElementList (entry = "action", inline = true)

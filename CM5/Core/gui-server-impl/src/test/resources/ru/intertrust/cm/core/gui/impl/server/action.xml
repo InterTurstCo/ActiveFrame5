@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+    <act:action name="action-0" componentName="action-0"/>               
+    <act:action name="action-1" componentName="action-1"/>               
+    <act:action name="action-2" componentName="action-2"/>               
+    <act:action name="action-3" componentName="action-3"/>               
+    <act:action name="action-4" componentName="action-4"/>               
+    <act:action name="action-5" componentName="action-5"/>               
+    <act:action name="action-6" componentName="action-6"/>               
+    <act:action name="action-7" componentName="action-7"/>               
+
+    <act:action-context name="context-0">
+        <act:action name="action-0"/>
+    </act:action-context>
+               
+    <act:action-context name="context-1">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+        </act:domain-object-context>
+        <act:action name="action-1"/>
+    </act:action-context>
+
+    <act:action-context name="context-2">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+        </act:domain-object-context>
+        <act:action name="action-2"/>
+    </act:action-context>
+
+    <act:action-context name="context-3">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-1"/>
+        </act:domain-object-context>
+        <act:action name="action-3"/>
+    </act:action-context>
+
+    <act:action-context name="context-4">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-1"/>
+            <act:attribute name="attr-2" value="10"/>
+        </act:domain-object-context>
+        <act:action name="action-4"/>
+    </act:action-context>
+
+    <act:action-context name="context-5">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-1"/>
+            <act:attribute name="attr-2" value="10"/>
+            <act:attribute name="attr-3" value="true"/>
+        </act:domain-object-context>
+        <act:action name="action-5"/>
+    </act:action-context>
+
+    <act:action-context name="context-6">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-1"/>
+            <act:attribute name="attr-2" value="10"/>
+            <act:attribute name="attr-3" value="true"/>
+            <act:class-name>ru.intertrust.cm.core.gui.impl.server.impl.TestCheckActionContextImpl</act:class-name>
+        </act:domain-object-context>
+        <act:action name="action-6"/>
+        <act:action name="action-7"/>
+    </act:action-context>
+
+    <act:action-context name="context-7">
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-7"/>
+        </act:domain-object-context>
+        <act:domain-object-context>
+            <act:type>type-1</act:type>
+            <act:status>status-1</act:status>
+            <act:attribute name="attr-1" value="value-8"/>
+        </act:domain-object-context>
+        <act:action name="action-7"/>
+    </act:action-context>
+
+    
+    <!-- Глобальные настройки -->
+    <global-settings>
+        <audit-log enable="false"/>
+        <transaction-trace enable="false"/>
+        <search-languages>
+            <language id="ru"/>
+        </search-languages>
+    </global-settings>
+        
+</configuration>
