@@ -32,7 +32,7 @@ public class SqlTransactionLogger {
         result.append("\n----- Transaction ").append(transactionId).append(isCommitted ? " committed" : " rolled back");
         result.append(" in ").append(delay).append(" ms (").append(timeInterval).append(")-----\n");
         
-        result.append("-----SQL query total preparation time:  ").append(getTimeInMilliseconds(transactionListener.getPreparationTime())).append(" ms-----\n");
+        result.append("----- SQL query total preparation time:  ").append(getTimeInMilliseconds(transactionListener.getPreparationTime())).append(" ms-----\n");
         
         for (String logEntry : transactionListener.getLogEntries()) {
             result.append(logEntry).append("\n");
