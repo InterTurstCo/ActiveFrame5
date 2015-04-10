@@ -43,20 +43,21 @@ public class SizeToggleAction extends ToggleAction {
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
-
+        final Element right = DOM.getElementById(ComponentHelper.RIGHT_ID);
         if (center.hasClassName(CENTRAL_SECTION_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_STYLE, CENTRAL_SECTION_FULL_SIZE_STYLE);
-        } else {
+        } else if (center.hasClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
-            final Element right = DOM.getElementById(ComponentHelper.RIGHT_ID);
             right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
+        } else if (center.hasClassName(CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE)) {
+            center.replaceClassName(CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
+            right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
+        } else {
+            center.replaceClassName(CENTRAL_SECTION_ACTIVE_STYLE, CENTRAL_SECTION_FULL_SIZE_STYLE);
         }
         left.replaceClassName(LEFT_SECTION_STYLE, LEFT_SECTION_COLLAPSED_STYLE);
         header.replaceClassName(TOP_SECTION_STYLE, TOP_SECTION_COLLAPSED_STYLE);
 
-        if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
-            center.removeClassName(CENTRAL_SECTION_ACTIVE_STYLE);
-        }
     }
 
     private void collapse() {
@@ -65,17 +66,21 @@ public class SizeToggleAction extends ToggleAction {
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
         if (center.hasClassName(CENTRAL_SECTION_FULL_SIZE_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_FULL_SIZE_STYLE, CENTRAL_SECTION_STYLE);
-
+            if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
+                center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
+            }
         } else {
-            center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
+            if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
+                center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE, CENTRAL_SECTION_LEFT_AND_RIGHT_PANEL_OPEN_STYLE);
+                center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
+            } else {
+                center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
+            }
 
         }
         left.replaceClassName(LEFT_SECTION_COLLAPSED_STYLE, LEFT_SECTION_STYLE);
         header.replaceClassName(TOP_SECTION_COLLAPSED_STYLE, TOP_SECTION_STYLE);
 
-        if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
-            center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
-        }
     }
 
     @Override
