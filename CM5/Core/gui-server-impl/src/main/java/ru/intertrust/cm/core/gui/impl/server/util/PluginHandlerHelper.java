@@ -6,16 +6,7 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
-import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -27,13 +18,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.validation.CustomValidatorFactory;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DateRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.DecimalRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.IntRangeValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.LengthValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ScaleAndPrecisionValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.ServerValidator;
-import ru.intertrust.cm.core.gui.impl.server.validation.validators.SimpleValidator;
+import ru.intertrust.cm.core.gui.impl.server.validation.validators.*;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
@@ -277,7 +262,7 @@ public class PluginHandlerHelper {
 
     public static WidgetHandler getWidgetHandler(WidgetConfig config, ApplicationContext applicationContext) {
         String handlerName = config.getHandler();
-        if (handlerName == null) {
+        if (handlerName == null || handlerName.isEmpty()) {
             handlerName = config.getComponentName();
         }
         return (WidgetHandler) applicationContext.getBean(handlerName);

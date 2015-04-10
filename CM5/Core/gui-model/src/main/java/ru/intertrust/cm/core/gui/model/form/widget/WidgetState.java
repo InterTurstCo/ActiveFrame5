@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import java.util.List;
  */
 public abstract class WidgetState implements Dto {
     protected boolean editable;
+    protected boolean forceReadOnly;
     private HashMap<String, Object> widgetProperties = new HashMap<String, Object>(); // declared as HashMap rather than Map because Map is not serializable
     private List<Constraint> constraints = new ArrayList<Constraint>();
 
@@ -28,6 +28,14 @@ public abstract class WidgetState implements Dto {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    public boolean isForceReadOnly() {
+        return forceReadOnly;
+    }
+
+    public void setForceReadOnly(boolean forceReadOnly) {
+        this.forceReadOnly = forceReadOnly;
     }
 
     public boolean mayContainNestedFormStates() {

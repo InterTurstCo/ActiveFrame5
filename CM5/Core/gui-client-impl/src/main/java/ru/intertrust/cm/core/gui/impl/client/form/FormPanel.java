@@ -315,7 +315,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
                 }
                 String widgetComponent = formDisplayData.getWidgetComponent(displayConfig.getId());
                 BaseWidget widget = ComponentRegistry.instance.get(widgetComponent);
-                widget.setEditable(state.isEditable() && widgetState.isEditable());
+                widget.setEditable(!widgetState.isForceReadOnly() && state.isEditable() && widgetState.isEditable());
                 widget.setDisplayConfig(displayConfig);
                 Map<String, String> messages = formState.getMessages();
                 widget.setMessages(messages);
