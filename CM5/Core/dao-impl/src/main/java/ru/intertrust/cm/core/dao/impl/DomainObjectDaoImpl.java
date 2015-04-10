@@ -1737,8 +1737,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         StringBuilder query = new StringBuilder();
         query.append("select ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).
                 append(", ").append(tableAlias).append(".").append(wrap(getReferenceTypeColumnName(ID_COLUMN))).
-                append(" from ").append(wrap(tableName)).append(" ").append(tableAlias).
-                append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
+                append(" from ").append(wrap(tableName)).append(" ").append(tableAlias);
+        
+        if (!doTypeHavingLinkedField.equalsIgnoreCase(linkedType)) {
+
+            String parentTableName = getSqlName(linkedType);
+            String parentTableAlias = getSqlAlias(linkedType);
+
+            query.append(" inner join ").append(wrap(parentTableName)).append(" ")
+                    .append(parentTableAlias);
+            query.append(" on ").append(tableAlias).append(".").append(wrap(ID_COLUMN))
+                    .append(" = ");
+            query.append(parentTableAlias).append(".").append(wrap(ID_COLUMN));
+
+        }
+        
+        query.append(" where ").append(tableAlias).append(".").append(wrap(getSqlName(linkedField))).
                 append(" = :").append(PARAM_DOMAIN_OBJECT_ID).
                 append(" and ").append(wrap(getSqlName(getReferenceTypeColumnName(linkedField))))
                 .append(" = :").append(PARAM_DOMAIN_OBJECT_TYPE_ID);

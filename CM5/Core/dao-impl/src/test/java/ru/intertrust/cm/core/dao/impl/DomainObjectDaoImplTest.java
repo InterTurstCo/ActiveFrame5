@@ -410,7 +410,9 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery =
                 "select person.\"id\", person.\"id_type\" "
-                + "from \"person\" person where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
+                + "from \"person\" person "
+                + "inner join \"internal_employee\" internal_employee on person.\"id\" = internal_employee.\"id\" "
+                + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
                 + "and exists (select r.\"object_id\" from \"person_read\" r  "
                 + "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
                 + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
@@ -425,7 +427,8 @@ public class DomainObjectDaoImplTest {
     @Test
     public void testGenerateFindChildrenIdsQueryForInheritedFieldExactType() {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.\"id\", person.\"id_type\" from \"person\" person where " +
+        String expectedQuery = "select person.\"id\", person.\"id_type\" from \"person\" person " +
+        		"inner join \"internal_employee\" internal_employee on person.\"id\" = internal_employee.\"id\" where " +
                 "person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid and " +
                 "person.\"id_type\" = :result_type_id and exists (select r.\"object_id\" from \"person_read\" r  " +
                 "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" " +

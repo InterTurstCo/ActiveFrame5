@@ -386,7 +386,7 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     }
 
     @Override
-    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,                                                      boolean exactType) {
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType) {
         try {
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
             return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType,
