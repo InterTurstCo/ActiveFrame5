@@ -11,6 +11,7 @@ public class CompactModeState {
     private int left;
     private boolean expanded;
     private boolean navigationTreePanelExpanded;
+    private boolean rightPanelConfigured;
 
     public boolean isNavigationTreePanelExpanded() {
         return navigationTreePanelExpanded;
@@ -34,5 +35,13 @@ public class CompactModeState {
 
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
+    }
+
+    public boolean isRightPanelConfigured() {
+        return rightPanelConfigured;
+    }
+
+    public void setRightPanelConfigured(boolean rightPanelConfigured) {
+        this.rightPanelConfigured = rightPanelConfigured;
     }
 }

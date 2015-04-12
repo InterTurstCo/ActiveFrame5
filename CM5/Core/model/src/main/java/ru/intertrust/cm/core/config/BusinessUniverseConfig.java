@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
 import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
 
 /**
@@ -37,6 +39,12 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     @Element(name = "extended-search-popup", required = false)
     private ExtendedSearchPopupConfig extendedSearchPopupConfig;
+
+    @Element(name = "bottom-panel", required = false)
+    private BottomPanelConfig bottomPanelConfig;
+
+    @Element(name = "right-panel", required = false)
+    private RightPanelConfig rightPanelConfig;
 
     public LogoConfig getLogoConfig() {
         return logoConfig;
@@ -98,28 +106,67 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         this.extendedSearchPopupConfig = extendedSearchPopupConfig;
     }
 
+    public BottomPanelConfig getBottomPanelConfig() {
+        return bottomPanelConfig;
+    }
+
+    public void setBottomPanelConfig(BottomPanelConfig bottomPanelConfig) {
+        this.bottomPanelConfig = bottomPanelConfig;
+    }
+
+    public RightPanelConfig getRightPanelConfig() {
+        return rightPanelConfig;
+    }
+
+    public void setRightPanelConfig(RightPanelConfig rightPanelConfig) {
+        this.rightPanelConfig = rightPanelConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BusinessUniverseConfig that = (BusinessUniverseConfig) o;
 
-        if (collectionCountCacheRefreshConfig != null ? !collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig) : that.collectionCountCacheRefreshConfig != null)
+        if (bottomPanelConfig != null ? !bottomPanelConfig.equals(that.bottomPanelConfig) : that.bottomPanelConfig != null){
             return false;
-        if (collectionCountRefreshConfig != null ? !collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig) : that.collectionCountRefreshConfig != null)
+        }
+        if (collectionCountCacheRefreshConfig != null ? !collectionCountCacheRefreshConfig.equals(that.collectionCountCacheRefreshConfig)
+                : that.collectionCountCacheRefreshConfig != null) {
             return false;
-        if (headerNotificationRefreshConfig != null ? !headerNotificationRefreshConfig.equals(that.headerNotificationRefreshConfig) : that.headerNotificationRefreshConfig != null)
+        }
+        if (collectionCountRefreshConfig != null ? !collectionCountRefreshConfig.equals(that.collectionCountRefreshConfig)
+                : that.collectionCountRefreshConfig != null) {
             return false;
-        if (loginScreenConfig != null ? !loginScreenConfig.equals(that.loginScreenConfig) : that.loginScreenConfig != null)
-            return false;
-        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) return false;
-        if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig) : that.settingsPopupConfig != null)
-            return false;
-        if (sideBarOpenningTimeConfig != null ? !sideBarOpenningTimeConfig.equals(that.sideBarOpenningTimeConfig) : that.sideBarOpenningTimeConfig != null)
-            return false;
+        }
         if (extendedSearchPopupConfig != null ? !extendedSearchPopupConfig.equals(that.extendedSearchPopupConfig)
                 : that.extendedSearchPopupConfig != null){
+            return false;
+        }
+        if (headerNotificationRefreshConfig != null ? !headerNotificationRefreshConfig.equals(that.headerNotificationRefreshConfig)
+                : that.headerNotificationRefreshConfig != null) {
+            return false;
+        }
+        if (loginScreenConfig != null ? !loginScreenConfig.equals(that.loginScreenConfig) : that.loginScreenConfig != null) {
+            return false;
+        }
+        if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
+            return false;
+        }
+        if (rightPanelConfig != null ? !rightPanelConfig.equals(that.rightPanelConfig) : that.rightPanelConfig != null) {
+            return false;
+        }
+        if (settingsPopupConfig != null ? !settingsPopupConfig.equals(that.settingsPopupConfig)
+                : that.settingsPopupConfig != null) {
+            return false;
+        }
+        if (sideBarOpenningTimeConfig != null ? !sideBarOpenningTimeConfig.equals(that.sideBarOpenningTimeConfig)
+                : that.sideBarOpenningTimeConfig != null) {
             return false;
         }
 

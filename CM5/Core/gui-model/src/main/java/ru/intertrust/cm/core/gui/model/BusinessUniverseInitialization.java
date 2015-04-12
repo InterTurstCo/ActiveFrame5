@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +32,9 @@ public class BusinessUniverseInitialization implements Dto {
     private String helperLink;
     private String currentLocale;
     private Map<String, String> globalLocalizedResources = new HashMap<>();
+    private BottomPanelConfig bottomPanelConfig;
+    private RightPanelConfig rightPanelConfig;
+    private boolean searchConfigured;
 
     public String getHelperLink() {
         return helperLink;
@@ -182,5 +187,29 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setCurrentLocale(String currentLocale) {
         this.currentLocale = currentLocale;
+    }
+
+    public BottomPanelConfig getBottomPanelConfig() {
+        return bottomPanelConfig;
+    }
+
+    public void setBottomPanelConfig(BottomPanelConfig bottomPanelConfig) {
+        this.bottomPanelConfig = bottomPanelConfig;
+    }
+
+    public RightPanelConfig getRightPanelConfig() {
+        return rightPanelConfig;
+    }
+
+    public void setRightPanelConfig(RightPanelConfig rightPanelConfig) {
+        this.rightPanelConfig = rightPanelConfig;
+    }
+
+    public boolean isSearchConfigured() {
+        return searchConfigured;
+    }
+
+    public void setSearchConfigured(boolean searchConfigured) {
+        this.searchConfigured = searchConfigured;
     }
 }

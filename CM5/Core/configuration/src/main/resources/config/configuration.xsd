@@ -417,6 +417,8 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="collection-count-cache-refresh" type="con:collectionCountCacheRefreshType" maxOccurs="1" minOccurs="1"
                 xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="bottom-panel" type="con:bottomPanelType" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="right-panel" type="con:rightPanelType" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="settingsPopupType">
@@ -3208,5 +3210,17 @@
 
     <xs:complexType name="collectionTableButtonsType">
         <xs:attribute type="xs:boolean" name="display-all-possible"/>
+    </xs:complexType>
+
+    <xs:complexType name="stickNotesType">
+    </xs:complexType>
+
+    <xs:complexType name="bottomPanelType">
+        <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element type="con:stickNotesType" name="stick-notes" maxOccurs="1" minOccurs="0" />
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="rightPanelType">
     </xs:complexType>
 </xs:schema>

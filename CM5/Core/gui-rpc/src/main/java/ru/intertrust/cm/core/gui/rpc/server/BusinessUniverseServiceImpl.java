@@ -11,6 +11,10 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
+import ru.intertrust.cm.core.config.search.SearchAreaConfig;
+import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
@@ -20,6 +24,7 @@ import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
+import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
@@ -75,33 +80,18 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
 
-        GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
-        final ApplicationHelpConfig helpConfig = globalSettingsConfig.getApplicationHelpConfig();
-        if (helpConfig != null) {
-            initialization.setHelperLink(helpConfig.getSource());
-        }
-        else{
-            initialization.setHelperLink("help/page404.html");
-        }
-        final ProductTitle productTitle = globalSettingsConfig.getProductTitle();
-        initialization.setPageNamePrefix(productTitle == null ? null : productTitle.getTitle() == null ? null : productTitle.getTitle() + ": ");
-        final ProductVersion productVersion = globalSettingsConfig.getProductVersion();
-        initialization.setProductVersion(productVersion == null || productVersion.getArchive() == null ? "" : guiService.getProductVersion(productVersion.getArchive()));
-
-        addSettingsPopupConfig(businessUniverseConfig, initialization);
-        addSideBarOpeningTime(businessUniverseConfig, initialization);
+        addGlobalSettingsRelatedData(initialization);
         if (businessUniverseConfig != null) {
-            initialization.setCollectionCountersUpdatePeriod(
-                    businessUniverseConfig.getCollectionCountRefreshConfig() == null
-                    ? null
-                    : businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
-            initialization.setHeaderNotificationPeriod(
-                    businessUniverseConfig.getHeaderNotificationRefreshConfig() == null
-                    ? null
-                    : businessUniverseConfig.getHeaderNotificationRefreshConfig().getTime());
+            addSettingsPopupConfig(businessUniverseConfig, initialization);
+            addSideBarOpeningTime(businessUniverseConfig, initialization);
+            addWidgetConfigs(businessUniverseConfig, initialization);
+            addCollectionCountersUpdatePeriod(businessUniverseConfig, initialization);
+            addHeaderNotificationPeriod(businessUniverseConfig, initialization);
         }
+        initialization.setSearchConfigured(isSearchConfigured());
         Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
         initialization.setGlobalLocalizedResources(messages);
+
         return initialization;
     }
 
@@ -152,7 +142,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private void addLogoImagePath(final BusinessUniverseConfig businessUniverseConfig,
-                                                            BusinessUniverseInitialization businessUniverseInitialization) {
+                                  BusinessUniverseInitialization businessUniverseInitialization) {
         if (businessUniverseConfig == null) {
             businessUniverseInitialization.setLogoImagePath(DEFAULT_LOGO_PATH);
             return;
@@ -168,20 +158,19 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     }
 
     private void addSideBarOpeningTime(BusinessUniverseConfig businessUniverseConfig,
-                                       BusinessUniverseInitialization businessUniverseInitialization){
+                                       BusinessUniverseInitialization businessUniverseInitialization) {
 
-        if(businessUniverseConfig.getSideBarOpenningTimeConfig() == null){
+        if (businessUniverseConfig.getSideBarOpenningTimeConfig() == null) {
             businessUniverseInitialization.setSideBarOpenningTimeConfig(500);
-        }
-        else{
-            businessUniverseInitialization.setSideBarOpenningTimeConfig(Integer.parseInt(businessUniverseConfig.getSideBarOpenningTimeConfig().getDefaultValue()));
+        } else {
+            businessUniverseInitialization.setSideBarOpenningTimeConfig(Integer.parseInt(businessUniverseConfig
+                    .getSideBarOpenningTimeConfig().getDefaultValue()));
         }
 
     }
 
     private void addSettingsPopupConfig(BusinessUniverseConfig businessUniverseConfig,
                                         BusinessUniverseInitialization businessUniverseInitialization) {
-
         String userTheme = null;
         final IdentifiableObject userSettings = PluginHandlerHelper
                 .getUserSettingsIdentifiableObject(guiService.getUserUid(), collectionsService);
@@ -226,4 +215,71 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         return result;
     }
 
+    private void addWidgetConfigs(BusinessUniverseConfig businessUniverseConfig,
+                                  BusinessUniverseInitialization initialization) {
+        initialization.setBottomPanelConfig(businessUniverseConfig.getBottomPanelConfig());
+        initialization.setRightPanelConfig(businessUniverseConfig.getRightPanelConfig());
+
+    }
+
+    private void addHeaderNotificationPeriod(BusinessUniverseConfig businessUniverseConfig,
+                                  BusinessUniverseInitialization initialization) {
+        initialization.setHeaderNotificationPeriod(
+                businessUniverseConfig.getHeaderNotificationRefreshConfig() == null
+                        ? null
+                        : businessUniverseConfig.getHeaderNotificationRefreshConfig().getTime());
+
+    }
+
+    private void addCollectionCountersUpdatePeriod(BusinessUniverseConfig businessUniverseConfig,
+                                                   BusinessUniverseInitialization initialization) {
+        initialization.setCollectionCountersUpdatePeriod(
+                businessUniverseConfig.getCollectionCountRefreshConfig() == null
+                        ? null
+                        : businessUniverseConfig.getCollectionCountRefreshConfig().getTime());
+    }
+
+    private void addGlobalSettingsRelatedData(BusinessUniverseInitialization initialization){
+        GlobalSettingsConfig globalSettingsConfig = configurationService.getGlobalSettings();
+        final ApplicationHelpConfig helpConfig = globalSettingsConfig.getApplicationHelpConfig();
+        if (helpConfig != null) {
+            initialization.setHelperLink(helpConfig.getSource());
+        } else {
+            initialization.setHelperLink("help/page404.html");
+        }
+        final ProductTitle productTitle = globalSettingsConfig.getProductTitle();
+        initialization.setPageNamePrefix(productTitle == null ? null : productTitle.getTitle() == null ? null
+                : productTitle.getTitle() + ": ");
+        final ProductVersion productVersion = globalSettingsConfig.getProductVersion();
+        initialization.setProductVersion(productVersion == null || productVersion.getArchive() == null ? ""
+                : guiService.getProductVersion(productVersion.getArchive()));
+    }
+
+    public boolean isSearchConfigured(){
+        Collection<SearchAreaConfig> searchAreaConfigs = configurationService.getConfigs(SearchAreaConfig.class);
+        for(SearchAreaConfig searchAreaConfig  : searchAreaConfigs){
+            List<TargetDomainObjectConfig> targetObjects = searchAreaConfig.getTargetObjects();
+            // список целевых ДО в конкретной области поиска
+            ArrayList<String> arrayTargetObjects = new ArrayList<String>();
+            for (TargetDomainObjectConfig targetObject : targetObjects) {
+                // получаем результирующую форму поиска(удаляем несоответствующие поля)
+                List<IndexedFieldConfig> fields = targetObject.getFields();
+                ArrayList <String> fieldNames = new ArrayList<String>(fields.size());
+                for (IndexedFieldConfig field :fields) {
+                    fieldNames.add(field.getName());
+                }
+                // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
+                final UserInfo userInfo = GuiContext.get().getUserInfo();
+                FormDisplayData form = guiService.getSearchForm(targetObject.getType(), new HashSet<String>(fieldNames), userInfo);
+                if (form != null) {
+                    arrayTargetObjects.add(targetObject.getType());
+                }
+            }
+            // если у области поиска нет сконфигурированной формы для поиска ДО, ее не отображаем
+            if (!arrayTargetObjects.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

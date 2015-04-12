@@ -6,21 +6,10 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.FocusPanel;
-import com.google.gwt.user.client.ui.HTMLTable;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.InlineLabel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
@@ -28,16 +17,14 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySup
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
-import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DARK;
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.THEME_DEFAULT;
-import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.getCurrentTheme;
+import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
@@ -49,22 +36,21 @@ public class HeaderContainer extends SimplePanel {
     private InformationDialogBox dialogBox;
     private SettingsPopupConfig settingsPopupConfig;
     private PopupPanel popupPanel;
-    private Label platformVersion;
-    private Label productVersion;
     private AbsolutePanel infoPanel;
 
     public HeaderContainer() {
     }
 
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig,
-                           CurrentVersionInfo version, String helperLink) {
-        this.settingsPopupConfig = settingsPopupConfig;
+    public HeaderContainer(BusinessUniverseInitialization initialization) {
+        this.settingsPopupConfig = initialization.getSettingsPopupConfig();
+        CurrentUserInfo currentUserInfo = getUserInfo(initialization);
         addUserInfoToDialog(currentUserInfo);
 
         this.getElement().setId("container");
         this.getElement().getStyle().setProperty("position", "relative");
 
         SimplePanel head = createHeadPanel(this);
+        String logoImagePath = GlobalThemesManager.getResourceFolder() + initialization.getLogoImagePath();
         FlexTable headTable = createHeadTable(logoImagePath);
 
         headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
@@ -77,7 +63,7 @@ public class HeaderContainer extends SimplePanel {
                 dialogBox.show();
             }
         });
-
+        if(initialization.isSearchConfigured()){
         thirdImage = new FocusPanel();
         thirdImage.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().headerExtendedSearch());
         thirdImage.addDomHandler(new ClickHandler() {
@@ -88,6 +74,8 @@ public class HeaderContainer extends SimplePanel {
         }, ClickEvent.getType());
 
         headTable.setWidget(FIRST_ROW, 2, thirdImage);
+        }
+
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
@@ -103,14 +91,14 @@ public class HeaderContainer extends SimplePanel {
 
         final HorizontalPanel linksPanel = new HorizontalPanel();
         final AbsolutePanel decoratedSettings = new AbsolutePanel();
+        decoratedSettings.setStyleName("decorated-settings");
         final Image settingsImage = new Image(getCurrentTheme().settingsIm());
-        final Image versionImage = new Image("css/images/help.png");
+        final Image versionImage = new Image(getCurrentTheme().helpIm());
 
         decoratedSettings.add(settingsImage);
         AbsolutePanel decoratedHelp = new AbsolutePanel();
         decoratedHelp.setStyleName("decorated-help");
-        //Anchor help = new Anchor("Help", "Help");
-        //decoratedHelp.add(help);
+
         decoratedHelp.add(versionImage);
 
         popupPanel = new PopupPanel(true, false);
@@ -124,6 +112,7 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(corner);
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
+        CurrentVersionInfo version = getVersion(initialization);
         infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) +  " " + version.getCoreVersion()));
         if (version.getProductVersion() != null) {
             infoPanel.add(new Label(LocalizeUtil.get(VERSION_KEY, VERSION) + " " + version.getProductVersion()));
@@ -132,16 +121,12 @@ public class HeaderContainer extends SimplePanel {
 
         popupPanel.getElement().setClassName("applicationVersionWindows");
 
-//        popupPanel.getElement().getStyle().setRight(72, Style.Unit.PX);
-//        popupPanel.getElement().getStyle().setTop(55, Style.Unit.PX);
-
         versionImage.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
 
                 if (!popupPanel.isShowing()) {
                     popupPanel.showRelativeTo(versionImage);
-                    //popupPanel.show();
                     popupPanel.getElement().getStyle().clearLeft();
                     popupPanel.getElement().getStyle().clearTop();
 
@@ -176,7 +161,13 @@ public class HeaderContainer extends SimplePanel {
         });
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
         head.add(headTable);
-        setInfoPage(helperLink);
+        setInfoPage(initialization.getHelperLink());
+    }
+
+    @Deprecated
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig,
+                           CurrentVersionInfo version, String helperLink) {
+
     }
 
     // вызываем окно расширенного поиска
@@ -244,6 +235,13 @@ public class HeaderContainer extends SimplePanel {
                     Window.open(currentPath, "_blank", "");
             }
         });
+    }
+    CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
+        return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
+    }
+
+    CurrentVersionInfo getVersion(BusinessUniverseInitialization result) {
+        return new CurrentVersionInfo(result.getApplicationVersion(), result.getProductVersion());
     }
 
 }

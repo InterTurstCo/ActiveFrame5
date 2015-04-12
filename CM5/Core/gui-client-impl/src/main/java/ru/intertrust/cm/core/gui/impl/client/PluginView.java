@@ -2,18 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
-import com.google.gwt.user.client.Command;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import com.google.gwt.user.client.ui.MenuItemSeparator;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.UIObject;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
@@ -217,8 +206,11 @@ public abstract class PluginView implements IsWidget {
                 "size.toggle.action", LocalizeUtil.get(SIZE_ACTION_TOOLTIP_KEY, SIZE_ACTION_TOOLTIP), ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME, 1000));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
+        if(Application.getInstance().getCompactModeState().isRightPanelConfigured()){
         contexts.add(new ToggleActionContext(createActionConfigWithImageInDiv(
-                "favorite.toggle.action", LocalizeUtil.get(FAVORITE_ACTION_TOOLTIP_KEY, FAVORITE_ACTION_TOOLTIP), ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
+                "favorite.toggle.action", LocalizeUtil.get(FAVORITE_ACTION_TOOLTIP_KEY, FAVORITE_ACTION_TOOLTIP),
+                ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
+        }
         return contexts;
     }
 

@@ -54,7 +54,7 @@
     display: block;
 }
 
-.table-browser-dialog.popup-z-index table[class="collection-plugin-view-container"] {
+.table-browser-dialog.popup-z-index table[class="collection-plugin-view"] {
     top: 30px;
 }
 

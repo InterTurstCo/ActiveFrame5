@@ -96,6 +96,9 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/leftBottomResizeArea.jpg")
     ImageResource leftBottomResizeAreaIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/help.png")
+    ImageResource helpIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

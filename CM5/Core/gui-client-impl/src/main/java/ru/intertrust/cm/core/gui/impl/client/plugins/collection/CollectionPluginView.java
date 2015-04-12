@@ -568,11 +568,7 @@ public class CollectionPluginView extends PluginView {
         boolean result = false;
         CollectionPluginData pluginData = getPluginData();
         if (pluginData.hasColumnButtons()) {
-            if (pluginData.hasConfiguredFilters()) {
-                filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
-                filterButton.setTitle(LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
-                container.add(filterButton);
-            }
+
             final Button columnManagerButton = new Button();
             columnManagerButton.setTitle(LocalizeUtil.get(COLUMNS_DISPLAY_TOOLTIP_KEY, COLUMNS_DISPLAY_TOOLTIP));
             columnManagerButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().columnSettingsButton());
@@ -594,6 +590,12 @@ public class CollectionPluginView extends PluginView {
                 }
             });
             container.add(columnWidthRecalculateButton);
+
+            if (pluginData.hasConfiguredFilters()) {
+                filterButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
+                filterButton.setTitle(LocalizeUtil.get(FILTER_TOOLTIP_KEY, FILTER_TOOLTIP));
+                container.add(filterButton);
+            }
             result = true;
         }
         return result;

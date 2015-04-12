@@ -16,12 +16,15 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
@@ -68,15 +71,6 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel right;
     private AbsolutePanel footer;
     private HeaderContainer headerContainer;
-    private AbsolutePanel footerButton;
-
-    CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
-        return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
-    }
-
-    CurrentVersionInfo getVersion(BusinessUniverseInitialization result) {
-        return new CurrentVersionInfo(result.getApplicationVersion(), result.getProductVersion());
-    }
 
     public void onModuleLoad() {
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
@@ -98,6 +92,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         final Application application = Application.getInstance();
         application.setCurrentLocale(initializationInfo.getCurrentLocale());
         application.setLocalizedResources(initializationInfo.getGlobalLocalizedResources());
+        application.getCompactModeState().setRightPanelConfigured(initializationInfo.getRightPanelConfig() != null);
         GWT.setUncaughtExceptionHandler(new UncaughtExceptionHandlerImpl());
         final EventBus glEventBus = Application.getInstance().getEventBus();
         SettingsPopupConfig settingsPopupConfig = initializationInfo.getSettingsPopupConfig();
@@ -111,11 +106,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         right = new AbsolutePanel();
         footer = new AbsolutePanel();
         AbsolutePanel root = new AbsolutePanel();
-        footerButton = new AbsolutePanel();
-        footerButton.addDomHandler(new StickerPanelHandler(), ClickEvent.getType());
-        footerButton.setStyleName("footerOpenButton");
-        footerButton.getElement().getStyle().clearPosition();
-        root.add(footerButton);
+        addBottomPanel(root, initializationInfo.getBottomPanelConfig());
         final AbsolutePanel centralDivPanel = new AbsolutePanel();
         centralDivPanel.setStyleName(CENTRAL_SECTION_STYLE);
         centralDivPanel.getElement().setId(ComponentHelper.DOMAIN_ID);
@@ -158,8 +149,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         // данному плагину устанавливается глобальная шина событий
         navigationTreePlugin.setEventBus(glEventBus);
 
-        Integer sideBarOpenningTime = initializationInfo.getSideBarOpenningTimeConfig();
-        navigationTreePlugin.setSideBarOpenningTime(sideBarOpenningTime);
+        Integer sideBarOpeningTime = initializationInfo.getSideBarOpenningTimeConfig();
+        navigationTreePlugin.setSideBarOpenningTime(sideBarOpeningTime);
         centralPluginPanel = new CentralPluginPanel();
         centralPluginPanel.setStyle("rightSectionWrapper");
         centralDivPanel.add(centralPluginPanel);
@@ -170,11 +161,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         glEventBus.addHandler(CentralPluginChildOpeningRequestedEvent.TYPE, centralPluginPanel);
         glEventBus.addHandler(NavigationTreeItemSelectedEvent.TYPE, this);
         glEventBus.addHandler(LeaveLeftPanelEvent.TYPE, navigationTreePlugin);
-        String logoImagePath = GlobalThemesManager.getResourceFolder() + initializationInfo.getLogoImagePath();
-        CurrentUserInfo currentUserInfo = getUserInfo(initializationInfo);
-        CurrentVersionInfo version = getVersion(initializationInfo);
-        headerContainer = new HeaderContainer(currentUserInfo, logoImagePath, settingsPopupConfig, version,
-                initializationInfo.getHelperLink());
+
+        headerContainer = new HeaderContainer(initializationInfo);
 
         header.add(headerContainer);
 
@@ -189,7 +177,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                 extendedSearchComplete(event.getDomainObjectSurferPluginData());
             }
         });
-        addStickerPanel();
+        addRightPanel(initializationInfo.getRightPanelConfig());
         addWindowResizeListener();
 
 
@@ -273,13 +261,26 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         });
     }
 
-    private void addStickerPanel() {
+    private void addRightPanel(RightPanelConfig rightPanelConfig) {
+        if(rightPanelConfig != null){
         AbsolutePanel panel = new AbsolutePanel();
         panel.getElement().setId(ComponentHelper.RIGHT_ID);
         panel.getElement().getStyle().clearPosition();
         panel.getElement().setClassName("stickerPanelOff");
 
         center.add(panel);
+        }
+
+    }
+
+    private void addBottomPanel(Panel root,BottomPanelConfig bottomPanelConfig) {
+        if(bottomPanelConfig != null){
+            Panel footerButton = new AbsolutePanel();
+            footerButton.addDomHandler(new FooterPanelHandler(footerButton), ClickEvent.getType());
+            footerButton.setStyleName("footerOpenButton");
+            footerButton.getElement().getStyle().clearPosition();
+            root.add(footerButton);
+        }
 
     }
 
@@ -383,14 +384,20 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         return e;
     }
 
-    private class StickerPanelHandler implements ClickHandler {
+    private class FooterPanelHandler implements ClickHandler {
+        private Widget widget;
+
+        public FooterPanelHandler(Widget widget) {
+            this.widget = widget;
+        }
+
         @Override
         public void onClick(ClickEvent event) {
             if (footer.getStyleName().equals("footerPanelOff")) {
-                footerButton.getElement().setClassName("footerCloseButton");
+                widget.getElement().setClassName("footerCloseButton");
                 footer.getElement().setClassName("footerPanelOn");
             } else {
-                footerButton.getElement().setClassName("footerOpenButton");
+                widget.getElement().setClassName("footerOpenButton");
                 footer.getElement().setClassName("footerPanelOff");
             }
         }
