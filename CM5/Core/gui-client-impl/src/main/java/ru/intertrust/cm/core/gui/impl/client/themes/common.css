@@ -4,6 +4,13 @@
     width: 32px;
 }
 
+@sprite .headerExtendedSearch:hover {
+    gwt-image: "extendedSearchHoverIm";
+    cursor: pointer;
+    height: 32px;
+    width: 32px;
+}
+
 @sprite .columnSettingsButton {
     gwt-image: "columnSettingsIm";
     background-color: #f0f4ff;
@@ -37,6 +44,12 @@
     cursor: pointer;
     float: right;
     margin: 3px 5px 0 5px;
+}
+
+.recalculateColumnsWidthBtn:hover,
+.columnSettingsButton:hover,
+.filterOpenBtn:hover {
+    border: 1px solid #1f76a5;
 }
 
 @sprite .confirmDialogIm {
@@ -86,6 +99,16 @@
     width: 35px;
 }
 
+@sprite .formFullSizeOn:hover {
+    gwt-image: "formFullSizeOnHoverActionIm";
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+
 @sprite .formFullSizeOff {
     gwt-image: "formFullSizeOffActionIm";
     background-repeat: no-repeat;
@@ -98,6 +121,16 @@
 
 @sprite .favoritePanelOn {
     gwt-image: "favoritePanelOnActionIm";
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    float: left;
+    height: 35px;
+    margin: 4px 0 0 0;
+    width: 35px;
+}
+
+@sprite .favoritePanelOn:hover {
+    gwt-image: "favoritePanelOnHoverActionIm";
     background-repeat: no-repeat;
     background-position: 0 0;
     float: left;

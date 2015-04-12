@@ -30,6 +30,9 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/ext-search.png")
     ImageResource extendedSearchIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/ext-search-hover.png")
+    ImageResource extendedSearchHoverIm();
+
     @Source("ru/intertrust/cm/core/gui/impl/images/columnSettingsIm.png")
     ImageResource columnSettingsIm();
 
@@ -45,11 +48,17 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/form-fullsize-on.png")
     ImageResource formFullSizeOnActionIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/form-fullsize-on-hover.png")
+    ImageResource formFullSizeOnHoverActionIm();
+
     @Source("ru/intertrust/cm/core/gui/impl/images/form-fullsize-off.png")
     ImageResource formFullSizeOffActionIm();
 
     @Source("ru/intertrust/cm/core/gui/impl/images/favorite-panel-on.png")
     ImageResource favoritePanelOnActionIm();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/favorite-panel-on-hover.png")
+    ImageResource favoritePanelOnHoverActionIm();
 
     @Source("ru/intertrust/cm/core/gui/impl/images/icon-upload.png")
     ImageResource configurationUploaderIcon();

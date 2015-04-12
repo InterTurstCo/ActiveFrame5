@@ -103,14 +103,7 @@
 .decorated-right-div .gwt-TextBox {}
 
 /* ------------>>> def-theme gwt styles <<<------------ */
-.H_td_user .gwt-Hyperlink a {
-    font: bold 14px Arial;
-    cursor: pointer;
-    text-decoration: underline;
-    color: black !important;
-    padding-right: 20px;
-    background: url(images/user.png) no-repeat right center;
-}
+
 
 .H_td_links .gwt-Anchor {
     width: 32px;
