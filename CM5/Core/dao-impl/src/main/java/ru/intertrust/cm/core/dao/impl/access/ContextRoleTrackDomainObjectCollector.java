@@ -6,6 +6,9 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.CollectorSettings;
 import ru.intertrust.cm.core.config.ContextRoleConfig;
@@ -21,14 +24,23 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
 
     @Override
     public List<Id> getMembers(Id contextId) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         //Получаем доменные объекты, которые являются контекстами для динамических групп
         List<Id> contextGroupOwner = new ArrayList<Id>();
         if (trackDomainObjects.getGetGroup().getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(trackDomainObjects.getGetGroup().getDoel());
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             List<Value> contextIds = doelResolver.evaluate(expr, contextId, accessToken);
             contextGroupOwner.addAll(getIdList(contextIds));
-        } else {
+        }else if(trackDomainObjects.getGetGroup().getQuery() != null){
+            IdentifiableObjectCollection collection = null;
+            List<Value> params = new ArrayList<Value>();
+            params.add(new ReferenceValue(contextId));
+            collection = collectionsService.findCollectionByQuery(trackDomainObjects.getGetGroup().getQuery(), params, 0, 0, accessToken);
+            
+            for (IdentifiableObject identifiableObject : collection) {
+                contextGroupOwner.add(identifiableObject.getId());
+            }            
+        }else {        
             contextGroupOwner.add(contextId);
         }
 

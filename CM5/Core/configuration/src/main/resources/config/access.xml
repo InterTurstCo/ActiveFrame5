@@ -297,6 +297,15 @@
         </groups>
     </context-role>    
 
+   <context-role name="authentification_info_owner">
+        <context>
+            <domain-object type="Authentication_Info" />
+        </context>
+        <groups>
+            <collector class-name="ru.intertrust.cm.core.dao.impl.access.collector.AuthentificationInfoOwnerRoleCollector"/>
+        </groups>
+    </context-role>
+
     <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country"
         /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е.
         где контекст = объекту <track-domain-objects type="country" status="Active" /> </members> </dynamic-group> <context-role name="Редактор Стран">
@@ -663,6 +672,14 @@
         <create>
             <permit-group name="AllPersons" />
         </create>
+        <status name="*">
+            <read>
+                <permit-role name="authentification_info_owner"/>
+            </read>
+            <write>
+                <permit-role name="authentification_info_owner"/>
+            </write>
+        </status>
     </access-matrix>
 
     <access-matrix type="org_middle">
