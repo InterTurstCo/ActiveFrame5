@@ -57,9 +57,6 @@ public class  CollectionRowItem implements Dto{
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
-        if (row != null ? !row.values().equals(that.row.values()) : that.row != null) {
-            return false;
-        }
 
         return true;
     }
@@ -67,7 +64,6 @@ public class  CollectionRowItem implements Dto{
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (row != null ? row.hashCode() : 0);
         return result;
     }
 
