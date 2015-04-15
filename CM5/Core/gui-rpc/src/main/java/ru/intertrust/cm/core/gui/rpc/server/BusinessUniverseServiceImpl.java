@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
@@ -10,18 +13,17 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.gui.business.universe.UserExtraInfoConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.businessuniverse.UserExtraInfoBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
-import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
-import ru.intertrust.cm.core.gui.model.Client;
-import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.*;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -30,6 +32,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
@@ -65,6 +69,15 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     private SoftReference<List<String>> refTimeZoneIds;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
         getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
@@ -77,6 +90,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 BusinessUniverseConfig.NAME, currentLocale);
 
         addLogoImagePath(businessUniverseConfig, initialization);
+
+        initialization.setUserExtraInfo(getUserExtraInfo(businessUniverseConfig));
+
         String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
 
@@ -114,6 +130,19 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         } catch (RuntimeException e) {
             throw handleEjbException(command, e);
         }
+    }
+
+    private UserExtraInfo getUserExtraInfo(BusinessUniverseConfig businessUniverseConfig) {
+        final UserExtraInfoConfig userExtraInfoConfig = businessUniverseConfig.getUserExtraInfoConfig();
+        String component = userExtraInfoConfig == null ? null : userExtraInfoConfig.getComponent();
+        UserExtraInfoBuilder userExtraInfoBuilder = null;
+        if (component != null && !component.isEmpty()) {
+            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean(component);
+        }
+        if (userExtraInfoBuilder == null) {
+            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean("default.user.extra.info.builder");
+        }
+        return userExtraInfoBuilder.getUserExtraInfo();
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {

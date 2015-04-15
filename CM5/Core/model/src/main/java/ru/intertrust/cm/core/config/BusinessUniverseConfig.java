@@ -5,6 +5,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.UserExtraInfoConfig;
 import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
 
 /**
@@ -45,6 +46,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     @Element(name = "right-panel", required = false)
     private RightPanelConfig rightPanelConfig;
+
+    @Element(name = "user-extra-info", required = false)
+    private UserExtraInfoConfig userExtraInfoConfig;
 
     public LogoConfig getLogoConfig() {
         return logoConfig;
@@ -120,6 +124,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     public void setRightPanelConfig(RightPanelConfig rightPanelConfig) {
         this.rightPanelConfig = rightPanelConfig;
+    }
+
+    public UserExtraInfoConfig getUserExtraInfoConfig() {
+        return userExtraInfoConfig;
+    }
+
+    public void setUserExtraInfoConfig(UserExtraInfoConfig userExtraInfoConfig) {
+        this.userExtraInfoConfig = userExtraInfoConfig;
     }
 
     @Override

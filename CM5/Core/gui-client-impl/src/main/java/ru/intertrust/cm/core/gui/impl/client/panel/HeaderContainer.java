@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDia
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.PlainTextUserExtraInfo;
+import ru.intertrust.cm.core.gui.model.UserExtraInfo;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
@@ -79,7 +81,9 @@ public class HeaderContainer extends SimplePanel {
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR_KEY, ADMINISTRATOR));
+        final UserExtraInfo userExtraInfo = initialization.getUserExtraInfo();
+        String userExtraInfoText = userExtraInfo instanceof PlainTextUserExtraInfo ? ((PlainTextUserExtraInfo) userExtraInfo).getText() : "";
+        final InlineLabel userPosition = new InlineLabel(userExtraInfoText);
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
