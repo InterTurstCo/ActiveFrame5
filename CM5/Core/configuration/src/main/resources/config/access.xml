@@ -181,16 +181,6 @@
         </members>
     </dynamic-group>
 
-    <dynamic-group name="test-group-2">
-        <members>
-            <track-domain-objects type="Person" status="Active">
-                <get-person>
-                    <query>select id from person where login = 'person3'</query>
-                </get-person>
-            </track-domain-objects>
-        </members>
-    </dynamic-group>
-
     <!-- Контекстные роли -->
     <context-role name="DocumentAuthor">
         <context>
