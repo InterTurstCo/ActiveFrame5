@@ -34,14 +34,22 @@ public class DefaultUserExtraInfoBuilder implements UserExtraInfoBuilder {
         if (groups == null || groups.isEmpty()) {
             return new PlainTextUserExtraInfo("");
         }
+        String defaultGroup = "";
         for (DomainObject groupDo : groups) {
             final String groupName = groupDo.getString("group_name");
+            if (groupName == null || groupName.isEmpty()) {
+                continue;
+            }
             if (groupName.equals("Superusers")) {
                 return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Superuser", profileService.getPersonLocale(), null));
-            } else if (groupName.equals("Administrators")) {
+            } else if (groupName.equals("Administrators") || groupName.equals("Administrators_Read_Only")) {
                 return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Administrator", profileService.getPersonLocale(), null));
             }
+            if (groupName.equals("AllPersons") || groupName.equals("Person")) { // system groups, ignore them
+                continue;
+            }
+            defaultGroup = groupName;
         }
-        return new PlainTextUserExtraInfo(groups.iterator().next().getString("group_name"));
+        return new PlainTextUserExtraInfo(defaultGroup);
     }
 }
