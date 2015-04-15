@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.UserExtraInfo;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -69,4 +70,6 @@ public interface GuiService {
     String getCoreVersion();
 
     String getProductVersion(String jarName);
+
+    UserExtraInfo getUserExtraInfo();
 }

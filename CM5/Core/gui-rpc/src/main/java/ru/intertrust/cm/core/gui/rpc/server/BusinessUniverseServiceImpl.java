@@ -13,17 +13,18 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.gui.business.universe.UserExtraInfoConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
-import ru.intertrust.cm.core.gui.api.server.businessuniverse.UserExtraInfoBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
-import ru.intertrust.cm.core.gui.model.*;
+import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.Client;
+import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersResponse;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -91,7 +92,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
         addLogoImagePath(businessUniverseConfig, initialization);
 
-        initialization.setUserExtraInfo(getUserExtraInfo(businessUniverseConfig));
+        initialization.setUserExtraInfo(guiService.getUserExtraInfo());
 
         String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
@@ -130,19 +131,6 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         } catch (RuntimeException e) {
             throw handleEjbException(command, e);
         }
-    }
-
-    private UserExtraInfo getUserExtraInfo(BusinessUniverseConfig businessUniverseConfig) {
-        final UserExtraInfoConfig userExtraInfoConfig = businessUniverseConfig.getUserExtraInfoConfig();
-        String component = userExtraInfoConfig == null ? null : userExtraInfoConfig.getComponent();
-        UserExtraInfoBuilder userExtraInfoBuilder = null;
-        if (component != null && !component.isEmpty()) {
-            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean(component);
-        }
-        if (userExtraInfoBuilder == null) {
-            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean("default.user.extra.info.builder");
-        }
-        return userExtraInfoBuilder.getUserExtraInfo();
     }
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
