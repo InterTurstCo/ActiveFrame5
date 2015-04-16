@@ -51,6 +51,7 @@
 
     <xs:complexType name="attachmentType">
         <xs:attribute name="name" use="required" type="con:domainObjectNameType" xmlns:con="https://cm5.intertrust.ru/config" />
+        <xs:attribute name="template" use="optional" type="con:domainObjectNameType" />
     </xs:complexType>
 
     <xs:complexType name="namedTriggerType">
