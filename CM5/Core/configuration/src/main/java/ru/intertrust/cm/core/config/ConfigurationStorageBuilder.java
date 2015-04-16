@@ -747,14 +747,15 @@ public class ConfigurationStorageBuilder {
                 templateName = GenericDomainObject.ATTACHMENT_TEMPLATE;
             }
             DomainObjectTypeConfig templateDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, templateName);
-            if (templateDomainObjectTypeConfig != null) {
-                cloneDomainObjectTypeConfig.getFieldConfigs().addAll(templateDomainObjectTypeConfig.getFieldConfigs());
-                cloneDomainObjectTypeConfig.getUniqueKeyConfigs().addAll(templateDomainObjectTypeConfig.getUniqueKeyConfigs());
-                cloneDomainObjectTypeConfig.setIndicesConfig(templateDomainObjectTypeConfig.getIndicesConfig());
+            if (templateDomainObjectTypeConfig == null) {
+                throw new FatalException("Attachment template: " + templateName + " not found in configuration");
+            }
+            cloneDomainObjectTypeConfig.getFieldConfigs().addAll(templateDomainObjectTypeConfig.getFieldConfigs());
+            cloneDomainObjectTypeConfig.getUniqueKeyConfigs().addAll(templateDomainObjectTypeConfig.getUniqueKeyConfigs());
+            cloneDomainObjectTypeConfig.setIndicesConfig(templateDomainObjectTypeConfig.getIndicesConfig());
 
-                if (templateDomainObjectTypeConfig.getExtendsAttribute() != null) {
-                    collectFieldsConfig(cloneDomainObjectTypeConfig, templateDomainObjectTypeConfig.getExtendsAttribute());
-                }
+            if (templateDomainObjectTypeConfig.getExtendsAttribute() != null) {
+                collectFieldsConfig(cloneDomainObjectTypeConfig, templateDomainObjectTypeConfig.getExtendsAttribute());
             }
         }
 

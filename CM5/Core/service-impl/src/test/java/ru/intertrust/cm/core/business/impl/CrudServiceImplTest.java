@@ -1,28 +1,34 @@
 package ru.intertrust.cm.core.business.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AttachmentTypeConfig;
+import ru.intertrust.cm.core.config.AttachmentTypesConfig;
+import ru.intertrust.cm.core.config.AuditLog;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.CrudException;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Юнит тест для CrudServiceImpl на проверку сохранения Attachments
@@ -123,7 +129,7 @@ public class CrudServiceImplTest {
 
         DomainObjectTypeConfig attachment = new DomainObjectTypeConfig();
         attachment.setTemplate(true);
-        attachment.setName("Attachment");
+        attachment.setName(GenericDomainObject.ATTACHMENT_TEMPLATE);
         configuration.getConfigurationList().add(attachment);
         configuration.getConfigurationList().add(globalSettings);
         configuration.getConfigurationList().add(createEmployee());
