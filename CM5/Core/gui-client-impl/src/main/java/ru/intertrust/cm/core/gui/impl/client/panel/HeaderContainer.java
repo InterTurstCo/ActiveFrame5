@@ -125,10 +125,9 @@ public class HeaderContainer extends SimplePanel {
 
         popupPanel.getElement().setClassName("applicationVersionWindows");
 
-        versionImage.addClickHandler(new ClickHandler() {
+        decoratedHelp.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
                 if (!popupPanel.isShowing()) {
                     popupPanel.showRelativeTo(versionImage);
                     popupPanel.getElement().getStyle().clearLeft();
@@ -138,7 +137,7 @@ public class HeaderContainer extends SimplePanel {
                     popupPanel.hide();
                 }
             }
-        });
+        }, ClickEvent.getType());
 
         linksPanel.add(decoratedSettings);
         linksPanel.add(decoratedHelp);
@@ -147,7 +146,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
         HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
-        settingsImage.addClickHandler(new ClickHandler() {
+        decoratedSettings.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 List<String> themeNames = new ArrayList<String>();
@@ -157,7 +156,7 @@ public class HeaderContainer extends SimplePanel {
                 settingsPopup.show();
                 settingsPopup.getElement().getStyle().clearLeft();
             }
-        });
+        }, ClickEvent.getType());
         logoutLink.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 logout();
