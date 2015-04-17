@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -231,6 +232,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         .setQuery(entry.getValue().toString())
                         .addFilterQuery(SolrFields.AREA + ":" + areas)
                         .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                        .addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                         .addField(SolrFields.MAIN_OBJECT_ID)
                         .addField(SolrUtils.SCORE_FIELD);
                 if (fetchLimit > 0) {
@@ -323,6 +325,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         for (SolrDocumentList list : results) {
             // Обрабатываем все непустые списки
             if (list.size() > 0) {
+                compactList(list);
                 lists.put(i, list);
                 cursors.add(0);
                 float score = list.getMaxScore();
@@ -370,6 +373,19 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
         combined.setNumFound(combined.size());
         return combined;
+    }
+
+    private void compactList(SolrDocumentList list) {
+        HashSet<String> ids = new HashSet<>(list.size());
+        for (Iterator<SolrDocument> itr = list.iterator(); itr.hasNext(); ) {
+            SolrDocument doc = itr.next();
+            String id = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
+            if (ids.contains(id)) {
+                itr.remove();
+            } else {
+                ids.add(id);
+            }
+        }
     }
 /*
     public SolrDocumentList unionResults(Collection<SolrDocumentList> results) {
