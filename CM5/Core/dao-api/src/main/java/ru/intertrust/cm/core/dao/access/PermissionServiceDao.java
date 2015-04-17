@@ -99,4 +99,10 @@ public interface PermissionServiceDao {
      * @param domainObjectId
      */
     void refreshAclFor(Id domainObjectId);
+
+    /**
+     * Отправкауведомления сервису о смене статуса доменного объекта
+     * @param domainObject
+     */
+    void notifyDomainObjectChangeStatus(DomainObject domainObject);
 }

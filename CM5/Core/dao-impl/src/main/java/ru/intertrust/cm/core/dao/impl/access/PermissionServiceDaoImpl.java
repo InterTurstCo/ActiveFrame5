@@ -102,7 +102,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private void
             notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames,
-                    boolean isCreate) {
+                    boolean invalidateCurrent) {
         String typeName = domainObject.getTypeName().toLowerCase();
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
@@ -110,9 +110,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         // коллекторов, исключая дублирование
         List<Id> invalidContexts = new ArrayList<Id>();
 
-        //Для нового объекта всегда добавляем в не валидный контекст сам создаваемый объект, 
+        //Для нового объекта и если сменился статус всегда добавляем в не валидный контекст сам создаваемый или измененный объект, 
         //чтобы рассчитались права со статичными или без контекстными группами
-        if (isCreate) {
+        if (invalidateCurrent) {
             invalidContexts.add(domainObject.getId());
         }
 
@@ -1189,6 +1189,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 refreshAclFor(contextId);
             }
         }
+    }
+
+    @Override
+    public void notifyDomainObjectChangeStatus(DomainObject domainObject) {
+        notifyDomainObjectChangedInternal(domainObject, null, true);        
     }
 
 }

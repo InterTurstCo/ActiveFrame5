@@ -78,6 +78,9 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getPersonId("admin"), Permission.Read);
             etalon.addPermission(getPersonId("admin"), Permission.Write);
             etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
@@ -375,6 +378,27 @@ public class TestPermission extends ClientBase {
             //Проверка косвенных прав на удаление при мапинге прав
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
             notAdminCrudservice.delete(testType8.getId());
+
+            DomainObject testType11 = getCrudService().createDomainObject("test_type_11");
+            testType11.setString("test_type_11", "12344234 42341234123 4123 412");
+            testType11 = getCrudService().save(testType11);
+            
+            etalon = new EtalonPermissions();
+            for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+                etalon.addPermission(personId, Permission.Write);
+            }
+            checkPermissions(testType11.getId(), etalon, "test_type_11_Active");
+
+            testType11.setString("status_name", "Complete");
+            testType11 = getCrudService().save(testType11);
+            
+            etalon = new EtalonPermissions();
+            for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+            }
+            checkPermissions(testType11.getId(), etalon, "test_type_11_Complete");
+            
             
             log("Test complete");
         } finally {

@@ -222,7 +222,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         fieldModification[0] = new ArrayList<FieldModification>();
         GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification);
 
-        refreshDynamiGroupsAndAclForUpdate(result[0], null, null);
+        permissionService.notifyDomainObjectChangeStatus(domainObject);
 
         // Вызов точки расширения после смены статуса
         List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
@@ -523,7 +523,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         dynamicGroupService.notifyDomainObjectChanged(domainObject, modifiedFields, beforeChangeInvalicContexts);
         permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
-
+    
     private List<FieldModification> getModifiedFieldNames(
             DomainObject domainObject) {
 
