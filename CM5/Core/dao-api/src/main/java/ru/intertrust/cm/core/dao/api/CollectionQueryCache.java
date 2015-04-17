@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.api;
 
 import java.util.List;
+import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
 /**
@@ -38,7 +40,7 @@ public interface CollectionQueryCache {
      * @param accessToken
      * @return
      */
-    CollectionQueryEntry getCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken);
+    CollectionQueryEntry getCollectionQuery(String collectionQuery, int offset, int limit, Set<ListValue> listValueParams, AccessToken accessToken);
 
     /**
      * Помещение SQL запроса коллекции в кеш. Используется для кеширования неконфигурируемых коллекций (найденных через
@@ -49,7 +51,7 @@ public interface CollectionQueryCache {
      * @param accessToken
      * @param queryEntry
      */
-    void putCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken, CollectionQueryEntry queryEntry);
+    void putCollectionQuery(String collectionQuery, int offset, int limit, Set<ListValue> listValueParams, AccessToken accessToken, CollectionQueryEntry queryEntry);
 
     /**
      * Помещение SQL запроса коллекции в кеш. В качестве ключа кеширования используются параметры соответвующего метода

@@ -55,5 +55,32 @@ public class ListValue extends Value<ListValue> {
     public ArrayList<Value> getValues() {
         return values;
     }
-    
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+        result = 31 * result + ((values == null) ? 0 : values.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ListValue other = (ListValue) obj;
+        if (values == null) {
+            if (other.values != null) {
+                return false;
+            }
+        } else if (!values.equals(other.values)) {
+            return false;
+        }
+        return true;
+    }
+
+
 }
