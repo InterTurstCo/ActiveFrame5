@@ -62,7 +62,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                 if (dockLayoutPanel.isSplitType()) {
                     verticalSplitterSavedSize = splitterSize = northRootWidget.getOffsetWidth();
                 } else {
-                    horizontalSplitterSavedSize = splitterSize = northRootWidget.getOffsetHeight();
+                    horizontalSplitterSavedSize = splitterSize = northRootWidget.getOffsetHeight() + dockLayoutPanel.getSplitterSize();
                 }
                 storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize);
             }
@@ -145,7 +145,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         if (isVertical) {
             dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
         } else {
-            dockLayoutPanel.addNorth(northRootWidget, splitterSize == null ? surferHeight / 2 : splitterSize);
+            dockLayoutPanel.addNorth(northRootWidget, splitterSize == null ? surferHeight / 2 : splitterSize - dockLayoutPanel.getSplitterSize());
         }
         dockLayoutPanel.add(sourthRootWidget);
         splitterSetSize();
