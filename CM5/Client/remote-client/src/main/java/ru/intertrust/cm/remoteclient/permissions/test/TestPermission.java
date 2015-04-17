@@ -75,9 +75,6 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
-            etalon.addPermission(getPersonId("admin"), Permission.Read);
-            etalon.addPermission(getPersonId("admin"), Permission.Write);
-            etalon.addPermission(getPersonId("admin"), Permission.Delete);
             etalon.addPermission(getPersonId("administrator"), Permission.Read);
             etalon.addPermission(getPersonId("administrator"), Permission.Write);
             etalon.addPermission(getPersonId("administrator"), Permission.Delete);
@@ -93,9 +90,9 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
-            etalon.addPermission(getPersonId("admin"), Permission.Read);
-            etalon.addPermission(getPersonId("admin"), Permission.Write);
-            etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
@@ -219,15 +216,15 @@ public class TestPermission extends ClientBase {
             letter = getCrudService().save(letter);
 
             etalon = new EtalonPermissions();
-            etalon.addPermission(getPersonId("admin"), Permission.Read);
-            etalon.addPermission(getPersonId("admin"), Permission.Write);
-            etalon.addPermission(getPersonId("admin"), Permission.Delete);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Write);
+            etalon.addPermission(getPersonId("administrator"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 2"), Permission.Read);
             etalon.addActionPermission(getEmployeeId("Сотрудник 1"), "action1");
-            etalon.addActionPermission(getPersonId("admin"), "action1");
+            etalon.addActionPermission(getPersonId("administrator"), "action1");
             checkPermissions(letter.getId(), etalon, "New letter");
 
             //Проверяем косвенные права с учетом наследования объектов у которых заимствуются права
