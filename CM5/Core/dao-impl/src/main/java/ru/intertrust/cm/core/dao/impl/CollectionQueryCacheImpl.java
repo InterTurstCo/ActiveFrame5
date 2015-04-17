@@ -82,7 +82,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         private Integer offset;
         private Integer limit;
         private AccessToken accessToken;
-        private Set<ListValue> listValueParams = new HashSet<>();
+        private Set<ListValue> listValueParams;
 
         public CollectionQueryKey(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, Integer offset, Integer limit,
                 Set<ListValue> listValueParams,
