@@ -222,6 +222,21 @@ public class TestCollection extends ClientBase {
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5110, 1)));
             executeQuery(query, 1, params);            
+
+            query = "select id, login from person where id in ({0})";
+            
+            params.clear();
+            listParam.clear();
+            listParam.add(new ReferenceValue(new RdbmsId(5018, 1)));
+            listParam.add(new ReferenceValue(new RdbmsId(5018, 2)));
+            params.add(new ListValue(listParam));
+            executeQuery(query, 2, params);            
+
+            listParam.remove(0);
+            params.clear();
+            params.add(new ListValue(listParam));
+            executeQuery(query, 2, params);            
+            
             
         } finally {
             writeLog();
