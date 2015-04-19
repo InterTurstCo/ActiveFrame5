@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.action.system;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.user.client.DOM;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.ComponentHelper;
 import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
@@ -49,6 +50,7 @@ public class FavoriteToggleAction extends ToggleAction {
             center.setClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE);
             right.setClassName(RIGHT_SECTION_EXPANDED_STYLE);
         }
+        Application.getInstance().getCompactModeState().setRightPanelExpanded(true);
     }
 
     private void closeRightPanel() {
@@ -63,5 +65,6 @@ public class FavoriteToggleAction extends ToggleAction {
             center.setClassName(CENTRAL_SECTION_STYLE);
             right.setClassName(RIGHT_SECTION_COLLAPSED_STYLE);
         }
+        Application.getInstance().getCompactModeState().setRightPanelExpanded(false);
     }
 }
