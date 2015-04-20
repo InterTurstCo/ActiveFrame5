@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
@@ -235,7 +236,13 @@ public class TestCollection extends ClientBase {
             listParam.remove(0);
             params.clear();
             params.add(new ListValue(listParam));
-            executeQuery(query, 2, params);            
+            executeQuery(query, 2, params);         
+            
+            query = "select id from person where login = {0}";
+            
+            params.clear();
+            params.add(new StringValue(null));
+            executeQuery(query, 1, params);
             
             
         } finally {

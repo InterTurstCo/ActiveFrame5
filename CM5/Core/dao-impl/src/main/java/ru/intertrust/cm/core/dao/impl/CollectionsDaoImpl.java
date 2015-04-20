@@ -460,15 +460,17 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 }
             } else if (value instanceof StringValue) {
                 String strValue = ((StringValue) value).get();
-                try {
-                    referenceValue = new ReferenceValue(new RdbmsId(strValue));
-                } catch (IllegalArgumentException ex) {
-                    // not reference string presentation
-                }
-                if (referenceValue != null) {
-                    String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
-                    addParametersForReference(parameters, referenceValue, referenceParam);
-
+                if (strValue != null){
+                    try {
+                        referenceValue = new ReferenceValue(new RdbmsId(strValue));
+                    } catch (IllegalArgumentException ex) {
+                        // not reference string presentation
+                    }
+                    if (referenceValue != null) {
+                        String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
+                        addParametersForReference(parameters, referenceValue, referenceParam);
+    
+                    }
                 }
             } else if (value instanceof ListValue) {
                 ListValue listValue = (ListValue) value;
