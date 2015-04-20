@@ -12,7 +12,7 @@
     <xs:element name="action-group" type="act:actionGroupType" substitutionGroup="act:abstract-action"/>
     <xs:element name="action-group-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
-    <xs:element name="workflow-actions" type="act:workflowActionsType" substitutionGroup="act:abstract-action"/>
+    <xs:element name="workflow-actions" type="act:workflowActionsType"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
 
@@ -106,7 +106,9 @@
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element ref="act:abstract-action"/>
                     </xs:choice>
+                    <xs:element ref="act:workflow-actions" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
+
                 <xs:attributeGroup ref="act:actionAttributeGroup"/>
                 <xs:attributeGroup ref="act:activeAttributeGroup"/>
                 <xs:attribute name="name" type="xs:string" use="optional"/>
