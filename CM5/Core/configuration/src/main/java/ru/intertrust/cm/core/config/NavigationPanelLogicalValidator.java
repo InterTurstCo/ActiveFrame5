@@ -7,9 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -72,8 +70,9 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
         if (linkConfigList == null) {
             return;
         }
+        Set<String> linkNames = new HashSet<>();
         for (LinkConfig linkConfig : linkConfigList) {
-            validateLinkConfig(linkConfig, logicalErrors);
+            validateLinkConfig(linkConfig, linkNames,logicalErrors);
             validatePluginHandlers(linkConfig, logicalErrors);
         }
 
@@ -81,16 +80,26 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
             logicalErrorsList.add(logicalErrors);
         }
     }
+    private void validateNameUniqueness(LinkConfig linkConfig, Set<String> linkNames, LogicalErrors logicalErrors){
+        String linkName = linkConfig.getName();
+        if(linkNames.contains(linkName)){
+            String error =  String.
+                    format("Duplicate link name '%s' was found", linkName);
+            logger.error(error);
+            logicalErrors.addError(error);
+        }else {
+            linkNames.add(linkName);
+        }
+    }
 
-    private void validateLinkConfig(LinkConfig linkConfig, LogicalErrors logicalErrors) {
-
+    private void validateLinkConfig(LinkConfig linkConfig, Set<String> linkNames, LogicalErrors logicalErrors) {
+        validateNameUniqueness(linkConfig, linkNames, logicalErrors);
         validatePluginHandlers(linkConfig, logicalErrors);
 
         String childToOpen = linkConfig.getChildToOpen();
         List<ChildLinksConfig> linkConfigList = linkConfig.getChildLinksConfigList();
         boolean isFound = false;
         if (childToOpen != null) {
-
             if (linkConfigList.isEmpty()) {
                 String error =  String.
                         format("Child link to open is not found for link with name '%s'", linkConfig.getName());
@@ -112,15 +121,15 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
                 logicalErrors.addError(error);
             }
         }
-        validateChildLinks(linkConfigList, logicalErrors);
+        validateChildLinks(linkConfigList, linkNames, logicalErrors);
     }
 
-    private void validateChildLinks(List<ChildLinksConfig> childLinksConfigList,
+    private void validateChildLinks(List<ChildLinksConfig> childLinksConfigList,Set<String> linkNames,
                                     LogicalErrors logicalErrors) {
         for (ChildLinksConfig childLinksConfig : childLinksConfigList) {
         List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
         for(LinkConfig linkConfig : linkConfigList) {
-            validateLinkConfig(linkConfig, logicalErrors);
+            validateLinkConfig(linkConfig, linkNames, logicalErrors);
         }
     }
     }
@@ -142,14 +151,11 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
     private void validatePluginHandlers(LinkConfig linkConfig, LogicalErrors logicalErrors) {
       String linkName = linkConfig.getName();
       LinkPluginDefinition pluginDefinition = linkConfig.getPluginDefinition();
-
        if (pluginDefinition == null) {
-
             return;
         }
 
       PluginConfig pluginConfig = pluginDefinition.getPluginConfig();
-
         if (pluginConfig == null) {
             String error = String.format("Could not find plugin handler for link with name '%s'", linkName);
             logger.error(error);
