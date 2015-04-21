@@ -7,8 +7,10 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.config.gui.business.universe.UserExtraInfoConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
@@ -18,6 +20,7 @@ import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
+import ru.intertrust.cm.core.gui.api.server.businessuniverse.UserExtraInfoBuilder;
 import ru.intertrust.cm.core.gui.impl.server.form.FormResolver;
 import ru.intertrust.cm.core.gui.impl.server.form.FormRetriever;
 import ru.intertrust.cm.core.gui.impl.server.form.FormSaver;
@@ -27,6 +30,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.VersionUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.GuiException;
+import ru.intertrust.cm.core.gui.model.UserExtraInfo;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
@@ -300,5 +304,19 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     public String getProductVersion(String jarName) {
         VersionUtil version = (VersionUtil) applicationContext.getBean("applicationVersion");
         return version.getProductVersion(jarName, profileService.getPersonLocale());
+    }
+
+    public UserExtraInfo getUserExtraInfo() {
+        final BusinessUniverseConfig businessUniverseConfig = configurationExplorer.getConfig(BusinessUniverseConfig.class, BusinessUniverseConfig.NAME);
+        final UserExtraInfoConfig userExtraInfoConfig = businessUniverseConfig.getUserExtraInfoConfig();
+        String component = userExtraInfoConfig == null ? null : userExtraInfoConfig.getComponent();
+        UserExtraInfoBuilder userExtraInfoBuilder = null;
+        if (component != null && !component.isEmpty()) {
+            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean(component);
+        }
+        if (userExtraInfoBuilder == null) {
+            userExtraInfoBuilder = (UserExtraInfoBuilder) applicationContext.getBean("default.user.extra.info.builder");
+        }
+        return userExtraInfoBuilder.getUserExtraInfo();
     }
 }

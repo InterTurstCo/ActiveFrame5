@@ -51,6 +51,7 @@
 
     <xs:complexType name="attachmentType">
         <xs:attribute name="name" use="required" type="con:domainObjectNameType" xmlns:con="https://cm5.intertrust.ru/config" />
+        <xs:attribute name="template" use="optional" type="con:domainObjectNameType" />
     </xs:complexType>
 
     <xs:complexType name="namedTriggerType">
@@ -419,6 +420,7 @@
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="bottom-panel" type="con:bottomPanelType" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element name="right-panel" type="con:rightPanelType" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element name="user-extra-info" type="con:userExtraInfoType" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
     </xs:complexType>
     <xs:complexType name="settingsPopupType">
@@ -3222,5 +3224,9 @@
     </xs:complexType>
 
     <xs:complexType name="rightPanelType">
+    </xs:complexType>
+
+    <xs:complexType name="userExtraInfoType">
+        <xs:attribute type="xs:string" name="component" use="required"/>
     </xs:complexType>
 </xs:schema>

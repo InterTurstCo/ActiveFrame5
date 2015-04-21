@@ -37,7 +37,7 @@
                         </link>
                     </child-links>
                     <child-links>
-                        <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
+                        <link name="Employees_By_Name2" display-text="По имени" image="employees-by-name.png">
                             <plugin>
                                 <domain-object-surfer>
                                     <collection-viewer>
@@ -52,7 +52,7 @@
                         </link>
                     </child-links>
                     <child-links>
-                        <link name="Employees_By_Name" display-text="По имени" image="employees-by-name.png">
+                        <link name="Employees_By_Name3" display-text="По имени" image="employees-by-name.png">
                             <plugin>
                                 <domain-object-surfer>
                                     <collection-viewer>

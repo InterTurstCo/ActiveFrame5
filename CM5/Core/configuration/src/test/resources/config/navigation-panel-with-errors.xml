@@ -61,6 +61,29 @@
                         <collection-counter collection="Cities"/>
                     </decorations>
                 </link>
+                <link name="Cities" display-text="Города">
+                    <plugin> <!---->
+                        <custom name="Beautiful City Viewer">
+                            <attribute name="display-pics" value="true"/>
+                            <attribute name="search-provider" value="google"/>
+                            <attribute name="sort-order">
+                                <attribute name="sort-criteria">
+                                    <attribute name="sort-criterion">
+                                        <attribute name="field" value="name"/>
+                                        <attribute name="order" value="asc"/>
+                                    </attribute>
+                                    <attribute name="sort-criterion">
+                                        <attribute name="field" value="registration_number"/>
+                                        <attribute name="order" value="desc"/>
+                                    </attribute>
+                                </attribute>
+                            </attribute>
+                        </custom>
+                    </plugin>
+                    <decorations>
+                        <collection-counter collection="Cities"/>
+                    </decorations>
+                </link>
             </child-links>
         </link>
 

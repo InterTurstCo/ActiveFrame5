@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.gui.rpc.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
@@ -30,6 +33,8 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpSession;
 import java.lang.ref.SoftReference;
@@ -65,6 +70,15 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     private SoftReference<List<String>> refTimeZoneIds;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
+    }
+
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
         getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
@@ -77,6 +91,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                 BusinessUniverseConfig.NAME, currentLocale);
 
         addLogoImagePath(businessUniverseConfig, initialization);
+
+        initialization.setUserExtraInfo(guiService.getUserExtraInfo());
+
         String version = guiService.getCoreVersion();
         initialization.setApplicationVersion(version);
 

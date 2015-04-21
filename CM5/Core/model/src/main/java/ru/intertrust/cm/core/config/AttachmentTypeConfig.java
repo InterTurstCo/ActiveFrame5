@@ -12,6 +12,9 @@ public class AttachmentTypeConfig implements Dto{
     @Attribute(name = "name", required = true)
     private String name;
 
+    @Attribute(name = "template", required = false)
+    private String template;
+    
     @Attribute(name = "path", required = false)
     private String path;
 
@@ -30,6 +33,14 @@ public class AttachmentTypeConfig implements Dto{
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 
     public String getPath() {

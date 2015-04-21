@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDia
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
+import ru.intertrust.cm.core.gui.model.PlainTextUserExtraInfo;
+import ru.intertrust.cm.core.gui.model.UserExtraInfo;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
@@ -79,7 +81,9 @@ public class HeaderContainer extends SimplePanel {
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
 
 
-        final InlineLabel userPosition = new InlineLabel(LocalizeUtil.get(ADMINISTRATOR_KEY, ADMINISTRATOR));
+        final UserExtraInfo userExtraInfo = initialization.getUserExtraInfo();
+        String userExtraInfoText = userExtraInfo instanceof PlainTextUserExtraInfo ? ((PlainTextUserExtraInfo) userExtraInfo).getText() : "";
+        final InlineLabel userPosition = new InlineLabel(userExtraInfoText);
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
@@ -121,10 +125,9 @@ public class HeaderContainer extends SimplePanel {
 
         popupPanel.getElement().setClassName("applicationVersionWindows");
 
-        versionImage.addClickHandler(new ClickHandler() {
+        decoratedHelp.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-
                 if (!popupPanel.isShowing()) {
                     popupPanel.showRelativeTo(versionImage);
                     popupPanel.getElement().getStyle().clearLeft();
@@ -134,7 +137,7 @@ public class HeaderContainer extends SimplePanel {
                     popupPanel.hide();
                 }
             }
-        });
+        }, ClickEvent.getType());
 
         linksPanel.add(decoratedSettings);
         linksPanel.add(decoratedHelp);
@@ -143,7 +146,7 @@ public class HeaderContainer extends SimplePanel {
         headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
         HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
         headTable.setWidget(FIRST_ROW, 5, logoutLink);
-        settingsImage.addClickHandler(new ClickHandler() {
+        decoratedSettings.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 List<String> themeNames = new ArrayList<String>();
@@ -153,7 +156,7 @@ public class HeaderContainer extends SimplePanel {
                 settingsPopup.show();
                 settingsPopup.getElement().getStyle().clearLeft();
             }
-        });
+        }, ClickEvent.getType());
         logoutLink.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
                 logout();

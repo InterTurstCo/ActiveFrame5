@@ -657,6 +657,32 @@ public class CollectionsIT extends IntegrationTestBase {
         collection = collectionService.findCollectionByQuery(query, params);
         assertNotNull(collection);
         assertTrue(collection.size() > 0);
+        
+        Integer personTypeid = domainObjectTypeIdCache.getId(PERSON_TYPE);
+        referenceValues = new ArrayList<>();
+        referenceValues.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));
+        referenceValues.add(new ReferenceValue(new RdbmsId(personTypeid, 2)));
+        ListValue listValueForRef = new ListValue(referenceValues);
+        
+        params = new ArrayList<>();
+        params.add(listValueForRef);
+        
+        List<Value> loginValues = new ArrayList<>();
+        loginValues.add(new StringValue("person1"));
+        loginValues.add(new StringValue("person2"));        
+        ListValue listValueForLogin = new ListValue(loginValues);
+        params.add(listValueForLogin);       
+        query = "select id, login from person where id in ({0}) or login in ({1})";
+        collectionService.findCollectionByQuery(query, params);
+
+        referenceValues = new ArrayList<>();
+        referenceValues.add(new ReferenceValue(new RdbmsId(personTypeid, 1)));            
+        listValueForRef = new ListValue(referenceValues);
+        params = new ArrayList<>();
+        params.add(listValueForRef);
+        params.add(listValueForLogin);       
+
+        collectionService.findCollectionByQuery(query, params);
     }
     
     @Test

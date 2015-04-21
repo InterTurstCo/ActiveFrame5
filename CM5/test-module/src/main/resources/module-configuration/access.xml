@@ -49,6 +49,16 @@
         </members>
     </dynamic-group>
     
+    <dynamic-group name="test-group-2">
+        <members>
+            <track-domain-objects type="Person" status="Active">
+                <get-person>
+                    <query>select id from person where login = 'person3'</query>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+    
 	<context-role name="test_outgoing_author">
         <context>
             <domain-object type="test_outgoing_document" />
@@ -284,5 +294,23 @@
 		</create>
 	</access-matrix>
     
+    <access-matrix type="test_type_11">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+        </status>   
+        <status name="Complete">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>   
+    </access-matrix>    
     
 </configuration>

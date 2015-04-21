@@ -325,8 +325,10 @@ public class ConfigurationStorageBuilder {
                 AttachmentPrototypeHelper attachmentPrototypeHelper = new AttachmentPrototypeHelper();
                 for (AttachmentTypeConfig attachmentTypeConfig :
                         oldConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+
                     DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                            attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(), oldConfig.getName());
+                            attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getTemplate(), attachmentTypeConfig.getName(),
+                                    oldConfig.getName());
 
                     removeTopLevelConfigFromMap(attachmentDomainObjectTypeConfig);
                     removeDomainObjectFieldConfigsFromMap(attachmentDomainObjectTypeConfig);
@@ -589,9 +591,9 @@ public class ConfigurationStorageBuilder {
         try {
             AttachmentPrototypeHelper attachmentPrototypeHelper = new AttachmentPrototypeHelper();
             for (AttachmentTypeConfig attachmentTypeConfig :
-                    domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
+                    domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {  
                 DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
-                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getName(),
+                        attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getTemplate(), attachmentTypeConfig.getName(),
                                 domainObjectTypeConfig.getName());
                 fillTopLevelConfigMap(attachmentDomainObjectTypeConfig);
                 fillFieldsConfigMap(attachmentDomainObjectTypeConfig);
@@ -658,6 +660,20 @@ public class ConfigurationStorageBuilder {
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
                 String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
                 result = isReadEverybodyForType(parentDOType);
+            } else {
+                // domainObjectType является ДО верхнего уровня, и флаг read-everybody не определен.
+                // Получаем все дочерние типы и смотрим флаг у них. Возвращаем true если найден хотя бы один тип с
+                // флагом read-evrybody
+                // Валидатор конфигурации должен обеспечить чтобы если встречается хотя бы один тип с read-everybody то
+                // должна отсутствовать матрица у типов в данной иерархии с read-everybody = false
+                List<String> childTypes = getChildTypes(domainObjectType);
+                for (String childType : childTypes) {
+                    AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
+                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null) {
+                        result = childMatrixConfig.isReadEverybody();
+                        break;
+                    }
+                }
             }
 
             if (result == null) {
@@ -721,40 +737,16 @@ public class ConfigurationStorageBuilder {
         }
     }
 
-    private class PrototypeHelper {
-        private ByteArrayInputStream bis;
-
-        private PrototypeHelper(String templateName) throws IOException {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            TopLevelConfig templateDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, templateName);
-            oos.writeObject(templateDomainObjectTypeConfig);
-            oos.close();
-            bis = new ByteArrayInputStream(bos.toByteArray());
-        }
-
-        public DomainObjectTypeConfig makeDomainObjectTypeConfig(String name)
-                throws IOException, ClassNotFoundException {
-            bis.reset();
-            DomainObjectTypeConfig cloneDomainObjectTypeConfig =
-                    (DomainObjectTypeConfig) new ObjectInputStream(bis).readObject();
-            cloneDomainObjectTypeConfig.setTemplate(false);
-            cloneDomainObjectTypeConfig.setName(name);
-
-            return cloneDomainObjectTypeConfig;
-        }
-    }
-
     private class AttachmentPrototypeHelper {
-        private PrototypeHelper prototypeHelper;
 
-        private AttachmentPrototypeHelper() throws IOException {
-            prototypeHelper = new PrototypeHelper("Attachment");
-        }
-
-        public DomainObjectTypeConfig makeAttachmentConfig(String name, String ownerTypeName)
+        public DomainObjectTypeConfig makeAttachmentConfig(String templateName, String name, String ownerTypeName)
                 throws IOException, ClassNotFoundException {
-            DomainObjectTypeConfig cloneDomainObjectTypeConfig = prototypeHelper.makeDomainObjectTypeConfig(name);
+            DomainObjectTypeConfig cloneDomainObjectTypeConfig = new DomainObjectTypeConfig();
+
+            cloneDomainObjectTypeConfig.setName(name);
+            cloneDomainObjectTypeConfig.setTemplate(false);
+
+            collectFieldsConfig(cloneDomainObjectTypeConfig, templateName);
 
             ReferenceFieldConfig ownerReferenceConfig = new ReferenceFieldConfig();
             ownerReferenceConfig.setName(ownerTypeName);
@@ -763,6 +755,24 @@ public class ConfigurationStorageBuilder {
 
             return cloneDomainObjectTypeConfig;
         }
+
+        private void collectFieldsConfig(DomainObjectTypeConfig cloneDomainObjectTypeConfig, String templateName) {
+            if (templateName == null) {
+                templateName = GenericDomainObject.ATTACHMENT_TEMPLATE;
+            }
+            DomainObjectTypeConfig templateDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, templateName);
+            if (templateDomainObjectTypeConfig == null) {
+                throw new FatalException("Attachment template: " + templateName + " not found in configuration");
+            }
+            cloneDomainObjectTypeConfig.getFieldConfigs().addAll(templateDomainObjectTypeConfig.getFieldConfigs());
+            cloneDomainObjectTypeConfig.getUniqueKeyConfigs().addAll(templateDomainObjectTypeConfig.getUniqueKeyConfigs());
+            cloneDomainObjectTypeConfig.setIndicesConfig(templateDomainObjectTypeConfig.getIndicesConfig());
+
+            if (templateDomainObjectTypeConfig.getExtendsAttribute() != null) {
+                collectFieldsConfig(cloneDomainObjectTypeConfig, templateDomainObjectTypeConfig.getExtendsAttribute());
+            }
+        }
+
     }
 
 }

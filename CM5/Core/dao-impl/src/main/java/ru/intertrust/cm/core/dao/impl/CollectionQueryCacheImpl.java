@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -81,8 +82,10 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         private Integer offset;
         private Integer limit;
         private AccessToken accessToken;
+        private Set<ListValue> listValueParams;
 
         public CollectionQueryKey(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, Integer offset, Integer limit,
+                Set<ListValue> listValueParams,
                 AccessToken accessToken) {
             this.collectionNameOrQuery = collectionNameOrQuery;
             if (filterValues != null) {
@@ -94,6 +97,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             this.offset = offset;
             this.limit = limit;
             this.accessToken = accessToken;
+            this.listValueParams = listValueParams;
         }
 
         @Override
@@ -103,7 +107,8 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             result = prime * result + ((accessToken == null) ? 0 : (accessToken.isDeferred() ? 1 : 0));
             result = prime * result + ((collectionNameOrQuery == null) ? 0 : collectionNameOrQuery.hashCode());
             result = prime * result + ((filtersForCache == null) ? 0 : filtersForCache.hashCode());
-
+            result = prime * result + ((listValueParams == null) ? 0 : listValueParams.hashCode());
+            
             result = prime * result + ((limit == null) ? 0 : limit.hashCode());
             result = prime * result + ((offset == null) ? 0 : offset.hashCode());
             result = prime * result + ((sortOrder == null) ? 0 : sortOrder.hashCode());
@@ -136,6 +141,14 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             }
 
             if (!filtersForCache.equals(other.filtersForCache)) {
+                return false;
+            }
+
+            if (listValueParams == null) {
+                if (other.listValueParams != null) {
+                    return false;
+                }
+            } else if (!listValueParams.equals(other.listValueParams)) {
                 return false;
             }
 
@@ -233,10 +246,16 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     }
     
     @Override
-    public CollectionQueryEntry getCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
+    public CollectionQueryEntry getCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset,
+            int limit,
             AccessToken accessToken) {
+        return getCollectionQuery(collectionNameOrQuery, filterValues, sortOrder, offset, limit, null, accessToken);
+    }
+
+    private CollectionQueryEntry getCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset,
+            int limit, Set<ListValue> listValueParams, AccessToken accessToken) {
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, listValueParams, accessToken);
             return collectionQueryCache.get(key);
         }
         return null;
@@ -245,19 +264,31 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Override
     public void putCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, CollectionQueryEntry queryEntry) {
+        putCollectionQuery(collectionNameOrQuery, filterValues, sortOrder, offset, limit, null, accessToken, queryEntry);
+    }
+
+    private void putCollectionQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,  Set<ListValue> listValueParams,
+            AccessToken accessToken, CollectionQueryEntry queryEntry) {
         if (collectionQueryCache.size() > getCacheMaxSize()) {
+            removeOneEntryFromCache();
             writeLog();
-            return;
         }
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, listValueParams, accessToken);
             collectionQueryCache.put(key, queryEntry);
         }
     }
 
+    private void removeOneEntryFromCache() {
+        if (!collectionQueryCache.keySet().isEmpty()) {
+            CollectionQueryKey key = collectionQueryCache.keySet().iterator().next();
+            collectionQueryCache.remove(key);
+        }
+    }
+    
     private void writeLog() {
         if (isAllowedToWriteLog()) {
-            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records");
+            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records. One random entry was removed.");
         }
     }
 
@@ -268,7 +299,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Override
     public CollectionQueryEntry getCollectionCountQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, AccessToken accessToken) {
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, null, accessToken);
             return collectionQueryCache.get(key);
         }
         return null;
@@ -278,10 +309,10 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     public void putCollectionCountQuery(String collectionNameOrQuery, List<? extends Filter> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry) {
         if (collectionQueryCache.size() > getCacheMaxSize()) {
             writeLog();
-            return;
+            removeOneEntryFromCache();
         }
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, null, accessToken);
             collectionQueryCache.put(key, queryEntry);
         }
     }
@@ -296,13 +327,13 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     }
     
     @Override
-    public CollectionQueryEntry getCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken) {
-        return getCollectionQuery(collectionQuery, null, null, offset, limit, accessToken);
+    public CollectionQueryEntry getCollectionQuery(String collectionQuery, int offset, int limit, Set<ListValue> listValueParams, AccessToken accessToken) {
+        return getCollectionQuery(collectionQuery, null, null, offset, limit, listValueParams, accessToken);
     }
 
     @Override
-    public void putCollectionQuery(String collectionQuery, int offset, int limit, AccessToken accessToken, CollectionQueryEntry queryEntry) {
-        putCollectionQuery(collectionQuery, null, null, offset, limit, accessToken, queryEntry);
+    public void putCollectionQuery(String collectionQuery, int offset, int limit, Set<ListValue> listValueParams, AccessToken accessToken, CollectionQueryEntry queryEntry) {
+        putCollectionQuery(collectionQuery, null, null, offset, limit, listValueParams, accessToken, queryEntry);
     }
     
     @Override

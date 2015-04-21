@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
@@ -16,7 +14,8 @@ import java.util.List;
  */
 public class LinkUtil {
 
-    private LinkUtil(){} // non-instantiable
+    private LinkUtil() {
+    } // non-instantiable
 
     public static void markNavigationHierarchy(List<LinkConfig> linkConfigList, LinkConfig parent, ChildLinksConfig parentChildLinksConfig) {
         for (LinkConfig linkConfig : linkConfigList) {
@@ -62,5 +61,17 @@ public class LinkUtil {
             parentLinkConfig = results.get(0);
         }
         return parentLinkConfig;
+    }
+
+    public static FormViewerConfig findHierarchyRootFormViewerConfig(NavigationConfig navigationConfig) {
+        LinkConfig parentLinkConfig = null;
+        List<LinkConfig> linkConfigs = navigationConfig.getHierarchicalLinkList();
+        parentLinkConfig = linkConfigs.isEmpty() ? null : linkConfigs.get(0);
+        parentLinkConfig = parentLinkConfig == null ? null : parentLinkConfig.getParentLinkConfig();
+        PluginConfig pluginConfig = parentLinkConfig == null ? null
+                : parentLinkConfig.getPluginDefinition().getPluginConfig();
+        DomainObjectSurferConfig domainObjectSurferConfig = pluginConfig == null || !(pluginConfig instanceof DomainObjectSurferConfig)
+                ? null : (DomainObjectSurferConfig) pluginConfig;
+        return domainObjectSurferConfig == null ? null : domainObjectSurferConfig.getFormViewerConfig();
     }
 }

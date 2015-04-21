@@ -6,8 +6,10 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.sf.jsqlparser.statement.select.SelectBody;
 
@@ -43,7 +45,6 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.ReferenceFilterUtility;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 /**
  * @author vmatsukevich
@@ -336,7 +337,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         String collectionQuery = null;
         Map<String, FieldConfig> columnToConfigMapForSelectItems = null;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, null, accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
@@ -354,7 +355,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
             collectionQuery = wrapAndLowerCaseNames(collectionQuery);
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
-            collectionQueryCache.putCollectionQuery(query, offset, limit, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionQuery(query, offset, limit, null, accessToken, collectionQueryEntry);
 
         }
 
@@ -380,9 +381,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         Map<String, Object> parameters = new HashMap<>();
 
+        Set<ListValue> listValueParams = getListValueParams(params);
         String collectionQuery = null;
         Map<String, FieldConfig> columnToConfigMapForSelectItems = null;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, listValueParams, accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
@@ -411,7 +413,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
 
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
-            collectionQueryCache.putCollectionQuery(query, offset, limit, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionQuery(query, offset, limit, listValueParams, accessToken, collectionQueryEntry);
         }
 
         if (accessToken.isDeferred()) {
@@ -426,6 +428,16 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
 
         return collection;
+    }
+
+    private Set<ListValue> getListValueParams(List<? extends Value> params) {
+        Set<ListValue> listValueParams = new HashSet<>();
+        for (Value value : params) {
+            if (value instanceof ListValue && ((ListValue) value).getValues().size() > 1) {
+                listValueParams.add((ListValue) value);
+            }
+        }
+        return listValueParams;
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
@@ -448,15 +460,17 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 }
             } else if (value instanceof StringValue) {
                 String strValue = ((StringValue) value).get();
-                try {
-                    referenceValue = new ReferenceValue(new RdbmsId(strValue));
-                } catch (IllegalArgumentException ex) {
-                    // not reference string presentation
-                }
-                if (referenceValue != null) {
-                    String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
-                    addParametersForReference(parameters, referenceValue, referenceParam);
-
+                if (strValue != null){
+                    try {
+                        referenceValue = new ReferenceValue(new RdbmsId(strValue));
+                    } catch (IllegalArgumentException ex) {
+                        // not reference string presentation
+                    }
+                    if (referenceValue != null) {
+                        String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
+                        addParametersForReference(parameters, referenceValue, referenceParam);
+    
+                    }
                 }
             } else if (value instanceof ListValue) {
                 ListValue listValue = (ListValue) value;

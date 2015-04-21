@@ -35,6 +35,7 @@ public class BusinessUniverseInitialization implements Dto {
     private BottomPanelConfig bottomPanelConfig;
     private RightPanelConfig rightPanelConfig;
     private boolean searchConfigured;
+    private UserExtraInfo userExtraInfo;
 
     public String getHelperLink() {
         return helperLink;
@@ -211,5 +212,13 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setSearchConfigured(boolean searchConfigured) {
         this.searchConfigured = searchConfigured;
+    }
+
+    public UserExtraInfo getUserExtraInfo() {
+        return userExtraInfo;
+    }
+
+    public void setUserExtraInfo(UserExtraInfo userExtraInfo) {
+        this.userExtraInfo = userExtraInfo;
     }
 }

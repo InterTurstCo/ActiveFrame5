@@ -445,7 +445,7 @@ public class AttachmentServiceImplTest {
         dot.setAttachmentTypesConfig(attachmentTypesConfig);
         configuration.getConfigurationList().add(dot);
         dot = new DomainObjectTypeConfig();
-        dot.setName("Attachment");
+        dot.setName(GenericDomainObject.ATTACHMENT_TEMPLATE);
         dot.setTemplate(true);
         configuration.getConfigurationList().add(dot);
         configuration.getConfigurationList().add(globalSettings);
@@ -455,7 +455,7 @@ public class AttachmentServiceImplTest {
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);
         Assert.assertFalse(dot.isTemplate());
-        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Attachment");
+        dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, GenericDomainObject.ATTACHMENT_TEMPLATE);
         Assert.assertNotNull(dot);
         Assert.assertTrue(dot.isTemplate());
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person_Attachment");

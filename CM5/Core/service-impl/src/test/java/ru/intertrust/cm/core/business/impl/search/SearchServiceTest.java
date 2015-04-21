@@ -33,7 +33,6 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.DatePeriodFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
@@ -225,7 +224,8 @@ public class SearchServiceTest {
         assertEquals("<> AND <> AND <> AND <>", params.getValue().getQuery().replaceAll("<[^>]+>", "<>"));
         assertThat(params.getValue().getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area1\" OR \"Area2\" OR \"Area3\")"),
-                hasItemInArray("cm_type:\"TargetType\"")
+                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", params.getValue().getFields());
         assertEquals(20, params.getValue().getRows().intValue());
@@ -294,7 +294,8 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery1.getQuery());
         assertThat(solrQuery1.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\"")
+                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_item:\"TargetType\"")
                 ));
         assertEquals("cm_main,score", solrQuery1.getFields());
         assertEquals(20, solrQuery1.getRows().intValue());
@@ -302,7 +303,8 @@ public class SearchServiceTest {
         assertEquals("<text filter>", solrQuery2.getQuery());
         assertThat(solrQuery2.getFilterQueries(), allOf(
                 hasItemInArray("cm_area:(\"Area\")"),
-                hasItemInArray("cm_type:\"TargetType\"")
+                hasItemInArray("cm_type:\"TargetType\""),
+                hasItemInArray("cm_item:\"LinkedType\"")
                 ));
         assertEquals("cm_main,score", solrQuery2.getFields());
         assertEquals(20, solrQuery2.getRows().intValue());
