@@ -284,7 +284,7 @@ public class FormRetriever extends FormProcessor {
             WidgetContext widgetContext = new WidgetContext(config, formObjects, formConfig.getType(), widgetConfigsById);
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
             if (fieldPathConfig == null || fieldPathConfig.getValue() == null || selfManagingWidget) {
-                if (!selfManagingWidget && !(config instanceof LabelConfig)) {
+                if (!selfManagingWidget && !(config instanceof LabelConfig) && !(config instanceof AttachmentViewerConfig)) {
                     throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_WIDGET_ID_NOT_FOUND,
                             "Widget, id: ${widgetId} is not configured with Field Path",
                             new Pair("widgetId", widgetId)));

@@ -47,9 +47,20 @@ public class AttachmentBoxConfig extends WidgetConfig {
     @Element(name = "digital-signatures", required = false)
     private DigitalSignaturesConfig digitalSignaturesConfig;
 
+    @Element(name = "attachment-viewer-ref",required = false)
+    private AttachmentViewerRefConfig attachmentViewerRefConfig;
+
     public AttachmentBoxConfig() {
         singleChoice = new SingleChoiceConfig();
         singleChoice.setSingleChoice(false);
+    }
+
+    public AttachmentViewerRefConfig getAttachmentViewerRefConfig() {
+        return attachmentViewerRefConfig;
+    }
+
+    public void setAttachmentViewerRefConfig(AttachmentViewerRefConfig attachmentViewerRefConfig) {
+        this.attachmentViewerRefConfig = attachmentViewerRefConfig;
     }
 
     public AttachmentTypeRefConfig getAttachmentType() {
@@ -137,6 +148,8 @@ public class AttachmentBoxConfig extends WidgetConfig {
             return false;
         if (attachmentType != null ? !attachmentType.equals(that.attachmentType) : that.attachmentType != null)
             return false;
+        if (attachmentViewerRefConfig != null ? !attachmentViewerRefConfig.equals(that.attachmentViewerRefConfig) : that.attachmentViewerRefConfig != null)
+            return false;
         if (scanner != null ? !scanner.equals(that.scanner) : that.scanner != null) return false;
         if (selectionStyle != null ? !selectionStyle.equals(that.selectionStyle) : that.selectionStyle != null)
             return false;
@@ -161,6 +174,7 @@ public class AttachmentBoxConfig extends WidgetConfig {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (attachmentType != null ? attachmentType.hashCode() : 0);
+        result = 31 * result + (attachmentViewerRefConfig != null ? attachmentViewerRefConfig.hashCode() : 0);
         result = 31 * result + (scanner != null ? scanner.hashCode() : 0);
         result = 31 * result + (selectionStyle != null ? selectionStyle.hashCode() : 0);
         result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);

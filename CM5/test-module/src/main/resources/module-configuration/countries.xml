@@ -317,6 +317,12 @@
                                         <widget id="12"/>
                                     </td>
                                     <!-- text-area (Описание) -->
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <widget id="attachmentViewer"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -675,6 +681,10 @@
             <label id="13">
                 <text>Города:</text>
             </label>
+
+            <attachment-viewer id="attachmentViewer" width="900px" height="600px"/>
+
+
 
             <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
                  <field-path value="city^country"/>
