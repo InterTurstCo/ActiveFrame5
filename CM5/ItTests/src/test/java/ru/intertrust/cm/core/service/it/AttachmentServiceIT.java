@@ -1,6 +1,15 @@
 package ru.intertrust.cm.core.service.it;
 
-import java.io.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 
@@ -8,7 +17,6 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,16 +27,16 @@ import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.RemoteInputStreamServer;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-
-import static org.junit.Assert.*;
 
 /**
  * Интеграционный тест работы с вложениями.
@@ -204,7 +212,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
 
     private DomainObject createAttachmentDomainObject(Id childDocId, String attachmentType) {
         DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(childDocId, attachmentType);
-        attachment.setValue(BaseAttachmentService.NAME, new StringValue("Attachment"));
+        attachment.setValue(BaseAttachmentService.NAME, new StringValue(GenericDomainObject.ATTACHMENT_TEMPLATE));
         attachment.setValue(BaseAttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
         String mimeType = "text/xml";
         attachment.setValue(BaseAttachmentService.MIME_TYPE, new StringValue(mimeType));

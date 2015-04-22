@@ -199,7 +199,6 @@
         </fields>
     </domain-object-type>
  
-
     <!-- Test DO hierarchy for read-everybody flag -->
 
     <domain-object-type name="test_DO_1" initial-status="Active">
@@ -219,6 +218,20 @@
         <fields>
            <string name="name3" length="128" />
            <reference name="ref_DO_3_1" type="ref_DO_1" />
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="test_DO_4" initial-status="Active" extends="test_DO_3">
+        <fields>
+           <string name="name4" length="128" />
+           <reference name="ref_DO_4_1" type="ref_DO_1" />
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="test_DO_5" initial-status="Active" extends="test_DO_4">
+        <fields>
+           <string name="name5" length="128" />
+           <reference name="ref_DO_5_1" type="ref_DO_1" />
         </fields>
     </domain-object-type>
 
@@ -341,6 +354,40 @@
 
     </domain-object-type>
         
+    <domain-object-type name="AttachmentExtended" extends="Attachment" template="true">
+        <fields>
+            <string name="fieldExtended" length="128"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="AttachmentExtended2" extends="AttachmentExtended" template="true">
+        <fields>
+            <string name="fieldExtended2" length="128" />
+        </fields>
+    </domain-object-type>
+    
+    <domain-object-type name="ExtAttachmentDoc" initial-status="Active">
+        <fields>
+            <reference name="From" type="Person" />
+            <reference name="To" type="Person" />
+            <string name="Subject" length="256" />
+            <string name="Body" length="1024" />
+            <string name="Priority" length="128" />            
+            <boolean name="New" />            
+        </fields>
+        <attachment-types>
+            <attachment-type name="AttachmentExtTest" template = "AttachmentExtended"/>
+        </attachment-types>
+    </domain-object-type>
+
+    <domain-object-type name="ExtAttachmentDoc2" initial-status="Active">
+        <fields>
+            <boolean name="Name" />
+        </fields>
+        <attachment-types>
+            <attachment-type name="AttachmentExtTest2" template="AttachmentExtended2" />
+        </attachment-types>
+    </domain-object-type>
     
     <collection name="Employees_Test2" idField="id">
         <prototype>

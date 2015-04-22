@@ -637,7 +637,7 @@ public class ImportData {
             fieldName = field[0];
 
             List<Value> values = new ArrayList<Value>();
-            if (fieldConfig.getFieldType() == FieldType.LONG) {
+            if (fieldConfig != null && fieldConfig.getFieldType() == FieldType.LONG) {
                 values.add(new LongValue(Long.parseLong(getNormalizationField(field[1]))));
             } else {
                 values.add(new StringValue(getNormalizationField(field[1])));
