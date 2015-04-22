@@ -6,13 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
+
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
+import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.annotation.Resource;
@@ -30,6 +34,7 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 import javax.transaction.UserTransaction;
+
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,8 +63,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private ImportReportsData importReportsData;
     @Autowired private ScheduleTaskLoader scheduleTaskLoader;
     @Autowired private LocalizationLoader localizationLoader;
-    @Autowired
-    private MigrationService migrationService;
+    @Autowired private MigrationService migrationService;
+    @Autowired private ExtensionService extensionService;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -75,7 +80,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 } catch (DataAccessException e) {
                     logger.error("Error creating initialization_lock table", e);
                     try {
-                        Thread.currentThread().sleep(1000);
+                        Thread.sleep(1000);
                     } catch (InterruptedException e1) {
                         throw new FatalException(e1);
                     }
@@ -112,7 +117,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 userTransaction = null;
 
                 try {
-                    Thread.currentThread().sleep(1000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new FatalException(e);
                 }
@@ -131,10 +136,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             executorService.shutdownNow();
         } catch (Exception e) {
+            logger.error("GloballyLockableInitializer: failed to initialize application", e);
             if (userTransaction != null) {
                 userTransaction.rollback();
             }
-            logger.error("GloballyLockableInitializer: failed to initialize application", e);
             throw e;
         } finally{
             try {
@@ -142,10 +147,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 initializationLockDao.unlock();
                 userTransaction.commit();
             } catch (Exception e) {
+                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
                 if (userTransaction != null) {
                     userTransaction.rollback();
                 }
-                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
             }
         }
     }
@@ -153,8 +158,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     private void executeInitialLoadingTasks() throws Exception {
         domainObjectTypeIdCache.build();
         initialDataLoader.load();
+        extensionService.getExtentionPoint(PreDataLoadApplicationInitializer.class, null).initialize();
         importSystemData.load();
         importReportsData.load();
+        extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
         scheduleTaskLoader.load();
         localizationLoader.load();
         migrationService.writeMigrationLog(migrationService.getMaxMigrationSequenceNumberFromConfiguration());
@@ -176,7 +183,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             while(!Thread.interrupted()) {
                 try {
-                    Thread.currentThread().sleep(3000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     return;
                 }
