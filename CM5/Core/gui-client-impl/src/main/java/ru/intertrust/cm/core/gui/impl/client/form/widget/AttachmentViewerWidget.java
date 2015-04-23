@@ -1,15 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
-import com.google.gwt.user.client.ui.Frame;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
-import java.util.Iterator;
+
 
 /**
  * @author Ravil Abdulkhairov
@@ -25,12 +22,10 @@ public class AttachmentViewerWidget extends BaseWidget {
     public void setCurrentState(WidgetState currentState) {
         widgetState = (AttachmentViewerState) currentState;
         Panel panel = (Panel) impl;
-        Iterator<Widget> iterator = panel.iterator();
-        Frame frame = (Frame)iterator.next();
-        if(widgetState.getUrl()!=null)
-               frame.setUrl(widgetState.getUrl());
-        frame.setWidth(widgetState.getCurrentWidth());
-        frame.setHeight(widgetState.getCurrentHeight());
+        if (widgetState.getUrl() != null)
+            panel.add(new HTML("<embed src='" + com.google.gwt.core.client.GWT.getHostPageBaseURL()
+                    + widgetState.getUrl() + "' width='" + widgetState.getCurrentWidth()
+                    + "' height='" + widgetState.getCurrentHeight() + "'></embed>"));
     }
 
     @Override
@@ -46,8 +41,6 @@ public class AttachmentViewerWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         Panel panel = new HorizontalPanel();
-        Frame frame = new Frame();
-        panel.add(frame);
         return panel;
     }
 
