@@ -41,6 +41,7 @@ public class AttachmentViewerWidget extends BaseWidget {
     @Override
     protected Widget asEditableWidget(WidgetState state) {
         Panel panel = new HorizontalPanel();
+        panel.setStyleName("gwt-attachment-viewer-panel");
         return panel;
     }
 

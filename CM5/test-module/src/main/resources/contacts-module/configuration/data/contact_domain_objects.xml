@@ -33,9 +33,9 @@
         </fields>
 
         <!-- TODO: Возможно необходимо будет добавить в будущем -->
-        <!--<attachment-types>-->
-        <!--<attachment-type name="foto"/>-->
-        <!--</attachment-types>-->
+        <attachment-types>
+            <attachment-type name="person_document"/>
+        </attachment-types>
     </domain-object-type>
 
     <!--ДО Ранг-->

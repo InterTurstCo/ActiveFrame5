@@ -727,3 +727,8 @@ a.action-bar-button:hover {
     border-top: 1px solid #BDC0C4;
     border-bottom: 1px solid #BDC0C4 !important;
 }
+.gwt-attachment-viewer-panel {
+        border-style: solid;
+    	border-width:1;
+    	border-color: GRAY;
+}
