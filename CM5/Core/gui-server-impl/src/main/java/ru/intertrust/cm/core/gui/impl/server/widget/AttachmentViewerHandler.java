@@ -15,6 +15,8 @@ import ru.intertrust.cm.core.gui.model.form.ObjectsNode;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import java.util.ArrayList;
+
 /**
  * @author Ravil Abdulkhairov
  * @version 1.0
@@ -22,10 +24,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  */
 @ComponentName("attachment-viewer")
 public class AttachmentViewerHandler extends WidgetHandler {
-    private static final String FIELD_MIMETYPE = "mimetype";
+    private static final String FIELD_MIMETYPE = "MimeType";
     private static final String MIME_PDF = "application/pdf";
     @Autowired
     CrudService crudService;
+
+
 
     @Override
     public AttachmentViewerState getInitialState(WidgetContext context) {
@@ -46,7 +50,9 @@ public class AttachmentViewerHandler extends WidgetHandler {
                 dObject = crudService.find(dObjectId);
             }
         }
-        if (dObject != null && dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)) {
+
+        if (dObject != null && dObject.getFields().contains(FIELD_MIMETYPE)
+                && dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)) {
             state.setUrl(createServletUrl(dObject));
         }
         state.setCurrentWidth((config.getWidth() == null) ? config.getMaxTooltipWidth() : config.getWidth());
