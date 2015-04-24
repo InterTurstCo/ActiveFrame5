@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.model;
 
+import javax.ejb.ApplicationException;
+
 /**
  * @author vmatsukevich
  *         Date: 6/28/13
  *         Time: 10:48 AM
  */
+@ApplicationException(rollback = true, inherited = true)
 public class FatalException extends SystemException {
 
     public FatalException() {
