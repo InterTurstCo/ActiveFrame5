@@ -694,7 +694,7 @@
                 <text>Города:</text>
             </label>
 
-            <attachment-viewer id="attachmentViewer" width="900px" height="600px">
+            <attachment-viewer id="attachmentViewer" width="900px" height="600px" read-only="true">
                 <field-path value="person_document"/>
             </attachment-viewer>
 

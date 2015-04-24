@@ -35,7 +35,7 @@ public class AttachmentViewerWidget extends BaseWidget {
 
     @Override
     protected WidgetState createNewState() {
-        return null;
+        return new AttachmentViewerState();
     }
 
     @Override
