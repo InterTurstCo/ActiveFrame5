@@ -51,7 +51,7 @@ public class AttachmentViewerHandler extends WidgetHandler {
             }
         }
 
-        if (dObject != null && dObject.getFields().contains(FIELD_MIMETYPE)
+        if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE)!=null)
                 && dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)) {
             state.setUrl(createServletUrl(dObject));
         }
