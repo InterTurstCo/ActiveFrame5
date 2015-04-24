@@ -759,7 +759,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             permissionType = getMatrixRefType(objectType, matrixRefType, rdbmsObjectId);
         }
         
-        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectType(objectType);
+        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
 
         String domainObjectBaseTable =
                 DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
