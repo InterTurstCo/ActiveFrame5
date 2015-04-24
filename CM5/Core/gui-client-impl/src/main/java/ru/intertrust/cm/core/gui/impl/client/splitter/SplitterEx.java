@@ -13,15 +13,14 @@ import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionPluginResizeBySplitterEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SplitterWidgetResizerEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 
 public class SplitterEx extends DockLayoutPanel {
-
-
+    private static final int CENTRAL_PANEL_TOP_MARGIN = 70;
+    private static final int TOOLBAR_HEIGHT = 40;
     protected boolean splitType;
     protected int sizeFromInsert;
 
@@ -35,8 +34,6 @@ public class SplitterEx extends DockLayoutPanel {
             centralDummy.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVertDots());
             changeModeButton.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVertButton());
             splitType = true;
-
-
             if (size == 0){
                 changeFullLeftPosition();
                 rightArrowVisible(false);
@@ -189,7 +186,7 @@ public class SplitterEx extends DockLayoutPanel {
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
-                           /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight() - splitterSize, splitType, true ));
+                           /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight(), splitType, true ));
                 }
             }, ClickEvent.getType());
 
@@ -447,8 +444,8 @@ public class SplitterEx extends DockLayoutPanel {
                 changeFullLeftPosition();
                 rightArrowVisible(false);
             }
-
-            else if (size == target.getParent().getOffsetHeight() - splitterSize) {
+            else if (size == target.getParent().getOffsetHeight() - splitterSize
+                    || Window.getClientHeight() == size + CENTRAL_PANEL_TOP_MARGIN + TOOLBAR_HEIGHT + splitterSize) {
                 changeFullRightPosition();
                 leftArrowVisible(false);
             }

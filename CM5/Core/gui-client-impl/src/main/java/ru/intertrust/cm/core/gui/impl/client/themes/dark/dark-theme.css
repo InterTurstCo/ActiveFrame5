@@ -720,3 +720,8 @@ a.action-bar-button:hover {
 .close-notification-popup {
     background: url(images/notes_up-dark-theme.png) no-repeat 0 0;
 }
+.gwt-attachment-viewer-panel {
+        border-style: solid;
+    	border-width:1;
+    	border-color: GRAY;
+}

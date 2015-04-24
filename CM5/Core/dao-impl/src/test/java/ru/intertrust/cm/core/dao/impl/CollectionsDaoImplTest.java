@@ -1,13 +1,30 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -16,25 +33,25 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.*;
+import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
 /**'employee'
  * @author vmatsukevich
@@ -356,33 +373,38 @@ public class CollectionsDaoImplTest {
     public void testGetQueryFromCache() throws Exception {
         String collectionQuery = "Select * from country where id in ({0})";
         AccessToken accessToken = createMockAccessToken();
-        
-        CollectionQueryEntry collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 0, 0, accessToken);
-        assertNull(collectionQueryEntry);
-    
+
         List<Value> referenceValues =
                 Arrays.<Value> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
         ListValue listValue = new ListValue(referenceValues);
 
         List<Value> params = new ArrayList<>();
         params.add(listValue);
-        
+
+        Set<ListValue> listParams = new HashSet<>();
+        listParams.add(listValue);
+
+        CollectionQueryEntry collectionQueryEntry =
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
+        assertNull(collectionQueryEntry);
+    
+
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 0, 0, accessToken);
 
+        
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 0, 0, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // другие offset и limit
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 2, 2, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, listParams, accessToken);
         assertNull(collectionQueryEntry);
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 2, 2, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 2, 2, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, listParams, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // запрос без параметров
@@ -390,7 +412,7 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, 4, 2, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, null, null, 4, 2, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 4, 2, null, accessToken);
         assertNotNull(collectionQueryEntry);
     }
     

@@ -660,6 +660,20 @@ public class ConfigurationStorageBuilder {
             if (domainObjectTypeConfig.getExtendsAttribute() != null) {
                 String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
                 result = isReadEverybodyForType(parentDOType);
+            } else {
+                // domainObjectType является ДО верхнего уровня, и флаг read-everybody не определен.
+                // Получаем все дочерние типы и смотрим флаг у них. Возвращаем true если найден хотя бы один тип с
+                // флагом read-evrybody
+                // Валидатор конфигурации должен обеспечить чтобы если встречается хотя бы один тип с read-everybody то
+                // должна отсутствовать матрица у типов в данной иерархии с read-everybody = false
+                List<String> childTypes = getChildTypes(domainObjectType);
+                for (String childType : childTypes) {
+                    AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
+                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null) {
+                        result = childMatrixConfig.isReadEverybody();
+                        break;
+                    }
+                }
             }
 
             if (result == null) {

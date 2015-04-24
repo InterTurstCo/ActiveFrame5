@@ -26,6 +26,11 @@ public class SolrFields {
      */
     public static final String MAIN_OBJECT_ID = "cm_main";
     /**
+     * Поле, хранящее имя типа проиндексированного (target-domain-object или linked-domain-object) объекта,
+     * как оно задано в конфигурации области поиска (реальный объект иметь тип, порождённый от этого)
+     */
+    public static final String OBJECT_TYPE = "cm_item";
+    /**
      * Поле, хранящее временную отметку модификации проиндексированного доменного объекта
      */
     public static final String MODIFIED = "cm_modified";

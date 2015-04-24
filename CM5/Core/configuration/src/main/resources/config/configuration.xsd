@@ -1115,6 +1115,15 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+
+    <xs:complexType name="attachmentViewerRefType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="id" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
     <xs:complexType name="defaultSortCriteriaType">
         <xs:simpleContent>
             <xs:extension base="xs:string">
@@ -1360,6 +1369,20 @@
                         </xs:simpleType>
                     </xs:element>
                 </xs:sequence>
+                <xs:attribute type="xs:string" name="id" use="optional" />
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:element type="con:attachmentViewerType" name="attachment-viewer" substitutionGroup="con:widget" />
+    <xs:complexType name="attachmentViewerType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractWidgetType">
+                <xs:sequence maxOccurs="unbounded" minOccurs="0">
+                    <xs:element type="con:fieldPathType" name="field-path" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
+                </xs:sequence>
+                <xs:attribute type="xs:string" name="width" use="optional" />
+                <xs:attribute type="xs:string" name="height" use="optional" />
                 <xs:attribute type="xs:string" name="id" use="optional" />
             </xs:extension>
         </xs:complexContent>
@@ -2163,6 +2186,7 @@
                     <xs:element type="con:clearAllButtonType" name="clear-all-button" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:deleteButtonType" name="delete-button" xmlns:con="https://cm5.intertrust.ru/config" />
                     <xs:element type="con:digitalSignaturesType" name="digital-signatures" xmlns:con="https://cm5.intertrust.ru/config" />
+                    <xs:element type="con:attachmentViewerRefType" name="attachment-viewer-ref" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required" />
             </xs:extension>

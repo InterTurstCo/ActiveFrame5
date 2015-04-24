@@ -245,6 +245,8 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
                 LinkConfig link = data.getHierarchicalLink();
                 NavigationConfig navigationConfig = getCollectionPlugin().getNavigationConfig();
                 LinkUtil.addHierarchicalLinkToNavigationConfig(navigationConfig, link);
+                FormViewerConfig formViewerConfig = LinkUtil.findHierarchyRootFormViewerConfig(getNavigationConfig());
+                pluginConfig.setFormViewerConfig(formViewerConfig);
                 Application.getInstance().getEventBus().fireEvent(
                         new NavigationTreeItemSelectedEvent(pluginConfig, link.getName(), navigationConfig));
             }

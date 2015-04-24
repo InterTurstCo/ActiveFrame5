@@ -206,10 +206,12 @@ public abstract class PluginView implements IsWidget {
                 "size.toggle.action", LocalizeUtil.get(SIZE_ACTION_TOOLTIP_KEY, SIZE_ACTION_TOOLTIP), ToggleAction.FORM_FULL_SIZE_ACTION_STYLE_NAME, 1000));
         fstCtx.setPushed(Application.getInstance().getCompactModeState().isExpanded());
         contexts.add(fstCtx);
-        if(Application.getInstance().getCompactModeState().isRightPanelConfigured()){
-        contexts.add(new ToggleActionContext(createActionConfigWithImageInDiv(
-                "favorite.toggle.action", LocalizeUtil.get(FAVORITE_ACTION_TOOLTIP_KEY, FAVORITE_ACTION_TOOLTIP),
-                ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001)));
+        if (Application.getInstance().getCompactModeState().isRightPanelConfigured()) {
+            ToggleActionContext favoritesToggleActionContext = new ToggleActionContext(createActionConfigWithImageInDiv(
+                    "favorite.toggle.action", LocalizeUtil.get(FAVORITE_ACTION_TOOLTIP_KEY, FAVORITE_ACTION_TOOLTIP),
+                    ToggleAction.FAVORITE_PANEL_ACTION_STYLE_NAME, 1001));
+            favoritesToggleActionContext.setPushed(Application.getInstance().getCompactModeState().isRightPanelExpanded());
+            contexts.add(favoritesToggleActionContext);
         }
         return contexts;
     }

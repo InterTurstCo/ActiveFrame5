@@ -152,7 +152,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
         if (martixRef != null){
             //Получаем маппинг прав
-            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectType(typeName);
+            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
             if (martix.getMatrixReferenceMappingConfig() != null){
                 //Берем мапинг из матрицы
                 MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig();

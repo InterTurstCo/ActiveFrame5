@@ -315,6 +315,7 @@
                                 <collection-ref name="Organizations" use-default="true"/>
                                 <default-sort-criteria column-field="name" order="desc"/>
                             </collection-viewer>
+                            <form-viewer form-mapping-component="custom.platform.form.mapping"/>
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
@@ -486,7 +487,7 @@
                     </plugin>
                 </link>
 
-                <link name="Letters" display-text="Письма">
+                <link name="Letters2" display-text="Письма2">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Letter">
                             <collection-viewer>
@@ -1406,7 +1407,7 @@
                         </domain-object-surfer>
                     </plugin>
                     <child-links>
-                        <link name="Countries" display-text="Страны-2" counter-type="non-read">
+                        <link name="Countries2" display-text="Страны-2" counter-type="non-read">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="country">
                                     <collection-viewer>
@@ -1419,7 +1420,7 @@
                                 </domain-object-surfer>
                             </plugin>
                         </link>
-                        <link name="Cities" display-text="Города-2">
+                        <link name="Cities2" display-text="Города-2">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="city">
                                     <collection-viewer>
@@ -1523,7 +1524,7 @@
                         </domain-object-surfer>
                     </plugin>
                     <child-links>
-                        <link name="Countries" display-text="Страны-2">
+                        <link name="Countries2" display-text="Страны-2">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="country">
                                     <collection-viewer>
@@ -1536,7 +1537,7 @@
                                 </domain-object-surfer>
                             </plugin>
                         </link>
-                        <link name="CountryUnions" display-text="Союзы-2">
+                        <link name="CountryUnions2" display-text="Союзы-2">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="country_union">
                                     <collection-viewer>

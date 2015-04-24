@@ -104,6 +104,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
                 doc.addField(SolrFields.AREA, config.getAreaName());
                 doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
+                doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
                 doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
                 doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
                 for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
@@ -152,6 +153,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             request.setParam("literal." + SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
             request.setParam("literal." + SolrFields.AREA, config.getAreaName());
             request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
+            request.setParam("literal." + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
             request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
             request.setParam("literal." + SolrFields.MODIFIED, ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
             addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
@@ -190,7 +192,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         }
         if (config.getDoel() != null) {
             AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
-            List<? extends Value> values = doelEvaluator.evaluate(
+            List<? extends Value<?>> values = doelEvaluator.evaluate(
                     DoelExpression.parse(config.getDoel()), object.getId(), accessToken);
             if (values.size() == 0) {
                 return null;
@@ -198,13 +200,13 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 return convertValue(values.get(0));
             } else {
                 ArrayList<Object> result = new ArrayList<>(values.size());
-                for (Value value : values) {
+                for (Value<?> value : values) {
                     result.add(convertValue(value));
                 }
                 return result;
             }
         }
-        Value value = object.getValue(config.getName());
+        Value<?> value = object.getValue(config.getName());
         return convertValue(value);
     }
 
@@ -264,7 +266,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
         return ((ReferenceValue) value).get();*/
     }
 
-    private Object convertValue(Value value) {
+    private Object convertValue(Value<?> value) {
         if (value == null) {
             return null;
         }

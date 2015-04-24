@@ -263,9 +263,20 @@ public class CrudServiceIT extends IntegrationTestBase {
             assertEquals(linkedAuditObjects.get(0).getReference("domain_object_id"), savedDepartment.getId());
             
         }
-
+     
     }
 
+    @Test
+    public void testFindLinkedDomainObjectsWithInheritanceAndAccessChecks() throws LoginException {
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+        Id domainObjectId = new RdbmsId(1, 1);
+        // Проверка на выполнимость SQL запросов для случая иерархии наследования и подключения проверки прав
+        crudService.findLinkedDomainObjects(domainObjectId, "test_DO_5", "ref_DO_1");
+        crudService.findLinkedDomainObjectsIds(domainObjectId, "test_DO_5", "ref_DO_1");
+        lc.logout();
+    }
+    
     @Test
     public void testFindLinkedDomainObjectsWithInheritance() {
         DomainObject soOrgSystem = crudService.createDomainObject("SO_OrgSystem");
