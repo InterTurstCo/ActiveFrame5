@@ -18,6 +18,7 @@
             <reference name="country_union" type="country_union"/>
             <string name="description" length="1024"/>
             <reference name="flag" type="country_flag"/>
+            <reference name="person_document" type="person_document"/>
         </fields>
         <uniqueKey>
             <field name="name"/>
@@ -26,6 +27,7 @@
             <attachment-type name="country_attachment"/>
             <attachment-type name="country_flag"/>
             <attachment-type name="fauna_attachment"/>
+            <attachment-type name="country_pdf_attachment"/>
         </attachment-types>
     </domain-object-type>
 
@@ -317,6 +319,12 @@
                                         <widget id="12"/>
                                     </td>
                                     <!-- text-area (Описание) -->
+
+                                </tr>
+                                <tr>
+                                    <td colspan="2">
+                                        <widget id="attachmentViewer"/>
+                                    </td>
                                 </tr>
                             </table>
                         </tab-group>
@@ -388,6 +396,16 @@
                                 <tr>
                                     <td>
                                         <widget id="country_attachment" width="600px"/>
+                                    </td>
+                                </tr>
+                               <tr>
+                                    <td>
+                                        <widget id="attachmentPdfLbl"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="country_pdf_attachment" width="600px"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -676,6 +694,12 @@
                 <text>Города:</text>
             </label>
 
+            <attachment-viewer id="attachmentViewer" width="900px" height="600px" read-only="true">
+                <field-path value="person_document"/>
+            </attachment-viewer>
+
+
+
             <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
                  <field-path value="city^country"/>
                  &lt;!&ndash; редактирует названи&ndash;&gt;
@@ -707,6 +731,21 @@
                     <digital-signature type="country_attachment"/>
                 </digital-signatures>
             </attachment-box>
+
+
+            <label id="attachmentPdfLbl">
+                <text>Вложения PDF:</text>
+            </label>
+            <attachment-box id="country_pdf_attachment">
+                <field-path value="country_pdf_attachment^country"/>
+                <attachment-type-ref name="country_pdf_attachment"/>
+                <scanner enabled="true"/>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <choice-style name="popup"/>
+                <delete-button display="true"/>
+            </attachment-box>
+
 
             <label id="flagAttachmentLbl">
                 <text>Государственный флаг:</text>

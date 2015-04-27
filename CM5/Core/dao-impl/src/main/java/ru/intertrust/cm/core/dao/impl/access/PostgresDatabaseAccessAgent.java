@@ -152,7 +152,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
         if (martixRef != null){
             //Получаем маппинг прав
-            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectType(typeName);
+            AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
             if (martix.getMatrixReferenceMappingConfig() != null){
                 //Берем мапинг из матрицы
                 MatrixReferenceMappingConfig mapping = martix.getMatrixReferenceMappingConfig();
@@ -645,7 +645,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             // поле martix-reference-field
 
             String parentTypeName = domainObjectTypeIdCache.getName(parentId);
-            AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(parentTypeName);
+            AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(parentTypeName);
             
             if (parentMatrixConfig != null && parentMatrixConfig.getMatrixReference() != null) {
                 AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());

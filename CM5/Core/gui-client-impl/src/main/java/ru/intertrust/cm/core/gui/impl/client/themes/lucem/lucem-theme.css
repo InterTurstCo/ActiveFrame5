@@ -1065,3 +1065,8 @@ a.action-bar-button {
 .gwt-TabBarItem.gwt-TabBarItem-selected {
     background: url(resources/lucemtheme/images/tabs_selected_r.png) no-repeat scroll 100% 0;
 }
+.gwt-attachment-viewer-panel {
+        border-style: solid;
+    	border-width:1;
+    	border-color: GRAY;
+}

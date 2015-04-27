@@ -124,6 +124,17 @@
                                         <widget id="state_value"/>
                                     </td>
                                 </tr>
+
+                                <!--Персональный документ-->
+                                <tr>
+                                    <td width="15%" h-align="left">
+                                        <widget id="personDocumentLabel"/>
+                                    </td>
+                                    <td width="150px" h-align="left">
+                                        <widget id="personDocument"/>
+                                    </td>
+                                </tr>
+
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -221,6 +232,19 @@
             </body>
         </markup>
         <widget-config>
+            <label id="personDocumentLabel">
+                <text>Персональный документ</text>
+            </label>
+            <attachment-box id="personDocument">
+                <field-path value="person_document^cont_contact_person"/>
+                <attachment-type-ref name="person_document"/>
+                <scanner enabled="true"/>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <choice-style name="popup"/>
+                <delete-button display="true"/>
+            </attachment-box>
+
             <label id="header">
                 <field-path/>
                 <text>Контактное лицо</text>

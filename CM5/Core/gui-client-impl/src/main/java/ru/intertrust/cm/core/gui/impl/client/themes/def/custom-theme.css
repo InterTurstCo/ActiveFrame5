@@ -419,3 +419,8 @@ div.gwt-Good-Label {
     vertical-align: bottom;
 }
 /* ------------>>> end treePanel items <<<------------ */
+.gwt-attachment-viewer-panel {
+        border-style: solid;
+    	border-width:1;
+    	border-color: GRAY;
+}

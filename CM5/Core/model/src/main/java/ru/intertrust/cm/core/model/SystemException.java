@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.model;
 
+import javax.ejb.ApplicationException;
+
 /**
  * @author vmatsukevich
  *         Date: 6/28/13
  *         Time: 10:46 AM
  */
+@ApplicationException(rollback = false, inherited = true)
 public abstract class SystemException extends RuntimeException {
 
     protected SystemException() {

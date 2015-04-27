@@ -242,11 +242,11 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             public void onSuccess(Dto result) {
                 HierarchicalCollectionData data = (HierarchicalCollectionData) result;
                 DomainObjectSurferConfig pluginConfig = data.getDomainObjectSurferConfig();
-                FormViewerConfig formViewerConfig = LinkUtil.findHierarchyRootFormViewerConfig(getNavigationConfig());
-                pluginConfig.setFormViewerConfig(formViewerConfig);
                 LinkConfig link = data.getHierarchicalLink();
                 NavigationConfig navigationConfig = getCollectionPlugin().getNavigationConfig();
                 LinkUtil.addHierarchicalLinkToNavigationConfig(navigationConfig, link);
+                FormViewerConfig formViewerConfig = LinkUtil.findHierarchyRootFormViewerConfig(getNavigationConfig());
+                pluginConfig.setFormViewerConfig(formViewerConfig);
                 Application.getInstance().getEventBus().fireEvent(
                         new NavigationTreeItemSelectedEvent(pluginConfig, link.getName(), navigationConfig));
             }
