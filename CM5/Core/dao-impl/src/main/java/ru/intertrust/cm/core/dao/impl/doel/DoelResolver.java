@@ -27,8 +27,6 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -474,6 +472,12 @@ public class DoelResolver implements DoelEvaluator {
         do {
             DomainObjectTypeConfig typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type);
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(type, field, false);
+            // FIX CMFIVE-3811 - временное решение, удалить после реализации CMFIVE-3839
+            if (typeConfig.getExtendsAttribute() != null &&
+                    SystemField.isSystemField(field) && !"id".equalsIgnoreCase(field)) {
+                fieldConfig = null;
+            }
+            // FIX CMFIVE-3811 end
             if (fieldConfig != null) {
                 return getSqlName(typeConfig);
             }
