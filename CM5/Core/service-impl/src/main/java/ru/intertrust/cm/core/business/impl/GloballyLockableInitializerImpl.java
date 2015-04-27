@@ -131,10 +131,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
             executorService.shutdownNow();
         } catch (Exception e) {
-            if (userTransaction != null) {
+            logger.error("GloballyLockableInitializer: failed to initialize application", e);
+            if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
                 userTransaction.rollback();
             }
-            logger.error("GloballyLockableInitializer: failed to initialize application", e);
             throw e;
         } finally{
             try {
@@ -142,10 +142,10 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 initializationLockDao.unlock();
                 userTransaction.commit();
             } catch (Exception e) {
-                if (userTransaction != null) {
+                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
+                if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
                     userTransaction.rollback();
                 }
-                logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
             }
         }
     }
