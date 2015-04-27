@@ -25,11 +25,13 @@ import java.util.ArrayList;
 @ComponentName("attachment-viewer")
 public class AttachmentViewerHandler extends WidgetHandler {
     private static final String FIELD_MIMETYPE = "MimeType";
+    private static final String FIELD_NAME = "name";
     private static final String MIME_PDF = "application/pdf";
     private static final String MIME_TEXT = "text/plain";
+    private static final String EXT_TEXT = "txt";
+    private static final String EXT_PDF = "pdf";
     @Autowired
     CrudService crudService;
-
 
 
     @Override
@@ -52,11 +54,30 @@ public class AttachmentViewerHandler extends WidgetHandler {
             }
         }
 
-        if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE)!=null)
-                && (dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF) || dObject.getString(FIELD_MIMETYPE).equals(MIME_TEXT))
-                ) {
+        if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE) != null)
+                &&
+                (
+                dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)
+                        || dObject.getString(FIELD_MIMETYPE).equals(MIME_TEXT)
+                )
+                )
+
+        {
             state.setUrl(createServletUrl(dObject));
         }
+
+        //TODO Удалить когда CMFIVE-3820 будет исправлен
+        else
+        if (dObject != null && dObject.getFields().contains(FIELD_MIMETYPE)
+                &&
+                (dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_PDF)
+                        || dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_TEXT)))
+        {
+            state.setUrl(createServletUrl(dObject));
+        }
+        // ---------------------------------------------
+
+
         state.setCurrentWidth((config.getWidth() == null) ? config.getMaxTooltipWidth() : config.getWidth());
         state.setCurrentHeight((config.getHeight() == null) ? config.getMaxTooltipHeight() : config.getHeight());
         return state;
