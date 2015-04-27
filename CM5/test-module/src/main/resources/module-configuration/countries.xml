@@ -695,7 +695,7 @@
             </label>
 
             <attachment-viewer id="attachmentViewer" width="900px" height="600px" read-only="true">
-                <field-path value="person_document"/>
+                <field-path value="country_pdf_attachment^country"/>
             </attachment-viewer>
 
 

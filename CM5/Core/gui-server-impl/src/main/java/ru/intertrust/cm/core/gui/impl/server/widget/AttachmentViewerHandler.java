@@ -26,6 +26,7 @@ import java.util.ArrayList;
 public class AttachmentViewerHandler extends WidgetHandler {
     private static final String FIELD_MIMETYPE = "MimeType";
     private static final String MIME_PDF = "application/pdf";
+    private static final String MIME_TEXT = "text/plain";
     @Autowired
     CrudService crudService;
 
@@ -52,7 +53,8 @@ public class AttachmentViewerHandler extends WidgetHandler {
         }
 
         if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE)!=null)
-                && dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)) {
+                && (dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF) || dObject.getString(FIELD_MIMETYPE).equals(MIME_TEXT))
+                ) {
             state.setUrl(createServletUrl(dObject));
         }
         state.setCurrentWidth((config.getWidth() == null) ? config.getMaxTooltipWidth() : config.getWidth());
