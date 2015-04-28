@@ -7,11 +7,13 @@ public enum SearchFieldType {
     TEXT("t_"),
     DATE("dt_"),
     LONG("l_"),
+    DOUBLE("d_"),
     REF ("r_"),
     BOOL("b_"),
     TEXT_MULTI("ts_"),
     DATE_MULTI("dts_"),
     LONG_MULTI("ls_"),
+    DOUBLE_MULTI("ds_"),
     REF_MULTI ("rs_"),
     BOOL_MULTI("bs_");
 
@@ -26,22 +28,22 @@ public enum SearchFieldType {
     }
 
     public static SearchFieldType getFieldType(FieldType type, boolean multiValued) {
-        if (FieldType.DATETIME == type ||
-            FieldType.DATETIMEWITHTIMEZONE == type ||
-            FieldType.TIMELESSDATE == type) {
+        switch(type) {
+        case DATETIME:
+        case DATETIMEWITHTIMEZONE:
+        case TIMELESSDATE:
             return multiValued ? DATE_MULTI : DATE;
-        }
-        if (FieldType.LONG == type ||
-            FieldType.DECIMAL == type) {
+        case LONG:
             return multiValued ? LONG_MULTI : LONG;
-        }
-        if (FieldType.REFERENCE == type) {
+        case DECIMAL:
+            return multiValued ? DOUBLE_MULTI : DOUBLE;
+        case REFERENCE:
             return multiValued ? REF_MULTI : REF;
-        }
-        if (FieldType.BOOLEAN == type) {
+        case BOOLEAN:
             return multiValued ? BOOL_MULTI : BOOL;
+        default:
+            return multiValued ? TEXT_MULTI : TEXT;
         }
-        return multiValued ? TEXT_MULTI : TEXT;
     }
 
 }

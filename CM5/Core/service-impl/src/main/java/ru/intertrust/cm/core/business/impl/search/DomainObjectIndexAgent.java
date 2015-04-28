@@ -155,7 +155,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             request.setParam("literal." + SolrFields.TARGET_TYPE, config.getTargetObjectType());
             request.setParam("literal." + SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
             request.setParam("literal." + SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-            request.setParam("literal." + SolrFields.MODIFIED, ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
+            request.setParam("literal." + SolrFields.MODIFIED,
+                    ThreadSafeDateFormat.format(object.getModifiedDate(), DATE_PATTERN));
             addFieldToContentRequest(request, object, BaseAttachmentService.NAME, SearchFieldType.TEXT);
             addFieldToContentRequest(request, object, BaseAttachmentService.DESCRIPTION, SearchFieldType.TEXT);
             addFieldToContentRequest(request, object, BaseAttachmentService.CONTENT_LENGTH, SearchFieldType.LONG);
@@ -330,7 +331,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
     private boolean isTextField(FieldType type) {
         return type == FieldType.STRING || type == FieldType.TEXT;
     }
-    
+
     public class SolrAttachmentFeeder implements ContentStream {
 
         private DomainObject attachment;

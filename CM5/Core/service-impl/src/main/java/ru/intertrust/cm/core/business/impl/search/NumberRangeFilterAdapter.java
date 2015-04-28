@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl.search;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -22,18 +23,28 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
             return null;
         }
 
+        ArrayList<String> strings = new ArrayList<>();
         Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
-        if (types.contains(SearchFieldType.LONG)) {
-            String single = makeSolrFieldFilter(filter, SearchFieldType.LONG);
-            if (!types.contains(SearchFieldType.LONG_MULTI)) {
-                return single;
+        for (SearchFieldType type : new SearchFieldType[]
+                { SearchFieldType.LONG, SearchFieldType.LONG_MULTI,
+                  SearchFieldType.DOUBLE, SearchFieldType.DOUBLE_MULTI }) {
+            if (types.contains(type)) {
+                strings.add(makeSolrFieldFilter(filter, type));
             }
-            String multi = makeSolrFieldFilter(filter, SearchFieldType.LONG_MULTI);
-            return new StringBuilder()
-                    .append("(").append(single).append(" OR ").append(multi).append(")")
-                    .toString();
-        } else if (types.contains(SearchFieldType.LONG_MULTI)) {
-            return makeSolrFieldFilter(filter, SearchFieldType.LONG_MULTI);
+        }
+        if (strings.size() == 1) {
+            return strings.get(0);
+        }
+        if (strings.size() > 1) {
+            StringBuilder result = new StringBuilder();
+            for (String string : strings) {
+                if (result.length() > 0) {
+                    result.append(" OR ");
+                }
+                result.append(string);
+            }
+            result.insert(0, "(").append(")");
+            return result.toString();
         }
         log.warn("Configured fields for field " + filter.getFieldName() + " not found in areas " + query.getAreas());
         return null;

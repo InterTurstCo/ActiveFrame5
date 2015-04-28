@@ -479,14 +479,14 @@ public class SearchConfigHelper {
 
     private FieldType getValueType(Object value) {
         if(value instanceof Date){
-            return FieldType.DATETIME;            
+            return FieldType.DATETIME;
         }else if(value instanceof Long){
             return FieldType.LONG;  
         }else if(value instanceof Number){
-            return FieldType.DECIMAL;  
+            return FieldType.DECIMAL;
         }else{
             return FieldType.STRING;
-        }        
+        }
     }
 
     public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {

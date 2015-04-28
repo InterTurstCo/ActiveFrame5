@@ -16,7 +16,6 @@ import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -24,6 +23,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -42,6 +42,7 @@ import org.mockito.Mockito;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
@@ -112,6 +113,8 @@ public class DomainObjectIndexAgentTest {
         when(ruEnGeTextField.getName()).thenReturn("RuEnGeTextField");
         IndexedFieldConfig longField = mock(IndexedFieldConfig.class);
         when(longField.getName()).thenReturn("LongField");
+        IndexedFieldConfig decimalField = mock(IndexedFieldConfig.class);
+        when(decimalField.getName()).thenReturn("DecimalField");
         IndexedFieldConfig dateField = mock(IndexedFieldConfig.class);
         when(dateField.getName()).thenReturn("DateField");
         IndexedFieldConfig referenceField = mock(IndexedFieldConfig.class);
@@ -122,7 +125,8 @@ public class DomainObjectIndexAgentTest {
         TargetDomainObjectConfig objectConfig = mock(TargetDomainObjectConfig.class);
         when(objectConfig.getType()).thenReturn("TestType");
         when(objectConfig.getFields()).thenReturn(Arrays.asList(
-                stringField, ruStringField, ruEnGeTextField, longField, dateField, referenceField, doelField));
+                stringField, ruStringField, ruEnGeTextField,
+                longField, decimalField, dateField, referenceField, doelField));
         SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
         when(areaConfig.getAreaName()).thenReturn("TestArea");
         when(areaConfig.getTargetObjectType()).thenReturn("TestType");
@@ -141,6 +145,8 @@ public class DomainObjectIndexAgentTest {
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.TEXT));
         when(configHelper.getFieldType(same(longField), anyString(), anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.LONG));
+        when(configHelper.getFieldType(same(decimalField), anyString(), anyObject()))
+                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.DECIMAL));
         when(configHelper.getFieldType(same(dateField), anyString(),anyObject()))
                 .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.DATETIME));
         when(configHelper.getFieldType(same(referenceField), anyString(), anyObject()))
@@ -163,6 +169,7 @@ public class DomainObjectIndexAgentTest {
         when(object.getValue("RuStringField")).thenReturn(new StringValue("Test russian string"));
         when(object.getValue("RuEnGeTextField")).thenReturn(new StringValue("Test multi-language string"));
         when(object.getValue("LongField")).thenReturn(new LongValue(47L));
+        when(object.getValue("DecimalField")).thenReturn(new DecimalValue(new BigDecimal("11.76")));
         when(object.getValue("DateField")).thenReturn(new DateTimeValue(new Date(12345L)));
         Id linkId = idMock("RefId");
         when(object.getValue("ReferenceField")).thenReturn(new ReferenceValue(linkId));
@@ -196,6 +203,7 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_ge_ruengetextfield"),
                 hasProperty("value", equalTo("Test multi-language string"))));
         assertThat(doc, hasEntry(equalTo("cm_l_longfield"), hasProperty("value", equalTo(47L))));
+        assertThat(doc, hasEntry(equalTo("cm_d_decimalfield"), hasProperty("value", equalTo(new BigDecimal("11.76")))));
         assertThat(doc, hasEntry(equalTo("cm_dt_datefield"), hasProperty("value", equalTo(new Date(12345L)))));
         assertThat(doc, hasEntry(equalTo("cm_r_referencefield"), hasProperty("value", equalTo("RefId"))));
         assertThat(doc, hasEntry(equalTo("cm_ts_doelfield"), hasProperty("value",
