@@ -44,7 +44,7 @@ public class TestAttachments extends ClientBase {
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
 
             attachmentService = (AttachmentService.Remote) getService(
-                    "AttachmentServiceImpl", AttachmentService.Remote.class);
+                    "RemoteAttachmentServiceImpl", AttachmentService.Remote.class);
 
             DomainObject person = createPerson();
             //Добавляем вложение 2 раза. Одно потом удалим второе оставим
@@ -63,6 +63,47 @@ public class TestAttachments extends ClientBase {
             attachmentService.deleteAttachment(secondAttachment.getId());
             System.out.println("Delete OK");
 
+            //Проверка распознования типа файла (mimetype)
+            DomainObject testTypeDo = setAttachment(person, new File(file));
+            assertTrue("PDF", testTypeDo.getString("mimetype").equalsIgnoreCase("application/pdf"));
+            
+            testTypeDo = setAttachment(person, new File("import-employee.csv"));
+            assertTrue("CSV", testTypeDo.getString("mimetype").equalsIgnoreCase("text/csv"));
+
+            testTypeDo = setAttachment(person, new File("test_1251.txt"));
+            assertTrue("TXT", testTypeDo.getString("mimetype").equalsIgnoreCase("text/plain"));
+
+            testTypeDo = setAttachment(person, new File("test_utf_8.txt"));
+            assertTrue("TXT", testTypeDo.getString("mimetype").equalsIgnoreCase("text/plain"));
+
+            testTypeDo = setAttachment(person, new File("test.bmp"));
+            assertTrue("BMP", testTypeDo.getString("mimetype").equalsIgnoreCase("image/x-ms-bmp"));
+
+            testTypeDo = setAttachment(person, new File("test.doc"));
+            assertTrue("DOC", testTypeDo.getString("mimetype").equalsIgnoreCase("application/msword"));
+            
+            testTypeDo = setAttachment(person, new File("test.docx"));
+            assertTrue("DOCX", testTypeDo.getString("mimetype").equalsIgnoreCase("application/vnd.openxmlformats-officedocument.wordprocessingml.document"));
+            
+            testTypeDo = setAttachment(person, new File("test.jpg"));
+            assertTrue("JPG", testTypeDo.getString("mimetype").equalsIgnoreCase("image/jpeg"));
+            
+            testTypeDo = setAttachment(person, new File("test.odt"));
+            assertTrue("ODT", testTypeDo.getString("mimetype").equalsIgnoreCase("application/vnd.oasis.opendocument.text"));
+
+            testTypeDo = setAttachment(person, new File("test.rtf"));
+            assertTrue("RTF", testTypeDo.getString("mimetype").equalsIgnoreCase("application/rtf"));
+
+            testTypeDo = setAttachment(person, new File("test"));
+            assertTrue("PDF without extension", testTypeDo.getString("mimetype").equalsIgnoreCase("application/octet-stream"));
+
+            testTypeDo = setAttachment(person, new File("test.xls"));
+            assertTrue("XLS", testTypeDo.getString("mimetype").equalsIgnoreCase("application/vnd.ms-excel"));
+
+            testTypeDo = setAttachment(person, new File("test.xlsx"));
+            assertTrue("XLSX", testTypeDo.getString("mimetype").equalsIgnoreCase("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+
+            log("Tset OK");
             testTime();
 
         } finally {

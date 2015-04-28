@@ -11,6 +11,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
 
+import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeTypes;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -87,7 +89,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             Files.copy(inputStream, Paths.get(absFilePath));
             File attachment = new File(absFilePath);
             Long contentLength = attachment.length();
-            String mimeType = Files.probeContentType(Paths.get(absFilePath));
+            String mimeType = getMimeType(absFilePath);
             String relativePath = toRelativeFromAbsPathFile(absFilePath);
             attachmentInfo.setContentLength(contentLength);
             attachmentInfo.setMimeType(mimeType);
@@ -100,6 +102,11 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return attachmentInfo;
     }
 
+    private String getMimeType(String path){
+        Tika detector = new Tika();
+        return detector.detect(path);
+    }
+    
     private String getFileExtension(String fileName) {
         if (fileName == null) {
             return null;
