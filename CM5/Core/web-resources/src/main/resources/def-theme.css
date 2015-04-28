@@ -861,14 +861,14 @@ a[href='#login']:hover {
 }
 
 .central-div-panel-test-active {
-    margin: 70px 11px 11px 375px;
+    margin: 70px 11px 11px 350px;
 }
 
 .centralPanelRightPanelOpen {
     margin: 70px 265px 0px 130px;
 }
 .centralPanelLeftAndRightPanelOpen{
-    margin: 70px 265px 0px 375px;
+    margin: 70px 265px 0px 350px;
 }
 .centralPanelRightPanelOpenFull {
     margin: 0px 265px 0px 0px;
@@ -924,7 +924,7 @@ a[href='#login']:hover {
 
 .navigation-dynamic-panel {
     left: 15px;
-    padding-top: 20px;
+    padding-top: 10px;
     width: 0px;
     display: none;
 
@@ -932,7 +932,7 @@ a[href='#login']:hover {
 
 .navigation-dynamic-panel-expanded {
     left: 15px;
-    padding-top: 20px;
+    padding-top: 10px;
     overflow-y: auto;
     overflow-x: hidden;
     display: block;

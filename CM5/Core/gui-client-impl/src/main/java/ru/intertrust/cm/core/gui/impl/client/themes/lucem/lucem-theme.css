@@ -518,6 +518,10 @@
     white-space: nowrap;
 
 }
+.gwt-TreeItem{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
 
 .gwt-custom-TreeItem-selected td {
     vertical-align: bottom;
