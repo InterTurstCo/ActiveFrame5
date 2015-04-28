@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.impl.client.event.ShowAttachmentEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ShowAttachmentEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-
 
 
 /**
@@ -14,13 +17,15 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  * @since 22.04.2015
  */
 @ComponentName("attachment-viewer")
-public class AttachmentViewerWidget extends BaseWidget {
+public class AttachmentViewerWidget extends BaseWidget implements ShowAttachmentEventHandler {
     private AttachmentViewerState widgetState;
-
+    private Panel panel;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
         widgetState = (AttachmentViewerState) currentState;
+        if (widgetState.isCommonUsage())
+            Application.getInstance().getEventBus().addHandler(ShowAttachmentEvent.TYPE, this);
         Panel panel = (Panel) impl;
         if (widgetState.getUrl() != null)
             panel.add(new HTML("<embed src='" + com.google.gwt.core.client.GWT.getHostPageBaseURL()
@@ -40,7 +45,7 @@ public class AttachmentViewerWidget extends BaseWidget {
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-        Panel panel = new HorizontalPanel();
+        panel = new HorizontalPanel();
         panel.setStyleName("gwt-attachment-viewer-panel");
         return panel;
     }
@@ -56,4 +61,13 @@ public class AttachmentViewerWidget extends BaseWidget {
     }
 
 
+    @Override
+    public void showAttachmentEvent(ShowAttachmentEvent event) {
+        if (event.getViewerId().equals(widgetState.getViewerId())) {
+            panel.clear();
+            panel.add(new HTML("<embed src='" + com.google.gwt.core.client.GWT.getHostPageBaseURL()
+                    + widgetState.getDownloadServletName() + event.getObjectId().toStringRepresentation() + "' width='" + widgetState.getCurrentWidth()
+                    + "' height='" + widgetState.getCurrentHeight() + "'></embed>"));
+        }
+    }
 }

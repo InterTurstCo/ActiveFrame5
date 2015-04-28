@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.AttachmentViewerRefConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -16,6 +17,9 @@ public class AttachmentItem implements Dto {
     private String contentLength;
     private Id id;
     private String domainObjectType;
+    //CMFIVE-3775
+    private String mimeType;
+    private AttachmentViewerRefConfig attachmentViewerRefConfig;
 
     public Id getId() {
         return id;
@@ -67,6 +71,23 @@ public class AttachmentItem implements Dto {
 
     public void setDomainObjectType(String domainObjectType) {
         this.domainObjectType = domainObjectType;
+    }
+
+    //CMFIVE-3775
+    public AttachmentViewerRefConfig getAttachmentViewerRefConfig() {
+        return attachmentViewerRefConfig;
+    }
+    //CMFIVE-3775
+    public void setAttachmentViewerRefConfig(AttachmentViewerRefConfig attachmentViewerRefConfig) {
+        this.attachmentViewerRefConfig = attachmentViewerRefConfig;
+    }
+    //CMFIVE-3775
+    public String getMimeType() {
+        return mimeType;
+    }
+    //CMFIVE-3775
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
     }
 
     @Override
