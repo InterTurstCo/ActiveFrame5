@@ -34,4 +34,18 @@ public enum SystemField {
     public String getReferenceType() {
         return referenceType;
     }
+
+    /**
+     * Определяет, является ли поле системным
+     * @param fieldConfig имя поле
+     * @return true, если поле системное
+     */
+    public static boolean isSystemField(String fieldName) {
+        for (SystemField sysField : values()) {
+            if (sysField.name().equalsIgnoreCase(fieldName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

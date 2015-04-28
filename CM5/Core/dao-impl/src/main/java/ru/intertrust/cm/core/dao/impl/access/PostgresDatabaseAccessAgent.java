@@ -645,7 +645,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             // поле martix-reference-field
 
             String parentTypeName = domainObjectTypeIdCache.getName(parentId);
-            AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(parentTypeName);
+            AccessMatrixConfig parentMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(parentTypeName);
             
             if (parentMatrixConfig != null && parentMatrixConfig.getMatrixReference() != null) {
                 AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());

@@ -25,36 +25,64 @@ import java.util.ArrayList;
 @ComponentName("attachment-viewer")
 public class AttachmentViewerHandler extends WidgetHandler {
     private static final String FIELD_MIMETYPE = "MimeType";
+    private static final String FIELD_NAME = "name";
     private static final String MIME_PDF = "application/pdf";
+    private static final String MIME_TEXT = "text/plain";
+    private static final String EXT_TEXT = "txt";
+    private static final String EXT_PDF = "pdf";
     @Autowired
     CrudService crudService;
-
 
 
     @Override
     public AttachmentViewerState getInitialState(WidgetContext context) {
         AttachmentViewerConfig widgetConfig = context.getWidgetConfig();
-        FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
-        ObjectsNode node = context.getFormObjects().getNode(fieldPath);
         AttachmentViewerConfig config = context.getWidgetConfig();
         AttachmentViewerState state = new AttachmentViewerState();
-        DomainObject dObject = null;
-        if (node instanceof MultiObjectNode) {
-            if (((MultiObjectNode) node).getDomainObjects() != null &&
-                    ((MultiObjectNode) node).getDomainObjects().size() > 0) {
-                dObject = ((MultiObjectNode) node).getDomainObjects().get(0);
-            }
-        } else if (node == null) {
-            Id dObjectId = (Id) context.getFieldPlainValue();
-            if (dObjectId != null) {
-                dObject = crudService.find(dObjectId);
-            }
-        }
 
-        if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE)!=null)
-                && dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)) {
-            state.setUrl(createServletUrl(dObject));
+        if (widgetConfig.getFieldPathConfig() != null) {
+            state.setCommonUsage(false);
+            FieldPath fieldPath = new FieldPath(widgetConfig.getFieldPathConfig().getValue());
+            ObjectsNode node = context.getFormObjects().getNode(fieldPath);
+
+            DomainObject dObject = null;
+            if (node instanceof MultiObjectNode) {
+                if (((MultiObjectNode) node).getDomainObjects() != null &&
+                        ((MultiObjectNode) node).getDomainObjects().size() > 0) {
+                    dObject = ((MultiObjectNode) node).getDomainObjects().get(0);
+                }
+            } else if (node == null) {
+                Id dObjectId = (Id) context.getFieldPlainValue();
+                if (dObjectId != null) {
+                    dObject = crudService.find(dObjectId);
+                }
+            }
+
+            if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE) != null)
+                    &&
+                    (
+                            dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)
+                                    || dObject.getString(FIELD_MIMETYPE).equals(MIME_TEXT)
+                    )
+                    )
+
+            {
+                state.setUrl(createServletUrl(dObject));
+            }
+
+            //TODO Удалить когда CMFIVE-3820 будет исправлен
+            else if (dObject != null && dObject.getFields().contains(FIELD_MIMETYPE)
+                    &&
+                    (dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_PDF)
+                            || dObject.getString(FIELD_NAME).toLowerCase().contains(EXT_TEXT))) {
+                state.setUrl(createServletUrl(dObject));
+            }
+            // ---------------------------------------------
+        } else {
+            state.setCommonUsage(true);
         }
+        state.setDownloadServletName("attachment-viewer-download?id=");
+        state.setViewerId(config.getId());
         state.setCurrentWidth((config.getWidth() == null) ? config.getMaxTooltipWidth() : config.getWidth());
         state.setCurrentHeight((config.getHeight() == null) ? config.getMaxTooltipHeight() : config.getHeight());
         return state;

@@ -372,7 +372,7 @@ div.gwt-Good-Label {
 
 .treeItemSelectionDecorator {
     height: 25px;
-    padding-right: 15px;
+    /*padding-right: 15px;*/
 }
 
 .gwt-custom-TreeItem-selected .treeItemSelectionDecorator {
@@ -382,7 +382,8 @@ div.gwt-Good-Label {
 .treeItemTitle {
     height: 16px;
     margin-left: -4px;
-    padding: 6px 0 2px 7px;
+    /*padding: 6px 0 2px 7px;*/
+    padding: 0 0 2px 5px;
 }
 
 .gwt-custom-TreeItem-selected {
@@ -397,10 +398,11 @@ div.gwt-Good-Label {
     border-radius: 3px;
     color: #fafafa;
     font-weight: normal;
+    font-size: 10px;
     padding: 1px 3px;
     position: absolute;
-    top: -7px;
-    right: -15px;
+    top: 0px;
+    right: -17px;
     text-shadow: 1px 1px 0 #0B0086;
 }
 
@@ -414,9 +416,46 @@ div.gwt-Good-Label {
 .gwt-TreeItem {
     white-space: nowrap;
 }
+.gwt-TreeItem{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+}
 
 .gwt-custom-TreeItem-selected td {
     vertical-align: bottom;
+}
+.gwt-custom-TreeItem-selected .treeItemTitle:after {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    width: 40px;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) right top no-repeat;
+    right: -30px;
+    font-size: 0px;
+    top: -5px;
+    margin-left: 5px;
+}
+
+.gwt-custom-TreeItem-selected .treeItemTitle:before {
+    content: open-quote;
+    display: block;
+    position: absolute;
+    height: 25px;
+    background: url(images/folder-list-selected-bg.png) left top no-repeat;
+    left: -5px;
+    right: 0;
+    top: -5px;
+    font-size: 0px;
+    /*margin-left: 5px;*/
+}
+
+.gwt-custom-TreeItem-selected .tree-label {
+    text-decoration: underline !important;
+    display: inherit;
+    position: relative;
+    white-space: nowrap;
+    color: #fff !important;
 }
 /* ------------>>> end treePanel items <<<------------ */
 .gwt-attachment-viewer-panel {

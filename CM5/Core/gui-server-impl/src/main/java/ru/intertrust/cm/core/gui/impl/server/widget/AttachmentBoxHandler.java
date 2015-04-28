@@ -111,6 +111,13 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                     selectedAttachments.add(createAttachmentItem(crudService.find(selectedId)));
             }
         }
+
+        //CMFIVE-3775
+        if(widgetConfig.getAttachmentViewerRefConfig()!=null){
+            for(AttachmentItem item : selectedAttachments)
+                item.setAttachmentViewerRefConfig((widgetConfig.getAttachmentViewerRefConfig()));
+        }
+
         return selectedAttachments;
     }
 
@@ -218,6 +225,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
         AttachmentItem attachmentItem = new AttachmentItem();
         attachmentItem.setName(object.getString(NAME));
         attachmentItem.setDescription(object.getString(DESCRIPTION));
+        attachmentItem.setMimeType(object.getString(MIME_TYPE));
         Long contentLength = object.getLong(CONTENT_LENGTH);
         if (contentLength != null) {
             String humanReadableContentLength = GuiUtil.humanReadableByteCount(contentLength);

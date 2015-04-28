@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.impl;
+﻿package ru.intertrust.cm.core.business.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +137,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             executorService.shutdownNow();
         } catch (Exception e) {
             logger.error("GloballyLockableInitializer: failed to initialize application", e);
-            if (userTransaction != null) {
+            if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
                 userTransaction.rollback();
             }
             throw e;
@@ -148,7 +148,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
                 userTransaction.commit();
             } catch (Exception e) {
                 logger.error("GloballyLockableInitializer: failed to unlock initialization lock", e);
-                if (userTransaction != null) {
+                if (userTransaction != null && userTransaction.getStatus() == Status.STATUS_ACTIVE) {
                     userTransaction.rollback();
                 }
             }

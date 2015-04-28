@@ -356,7 +356,6 @@
 .gwt-TreeItem {
     position: relative;
     white-space: nowrap;
-
 }
 
 .gwt-custom-TreeItem-selected td {
@@ -369,6 +368,10 @@
 
 .gwt-custom-white {
     color: #ffffff !important;
+}
+.gwt-TreeItem{
+    font-family: Arial, sans-serif;
+    font-size: 12px;
 }
 
 .facebook-element .gwt-Label {
