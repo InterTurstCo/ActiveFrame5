@@ -1,4 +1,4 @@
-﻿package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.business.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
