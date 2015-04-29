@@ -694,7 +694,9 @@
                 <text>Города:</text>
             </label>
 
-            <attachment-viewer id="attachmentViewer" width="900px" height="600px" read-only="true"/>
+            <attachment-viewer id="attachmentViewer" width="900px" height="600px" read-only="true">
+                <field-path value="country_pdf_attachment^country"/>
+            </attachment-viewer>
 
 
             <!-- <list-box id="14"> &lt;!&ndash; в поле City.country надо сохранить Id текущей страны??? &ndash;&gt;
@@ -741,7 +743,7 @@
                 <single-choice value="false"/>
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
-                <attachment-viewer-ref id="attachmentViewer"/>
+                <!-- <attachment-viewer-ref id="attachmentViewer"/> -->
             </attachment-box>
 
 

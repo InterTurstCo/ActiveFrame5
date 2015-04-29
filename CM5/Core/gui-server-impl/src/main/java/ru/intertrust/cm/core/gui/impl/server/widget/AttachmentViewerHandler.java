@@ -26,8 +26,6 @@ import java.util.ArrayList;
 public class AttachmentViewerHandler extends WidgetHandler {
     private static final String FIELD_MIMETYPE = "MimeType";
     private static final String FIELD_NAME = "name";
-    private static final String MIME_PDF = "application/pdf";
-    private static final String MIME_TEXT = "text/plain";
     private static final String EXT_TEXT = "txt";
     private static final String EXT_PDF = "pdf";
     @Autowired
@@ -60,10 +58,8 @@ public class AttachmentViewerHandler extends WidgetHandler {
 
             if (dObject != null && (dObject.getFields().contains(FIELD_MIMETYPE) && dObject.getString(FIELD_MIMETYPE) != null)
                     &&
-                    (
-                            dObject.getString(FIELD_MIMETYPE).equals(MIME_PDF)
-                                    || dObject.getString(FIELD_MIMETYPE).equals(MIME_TEXT)
-                    )
+                    AttachmentViewerState.isTypeEnabled(dObject.getString(FIELD_MIMETYPE))
+
                     )
 
             {
