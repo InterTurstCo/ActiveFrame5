@@ -220,9 +220,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         ((GenericDomainObject) domainObject).setStatus(status);
         List<FieldModification>[] fieldModification = new ArrayList[1];
         fieldModification[0] = new ArrayList<FieldModification>();
+        
+        List<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
+        
         GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification);
 
         permissionService.notifyDomainObjectChangeStatus(domainObject);
+        dynamicGroupService.notifyDomainObjectChanged(domainObject, fieldModification[0], beforeSaveInvalicContexts);
 
         // Вызов точки расширения после смены статуса
         List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
@@ -364,7 +368,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             result = createMany(domainObjects, accessToken);
             operation = DomainObjectVersion.AuditLogOperation.CREATE;
         } else {
-            result = update(domainObjects, accessToken, changedFields);
+            
+            List<Id>[] beforeChangeInvalidGroups = getBeforeChangeInvalidGroups(domainObjects, changedFields);            
+            result = update(domainObjects, accessToken, changedFields);            
+            refreshDynamicGroupsAndAclForUpdate(domainObjects, changedFields, beforeChangeInvalidGroups);
+            
             operation = DomainObjectVersion.AuditLogOperation.UPDATE;
         }
 
@@ -392,6 +400,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return result;
     }
 
+    private List<Id>[] getBeforeChangeInvalidGroups(DomainObject[] domainObjects, List<FieldModification>[] changedFields) {
+        List<Id> beforeChangeInvalidGroups[] = new List[domainObjects.length];
+
+        for (int i = 0; i < domainObjects.length; i++) {
+            beforeChangeInvalidGroups[i] = dynamicGroupService.getInvalidGroupsBeforeChange(domainObjects[i], changedFields[i]);
+        }
+        return beforeChangeInvalidGroups;
+    }
+
+    private void
+            refreshDynamicGroupsAndAclForUpdate(DomainObject[] domainObjects, List<FieldModification>[] changedFields, List<Id>[] beforeChangeInvalidGroups) {
+        for (int i = 0; i < domainObjects.length; i++) {
+            refreshDynamiGroupsAndAclForUpdate(domainObjects[i], changedFields[i], beforeChangeInvalidGroups[i]);
+        }
+    }    
+    
     /**
      * Проверяет, являются ли переданные объекты аудит логом. Так как передается массив однотипных объектов,
      * то проверяется тип первого объекта. Если передан аудит лог объект - выбрасывается исключение.
@@ -512,7 +536,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 }
 
             }
-            refreshDynamiGroupsAndAclForUpdate(domainObjects[i], changedFields[i], beforeChangeInvalidGroups[i]);
         }
 
         return updatedObjects;
