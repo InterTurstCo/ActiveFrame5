@@ -75,7 +75,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         String height = displayConfig.getHeight() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT : displayConfig.getHeight();
         pluginWrapper.setHeight(height);
-        String width = displayConfig.getHeight() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH : displayConfig.getWidth();
+        String width = displayConfig.getWidth() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH : displayConfig.getWidth();
         pluginWrapper.setWidth(width);
         int tableWidth =  Integer.parseInt(width.replaceAll("\\D+", ""));
         pluginPanel.setVisibleWidth(tableWidth);
@@ -83,6 +83,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
         collectionWidgetHelper = new CollectionWidgetHelper(localEventBus);
         localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
+
         return pluginWrapper;
     }
 

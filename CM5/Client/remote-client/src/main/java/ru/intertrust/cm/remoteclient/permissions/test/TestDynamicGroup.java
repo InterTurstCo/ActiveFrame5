@@ -94,7 +94,7 @@ public class TestDynamicGroup extends ClientBase {
                     doOneLine(line, ids, owners, roles, entries);
                 }
             }
-            log("Test context role success");
+            log("Test dynamic group success");
 
         } finally {
             try {
