@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -29,6 +30,9 @@ public class CompleteTaskActionHandler extends ActionHandler<CompleteTaskActionC
 
     @Autowired
     private ProfileService profileService;
+    
+    @Autowired
+    private PermissionService permissionService;
 
     @Override
     public CompleteTaskActionData executeAction(CompleteTaskActionContext completeTaskActionContext) {
@@ -43,6 +47,9 @@ public class CompleteTaskActionHandler extends ActionHandler<CompleteTaskActionC
         // object
         processservice.completeTask(completeTaskActionContext.getTaskId(), null, completeTaskActionContext.getTaskAction());
 
+        //Пересчитываем права чтобы корректно отобразились панель с кнопками
+        permissionService.refreshAcls();
+        
         // get new form after process start
         FormPluginHandler handler = (FormPluginHandler) applicationContext.getBean("form.plugin");
         FormPluginConfig config = new FormPluginConfig(domainObjectId);
