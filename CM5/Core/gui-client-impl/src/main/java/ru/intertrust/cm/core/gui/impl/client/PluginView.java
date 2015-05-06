@@ -279,7 +279,7 @@ public abstract class PluginView implements IsWidget {
                 return null;
             else {
                 MenuBar mBar = new MenuBar(true);
-                mBar.setStyleName("decorated-action-link");
+                //mBar.setStyleName("decorated-action-link");
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
