@@ -35,7 +35,6 @@ import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 @RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
 
-    private static final String ID_FIELD = "id";
     private static final String UNION_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 1 " +
             "union SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 2";
 
@@ -151,19 +150,21 @@ public class SqlQueryModifierTest {
         configuration.getConfigurationList().add(globalSettings);
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
         SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        SqlQueryParser sqlQueryParser = new SqlQueryParser(PLAIN_SELECT_QUERY);
 
-        String modifiedQuery = collectionQueryModifier.addServiceColumns(PLAIN_SELECT_QUERY);
+        collectionQueryModifier.addServiceColumns(sqlQueryParser.getSelectStatement());
 
-        assertEquals(PLAIN_SELECT_QUERY_WITH_TYPE, modifiedQuery);
+        assertEquals(PLAIN_SELECT_QUERY_WITH_TYPE, sqlQueryParser.toString());
 
-        modifiedQuery = collectionQueryModifier.addServiceColumns(UNION_QUERY);
+        sqlQueryParser = new SqlQueryParser(UNION_QUERY);
+        collectionQueryModifier.addServiceColumns(sqlQueryParser.getSelectStatement());
 
-        assertEquals(UNION_QUERY_WITH_TYPE, modifiedQuery);
+        assertEquals(UNION_QUERY_WITH_TYPE, sqlQueryParser.toString());
     }
 
     @Test
     public void testWrapAndLowerCaseNames() {
-        String modifiedQuery = SqlQueryModifier.wrapAndLowerCaseNames(WRAP_AND_LOWERCASE_QUERY);
+        String modifiedQuery = SqlQueryModifier.wrapAndLowerCaseNames(new SqlQueryParser(WRAP_AND_LOWERCASE_QUERY).getSelectStatement());
         assertEquals(WRAP_AND_LOWERCASE_CHECK_QUERY, modifiedQuery);
     }
 

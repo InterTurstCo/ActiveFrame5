@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -39,8 +40,6 @@ import ru.intertrust.cm.core.model.FatalException;
  */
 public class CollectionQueryInitializerImpl implements CollectionQueryInitializer {
 
-    private static final String PLACEHOLDER_REGEXP_PATTERN = "::(?!timestamp$)[\\w\\d_\\-]+";
-
     private static final String PLACEHOLDER_PREFIX = "::";
 
     private static final String EMPTY_STRING = " ";
@@ -48,8 +47,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     private static final String SQL_DESCENDING_ORDER = "desc";
 
     private static final String SQL_ASCENDING_ORDER = "asc";
-
-    public static final String QUERY_FILTER_PARAM_DELIMETER = ":";
 
     public static final String DEFAULT_CRITERIA_CONDITION = "and";
 
@@ -70,7 +67,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @param sortOrder порядок сортировки
      * @param offset смещение
      * @param limit ограничение количества
-     * @return
      */
     public String initializeQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
@@ -78,7 +74,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         String prototypeQuery = collectionConfig.getPrototype();
 
-        String filledQuery = fillPrototypeQuery(filledFilterConfigs, sortOrder, offset, limit, prototypeQuery);
+        String filledQuery = fillPrototypeQuery(filledFilterConfigs, prototypeQuery);
 
         filledQuery = processPersonParameter(filledQuery);
 
@@ -94,14 +90,13 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     /**
      * Применение фильтров, и т.д. к прототипу запроса на количество доменных объектов в коллекции.
      * @param filterValues заполненные фильтры
-     * @return
      */
     public String initializeCountQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
                                        AccessToken accessToken) {
         String prototypeQuery = collectionConfig.getCountingPrototype();
         if (prototypeQuery != null) {
             List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
-            String filledQuery = fillPrototypeQuery(filledFilterConfigs, null, 0, 0, prototypeQuery);
+            String filledQuery = fillPrototypeQuery(filledFilterConfigs, prototypeQuery);
             filledQuery = processPersonParameter(filledQuery);
             filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
             return filledQuery;
@@ -120,9 +115,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     /**
      * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
      * переданы значения). Сделан публичным для тестов.
-     * @param filterValues
-     * @param collectionConfig
-     * @return
      */
     private List<CollectionFilterConfig> findFilledFilterConfigs(List<? extends Filter> filterValues,
                                                                  CollectionConfig collectionConfig) {
@@ -210,23 +202,22 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      */
     private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
             AccessToken accessToken, String query) {
+        SqlQueryParser sqlParser = new SqlQueryParser(query);
+        Select select = sqlParser.getSelectStatement();
 
         SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+        sqlQueryModifier.addServiceColumns(select);
 
-        query = sqlQueryModifier.addServiceColumns(query);
-
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
-
+        SelectBody selectBody = select.getSelectBody();
         selectBody = sqlQueryModifier.addIdBasedFilters(selectBody, filterValues, collectionConfig.getIdField());
-
         if (accessToken.isDeferred()) {
             selectBody = sqlQueryModifier.addAclQuery(selectBody);
         }
+        select.setSelectBody(selectBody);
 
-        sqlQueryModifier.checkDuplicatedColumns(selectBody);
+        sqlQueryModifier.checkDuplicatedColumns(select);
 
-        query = applySortOrder(sortOrder, selectBody);
+        query = applySortOrder(sortOrder, select);
 
         return applyOffsetAndLimit(query, offset, limit);
     }
@@ -238,19 +229,21 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
      * @return измененный запрос
      */
     private String postProcessQuery(AccessToken accessToken, String query, int offset, int limit) {
-        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
-        query = sqlQueryModifier.addServiceColumns(query);
-
         SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
+        Select select = sqlParser.getSelectStatement();
 
+        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+        sqlQueryModifier.addServiceColumns(select);
+
+        SelectBody selectBody = select.getSelectBody();
         if (accessToken.isDeferred()) {
             selectBody = sqlQueryModifier.addAclQuery(selectBody);
         }
+        select.setSelectBody(selectBody);
 
-        sqlQueryModifier.checkDuplicatedColumns(selectBody);
+        sqlQueryModifier.checkDuplicatedColumns(select);
 
-        query = applyOffsetAndLimit(selectBody.toString(), offset, limit);
+        query = applyOffsetAndLimit(sqlParser.toString(), offset, limit);
         return query;
     }
 
@@ -258,14 +251,12 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
     }
 
-    private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs, SortOrder sortOrder,
-                                      int offset, int limit, String prototypeQuery) {
+    private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs,
+                                      String prototypeQuery) {
         if (prototypeQuery == null || prototypeQuery.trim().length() == 0) {
             throw new FatalException("Prototype query is null and can not be processed");
         }
-        StringBuilder collectionQuery = new StringBuilder();
-        collectionQuery.append(mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs));
-        return collectionQuery.toString();
+        return mergeFilledFilterConfigsInPrototypeQuery(prototypeQuery, filledFilterConfigs);
     }
 
     private String mergeFilledFilterConfigsInPrototypeQuery(String prototypeQuery, List<CollectionFilterConfig> filledFilterConfigs) {
@@ -313,8 +304,6 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     /**
      * Проверяет наличие placeholder в теле основного запроса
      * если отсутствует - выбрасываем исключение
-     * @param placeholder
-     * @param prototypeQuery
      */
     private void checkPlaceholderExist(String placeholder, String prototypeQuery) {
         if (!prototypeQuery.contains(placeholder)){
@@ -338,12 +327,12 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return prototypeQuery;
     }
 
-    private String applySortOrder(SortOrder sortOrder, String query) {
-        StringBuilder prototypeQuery = new StringBuilder(query);
+    private String applySortOrder(SortOrder sortOrder, Select select) {
+        StringBuilder prototypeQuery = new StringBuilder(select.toString());
         boolean hasSortEntry = false;
         if (sortOrder != null && sortOrder.size() > 0) {
-            query = clearOrderByExpression(query);
-            prototypeQuery = new StringBuilder(query);
+            select = clearOrderByExpression(select);
+            prototypeQuery = new StringBuilder(select.toString());
 
             for (SortCriterion criterion : sortOrder) {
                 if (!hasSortEntry) {
@@ -358,29 +347,9 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return prototypeQuery.toString();
     }
 
-    private String applySortOrder(SortOrder sortOrder, SelectBody selectBody) {
-        StringBuilder prototypeQuery = new StringBuilder(selectBody.toString());
-        boolean hasSortEntry = false;
-        if (sortOrder != null && sortOrder.size() > 0) {
-            selectBody = clearOrderByExpression(selectBody);
-            prototypeQuery = new StringBuilder(selectBody.toString());
+    private Select clearOrderByExpression(Select select) {
+        SelectBody selectBody = select.getSelectBody();
 
-            for (SortCriterion criterion : sortOrder) {
-                if (!hasSortEntry) {
-                    prototypeQuery.append(" order by ");
-                } else {
-                    prototypeQuery.append(", ");
-                }
-                prototypeQuery.append(criterion.getField()).append("  ").append(getSqlSortOrder(criterion.getOrder()));
-                hasSortEntry = true;
-            }
-        }
-        return prototypeQuery.toString();
-    }
-   
-    private String clearOrderByExpression(String query) {
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
         if (selectBody instanceof PlainSelect) {
             PlainSelect plainSelect = (PlainSelect) selectBody;
             if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
@@ -401,31 +370,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
                 }
             }
         }
-        return selectBody.toString();
-    }
-
-    private SelectBody clearOrderByExpression(SelectBody selectBody) {
-        if (selectBody instanceof PlainSelect) {
-            PlainSelect plainSelect = (PlainSelect) selectBody;
-            if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
-                plainSelect.getOrderByElements().clear();
-            }
-        } else if (selectBody instanceof SetOperationList) {
-            SetOperationList union = (SetOperationList) selectBody;
-            if (union.getOrderByElements() != null && union.getOrderByElements().size() > 0) {
-                union.getOrderByElements().clear();
-            }
-            List plainSelects = union.getPlainSelects();
-            for (Object subSelect : plainSelects) {
-                if (subSelect instanceof PlainSelect) {
-                    PlainSelect plainSelect = (PlainSelect) subSelect;
-                    if (plainSelect.getOrderByElements() != null && plainSelect.getOrderByElements().size() > 0) {
-                        plainSelect.getOrderByElements().clear();
-                    }
-                }
-            }
-        }
-        return selectBody;
+        return select;
     }
 
     private String getSqlSortOrder(SortCriterion.Order order) {
@@ -490,9 +435,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         private String createCriteriaValue(String value) {
             String condition = DEFAULT_CRITERIA_CONDITION;
-            StringBuilder criteriaValue = new StringBuilder();
-            criteriaValue.append(EMPTY_STRING).append(condition).append(EMPTY_STRING).append(value);
-            return criteriaValue.toString();
+            return EMPTY_STRING + condition + EMPTY_STRING + value;
         }
 
         public String getPlaceholderValue(String placeholder) {
