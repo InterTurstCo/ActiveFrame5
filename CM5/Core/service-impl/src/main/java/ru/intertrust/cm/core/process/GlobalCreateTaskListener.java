@@ -135,7 +135,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
         List<DomainObject> assigneeList = getAssigneeList(idService.createId(mainAttachmentId), delegateTask.getAssignee(), accessToken);
         for (DomainObject assignee : assigneeList) {
             // Создание связанного AssigneePerson или AssigneeGroup
-            if (assignee.getTypeName().equals("UserGroup")) {
+            if (assignee.getTypeName().equals("User_Group")) {
                 DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Group");
 
                 assigneePersonDomainObject.setReference("PersonTask",
