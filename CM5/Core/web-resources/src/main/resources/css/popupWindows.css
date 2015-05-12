@@ -328,6 +328,18 @@
     z-index: 100;
 }
 
+.decorated-action-linkPopup:before {
+    content: "";
+    background: url(images/bubble_arrow.png);
+    display: block;
+    height: 15px;
+    position: absolute;
+    top: -15px;
+    left: 1px;
+    width: 27px;
+    z-index: 999;
+}
+
 .decorated-action-linkPopup .decorated-action-link a.action-bar-button {
     border-bottom: 0;
     color: #fafafa;
