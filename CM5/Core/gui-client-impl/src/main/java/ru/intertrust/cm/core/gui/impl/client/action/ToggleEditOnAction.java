@@ -6,6 +6,8 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
@@ -32,11 +34,19 @@ public class ToggleEditOnAction extends ToggleAction {
         state.setEditable(true);
         config.setFormViewerConfig(editor.getFormViewerConfig());
         final FormPlugin formPlugin = createFormPlugin(config);
-        if (state.isInCentralPanel()) {
-            getPlugin().getOwner().closeCurrentPlugin();
-        } else {
+        final boolean isCentral = state.isInCentralPanel();
+        if(!isCentral){
             state.setInCentralPanel(true);
         }
+        PluginViewCreatedEventListener listener = new PluginViewCreatedEventListener() {
+            @Override
+            public void onViewCreation(PluginViewCreatedEvent source) {
+                if (isCentral) {
+                    getPlugin().getOwner().closeCurrentPlugin();
+                }
+            }
+        };
+        formPlugin.addViewCreatedListener(listener);
         Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
 
     }

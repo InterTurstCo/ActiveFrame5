@@ -4,9 +4,7 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Tree;
-import com.google.gwt.user.client.ui.TreeItem;
+import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
@@ -14,11 +12,7 @@ import ru.intertrust.cm.core.config.gui.navigation.LinkPluginDefinition;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class NavigationTreeBuilder {
 
@@ -127,6 +121,9 @@ class NavigationTreeBuilder {
     }
 
     private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
+        Panel container = new AbsolutePanel();
+        container.setStyleName("tree-label");
+        container.getElement().getStyle().clearOverflow();
         Label label = new Label();
         if (displayText.length() > 18) {
             String cutDisplayText = displayText.substring(0, 18);
@@ -135,8 +132,11 @@ class NavigationTreeBuilder {
         } else {
             label.setText(displayText);
         }
-        label.setStyleName("tree-label");
-        TreeItem treeItem = new TreeItem(label);
+        label.setStyleName("treeItemTitle");
+        label.getElement().getStyle().setTextDecoration(Style.TextDecoration.UNDERLINE);
+        container.add(label);
+        TreeItem treeItem = new TreeItem();
+        treeItem.setWidget(container);
 
         Map<String, Object> treeUserObjects = new HashMap<>();
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_NAME, treeItemName);

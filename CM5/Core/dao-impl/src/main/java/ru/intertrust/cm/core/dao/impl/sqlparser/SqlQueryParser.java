@@ -5,10 +5,12 @@ import net.sf.jsqlparser.parser.CCJSqlParserManager;
 import net.sf.jsqlparser.statement.Statement;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.io.StringReader;
+import java.util.List;
 
 /**
  * Парсер SQL запросов. Парсит только Select запросы. При передачи ему другого типа запроса выбрасывает исключение
@@ -40,8 +42,16 @@ public class SqlQueryParser {
 
     }
 
+    public Select getSelectStatement() {
+        return selectStatement;
+    }
+
     public SelectBody getSelectBody() {
         return selectStatement.getSelectBody();
     }
 
+    @Override
+    public String toString() {
+        return selectStatement.toString();
+    }
 }

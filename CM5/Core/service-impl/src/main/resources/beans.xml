@@ -108,6 +108,10 @@
     <jee:local-slsb id="cryptoService"
                     jndi-name="java:module/CryptoService!ru.intertrust.cm.core.business.api.crypto.CryptoService"
                     business-interface="ru.intertrust.cm.core.business.api.crypto.CryptoService"/>
+    <jee:local-slsb id="permissionService"
+                    jndi-name="java:module/PermissionService!ru.intertrust.cm.core.business.api.PermissionService"
+                    business-interface="ru.intertrust.cm.core.business.api.PermissionService"/>
+                    
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"

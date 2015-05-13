@@ -45,7 +45,7 @@ public class NavigationTreePluginView extends PluginView {
 
     public static final int LEFT_PART_WIDTH = 110;
     private final int DURATION = 500;
-    private int END_WIDGET_WIDTH = 245;
+    private int END_WIDGET_WIDTH = 220;
     private int START_WIDGET_WIDTH = 0;
     private boolean pinButtonClick = false;
     private TreeItem currentSelectedItem;

@@ -38,7 +38,7 @@
             </child-links>
         </link>
 
-        <link name="events" display-text="События" image="images/calendar.png" child-to-open="link_events">
+        <!--<link name="events" display-text="События" image="images/calendar.png" child-to-open="link_events">
             <child-links>
                 <link name="link_events" display-text="Список событий">
                     <plugin>
@@ -103,17 +103,17 @@
                                         <pattern value="актуально с {event_date} по {event_date}"/>
                                     </day-item>
                                 </day-items>
-                                <!-- <image-field name="letter_image">
+                                &lt;!&ndash; <image-field name="letter_image">
                                     <image-mappings imageWidth="10px" imageHeight="10px">
                                         <mapping value="" image="cancel.png"/>
                                     </image-mappings>
-                                </image-field> -->
+                                </image-field> &ndash;&gt;
                             </calendar-view>
                         </calendar>
                     </plugin>
                 </link>
             </child-links>
-        </link>
+        </link>-->
         <!--<link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">-->
             <!--<child-links>-->
                 <!--<link name="Calendar1" display-text="Календар 1">-->
