@@ -140,7 +140,7 @@ public abstract class PluginView implements IsWidget {
 
         toolbarContext.sortActionContexts();
         final MenuBarExt leftMenuBar = new MenuBarExt();
-        //leftMenuBar.setStyleName("decorated-action-link");
+        leftMenuBar.setStyleName("decorated-action-link");
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)) {
             leftMenuBar.addActionItem(context);
         }
@@ -259,7 +259,7 @@ public abstract class PluginView implements IsWidget {
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
                 addItem(menuItem);
             } else if (config instanceof ActionGroupConfig) {
-                MenuItem menuItem = addSubmenu(context,false);
+                MenuItem menuItem = addSubmenu(context, false);
                 if (menuItem != null)
                     addItem(menuItem);
             } else {
@@ -279,8 +279,10 @@ public abstract class PluginView implements IsWidget {
                 return null;
             else {
                 MenuBar mBar = new MenuBar(true);
-                if (isInner)
-                    mBar.setStyleName("decoratedActionLinkPopupInset",true);
+                mBar.setStyleName("decorated-action-link");
+                if (isInner) {
+                    mBar.addStyleName("decoratedActionLinkPopupInset");
+                }
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
