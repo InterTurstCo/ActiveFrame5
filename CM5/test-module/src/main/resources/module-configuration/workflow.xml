@@ -21,6 +21,23 @@
             select count(*) from Person_Task prst ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
     </collection>
+
+    <collection name="internal_documents" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                    t.id, t.name, t.name, s.name as status_name
+                from
+                    Internal_Document t
+                    inner join Status s on (t.status = s.id)
+                WHERE 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from Internal_Document WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+    
     <collection name="Persons" idField="id">
         <prototype>
             <![CDATA[
@@ -83,7 +100,7 @@
     </collection-view>
 
     <collection-view name="Internal-Document-view"
-                     collection="Internal_Document" is-default="true">
+                     collection="internal_documents" is-default="true">
         <!--todo поддержка конвертации значений, например, в картинки -->
         <display>
             <column field="id" name="id" type="integer" hidden="true"
@@ -507,7 +524,7 @@
         </widget-config>
     </form>
 
-    <act:simple-action name="start-internal-document-process" componentName="simple.action"
+    <!-- act:simple-action name="start-internal-document-process" componentName="simple.action"
                        action-handler="generic.workflow.action"
                        text="Отправить на согласование" image="sign.png" merged="true">
         <act:action-params>
@@ -515,19 +532,19 @@
             <act:action-param name="process.type" value="start.process"/>
         </act:action-params>
         <act:before-execution>
-            <act:confirmation-message text="Отправить на согласование?" />
+            <act:confirmation-message text="Отправить на регистрацию" />
             <act:save-context value="false"/>
         </act:before-execution>
         <act:after-execution>
-            <act:on-success-message text="Документ подписан"/>
+            <act:on-success-message text="Документ отправлен на регистрацию"/>
         </act:after-execution>
-    </act:simple-action>
+    </act:simple-action-->
 
-    <act:action name="start-internal-document-process-temp" componentName="start.process.action"
-                text="Отправить на согласование" image="sign.png" merged="true">
+    <act:action name="start-internal-document-process" componentName="start.process.action"
+                text="Отправить на регистрацию" image="sign.png" merged="true">
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
-            <act:confirmation-message text="Отправить на согласование?"/>
+            <act:confirmation-message text="Отправить на регистрацию"/>
 
             <!-- Доменный объект, который требуется создать перед выполнением
                 данного действия. При этом перед выполнением открывается форма редактирования
@@ -544,10 +561,10 @@
 
         <act:after-execution>
             <!-- Текст-подтверждение после выполнения данного действия -->
-            <act:on-success-message text="Документ подписан"/>
+            <act:on-success-message text="Документ отправлен на регистрацию"/>
         </act:after-execution>
         <act:action-settings>
-            <act:start-process-action-settings process-name="InternalDocument"/>
+            <act:start-process-action-settings process-name="TestInternalDocument"/>
         </act:action-settings>
     </act:action>
 
@@ -557,6 +574,31 @@
             <act:status>Draft</act:status>
         </act:domain-object-context>
         <act:action name="start-internal-document-process"/>
+    </act:action-context>
+
+
+    <act:action name="cancal-registration" componentName="send.process.event.action"
+                text="Прервать регистрацию" image="sign.png" merged="true">
+        <act:before-execution>
+            <!-- Текст-подтверждение перед выполнением данного действия -->
+            <act:confirmation-message text="Прервать регистрацию"/>
+        </act:before-execution>
+
+        <act:after-execution>
+            <!-- Текст-подтверждение после выполнения данного действия -->
+            <act:on-success-message text="Регистрация прервана"/>
+        </act:after-execution>
+        <act:action-settings>
+            <act:send-process-event-action-settings process-name="TestInternalDocument" event="CANCEL_REGISTRATION"/>
+        </act:action-settings>
+    </act:action>
+
+    <act:action-context name="cancal-registration-context">
+        <act:domain-object-context>
+            <act:type>Internal_Document</act:type>
+            <act:status>Registration</act:status>
+        </act:domain-object-context>
+        <act:action name="cancal-registration"/>
     </act:action-context>
 
     <form-mappings name="report_form_mappings">

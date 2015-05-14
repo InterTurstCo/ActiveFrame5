@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <signal id="START_BY_SIGNAL" name="START_BY_SIGNAL"></signal>
+  <signal id="START_BY_SIGNAL_2" name="START_BY_SIGNAL_2"></signal>
+  <signal id="START_BY_SIGNAL_3" name="START_BY_SIGNAL_3"></signal>
+  <signal id="START_BY_SIGNAL_4" name="START_BY_SIGNAL_4"></signal>
   <process id="testSimpleProcess" name="Test Simple Process" isExecutable="true">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
     <userTask id="usertask1" name="Пользовательская задача 1" activiti:assignee="PERSON:person5" activiti:priority="1">
       <documentation>Выполните первую задачу. Тестирую пользовательские задачи.</documentation>
       <extensionElements>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow1" sourceRef="startevent1" targetRef="scripttask6"></sequenceFlow>
     <userTask id="usertask2" name="Пользовательская задача 2" activiti:assignee="#{MAIN_ATTACHMENT.get(&quot;author&quot;).toStringRepresentation()}">
       <documentation>Выполните вторую задачу. Тестирую задачи по документу</documentation>
       <extensionElements>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow2" sourceRef="usertask1" targetRef="usertask2"></sequenceFlow>
@@ -42,7 +46,7 @@ newObject.save();</script>
           <activiti:value id="YES" name="Да"></activiti:value>
           <activiti:value id="NO" name="Нет"></activiti:value>
         </activiti:formProperty>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow5" sourceRef="usertask3" targetRef="scripttask4"></sequenceFlow>
@@ -83,7 +87,7 @@ MAIN_ATTACHMENT.save();</script>
       <startEvent id="startevent2" name="Start"></startEvent>
       <userTask id="usertask4" name="Проверка завершения всех задач в подпроцессах в случае прерывания подпроцесса" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
         <extensionElements>
-          <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+          <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
         </extensionElements>
       </userTask>
       <sequenceFlow id="flow12" sourceRef="startevent2" targetRef="usertask4"></sequenceFlow>
@@ -91,6 +95,13 @@ MAIN_ATTACHMENT.save();</script>
         <errorEventDefinition errorRef="error1"></errorEventDefinition>
       </endEvent>
       <sequenceFlow id="flow13" sourceRef="usertask4" targetRef="errorendevent1"></sequenceFlow>
+      <scriptTask id="scripttask7" name="Получили уведомление" scriptFormat="javascript" activiti:autoStoreVariables="false">
+        <script>var test =MAIN_ATTACHMENT.get("test_text");
+test += " Получили уведомление.";
+MAIN_ATTACHMENT.set("test_text", test);
+MAIN_ATTACHMENT.save();
+</script>
+      </scriptTask>
     </subProcess>
     <sequenceFlow id="flow14" sourceRef="subprocess1" targetRef="exclusivegateway3"></sequenceFlow>
     <scriptTask id="scripttask5" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
@@ -102,7 +113,7 @@ execution.setVariable("col", col);</script>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway2" targetRef="scripttask5"></sequenceFlow>
     <userTask id="usertask5" name="Прверка когда выходим из подпроцесса. После завершения всех задач или нет" activiti:assignee="#{personServiceDao.findPersonByLogin(&quot;admin&quot;).getId().toStringRepresentation()}">
       <extensionElements>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" type="string" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow16" sourceRef="usertask5" targetRef="send-notification"></sequenceFlow>
@@ -118,7 +129,7 @@ execution.setVariable("col", col);</script>
           <activiti:expression>${SESSION.getNotificationAddressee().addPerson(personServiceDao.findPersonByLogin("admin").getId())}</activiti:expression>
         </activiti:field>
         <activiti:field name="context">
-          <activiti:expression>#{MAIN_ATTACHMENT_ID}</activiti:expression>
+          <activiti:expression>#{CTX_ID}</activiti:expression>
         </activiti:field>
         <activiti:field name="notificationType">
           <activiti:string><![CDATA[WORKFLOW_MESSAGE]]></activiti:string>
@@ -128,11 +139,11 @@ execution.setVariable("col", col);</script>
         </activiti:field>
       </extensionElements>
     </serviceTask>
-    <sequenceFlow id="flow19" sourceRef="send-notification" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow19" sourceRef="send-notification" targetRef="signalintermediatecatchevent1"></sequenceFlow>
     <userTask id="usertask6" name="Пользовательская задача 3. Несколько кнопок." activiti:assignee="#{MAIN_ATTACHMENT.get(&quot;signer&quot;).toStringRepresentation()},#{MAIN_ATTACHMENT.get(&quot;registrator&quot;).toStringRepresentation()}">
       <documentation>Выполните третью задачу. Тестирую задачи по документу</documentation>
       <extensionElements>
-        <activiti:formProperty id="MAIN_ATTACHMENT_ID" expression="${MAIN_ATTACHMENT_ID.toStringRepresentation()}"></activiti:formProperty>
+        <activiti:formProperty id="CTX_ID" expression="${CTX_ID}"></activiti:formProperty>
         <activiti:formProperty id="ACTIONS" name="Действия" type="enum" variable="ACTION">
           <activiti:value id="first-action" name="Первое действие"></activiti:value>
           <activiti:value id="second-action" name="Второе действие"></activiti:value>
@@ -144,6 +155,55 @@ execution.setVariable("col", col);</script>
       <script>MAIN_ATTACHMENT.setStatus("Run");</script>
     </scriptTask>
     <sequenceFlow id="flow21" sourceRef="scripttask6" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow22" sourceRef="signalintermediatecatchevent1" targetRef="scripttask7"></sequenceFlow>
+    <intermediateCatchEvent id="signalintermediatecatchevent1" name="SignalCatchEvent">
+      <signalEventDefinition signalRef="START_BY_SIGNAL"></signalEventDefinition>
+    </intermediateCatchEvent>
+    <scriptTask id="scripttask9" name="Получили уведомление 2" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var test =MAIN_ATTACHMENT.get("test_text");
+test += " Получили уведомление 2.";
+MAIN_ATTACHMENT.set("test_text", test);
+MAIN_ATTACHMENT.save();</script>
+    </scriptTask>
+    <sequenceFlow id="flow27" sourceRef="scripttask9" targetRef="eventgateway1"></sequenceFlow>
+    <userTask id="usertask7" name="Тест прикрепленного сигнала" activiti:assignee="PERSON:person5">
+      <extensionElements>
+        <activiti:formProperty id="CTX_ID" type="string" expression="${CTX_ID}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow28" sourceRef="scripttask7" targetRef="usertask7"></sequenceFlow>
+    <sequenceFlow id="flow29" sourceRef="usertask7" targetRef="scripttask9"></sequenceFlow>
+    <boundaryEvent id="boundarysignal1" name="Signal" attachedToRef="usertask7" cancelActivity="true">
+      <signalEventDefinition signalRef="START_BY_SIGNAL_2"></signalEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow30" sourceRef="boundarysignal1" targetRef="scripttask9"></sequenceFlow>
+    <eventBasedGateway id="eventgateway1" name="Event Gateway"></eventBasedGateway>
+    <scriptTask id="scripttask10" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var test =MAIN_ATTACHMENT.get("test_text");
+test += " Получили уведомление 3.";
+MAIN_ATTACHMENT.set("test_text", test);
+MAIN_ATTACHMENT.save();</script>
+    </scriptTask>
+    <scriptTask id="scripttask11" name="Script Task" scriptFormat="javascript" activiti:autoStoreVariables="false">
+      <script>var test =MAIN_ATTACHMENT.get("test_text");
+test += " Получили уведомление 4.";
+MAIN_ATTACHMENT.set("test_text", test);
+MAIN_ATTACHMENT.save();</script>
+    </scriptTask>
+    <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow33" sourceRef="scripttask10" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow34" sourceRef="scripttask11" targetRef="exclusivegateway4"></sequenceFlow>
+    <sequenceFlow id="flow35" sourceRef="exclusivegateway4" targetRef="endevent1"></sequenceFlow>
+    <intermediateCatchEvent id="signalintermediatecatchevent2" name="SignalCatchEvent">
+      <signalEventDefinition signalRef="START_BY_SIGNAL_3"></signalEventDefinition>
+    </intermediateCatchEvent>
+    <intermediateCatchEvent id="signalintermediatecatchevent3" name="SignalCatchEvent">
+      <signalEventDefinition signalRef="START_BY_SIGNAL_4"></signalEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="flow36" sourceRef="eventgateway1" targetRef="signalintermediatecatchevent2"></sequenceFlow>
+    <sequenceFlow id="flow37" sourceRef="eventgateway1" targetRef="signalintermediatecatchevent3"></sequenceFlow>
+    <sequenceFlow id="flow38" sourceRef="signalintermediatecatchevent2" targetRef="scripttask10"></sequenceFlow>
+    <sequenceFlow id="flow39" sourceRef="signalintermediatecatchevent3" targetRef="scripttask11"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_testSimpleProcess">
     <bpmndi:BPMNPlane bpmnElement="testSimpleProcess" id="BPMNPlane_testSimpleProcess">
@@ -151,7 +211,7 @@ execution.setVariable("col", col);</script>
         <omgdc:Bounds height="35.0" width="35.0" x="-20.0" y="23.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
-        <omgdc:Bounds height="35.0" width="35.0" x="1060.0" y="500.0"></omgdc:Bounds>
+        <omgdc:Bounds height="35.0" width="35.0" x="1323.0" y="512.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
         <omgdc:Bounds height="55.0" width="105.0" x="181.0" y="20.0"></omgdc:Bounds>
@@ -192,6 +252,9 @@ execution.setVariable("col", col);</script>
       <bpmndi:BPMNShape bpmnElement="errorendevent1" id="BPMNShape_errorendevent1">
         <omgdc:Bounds height="35.0" width="35.0" x="758.0" y="280.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask7" id="BPMNShape_scripttask7">
+        <omgdc:Bounds height="76.0" width="105.0" x="1020.0" y="253.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="boundaryerror1" id="BPMNShape_boundaryerror1">
         <omgdc:Bounds height="30.0" width="30.0" x="680.0" y="335.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
@@ -199,7 +262,7 @@ execution.setVariable("col", col);</script>
         <omgdc:Bounds height="55.0" width="105.0" x="438.0" y="388.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="usertask5" id="BPMNShape_usertask5">
-        <omgdc:Bounds height="55.0" width="281.0" x="665.0" y="453.0"></omgdc:Bounds>
+        <omgdc:Bounds height="68.0" width="281.0" x="665.0" y="453.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway3" id="BPMNShape_exclusivegateway3">
         <omgdc:Bounds height="40.0" width="40.0" x="749.0" y="408.0"></omgdc:Bounds>
@@ -212,6 +275,36 @@ execution.setVariable("col", col);</script>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask6" id="BPMNShape_scripttask6">
         <omgdc:Bounds height="55.0" width="105.0" x="53.0" y="20.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="signalintermediatecatchevent1" id="BPMNShape_signalintermediatecatchevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="1055.0" y="189.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask9" id="BPMNShape_scripttask9">
+        <omgdc:Bounds height="55.0" width="130.0" x="1043.0" y="480.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask7" id="BPMNShape_usertask7">
+        <omgdc:Bounds height="68.0" width="115.0" x="1050.0" y="352.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundarysignal1" id="BPMNShape_boundarysignal1">
+        <omgdc:Bounds height="30.0" width="30.0" x="1058.0" y="407.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="eventgateway1" id="BPMNShape_eventgateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="1314.0" y="157.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask10" id="BPMNShape_scripttask10">
+        <omgdc:Bounds height="55.0" width="105.0" x="1215.0" y="302.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scripttask11" id="BPMNShape_scripttask11">
+        <omgdc:Bounds height="55.0" width="105.0" x="1355.0" y="302.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
+        <omgdc:Bounds height="40.0" width="40.0" x="1320.0" y="400.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="signalintermediatecatchevent2" id="BPMNShape_signalintermediatecatchevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1250.0" y="230.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="signalintermediatecatchevent3" id="BPMNShape_signalintermediatecatchevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="1390.0" y="230.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="15.0" y="40.0"></omgdi:waypoint>
@@ -287,7 +380,7 @@ execution.setVariable("col", col);</script>
         <omgdi:waypoint x="490.0" y="388.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="946.0" y="480.0"></omgdi:waypoint>
+        <omgdi:waypoint x="946.0" y="487.0"></omgdi:waypoint>
         <omgdi:waypoint x="979.0" y="466.0"></omgdi:waypoint>
         <omgdi:waypoint x="979.0" y="128.0"></omgdi:waypoint>
         <omgdi:waypoint x="1020.0" y="127.0"></omgdi:waypoint>
@@ -304,7 +397,7 @@ execution.setVariable("col", col);</script>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow19" id="BPMNEdge_flow19">
         <omgdi:waypoint x="1072.0" y="155.0"></omgdi:waypoint>
-        <omgdi:waypoint x="1077.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0" y="189.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow20" id="BPMNEdge_flow20">
         <omgdi:waypoint x="156.0" y="242.0"></omgdi:waypoint>
@@ -313,6 +406,57 @@ execution.setVariable("col", col);</script>
       <bpmndi:BPMNEdge bpmnElement="flow21" id="BPMNEdge_flow21">
         <omgdi:waypoint x="158.0" y="47.0"></omgdi:waypoint>
         <omgdi:waypoint x="181.0" y="47.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow22" id="BPMNEdge_flow22">
+        <omgdi:waypoint x="1072.0" y="224.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1072.0" y="253.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow27" id="BPMNEdge_flow27">
+        <omgdi:waypoint x="1173.0" y="507.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1188.0" y="514.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1188.0" y="98.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1333.0" y="98.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1334.0" y="157.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow28" id="BPMNEdge_flow28">
+        <omgdi:waypoint x="1072.0" y="329.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1107.0" y="352.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow29" id="BPMNEdge_flow29">
+        <omgdi:waypoint x="1107.0" y="420.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1108.0" y="480.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow30" id="BPMNEdge_flow30">
+        <omgdi:waypoint x="1073.0" y="437.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1108.0" y="480.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow33" id="BPMNEdge_flow33">
+        <omgdi:waypoint x="1267.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1340.0" y="400.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow34" id="BPMNEdge_flow34">
+        <omgdi:waypoint x="1407.0" y="357.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1340.0" y="400.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="1340.0" y="440.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1340.0" y="512.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="1334.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1267.0" y="230.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow37" id="BPMNEdge_flow37">
+        <omgdi:waypoint x="1334.0" y="197.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1407.0" y="230.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow38" id="BPMNEdge_flow38">
+        <omgdi:waypoint x="1267.0" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1267.0" y="302.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow39" id="BPMNEdge_flow39">
+        <omgdi:waypoint x="1407.0" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1407.0" y="302.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -3,10 +3,12 @@ package ru.intertrust.cm.core.business.impl;
 import org.activiti.engine.*;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
+import org.activiti.engine.runtime.Execution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -28,6 +30,7 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -56,7 +59,6 @@ public class ProcessServiceImpl implements ProcessService {
 
     @Autowired
     private DomainObjectDao domainObjectDao;
-
 
     @Autowired
     private PersonServiceDao personService;
@@ -92,9 +94,9 @@ public class ProcessServiceImpl implements ProcessService {
 
             if (attachedObjectId != null) {
                 variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
-                        attachedObjectId);
+                        attachedObjectId.toStringRepresentation());
                 variablesHM.put(ProcessService.CTX_ID,
-                        attachedObjectId);
+                        attachedObjectId.toStringRepresentation());
                 variablesHM.put(ProcessService.MAIN_ATTACHMENT,
                         new DomainObjectAccessor(attachedObjectId));
                 variablesHM.put(ProcessService.CTX,
@@ -110,13 +112,13 @@ public class ProcessServiceImpl implements ProcessService {
             logger.error("Unexpected exception caught in startProcess", ex);
             throw new UnexpectedException("ProcessService", "startProcess",
                     "processName:" + processName + " attachedObjectId:" + attachedObjectId
-                    + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray())), ex);
+                            + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray())), ex);
         }
     }
 
     /**
      * Формирование Map для передачи его процессу
-     *
+     * 
      * @param variables
      * @return
      */
@@ -195,7 +197,7 @@ public class ProcessServiceImpl implements ProcessService {
             String personLogin = context.getCallerPrincipal().getName();
             DomainObject personByLogin = personService.findPersonByLogin(personLogin);
             Id personId = personByLogin.getId();
-            if (personId != null){
+            if (personId != null) {
                 result = getUserDomainObjectTasks(attachedObjectId, personId);
             }
             return result;
@@ -210,13 +212,12 @@ public class ProcessServiceImpl implements ProcessService {
     public void completeTask(Id taskDomainObjectId,
             List<ProcessVariable> variables, String action) {
 
-
         try {
             String personLogin = context.getCallerPrincipal().getName();
             Id personId = personService.findPersonByLogin(personLogin).getId();
-            
+
             //Проверка на то что задача дейцствительно есть у текущего пользователя
-            if (!hasUserTask(personId, taskDomainObjectId)){
+            if (!hasUserTask(personId, taskDomainObjectId)) {
                 throw new ProcessException("Person " + personLogin + " does not have task with id=" + taskDomainObjectId.toStringRepresentation());
             }
 
@@ -257,8 +258,8 @@ public class ProcessServiceImpl implements ProcessService {
             logger.error("Unexpected exception caught in completeTask", ex);
             throw new UnexpectedException("ProcessService", "completeTask",
                     "taskDomainObjectId:" + taskDomainObjectId
-                    + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray()))
-                    + " action:" + action, ex);
+                            + " variables: " + (variables == null ? "null" : Arrays.toString(variables.toArray()))
+                            + " action:" + action, ex);
         }
     }
 
@@ -283,8 +284,8 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
-	@Override
-	public List<DomainObject> getUserTasks(Id personId) {
+    @Override
+    public List<DomainObject> getUserTasks(Id personId) {
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
         try {
@@ -295,10 +296,10 @@ public class ProcessServiceImpl implements ProcessService {
             List<Filter> filters = new ArrayList<>();
             filters.add(filter);
 
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
+            /*
+             * AccessToken accessToken = accessControlService
+             * .createCollectionAccessToken(personIdAsint);
+             */
             // TODO пока права не работают работаю от имени админа
             AccessToken accessToken = accessControlService
                     .createSystemAccessToken("ProcessService");
@@ -329,9 +330,9 @@ public class ProcessServiceImpl implements ProcessService {
         }
     }
 
-	@Override
-	public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
-			Id personId) {
+    @Override
+    public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId,
+            Id personId) {
         // поиск задач отправленных пользователю, или любой группе в которую
         // входит пользователь
 
@@ -348,10 +349,10 @@ public class ProcessServiceImpl implements ProcessService {
             filter.addCriterion(0, rv);
             filters.add(filter);
 
-        /*
-         * AccessToken accessToken = accessControlService
-         * .createCollectionAccessToken(personIdAsint);
-         */
+            /*
+             * AccessToken accessToken = accessControlService
+             * .createCollectionAccessToken(personIdAsint);
+             */
             // TODO пока права не работают работаю от имени процесса
             AccessToken accessToken = accessControlService
                     .createSystemAccessToken("ProcessService");
@@ -426,5 +427,21 @@ public class ProcessServiceImpl implements ProcessService {
         }
         return result.size() > 0;
     }
-	
+
+    @Override
+    public void sendProcessEvent(String processName, Id contextId, String event) {
+        //Находим нужный нам процесс
+        List<Execution> executions =
+                runtimeService.createExecutionQuery().
+                        processDefinitionKey(processName).
+                        processVariableValueEquals(CTX_ID, contextId.toStringRepresentation()).
+                        signalEventSubscriptionName(event).
+                        list();
+
+        //По идее должен быть только один процесс, но на всякий случай проходим в цикле
+        for (Execution execution : executions) {
+            runtimeService.signalEventReceived(event, execution.getId());
+        }
+    }
+
 }

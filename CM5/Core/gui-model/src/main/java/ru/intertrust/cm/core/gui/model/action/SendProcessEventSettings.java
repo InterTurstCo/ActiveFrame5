@@ -1,16 +1,13 @@
 package ru.intertrust.cm.core.gui.model.action;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.config.gui.action.ActionSettings;
 
+@Root(name="send-process-event-action-settings")
 public class SendProcessEventSettings implements ActionSettings {
-
-    /**
-     * имя класса экшена
-     */
-    @Attribute(required=true, name="class-name")
-    private String className;
+    private static final long serialVersionUID = 708487097773208128L;
 
     /**
      * имя процесса
@@ -18,20 +15,26 @@ public class SendProcessEventSettings implements ActionSettings {
     @Attribute(required=true, name="process-name")
     private String processName;
 
-    public String getClassName() {
-        return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
-    }
-
+    /**
+     * сообщение
+     */
+    @Attribute(required=true, name="event")
+    private String event;
+    
     public String getProcessName() {
         return processName;
     }
 
     public void setProcessName(String processName) {
         this.processName = processName;
+    }
+    
+    public String getEvent() {
+        return event;
+    }
+
+    public void setEvent(String event) {
+        this.event = event;
     }
 
     @Override

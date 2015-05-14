@@ -200,6 +200,31 @@ public class TestProcess extends ClientBase {
                 }
             }
 
+            //Проверка на то что попали и ждем в signalintermediatecatchevent1
+            attachment = crudService.find(attachment.getId());
+            assertFalse("White in signalintermediatecatchevent1 1", attachment.getString("test_text").endsWith("Получили уведомление."));
+            
+            //отправка правильного уведомления
+            getProcessService("admin").sendProcessEvent("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL");
+            
+            //Строка должна изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Go then signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление."));            
+
+            //отправка еще одного правильного уведомления
+            getProcessService("admin").sendProcessEvent("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_2");
+            
+            //Строка должна еще раз изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Go then scripttask9", attachment.getString("test_text").endsWith("Получили уведомление 2."));            
+            
+            //проверка event gateway
+            getProcessService("admin").sendProcessEvent("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_3");
+            
+            //Строка должна еще раз изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check eventgateway1", attachment.getString("test_text").endsWith("Получили уведомление 3."));            
+            
             crudService.delete(attachmentNotInProcess.getId());
 
             log("Test complete");

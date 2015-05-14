@@ -133,4 +133,12 @@ public interface ProcessService {
      * @return
      */
     List<DeployedProcess> getDeployedProcesses();
+
+    /**
+     * Отправка уведомления процессу
+     * @param processId Имя процесса
+     * @param contextId идентификатор документа привязаннорго к процессу
+     * @param event уведомление
+     */
+    void sendProcessEvent(String processName, Id contextId, String event);
 }
