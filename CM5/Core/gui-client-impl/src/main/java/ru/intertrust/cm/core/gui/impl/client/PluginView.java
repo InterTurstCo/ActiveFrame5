@@ -279,7 +279,7 @@ public abstract class PluginView implements IsWidget {
                 return null;
             else {
                 MenuBar mBar = new MenuBar(true);
-                mBar.setStyleName("decorated-action-link");
+                mBar.setStyleName("decorated-action-nested-link");
                 if (isInner) {
                     mBar.addStyleName("decoratedActionLinkPopupInset");
                 }
