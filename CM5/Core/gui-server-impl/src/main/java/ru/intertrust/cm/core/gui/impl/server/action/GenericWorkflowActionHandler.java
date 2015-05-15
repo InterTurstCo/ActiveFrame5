@@ -54,10 +54,13 @@ public class GenericWorkflowActionHandler
             case "start.process":
                 processService.startProcess(processName, domainObjectId, null);
                 break;
-            case "complete.process":
+            case "complete.task":
                 processService.completeTask(new RdbmsId(actionConfig.getProperty("complete.task.id")),
                         null,
                         actionConfig.getProperty("complete.task.action"));
+                break;
+            case "send.event":
+                processService.sendProcessEvent(processName, domainObjectId, actionConfig.getProperty("event.name"));
                 break;
             default:
                 new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,

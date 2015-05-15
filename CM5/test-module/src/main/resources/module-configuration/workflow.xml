@@ -524,11 +524,11 @@
         </widget-config>
     </form>
 
-    <!-- act:simple-action name="start-internal-document-process" componentName="simple.action"
+    <act:simple-action name="start-internal-document-process" componentName="simple.action"
                        action-handler="generic.workflow.action"
-                       text="Отправить на согласование" image="sign.png" merged="true">
+                       text="Отправить на регистрацию" image="images/icons/control.png" merged="true">
         <act:action-params>
-            <act:action-param name="process.name" value="InternalDocument" />
+            <act:action-param name="process.name" value="TestInternalDocument" />
             <act:action-param name="process.type" value="start.process"/>
         </act:action-params>
         <act:before-execution>
@@ -538,9 +538,9 @@
         <act:after-execution>
             <act:on-success-message text="Документ отправлен на регистрацию"/>
         </act:after-execution>
-    </act:simple-action-->
+    </act:simple-action>
 
-    <act:action name="start-internal-document-process" componentName="start.process.action"
+    <act:action name="start-internal-document-process-for-delete" componentName="start.process.action"
                 text="Отправить на регистрацию" image="sign.png" merged="true">
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
@@ -566,6 +566,15 @@
         <act:action-settings>
             <act:start-process-action-settings process-name="TestInternalDocument"/>
         </act:action-settings>
+    </act:action>
+
+    <act:action name="TestInternalDocument.toDraft.REGISTRATION" text="Запегистрировать документ!!!" image="images/icons/control.png" merged="true" componentName="complete.task.action">
+        <act:before-execution>
+            <act:confirmation-message text="Отправить на регистрацию!!!" />
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Документ отправлен на регистрацию!!!" />
+        </act:after-execution>
     </act:action>
 
     <act:action-context name="start-internal-document-process-context">

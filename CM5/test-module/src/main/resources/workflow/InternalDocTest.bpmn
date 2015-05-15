@@ -32,7 +32,7 @@
       </extensionElements>
     </userTask>
     <exclusiveGateway id="exclusivegateway3" name="Exclusive Gateway"></exclusiveGateway>
-    <sequenceFlow id="flow9" sourceRef="revisionDocument" targetRef="exclusivegateway3"></sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="revisionDocument" targetRef="secondRevisionTask"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="exclusivegateway3" targetRef="scripttask3"></sequenceFlow>
     <scriptTask id="scripttask4" name="Установка статуса черновик" scriptFormat="javascript" activiti:autoStoreVariables="false">
       <script>CTX.setStatus("Draft");</script>
@@ -53,6 +53,12 @@
       <signalEventDefinition signalRef="CANCEL_REGISTRATION"></signalEventDefinition>
     </boundaryEvent>
     <sequenceFlow id="flow17" sourceRef="boundarysignal1" targetRef="scripttask4"></sequenceFlow>
+    <userTask id="secondRevisionTask" name="Повторно доработать документ" activiti:assignee="${CTX.get(&quot;docAuthor&quot;).toStringRepresentation()}">
+      <extensionElements>
+        <activiti:formProperty id="CTX_ID" expression="${CTX_ID}"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow18" sourceRef="secondRevisionTask" targetRef="exclusivegateway3"></sequenceFlow>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_TestInternalDocument">
     <bpmndi:BPMNPlane bpmnElement="TestInternalDocument" id="BPMNPlane_TestInternalDocument">
@@ -92,6 +98,9 @@
       <bpmndi:BPMNShape bpmnElement="exclusivegateway5" id="BPMNShape_exclusivegateway5">
         <omgdc:Bounds height="40.0" width="40.0" x="339.0" y="389.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="secondRevisionTask" id="BPMNShape_secondRevisionTask">
+        <omgdc:Bounds height="71.0" width="121.0" x="520.0" y="-65.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="360.0" y="-95.0"></omgdi:waypoint>
         <omgdi:waypoint x="360.0" y="-50.0"></omgdi:waypoint>
@@ -106,7 +115,7 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
         <omgdi:waypoint x="730.0" y="-30.0"></omgdi:waypoint>
-        <omgdi:waypoint x="380.0" y="-30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="641.0" y="-30.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
         <omgdi:waypoint x="360.0" y="-10.0"></omgdi:waypoint>
@@ -140,6 +149,10 @@
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
         <omgdi:waypoint x="297.0" y="149.0"></omgdi:waypoint>
         <omgdi:waypoint x="195.0" y="148.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="520.0" y="-30.0"></omgdi:waypoint>
+        <omgdi:waypoint x="380.0" y="-30.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
