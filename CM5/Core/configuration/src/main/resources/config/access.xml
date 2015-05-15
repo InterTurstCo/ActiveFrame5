@@ -520,6 +520,7 @@
             <read>
                 <permit-role name="Author" />
                 <permit-group name="Administrators" />
+                <permit-role name="Registrator" />
             </read>
             <write>
                 <permit-role name="Author" />
@@ -541,7 +542,9 @@
         </status>
         <status name="Negotiation">
             <read>
-                <permit-role name="Negotiator" />
+                <permit-role name="Author" />
+                <permit-group name="Administrators" />
+                <permit-role name="Registrator" />
             </read>
             <write>
                 <permit-role name="Author" />
@@ -549,8 +552,8 @@
         </status>
         <status name="Registration">
             <read>
-                <permit-role name="Negotiator" />
                 <permit-role name="Author" />
+                <permit-group name="Administrators" />
                 <permit-role name="Registrator" />
             </read>
             <write>
@@ -560,13 +563,20 @@
         </status>
         <status name="Registred">
             <read>
-                <permit-group name="AllPersons" />
+                <permit-role name="Author" />
+                <permit-group name="Administrators" />
+                <permit-role name="Registrator" />
             </read>
             <delete>
                 <permit-role name="Author" />
             </delete>
         </status>
         <status name="OnRevision">
+            <read>
+                <permit-role name="Author" />
+                <permit-group name="Administrators" />
+                <permit-role name="Registrator" />
+            </read>
             <write>
                 <permit-role name="Author" />
             </write>

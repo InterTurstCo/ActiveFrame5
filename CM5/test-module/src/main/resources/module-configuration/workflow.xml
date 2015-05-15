@@ -568,14 +568,26 @@
         </act:action-settings>
     </act:action>
 
-    <act:action name="TestInternalDocument.toDraft.REGISTRATION" text="Запегистрировать документ!!!" image="images/icons/control.png" merged="true" componentName="complete.task.action">
+    <act:simple-action name="TestInternalDocument.toDraft.REGISTRATION" text="Запегистрировать документ!!!" image="images/icons/control.png" merged="true" 
+        componentName="simple.action" action-handler="generic.workflow.action">
         <act:before-execution>
-            <act:confirmation-message text="Отправить на регистрацию!!!" />
+            <act:confirmation-message text="Запегистрировать документ???" />
         </act:before-execution>
         <act:after-execution>
-            <act:on-success-message text="Документ отправлен на регистрацию!!!" />
+            <act:on-success-message text="Документ зарегистрирован!!!" />
         </act:after-execution>
-    </act:action>
+    </act:simple-action>
+
+    <act:simple-action name="TestInternalDocument.secondRevisionTask" text="Повторно доработать документ!!!" image="images/icons/control.png" merged="true" 
+        componentName="simple.action" action-handler="generic.workflow.action">
+        <act:before-execution>
+            <act:confirmation-message text="Повторно доработать документ???" />
+        </act:before-execution>
+        <act:after-execution>
+            <act:on-success-message text="Документ повторно доработан!!!" />
+        </act:after-execution>
+    </act:simple-action>
+
 
     <act:action-context name="start-internal-document-process-context">
         <act:domain-object-context>
@@ -586,21 +598,22 @@
     </act:action-context>
 
 
-    <act:action name="cancal-registration" componentName="send.process.event.action"
-                text="Прервать регистрацию" image="sign.png" merged="true">
+    <act:simple-action name="cancal-registration" text="Прервать регистрацию" image="sign.png" merged="true"
+        componentName="simple.action" action-handler="generic.workflow.action">
+        <act:action-params>
+            <act:action-param name="process.type" value="send.event"/>
+            <act:action-param name="process.name" value="TestInternalDocument" />
+            <act:action-param name="event.name" value="CANCEL_REGISTRATION"/>
+        </act:action-params>
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
             <act:confirmation-message text="Прервать регистрацию"/>
         </act:before-execution>
-
         <act:after-execution>
             <!-- Текст-подтверждение после выполнения данного действия -->
             <act:on-success-message text="Регистрация прервана"/>
         </act:after-execution>
-        <act:action-settings>
-            <act:send-process-event-action-settings process-name="TestInternalDocument" event="CANCEL_REGISTRATION"/>
-        </act:action-settings>
-    </act:action>
+    </act:simple-action>
 
     <act:action-context name="cancal-registration-context">
         <act:domain-object-context>

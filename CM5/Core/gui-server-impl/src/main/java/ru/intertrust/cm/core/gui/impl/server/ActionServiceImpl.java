@@ -243,7 +243,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         final ActionContext actionContext;
         boolean hasHandler = false;
         if (actConfig == null) {
-            actConfig = new ActionConfig("complete.task.action", description);
+            actConfig = new SimpleActionConfig("generic.workflow.action");
         }
         if (actConfig.getComponentName() != null) {
             hasHandler = applicationContext.containsBean(actConfig.getComponentName());
@@ -373,7 +373,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         if (actionConfig.getText() == null){
             actionConfig.setText(name);
         }
-        actionConfig.getProperties().put(PluginHandlerHelper.WORKFLOW_PROCESS_TYPE_KEY, "complete.process");
+        actionConfig.getProperties().put(PluginHandlerHelper.WORKFLOW_PROCESS_TYPE_KEY, "complete.task");
         actionConfig.getProperties().put("complete.task.action", action);
         actionConfig.getProperties().put("complete.task.id", task.getId().toStringRepresentation());
         actionConfig.getProperties().put("complete.activity.id", task.getString("ActivityId"));
