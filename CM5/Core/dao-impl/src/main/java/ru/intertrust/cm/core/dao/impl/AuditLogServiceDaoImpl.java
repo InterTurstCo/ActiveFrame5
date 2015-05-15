@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
@@ -29,7 +30,12 @@ import ru.intertrust.cm.core.dao.impl.utils.SingleVersionRowMapper;
 public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
 
     @Autowired
-    private NamedParameterJdbcOperations jdbcTemplate;
+    @Qualifier("masterNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations masterJdbcTemplate; // Use for data modifying operations
+
+    @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations switchableJdbcTemplate; // User for read operations
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -57,7 +63,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
 
-        return jdbcTemplate.query(query, parameters, new MultipleVersionRowMapper(
+        return switchableJdbcTemplate.query(query, parameters, new MultipleVersionRowMapper(
                 typeName, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache));
     }
 
@@ -78,7 +84,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
 
-        return jdbcTemplate.query(query, parameters, new SingleVersionRowMapper(
+        return switchableJdbcTemplate.query(query, parameters, new SingleVersionRowMapper(
                 typeName, DefaultFields.DEFAULT_ID_FIELD, configurationExplorer, domainObjectTypeIdCache));
     }
 
@@ -117,7 +123,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
             Map<String, Object> parameters = new HashMap<String, Object>();
             parameters.put("id", rdbmsId.getId());
 
-            jdbcTemplate.update(query, parameters);
+            masterJdbcTemplate.update(query, parameters);
 
             deleteLog(domainObjectId, config.getExtendsAttribute());
         }
@@ -289,7 +295,7 @@ public class AuditLogServiceDaoImpl implements AuditLogServiceDao {
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", rdbmsId.getId());
 
-        Long versionId = jdbcTemplate.queryForObject(query, parameters, Long.class);
+        Long versionId = switchableJdbcTemplate.queryForObject(query, parameters, Long.class);
         return findVersion(new RdbmsId(rdbmsId.getTypeId(), versionId));
     }
 

@@ -60,15 +60,26 @@
     <jee:local-slsb id="crudService"
                     jndi-name="java:module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
                     business-interface="ru.intertrust.cm.core.business.api.CrudService"/>
+
+    <jee:local-slsb id="nonTransactionalCrudService"
+                    jndi-name="java:module/NonTransactionalCrudServiceImpl!ru.intertrust.cm.core.business.api.CrudServiceDelegate"
+                    business-interface="ru.intertrust.cm.core.business.api.CrudServiceDelegate"/>
+
     <jee:local-slsb id="auditService"
                     jndi-name="java:module/AuditService!ru.intertrust.cm.core.business.api.AuditService"
                     business-interface="ru.intertrust.cm.core.business.api.AuditService"/>
     <jee:local-slsb id="personManagementService"
                     jndi-name="java:module/PersonManagementService!ru.intertrust.cm.core.business.api.PersonManagementService"
                     business-interface="ru.intertrust.cm.core.business.api.PersonManagementService"/>
+
     <jee:local-slsb id="collectionsService"
                     jndi-name="java:module/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService"
                     business-interface="ru.intertrust.cm.core.business.api.CollectionsService"/>
+
+    <jee:local-slsb id="nonTransactionalCollectionsService"
+                    jndi-name="java:module/NonTransactionalCollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsServiceDelegate"
+                    business-interface="ru.intertrust.cm.core.business.api.CollectionsServiceDelegate"/>
+
     <jee:local-slsb id="processService"
                     jndi-name="java:module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
                     business-interface="ru.intertrust.cm.core.business.api.ProcessService"/>
@@ -93,9 +104,15 @@
     <jee:local-slsb id="notificationService"
                     jndi-name="java:module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService"
                     business-interface="ru.intertrust.cm.core.business.api.NotificationService"/>
+
     <jee:local-slsb id="reportService"
                     jndi-name="java:module/ReportService!ru.intertrust.cm.core.business.api.ReportService"
                     business-interface="ru.intertrust.cm.core.business.api.ReportService"/>
+
+    <jee:local-slsb id="nonTransactionalReportService"
+                    jndi-name="java:module/NonTransactionalReportService!ru.intertrust.cm.core.business.api.ReportServiceDelegate"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportServiceDelegate"/>
+
     <jee:local-slsb id="reportServiceAdmin"
                     jndi-name="java:module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin"
                     business-interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin"/>
@@ -108,10 +125,13 @@
     <jee:local-slsb id="cryptoService"
                     jndi-name="java:module/CryptoService!ru.intertrust.cm.core.business.api.crypto.CryptoService"
                     business-interface="ru.intertrust.cm.core.business.api.crypto.CryptoService"/>
-    <jee:local-slsb id="permissionService"
-                    jndi-name="java:module/PermissionService!ru.intertrust.cm.core.business.api.PermissionService"
-                    business-interface="ru.intertrust.cm.core.business.api.PermissionService"/>
-                    
+
+    <bean id="transactionalCrudService"
+          class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
+
+    <bean id="transactionalCollectionsService"
+          class="ru.intertrust.cm.core.business.impl.CollectionsServiceBaseImpl"/>
+
     <bean id="authenticationService"
           class="ru.intertrust.cm.core.business.impl.AuthenticationServiceImpl"
           p:authenticationDao-ref="authenticationDao" p:md5Service-ref="md5Service"
@@ -223,7 +243,11 @@
         <constructor-arg value="false" />
     </bean>
 
+    <bean id="reportHelper" class="ru.intertrust.cm.core.report.ReportHelper"/>
 
+    <bean id="crudDataSourceSetter" class="ru.intertrust.cm.core.business.impl.CrudDataSourceSetter"/>
+    <bean id="collectionsDataSourceSetter" class="ru.intertrust.cm.core.business.impl.CollectionsDataSourceSetter"/>
+    <bean id="reportsDataSourceSetter" class="ru.intertrust.cm.core.business.impl.ReportsDataSourceSetter"/>
 
     <bean id="allAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.AllAttachmentSignatureDataService"/>
 

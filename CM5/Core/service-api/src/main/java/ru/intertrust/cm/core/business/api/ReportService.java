@@ -10,8 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.ReportResult;
  * @author larin
  *
  */
-public interface ReportService {
-    public static final String FORMAP_PARAM = "FORMAT";
+public interface ReportService extends ReportServiceDelegate {
     
     /**
      * Remote интерфейс
@@ -20,29 +19,32 @@ public interface ReportService {
      */
     public interface Remote extends ReportService{        
     }
-    
+
     /**
      * Синхронная генерация отчета
      * @param name
      * @param parameters
+     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return
      */
-    ReportResult generate(String name, Map<String, Object> parameters);
-    
+    ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource);
+
     /**
      * Синхронная генерация отчета с принудительным сохранением сформированного отчета
      * @param name
      * @param parameters
      * @param keepDays
+     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return
      */
-    ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays);
+    ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource);
     
     /**
      * Асинхронная генерация отчета
      * @param name
      * @param parameters
+     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return
      */
-    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters); 
+    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, DataSourceContext dataSource);
 }

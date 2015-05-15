@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -21,6 +22,7 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 public class PersonServiceDaoImpl implements PersonServiceDao {
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired

@@ -119,7 +119,7 @@
       <fields/>
       <indices/>
    </domain-object-type>
-   <collection name="Employees" idField="id">
+   <collection name="Employees" idField="id" useClone="false">
       <prototype><![CDATA[
             
                 select
@@ -166,7 +166,7 @@
             ]]></criteria>
       </filter>
    </collection>
-   <collection name="Employees_2" idField="id">
+   <collection name="Employees_2" idField="id" useClone="false">
       <filter name="byName"/>
       <filter name="byDepartment"/>
       <generator class-name="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>

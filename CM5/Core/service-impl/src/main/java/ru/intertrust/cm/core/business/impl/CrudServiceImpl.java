@@ -1,43 +1,21 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.CrudServiceDelegate;
+import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.CrudException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
@@ -53,435 +31,467 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(CrudServiceImpl.class);
 
     @Autowired
-    private DomainObjectDao domainObjectDao;
+    @Qualifier("nonTransactionalCrudService")
+    private CrudServiceDelegate nonTransactionalCrudService;
 
     @Autowired
-    private AccessControlService accessControlService;
+    @Qualifier("transactionalCrudService")
+    private CrudServiceDelegate transactionalCrudService;
 
-    @Autowired    
-    private CurrentUserAccessor currentUserAccessor;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired    
-    private UserGroupGlobalCache userGroupCache;
-
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    @Autowired
-    private ExtensionService extensionService;
-    
-    
-    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
-        this.currentUserAccessor = currentUserAccessor;
-    }
-
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
-    }
-
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-    }
-
-    public void setDomainObjectDao(DomainObjectDao domainObjectDao) {
-        this.domainObjectDao = domainObjectDao;
-    }
-
-    public void setAccessControlService(AccessControlService accessControlService) {
-        this.accessControlService = accessControlService;
-    }
-
+    /**
+     * Возвращает true, если доменный объект существует и false в противном случае. Проверка выполняется без учета
+     * проверки прав!
+     *
+     * @param id          уникальный идентификатор доменного объекта в системе
+     * @throws ru.intertrust.cm.core.dao.exception.InvalidIdException если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
+     */
     @Override
-    public IdentifiableObject createIdentifiableObject() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public DomainObject createDomainObject(String name) {
-        try {
-            GenericDomainObject domainObject = new GenericDomainObject();
-            domainObject.setTypeName(name);
-
-            DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(name);
-            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
-                domainObject.setValue(fieldConfig.getName(), null);
-            }
-            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
-                domainObject.setValue(fieldConfig.getName(), null);
-            }
-
-            Date currentDate = new Date();
-            domainObject.setCreatedDate(currentDate);
-            domainObject.setModifiedDate(currentDate);
-
-            //Точка расширения после создания
-            List<String> parentTypes = getAllParentTypes(name);
-            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-            parentTypes.add("");
-            for (String typeName : parentTypes) {
-                AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
-                extension.onAfterCreate(domainObject);
-            }
-
-            return domainObject;
-        } catch (IllegalArgumentException | NullPointerException ex) {
-            throw ex;
-        }
-        catch (Exception ex) {
-            logger.error("Unexpected exception caught in createDomainObject", ex);
-            throw new UnexpectedException("CrudService", "createDomainObject", "name:" + name, ex);
+    public boolean exists(Id id, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.exists(id);
+        } else {
+            return transactionalCrudService.exists(id);
         }
     }
 
     /**
-     * Получение всей цепочки родительских типов начиная от переданноготв параметре
-     * @param name
-     * @return
+     * Возвращает true, если доменный объект существует и false в противном случае. Проверка выполняется без учета
+     * проверки прав!
+     *
+     * @param id уникальный идентификатор доменного объекта в системе
+     * @return true, если доменный объект существует и false в противном случае
+     * @throws ru.intertrust.cm.core.dao.exception.InvalidIdException если идентификатор доменного объекта не корректный (не поддерживается или нулевой)
      */
-    private List<String> getAllParentTypes(String name) {
-        List<String> result = new ArrayList<String>();
-        result.add(name);
-
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, name);
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
-        }
-
-        return result;
-    }    
-    
-    @Override
-    public DomainObject save(DomainObject domainObject) {
-        try {
-            String domainObjectType = domainObject.getTypeName();
-            checkForAttachment(domainObjectType);
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = null;
-            if (!domainObject.isNew()) {
-                Id objectId = ((GenericDomainObject) domainObject).getId();
-                accessToken = accessControlService.createAccessToken(user, objectId, DomainObjectAccessType.WRITE);
-            } else {
-                accessToken = accessControlService.createDomainObjectCreateToken(user, domainObject);
-            }
-
-            DomainObject result = domainObjectDao.save(domainObject, accessToken);
-            if (result == null) {
-                throw new ObjectNotFoundException(domainObject.getId());
-            }
-
-            return result;
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in save", ex);
-            throw new UnexpectedException("CrudService", "save", "domainObject:" + domainObject, ex);
-        }
-    }
-
-
-    @Override
-    public List<DomainObject> save(List<DomainObject> domainObjects) {
-
-        try {
-            for (DomainObject domainObject : domainObjects) {
-               checkForAttachment(domainObject.getTypeName());
-            }
-
-            AccessToken accessToken = createSystemAccessToken();
-            return domainObjectDao.save(domainObjects, accessToken);
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in save", ex);
-            throw new UnexpectedException("CrudService", "save", "domainObjects:" + Arrays.toString(domainObjects.toArray()), ex);
-        }
-    }
-
-    private AccessToken createSystemAccessToken() {
-        return accessControlService.createSystemAccessToken("CrudService");
-    }
-
     @Override
     public boolean exists(Id id) {
-        try {
-            return domainObjectDao.exists(id);
-        } catch (NullPointerException e) {
-            throw e;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in exists", ex);
-            throw new UnexpectedException("CrudService", "exists", "id:" + id, ex);
+        return transactionalCrudService.exists(id);
+    }
+
+    /**
+     * Возвращает доменный объект по его уникальному идентификатору в системе
+     *
+     * @param id          уникальный идентификатор доменного объекта в системе
+     * @return доменный объект с данным идентификатором или null, если объект не существует
+     * @throws NullPointerException,    если id есть null
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
+    @Override
+    public DomainObject find(Id id, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.find(id);
+        } else {
+            return transactionalCrudService.find(id);
         }
     }
 
+    /**
+     * Возвращает доменный объект по его уникальному идентификатору в системе
+     *
+     * @param id уникальный идентификатор доменного объекта в системе
+     * @return доменный объект с данным идентификатором или null, если объект не существует
+     * @throws NullPointerException,                                если id есть null
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
     @Override
     public DomainObject find(Id id) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = null;
-
-            if (isReadPermittedToEverybody(id)) {
-                accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
-            } else {
-                accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
-            }
-
-            DomainObject result = domainObjectDao.find(id, accessToken);
-            if (result == null) {
-                throw new ObjectNotFoundException(id);
-            }
-
-            return result;
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in find", ex);
-            throw new UnexpectedException("CrudService", "find", "id:" + id, ex);
-        }
+        return transactionalCrudService.find(id);
     }
 
-    private boolean isReadPermittedToEverybody(Id id) {
-        String domainObjectType = domainObjectTypeIdCache.getName(id);        
-        return isReadPermittedToEverybody(domainObjectType);
-    }
-
-    private boolean isReadPermittedToEverybody(String domainObjectType) {
-        domainObjectType = getRelevantType(domainObjectType);
-        return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
-    }
-
-    private String getRelevantType(String typeName) {
-        if (configurationExplorer.isAuditLogType(typeName)) {
-            typeName = typeName.replace(Configuration.AUDIT_LOG_SUFFIX, "");
-        }
-        return typeName;
-    }
-    
+    /**
+     * Возвращает доменные объекты по их уникальным идентификаторам в системе.
+     *
+     * @param ids         уникальные идентификаторы доменных объектов в системе
+     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные доменные объекты
+     *                    в результирующем списке представлены null.
+     * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
+     */
     @Override
-    public DomainObject findAndLock(Id id) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
-
-            DomainObject result = domainObjectDao.findAndLock(id, accessToken);
-            if (result == null) {
-                throw new ObjectNotFoundException(id);
-            }
-
-            return result;
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findAndLock", ex);
-            throw new UnexpectedException("CrudService", "findAndLock", "id:" + id, ex);
+    public List<DomainObject> find(List<Id> ids, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.find(ids);
+        } else {
+            return transactionalCrudService.find(ids);
         }
     }
 
+    /**
+     * Возвращает доменные объекты по их уникальным идентификаторам в системе.
+     *
+     * @param ids уникальные идентификаторы доменных объектов в системе
+     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные доменные объекты
+     * в результирующем списке представлены null.
+     * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
+     */
     @Override
     public List<DomainObject> find(List<Id> ids) {
-        if (ids == null || ids.size() == 0) {
-            throw new IllegalArgumentException("Ids list can not be empty");
-        }
-        Id[] idsArray = ids.toArray(new Id[ids.size()]);
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-
-            AccessToken accessToken =
-                    accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
-
-            return domainObjectDao.find(ids, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in find", ex);
-            throw new UnexpectedException("CrudService", "find", "ids:" + Arrays.toString(idsArray), ex);
-        }
+        return transactionalCrudService.find(ids);
     }
 
+    /**
+     * Создаёт идентифицируемый объект. Заполняет необходимые атрибуты значениями, сгенерированными согласно правилам.
+     * Идентификатор объекта при этом не определяется.
+     * См. некое описание
+     *
+     * @return новый идентифицируемый объект
+     */
+    @Override
+    public IdentifiableObject createIdentifiableObject() {
+        return transactionalCrudService.createIdentifiableObject();
+    }
+
+    /**
+     * Создаёт доменный объект определённого типа, не сохраняя в СУБД. Заполняет необходимые атрибуты значениями,
+     * сгенерированными согласно правилам, определённым для данного объекта. Идентификатор объекта при этом
+     * не генерируется.
+     *
+     * @param name название доменного объекта, который нужно создать
+     * @return сохранённый доменного объект
+     * @throws IllegalArgumentException, если доменного объекта данного типа не существует
+     * @throws NullPointerException,     если type есть null.
+     */
+    @Override
+    public DomainObject createDomainObject(String name) {
+        return transactionalCrudService.createDomainObject(name);
+    }
+
+    /**
+     * Сохраняет доменный объект. Если объект не существует в системе, создаёт его и заполняет отсутствующие атрибуты
+     * значениями, сгенерированными согласно правилам, определённым для данного объекта (например, будет сгенерирован и
+     * заполнен идентификатор объекта). Оригинальный Java-объект измененям не подвергается, изменения отражены в
+     * возвращённом объекте.
+     *
+     * @param domainObject доменный объект, который нужно сохранить
+     * @return сохранённый доменный объект
+     * @throws IllegalArgumentException,                            если состояние объекта не позволяет его сохранить (например, если атрибут
+     *                                                              содержит данные неверного типа, или обязательный атрибут не определён)
+     * @throws NullPointerException,                                если доменный объект есть null.
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
+    @Override
+    public DomainObject save(DomainObject domainObject) {
+        return transactionalCrudService.save(domainObject);
+    }
+
+    /**
+     * Сохраняет список доменных объектов. Если какой-то объект не существует в системе, создаёт его и заполняет
+     * отсутствующие атрибуты значениями, сгенерированными согласно правилам, определённым для данного объекта
+     * (например, будет сгенерирован и заполнен идентификатор объекта). Оригинальные Java-объекты измененям
+     * не подвергаются, изменения отражены в возвращённых объектах.
+     *
+     * @param domainObjects список доменных объектов, которые нужно сохранить
+     * @return список сохранённых доменных объектов, упорядоченный аналогично оригинальному
+     * @throws IllegalArgumentException, если состояние хотя бы одного объекта не позволяет его сохранить (например,
+     *                                   если атрибут содержит данные неверного типа, или обязательный атрибут не определён)
+     * @throws NullPointerException,     если список или хотя бы один доменный объект в списке есть null
+     */
+    @Override
+    public List<DomainObject> save(List<DomainObject> domainObjects) {
+        return transactionalCrudService.save(domainObjects);
+    }
+
+    /**
+     * Блокирует и возвращает доменный объект по его уникальному идентификатору в системе
+     *
+     * @param id уникальный идентификатор доменного объекта в системе
+     * @return доменный объект с данным идентификатором или null, если объект не существует
+     * @throws NullPointerException,                                если id есть null
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
+    @Override
+    public DomainObject findAndLock(Id id) {
+        return transactionalCrudService.findAndLock(id);
+    }
+
+    /**
+     * Получает все доменные объекты по типу. Возвращает как объекты указанного типа так и объекты типов-наследников
+     *
+     * @param domainObjectType тип доменного объекта
+     * @return список всех доменных объектов указанного типа
+     */
     @Override
     public List<DomainObject> findAll(String domainObjectType) {
-        return findAll(domainObjectType, false);
+        return transactionalCrudService.findAll(domainObjectType);
     }
 
+    /**
+     * Получает все доменные объекты по типу. Возвращает как объекты указанного типа так и объекты типов-наследников
+     *
+     * @param domainObjectType тип доменного объекта
+     * @return список всех доменных объектов указанного типа
+     */
     @Override
-    public List<DomainObject> findAll(String domainObjectType, boolean exactType) {
-        if (domainObjectType == null || domainObjectType.trim().isEmpty()) {
-            throw new IllegalArgumentException("Domain Object type can not be null or empty");
-        }
-
-        try {
-            AccessToken accessToken = null;
-
-            if (isReadPermittedToEverybody(domainObjectType)) {
-                accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
-            } else {
-                String user = currentUserAccessor.getCurrentUser();
-                accessToken = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
-            }
-
-            return domainObjectDao.findAll(domainObjectType, exactType, accessToken);
-        } catch (AccessException | ObjectNotFoundException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findAll", ex);
-            throw new UnexpectedException("CrudService", "findAll", "domainObjectType:" + domainObjectType, ex);
+    public List<DomainObject> findAll(String domainObjectType, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findAll(domainObjectType);
+        } else {
+            return transactionalCrudService.findAll(domainObjectType);
         }
     }
 
-    private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
-        if (personId == null) {
-            return false;
-        }
-        return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
-
-    }
-
+    /**
+     * Удаляет доменный объект по его уникальному идентификатору. Не осуществляет никаких действий, если объект
+     * не существует
+     *
+     * @param id уникальный идентификатор доменного объекта в системе
+     * @throws NullPointerException,                                если id есть null
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
     @Override
     public void delete(Id id) {
-        try {
-            String objectName = domainObjectTypeIdCache.getName(id);
-            checkForAttachment(objectName);
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = null;
-            accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
-            domainObjectDao.delete(id, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in delete", ex);
-            throw new UnexpectedException("CrudService", "delete", "id:" + id, ex);
-        }
+        transactionalCrudService.delete(id);
     }
 
+    /**
+     * Удаляет доменные объекты по их уникальным идентификаторам. Не осуществляет никаких действий, если какой-либо объект
+     * не существует
+     *
+     * @param ids уникальные идентификаторы доменных объектов, которых необходимо удалить, в системе
+     * @return количество удалённых доменных объектов
+     * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
+     */
     @Override
     public int delete(List<Id> ids) {
-        try {
-            if (ids == null || ids.size() == 0) {
-                return 0;
-            }
-            for (Id id : ids) {
-                String objectName = domainObjectTypeIdCache.getName(id);
-                checkForAttachment(objectName);
-            }
-
-            Id[] idsArray = ids.toArray(new Id[ids.size()]);
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
-            return domainObjectDao.delete(ids, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in delete", ex);
-            throw new UnexpectedException("CrudService", "delete", "ids:" + Arrays.toString(ids.toArray()), ex);
-        }
+        return transactionalCrudService.delete(ids);
     }
 
+    /**
+     * Получает список связанных доменных объектов по типу объекта и указанному полю.
+     * Возвращает как объекты указанного типа так и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @return список связанных доменных объектов
+     */
     @Override
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
-        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false);
+        return transactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField);
     }
 
+    /**
+     * Получает список связанных доменных объектов по типу объекта и указанному полю.
+     * Возвращает как объекты указанного типа так и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     */
     @Override
-    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType) {
-        try {
-            AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType,
-                    accessToken);
-        } catch (AccessException  ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findLinkedDomainObjects", ex);
-            throw new UnexpectedException("CrudService", "findLinkedDomainObjects",
-                    "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
-                            + " linkedField:" + linkedField, ex);
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                                      DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField);
+        } else {
+            return transactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField);
         }
     }
 
+    /**
+     * Получает список связанных доменных объектов по типу объекта и указанному полю.
+     * В зависимости от значения {@code exactType} возвращает только объекты указанного типа или
+     * также и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @param exactType      если {@code true}, то метод возвращает только объекты указанного типа,
+     *                       в противном случае - также и объекты типов-наследников
+     */
     @Override
-    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
-        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false);
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                                      boolean exactType) {
+        return transactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType);
     }
 
+    /**
+     * Получает список связанных доменных объектов по типу объекта и указанному полю.
+     * В зависимости от значения {@code exactType} возвращает только объекты указанного типа или
+     * также и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @param exactType      если {@code true}, то метод возвращает только объекты указанного типа,
+     *                       в противном случае - также и объекты типов-наследников
+     */
+    @Override
+    public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField,
+                                                      boolean exactType, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType);
+        } else {
+            return transactionalCrudService.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType);
+        }
+    }
+
+    /**
+     * Получает все доменные объекты по типу. В зависимости от значения {@code exactType} возвращает
+     * только объекты указанного типа или также и объекты типов-наследников
+     *
+     * @param domainObjectType тип доменного объекта
+     * @param exactType        если {@code true}, то метод возвращает только объекты указанного типа,
+     *                         в противном случае - также и объекты типов-наследников
+     */
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, boolean exactType) {
+        return transactionalCrudService.findAll(domainObjectType, exactType);
+    }
+
+    /**
+     * Получает все доменные объекты по типу. В зависимости от значения {@code exactType} возвращает
+     * только объекты указанного типа или также и объекты типов-наследников
+     *
+     * @param domainObjectType тип доменного объекта
+     * @param exactType        если {@code true}, то метод возвращает только объекты указанного типа,
+     *                         в противном случае - также и объекты типов-наследников
+     */
+    @Override
+    public List<DomainObject> findAll(String domainObjectType, boolean exactType, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findAll(domainObjectType, exactType);
+        } else {
+            return transactionalCrudService.findAll(domainObjectType, exactType);
+        }
+    }
+
+    /**
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю.
+     * Возвращает как объекты указанного типа так и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @return список идентификаторов связанных доменных объектов
+     */
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
+        return transactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField);
+    }
+
+    /**
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю.
+     * Возвращает как объекты указанного типа так и объекты типов-наследников.
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     */
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField);
+        } else {
+            return transactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField);
+        }
+    }
+
+    /**
+     * Возвращает строковый тип доменного объекта по идентификатору
+     *
+     * @param id идентификатор доменного объекта
+     * @return строковый тип доменного объекта
+     */
+    @Override
+    public String getDomainObjectType(Id id) {
+        return transactionalCrudService.getDomainObjectType(id);
+    }
+
+    /**
+     * Возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType      типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return доменный объект
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
+    @Override
+    public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
+        return transactionalCrudService.findByUniqueKey(domainObjectType, uniqueKeyValuesByName);
+    }
+
+    /**
+     * Блокирует и возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType      типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return доменный объект
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
+    @Override
+    public DomainObject findAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
+        return transactionalCrudService.findAndLockByUniqueKey(domainObjectType, uniqueKeyValuesByName);
+    }
+
+    /**
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю.
+     * В зависимости от значения {@code exactType} возвращает только объекты указанного типа или
+     * также и объекты типов-наследников
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @param exactType      если {@code true}, то метод возвращает только объекты указанного типа,
+     *                       в противном случае - также и объекты типов-наследников
+     */
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
                                                boolean exactType) {
-        try {
-            AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
-            return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType,
-                    accessToken);
-        } catch (AccessException  ex) {
-            throw ex;
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in findLinkedDomainObjectsIds", ex);
-            throw new UnexpectedException("CrudService", "findLinkedDomainObjectsIds",
-                    "domainObjectId:" + domainObjectId + " linkedType:" + linkedType
-                            + " linkedField:" + linkedField, ex);
-        }
+        return transactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType);
     }
 
-    private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
-        AccessToken accessToken = null;
-        Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
-
-        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
-            accessToken = accessControlService.createSystemAccessToken("CrudServiceImpl");
+    /**
+     * Получает список идентификаторов связанных доменных объектов по типу объекта и указанному полю.
+     * В зависимости от значения {@code exactType} возвращает только объекты указанного типа или
+     * также и объекты типов-наследников
+     * Если связанные объекты отсутствуют, возвращает пустой список (не null)
+     *
+     * @param domainObjectId уникальный идентификатор доменного объекта в системе
+     * @param linkedType     тип доменного объекта в системе
+     * @param linkedField    название поля по которому связан объект
+     * @param exactType      если {@code true}, то метод возвращает только объекты указанного типа,
+     *                       в противном случае - также и объекты типов-наследников
+     */
+    @Override
+    public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
+                                               boolean exactType, DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType);
         } else {
-            String user = currentUserAccessor.getCurrentUser();
-            accessToken = accessControlService.createCollectionAccessToken(user);
+            return transactionalCrudService.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType);
         }
-        return accessToken;
     }
 
+    /**
+     * Возвращает доменный объект по его уникальному ключу
+     *
+     * @param domainObjectType      типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return доменный объект
+     * @throws ru.intertrust.cm.core.model.ObjectNotFoundException, если объект не найден
+     * @throws ru.intertrust.cm.core.model.AccessException,         если отказано в доступе к объекту
+     */
     @Override
-    public String getDomainObjectType(Id id) {
-        try {
-            return domainObjectTypeIdCache.getName(id);
-        } catch (Exception ex) {
-            logger.error("Unexpected exception caught in getDomainObjectType", ex);
-            throw new UnexpectedException("CrudService", "getDomainObjectType", "id:" + id, ex);
-        }
-    }
-
-    @Override
-    public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-            return find(byUniqueKey);
-        } catch (AccessException | ObjectNotFoundException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findByUniqueKey", ex);
-            throw new UnexpectedException("CrudService", "findByUniqueKey",
-                    "domainObjectType:" + domainObjectType, ex);
-        }
-    }
-
-    @Override
-    public DomainObject findAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-            return findAndLock(byUniqueKey);
-        } catch (AccessException | ObjectNotFoundException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findAndLockByUniqueKey", ex);
-            throw new UnexpectedException("CrudService", "findAndLockByUniqueKey",
-                    "domainObjectType:" + domainObjectType, ex);
-        }
-    }
-
-    private void checkForAttachment(String objectType) {
-        if (configurationExplorer.isAttachmentType(objectType)){
-            throw new CrudException("Working with Attachments allowed only through AttachmentService");
+    public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName,
+                                        DataSourceContext dataSourceContext) {
+        if (DataSourceContext.CLONE.equals(dataSourceContext)) {
+            return nonTransactionalCrudService.findByUniqueKey(domainObjectType, uniqueKeyValuesByName);
+        } else {
+            return transactionalCrudService.findByUniqueKey(domainObjectType, uniqueKeyValuesByName);
         }
     }
 

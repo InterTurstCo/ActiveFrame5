@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -50,7 +51,7 @@ public class GenerateReportServlet {
         try {
             Map<String, Object> params = convertParameters(request.getParameterMap());
 
-            ReportResult reportResult = reportService.generate(reportName, params);
+            ReportResult reportResult = reportService.generate(reportName, params, DataSourceContext.CLONE);
             response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
             bufferOut.write(reportResult.getReport());
         } catch (Exception e) {

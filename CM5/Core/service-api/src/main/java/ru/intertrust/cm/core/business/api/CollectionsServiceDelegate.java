@@ -8,13 +8,14 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import java.util.List;
 
 /**
+ * Внутренний служебный интерфейс сервиса коллекций. Используется для создания транзакционной и нетранзакциооной версий сервиса
  * @author vmatsukevich
  *         Date: 7/1/13
  *         Time: 6:40 PM
  */
-public interface CollectionsService extends CollectionsServiceDelegate {
+public interface CollectionsServiceDelegate {
 
-    interface Remote extends CollectionsService {
+    public interface Remote extends CollectionsServiceDelegate {
     }
 
     /**
@@ -23,13 +24,12 @@ public interface CollectionsService extends CollectionsServiceDelegate {
      * @param collectionName название коллекции
      * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
-     * @param limit          максимальное количество возвращаемых доменных объектов. Если указано 0, то не ограничивается количество 
+     * @param limit          максимальное количество возвращаемых доменных объектов. Если указано 0, то не ограничивается количество
      * @param offset         смещение. Если равно 0, то смещение не создается.
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
     IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
-            List<? extends Filter> filters, int offset, int limit, DataSourceContext dataSource);
+                                                List<? extends Filter> filters, int offset, int limit);
 
     /**
      * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
@@ -37,39 +37,35 @@ public interface CollectionsService extends CollectionsServiceDelegate {
      * @param collectionName название коллекции
      * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
     IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
-            List<? extends Filter> filters, DataSourceContext dataSource);
+                                                List<? extends Filter> filters);
 
     /**
      * Возвращает заданную коллекцию, упорядоченную согласно порядку сортировки
      *
      * @param collectionName название коллекции
      * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, DataSourceContext dataSource);
+    IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder);
 
     /**
      * Проверяет, пуста ли коллекция.
      * @param collectionName название коллекции
      * @param filters список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return пустая ли коллекция.
      */
-    boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters, DataSourceContext dataSource);
-    
+    boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters);
+
     /**
      * Возвращает заданную коллекцию
      *
      * @param collectionName название коллекции
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollection(String collectionName, DataSourceContext dataSource);
+    IdentifiableObjectCollection findCollection(String collectionName);
 
     /**
      * Возвращает коллекцию по запросу
@@ -77,29 +73,26 @@ public interface CollectionsService extends CollectionsServiceDelegate {
      * @param limit максимальное количество возвращаемых доменных объектов. Если равно 0, то не ограничивается
      *            количество.
      * @param offset смещение. Если равно 0, то смещение не создается.
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit, DataSourceContext dataSource);
+    IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit);
 
 
     /**
      * Возвращает коллекцию по запросу
      * @param query запрос
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, DataSourceContext dataSource);
+    IdentifiableObjectCollection findCollectionByQuery(String query);
 
     /**
      * Возвращает количество элементов заданной коллекции, отфильтрованной согласно списку фильтров
      *
      * @param collectionName название коллекции
      * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return число элементов заданной коллекции
      */
-    int findCollectionCount(String collectionName, List<? extends Filter> filters, DataSourceContext dataSource);
+    int findCollectionCount(String collectionName, List<? extends Filter> filters);
 
     /**
      * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
@@ -111,19 +104,18 @@ public interface CollectionsService extends CollectionsServiceDelegate {
      * @param limit ограничение количества возвращенных доменных объектов. Если равно 0, то не ограничивается
      *            количество.
      * @param offset смещение. Если равно 0, то смещение не создается.
-     * @param dataSource     контекст источника данных, используемого для операций с данными
+     * @param accessToken маркер доступа
      * @return результат поиска в виде {@link IdentifiableObjectCollection}
      */
     IdentifiableObjectCollection findCollectionByQuery(String query,
-            List<? extends Value> params, int offset, int limit, DataSourceContext dataSource);
+                                                       List<? extends Value> params, int offset, int limit);
 
     /**
      * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
      * @param query SQL запрос
      * @param params параметры запроса
-     * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return результат поиска в виде {@link IdentifiableObjectCollection}
      */
-    IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params, DataSourceContext dataSource);
+    IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params);
 
 }

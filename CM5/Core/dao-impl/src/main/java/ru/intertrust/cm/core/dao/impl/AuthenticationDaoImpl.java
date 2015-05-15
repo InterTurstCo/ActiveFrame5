@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
@@ -20,7 +21,12 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 public class AuthenticationDaoImpl implements AuthenticationDao {
 
     @Autowired
-    private NamedParameterJdbcOperations jdbcTemplate;
+    @Qualifier("masterNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations masterJdbcTemplate; // Use for data modifying operations
+
+    @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations switchableJdbcTemplate; // User for read operations
 
     /**
      * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
@@ -38,7 +44,7 @@ public class AuthenticationDaoImpl implements AuthenticationDao {
         paramMap.put("updated_date", currentDate);
 
 
-        return jdbcTemplate.update(query, paramMap);
+        return masterJdbcTemplate.update(query, paramMap);
     }
 
 
@@ -52,7 +58,7 @@ public class AuthenticationDaoImpl implements AuthenticationDao {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("user_uid", userUid);
         @SuppressWarnings("deprecation")
-        int total = jdbcTemplate.queryForInt(query, paramMap);
+        int total = switchableJdbcTemplate.queryForInt(query, paramMap);
         return total > 0;
     }
 

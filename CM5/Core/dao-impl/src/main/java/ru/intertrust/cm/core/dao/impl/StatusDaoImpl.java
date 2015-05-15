@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -28,6 +29,7 @@ public class StatusDaoImpl implements StatusDao {
     private Map<String, Id> statusNameToId = new HashMap<String, Id>();
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired

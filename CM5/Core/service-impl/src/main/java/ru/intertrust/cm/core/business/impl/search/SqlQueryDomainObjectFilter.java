@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
@@ -19,6 +20,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 public class SqlQueryDomainObjectFilter implements DomainObjectFilter {
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
 
     private String sqlQuery;

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import net.sf.jsqlparser.statement.select.Select;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -48,6 +49,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private CollectionQueryCache collectionQueryCache;
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired
