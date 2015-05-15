@@ -138,6 +138,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public void setFormToolbarContext(final ToolbarContext toolbarContext) {
         getFormPlugin().setToolbarContext(toolbarContext);
+        getView().updateActionToolBar();
     }
 
     @Override

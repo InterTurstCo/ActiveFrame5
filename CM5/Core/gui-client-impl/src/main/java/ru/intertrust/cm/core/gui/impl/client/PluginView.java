@@ -124,7 +124,7 @@ public abstract class PluginView implements IsWidget {
     }
 
     public void updateActionToolBar() {
-        if (!(plugin instanceof IsActive) || actionToolBar == null) {
+        if (!(plugin instanceof IsActive) || actionToolBar == null || !plugin.displayActionToolBar()) {
             return;
         }
         actionToolBar.clear();
