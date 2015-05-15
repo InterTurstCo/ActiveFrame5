@@ -2,9 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
-import ru.intertrust.cm.core.dao.api.DefaultDataSourcesConfiguration;
 
 /**
  * Реализация итерфейса для получения/установления контекста используемого источника данных

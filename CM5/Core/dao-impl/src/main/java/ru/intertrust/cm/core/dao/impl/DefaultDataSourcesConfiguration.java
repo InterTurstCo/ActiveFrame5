@@ -15,17 +15,14 @@ public class DefaultDataSourcesConfiguration {
     @org.springframework.beans.factory.annotation.Value("${datasource.reports:java:jboss/datasources/CM5}")
     private String reportsDataSourceJndiName;
 
-    @Override
     public String getMasterDataSourceJndiName() {
         return masterDataSourceJndiName;
     }
 
-    @Override
     public String getCollectionsDataSourceJndiName() {
         return collectionsDataSourceJndiName;
     }
 
-    @Override
     public String getReportsDataSourceJndiName() {
         return reportsDataSourceJndiName;
     }
