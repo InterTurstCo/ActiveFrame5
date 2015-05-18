@@ -529,7 +529,7 @@
                        text="Отправить на регистрацию" image="images/icons/control.png" merged="true">
         <act:action-params>
             <act:action-param name="process.name" value="TestInternalDocument" />
-            <act:action-param name="process.type" value="start.process"/>
+            <act:action-param name="action.type" value="start.process"/>
         </act:action-params>
         <act:before-execution>
             <act:confirmation-message text="Отправить на регистрацию" />
@@ -601,9 +601,9 @@
     <act:simple-action name="cancal-registration" text="Прервать регистрацию" image="sign.png" merged="true"
         componentName="simple.action" action-handler="generic.workflow.action">
         <act:action-params>
-            <act:action-param name="process.type" value="send.event"/>
+            <act:action-param name="action.type" value="send.message"/>
             <act:action-param name="process.name" value="TestInternalDocument" />
-            <act:action-param name="event.name" value="CANCEL_REGISTRATION"/>
+            <act:action-param name="message.name" value="CANCEL_REGISTRATION"/>
         </act:action-params>
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->
@@ -640,18 +640,19 @@
     </form-mappings>
 
     <!-- Для работы класса TestProcess-->
-    <act:action name="start-test_process_attachment-process" componentName="start.process.action"
-                text="Запустить тестовый процесс" image="sign.png" merged="true">
+    <act:simple-action name="start-test_process_attachment-process" componentName="simple.action"
+                action-handler="generic.workflow.action" text="Запустить тестовый процесс" image="images/icons/control.png" merged="true">
+        <act:action-params>
+            <act:action-param name="process.name" value="testSimpleProcess" />
+            <act:action-param name="action.type" value="start.process"/>
+        </act:action-params>                
         <act:before-execution>
             <act:confirmation-message text="Запустить процесс?"/>
         </act:before-execution>
         <act:after-execution>
             <act:on-success-message text="Процесс запущен"/>
         </act:after-execution>
-        <act:action-settings>
-            <act:start-process-action-settings process-name="testSimpleProcess"/>
-        </act:action-settings>
-    </act:action>
+    </act:simple-action>
 
     <act:action-context name="start-test_process_attachment-process-context">
         <act:domain-object-context>

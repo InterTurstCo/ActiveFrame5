@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" xmlns:tns="http://www.activiti.org/test" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test" id="m1422373225598" name="">
   <signal id="rstwetwert" name="rstwetwert"></signal>
-  <signal id="CANCEL_REGISTRATION" name="CANCEL_REGISTRATION"></signal>
+  <message id="CANCEL_REGISTRATION" name="CANCEL_REGISTRATION"></message>
   <process id="TestInternalDocument" name="just for test" isExecutable="true" isClosed="false" processType="None">
     <startEvent id="startevent1" name="Start"></startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
@@ -49,16 +49,16 @@
     <sequenceFlow id="flow14" sourceRef="scripttask1" targetRef="exclusivegateway5"></sequenceFlow>
     <sequenceFlow id="flow15" sourceRef="exclusivegateway5" targetRef="endevent1"></sequenceFlow>
     <sequenceFlow id="flow16" sourceRef="scripttask4" targetRef="exclusivegateway5"></sequenceFlow>
-    <boundaryEvent id="boundarysignal1" name="Signal" attachedToRef="toDraft" cancelActivity="true">
-      <signalEventDefinition signalRef="CANCEL_REGISTRATION"></signalEventDefinition>
-    </boundaryEvent>
-    <sequenceFlow id="flow17" sourceRef="boundarysignal1" targetRef="scripttask4"></sequenceFlow>
+    <sequenceFlow id="flow17" sourceRef="boundarymessage1" targetRef="scripttask4"></sequenceFlow>
     <userTask id="secondRevisionTask" name="Повторно доработать документ" activiti:assignee="${CTX.get(&quot;docAuthor&quot;).toStringRepresentation()}">
       <extensionElements>
         <activiti:formProperty id="CTX_ID" expression="${CTX_ID}"></activiti:formProperty>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow18" sourceRef="secondRevisionTask" targetRef="exclusivegateway3"></sequenceFlow>
+    <boundaryEvent id="boundarymessage1" name="Message" attachedToRef="toDraft" cancelActivity="true">
+      <messageEventDefinition messageRef="CANCEL_REGISTRATION"></messageEventDefinition>
+    </boundaryEvent>
   </process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_TestInternalDocument">
     <bpmndi:BPMNPlane bpmnElement="TestInternalDocument" id="BPMNPlane_TestInternalDocument">
@@ -71,8 +71,8 @@
       <bpmndi:BPMNShape bpmnElement="toDraft" id="BPMNShape_toDraft">
         <omgdc:Bounds height="65.0" width="105.0" x="308.0" y="110.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="boundarysignal1" id="BPMNShape_boundarysignal1">
-        <omgdc:Bounds height="30.0" width="30.0" x="297.0" y="134.0"></omgdc:Bounds>
+      <bpmndi:BPMNShape bpmnElement="boundarymessage1" id="BPMNShape_boundarymessage1">
+        <omgdc:Bounds height="30.0" width="30.0" x="300.0" y="129.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask1" id="BPMNShape_scripttask1">
         <omgdc:Bounds height="65.0" width="105.0" x="307.0" y="283.0"></omgdc:Bounds>
@@ -90,7 +90,7 @@
         <omgdc:Bounds height="40.0" width="40.0" x="340.0" y="-50.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="scripttask4" id="BPMNShape_scripttask4">
-        <omgdc:Bounds height="55.0" width="105.0" x="90.0" y="121.0"></omgdc:Bounds>
+        <omgdc:Bounds height="55.0" width="105.0" x="90.0" y="115.0"></omgdc:Bounds>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="exclusivegateway4" id="BPMNShape_exclusivegateway4">
         <omgdc:Bounds height="40.0" width="40.0" x="340.0" y="210.0"></omgdc:Bounds>
@@ -142,13 +142,13 @@
         <omgdi:waypoint x="359.0" y="500.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="142.0" y="176.0"></omgdi:waypoint>
+        <omgdi:waypoint x="142.0" y="170.0"></omgdi:waypoint>
         <omgdi:waypoint x="142.0" y="409.0"></omgdi:waypoint>
         <omgdi:waypoint x="339.0" y="409.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
-        <omgdi:waypoint x="297.0" y="149.0"></omgdi:waypoint>
-        <omgdi:waypoint x="195.0" y="148.0"></omgdi:waypoint>
+        <omgdi:waypoint x="300.0" y="144.0"></omgdi:waypoint>
+        <omgdi:waypoint x="195.0" y="142.0"></omgdi:waypoint>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
         <omgdi:waypoint x="520.0" y="-30.0"></omgdi:waypoint>

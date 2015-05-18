@@ -62,6 +62,7 @@ import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.model.ActionServiceException;
 
 @Stateless
@@ -253,7 +254,7 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
                     (ActionHandler) applicationContext.getBean(actConfig.getComponentName());
             actionContext = handler.getActionContext(actConfig);
         } else {
-            actionContext = new CompleteTaskActionContext(actConfig);
+            actionContext = new SimpleActionContext(actConfig);
         }
         actionContext.setRootObjectId(rootDomainObjectId);
         return actionContext;

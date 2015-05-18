@@ -90,7 +90,7 @@ public class ProcessServiceImpl implements ProcessService {
             List<ProcessVariable> variables) {
         try {
             String idProcess = null;
-            HashMap<String, Object> variablesHM = createHashMap(variables);
+            HashMap<String, Object> variablesHM = createProcessVariables(variables);
 
             if (attachedObjectId != null) {
                 variablesHM.put(ProcessService.MAIN_ATTACHMENT_ID,
@@ -122,7 +122,7 @@ public class ProcessServiceImpl implements ProcessService {
      * @param variables
      * @return
      */
-    private HashMap<String, Object> createHashMap(
+    private HashMap<String, Object> createProcessVariables(
             List<ProcessVariable> variables) {
 
         HashMap<String, Object> newHashMap = new HashMap<String, Object>();
@@ -429,19 +429,26 @@ public class ProcessServiceImpl implements ProcessService {
     }
 
     @Override
-    public void sendProcessEvent(String processName, Id contextId, String event) {
+    public void sendProcessMessage(String processName, Id contextId, String message, List<ProcessVariable> variables) {
         //Находим нужный нам процесс
         List<Execution> executions =
                 runtimeService.createExecutionQuery().
                         processDefinitionKey(processName).
                         processVariableValueEquals(CTX_ID, contextId.toStringRepresentation()).
-                        signalEventSubscriptionName(event).
+                        messageEventSubscriptionName(message).
                         list();
 
+        HashMap<String, Object> variablesHM = createProcessVariables(variables);
+        
         //По идее должен быть только один процесс, но на всякий случай проходим в цикле
         for (Execution execution : executions) {
-            runtimeService.signalEventReceived(event, execution.getId());
+            runtimeService.messageEventReceived(message, execution.getId(), variablesHM);
         }
+    }
+
+    @Override
+    public void sendProcessSignal(String signal) {
+        runtimeService.signalEventReceived(signal);        
     }
 
 }

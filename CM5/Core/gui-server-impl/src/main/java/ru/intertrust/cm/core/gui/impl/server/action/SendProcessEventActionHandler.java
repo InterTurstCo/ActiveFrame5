@@ -47,7 +47,7 @@ public class SendProcessEventActionHandler extends ActionHandler<SendProcessEven
         final ActionConfig actionConfig = (ActionConfig) context.getActionConfig();
         SendProcessEventSettings sendProcessEventSettings = (SendProcessEventSettings) actionConfig.getActionSettings();
 
-        processservice.sendProcessEvent(sendProcessEventSettings.getProcessName(), domainObjectId, sendProcessEventSettings.getEvent());
+        processservice.sendProcessMessage(sendProcessEventSettings.getProcessName(), domainObjectId, sendProcessEventSettings.getEvent(), null);
 
         //Пересчитываем права чтобы корректно отобразились панель с кнопками
         permissionService.refreshAcls();

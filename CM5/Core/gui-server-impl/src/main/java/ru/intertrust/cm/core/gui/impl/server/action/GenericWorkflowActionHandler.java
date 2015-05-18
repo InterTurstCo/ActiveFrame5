@@ -59,8 +59,8 @@ public class GenericWorkflowActionHandler
                         null,
                         actionConfig.getProperty("complete.task.action"));
                 break;
-            case "send.event":
-                processService.sendProcessEvent(processName, domainObjectId, actionConfig.getProperty("event.name"));
+            case "send.message":
+                processService.sendProcessMessage(processName, domainObjectId, actionConfig.getProperty("message.name"), null);
                 break;
             default:
                 new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,
