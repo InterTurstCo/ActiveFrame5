@@ -46,7 +46,7 @@ public class GenericWorkflowActionHandler
                     "Не задано тип процесса"));
         }
         final String processName = actionConfig.getProperty(PluginHandlerHelper.WORKFLOW_PROCESS_NAME_KEY);
-        if (processName == null && (processType.equalsIgnoreCase("start.process") || processType.equalsIgnoreCase("send.event"))) {
+        if (processName == null && (processType.equalsIgnoreCase("start.process") || processType.equalsIgnoreCase("send.message"))) {
             throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_NAME,
                     "Не задано имя процесса"));
         }
@@ -61,6 +61,9 @@ public class GenericWorkflowActionHandler
                 break;
             case "send.message":
                 processService.sendProcessMessage(processName, domainObjectId, actionConfig.getProperty("message.name"), null);
+                break;
+            case "send.signal":
+                processService.sendProcessSignal(actionConfig.getProperty("signal.name"));
                 break;
             default:
                 new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_PROCESS_NOT_SUPPORTED,

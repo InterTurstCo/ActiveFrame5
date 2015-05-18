@@ -615,6 +615,23 @@
         </act:after-execution>
     </act:simple-action>
 
+    <act:simple-action name="all-cancal-registration" text="Прервать все регистрации" image="sign.png" merged="true"
+        componentName="simple.action" action-handler="generic.workflow.action">
+        <act:action-params>
+            <act:action-param name="action.type" value="send.signal"/>
+            <act:action-param name="message.name" value="CANCEL_ALL_REGISTRATION"/>
+        </act:action-params>
+        <act:before-execution>
+            <!-- Текст-подтверждение перед выполнением данного действия -->
+            <act:confirmation-message text="Прервать регистрацию"/>
+        </act:before-execution>
+        <act:after-execution>
+            <!-- Текст-подтверждение после выполнения данного действия -->
+            <act:on-success-message text="Регистрация прервана"/>
+        </act:after-execution>
+    </act:simple-action>
+
+
     <act:action-context name="cancal-registration-context">
         <act:domain-object-context>
             <act:type>Internal_Document</act:type>
