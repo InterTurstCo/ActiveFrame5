@@ -38,8 +38,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
     @Override
     public TableBrowserState getInitialState(WidgetContext context) {
         TableBrowserState state = new TableBrowserState();
-        ObjectCloner cloner = new ObjectCloner();
-        TableBrowserConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), TableBrowserConfig.class);
+        TableBrowserConfig widgetConfig = ObjectCloner.getInstance().cloneObject(context.getWidgetConfig(), TableBrowserConfig.class);
 
         state.setTableBrowserConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();

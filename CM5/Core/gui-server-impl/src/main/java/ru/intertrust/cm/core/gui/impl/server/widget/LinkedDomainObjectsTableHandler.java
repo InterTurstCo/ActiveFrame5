@@ -126,8 +126,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     private CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root) {
         CreatedObjectsConfig restrictedCreatedObjectsConfig = null;
         if (widgetConfig.getCreatedObjectsConfig() != null) {
-            ObjectCloner cloner = new ObjectCloner();
-            restrictedCreatedObjectsConfig = cloner.cloneObject(widgetConfig.getCreatedObjectsConfig(),
+            restrictedCreatedObjectsConfig = ObjectCloner.getInstance().cloneObject(widgetConfig.getCreatedObjectsConfig(),
                     CreatedObjectsConfig.class);
             abandonAccessed(root, restrictedCreatedObjectsConfig, null);
         } else {

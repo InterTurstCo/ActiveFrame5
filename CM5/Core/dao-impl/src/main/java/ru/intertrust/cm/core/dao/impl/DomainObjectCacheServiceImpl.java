@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
@@ -118,9 +119,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         private DomainObject getDomainObject() {
-            return domainObject == null
-                    ? null
-                    : (DomainObject) SerializationUtils.deserialize(SerializationUtils.serialize(domainObject));
+            return domainObject == null ? null : ObjectCloner.getInstance().cloneObject(domainObject, domainObject.getClass());
         }
 
         static String generateKey(String ... key) {
@@ -339,18 +338,11 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         String objectCollectionKey = generateObjectCollectionKey(parentId, key);
 
         List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
-        return cloneObjects(domainObjects);
-    }
-
-    private List<DomainObject> cloneObjects(List<DomainObject> domainObjects) {
         if (domainObjects == null) {
             return null;
         }
-        List<DomainObject> ret = new ArrayList<>();
-        for (DomainObject object : domainObjects) {
-            ret.add(deepClone(object));
-        }
-        return ret;
+
+        return ObjectCloner.getInstance().cloneObject(domainObjects, domainObjects.getClass());
     }
 
     /**

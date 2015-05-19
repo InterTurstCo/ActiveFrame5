@@ -404,10 +404,17 @@
             </dependency>
 
             <dependency>
-                <groupId>com.esotericsoftware.kryo</groupId>
+                <groupId>com.esotericsoftware</groupId>
                 <artifactId>kryo</artifactId>
-                <version>2.22</version>
+                <version>3.0.1</version>
             </dependency>
+
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>2.1</version>
+            </dependency>
+
 
             <!-- Java Enterprise Edition API -->
 

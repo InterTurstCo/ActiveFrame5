@@ -375,8 +375,7 @@ public class SqlQueryModifier {
 
                 if (returnsId) {
                     // TODO клон CaseExpression не работает
-                    ObjectCloner objectCloner = new ObjectCloner();
-                    CaseExpression idTypeExpression = objectCloner.cloneObject(caseExpression, caseExpression.getClass());
+                    CaseExpression idTypeExpression = ObjectCloner.getInstance().cloneObject(caseExpression, caseExpression.getClass());
 
                     for (Expression whenExpression : idTypeExpression.getWhenClauses()) {
                         WhenClause whenClause = (WhenClause) whenExpression;

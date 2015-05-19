@@ -3,17 +3,30 @@ package ru.intertrust.cm.core.util;
 import java.io.ByteArrayOutputStream;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.shaded.org.objenesis.strategy.StdInstantiatorStrategy;
+import com.esotericsoftware.kryo.io.UnsafeInput;
+import com.esotericsoftware.kryo.io.UnsafeOutput;
+import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
  * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
  */
 public class ObjectCloner {
 
+    private static ThreadLocal<ObjectCloner> objectCloner = new ThreadLocal<ObjectCloner>() {
+        protected ObjectCloner initialValue() {
+            return new ObjectCloner();
+        }
+    };
 
-    public ObjectCloner() {
+    private Kryo kryo;
+
+    private ObjectCloner() {
+        kryo = new Kryo();
+        ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy()).setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
+    }
+
+    public static ObjectCloner getInstance () {
+        return objectCloner.get();
     }
 
     /**
@@ -23,19 +36,19 @@ public class ObjectCloner {
      */
     public <T> T cloneObject(Object source, Class<T> tClass) {
 
-        if (source == null) return null;
+        if (source == null) {
+            return null;
+        }
 
-        Kryo kryo = new Kryo();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Output output = new Output(stream);
-        kryo.register(tClass);
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+        UnsafeOutput output = new UnsafeOutput(stream);
 
+        kryo.register(tClass);
         kryo.writeObject(output, source);
         output.close();
+
         byte[] bytes = stream.toByteArray();
-        int buffSize = bytes.length;
-        Input input = new Input(bytes);
+        UnsafeInput input = new UnsafeInput(bytes);
         T newBean = kryo.readObject(input, tClass);
         input.close();
 

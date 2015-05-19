@@ -55,8 +55,7 @@ public class PluginHandlerHelper {
     }
 
     public static ActionConfig cloneActionConfig(final ActionConfig config) {
-        final ObjectCloner cloner = new ObjectCloner();
-        final ActionConfig result = cloner.cloneObject(config, config.getClass());
+        final ActionConfig result = ObjectCloner.getInstance().cloneObject(config, config.getClass());
         return result;
     }
 
