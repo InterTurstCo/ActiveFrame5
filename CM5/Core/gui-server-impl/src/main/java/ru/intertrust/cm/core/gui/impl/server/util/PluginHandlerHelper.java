@@ -41,7 +41,7 @@ import java.util.Map;
 public class PluginHandlerHelper {
 
     public static final String DOMAIN_OBJECT_KEY = "domainObject";
-    public static final String WORKFLOW_PROCESS_TYPE_KEY = "process.type";
+    public static final String WORKFLOW_PROCESS_TYPE_KEY = "action.type";
     public static final String WORKFLOW_PROCESS_NAME_KEY = "process.name";
 
     private PluginHandlerHelper() {}
@@ -55,8 +55,7 @@ public class PluginHandlerHelper {
     }
 
     public static ActionConfig cloneActionConfig(final ActionConfig config) {
-        final ObjectCloner cloner = new ObjectCloner();
-        final ActionConfig result = cloner.cloneObject(config, config.getClass());
+        final ActionConfig result = ObjectCloner.getInstance().cloneObject(config, config.getClass());
         return result;
     }
 

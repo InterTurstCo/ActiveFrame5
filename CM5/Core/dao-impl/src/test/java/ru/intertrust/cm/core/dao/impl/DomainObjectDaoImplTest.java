@@ -574,7 +574,7 @@ public class DomainObjectDaoImplTest {
         when(domainObjectTypeIdCache.getName(id1)).thenReturn("Person1_Attachment");
         when(domainObjectTypeIdCache.getName(id2)).thenReturn("Person1_Attachment");
 
-        ReflectionTestUtils.setField(domainObjectDaoImpl, "jdbcTemplate", jdbcTemplate);
+        ReflectionTestUtils.setField(domainObjectDaoImpl, "switchableJdbcTemplate", jdbcTemplate);
 
         AccessToken accessToken = createMockAccessToken();
 

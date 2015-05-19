@@ -137,11 +137,11 @@ public class BaseDaoTest {
         permissionService = new PermissionServiceDaoImpl();
         permissionService.setDoelResolver(new DoelResolver());
         permissionService.setConfigurationExplorer(configurationExplorer);
-        permissionService.setJdbcTemplate(namedParameterJdbcOperations);
+        permissionService.setMasterNamedParameterJdbcTemplate(namedParameterJdbcOperations);
         permissionService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
 
         domainObjectDao = new DomainObjectDaoImpl();
-        domainObjectDao.setJdbcTemplate(namedParameterJdbcOperations);
+        domainObjectDao.setMasterJdbcTemplate(namedParameterJdbcOperations);
 
         BasicSequenceIdGenerator idGenerator = new PostgreSqlSequenceIdGenerator();
         idGenerator.setJdbcTemplate(jdbcOperations);
@@ -157,7 +157,7 @@ public class BaseDaoTest {
                         new DynamicGroupTrackDomainObjectCollector();
                 trackDomainObjectCollector.setConfigurationExplorer(configurationExplorer);
                 trackDomainObjectCollector.setAccessControlService(accessControlService);
-                trackDomainObjectCollector.setJdbcTemplate(namedParameterJdbcOperations);
+                trackDomainObjectCollector.setMasterNamedParameterJdbcTemplate(namedParameterJdbcOperations);
                 trackDomainObjectCollector.setDomainObjectDao(domainObjectDao);
                 trackDomainObjectCollector.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
                 return trackDomainObjectCollector;
@@ -170,7 +170,7 @@ public class BaseDaoTest {
         };
         dynamicGroupService.setConfigurationExplorer(configurationExplorer);
         dynamicGroupService.setDomainObjectDao(domainObjectDao);
-        dynamicGroupService.setJdbcTemplate(namedParameterJdbcOperations);
+        dynamicGroupService.setMasterNamedParameterJdbcTemplate(namedParameterJdbcOperations);
         dynamicGroupService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
         // dynamicGroupService.onLoad();
 

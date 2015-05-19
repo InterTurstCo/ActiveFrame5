@@ -7,7 +7,7 @@
   <parent>
 	<groupId>ru.intertrust.cm-sochi</groupId>
 	<artifactId>performance</artifactId>
-	<version>0.5.13-58-tomee-SNAPSHOT</version>
+	<version>0.5.14-3-tomee-SNAPSHOT</version>
   </parent>
 
   <dependencies>

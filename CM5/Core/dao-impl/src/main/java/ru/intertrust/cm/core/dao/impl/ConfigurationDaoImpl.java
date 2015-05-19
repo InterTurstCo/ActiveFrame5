@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
@@ -31,6 +32,7 @@ public class ConfigurationDaoImpl implements ConfigurationDao {
             " where " + wrap("id") + "= (select max(" + wrap("id") + ") from " + wrap(CONFIGURATION_TABLE) + ")";
 
     @Autowired
+    @Qualifier("masterNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
     @Autowired
     private IdGenerator idGenerator;

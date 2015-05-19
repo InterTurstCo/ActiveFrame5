@@ -318,6 +318,7 @@
         <fields>
             <string name="name" length="256" not-null="true" />
             <string name="description" length="512" not-null="true" />
+            <boolean name="forceMaster"/>
         </fields>
         <uniqueKey>
             <field name="name" />

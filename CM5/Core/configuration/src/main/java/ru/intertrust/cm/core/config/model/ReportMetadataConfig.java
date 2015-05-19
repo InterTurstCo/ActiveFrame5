@@ -75,6 +75,6 @@ public class ReportMetadataConfig implements Dto{
     public void setKeepDays(Integer keepDays) {
         this.keepDays = keepDays;
     }
-    
+
 
 }

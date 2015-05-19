@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -45,7 +46,10 @@ public class BaseDynamicGroupServiceImpl {
     public static final String GROUP_MEMBER_DOMAIN_OBJECT = "group_member";
 
     @Autowired
-    protected NamedParameterJdbcOperations jdbcTemplate;
+    protected NamedParameterJdbcOperations masterNamedParameterJdbcTemplate; // Use for data modifying operations
+
+    @Autowired
+    protected NamedParameterJdbcOperations switchableNamedParameterJdbcTemplate; // User for read operations
 
     @Autowired
     protected DoelResolver doelResolver;
@@ -74,8 +78,8 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected UserGroupGlobalCache userGroupGlobalCache;
     
-    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
+        this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
     }
 
     public void setDoelResolver(DoelResolver doelResolver) {
@@ -113,7 +117,7 @@ public class BaseDynamicGroupServiceImpl {
             String query = generateDeleteUserGroupQuery();
 
             Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-            jdbcTemplate.update(query, parameters);
+            masterNamedParameterJdbcTemplate.update(query, parameters);
         }
 
         return userGroupId;
@@ -170,7 +174,7 @@ public class BaseDynamicGroupServiceImpl {
 
         Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
         Integer doTypeId = domainObjectTypeIdCache.getId(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        return jdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
+        return switchableNamedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
     }
 
     private Map<String, Object> initializeProcessUserGroupParameters(String groupName) {
@@ -198,7 +202,7 @@ public class BaseDynamicGroupServiceImpl {
         String status = null;
         String query = generateGetStatusForQuery(objectId);
         Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        status = jdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
+        status = masterNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
             @Override
             public String extractData(ResultSet rs) throws SQLException, DataAccessException {
                 String status = null;

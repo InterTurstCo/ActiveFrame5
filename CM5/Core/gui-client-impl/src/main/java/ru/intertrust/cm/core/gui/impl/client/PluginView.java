@@ -124,7 +124,7 @@ public abstract class PluginView implements IsWidget {
     }
 
     public void updateActionToolBar() {
-        if (!(plugin instanceof IsActive) || actionToolBar == null) {
+        if (!(plugin instanceof IsActive) || actionToolBar == null || !plugin.displayActionToolBar()) {
             return;
         }
         actionToolBar.clear();
@@ -259,7 +259,7 @@ public abstract class PluginView implements IsWidget {
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
                 addItem(menuItem);
             } else if (config instanceof ActionGroupConfig) {
-                MenuItem menuItem = addSubmenu(context);
+                MenuItem menuItem = addSubmenu(context, false);
                 if (menuItem != null)
                     addItem(menuItem);
             } else {
@@ -273,13 +273,16 @@ public abstract class PluginView implements IsWidget {
             }
         }
 
-        private MenuItem addSubmenu(ActionContext subContext) {
+        private MenuItem addSubmenu(ActionContext subContext, Boolean isInner) {
             ActionGroupConfig config = subContext.getActionConfig();
             if (!config.isDisplayEmptyGroups() && subContext.getInnerContexts().size() == 0)
                 return null;
             else {
                 MenuBar mBar = new MenuBar(true);
-                mBar.setStyleName("decorated-action-link");
+                mBar.setStyleName("decorated-action-nested-link");
+                if (isInner) {
+                    mBar.addStyleName("decoratedActionLinkPopupInset");
+                }
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
@@ -292,7 +295,7 @@ public abstract class PluginView implements IsWidget {
                         menuItem.setTitle(((ActionConfig) innerConfig).getTooltip());
                         mBar.addItem(menuItem);
                     } else if (config instanceof ActionGroupConfig) {
-                        MenuItem innerItem = addSubmenu(innerContext);
+                        MenuItem innerItem = addSubmenu(innerContext, true);
                         if (innerItem != null) {
                             mBar.addItem(innerItem);
                         }

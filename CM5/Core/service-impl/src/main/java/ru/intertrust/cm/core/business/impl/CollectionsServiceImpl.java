@@ -1,26 +1,20 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CollectionsServiceDelegate;
+import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,128 +28,356 @@ import java.util.List;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class CollectionsServiceImpl implements CollectionsService {
 
-    final static org.slf4j.Logger logger = LoggerFactory.getLogger(CollectionsServiceImpl.class);
+    @Autowired
+    @Qualifier("nonTransactionalCollectionsService")
+    private CollectionsServiceDelegate nonTransactionalCollectionsService;
 
     @Autowired
-    private CollectionsDao collectionsDao;
+    @Qualifier("transactionalCollectionsService")
+    private CollectionsServiceDelegate transactionalCollectionsService;
 
     @Autowired
-    private AccessControlService accessControlService;
+    private ConfigurationExplorer configurationExplorer;
 
-    @Autowired    
-    private CurrentUserAccessor currentUserAccessor; 
-    
-    public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
-        this.currentUserAccessor = currentUserAccessor;
-    }
-
-    public void setAccessControlService(AccessControlService accessControlService) {
-        this.accessControlService = accessControlService;
-    }
-    
-    public void setCollectionsDao(CollectionsDao collectionsDao) {
-        this.collectionsDao = collectionsDao;
-    }
-
+    /**
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param offset         смещение. Если равно 0, то смещение не создается.
+     * @param limit          максимальное количество возвращаемых доменных объектов. Если указано 0, то не ограничивается количество
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
-            List<? extends Filter> filterValues, int offset, int limit) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
-        } catch (AccessException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollection", ex);
-            throw new UnexpectedException("CollectionsService", "findCollection",
-                    "collectionName:" + collectionName + " sortOrder: " + sortOrder
-                    + " filterValues:" + (filterValues == null ? "null" : Arrays.toString(filterValues.toArray()))
-                            + " offset:" + offset + " limit:" + limit, ex);
+                                                       List<? extends Filter> filters, int offset, int limit,
+                                                       DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder, filters, offset, limit);
+        } else {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder, filters, offset, limit);
         }
     }
 
+    /**
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
     @Override
-    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder,
-            List<? extends Filter> filters) {
-        return findCollection(collectionName, sortOrder, filters, 0, 0);
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<? extends Filter> filters, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder, filters);
+        } else {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder, filters);
+        }
     }
 
+    /**
+     * Возвращает заданную коллекцию, упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder);
+        } else {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder);
+        }
+    }
+
+    /**
+     * Проверяет, пуста ли коллекция.
+     *
+     * @param collectionName название коллекции
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param dataSource
+     * @return пустая ли коллекция.
+     */
+    @Override
+    public boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.isCollectionEmpty(collectionName, filters);
+        } else {
+            return nonTransactionalCollectionsService.isCollectionEmpty(collectionName, filters);
+        }
+    }
+
+    /**
+     * Возвращает заданную коллекцию
+     *
+     * @param collectionName название коллекции
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollection(collectionName);
+        } else {
+            return nonTransactionalCollectionsService.findCollection(collectionName);
+        }
+    }
+
+    /**
+     * Возвращает коллекцию по запросу
+     *
+     * @param query      запрос
+     * @param offset     смещение. Если равно 0, то смещение не создается.
+     * @param limit      максимальное количество возвращаемых доменных объектов. Если равно 0, то не ограничивается
+     *                   количество.
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollectionByQuery(query, offset, limit);
+        } else {
+            return nonTransactionalCollectionsService.findCollectionByQuery(query, offset, limit);
+        }
+    }
+
+    /**
+     * Возвращает коллекцию по запросу
+     *
+     * @param query      запрос
+     * @param dataSource
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollectionByQuery(query);
+        } else {
+            return nonTransactionalCollectionsService.findCollectionByQuery(query);
+        }
+    }
+
+    /**
+     * Возвращает количество элементов заданной коллекции, отфильтрованной согласно списку фильтров
+     *
+     * @param collectionName название коллекции
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param dataSource
+     * @return число элементов заданной коллекции
+     */
+    @Override
+    public int findCollectionCount(String collectionName, List<? extends Filter> filters, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollectionCount(collectionName, filters);
+        } else {
+            return nonTransactionalCollectionsService.findCollectionCount(collectionName, filters);
+        }
+    }
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     * Используются нумерованные параметры вида {0}, {1} и т.д.
+     * При этом переданные параметры должны идти в том же порядке (в List<Value> params),
+     * в котором указаны их индексы в SQL запросе.
+     *
+     * @param query      SQL запрос
+     * @param params     параметры запроса
+     * @param offset     смещение. Если равно 0, то смещение не создается.
+     * @param limit      ограничение количества возвращенных доменных объектов. Если равно 0, то не ограничивается
+     *                   количество.
+     * @param dataSource
+     * @return результат поиска в виде {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params, int offset, int limit, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollectionByQuery(query, params, offset, limit);
+        } else {
+            return nonTransactionalCollectionsService.findCollectionByQuery(query, params, offset, limit);
+        }
+    }
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     *
+     * @param query      SQL запрос
+     * @param params     параметры запроса
+     * @param dataSource
+     * @return результат поиска в виде {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params, DataSourceContext dataSource) {
+        if (DataSourceContext.MASTER.equals(dataSource)) {
+            return transactionalCollectionsService.findCollectionByQuery(query, params);
+        } else {
+            return nonTransactionalCollectionsService.findCollectionByQuery(query, params);
+        }
+    }
+
+    /**
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @param offset         смещение. Если равно 0, то смещение не создается.
+     * @param limit          максимальное количество возвращаемых доменных объектов. Если указано 0, то не ограничивается количество
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<? extends Filter> filters, int offset, int limit) {
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder, filters, offset, limit);
+        } else {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder, filters, offset, limit);
+        }
+    }
+
+    /**
+     * Возвращает заданную коллекцию, отфильтрованную и упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder, List<? extends Filter> filters) {
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder, filters);
+        } else {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder, filters);
+        }
+    }
+
+    /**
+     * Возвращает заданную коллекцию, упорядоченную согласно порядку сортировки
+     *
+     * @param collectionName название коллекции
+     * @param sortOrder      порядок сортировки коллекции {@link ru.intertrust.cm.core.business.api.dto.SortOrder}
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName, SortOrder sortOrder) {
-        return findCollection(collectionName, sortOrder, Collections.EMPTY_LIST, 0, 0);
-    }
-
-    @Override
-    public IdentifiableObjectCollection findCollection(String collectionName) {
-        return findCollection(collectionName, null, Collections.EMPTY_LIST, 0, 0);
-    }
-
-    @Override
-    public int findCollectionCount(String collectionName, List<? extends Filter> filterValues) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
-        } catch (AccessException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionCount", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionCount",
-                    "collectionName:" + collectionName + " filterValues:" + filterValues, ex);
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.findCollection(collectionName, sortOrder);
+        } else {
+            return transactionalCollectionsService.findCollection(collectionName, sortOrder);
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
-        } catch (AccessException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
-                    "query:" + query + " offset:" + offset + " limit:" + limit, ex);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query) {
-        return findCollectionByQuery(query, 0, 0);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query,
-            List<? extends Value> params, int offset, int limit) {
-        try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
-        } catch (AccessException e) {
-            throw e;
-        } catch (Exception ex){
-            logger.error("Unexpected exception caught in findCollectionByQuery", ex);
-            throw new UnexpectedException("CollectionsService", "findCollectionByQuery",
-                    "query:" + query + " params: " + (params == null ? "null" : Arrays.toString(params.toArray()))
-                    +  " offset:" + offset + " limit:" + limit, ex);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params) {
-        return findCollectionByQuery(query, params, 0, 0);
-    }
-
+    /**
+     * Проверяет, пуста ли коллекция.
+     *
+     * @param collectionName название коллекции
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return пустая ли коллекция.
+     */
     @Override
     public boolean isCollectionEmpty(String collectionName, List<? extends Filter> filters) {
-        IdentifiableObjectCollection objectCollection = findCollection(collectionName, null, filters, 0, 1);
-        return objectCollection.size() == 0;
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.isCollectionEmpty(collectionName, filters);
+        } else {
+            return transactionalCollectionsService.isCollectionEmpty(collectionName, filters);
+        }
+    }
+
+    /**
+     * Возвращает заданную коллекцию
+     *
+     * @param collectionName название коллекции
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollection(String collectionName) {
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.findCollection(collectionName);
+        } else {
+            return transactionalCollectionsService.findCollection(collectionName);
+        }
+    }
+
+    /**
+     * Возвращает коллекцию по запросу
+     *
+     * @param query  запрос
+     * @param offset смещение. Если равно 0, то смещение не создается.
+     * @param limit  максимальное количество возвращаемых доменных объектов. Если равно 0, то не ограничивается
+     *               количество.
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, int offset, int limit) {
+        return transactionalCollectionsService.findCollectionByQuery(query, offset, limit);
+    }
+
+    /**
+     * Возвращает коллекцию по запросу
+     *
+     * @param query запрос
+     * @return коллекцию объектов {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObject}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query) {
+        return transactionalCollectionsService.findCollectionByQuery(query);
+    }
+
+    /**
+     * Возвращает количество элементов заданной коллекции, отфильтрованной согласно списку фильтров
+     *
+     * @param collectionName название коллекции
+     * @param filters        список фильтров {@link ru.intertrust.cm.core.business.api.dto.Filter}
+     * @return число элементов заданной коллекции
+     */
+    @Override
+    public int findCollectionCount(String collectionName, List<? extends Filter> filters) {
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        if (collectionConfig.isUseClone()) {
+            return nonTransactionalCollectionsService.findCollectionCount(collectionName, filters);
+        } else {
+            return transactionalCollectionsService.findCollectionCount(collectionName, filters);
+        }
+    }
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     * Используются нумерованные параметры вида {0}, {1} и т.д.
+     * При этом переданные параметры должны идти в том же порядке (в List<Value> params),
+     * в котором указаны их индексы в SQL запросе.
+     *
+     * @param query  SQL запрос
+     * @param params параметры запроса
+     * @param offset смещение. Если равно 0, то смещение не создается.
+     * @param limit  ограничение количества возвращенных доменных объектов. Если равно 0, то не ограничивается
+     *               количество.
+     * @return результат поиска в виде {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params, int offset, int limit) {
+        return transactionalCollectionsService.findCollectionByQuery(query, params, offset, limit);
+    }
+
+    /**
+     * Поиск коллекции доменных объектов, используя запрос с переданными параметрами.
+     *
+     * @param query  SQL запрос
+     * @param params параметры запроса
+     * @return результат поиска в виде {@link ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params) {
+        return transactionalCollectionsService.findCollectionByQuery(query, params);
     }
 }

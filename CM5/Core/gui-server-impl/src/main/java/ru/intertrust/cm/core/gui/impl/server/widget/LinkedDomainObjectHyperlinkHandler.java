@@ -63,8 +63,7 @@ public class LinkedDomainObjectHyperlinkHandler extends WidgetHandler {
 
     @Override
     public LinkedDomainObjectHyperlinkState getInitialState(WidgetContext context) {
-        ObjectCloner cloner = new ObjectCloner();
-        LinkedDomainObjectHyperlinkConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(),
+        LinkedDomainObjectHyperlinkConfig widgetConfig = ObjectCloner.getInstance().cloneObject(context.getWidgetConfig(),
                 LinkedDomainObjectHyperlinkConfig.class);
         LinkedDomainObjectHyperlinkState state = new LinkedDomainObjectHyperlinkState();
         ArrayList<Id> selectedIds = context.getAllObjectIds();

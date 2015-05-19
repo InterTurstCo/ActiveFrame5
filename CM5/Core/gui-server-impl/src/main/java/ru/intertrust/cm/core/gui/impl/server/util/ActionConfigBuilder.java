@@ -84,6 +84,9 @@ public class ActionConfigBuilder {
                 contextList.addContext(gContext);
                 continue;
             }
+            if (actionConfig instanceof WorkflowActionsConfig) {
+                continue;
+            }
             if (actionConfig instanceof ActionRefConfig) {
                 actionConfig = resolveActionReference((ActionRefConfig) actionConfig);
             }
@@ -120,6 +123,9 @@ public class ActionConfigBuilder {
             }
             final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
             if (!hasPermission(domainObject, (ActionConfig) config)) {
+                continue;
+            }
+            if (config instanceof WorkflowActionsConfig) {
                 continue;
             }
             currentContext = getContextForConfig(config, params);

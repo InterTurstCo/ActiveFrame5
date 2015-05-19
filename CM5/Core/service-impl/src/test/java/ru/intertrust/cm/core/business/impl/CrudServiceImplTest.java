@@ -40,7 +40,7 @@ public class CrudServiceImplTest {
 
     public final static String EXCEPTION_TEXT = "Working with Attachments allowed only through AttachmentService";
 
-    private CrudServiceImpl crudService = new CrudServiceImpl();
+    private CrudServiceBaseImpl crudService = new CrudServiceBaseImpl();
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

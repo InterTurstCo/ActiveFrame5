@@ -16,11 +16,13 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.CompleteTaskActionContext;
-import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 /**
@@ -105,24 +107,30 @@ public class TestProcess extends ClientBase {
             //Получение задачь у пользователя 5
             personActionService = getActionService("person5");
             actions = personActionService.getActions(attachment.getId());
-            assertTrue("Action count to task 1", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask1"));
+            SimpleActionContext context = (SimpleActionContext) actions.get(0);
+            SimpleActionConfig config = (SimpleActionConfig) context.getActionConfig();
+            assertTrue("Action count to task 1", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask1"));
 
             //Попытка завершить задачу другим пользователем, у кого нет задачи
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
-                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
-                try{
-                    getProcessService("person1").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                try {
+                    getProcessService("person1").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                            (String) config.getProperty("complete.task.action"));
                     assertTrue("Complete not person task", false);
-                }catch(Exception ignoreEx){
+                } catch (Exception ignoreEx) {
                     //Правильная ошибка
                 }
             }
-            
+
             // Получение всех задач пользователя и их завершение
             for (ActionContext actionContext : actions) {
-                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
-                getProcessService("person5").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                        (String) config.getProperty("complete.task.action"));
             }
 
             // Получение всех задач по документу который не прикреплен к
@@ -136,29 +144,39 @@ public class TestProcess extends ClientBase {
             //Получение задачь у пользователя 2, автора
             personActionService = getActionService("person2");
             actions = personActionService.getActions(attachment.getId());
-            assertTrue("Action count to task 2", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask2"));
+            context = (SimpleActionContext) actions.get(0);
+            config = (SimpleActionConfig) context.getActionConfig();
+            assertTrue("Action count to task 2", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask2"));
 
             // Получение всех задач по документу и их завершение
             for (ActionContext actionContext : actions) {
-                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
-                getProcessService("person2").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                getProcessService("person2").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                        (String) config.getProperty("complete.task.action"));
             }
 
             //Получение задачь у пользователя 3, подписывающего
             personActionService = getActionService("person3");
             actions = personActionService.getActions(attachment.getId());
-            assertTrue("Action count to task 3", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask6")
-                    && ((CompleteTaskActionContext) actions.get(0)).getTaskAction().equals("first-action"));
+            context = (SimpleActionContext) actions.get(0);
+            config = (SimpleActionConfig) context.getActionConfig();
+            assertTrue("Action count to task 3", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask6")
+                    && config.getProperty("complete.task.action").equals("first-action"));
 
             //Получение задачь у пользователя 4, регистратора
             personActionService = getActionService("person4");
             actions = personActionService.getActions(attachment.getId());
-            assertTrue("Action count to task 3", actions.size() == 1 && ((CompleteTaskActionContext) actions.get(0)).getActivityId().equals("usertask6")
-                    && ((CompleteTaskActionContext) actions.get(0)).getTaskAction().equals("second-action"));            
-            
+            context = (SimpleActionContext) actions.get(0);
+            config = (SimpleActionConfig) context.getActionConfig();
+            assertTrue("Action count to task 3", actions.size() == 1 && config.getProperty("complete.activity.id").equals("usertask6")
+                    && config.getProperty("complete.task.action").equals("second-action"));
+
             for (ActionContext actionContext : actions) {
-                CompleteTaskActionContext taskActionContext = (CompleteTaskActionContext) actionContext;
-                getProcessService("person4").completeTask(taskActionContext.getTaskId(), null, taskActionContext.getTaskAction());
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                getProcessService("person4").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                        (String) config.getProperty("complete.task.action"));
             }
 
             // Получение всех задач пользователя по документу и их завершение с
@@ -200,6 +218,38 @@ public class TestProcess extends ClientBase {
                 }
             }
 
+            //Проверка на то что попали и ждем в signalintermediatecatchevent1
+            attachment = crudService.find(attachment.getId());
+            assertFalse("White in signalintermediatecatchevent1 1", attachment.getString("test_text").endsWith("Получили уведомление."));
+
+            //отправка правильного сообщения
+            getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL", null);
+
+            //Строка должна изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Go then signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление."));
+
+            //отправка еще одного правильного сообщения
+            getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_2", null);
+
+            //Строка должна еще раз изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Go then scripttask9", attachment.getString("test_text").endsWith("Получили уведомление 2."));
+
+            //проверка event gateway
+            getProcessService("admin").sendProcessMessage("testSimpleProcess", attachment.getId(), "START_BY_SIGNAL_3", null);
+
+            //Строка должна еще раз изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check eventgateway1", attachment.getString("test_text").endsWith("Получили уведомление 3."));
+
+            //проверка отправки сигнала
+            getProcessService("admin").sendProcessSignal("START_BY_SIGNAL_5");
+
+            //Строка должна еще раз изменится
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));            
+            
             crudService.delete(attachmentNotInProcess.getId());
 
             log("Test complete");

@@ -27,6 +27,9 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -65,6 +68,7 @@ public class DoelResolver implements DoelEvaluator {
     private static final Logger log = LoggerFactory.getLogger(DoelResolver.class);
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
     //private NamedParameterJdbcTemplate jdbcTemplate;
 

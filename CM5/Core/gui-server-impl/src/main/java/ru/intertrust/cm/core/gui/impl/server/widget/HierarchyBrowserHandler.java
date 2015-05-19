@@ -55,8 +55,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
 
     @Override
     public HierarchyBrowserWidgetState getInitialState(WidgetContext context) {
-        ObjectCloner cloner = new ObjectCloner();
-        HierarchyBrowserConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), HierarchyBrowserConfig.class);
+        HierarchyBrowserConfig widgetConfig =
+                ObjectCloner.getInstance().cloneObject(context.getWidgetConfig(), HierarchyBrowserConfig.class);
         NodeCollectionDefConfig nodeConfig = widgetConfig.getNodeCollectionDefConfig();
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         Map<String, NodeCollectionDefConfig> collectionNameNodeMap = new HashMap<>();

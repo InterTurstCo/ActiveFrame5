@@ -9,7 +9,17 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "simple-action")
 public class SimpleActionConfig extends ActionConfig {
+    
+    public SimpleActionConfig(){
+        super();
+    }
 
+    public SimpleActionConfig(String actionHandler){
+        super();
+        this.actionHandler = actionHandler;
+    }
+    
+    
     @Attribute(name = "action-handler")
     private String actionHandler;
 
@@ -25,6 +35,10 @@ public class SimpleActionConfig extends ActionConfig {
         return actionHandler;
     }
 
+    public void setActionHandler(String actionHandler) {
+        this.actionHandler = actionHandler;
+    }
+    
     public boolean reReadInSameTransaction() {
         return reReadInSameTransaction;
     }

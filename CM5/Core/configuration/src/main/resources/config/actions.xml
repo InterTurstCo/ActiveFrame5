@@ -78,7 +78,7 @@
         <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
     </act:tool-bar>
     
-    <act:action name="aDigitalSignature" componentName="digital.signature.action"
+    <act:action name="aDigitalSignature" componentName="digital.signature.action" imageClass="actionBar-edit"
                 text="ЭЦП" tooltip="Подписать документ с помощью ЭЦП" order="100"
                 dirtySensitivity="true" permissions="Read"/>
     

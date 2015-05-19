@@ -744,6 +744,7 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
         <xs:attribute type="xs:string" name="idField" use="optional" />
+        <xs:attribute type="xs:boolean" name="useClone" use="optional" />
         <xs:attribute type="con:transactionCacheType" name="transaction-cache" default="disabled" use="optional" />
     </xs:complexType>
 

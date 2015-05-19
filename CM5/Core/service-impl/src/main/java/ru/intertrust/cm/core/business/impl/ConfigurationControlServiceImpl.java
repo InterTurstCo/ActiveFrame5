@@ -141,8 +141,8 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     }
 
     private Configuration buildNewConfiguration(Configuration configuration) {
-        Configuration oldConfigurationCopy = new ObjectCloner().
-                cloneObject(configurationExplorer.getConfiguration(), Configuration.class);
+        Configuration oldConfigurationCopy =
+                ObjectCloner.getInstance().cloneObject(configurationExplorer.getConfiguration(), Configuration.class);
 
         List<TopLevelConfig> newConfigs = new ArrayList<>();
 

@@ -227,7 +227,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("object_id", rdbmsObjectId.getId());
 
-        return jdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<AclInfo>>() {
+        return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<AclInfo>>() {
 
             @Override
             public List<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -396,7 +396,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         Map<String, Object> parameters =
                 initializeInsertAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
-        jdbcTemplate.update(query, parameters);
+        masterNamedParameterJdbcTemplate.update(query, parameters);
 
     }
 
@@ -414,7 +414,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         Map<String, Object> parameters =
                 initializeDeleteAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
-        jdbcTemplate.update(query, parameters);
+        masterNamedParameterJdbcTemplate.update(query, parameters);
 
     }
 
@@ -551,7 +551,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         String query = generateDeleteAclQuery(rdbmsObjectId, isAclReadTable);
         Map<String, Object> parameters = initializeDeleteAclParameters(rdbmsObjectId);
-        jdbcTemplate.update(query, parameters);
+        masterNamedParameterJdbcTemplate.update(query, parameters);
 
     }
 
@@ -615,7 +615,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                                         .getAutowireCapableBeanFactory()
                                         .createBean(
                                                 ContextRoleTrackDomainObjectCollector.class,
-                                                AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE,
+                                                AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                                 false);
                                 collector.init(contextRoleConfig, trackDomainObjectsConfig);
                                 registerCollector(collector, contextRoleConfig, configuration);
@@ -812,7 +812,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             parameters.put("person_id", ((RdbmsId) personId).getId());
         }
 
-        return jdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
+        return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<DomainObjectPermission>>() {
 
             @Override
             public List<DomainObjectPermission> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -975,7 +975,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("id", id.getId());
 
-        int typeId = jdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>() {
+        int typeId = switchableNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>() {
 
             @Override
             public Integer extractData(ResultSet rs) throws SQLException,

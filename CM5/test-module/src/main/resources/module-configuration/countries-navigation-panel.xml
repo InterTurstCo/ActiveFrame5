@@ -486,6 +486,16 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="InternalDocuments" display-text="Внутренние документы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="Internal_Document">
+                            <collection-viewer>
+                                <collection-ref name="internal_documents"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
 
                 <link name="Letters2" display-text="Письма2">
                     <plugin>
@@ -1624,6 +1634,7 @@
             <users>
                 <user uid="admin"/>
                 <user uid="person1"/>
+                <user uid="person3"/>
             </users>
             <!--groups>
                 <group-name value="test-group-1" priority="20"/>

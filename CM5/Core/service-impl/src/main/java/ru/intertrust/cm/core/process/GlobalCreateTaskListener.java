@@ -117,13 +117,16 @@ public class GlobalCreateTaskListener extends SpringClient implements
                 }
                 taskDomainObject.setString("Actions", actions.toString());
             }
-            else if (formProperty.getId().equals("MAIN_ATTACHMENT_ID")) {
+            else if (formProperty.getId().equals(ProcessService.CTX_ID)) {
+                mainAttachmentId = formProperty.getValue();
+            }
+            //Для совместимости
+            else if (formProperty.getId().equals(ProcessService.MAIN_ATTACHMENT_ID)) {
                 mainAttachmentId = formProperty.getValue();
             }
         }
-        //Id mainAttachmentId = ((Id) delegateTask.getVariable("MAIN_ATTACHMENT_ID"));
         if (mainAttachmentId == null) {
-            throw new ProcessException("MAIN_ATTACHMENT_ID is requred");
+            throw new ProcessException("CTX_ID is requred");
         }
         taskDomainObject.setReference("MainAttachment", idService.createId(mainAttachmentId));
 
@@ -135,7 +138,7 @@ public class GlobalCreateTaskListener extends SpringClient implements
         List<DomainObject> assigneeList = getAssigneeList(idService.createId(mainAttachmentId), delegateTask.getAssignee(), accessToken);
         for (DomainObject assignee : assigneeList) {
             // Создание связанного AssigneePerson или AssigneeGroup
-            if (assignee.getTypeName().equals("UserGroup")) {
+            if (assignee.getTypeName().equals("User_Group")) {
                 DomainObject assigneePersonDomainObject = createDomainObject("Assignee_Group");
 
                 assigneePersonDomainObject.setReference("PersonTask",

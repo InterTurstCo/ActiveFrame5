@@ -27,6 +27,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
@@ -104,7 +105,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private static final String RESULT_TYPE_ID = "result_type_id";
 
     @Autowired
-    private NamedParameterJdbcOperations jdbcTemplate;
+    @Qualifier("masterNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations masterJdbcTemplate;
+
+    @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations switchableJdbcTemplate;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -160,8 +166,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         this.permissionService = permissionService;
     }
 
-    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public void setMasterJdbcTemplate(NamedParameterJdbcOperations masterJdbcTemplate) {
+        this.masterJdbcTemplate = masterJdbcTemplate;
     }
 
     public void setDomainObjectQueryHelper(DomainObjectQueryHelper domainObjectQueryHelper) {
@@ -508,7 +514,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus);
             }
 
-            int[] count = jdbcTemplate.batchUpdate(query, parameters);
+            int[] count = masterJdbcTemplate.batchUpdate(query, parameters);
 
             for (int i = 0; i < updatedObjects.length; i++) {
                 if (count[i] == 0 && (!exists(updatedObjects[i].getId()))) {
@@ -726,7 +732,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
 
-        int[] deletedObjects = jdbcTemplate.batchUpdate(query, parameters);
+        int[] deletedObjects = masterJdbcTemplate.batchUpdate(query, parameters);
 
         int count = 0;
         for (int deletedObject : deletedObjects) {
@@ -856,7 +862,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.append(generateExistsQuery(getDOTypeName(rdbmsId.getTypeId())));
 
         Map<String, Object> parameters = initializeExistsParameters(id);
-        long total = jdbcTemplate.queryForObject(query.toString(), parameters,
+        long total = switchableJdbcTemplate.queryForObject(query.toString(), parameters,
                 Long.class);
 
         return total > 0;
@@ -881,7 +887,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, false);
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
 
-        DomainObject result = jdbcTemplate.query(query, parameters,
+        DomainObject result = switchableJdbcTemplate.query(query, parameters,
                 new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
 
         if (result != null) {
@@ -910,7 +916,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, true);
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
 
-        DomainObject result = jdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
+        DomainObject result = masterJdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
                 typeName, configurationExplorer, domainObjectTypeIdCache));
 
         if (result != null) {
@@ -967,7 +973,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(domainObjectType));
         }
 
-        result = jdbcTemplate.query(query, parameters,
+        result = switchableJdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
         
@@ -1071,7 +1077,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("object_ids", listIds);
             parameters.putAll(aclParameters);
 
-            readDomainObjects = jdbcTemplate.query(query
+            readDomainObjects = switchableJdbcTemplate.query(query
                     .toString(), parameters, new MultipleObjectRowMapper(
                     domainObjectType, configurationExplorer,
                     domainObjectTypeIdCache));
@@ -1137,7 +1143,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
 
-        List<DomainObject> domainObjects = jdbcTemplate.query(query, parameters,
+        List<DomainObject> domainObjects = switchableJdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(linkedType, configurationExplorer, domainObjectTypeIdCache));
 
         if (domainObjects == null) {
@@ -1201,7 +1207,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String query = buildFindChildrenIdsQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
 
-        return jdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
+        return switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
     }
 
     /**
@@ -1904,7 +1910,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters[i] = initializeCreateParameters(
                     updatedObjects[i], domainObjectTypeConfig, type, accessToken);
         }
-        jdbcTemplate.batchUpdate(query, parameters);
+        masterJdbcTemplate.batchUpdate(query, parameters);
 
         return updatedObjects;
     }
@@ -1943,7 +1949,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String query = "select s.* from " + wrap(STATUS_DO) + " s where s." + wrap("name") + "=:name";
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
-        DomainObject statusDO = jdbcTemplate.query(query, paramMap,
+        DomainObject statusDO = switchableJdbcTemplate.query(query, paramMap,
                 new SingleObjectRowMapper(STATUS_DO, configurationExplorer,
                         domainObjectTypeIdCache));
         if (statusDO == null) {
@@ -2077,7 +2083,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                             parameters);
                 }
 
-                jdbcTemplate.update(query, parameters);
+                masterJdbcTemplate.update(query, parameters);
             }
 
         }

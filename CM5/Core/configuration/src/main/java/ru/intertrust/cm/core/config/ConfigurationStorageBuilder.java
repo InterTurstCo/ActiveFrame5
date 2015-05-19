@@ -76,8 +76,8 @@ public class ConfigurationStorageBuilder {
             typeMap = new CaseInsensitiveMap<>();
             configurationStorage.localizedConfigMap.put(key, typeMap);
         }
-        ObjectCloner cloner = new ObjectCloner();
-        LocalizableConfig clonedConfig = cloner.cloneObject(config, config.getClass());
+
+        LocalizableConfig clonedConfig = ObjectCloner.getInstance().cloneObject(config, config.getClass());
         localize(locale, clonedConfig);
         typeMap.put(config.getName(), clonedConfig);
     }
@@ -156,8 +156,7 @@ public class ConfigurationStorageBuilder {
             configurationStorage.localizedToolbarConfigMap.put(locale, toolbarMap);
         }
         if (toolbarMap.get(toolBarConfig.getPlugin()) == null) {
-            ObjectCloner cloner = new ObjectCloner();
-            ToolBarConfig clonedConfig = cloner.cloneObject(toolBarConfig, toolBarConfig.getClass());
+            ToolBarConfig clonedConfig = ObjectCloner.getInstance().cloneObject(toolBarConfig, toolBarConfig.getClass());
             localize(locale, clonedConfig);
             toolbarMap.put(clonedConfig.getPlugin(), clonedConfig);
         }
@@ -571,8 +570,7 @@ public class ConfigurationStorageBuilder {
         }
         
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            ObjectCloner cloner = new ObjectCloner();
-            final FieldConfig clonedConfig = cloner.cloneObject(fieldConfig, fieldConfig.getClass());
+            final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig, fieldConfig.getClass());
             clonedConfig.setNotNull(false);
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 

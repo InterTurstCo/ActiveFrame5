@@ -15,27 +15,14 @@ import ru.intertrust.cm.core.config.gui.GroupConfig;
 import ru.intertrust.cm.core.config.gui.GroupsConfig;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
-import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
-import ru.intertrust.cm.core.config.gui.form.FormMappingsConfig;
-import ru.intertrust.cm.core.config.gui.form.FormWidgetAccessConfig;
-import ru.intertrust.cm.core.config.gui.form.HideWidgetConfig;
-import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
-import ru.intertrust.cm.core.config.gui.form.WidgetRefConfig;
+import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -174,9 +161,15 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @PostConstruct
     private synchronized void initCaches() {
-        editingFormsCache = new FormsCache(FormConfig.TYPE_EDIT);
-        searchFormsCache = new FormsCache(FormConfig.TYPE_SEARCH);
-        reportFormsCache = new FormsCache(FormConfig.TYPE_REPORT);
+        if (editingFormsCache == null) {
+            editingFormsCache = new FormsCache(FormConfig.TYPE_EDIT);
+        }
+        if (searchFormsCache == null) {
+            searchFormsCache = new FormsCache(FormConfig.TYPE_SEARCH);
+        }
+        if (reportFormsCache == null) {
+            reportFormsCache = new FormsCache(FormConfig.TYPE_REPORT);
+        }
     }
 
     private synchronized void resetCaches() {

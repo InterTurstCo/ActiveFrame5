@@ -52,8 +52,7 @@ public class CollectionColumnWidthActionHandler extends ActionHandler<Collection
         if (collectionViewConfig == null) {
             collectionViewConfig =
                     configurationService.getConfig(CollectionViewConfig.class, context.getCollectionViewName());
-            final ObjectCloner cloner = new ObjectCloner();
-            collectionViewConfig = cloner.cloneObject(collectionViewConfig, CollectionViewConfig.class);
+            collectionViewConfig = ObjectCloner.getInstance().cloneObject(collectionViewConfig, CollectionViewConfig.class);
         }
         Map<String, String> fieldWidthMap = context.getFieldWidthMap();
         for (Map.Entry<String, String> entry : fieldWidthMap.entrySet()) {

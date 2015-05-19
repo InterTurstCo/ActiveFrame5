@@ -22,6 +22,9 @@ public class CollectionConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String idField;
 
+    @Attribute(required = false)
+    private boolean useClone = false;
+
     public enum TransactionCacheType {
         enabled("enabled"),
         disabled("disabled");
@@ -114,6 +117,14 @@ public class CollectionConfig implements TopLevelConfig {
         this.generator = generator;
     }
 
+    public boolean isUseClone() {
+        return useClone;
+    }
+
+    public void setUseClone(boolean useClone) {
+        this.useClone = useClone;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -141,6 +152,9 @@ public class CollectionConfig implements TopLevelConfig {
             return false;
         }
         if (generator != null ? !generator.equals(that.generator) : that.generator != null) {
+            return false;
+        }
+        if (useClone != that.useClone) {
             return false;
         }
         if (transactionCache != that.transactionCache) {

@@ -36,5 +36,6 @@
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
         </act:action-group>
+        <act:workflow-actions/>
     </act:action-group>
 </configuration>

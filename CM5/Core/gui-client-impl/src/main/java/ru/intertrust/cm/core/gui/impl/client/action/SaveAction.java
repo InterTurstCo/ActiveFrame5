@@ -57,7 +57,6 @@ public class SaveAction extends SimpleServerAction {
         if (plugin.getLocalEventBus() != null) {
             editor.setFormState(formPluginData.getFormDisplayData().getFormState());
             editor.setFormToolbarContext(formPluginData.getToolbarContext());
-            plugin.getView().updateActionToolBar();
             plugin.getLocalEventBus().fireEvent(new UpdateCollectionEvent(root));
         }
     }

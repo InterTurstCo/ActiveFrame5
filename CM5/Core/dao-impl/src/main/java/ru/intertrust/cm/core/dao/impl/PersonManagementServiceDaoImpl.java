@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -46,6 +47,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
+    @Qualifier("switchableNamedParameterJdbcTemplate")
     private NamedParameterJdbcOperations jdbcTemplate;
 
     @Autowired

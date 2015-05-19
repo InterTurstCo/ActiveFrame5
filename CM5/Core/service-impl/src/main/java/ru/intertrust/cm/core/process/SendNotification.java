@@ -34,7 +34,7 @@ public class SendNotification extends SpringClient implements JavaDelegate {
     public void execute(DelegateExecution execution) throws Exception {
         NotificationAddresseeConverter converter = (NotificationAddresseeConverter) addressee.getValue(execution);
         NotificationContext notificationContext = new NotificationContext();
-        notificationContext.addContextObject("document", (Id) context.getValue(execution));
+        notificationContext.addContextObject("document", idService.createId((String)context.getValue(execution)));
         notificationService.sendOnTransactionSuccess(
                 (String) notificationType.getValue(execution),
                 (Id)null,

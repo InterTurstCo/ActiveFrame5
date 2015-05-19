@@ -52,8 +52,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
         SuggestBoxState state = new SuggestBoxState();
-        ObjectCloner cloner = new ObjectCloner();
-        SuggestBoxConfig widgetConfig = cloner.cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
+        SuggestBoxConfig widgetConfig = ObjectCloner.getInstance().cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
         DomainObject root = context.getFormObjects().getRootNode().getDomainObject();

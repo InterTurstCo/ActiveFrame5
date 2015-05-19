@@ -51,8 +51,7 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
         if (collectionViewConfig == null) {
             collectionViewConfig =
                     configurationService.getConfig(CollectionViewConfig.class, context.getCollectionViewName());
-            final ObjectCloner cloner = new ObjectCloner();
-            collectionViewConfig = cloner.cloneObject(collectionViewConfig, CollectionViewConfig.class);
+            collectionViewConfig = ObjectCloner.getInstance().cloneObject(collectionViewConfig, CollectionViewConfig.class);
         }
         collectionViewConfig.getCollectionDisplayConfig().updateColumnOrder(context.getOrders());
         final String configAsStr = PluginHandlerHelper.serializeToXml(collectionViewConfig);

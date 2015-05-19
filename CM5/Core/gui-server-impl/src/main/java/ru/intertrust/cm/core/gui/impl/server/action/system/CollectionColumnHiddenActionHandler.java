@@ -51,8 +51,7 @@ public class CollectionColumnHiddenActionHandler extends ActionHandler<Collectio
         if (collectionViewConfig == null) {
             collectionViewConfig =
                     configurationService.getConfig(CollectionViewConfig.class, context.getCollectionViewName());
-            final ObjectCloner cloner = new ObjectCloner();
-            collectionViewConfig = cloner.cloneObject(collectionViewConfig, CollectionViewConfig.class);
+            collectionViewConfig = ObjectCloner.getInstance().cloneObject(collectionViewConfig, CollectionViewConfig.class);
         }
         collectionViewConfig.getCollectionDisplayConfig().updateColumnHidden(context.getHiddenFields());
         final String configAsStr = PluginHandlerHelper.serializeToXml(collectionViewConfig);
