@@ -12,7 +12,7 @@ public class ObjectNotFoundException extends SystemException {
     private final Id id;
 
     public ObjectNotFoundException(Id id) {
-        super();
+        super(id== null ? "null" : id.toStringRepresentation());
         this.id = id;
     }
 
