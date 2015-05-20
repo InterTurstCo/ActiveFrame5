@@ -125,6 +125,9 @@
     <jee:local-slsb id="cryptoService"
                     jndi-name="java:module/CryptoService!ru.intertrust.cm.core.business.api.crypto.CryptoService"
                     business-interface="ru.intertrust.cm.core.business.api.crypto.CryptoService"/>
+    <jee:local-slsb id="permissionService"
+                    jndi-name="java:module/PermissionService!ru.intertrust.cm.core.business.api.PermissionService"
+                    business-interface="ru.intertrust.cm.core.business.api.PermissionService"/>                    
 
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
