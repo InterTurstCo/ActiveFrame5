@@ -1210,6 +1210,37 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
     }
 
+    @Override
+    public Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+        CaseInsensitiveMap<Value> uniqueKeyValues = new CaseInsensitiveMap<>(uniqueKeyValuesByName);
+
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
+        if (domainObjectTypeConfig == null) {
+            throw new IllegalArgumentException("Unknown domain object type:" + domainObjectType);
+        }
+
+        List<UniqueKeyConfig> uniqueKeyConfigs = domainObjectTypeConfig.getUniqueKeyConfigs();
+        UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValues);
+
+        String query = generateFindByUniqueKeyQuery(domainObjectType, uniqueKeyConfig);
+
+        List<Value> params = new ArrayList<>();
+        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+            String name = uniqueKeyFieldConfig.getName().toLowerCase();
+
+            Value value = uniqueKeyValues.get(name);
+            //ссылочные параметры обрабатываются в collectionsDao.findCollectionByQuery()
+            params.add(value);
+        }
+
+        IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        if (identifiableObjectCollection.size() == 0){
+            throw new ObjectNotFoundException(new RdbmsId());
+        }
+
+        return identifiableObjectCollection.get(0).getId();
+    }
+
     /**
      * Инициализирует параметры для для создания доменного объекта
      *
@@ -2338,37 +2369,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return result;
-    }
-
-    @Override
-    public Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
-        CaseInsensitiveMap<Value> uniqueKeyValues = new CaseInsensitiveMap<>(uniqueKeyValuesByName);
-        
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
-        if (domainObjectTypeConfig == null) {
-            throw new IllegalArgumentException("Unknown domain object type:" + domainObjectType);
-        }
-
-        List<UniqueKeyConfig> uniqueKeyConfigs = domainObjectTypeConfig.getUniqueKeyConfigs();
-        UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValues);
-
-        String query = generateFindByUniqueKeyQuery(domainObjectType, uniqueKeyConfig);
-
-        List<Value> params = new ArrayList<>();
-        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
-            String name = uniqueKeyFieldConfig.getName().toLowerCase();
-
-            Value value = uniqueKeyValues.get(name);
-            //ссылочные параметры обрабатываются в collectionsDao.findCollectionByQuery()
-            params.add(value);
-        }
-
-        IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
-        if (identifiableObjectCollection.size() == 0){
-            throw new ObjectNotFoundException(new RdbmsId());
-        }
-
-        return identifiableObjectCollection.get(0).getId();
     }
 
     private UniqueKeyConfig findUniqueKeyConfig(String domainObjectType, List<UniqueKeyConfig> uniqueKeyConfigs, CaseInsensitiveMap<Value> uniqueKeyValuesByName) {
