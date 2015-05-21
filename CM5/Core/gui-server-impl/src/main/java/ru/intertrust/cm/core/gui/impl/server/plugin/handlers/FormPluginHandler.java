@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
@@ -22,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -85,10 +87,43 @@ public class FormPluginHandler extends ActivePluginHandler {
         } else {
             otherActions = actionService.getActions(config.getDomainObjectTypeToCreate());
         }
+
         if (otherActions != null && !otherActions.isEmpty()) {
+            Iterator<ActionContext> i = otherActions.iterator();
+            while(i.hasNext()){
+                ActionContext currentContext = i.next();
+                if(currentContext instanceof SimpleActionContext){
+                    SimpleActionConfig saConfig = ((SimpleActionContext)currentContext).getActionConfig();
+                    if(saConfig.getActionHandler().equals("generic.workflow.action")){
+                        if(actionMovedToMenu(toolbarContext,(SimpleActionContext)currentContext))
+                            i.remove();
+                    }
+                }
+            }
+
             toolbarContext.addContexts(otherActions, ToolbarContext.FacetName.LEFT);
         }
         return toolbarContext;
+    }
+
+    private Boolean actionMovedToMenu(ToolbarContext toolbarContext,SimpleActionContext actionContext){
+        String actionName = ((SimpleActionConfig)actionContext.getActionConfig()).getName();
+        for(ActionContext aContext : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)){
+            if(aContext.getActionConfig() instanceof ActionGroupConfig){
+                for(AbstractActionConfig childConfig :((ActionGroupConfig) aContext.getActionConfig()).getChildren()){
+                    if(childConfig instanceof WorkflowActionsConfig){
+                        for(WorkflowActionConfig waConfig :((WorkflowActionsConfig) childConfig).getActions()){
+                            if(waConfig.getName().equals(actionName)){
+                                aContext.getInnerContexts().add(actionContext);
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return false;
     }
 
     private ToolbarContext getToolbarContexts(final FormPluginConfig pluginConfig, final FormDisplayData formData) {
