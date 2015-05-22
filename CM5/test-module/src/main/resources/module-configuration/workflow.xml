@@ -604,6 +604,8 @@
             <act:action-param name="action.type" value="send.message"/>
             <act:action-param name="process.name" value="TestInternalDocument" />
             <act:action-param name="message.name" value="CANCEL_REGISTRATION"/>
+            <act:action-param name="message.param.xxxx" value="XXX_VALUE"/>
+            <act:action-param name="message.param.yyy" value="YYY_VALUE"/>
         </act:action-params>
         <act:before-execution>
             <!-- Текст-подтверждение перед выполнением данного действия -->

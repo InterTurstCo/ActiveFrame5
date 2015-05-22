@@ -35,7 +35,10 @@
     <sequenceFlow id="flow9" sourceRef="revisionDocument" targetRef="secondRevisionTask"></sequenceFlow>
     <sequenceFlow id="flow10" sourceRef="exclusivegateway3" targetRef="scripttask3"></sequenceFlow>
     <scriptTask id="scripttask4" name="Установка статуса черновик" scriptFormat="javascript" activiti:autoStoreVariables="false">
-      <script>CTX.setStatus("Draft");</script>
+      <script>CTX.setStatus("Draft");
+var newName = CTX.get("name") + xxxx.get();
+CTX.set("name", newName);
+CTX.save();</script>
     </scriptTask>
     <exclusiveGateway id="exclusivegateway4" name="Exclusive Gateway"></exclusiveGateway>
     <exclusiveGateway id="exclusivegateway5" name="Exclusive Gateway"></exclusiveGateway>
