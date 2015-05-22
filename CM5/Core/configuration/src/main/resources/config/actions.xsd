@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema targetNamespace="https://cm5.intertrust.ru/config/action" elementFormDefault="qualified"
-        xmlns:xs="http://www.w3.org/2001/XMLSchema"
-        xmlns:act="https://cm5.intertrust.ru/config/action">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <xs:element name="menu-bar" type="act:menuBarType"/>
     <xs:element name="tool-bar" type="act:toolBarType"/>
@@ -13,6 +13,7 @@
     <xs:element name="action-group-ref" type="act:actionGroupRefType" substitutionGroup="act:abstract-action"/>
     <xs:element name="simple-action" type="act:simpleActionType" substitutionGroup="act:abstract-action"/>
     <xs:element name="workflow-actions" type="act:workflowActionsType"/>
+    <xs:element name="workflow-action" type="act:workflowActionType"/>
 
     <xs:element name="abstract-action" type="act:abstractActionType" abstract="true"/>
 
@@ -23,7 +24,7 @@
     </xs:attributeGroup>
 
     <xs:attributeGroup name="activeAttributeGroup">
-        <xs:attribute name="disabled" type="xs:boolean" default="false" />
+        <xs:attribute name="disabled" type="xs:boolean" default="false"/>
     </xs:attributeGroup>
 
     <xs:simpleType name="componentNameType">
@@ -44,11 +45,19 @@
 
     <xs:attributeGroup name="actionAttributeGroup">
         <xs:attributeGroup ref="act:baseAttributeGroup"/>
-        <xs:attribute name="order" type="xs:positiveInteger" />
-        <xs:attribute name="merged" type="xs:boolean" default="false" />
+        <xs:attribute name="order" type="xs:positiveInteger"/>
+        <xs:attribute name="merged" type="xs:boolean" default="false"/>
     </xs:attributeGroup>
 
-    <xs:complexType name="workflowActionsType"/>
+    <xs:complexType name="workflowActionsType">
+        <xs:sequence>
+            <xs:element ref="act:workflow-action" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="workflowActionType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+    </xs:complexType>
 
     <xs:complexType name="abstractActionType" abstract="true"/>
 
@@ -81,22 +90,21 @@
                 <xs:attributeGroup ref="act:actionAttributeGroup"/>
                 <xs:attributeGroup ref="act:activeAttributeGroup"/>
                 <xs:attribute name="name" type="xs:string" use="optional"/>
-                <xs:attribute name="componentName" type="act:componentNameType" use="required" />
-                <xs:attribute name="text" type="xs:string" />
-                <xs:attribute name="image" type="xs:string" />
-                <xs:attribute name="imageClass" type="xs:string" />
+                <xs:attribute name="componentName" type="act:componentNameType" use="required"/>
+                <xs:attribute name="text" type="xs:string"/>
+                <xs:attribute name="image" type="xs:string"/>
+                <xs:attribute name="imageClass" type="xs:string"/>
                 <xs:attribute name="tooltip" type="xs:string"/>
-                <xs:attribute name="immediate" type="xs:boolean" default="false" />
-                <xs:attribute name="action" type="xs:string" />
+                <xs:attribute name="immediate" type="xs:boolean" default="false"/>
+                <xs:attribute name="action" type="xs:string"/>
                 <xs:attribute name="display" type="act:displayType"/>
                 <xs:attribute name="type" type="act:actionType" default="perform"/>
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
-                <xs:attribute name="groupId" type="xs:string" />
+                <xs:attribute name="groupId" type="xs:string"/>
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-
 
 
     <xs:complexType name="actionGroupType">
@@ -112,9 +120,9 @@
                 <xs:attributeGroup ref="act:actionAttributeGroup"/>
                 <xs:attributeGroup ref="act:activeAttributeGroup"/>
                 <xs:attribute name="name" type="xs:string" use="optional"/>
-                <xs:attribute name="text" type="xs:string" />
-                <xs:attribute name="image" type="xs:string" />
-                <xs:attribute name="imageClass" type="xs:string" />
+                <xs:attribute name="text" type="xs:string"/>
+                <xs:attribute name="image" type="xs:string"/>
+                <xs:attribute name="imageClass" type="xs:string"/>
                 <xs:attribute name="tooltip" type="xs:string"/>
                 <xs:attribute name="display" type="act:displayType"/>
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
@@ -131,9 +139,9 @@
                 <xs:attribute name="text" type="xs:string" use="optional"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
-                <xs:attribute name="order" type="xs:positiveInteger" />
+                <xs:attribute name="order" type="xs:positiveInteger"/>
                 <xs:attribute name="rendered" type="xs:string" default="true"/>
-                <xs:attribute name="merged" type="xs:boolean" default="false" />
+                <xs:attribute name="merged" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -154,9 +162,9 @@
                 <xs:attribute name="text" type="xs:string" use="optional"/>
                 <xs:attribute name="showText" type="xs:boolean" default="true"/>
                 <xs:attribute name="showImage" type="xs:boolean" default="true"/>
-                <xs:attribute name="order" type="xs:positiveInteger" />
+                <xs:attribute name="order" type="xs:positiveInteger"/>
                 <xs:attribute name="rendered" type="xs:string" default="true"/>
-                <xs:attribute name="merged" type="xs:boolean" default="false" />
+                <xs:attribute name="merged" type="xs:boolean" default="false"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -172,45 +180,45 @@
 
     <xs:complexType name="menuBarType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element ref="act:abstract-action" />
+            <xs:element ref="act:abstract-action"/>
         </xs:choice>
-        <xs:attributeGroup ref="act:baseAttributeGroup" />
-        <xs:attribute name="componentName" type="act:componentNameType" default="action.menu.bar" />
+        <xs:attributeGroup ref="act:baseAttributeGroup"/>
+        <xs:attribute name="componentName" type="act:componentNameType" default="action.menu.bar"/>
     </xs:complexType>
 
     <xs:complexType name="toolBarType">
         <xs:sequence>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element ref="act:abstract-action" />
+                <xs:element ref="act:abstract-action"/>
             </xs:choice>
             <xs:element name="facet" minOccurs="0" maxOccurs="1">
                 <xs:complexType>
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
-                        <xs:element ref="act:abstract-action" />
+                        <xs:element ref="act:abstract-action"/>
                     </xs:choice>
                     <xs:attribute name="name" use="required">
                         <xs:simpleType>
                             <xs:restriction base="xs:string">
-                                <xs:enumeration value="right" />
+                                <xs:enumeration value="right"/>
                             </xs:restriction>
                         </xs:simpleType>
                     </xs:attribute>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attributeGroup ref="act:baseAttributeGroup" />
-        <xs:attribute name="componentName" type="act:componentNameType" default="action.tool.bar" />
-        <xs:attribute name="plugin" type="xs:string" />
-        <xs:attribute name="useDefault" type="xs:boolean" default="true" />
+        <xs:attributeGroup ref="act:baseAttributeGroup"/>
+        <xs:attribute name="componentName" type="act:componentNameType" default="action.tool.bar"/>
+        <xs:attribute name="plugin" type="xs:string"/>
+        <xs:attribute name="useDefault" type="xs:boolean" default="true"/>
         <xs:attribute name="name" type="xs:string"/>
     </xs:complexType>
 
 
     <xs:simpleType name="displayType">
         <xs:restriction base="xs:string">
-            <xs:enumeration value="button" />
+            <xs:enumeration value="button"/>
             <xs:enumeration value="toggleButton"/>
-            <xs:enumeration value="link" />
+            <xs:enumeration value="link"/>
         </xs:restriction>
     </xs:simpleType>
 
@@ -229,7 +237,8 @@
     <xs:complexType name="onSuccessMessageType">
         <xs:complexContent>
             <xs:extension base="act:messageType">
-                <xs:attribute name="success-notification-type" type="act:notificationType" default="fading" use="optional"/>
+                <xs:attribute name="success-notification-type" type="act:notificationType" default="fading"
+                              use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -317,21 +326,21 @@
                         <xs:element name="status" type="xs:string" minOccurs="0" maxOccurs="1"/>
                         <xs:element name="attribute" minOccurs="0" maxOccurs="unbounded">
                             <xs:complexType>
-                                <xs:attribute name="name" type="xs:string" use="required" />
-                                <xs:attribute name="value" type="xs:string" use="required" />
+                                <xs:attribute name="name" type="xs:string" use="required"/>
+                                <xs:attribute name="value" type="xs:string" use="required"/>
                             </xs:complexType>
                         </xs:element>
-                        <xs:element name="class-name" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+                        <xs:element name="class-name" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
             <xs:element name="action" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
-                    <xs:attribute name="name" use="required" type="xs:string" />
+                    <xs:attribute name="name" use="required" type="xs:string"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>
-        <xs:attribute name="name" use="required" type="xs:string" />
+        <xs:attribute name="name" use="required" type="xs:string"/>
     </xs:complexType>
 
     <xs:complexType name="actionParamsType">
@@ -353,7 +362,7 @@
                 <xs:element name="view-id" type="xs:QName"/>
                 <xs:element name="page-name" type="xs:string"/>
             </xs:sequence>
-            <xs:attribute name="id" type="xs:string" use="required" />
+            <xs:attribute name="id" type="xs:string" use="required"/>
         </xs:complexType>
     </xs:element>
 
@@ -364,7 +373,7 @@
     </xs:complexType>
 
     <xs:complexType name="validatorType">
-        <xs:attribute name="class-name" type="xs:string" use="required" />
+        <xs:attribute name="class-name" type="xs:string" use="required"/>
         <xs:attribute name="widget-id" type="xs:string" use="required"/>
     </xs:complexType>
 </xs:schema>

@@ -364,15 +364,24 @@ public class ProcessServiceImpl implements ProcessService {
                             accessToken);
 
             List<DomainObject> result = new ArrayList<DomainObject>();
+            List<Id> taskIds = new ArrayList<Id>();
             for (IdentifiableObject item : collection1) {
-                DomainObject task = domainObjectDao
-                        .find(item.getId(), accessToken);
-                result.add(task);
+                //Добавляем только уникальные записи
+                if (!taskIds.contains(item.getId())){
+                    DomainObject task = domainObjectDao
+                            .find(item.getId(), accessToken);
+                    result.add(task);
+                    taskIds.add(item.getId());
+                }
             }
             for (IdentifiableObject item : collection2) {
-                DomainObject task = domainObjectDao
-                        .find(item.getId(), accessToken);
-                result.add(task);
+                //Добавляем только уникальные записи
+                if (!taskIds.contains(item.getId())){
+                    DomainObject task = domainObjectDao
+                            .find(item.getId(), accessToken);
+                    result.add(task);
+                    taskIds.add(item.getId());
+                }
             }
             return result;
         } catch (AccessException ex) {

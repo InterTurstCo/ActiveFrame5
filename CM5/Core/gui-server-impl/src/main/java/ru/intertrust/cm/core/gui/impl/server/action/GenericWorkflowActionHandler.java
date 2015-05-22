@@ -1,10 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -17,20 +25,19 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * @author Sergey.Okolot
- *         Created on 03.11.2014 16:19.
+ * @author Sergey.Okolot Created on 03.11.2014 16:19.
  */
 @ComponentName("generic.workflow.action")
 public class GenericWorkflowActionHandler
         extends ActionHandler<SimpleActionContext, SimpleActionData> {
+    private static String MESSAGE_PARAM_PREFIX = "message.param."; 
 
-    @Autowired private ProcessService processService;
+    @Autowired
+    private ProcessService processService;
 
-    @Autowired private ProfileService profileService;
+    @Autowired
+    private ProfileService profileService;
 
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
@@ -50,7 +57,7 @@ public class GenericWorkflowActionHandler
             throw new GuiException(buildMessage(LocalizationKeys.GUI_EXCEPTION_NO_PROCESS_NAME,
                     "Не задано имя процесса"));
         }
-        switch(processType) {
+        switch (processType) {
             case "start.process":
                 processService.startProcess(processName, domainObjectId, null);
                 break;
@@ -60,7 +67,17 @@ public class GenericWorkflowActionHandler
                         actionConfig.getProperty("complete.task.action"));
                 break;
             case "send.message":
-                processService.sendProcessMessage(processName, domainObjectId, actionConfig.getProperty("message.name"), null);
+                //Получение параметров
+                List<ProcessVariable> variables = new ArrayList<ProcessVariable>();
+                for (String paramName : actionConfig.getProperties().keySet()) {
+                    if (paramName.startsWith(MESSAGE_PARAM_PREFIX)) {
+                        ProcessVariable processVariable = new ProcessVariable();
+                        processVariable.setName(paramName.substring(MESSAGE_PARAM_PREFIX.length()));
+                        processVariable.setValue(new StringValue(actionConfig.getProperty(paramName)));
+                        variables.add(processVariable);
+                    }
+                }
+                processService.sendProcessMessage(processName, domainObjectId, actionConfig.getProperty("message.name"), variables);
                 break;
             case "send.signal":
                 processService.sendProcessSignal(actionConfig.getProperty("signal.name"));
@@ -83,9 +100,9 @@ public class GenericWorkflowActionHandler
         return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
     }
 
-    private String buildMessage(String message, String defaultValue, Pair<String, String> ... params) {
+    private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
         Map<String, String> paramsMap = new HashMap<>();
-        for (Pair<String, String> pair  : params) {
+        for (Pair<String, String> pair : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
         return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);

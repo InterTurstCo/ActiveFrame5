@@ -1,21 +1,21 @@
 TYPE_NAME=Status; KEYS=Name
 "Name	";"Description"
-"Active	";РђРєС‚РёРІРЅС‹Р№
-"Draft	";Р§РµСЂРЅРѕРІРёРє
-"Active4	";РђРєС‚РёРІРЅС‹Р№4
-"Active3	";РђРєС‚РёРІРЅС‹Р№3
-"Negotiation	";РћР¶РёРґР°РЅРёРµ
-"Agree	";РЎРѕРіР»Р°СЃРѕРІР°РЅ
-"Sign	";РџРѕРґРїРёСЃР°РЅ
-"Registration	";Р РµРіРёСЃС‚СЂР°С†РёСЏ
-"Registred	";Р—Р°РіСЂРµРіРёСЃС‚СЂРёСЂРѕРІР°РЅ
-"AdditionalNegotiation	";Р”РѕРї. СЃРѕРіР»Р°СЃРѕРІР°РЅРёРµ
-"OnRevision	";РќР° СЂР°СЃСЃРјРѕС‚СЂРµРЅРёРё
-"Send	";РћС‚РїСЂР°РІР»РµРЅ
-"Acquired	";РџРѕР»СѓС‡РµРЅ
-"Complete	";Р—Р°РІРµСЂС€С‘РЅ
-"Pretermit	";РќРµРёР·РІРµСЃС‚РЅС‹Р№
-"Sleep	";РЎРїРёС‚
-"Ready	";Р“РѕС‚РѕРІ
-"Wait	";РћР¶РёРґР°РµС‚
-"Run	";Р—Р°РїСѓС‰РµРЅ
+"Active	";Активный
+"Draft	";Черновик
+"Active4	";Активный4
+"Active3	";Активный3
+"Negotiation	";Ожидание
+"Agree	";Согласован
+"Sign	";Подписан
+"Registration	";Регистрация
+"Registred	";Загрегистрирован
+"AdditionalNegotiation	";Доп. согласование
+"OnRevision	";На рассмотрении
+"Send	";Отправлен
+"Acquired	";Получен
+"Complete	";Завершён
+"Pretermit	";Неизвестный
+"Sleep	";Спит
+"Ready	";Готов
+"Wait	";Ожидает
+"Run	";Запущен

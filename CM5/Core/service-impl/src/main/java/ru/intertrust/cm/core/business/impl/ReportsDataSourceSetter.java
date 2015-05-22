@@ -30,7 +30,7 @@ public class ReportsDataSourceSetter {
     private ReportHelper reportHelper;
 
     @Around("this(ru.intertrust.cm.core.business.api.ReportService) && " +
-            "execution(* *(String, ..)))")
+            "execution(* *(String, ..))")
      public Object setReportsServiceDataSource(ProceedingJoinPoint joinPoint) throws Throwable {
         if (currentDataSourceContext.get() != null) {
             return joinPoint.proceed();
