@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,5 +54,9 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<LogDomainObjectAccessConfig> eventLogDomainObjectAccessConfig = new CaseInsensitiveMap<>();
+
+    public CaseInsensitiveMap<FormConfig> collectedFormConfigMap = new CaseInsensitiveMap<>();
+
+    public Map<String, CaseInsensitiveMap<FormConfig>> localizedCollectedFormConfigMap = new HashMap<>(); //<Locale, Map<form name, formConfig>>
 
 }

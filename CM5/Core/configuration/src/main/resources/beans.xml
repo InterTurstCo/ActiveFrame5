@@ -48,6 +48,23 @@
     <bean id="collectionViewConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.CollectionViewConfigUpdateHandler"/>
     <bean id="toolBarConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.ToolBarConfigUpdateHandler"/>
     <bean id="dynamicGroupConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.DynamicGroupConfigUpdateHandler"/>
-    
+    <bean id="formConfigUpdateHandler" class="ru.intertrust.cm.core.config.event.FormConfigUpdateHandler"/>
+
+    <bean id="widgetConfigurationExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetConfigurationExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="widgetGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetGroupsExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="markupExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.MarkupExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="tabsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabsExtensionProcessorImpl"
+         lazy-init="true"/>
+    <bean id="tabGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabGroupsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="rowsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.RowsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="cellsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.CellsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="plainFormBuilder" class="ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl"/>
+
 
 </beans>

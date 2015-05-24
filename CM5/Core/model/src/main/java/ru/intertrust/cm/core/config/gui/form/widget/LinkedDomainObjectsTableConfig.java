@@ -24,7 +24,7 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig implements HasL
     @Attribute(name = "delete-linked-objects",required = false)
     private Boolean deleteLinkedObjects;
 
-    @Element(name = "linked-form")
+    @Element(name = "linked-form", required = false)
     private LinkedFormConfig linkedFormConfig;
 
     @Element(name = "linked-form-mapping",required = false)

@@ -4,8 +4,8 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.Localizable;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 
 /**
  * @author Denis Mitavskiy
@@ -13,15 +13,18 @@ import ru.intertrust.cm.core.config.base.Localizable;
  *         Time: 18:02
  */
 @Root(name = "tab")
-public class TabConfig implements Dto {
-    @Attribute(name = "name")
+public class TabConfig implements IdentifiedConfig {
+    @Attribute(name = "name", required = false)
     @Localizable
     private String name;
 
+    @Attribute(name = "id", required = false)
+    private String id;
+
     @ElementUnion({
-            @Element(name="bookmarks", type=BookmarkListConfig.class),
-            @Element(name="hiding-groups", type=HidingGroupListConfig.class),
-            @Element(name="single-entry-group", type=SingleEntryGroupListConfig.class)
+            @Element(name="bookmarks", type=BookmarkListConfig.class, required = false),
+            @Element(name="hiding-groups", type=HidingGroupListConfig.class, required = false),
+            @Element(name="single-entry-group", type=SingleEntryGroupListConfig.class, required = false)
     })
     private TabGroupListConfig groupList;
 
@@ -41,6 +44,14 @@ public class TabConfig implements Dto {
         this.groupList = groupList;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -58,6 +69,9 @@ public class TabConfig implements Dto {
         if (name != null ? !name.equals(tabConfig.name) : tabConfig.name != null) {
             return false;
         }
+        if (id != null ? !id.equals(tabConfig.id) : tabConfig.id != null) {
+            return false;
+        }
 
         return true;
     }
@@ -65,6 +79,7 @@ public class TabConfig implements Dto {
     @Override
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (groupList != null ? groupList.hashCode() : 0);
         return result;
     }

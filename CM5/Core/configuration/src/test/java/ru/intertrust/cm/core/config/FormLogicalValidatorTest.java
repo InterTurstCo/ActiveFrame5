@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.config;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -13,10 +14,9 @@ import ru.intertrust.cm.core.config.module.ModuleService;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.powermock.api.support.membermodification.MemberMatcher.method;
-import static org.powermock.api.support.membermodification.MemberModifier.suppress;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
 
@@ -25,39 +25,36 @@ import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
  *         Date: 13/9/13
  *         Time: 12:05 PM
  */
-@RunWith(PowerMockRunner.class)
+/*@RunWith(PowerMockRunner.class)*/
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = {"/beans-test.xml"})
 @PrepareForTest(FormLogicalValidator.class)
 public class FormLogicalValidatorTest {
 
     private static final String FORM_XML_PATH = "config/forms-test.xml";
     private static final String INVALID_FORM_XML_PATH = "config/form-with-errors.xml";
     private static final String GLOBAL_XML_PATH = "config/global-test.xml";
-
-    /**
-     * Вызов метода validateWidgetsHandlers исключается на время тестов
-     * Для корректной работы validateWidgetsHandlers требуется спринг контекст
-     *
-     * @throws Exception
-     */
-    @Before
-    public void SetUp() throws Exception {
-        suppress(method(FormLogicalValidator.class, "validateWidgetsForExtendingHandler"));
-
-    }
+    @Autowired
+    private FormLogicalValidator formValidator;
 
     @Test
     public void validateCorrectForm() throws Exception {
 
-        FormLogicalValidator formValidator = new FormLogicalValidator();
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(FORM_XML_PATH);
         formValidator.setConfigurationExplorer(configurationExplorer);
         formValidator.validate();
+        List<LogicalErrors> errors = formValidator.validate();
+        assertEquals(0, errors.size());
     }
 
     @Test
     public void validateIncorrectForm() throws Exception {
+        String expectedMessageForCountryChildForm = "Configuration of form with name 'child_country_form' was validated with errors.Count: 1 Content:\n" +
+                "Configuration of form extension with name 'child_country_form' was built with errors.Count: 1 Content:\n" +
+                "Could not delete config with id '77'\n";
 
-        String expectedMessage = ("Configuration of form with name 'country_form' was validated with errors.Count: 13 Content:\n"
+        String expectedMessageForCountryForm = "Configuration of form with name 'country_form' was validated with errors.Count: 13 Content:\n"
                 + "h-align 'righ' is incorrect\n"
                 + "v-align 'middle' is incorrect\n"
                 + "Widget with id '1' has redundant tag <pattern>\n"
@@ -70,29 +67,37 @@ public class FormLogicalValidatorTest {
                 + "Field 'is_old' in  domain object 'country' isn't a boolean type\n"
                 + "Collection 'Streets' for table-browser with id '17a' wasn't found\n"
                 + "Collection view 'cities_default' for table-browser with id '17a' wasn't found\n"
-                + "Collection 'cities' for suggest-box with id '8a' wasn't found\n"
-                + "Configuration of form with "
-                + "name 'city_form' was validated with errors.Count: 5 Content:\n"
+                + "Collection 'cities' for suggest-box with id '8a' wasn't found";
+
+        String expectedMessageForCityForm = "Configuration of form with name 'city_form' was validated with errors.Count: 5 Content:\n"
                 + "Could not find field 'city'  in path 'country^federal_unit.city.population'\n"
                 + "Path part 'year_of_foundation' in  'year_of_foundation.date' isn't a reference type\n"
                 + "Could not find field 'letter'  in path 'organization_addressee^letter.organization'\n"
                 + "Collection 'Departments' has no filter 'byOrganization'\n"
-                + "Collection 'Employees' for hierarchy-browser with id '33d' wasn't found\n"
-                + "Configuration of form with name 'SO_Department_newForm' was validated with errors.Count: 4 Content:\n"
+                + "Collection 'Employees' for hierarchy-browser with id '33d' wasn't found";
+
+        String expectedMessageForSoDepartmentForm = "Configuration of form with name 'SO_Department_newForm' was validated with errors.Count: 4 Content:\n"
                 + "Couldn't find widget with id '36'\n"
                 + "Couldn't find widget with id '30'\n"
                 + "Couldn't find widget with id '31'\n"
-                + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found\n"
-                + "Configuration of collection-view with name 'cities_default_view' was validated with errors.Count: 1 Content:\n"
-                + "Couldn't find collection with name 'Cities'\n"
-        );
+                + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found";
+        ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+        formValidator.setConfigurationExplorer(configurationExplorer);
+        List<LogicalErrors> errors = formValidator.validate();
+        assertEquals(4, errors.size());
 
-        try {
-            ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
+        assertEquals(13, errors.get(0).getErrorCount());
+        assertEquals(expectedMessageForCountryForm, errors.get(0).toString());
 
-        } catch (ConfigurationException e) {
-            assertEquals(expectedMessage, e.getMessage());
-        }
+        assertEquals(1, errors.get(1).getErrorCount());
+        assertEquals(expectedMessageForCountryChildForm, errors.get(1).toString());
+
+        assertEquals(5, errors.get(2).getErrorCount());
+        assertEquals(expectedMessageForCityForm, errors.get(2).toString());
+
+        assertEquals(4, errors.get(3).getErrorCount());
+        assertEquals(expectedMessageForSoDepartmentForm, errors.get(3).toString());
+
     }
 
     private ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {

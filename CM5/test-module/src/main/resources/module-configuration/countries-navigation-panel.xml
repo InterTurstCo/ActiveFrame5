@@ -259,6 +259,19 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="FormsExtensionTest" display-text="Наследование форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 

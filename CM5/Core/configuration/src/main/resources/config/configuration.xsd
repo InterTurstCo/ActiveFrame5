@@ -1248,14 +1248,17 @@
             <xs:choice minOccurs="0" maxOccurs="unbounded">
                 <xs:element ref="act:action" />
             </xs:choice>
-            <xs:element ref="act:tool-bar" minOccurs="0" maxOccurs="1" />
-            <xs:element type="con:markupType" name="markup" xmlns:con="https://cm5.intertrust.ru/config" />
-            <xs:element type="con:widgetConfigType" name="widget-config" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element ref="act:tool-bar" minOccurs="0" maxOccurs="1"/>
+            <xs:element type="con:markupType" name="markup" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:markupExtensionType" name="markup-extension" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:widgetConfigType" name="widget-config" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:widgetConfigExtensionType" name="widget-config-extension" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:formObjectsRemoverConfigType" name="form-objects-remover" minOccurs="0" maxOccurs="1"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:formObjectsSaveExtensionConfigType" name="form-save-extension" minOccurs="0" maxOccurs="1"
                 xmlns:con="https://cm5.intertrust.ru/config" />
             <xs:element type="con:widgetGroupsType" name="widget-groups" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config" />
+            <xs:element type="con:widgetGroupsExtensionType" name="widget-groups-extension" minOccurs="0" maxOccurs="1" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" />
         <xs:attribute type="xs:string" name="domain-object-type" />
@@ -1266,6 +1269,7 @@
         <xs:attribute type="xs:string" name="report-template" />
         <xs:attribute type="xs:string" name="default-value-setter" />
         <xs:attribute type="xs:boolean" name="re-read-in-same-transaction" />
+        <xs:attribute type="xs:string" name="extends" />
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">
@@ -1286,11 +1290,12 @@
         <xs:attribute type="xs:string" name="widget-id" use="optional" />
     </xs:complexType>
     <xs:complexType name="trType">
-        <xs:sequence>
+        <xs:sequence minOccurs="0">
             <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="height" use="optional" />
         <xs:attribute type="xs:string" name="v-align" use="optional" />
+        <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="numberFormatType">
         <xs:sequence>
@@ -1520,7 +1525,7 @@
     </xs:complexType>
 
     <xs:complexType name="tdType">
-        <xs:sequence>
+        <xs:sequence minOccurs="0">
             <xs:element type="con:widgetType" name="widget" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="width" use="optional" />
@@ -1528,6 +1533,7 @@
         <xs:attribute type="xs:string" name="rowspan" use="optional" />
         <xs:attribute type="xs:string" name="h-align" use="optional" />
         <xs:attribute type="xs:string" name="v-align" use="optional" />
+        <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="formTableType">
         <xs:sequence>
@@ -1971,7 +1977,7 @@
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="tabType">
-        <xs:sequence>
+        <xs:sequence minOccurs="0">
             <xs:element type="con:singleEntryGroupType" name="single-entry-group" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
             <xs:element type="con:hidingGroupsType" name="hiding-groups" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config">
@@ -1979,14 +1985,16 @@
             <xs:element type="con:bookmarksType" name="bookmarks" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
+        <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="tabGroupType">
-        <xs:sequence>
+        <xs:sequence minOccurs="0">
             <xs:element type="con:tableType" name="table" xmlns:con="https://cm5.intertrust.ru/config">
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional" />
         <xs:attribute type="con:initialStateType" name="initial-state" use="optional" default="expanded" />
+        <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
     <xs:complexType name="rolesType">
         <xs:sequence>
@@ -2056,11 +2064,11 @@
         <xs:choice maxOccurs="unbounded" minOccurs="0">
             <xs:element name="on-delete" type="con:onDeleteConfigType" xmlns:con="https://cm5.intertrust.ru/config" />
         </xs:choice>
-        <xs:attribute type="xs:string" name="handler" />
+        <xs:attribute type="xs:string" name="handler" use="optional"/>
     </xs:complexType>
     <xs:complexType name="formObjectsSaveExtensionConfigType">
-        <xs:attribute type="xs:string" name="before-save-component" />
-        <xs:attribute type="xs:string" name="after-save-component" />
+        <xs:attribute type="xs:string" name="before-save-component" use="optional"/>
+        <xs:attribute type="xs:string" name="after-save-component" use="optional"/>
     </xs:complexType>
     <xs:complexType name="onDeleteConfigType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -2079,9 +2087,10 @@
 
     <xs:complexType name="widgetGroupType">
         <xs:sequence>
-            <xs:element type="con:widgetRefType" name="widget-ref" maxOccurs="unbounded" />
+            <xs:element type="con:widgetRefType" name="widget-ref" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
-        <xs:attribute type="xs:string" name="name" use="required" />
+        <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="xs:string" name="id" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="widgetRefType">
@@ -3254,4 +3263,207 @@
     <xs:complexType name="userExtraInfoType">
         <xs:attribute type="xs:string" name="component" use="required"/>
     </xs:complexType>
+
+
+    <xs:complexType name="afterTabGroupType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="beforeTabGroupType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="afterTabType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabType" name="tab" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="beforeTabType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabType" name="tab" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="afterTrType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:trType" name="tr" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="beforeTrType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:trType" name="tr" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="afterTdType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="beforeTdType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="1" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="id" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="addTabGroupsType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:afterTabGroupType" name="after-tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:beforeTabGroupType" name="before-tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="addTabsType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:afterTabType" name="after-tab" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:beforeTabType" name="before-tab" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="addTrsType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:afterTrType" name="after-tr" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:beforeTrType" name="before-tr" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="addTdsType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:afterTdType" name="after-td" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:beforeTdType" name="before-td" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="replaceTabGroupsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="replaceTabsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabType" name="tab" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="replaceTrsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:trType" name="tr" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="replaceTdsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteTabGroupsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabGroupType" name="tab-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteTabsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tabType" name="tab" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteTrsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:trType" name="tr" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteTdsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:tdType" name="td" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="markupExtensionType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:addTabGroupsType" name="add-tab-groups" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:addTabsType" name="add-tabs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:addTrsType" name="add-trs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:addTdsType" name="add-tds" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteTabGroupsType" name="delete-tab-groups" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteTabsType" name="delete-tabs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteTrsType" name="delete-trs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteTdsType" name="delete-tds" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceTabGroupsType" name="replace-tab-groups" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceTabsType" name="replace-tabs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceTrsType" name="replace-trs" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceTdsType" name="replace-tds" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="widgetConfigExtensionType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:addWidgetsType" name="add-widgets" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteWidgetsType" name="delete-widgets" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceWidgetsType" name="replace-widgets" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="addWidgetsType">
+        <xs:sequence maxOccurs="unbounded" minOccurs="1">
+            <xs:element ref="con:widget" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteWidgetsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:widgetRefType" name="widget-ref" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="replaceWidgetsType">
+        <xs:sequence  minOccurs="1" maxOccurs="unbounded">
+            <xs:element ref="con:widget" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="widgetGroupsExtensionType">
+        <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:addWidgetGroupsType" name="add-widget-groups" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:deleteWidgetGroupsType" name="delete-widget-groups" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:replaceWidgetGroupsType" name="replace-widget-groups" maxOccurs="1" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="addWidgetGroupsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:widgetGroupType" name="widget-group"  xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="deleteWidgetGroupsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:widgetGroupType" name="widget-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="replaceWidgetGroupsType">
+        <xs:sequence minOccurs="1" maxOccurs="unbounded">
+            <xs:element type="con:widgetGroupType" name="widget-group" maxOccurs="unbounded" minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
 </xs:schema>

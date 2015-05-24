@@ -53,7 +53,8 @@ public class NavigationPanelLogicalValidatorTest {
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(NAVIGATION_PANEL_XML_PATH);
         NavigationPanelLogicalValidator panelValidator = new NavigationPanelLogicalValidator(configurationExplorer);
-        panelValidator.validate();
+        List<LogicalErrors> errors = panelValidator.validate();
+        assertEquals(0, errors.size());
     }
 
     @Test

@@ -2,14 +2,14 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 14.09.13
  *         Time: 14:16
  */
-public abstract class WidgetConfig implements Dto {
+public abstract class WidgetConfig implements IdentifiedConfig {
     private static final String MAX_DEFAULT_TOOLTIP_WIDTH = "400px";
     private static final String MAX_DEFAULT_TOOLTIP_HEIGHT = "300px";
     @Attribute(name = "id", required = false)

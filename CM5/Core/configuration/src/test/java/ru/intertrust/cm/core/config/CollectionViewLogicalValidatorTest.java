@@ -1,18 +1,17 @@
 package ru.intertrust.cm.core.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
@@ -37,7 +36,8 @@ public class CollectionViewLogicalValidatorTest {
 
         CollectionViewLogicalValidator collectionViewValidator =
                 new CollectionViewLogicalValidator(configurationExplorer);
-        collectionViewValidator.validate();
+        List<LogicalErrors> errors = collectionViewValidator.validate();
+        assertEquals(0, errors.size());
     }
 
     @Test

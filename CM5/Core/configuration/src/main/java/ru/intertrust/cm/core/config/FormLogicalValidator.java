@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
@@ -36,6 +37,8 @@ public class FormLogicalValidator implements ConfigurationValidator {
     private final static Logger logger = LoggerFactory.getLogger(FormLogicalValidator.class);
 
     private ConfigurationExplorer configurationExplorer;
+    @Autowired
+    private PlainFormBuilder plainFormBuilder;
     private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
     public FormLogicalValidator() {
@@ -46,6 +49,7 @@ public class FormLogicalValidator implements ConfigurationValidator {
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
+        logicalErrorsList.clear();
         this.configurationExplorer = configurationExplorer;
     }
 
@@ -62,15 +66,35 @@ public class FormLogicalValidator implements ConfigurationValidator {
         }
 
         for (FormConfig formConfig : formConfigList) {
-            String formName = formConfig.getName();
+            FormConfig formConfigForValidation = formConfig;
+            String formName = formConfigForValidation.getName();
             LogicalErrors logicalErrors = LogicalErrors.getInstance(formName, "form");
-            validateFormConfig(formConfig, logicalErrors);
+            try {
+                formConfigForValidation = buildFormIfRequired(formConfig);
+            } catch (ConfigurationException e) {
+                logicalErrors.addError(e.getMessage());
+                logicalErrorsList.add(logicalErrors);
+                continue;
+            }
+
+            validateFormConfig(formConfigForValidation, logicalErrors);
             if (logicalErrors.getErrorCount() > 0) {
                 logicalErrorsList.add(logicalErrors);
             }
         }
 
         return logicalErrorsList;
+    }
+
+    private FormConfig buildFormIfRequired(FormConfig formConfig) {
+        FormConfig result = formConfig;
+        if (plainFormBuilder.isRaw(formConfig)) {
+            List<FormConfig> parents = configurationExplorer.getParentFormConfigs(formConfig);
+            result = plainFormBuilder.buildPlainForm(formConfig, parents);
+
+        }
+        return result;
+
     }
 
     private void validateFormConfig(FormConfig formConfig, LogicalErrors logicalErrors) {
