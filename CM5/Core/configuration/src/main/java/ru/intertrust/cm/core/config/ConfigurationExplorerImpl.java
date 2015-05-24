@@ -690,6 +690,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                     List<FormConfig> parentFormConfigs = getParentFormConfigs(formConfig);
                     formConfig = plainFormBuilder.buildPlainForm(formConfig, parentFormConfigs);
                     configStorage.collectedFormConfigMap.put(formConfig.getName(), formConfig);
+                }else{
+                    formConfig = formConfigFromCash;
                 }
             }
             return getReturnObject(formConfig, FormConfig.class);
@@ -715,6 +717,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
                 configurationStorageBuilder.localize(currentLocale, clonedConfig);
                 typeMap.put(formConfig.getName(), clonedConfig);
+                formConfig = clonedConfig;
             }
             return formConfig;
         } finally {
