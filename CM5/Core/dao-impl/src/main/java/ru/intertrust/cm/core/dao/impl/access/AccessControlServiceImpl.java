@@ -831,7 +831,9 @@ public class AccessControlServiceImpl implements AccessControlService {
             }
 
             if (DomainObjectAccessType.READ.equals(type)) {
-                if (!databaseAgent.checkDomainObjectReadAccess(personIdInt, objectId)) {
+                String doType = domainObjectTypeIdCache.getName(objectId);
+                if (!configurationExplorer.isReadPermittedToEverybody(doType) &&
+                        !databaseAgent.checkDomainObjectReadAccess(personIdInt, objectId)) {
                     throw new AccessException("Read permission to " + objectId + " is denied for user " + personId);
                 }
 

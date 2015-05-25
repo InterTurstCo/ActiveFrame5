@@ -342,6 +342,18 @@
         </fields>
     </domain-object-type>    
     
+    <domain-object-type name="test_type_12" initial-status="Active" audit-log="true">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+    </domain-object-type>    
+
+    <domain-object-type name="test_type_13" initial-status="Active" audit-log="true" extends="test_type_12">
+        <fields>
+            <string name="description2" length="128" />
+        </fields>
+    </domain-object-type>    
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
