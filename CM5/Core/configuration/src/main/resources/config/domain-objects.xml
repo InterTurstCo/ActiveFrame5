@@ -508,7 +508,7 @@
         <fields>
             <reference name="person" type="Person"/>
             <string name="user_id" length="128"/>
-            <string name="ip_address" length="20"/>
+            <string name="user_ip_address" length="20"/>
             <text name="client_info"/>
         </fields>
     </domain-object-type>
@@ -572,4 +572,11 @@
         </attachment-types>
     </domain-object-type>
 
+    <migration-script sequence-number="0">
+        <before-auto-migration>
+            <rename-field type="sel_subj_user">
+                <field name="ip_address" new-name="user_ip_address"></field>
+            </rename-field>
+        </before-auto-migration>
+    </migration-script>
 </configuration>

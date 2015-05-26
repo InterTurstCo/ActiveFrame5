@@ -563,6 +563,8 @@ public class ConfigurationStorageBuilder {
             infoField.setName(Configuration.INFO_COLUMN);
             infoField.setLength(512);
             auditLogDomainObjectConfig.getFieldConfigs().add(infoField);
+        }else{
+            auditLogDomainObjectConfig.setExtendsAttribute(getALTableName(domainObjectTypeConfig.getExtendsAttribute()));
         }
         
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
@@ -571,6 +573,7 @@ public class ConfigurationStorageBuilder {
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 
         }
+        
         return auditLogDomainObjectConfig;
     }
 

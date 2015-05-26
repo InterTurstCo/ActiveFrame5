@@ -423,6 +423,10 @@ public class TestPermission extends ClientBase {
             test13Do = ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).find(test13Do.getId());
             AccessVerificationService accessVerificationService = ((AccessVerificationService.Remote) getService("AccessVerificationServiceImpl", AccessVerificationService.Remote.class, "person1", "admin"));
             assertTrue("Test 13 check read access", accessVerificationService.isReadPermitted(test13AuditId));
+
+            assertTrue("Test 13 check write access", accessVerificationService.isWritePermitted(test13AuditId));
+
+            assertFalse("Test 13 check delete access", accessVerificationService.isDeletePermitted(test13AuditId));
             
             log("Test complete");
         } finally {
