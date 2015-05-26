@@ -1186,15 +1186,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField,
                                                boolean exactType, int offset, int limit, AccessToken accessToken) {
-        if (offset == 0 && limit == 0) {
-            String[] cacheKey = new String[] { linkedType,linkedField,
-                    String.valueOf(offset),String.valueOf(limit) };
+        // Кэш используется только, когда не используется пэйджинг
+        boolean linkedDomainObjectCacheEnabled = limit == 0 && offset == 0;
 
+        String[] cacheKey = new String[] { linkedType, linkedField,
+                String.valueOf(offset), String.valueOf(limit) };
+
+        if (linkedDomainObjectCacheEnabled) {
             List<DomainObject> domainObjects =
                     domainObjectCacheService.getObjectsFromCache(domainObjectId, accessToken, cacheKey);
 
             if (domainObjects != null) {
                 return extractIds(domainObjects);
+            }
+
+            List<Id> domainObjectIds = domainObjectCacheService.getObjectIdsFromCache(domainObjectId, accessToken, cacheKey);
+            if (domainObjectIds != null) {
+                return domainObjectIds;
             }
         }
 
@@ -1207,7 +1215,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String query = buildFindChildrenIdsQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
 
-        return switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
+        List<Id> result = switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
+        if (linkedDomainObjectCacheEnabled) {
+            domainObjectCacheService.putObjectIdsToCache(domainObjectId, result, accessToken, cacheKey);
+        }
+
+        return result;
     }
 
     @Override
@@ -1233,12 +1246,19 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             params.add(value);
         }
 
+        Id cachedId = domainObjectCacheService.getObjectIdFromCache(accessToken, domainObjectType, uniqueKeyValues);
+        if (cachedId != null) {
+            return cachedId;
+        }
+
         IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
         if (identifiableObjectCollection.size() == 0){
             throw new ObjectNotFoundException(new RdbmsId());
         }
 
-        return identifiableObjectCollection.get(0).getId();
+        Id result = identifiableObjectCollection.get(0).getId();
+        domainObjectCacheService.putObjectIdToCache(result, accessToken, domainObjectType, uniqueKeyValues);
+        return result;
     }
 
     /**

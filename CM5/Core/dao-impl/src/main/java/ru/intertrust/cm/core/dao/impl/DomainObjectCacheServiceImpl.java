@@ -122,6 +122,24 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             return domainObject == null ? null : ObjectCloner.getInstance().cloneObject(domainObject, domainObject.getClass());
         }
 
+        static String generateKey(String domainObjectType, CaseInsensitiveMap<Value> uniqueKeyValuesByName) {
+            List<String> keys = new ArrayList<>();
+            keys.add(domainObjectType);
+
+            for (String key : uniqueKeyValuesByName.keySet()) {
+                keys.add(key + "=" + uniqueKeyValuesByName.get(key).get());
+            }
+
+            return generateKey(keys.toArray(new String[]{}));
+        }
+
+        static String[] generateIdsKey(String... key) {
+            List<String> newKey = new ArrayList<>(key.length + 1);
+            newKey.add("ids");
+            Collections.addAll(newKey, key);
+            return newKey.toArray(new String[]{});
+        }
+
         static String generateKey(String ... key) {
             if (key.length == 1) {
                 return key[0];
@@ -255,6 +273,56 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         return putObjectsToCache(GLOBAL_PSEUDO_ID, dobjs, accessToken, key);
     }
+
+    /**
+     * Кеширование идентификатора DomainObject, в транзакционный кеш,
+     * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
+     * @param id кэшируемый идентификатор
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * для указанного родительского доменного объекта.
+     * @return список идентификаторов доменных объектов добавленных в кеш
+     * @throws DaoException - если key == null или содержит пустой список.
+     */
+    @Override
+    public Id putObjectIdToCache(Id id, AccessToken accessToken, String domainObjectType, CaseInsensitiveMap<Value> uniqueKeyValuesByName) {
+        DomainObject domainObject = new GenericDomainObject();
+        domainObject.setId(id);
+
+        List<Id> cachedList = putObjectsToCache(Collections.singletonList(domainObject), accessToken,
+                DomainObjectNode.generateKey(domainObjectType, uniqueKeyValuesByName));
+        if (cachedList == null || cachedList.isEmpty()) {
+            return null;
+        }
+
+        return cachedList.get(0);
+    }
+
+    /**
+     * Кеширование списка идэнтификаторов DomainObject в транзакционный кеш для случая, когда список не имеет родительского доменного
+     * объекта.
+     * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
+     * @see #putObjectToCache(DomainObject, ru.intertrust.cm.core.dao.access.AccessToken)
+     * @param dobjIds список идентификаторов кешируемых доменных объектов
+     * @param key ключевая фраза - формирует уникальный список дочерних доменных объектов
+     * для указанного родительского доменного объекта.
+     * @return список идентификаторов доменных объектов добавленных в кеш
+     * @throws DaoException - если key == null или содержит пустой список.
+     */
+    @Override
+    public List<Id> putObjectIdsToCache(Id parentId, List<Id> dobjIds, AccessToken accessToken, String... key) {
+
+        if (!isCacheEnabled()) return null;
+
+        List<DomainObject> domainObjects = new ArrayList<>(dobjIds.size());
+        for (Id dobjId : dobjIds) {
+            DomainObject dobj = new GenericDomainObject();
+            dobj.setId(dobjId);
+            domainObjects.add(dobj);
+        }
+
+        return putObjectsToCache(parentId, domainObjects, accessToken, DomainObjectNode.generateIdsKey(key));
+    }
     
     @Override
     public List<Id> putObjectCollectionToCache(Id parentId, List<DomainObject> dobjs, String... key) {
@@ -283,7 +351,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             domainObjects.clear();
         }
 
-        List<Id> ids = new ArrayList<Id>();
+        List<Id> ids = new ArrayList<>();
         for (DomainObject object : dobjs) {
             DomainObject clonedObject = deepClone(object);
             ids.add(clonedObject.getId());
@@ -443,6 +511,36 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
     }
 
     /**
+     * Возвращает список идентификаторов клонированных доменных объектов из кеша
+     * @param uniqueKeyValuesByName ключевые поля
+     * @return список дочерних доменных объектов по отношению к parentId.
+     * @throws DaoException - если key == null или содержит пустой список.
+     * null - если не согласованно с базой данных
+     */
+    @Override
+    public Id getObjectIdFromCache(AccessToken accessToken, String domainObjectType, CaseInsensitiveMap<Value> uniqueKeyValuesByName) {
+        List<DomainObject> domainObjectList = getObjectsFromCache(accessToken, DomainObjectNode.generateKey(domainObjectType, uniqueKeyValuesByName));
+        if (domainObjectList == null || domainObjectList.isEmpty()) {
+            return null;
+        }
+
+        return domainObjectList.get(0).getId();
+    }
+
+    /**
+     * Возвращает список идентификаторов доменных объектов из кеша
+     * @param key ключевая фраза,  см. определение в описании класса.
+     * @return список дочерних доменных объектов по отношению к parentId.
+     * @throws DaoException - если key == null или содержит пустой список.
+     * null - если не согласованно с базой данных
+     */
+    @Override
+    public List<Id> getObjectIdsFromCache(Id parentId, AccessToken accessToken, String... key) {
+        List<DomainObject> objects = getObjectsFromCache(parentId, accessToken, DomainObjectNode.generateIdsKey(key));
+        return extractIds(objects);
+    }
+
+    /**
      * Удаляет доменный объект из транзакционного кеша
      * @param id - доменного объекта
      */
@@ -472,10 +570,6 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
     }
 
-    public void removeChildNodesByKey(Id id, String... rey){
-        
-    }
-    
     @Override
     public void clear() {
         if (getTxReg().getTransactionKey() == null) {
@@ -638,6 +732,19 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         return objectCollectionMap;
+    }
+
+    private List<Id> extractIds(List<DomainObject> domainObjectList) {
+        if (domainObjectList == null || domainObjectList.isEmpty()) {
+            return null;
+        }
+
+        List<Id> result = new ArrayList<>(domainObjectList.size());
+        for (DomainObject domainObject : domainObjectList) {
+            result.add(domainObject.getId());
+        }
+
+        return result;
     }
 
     private boolean isCacheEnabled() {
