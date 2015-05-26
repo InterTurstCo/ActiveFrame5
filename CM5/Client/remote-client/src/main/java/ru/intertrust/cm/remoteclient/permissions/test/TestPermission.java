@@ -231,6 +231,17 @@ public class TestPermission extends ClientBase {
                 checkPermissions(negotiationId, etalon, "Status OnRevision");
             }            
 
+            
+            //Статус "Complete" отсутствует в матрице, при переходе в этот статус прав должны обнулятся полностью
+            internalDocument.setString("State", "Complete");
+            internalDocument = getCrudService().save(internalDocument);
+            etalon = new EtalonPermissions();
+            checkPermissions(internalDocument.getId(), etalon, "Status Complete");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Complete");
+            }            
+            
+            
             //Создаем письмо
             DomainObject letter = getCrudService().createDomainObject("letter");
             letter.setString("subject", "Тестовое письмо " + System.nanoTime());
