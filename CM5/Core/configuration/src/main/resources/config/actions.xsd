@@ -57,6 +57,7 @@
 
     <xs:complexType name="workflowActionType">
         <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="order" type="xs:positiveInteger"/>
     </xs:complexType>
 
     <xs:complexType name="abstractActionType" abstract="true"/>
@@ -113,9 +114,10 @@
                 <xs:sequence>
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element ref="act:abstract-action"/>
+                        <xs:element ref="act:workflow-actions" minOccurs="0" maxOccurs="1"/>
                     </xs:choice>
-                    <xs:element ref="act:workflow-actions" minOccurs="0" maxOccurs="1"/>
                 </xs:sequence>
+
 
                 <xs:attributeGroup ref="act:actionAttributeGroup"/>
                 <xs:attributeGroup ref="act:activeAttributeGroup"/>

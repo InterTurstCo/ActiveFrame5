@@ -114,6 +114,7 @@ public class FormPluginHandler extends ActivePluginHandler {
                     if(childConfig instanceof WorkflowActionsConfig){
                         for(WorkflowActionConfig waConfig :((WorkflowActionsConfig) childConfig).getActions()){
                             if(waConfig.getName().equals(actionName)){
+                                actionContext.getActionConfig().setOrder(waConfig.getOrder());
                                 aContext.getInnerContexts().add(actionContext);
                                 return true;
                             }
