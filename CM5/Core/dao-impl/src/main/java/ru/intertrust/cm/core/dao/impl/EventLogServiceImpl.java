@@ -106,7 +106,7 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logDownloadAttachmentEvent(Id attachment) {
         if (!isDownloadAttachmentEventEnabled()) {
             return;
@@ -125,13 +125,13 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success) {
         logAccessDomainObject(objectId, accessType, success);
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
         List<DomainObject> objectAccessLogs = new ArrayList<>();
 
@@ -145,7 +145,7 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
         List<DomainObject> objectAccessLogs = new ArrayList<>();
 
