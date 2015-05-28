@@ -21,6 +21,18 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZo
  * @author atsvetkov
  */
 public class ValueReader {
+    private static final ThreadLocal<Calendar> gmtCalendar = new ThreadLocal<Calendar>() {
+        protected Calendar initialValue() {
+            return Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        }
+    };
+
+    private static final ThreadLocal<HashMap<String, Calendar>> nonGmtCalendars = new ThreadLocal<HashMap<String, Calendar>>() {
+        @Override
+        protected HashMap<String, Calendar> initialValue() {
+            return new HashMap<>();
+        }
+    };
 
     public ValueReader() {
     }
@@ -156,8 +168,7 @@ public class ValueReader {
     }
 
     protected DateTimeValue readDateTimeValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        Timestamp timestamp = rs.getTimestamp(column.getIndex(), gmtCalendar);
+        Timestamp timestamp = rs.getTimestamp(column.getIndex(), gmtCalendar.get());
 
         DateTimeValue value;
         if (!rs.wasNull()) {
@@ -172,7 +183,7 @@ public class ValueReader {
 
     protected TimelessDateValue readTimelessDateValue(ResultSet rs, BasicRowMapper.Column column)
             throws SQLException {
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar calendar = gmtCalendar.get();
         Timestamp timestamp = rs.getTimestamp(column.getIndex(), calendar);
 
         TimelessDateValue value;
@@ -197,7 +208,7 @@ public class ValueReader {
             throws SQLException {
         BasicRowMapper.Column column = columns.get(columnIndex);
 
-        Calendar gmtCalendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar gmtCalendar = ValueReader.gmtCalendar.get();
         Timestamp timestamp = rs.getTimestamp(column.getIndex(), gmtCalendar);
 
         DateTimeWithTimeZoneValue value;
@@ -248,7 +259,7 @@ public class ValueReader {
         DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
         dateTimeWithTimeZone.setTimeZoneContext(getDateTimeWithTimeZoneContext(timeZoneId));
 
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
+        Calendar calendar = getThreadLocalCalendar(timeZoneId);
         calendar.setTime(timestamp);
 
         dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
@@ -260,6 +271,21 @@ public class ValueReader {
         dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
 
         return dateTimeWithTimeZone;
+    }
+
+    private Calendar getThreadLocalCalendar(String timeZoneId) {
+        switch (timeZoneId) {
+            case "GMT":
+                return gmtCalendar.get();
+            default:
+                final HashMap<String, Calendar> cache = nonGmtCalendars.get();
+                Calendar calendar = cache.get(timeZoneId);
+                if (calendar == null) {
+                    calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
+                    cache.put(timeZoneId, calendar);
+                }
+                return calendar;
+        }
     }
 
     /**

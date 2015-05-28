@@ -1,16 +1,15 @@
 package ru.intertrust.cm.core.business.api.util;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
-
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.model.GwtIncompatible;
 
 /**
  * Потокобезопасный DateFormat. Кеширует по ключу {pattern, local} объекты ThreadLocal, содержащиие форматировщик даты
@@ -20,7 +19,12 @@ import ru.intertrust.cm.core.model.GwtIncompatible;
 @GwtIncompatible
 public class ThreadSafeDateFormat {
 
-    private static Map<Pair, ThreadLocal<SimpleDateFormat>> dateFormatcCache = new HashMap<>();
+    private static final ThreadLocal<HashMap<Pair, SimpleDateFormat>> dateFormatsCache = new ThreadLocal<HashMap<Pair, SimpleDateFormat>>() {
+        @Override
+        protected HashMap<Pair, SimpleDateFormat> initialValue() {
+            return new HashMap<>();
+        }
+    };
 
     public static String format(Date date, String pattern) {
         final Pair<String, Locale> pair = new Pair<>(pattern, null);
@@ -36,31 +40,21 @@ public class ThreadSafeDateFormat {
      * @return закешированный объект DateFormat.
      */
     public static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
-        if (dateFormatcCache.get(pair) != null) {
-            SimpleDateFormat dateFormat = dateFormatcCache.get(pair).get();
+        final HashMap<Pair, SimpleDateFormat> cache = dateFormatsCache.get();
+        if (cache.get(pair) != null) {
+            SimpleDateFormat dateFormat = cache.get(pair);
             setTimeZone(timeZone, dateFormat);
             return dateFormat;
         } else {
-            ThreadLocal<SimpleDateFormat> dateFormatThreadLocal = null;
+            SimpleDateFormat dateFormat;
             if (pair.getSecond() != null) {
-                dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
-                    @Override
-                    protected SimpleDateFormat initialValue() {
-                        return new SimpleDateFormat(pair.getFirst(), pair.getSecond());
-                    }
-                };
+                dateFormat = new SimpleDateFormat(pair.getFirst(), pair.getSecond());
             } else {
-                dateFormatThreadLocal = new ThreadLocal<SimpleDateFormat>() {
-                    @Override
-                    protected SimpleDateFormat initialValue() {
-                        return new SimpleDateFormat(pair.getFirst());
-                    }
-                };
+                dateFormat = new SimpleDateFormat(pair.getFirst());
 
             }
-            SimpleDateFormat dateFormat = dateFormatThreadLocal.get();
             setTimeZone(timeZone, dateFormat);
-            dateFormatcCache.put(pair, dateFormatThreadLocal);
+            cache.put(pair, dateFormat);
             return dateFormat;
         }
     }
