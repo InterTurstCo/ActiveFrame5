@@ -575,7 +575,7 @@ public class FormRetriever extends FormProcessor {
     }
 
     private FormConfig getLocalizedFormConfig(String formName) {
-        return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+        return configurationExplorer.getLocalizedPlainFormConfig(formName, profileService.getPersonLocale());
     }
 
     private String buildMessage(String message, String defaultValue) {

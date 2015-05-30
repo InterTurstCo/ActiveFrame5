@@ -179,7 +179,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
     }
 
     private FormConfig getLocalizedFormConfig(String formName) {
-        return configurationExplorer.getLocalizedConfig(FormConfig.class, formName, profileService.getPersonLocale());
+        return configurationExplorer.getLocalizedPlainFormConfig(formName, profileService.getPersonLocale());
     }
 
     private class FormsCache {
@@ -255,7 +255,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
             Collection<FormMappingConfig> formMappingConfigs = getFormMappingConfigs(configurationExplorer);
             for (FormMappingConfig formMapping : formMappingConfigs) {
                 String domainObjectType = formMapping.getDomainObjectType();
-                FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, formMapping.getForm());
+                FormConfig formConfig = configurationExplorer.getPlainFormConfig(formMapping.getForm());
 
                 if (formConfig == null || !formType.equals(formConfig.getType())) {
                     continue;

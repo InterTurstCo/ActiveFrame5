@@ -80,7 +80,7 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
 
     public void deleteForm(FormState currentFormState) {
         this.currentFormState = currentFormState;
-        this.formConfig = configurationExplorer.getConfig(FormConfig.class, currentFormState.getName());
+        this.formConfig = configurationExplorer.getPlainFormConfig(currentFormState.getName());
         this.initialFormState = formRetriever.getForm(currentFormState.getObjects().getRootDomainObject().getId(), null).getFormState(); //TODO: is it ok to pass null as formViewerConfig param?
         this.formObjects = initialFormState.getObjects();
         deleteForm();

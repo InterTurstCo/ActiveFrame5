@@ -27,7 +27,7 @@ public class DeleteActionHandler extends ActionHandler<ActionContext, DeleteActi
     @Override
     public DeleteActionData executeAction(ActionContext context) {
         FormState currentFormState = ((SaveActionContext) context).getFormState();
-        final FormConfig formConfig = configurationExplorer.getConfig(FormConfig.class, currentFormState.getName());
+        final FormConfig formConfig = configurationExplorer.getPlainFormConfig(currentFormState.getName());
         final FormObjectsRemoverConfig formObjectsRemoverConfig = formConfig.getFormObjectsRemoverConfig();
         String removerComponent = "defaultFormObjectsRemover";
         if (formObjectsRemoverConfig != null) {

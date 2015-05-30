@@ -33,7 +33,7 @@
             <!-- добавление ячеек -->
             <add-tds>
                 <!-- после какой-то ячейки -->
-                <after-td id="td12">
+                <after-td id="td11">
                     <td>
                         <widget id="w13"/>
                     </td>
@@ -102,9 +102,9 @@
                 </tr>
             </replace-trs>
             <replace-tabs>
-                <tab name="Tab2(изменено)" id="tb2">
+                <tab name="Tab2(заменено)" id="tb2">
                     <bookmarks>
-                        <tab-group id ="tbg2" name="tbg2(изменено)">
+                        <tab-group id ="tbg2" name="tbg2(заменено)">
                             <table>
                                 <tr id="tr4">
                                     <td id="td7">
@@ -116,7 +116,7 @@
                                 </tr>
                             </table>
                         </tab-group>
-                        <tab-group id="tbg3" name="tbg3(изменено)">
+                        <tab-group id="tbg3" name="tbg3(заменено)">
                             <table>
                                 <tr id="tr5">
                                     <td id="td12">
@@ -143,7 +143,7 @@
                                         <td id="w10">
                                             <widget id="w10"/>
                                         </td>
-                                        <td id="w11">
+                                        <td id="td11">
                                             <widget id="w11"/>
                                         </td>
                                     </tr>
@@ -176,7 +176,7 @@
             </delete-widgets>
             <replace-widgets>
                 <label id="w3">
-                    <text>Имя2(заменено)Ж</text>
+                    <text>Имя2(заменено):</text>
                 </label>
             </replace-widgets>
 

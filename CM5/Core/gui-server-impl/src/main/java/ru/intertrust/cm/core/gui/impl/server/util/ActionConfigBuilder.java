@@ -26,11 +26,7 @@ import ru.intertrust.cm.core.gui.api.server.el.ReferenceValuePropertyAccessor;
 import ru.intertrust.cm.core.gui.impl.server.action.FakeActionHandler;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -186,7 +182,7 @@ public class ActionConfigBuilder {
                     : null;
             if (formMappingConfig != null) {
                 final FormConfig formConfig =
-                        configurationExplorer.getConfig(FormConfig.class, formMappingConfig.getForm());
+                        configurationExplorer.getPlainFormConfig(formMappingConfig.getForm());
                 formMappingConfig.setDomainObjectType(formConfig.getDomainObjectType());
             }
             final ActionContext actionContext = actionHandler.getActionContext(actionConfig);

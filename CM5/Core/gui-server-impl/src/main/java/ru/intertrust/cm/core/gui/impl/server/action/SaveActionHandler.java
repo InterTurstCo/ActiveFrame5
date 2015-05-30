@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
-import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
@@ -51,7 +50,7 @@ public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActi
         }
         final UserInfo userInfo = GuiContext.get().getUserInfo();
         boolean isImmediate = ((ActionConfig)context.getActionConfig()).isImmediate();
-        final boolean reReadInSameTransaction = configurationExplorer.getConfig(FormConfig.class, formState.getName()).reReadInSameTransaction();
+        final boolean reReadInSameTransaction = configurationExplorer.getPlainFormConfig(formState.getName()).reReadInSameTransaction();
         DomainObject rootDomainObject;
         if (reReadInSameTransaction) {
             rootDomainObject = guiService.saveForm(formState, userInfo, isImmediate ? null : context.getActionConfig().getCustomValidators());

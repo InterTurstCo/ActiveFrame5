@@ -206,7 +206,7 @@ public class PluginHandlerHelper {
                                                       final ApplicationContext applicationContext, String locale) {
         //Simple Server Validation
         ConfigurationExplorer explorer = (ConfigurationExplorer) applicationContext.getBean("configurationExplorer");
-        FormConfig formConfig = explorer.getConfig(FormConfig.class, formState.getName());
+        FormConfig formConfig = explorer.getPlainFormConfig(formState.getName());
         final CaseInsensitiveHashMap<WidgetConfig> widgetConfigsById = formConfig.getWidgetConfigsById();
         List<Constraint> constraints = new ArrayList<>();
         for (WidgetState state : formState.getFullWidgetsState().values()) {
