@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.util.SerializationUtils;
-
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
@@ -14,7 +15,6 @@ import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
-
 import java.util.*;
 
 /**
@@ -68,7 +68,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         private void setDomainObject(DomainObject domainObject) {
             //deep clone
-            this.domainObject = deepClone(domainObject);
+            this.domainObject = ObjectCloner.getInstance().cloneObject(domainObject);
         }
         
 
@@ -119,7 +119,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         private DomainObject getDomainObject() {
-            return domainObject == null ? null : ObjectCloner.getInstance().cloneObject(domainObject, domainObject.getClass());
+            return domainObject == null ? null : ObjectCloner.getInstance().cloneObject(domainObject);
         }
 
         static String generateKey(String ... key) {
@@ -155,11 +155,6 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
     }
 
-    private static DomainObject deepClone(DomainObject domainObject) {
-        return domainObject == null
-                ? null
-                : (DomainObject) SerializationUtils.deserialize(SerializationUtils.serialize(domainObject));
-    }
     /**
      * Кеширование DomainObject, в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
@@ -285,7 +280,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         List<Id> ids = new ArrayList<Id>();
         for (DomainObject object : dobjs) {
-            DomainObject clonedObject = deepClone(object);
+            DomainObject clonedObject = ObjectCloner.getInstance().cloneObject(object);
             ids.add(clonedObject.getId());
             domainObjects.add(clonedObject);
         }
@@ -342,7 +337,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             return null;
         }
 
-        return ObjectCloner.getInstance().cloneObject(domainObjects, domainObjects.getClass());
+        return ObjectCloner.getInstance().cloneObject(domainObjects);
     }
 
     /**

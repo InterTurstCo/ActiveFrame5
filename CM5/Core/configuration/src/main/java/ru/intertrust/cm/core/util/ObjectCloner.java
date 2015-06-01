@@ -1,10 +1,6 @@
 package ru.intertrust.cm.core.util;
 
-import java.io.ByteArrayOutputStream;
-
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.UnsafeInput;
-import com.esotericsoftware.kryo.io.UnsafeOutput;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
@@ -12,7 +8,7 @@ import org.objenesis.strategy.StdInstantiatorStrategy;
  */
 public class ObjectCloner {
 
-    private static ThreadLocal<ObjectCloner> objectCloner = new ThreadLocal<ObjectCloner>() {
+    private static final ThreadLocal<ObjectCloner> objectCloner = new ThreadLocal<ObjectCloner>() {
         protected ObjectCloner initialValue() {
             return new ObjectCloner();
         }
@@ -35,24 +31,13 @@ public class ObjectCloner {
      * @return копию
      */
     public <T> T cloneObject(Object source, Class<T> tClass) {
-
         if (source == null) {
             return null;
         }
-
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        UnsafeOutput output = new UnsafeOutput(stream);
-
-        kryo.register(tClass);
-        kryo.writeObject(output, source);
-        output.close();
-
-        byte[] bytes = stream.toByteArray();
-        UnsafeInput input = new UnsafeInput(bytes);
-        T newBean = kryo.readObject(input, tClass);
-        input.close();
-
-        return newBean;
+        return (T) kryo.copy(source);
     }
 
+    public <T> T cloneObject(T source) {
+        return (T) kryo.copy(source);
+    }
 }
