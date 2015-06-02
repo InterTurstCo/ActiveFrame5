@@ -58,28 +58,20 @@ public class HeaderContainer extends SimplePanel {
         headTable.setWidget(FIRST_ROW, 1, new HeaderSectionSuggestBox());
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 1, "H_td_notes");
 
-        final HyperLinkWithHistorySupport userName = new HyperLinkWithHistorySupport(currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName(), "login");
-        userName.addClickHandler(new ClickHandler() {
+        final HyperLinkWithHistorySupport userRepresentation = new HyperLinkWithHistorySupport(buildUserRepresentation(currentUserInfo), "login");
+        userRepresentation.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
                 dialogBox.show();
             }
-        });
-        if(initialization.isSearchConfigured()){
-        thirdImage = new FocusPanel();
-        thirdImage.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().headerExtendedSearch());
-        thirdImage.addDomHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                getExtendedSearchPanel();
-            }
         }, ClickEvent.getType());
 
-        headTable.setWidget(FIRST_ROW, 2, thirdImage);
+        if (initialization.isSearchConfigured()) {
+            createSearchItem();
+            headTable.setWidget(FIRST_ROW, 2, thirdImage);
         }
 
         headTable.getFlexCellFormatter().setStyleName(FIRST_ROW, 2, "H_td_ExtSearch");
-
 
         final UserExtraInfo userExtraInfo = initialization.getUserExtraInfo();
         String userExtraInfoText = userExtraInfo instanceof PlainTextUserExtraInfo ? ((PlainTextUserExtraInfo) userExtraInfo).getText() : "";
@@ -87,7 +79,7 @@ public class HeaderContainer extends SimplePanel {
         userPosition.addStyleName("HeadUserPost");
 
         final FlowPanel userInfoPanel = new FlowPanel();
-        userInfoPanel.add(new SimplePanel(userName));
+        userInfoPanel.add(new SimplePanel(userRepresentation));
         userInfoPanel.add(new SimplePanel(userPosition));
 
         headTable.setWidget(FIRST_ROW, 3, userInfoPanel);
@@ -96,8 +88,8 @@ public class HeaderContainer extends SimplePanel {
         final HorizontalPanel linksPanel = new HorizontalPanel();
         final AbsolutePanel decoratedSettings = new AbsolutePanel();
         decoratedSettings.setStyleName("decorated-settings");
-        final Image settingsImage = new Image(getCurrentTheme().settingsIm());
-        final Image versionImage = new Image(getCurrentTheme().helpIm());
+        Image settingsImage = new Image(getCurrentTheme().settingsIm());
+        Image versionImage = new Image(getCurrentTheme().helpIm());
 
         decoratedSettings.add(settingsImage);
         AbsolutePanel decoratedHelp = new AbsolutePanel();
@@ -117,7 +109,7 @@ public class HeaderContainer extends SimplePanel {
         contentInfo.add(infoPanel);
         infoPanel.setStyleName("info-panel");
         CurrentVersionInfo version = getVersion(initialization);
-        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) +  " " + version.getCoreVersion()));
+        infoPanel.add(new Label(LocalizeUtil.get(CORE_VERSION_KEY, CORE_VERSION) + " " + version.getCoreVersion()));
         if (version.getProductVersion() != null) {
             infoPanel.add(new Label(LocalizeUtil.get(VERSION_KEY, VERSION) + " " + version.getProductVersion()));
         }
@@ -125,6 +117,45 @@ public class HeaderContainer extends SimplePanel {
 
         popupPanel.getElement().setClassName("applicationVersionWindows");
 
+        addHelpItemClickHandler(decoratedHelp, versionImage);
+
+        linksPanel.add(decoratedSettings);
+        linksPanel.add(decoratedHelp);
+
+        headTable.setWidget(FIRST_ROW, 4, linksPanel);
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
+        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
+        headTable.setWidget(FIRST_ROW, 5, logoutLink);
+        addSettingsClickHandler(decoratedSettings);
+
+        logoutLink.addDomHandler(new ClickHandler() {
+            public void onClick(ClickEvent event) {
+                logout();
+            }
+        }, ClickEvent.getType());
+        headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
+        head.add(headTable);
+        setInfoPage(initialization.getHelperLink());
+    }
+
+    @Deprecated
+    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig,
+                           CurrentVersionInfo version, String helperLink) {
+
+    }
+
+    private void createSearchItem() {
+        thirdImage = new FocusPanel();
+        thirdImage.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().headerExtendedSearch());
+        thirdImage.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                getExtendedSearchPanel();
+            }
+        }, ClickEvent.getType());
+    }
+
+    private void addHelpItemClickHandler(AbsolutePanel decoratedHelp, final Image versionImage) {
         decoratedHelp.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
@@ -138,14 +169,9 @@ public class HeaderContainer extends SimplePanel {
                 }
             }
         }, ClickEvent.getType());
+    }
 
-        linksPanel.add(decoratedSettings);
-        linksPanel.add(decoratedHelp);
-
-        headTable.setWidget(FIRST_ROW, 4, linksPanel);
-        headTable.getCellFormatter().setStyleName(FIRST_ROW, 4, "H_td_links");
-        HyperLinkWithHistorySupport logoutLink = new HyperLinkWithHistorySupport(LocalizeUtil.get(EXIT_KEY, EXIT), "logout");
-        headTable.setWidget(FIRST_ROW, 5, logoutLink);
+    private void addSettingsClickHandler(AbsolutePanel decoratedSettings) {
         decoratedSettings.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
@@ -157,20 +183,6 @@ public class HeaderContainer extends SimplePanel {
                 settingsPopup.getElement().getStyle().clearLeft();
             }
         }, ClickEvent.getType());
-        logoutLink.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                logout();
-            }
-        });
-        headTable.getCellFormatter().setStyleName(FIRST_ROW, 5, "H_td_logout");
-        head.add(headTable);
-        setInfoPage(initialization.getHelperLink());
-    }
-
-    @Deprecated
-    public HeaderContainer(CurrentUserInfo currentUserInfo, String logoImagePath, final SettingsPopupConfig settingsPopupConfig,
-                           CurrentVersionInfo version, String helperLink) {
-
     }
 
     // вызываем окно расширенного поиска
@@ -223,22 +235,23 @@ public class HeaderContainer extends SimplePanel {
 
     private void addUserInfoToDialog(CurrentUserInfo currentUserInfo) {
         dialogBox = new InformationDialogBox(currentUserInfo.getFirstName(), currentUserInfo.getLastName(),
-                currentUserInfo.getCurrentLogin(),currentUserInfo.getMail());
+                currentUserInfo.getCurrentLogin(), currentUserInfo.getMail());
     }
 
-    private void setInfoPage(final String pagePath){
+    private void setInfoPage(final String pagePath) {
 
-       final String currentPath = pagePath.contains("http://")? pagePath : GWT.getHostPageBaseURL()+ pagePath;
+        final String currentPath = pagePath.contains("http://") ? pagePath : GWT.getHostPageBaseURL() + pagePath;
         Label help = new Label(LocalizeUtil.get(INFO_KEY, INFO));
         infoPanel.add(help);
 
         help.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                    Window.open(currentPath, "_blank", "");
+                Window.open(currentPath, "_blank", "");
             }
         });
     }
+
     CurrentUserInfo getUserInfo(BusinessUniverseInitialization result) {
         return new CurrentUserInfo(result.getCurrentLogin(), result.getFirstName(), result.getLastName(), result.geteMail());
     }
@@ -247,4 +260,15 @@ public class HeaderContainer extends SimplePanel {
         return new CurrentVersionInfo(result.getApplicationVersion(), result.getProductVersion());
     }
 
+    private String buildUserRepresentation(CurrentUserInfo currentUserInfo) {
+        StringBuilder sb = new StringBuilder();
+        if (currentUserInfo.getFirstName().isEmpty() && currentUserInfo.getLastName().isEmpty()) {
+            sb.append(currentUserInfo.getCurrentLogin());
+        } else {
+            sb.append(currentUserInfo.getFirstName());
+            sb.append(" ");
+            sb.append(currentUserInfo.getLastName());
+        }
+        return sb.toString();
+    }
 }
