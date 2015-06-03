@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
@@ -70,6 +71,20 @@ public class DomainObjectQueryHelper {
     }
 
     /**
+     * Создает SQL запрос для нахождения нескольких доменных объектов одного типа
+     *
+     * @param typeName тип доменного объекта
+     * @param lock блокировка доменного объекта от изменений
+     * @return SQL запрос для нахождения доменного объекта
+     */
+    public String generateMultiObjectFindQuery(String typeName, AccessToken accessToken, boolean lock) {
+        StringBuilder whereClause = new StringBuilder();
+        whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append("in (:ids)");
+
+        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null);
+    }
+
+    /**
      * Инициализирует параметр c id доменного объекта
      *
      * @param id
@@ -81,6 +96,25 @@ public class DomainObjectQueryHelper {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", rdbmsId.getId());
         parameters.put("id_type", rdbmsId.getTypeId());
+        return parameters;
+    }
+
+    /**
+     * Инициализирует параметр cо списком id доменных объектов
+     *
+     * @param ids
+     *            идентификаторы доменных объектов
+     * @return карту объектов содержащую имя параметра и его значение
+     */
+    public Map<String, Object> initializeParameters(List<Id> ids) {
+        Map<String, Object> parameters = new HashMap<>();
+        List<Long> idNumbers = AccessControlUtility
+                .convertRdbmsIdsToLongIds(ids);
+        for (Id id : ids) {
+            idNumbers.add(((RdbmsId) id).getId());
+        }
+        parameters.put("ids", idNumbers);
+
         return parameters;
     }
 
@@ -111,6 +145,19 @@ public class DomainObjectQueryHelper {
     public Map<String, Object> initializeParameters(Id id, AccessToken accessToken) {
         Map<String, Object> parameters = initializeParameters(accessToken);
         parameters.putAll(initializeParameters(id));
+        return parameters;
+    }
+
+    /**
+     * Инициализирует параметры прав доступа и списка идентификаторов
+     *
+     * @param accessToken accessToken
+     * @param id accessToken
+     * @return карту объектов содержащую имена параметров и их значения
+     */
+    public Map<String, Object> initializeParameters(List<Id> ids, AccessToken accessToken) {
+        Map<String, Object> parameters = initializeParameters(accessToken);
+        parameters.putAll(initializeParameters(ids));
         return parameters;
     }
 

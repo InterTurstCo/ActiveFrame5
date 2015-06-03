@@ -1,95 +1,33 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
-import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAlias;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectVersion;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
-import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.ActionListener;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.EventLogService;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.IdGenerator;
-import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusExtentionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
-import ru.intertrust.cm.core.dao.api.extension.BeforeSaveExtensionHandler;
+import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.extension.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService;
-import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleIdRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.dao.impl.utils.*;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_FIELD_NAME;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
 
 /**
  * Класс реализации работы с доменным объектом
@@ -993,7 +931,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (ids == null || ids.size() == 0) {
             return new ArrayList<>();
         }
-        List<DomainObject> allDomainObjects = new ArrayList<DomainObject>();
+        List<DomainObject> allDomainObjects = new ArrayList<>(ids.size());
 
         IdSorterByType idSorterByType = new IdSorterByType(
                 ids.toArray(new RdbmsId[ids.size()]));
@@ -1009,7 +947,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         eventLogService.logAccessDomainObjectEventByDo(allDomainObjects, EventLogService.ACCESS_OBJECT_READ, true);
 
-        return allDomainObjects;
+        return idSorterByType.restoreOriginalOrder(allDomainObjects);
     }
 
     /**
@@ -1038,49 +976,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 idsToRead.remove(domainObject.getId());
             }
         }
-        String tableAlias = getSqlAlias(typeName);
-        StringBuilder query = new StringBuilder();
-
-        Map<String, Object> aclParameters = new HashMap<String, Object>();
-
-        Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, domainObjectType);
-
-        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(domainObjectType) || isAdministratorWithAllPermissions)) {
-
-            String aclReadTable = AccessControlUtility
-                    .getAclReadTableNameFor(configurationExplorer, domainObjectType);
-            query.append("select distinct t.* from " + domainObjectType + " t ");
-            query.append(" inner join ").append(wrap(aclReadTable)).append(" r on t.id = r.object_id ");
-            query.append(" inner join ").append(wrap("group_group")).append(" gg on r.").append(wrap("group_id"))
-                    .append(" = gg.").append(wrap("parent_group_id"));
-            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
-                    .append(wrap("child_group_id")).append(" = gm." + wrap("usergroup"));
-            query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and t.").append(wrap("id")).append(" in (:object_ids) ");
-
-            aclParameters = domainObjectQueryHelper.initializeParameters(accessToken);
-
-        } else {
-            query.append("select ");
-            appendColumnsQueryPart(query, typeName);
-            query.append(" from ");
-            appendTableNameQueryPart(query, typeName);
-            query.append(" where ").append(tableAlias).append(".").append(wrap(ID_COLUMN)).append("in (:object_ids) ");
-        }
-
-        Map<String, Object> parameters = new HashMap<>();
         List<DomainObject> readDomainObjects;
         if (!idsToRead.isEmpty()) {
-
-            List<Long> listIds = AccessControlUtility
-                    .convertRdbmsIdsToLongIds(new ArrayList<>(idsToRead));
-            parameters.put("object_ids", listIds);
-            parameters.putAll(aclParameters);
-
-            readDomainObjects = switchableJdbcTemplate.query(query
-                    .toString(), parameters, new MultipleObjectRowMapper(
-                    domainObjectType, configurationExplorer,
-                    domainObjectTypeIdCache));
+            String tableAlias = getSqlAlias(typeName);
+            String query = domainObjectQueryHelper.generateMultiObjectFindQuery(typeName, accessToken, false);
+            Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(new ArrayList<Id>(idsToRead), accessToken);
+            readDomainObjects = switchableJdbcTemplate.query(query, parameters,
+                    new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
             domainObjectCacheService.putObjectsToCache(readDomainObjects, accessToken);
         } else {
             readDomainObjects = new ArrayList<>(0);
