@@ -1,19 +1,19 @@
 package ru.intertrust.cm.core.config;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
-import ru.intertrust.cm.core.config.module.ModuleConfiguration;
-import ru.intertrust.cm.core.config.module.ModuleService;
 
 import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
@@ -31,9 +31,9 @@ public class GlobalSettingsLogicalValidatorTest {
         Configuration configuration =
                 createConfiguration(GLOBAL_XML_PATH, DOMAIN_OBJECTS_CONFIG_PATH);
 
-       GlobalSettingsLogicalValidator globalSettingsLogicalValidator =
-                new GlobalSettingsLogicalValidator(configuration);
-        globalSettingsLogicalValidator.validate();
+        GlobalSettingsLogicalValidator globalSettingsLogicalValidator = new GlobalSettingsLogicalValidator(configuration);
+        List<LogicalErrors> errors = globalSettingsLogicalValidator.validate();
+        assertEquals(0, errors.size());
     }
 
     @Test
@@ -52,7 +52,7 @@ public class GlobalSettingsLogicalValidatorTest {
         ConfigurationClassesCache.getInstance().build();
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
         Set<String> configs = new HashSet<>();
-        for(String path : configPaths) {
+        for (String path : configPaths) {
             configs.add(path);
         }
         configurationSerializer.setModuleService(createModuleService(configs));

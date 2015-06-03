@@ -91,7 +91,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     }
 
     private List<WidgetConfig> getWidgetConfigs(FormState formState) {
-        FormConfig formConfig = configurationExplorer.getLocalizedConfig(FormConfig.class, formState.getName(),
+        FormConfig formConfig = configurationExplorer.getLocalizedPlainFormConfig(formState.getName(),
                 profileService.getPersonLocale());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         return widgetConfigurationConfig.getWidgetConfigList();

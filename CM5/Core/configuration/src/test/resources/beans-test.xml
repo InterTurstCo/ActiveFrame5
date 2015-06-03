@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+    <bean id="widgetConfigurationExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetConfigurationExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="widgetGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetGroupsExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="markupExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.MarkupExtensionProcessor"
+          scope="prototype" lazy-init="true"/>
+    <bean id="tabsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="tabGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabGroupsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="rowsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.RowsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="cellsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.CellsExtensionProcessorImpl"
+          lazy-init="true"/>
+    <bean id="plainFormBuilder" class="ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl"/>
+
+    <bean id="formLogicalValidator" class="ru.intertrust.cm.core.config.FormLogicalValidator"/>
+    <bean id="label" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="integer-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="text-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="combo-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="radio-button" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="date-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="check-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="decimal-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="hierarchy-browser" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="text-area" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="table-browser" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+    <bean id="suggest-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
+
+</beans>

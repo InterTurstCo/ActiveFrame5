@@ -162,11 +162,6 @@ public class BasicRowMapper extends ValueReader {
             throw new FatalException("Id field can not be null for object " + domainObjectType);
         }
 
-        // TODO добавлено Лариным. М. после выноса системных арибутов в
-        // родительский класс надо будет убрать эти 3 строчки
-        object.setCreatedDate(object.getTimestamp("created_date"));
-        object.setModifiedDate(object.getTimestamp("updated_date"));
-        object.setStatus(object.getReference("status"));
         object.resetDirty();
 
         return object;

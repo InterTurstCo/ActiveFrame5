@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +16,17 @@ import java.util.List;
  *         Time: 12:33
  */
 @Root(name = "tr")
-public class RowConfig implements Dto {
+public class RowConfig implements IdentifiedConfig {
     @Attribute(name = "height", required = false)
     private String height;
 
     @Attribute(name = "v-align", required = false)
     private String defaultVerticalAlignment;
 
-    @ElementList(inline = true)
+    @Attribute(name = "id", required = false)
+    private String id;
+
+    @ElementList(inline = true, required = false)
     private List<CellConfig> cells = new ArrayList<CellConfig>();
 
     /**
@@ -66,6 +69,14 @@ public class RowConfig implements Dto {
         this.cells = cells;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -86,6 +97,9 @@ public class RowConfig implements Dto {
         if (height != null ? !height.equals(rowConfig.height) : rowConfig.height != null) {
             return false;
         }
+        if (id != null ? !id.equals(rowConfig.id) : rowConfig.id != null) {
+            return false;
+        }
 
         return true;
     }
@@ -95,6 +109,7 @@ public class RowConfig implements Dto {
         int result = height != null ? height.hashCode() : 0;
         result = 31 * result + (defaultVerticalAlignment != null ? defaultVerticalAlignment.hashCode() : 0);
         result = 31 * result + (cells != null ? cells.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

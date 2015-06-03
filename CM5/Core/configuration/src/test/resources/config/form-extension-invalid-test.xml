@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="city_form" domain-object-type="city" extends="parent_city_form">
+        <act:tool-bar>
+            <act:action-ref name-ref="aDigitalSignature"/>
+            <act:action-ref name-ref="aVerifyDigitalSignature"/>
+        </act:tool-bar>
+        <markup-extension>
+
+            <!-- добавление ячеек -->
+            <add-tds>
+                <!-- после какой-то ячейки -->
+                <after-td id="td1">
+                    <td h-align="right">
+                        <widget id="w5"/>
+                    </td>
+                </after-td>
+
+                <!-- перед какой-то ячейкой -->
+                <before-td id="td1">
+                    <td h-align="right">
+                        <widget id="w4"/>
+                    </td>
+                </before-td>
+            </add-tds>
+
+            <!-- добавление строк в табличную разметку -->
+            <add-trs>
+                <before-tr id="tr1">
+                    <tr id="tr0">
+                        <td>
+                            <widget id="w11"/>
+                        </td>
+
+                    </tr>
+                </before-tr>
+                <after-tr id="tr20">
+                    <tr>
+                        <td>
+                            <widget id="w10"/>
+                        </td>
+                        <td>
+                            <widget id="w8"/>
+                        </td>
+                    </tr>
+                </after-tr>
+            </add-trs>
+            <!-- <add-tds>
+                 &lt;!&ndash; после какой-то ячейки &ndash;&gt;
+                 <after-td id="td1">
+                     <td h-align="right">
+                         <widget id="w1"/>
+                     </td>
+                 </after-td>
+
+                 &lt;!&ndash; перед какой-то ячейкой &ndash;&gt;
+                 <before-td id="td1">
+                     <td h-align="right">
+                         <widget id="w4"/>
+                     </td>
+                 </before-td>
+             </add-tds>
+
+             &lt;!&ndash; добавление строк в табличную разметку &ndash;&gt;
+             <add-trs>
+                 <before-tr id="tr1">
+                     <tr id="tr0">
+                         <td>
+                             <widget id="w11"/>
+                         </td>
+
+                     </tr>
+                 </before-tr>
+                 <after-tr id="tr1">
+                     <tr>
+                         <td>
+                             <widget id="w10"/>
+                         </td>
+                         <td>
+                             <widget id="w8"/>
+                         </td>
+                     </tr>
+                 </after-tr>
+             </add-trs>-->
+        </markup-extension>
+
+        <form-objects-remover/>
+        <form-save-extension/>
+        <widget-groups>
+            <widget-group name="wg5">
+                <widget-ref id="w6"/>
+                <widget-ref id="w7"/>
+            </widget-group>
+        </widget-groups>
+
+    </form>
+
+    <form name="parent_city_form" domain-object-type="city" min-width="300px" is-default="true" extends="parent_parent_city_form">
+        <markup-extension>
+            <!-- полное переопределение ячейки -->
+            <replace-tds>
+                <td id="td2">
+                    <widget id="w1"/>
+                </td>
+                <td id="td1">
+                    <widget id="w2"/>
+                </td>
+            </replace-tds>
+
+            <!-- полное переопределение строки -->
+            <replace-trs>
+                <tr id="tr2">
+                    <td>
+                        <widget id="w4"/>
+                    </td>
+                </tr>
+            </replace-trs>
+
+            <!-- полное переопределение групп закладок -->
+            <replace-tabs>
+                <tab name="Tab2" id="tb6">
+                    <single-entry-group>
+                        <tab-group id ="tbg2">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+
+                    </single-entry-group>
+                </tab>
+
+            </replace-tabs>
+
+            <add-tabs>
+                <after-tab id="tb2">
+                    <tab name="Tab3" id="tb3">
+                        <bookmarks>
+                            <tab-group id ="tbg3">
+                                <table>
+                                    <tr id="tr4">
+                                        <td id="td8">
+                                            <widget id="w8"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </tab-group>
+                            <tab-group id="tbg4">
+                                <table>
+                                    <tr id="tr5">
+                                        <td id="td9">
+                                            <widget id="w9"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </tab-group>
+                        </bookmarks>
+                    </tab>
+
+                </after-tab>
+            </add-tabs>
+
+        </markup-extension>
+
+        <widget-config-extension>
+            <add-widgets>
+                <label id="w10">
+                    <field-path/>
+                    <text>Категория:</text>
+                </label>
+                <integer-box id="w11">
+                    <field-path value="category"/>
+                </integer-box>
+            </add-widgets>
+
+            <delete-widgets>
+                <widget-ref id="w9"/>
+            </delete-widgets>
+            <replace-widgets>
+                <label id="w18">
+                    <field-path/>
+                    <text>B. Name 1:</text>
+                </label>
+            </replace-widgets>
+
+        </widget-config-extension>
+
+        <form-objects-remover handler="handler">
+            <on-delete>
+                <create type="type">
+                    <field name="gg"/>
+                </create>
+            </on-delete>
+        </form-objects-remover>
+        <form-save-extension   after-save-component="after" before-save-component="before"/>
+        <widget-groups-extension>
+            <delete-widget-groups>
+                <widget-group id="wg1"/>
+            </delete-widget-groups>
+
+        </widget-groups-extension>
+
+    </form>
+
+    <form name="parent_parent_city_form" domain-object-type="city" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                        <td id="td2">
+                            <widget id="w2"/>
+                        </td>
+                        <td id="td3">
+                            <widget id="w3"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td4">
+                                        <widget id="w4"/>
+                                    </td>
+                                    <td id="td5">
+                                        <widget id="w5"/>
+                                    </td>
+                                </tr>
+                                <tr id="tr3">
+                                    <td id="td6">
+                                        <widget id="w6"/>
+                                    </td>
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Tab2" id="tb2">
+                    <bookmarks>
+                        <tab-group id ="tbg2">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group id="tbg3">
+                            <table>
+                                <tr id="tr5">
+                                    <td id="td9">
+                                        <widget id="w9"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Название:</text>
+            </label>
+            <date-box id="w2">
+                <field-path value="created_date"/>
+            </date-box>
+            <text-box id="w3">
+                <field-path value="name"/>
+            </text-box>
+            <label id="w4">
+                <text>Население:</text>
+                <relates-to widget-id="4"/>
+                <force-required-asterisk value="true"/>
+            </label>
+            <integer-box id="w5">
+                <field-path value="population"/>
+            </integer-box>
+
+            <label id="w6">
+                <text>Год основания:</text>
+            </label>
+            <integer-box id="w7" read-only="true">
+                <field-path value="year_of_foundation"/>
+            </integer-box>
+            <label id="w8">
+                <text>Категория:</text>
+            </label>
+            <enumeration-box id="w9">
+                <field-path value="category"/>
+                <mapping>
+                    <map value="1" display-text="Туристический"/>
+                    <map value="2" display-text="Захолустье"/>
+                    <map value="3" display-text="Промышленный"/>
+                </mapping>
+            </enumeration-box>
+        </widget-config>
+        <widget-groups>
+            <widget-group name="widget group1" id="wg1">
+                <widget-ref id="w1"/>
+                <widget-ref id="w2"/>
+            </widget-group>
+            <widget-group name="widget group2" id="wg2">
+                <widget-ref id="w3"/>
+                <widget-ref id="w4"/>
+            </widget-group>
+        </widget-groups>
+    </form>
+
+</configuration>

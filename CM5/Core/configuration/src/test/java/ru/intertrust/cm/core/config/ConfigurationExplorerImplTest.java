@@ -1,39 +1,34 @@
 package ru.intertrust.cm.core.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import junit.framework.Assert;
 import org.junit.rules.ExpectedException;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNull;
-import static ru.intertrust.cm.core.config.Constants.COLLECTIONS_CONFIG_PATH;
-import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
-import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
-import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH;
-import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH;
-import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_CONFIG;
-import static ru.intertrust.cm.core.config.Constants.MODULES_CUSTOM_SCHEMA;
-import static ru.intertrust.cm.core.config.Constants.MODULES_DOMAIN_OBJECTS;
+import static org.junit.Assert.*;
+import static ru.intertrust.cm.core.config.Constants.*;
 
 /**
  * @author vmatsukevich
  *         Date: 6/24/13
  *         Time: 3:43 PM
  */
+
 public class ConfigurationExplorerImplTest {
 
     private static final String PERSON_CONFIG_NAME = "Person";
@@ -52,6 +47,7 @@ public class ConfigurationExplorerImplTest {
 
     @Before
     public void setUp() throws Exception {
+
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
 
         config = configurationSerializer.deserializeConfiguration();
@@ -201,6 +197,7 @@ public class ConfigurationExplorerImplTest {
         Collection<DomainObjectTypeConfig> types = configExplorer.findChildDomainObjectTypes("Person", true);
         assertTrue(types.contains(configExplorer.getConfig(DomainObjectTypeConfig.class, "Employee")));
         assertTrue(types.size() == 2);
+
     }
 
     @Test
@@ -246,7 +243,14 @@ public class ConfigurationExplorerImplTest {
 
         configExplorer = new ConfigurationExplorerImpl(config);
     }
+    @Test
+    public void testGetParentFormConfigs() {
+        FormConfig formConfig = configExplorer.getConfig(FormConfig.class, "city_form");
+        List<FormConfig> formConfigs = configExplorer.getParentFormConfigs(formConfig);
 
+        assertTrue(formConfigs.size() == 2);
+        assertEquals("parent_parent_city_form", formConfigs.get(0).getName());
+    }
 
     private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
         ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
@@ -278,6 +282,7 @@ public class ConfigurationExplorerImplTest {
         confCustom.setConfigurationPaths(new ArrayList<String>());
         confCustom.getConfigurationPaths().add(MODULES_CUSTOM_CONFIG);
         confCustom.getConfigurationPaths().add(MODULES_DOMAIN_OBJECTS);
+        confCustom.getConfigurationPaths().add(FORM_EXTENSION_CONFIG);
         confCustom.setConfigurationSchemaPath(MODULES_CUSTOM_SCHEMA);
         confCustom.setDepends(new ArrayList<String>());
         confCustom.getDepends().add(confCore.getName());
@@ -285,4 +290,5 @@ public class ConfigurationExplorerImplTest {
 
         return result;
     }
+
 }

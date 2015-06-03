@@ -104,6 +104,9 @@
     <jee:local-slsb id="notificationService"
                     jndi-name="java:module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService"
                     business-interface="ru.intertrust.cm.core.business.api.NotificationService"/>
+    <jee:local-slsb id="scheduleService"
+                    jndi-name="java:module/ScheduleService!ru.intertrust.cm.core.business.api.ScheduleService"
+                    business-interface="ru.intertrust.cm.core.business.api.ScheduleService"/>
 
     <jee:local-slsb id="reportService"
                     jndi-name="java:module/ReportService!ru.intertrust.cm.core.business.api.ReportService"

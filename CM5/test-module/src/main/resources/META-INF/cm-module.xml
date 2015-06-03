@@ -14,7 +14,7 @@
         <gui-components-package>com</gui-components-package>
     </gui-components-packages>
     <server-components-packages>
-        <server-components-package>ru.intertrust.cm</server-components-package>
+        <server-components-package>ru/intertrust/cm</server-components-package>
     </server-components-packages>    
     <configuration-schema-path>module-configuration/custom-configuration.xsd</configuration-schema-path>
     <configuration-paths>
@@ -41,10 +41,12 @@
         <configuration-path>module-configuration/form-mechanism-3.xml</configuration-path>
         <configuration-path>module-configuration/form-mechanism-4.xml</configuration-path>
         <configuration-path>module-configuration/form-mechanism-5.xml</configuration-path>
+        <configuration-path>module-configuration/form-extension.xml</configuration-path>
         <configuration-path>module-configuration/collection-test.xml</configuration-path>
         <configuration-path>module-configuration/agent_esd.xml</configuration-path>
         <configuration-path>module-configuration/numerator.xml</configuration-path>
         <configuration-path>module-configuration/org-descriptions.xml</configuration-path>
+        <configuration-path>module-configuration/schedule.xml</configuration-path>
         
         <!-- Настройка импорта -->
         <configuration-path>module-configuration/import-settings.xml</configuration-path>        

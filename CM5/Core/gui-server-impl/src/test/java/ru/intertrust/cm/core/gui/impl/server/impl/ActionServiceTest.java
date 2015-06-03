@@ -1,15 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.server.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -20,24 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.PermissionService;
-import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.*;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
-import ru.intertrust.cm.core.config.FormLogicalValidator;
-import ru.intertrust.cm.core.config.NavigationPanelLogicalValidator;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
+import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
@@ -47,6 +28,16 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.impl.server.ActionServiceImpl;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(loader = AnnotationConfigContextLoader.class)
@@ -165,6 +156,11 @@ public class ActionServiceTest {
         public NavigationPanelLogicalValidator navigationPanelLogicalValidator(){
             return Mockito.mock(NavigationPanelLogicalValidator.class);
         }
+        @Bean
+        public PlainFormBuilder plainFormBuilder(){
+            return Mockito.mock(PlainFormBuilder.class);
+        }
+
 
         @Bean
         public UserGroupGlobalCache userGroupGlobalCache(){

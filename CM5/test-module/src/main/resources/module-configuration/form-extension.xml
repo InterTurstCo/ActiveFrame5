@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <domain-object-type name="ex1">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+            <long name="number1"/>
+            <long name="number2"/>
+            <reference name="exr" type="exr1"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+    <domain-object-type name="exr1">
+        <fields>
+            <string name="name1" length="128" not-null="true"/>
+            <string name="name2" length="128"/>
+            <long name="number1"/>
+            <long name="number2"/>
+        </fields>
+        <uniqueKey>
+            <field name="name1"/>
+        </uniqueKey>
+    </domain-object-type>
+    <form name="ex1_child_child_form" domain-object-type="ex1" extends="ex1_child_form">
+        <act:tool-bar>
+            <act:action-ref name-ref="aDigitalSignature"/>
+            <act:action-ref name-ref="aVerifyDigitalSignature"/>
+        </act:tool-bar>
+        <markup-extension>
+
+            <!-- добавление ячеек -->
+            <add-tds>
+                <!-- после какой-то ячейки -->
+                <after-td id="td11">
+                    <td>
+                        <widget id="w13"/>
+                    </td>
+                    <td>
+                        <widget id="w14"/>
+                    </td>
+                </after-td>
+
+            </add-tds>
+
+            <!-- добавление строк в табличную разметку -->
+            <add-trs>
+                <before-tr id="tr5">
+                    <tr>
+                        <td>
+                            <widget id="w15"/>
+                        </td>
+
+                    </tr>
+                </before-tr>
+
+            </add-trs>
+
+
+        </markup-extension>
+        <widget-config-extension>
+            <add-widgets>
+                <label id="w13">
+                    <text>Номер2:</text>
+                </label>
+                <integer-box id="w14">
+                    <field-path value="number2"/>
+                </integer-box>
+                <label id="w15">
+                    <field-path value="exr.number1"/>
+                </label>
+            </add-widgets>
+        </widget-config-extension>
+        <form-objects-remover/>
+        <form-save-extension/>
+
+        <widget-groups>
+            <widget-group name="wg5">
+                <widget-ref id="w6"/>
+                <widget-ref id="w7"/>
+            </widget-group>
+        </widget-groups>
+
+    </form>
+
+    <form name="ex1_child_form" domain-object-type="ex1" min-width="300px" extends="ex1_form">
+        <markup-extension>
+            <replace-tds>
+                <td id="td1">
+                    <widget id="w3"/>
+                </td>
+                <td id="td2">
+                    <widget id="w4"/>
+                </td>
+            </replace-tds>
+            <replace-trs>
+                <tr id="tr2">
+                    <td>
+                        <widget id="w2"/>
+                    </td>
+                </tr>
+            </replace-trs>
+            <replace-tabs>
+                <tab name="Tab2(заменено)" id="tb2">
+                    <bookmarks>
+                        <tab-group id ="tbg2" name="tbg2(заменено)">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group id="tbg3" name="tbg3(заменено)">
+                            <table>
+                                <tr id="tr5">
+                                    <td id="td12">
+                                        <widget id="w12"/>
+                                    </td>
+                                    <td id="td9">
+                                        <widget id="w9"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+
+            </replace-tabs>
+
+            <add-tabs>
+                <after-tab id="tb2">
+                    <tab name="Tab3" id="tb3">
+                        <single-entry-group>
+                            <tab-group name="tbg3" id="tbg3">
+                                <table>
+                                    <tr id="tr6">
+                                        <td id="w10">
+                                            <widget id="w10"/>
+                                        </td>
+                                        <td id="td11">
+                                            <widget id="w11"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </tab-group>
+                        </single-entry-group>
+                    </tab>
+
+                </after-tab>
+            </add-tabs>
+
+        </markup-extension>
+
+        <widget-config-extension>
+            <add-widgets>
+                <label id="w10">
+                    <text>Номер1:</text>
+                </label>
+                <integer-box id="w11">
+                    <field-path value="number1"/>
+                </integer-box>
+                <label id="w12">
+                    <field-path/>
+                    <text>Id:</text>
+                </label>
+            </add-widgets>
+
+            <delete-widgets>
+                <widget-ref id="w1"/>
+            </delete-widgets>
+            <replace-widgets>
+                <label id="w3">
+                    <text>Имя2(заменено):</text>
+                </label>
+            </replace-widgets>
+
+        </widget-config-extension>
+
+        <widget-groups-extension>
+            <delete-widget-groups>
+                <widget-group id="wg1"/>
+            </delete-widget-groups>
+
+        </widget-groups-extension>
+
+    </form>
+
+    <form name="ex1_form" domain-object-type="ex1" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                        <td id="td2">
+                            <widget id="w2"/>
+                        </td>
+
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td3">
+                                        <widget id="w3"/>
+                                    </td>
+                                    <td id="td4">
+                                        <widget id="w4"/>
+                                    </td>
+
+                                </tr>
+                                <tr id="tr3">
+                                    <td id="td5">
+                                        <widget id="w5"/>
+                                    </td>
+                                    <td id="td6">
+                                        <widget id="w6"/>
+                                    </td>
+
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+                <tab name="Tab2" id="tb2">
+                    <bookmarks>
+                        <tab-group id ="tbg2" name="tbg2">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group id="tbg3" name="tbg3">
+                            <table>
+                                <tr id="tr5">
+                                    <td id="td9">
+                                        <widget id="w9"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя1:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="w3">
+                <field-path/>
+                <text>Имя2:</text>
+            </label>
+            <text-box id="w4">
+                <field-path value="name2"/>
+            </text-box>
+            <label id="w5">
+                <text>Дата создания:</text>
+            </label>
+            <date-box id="w6">
+                <field-path value="created_date"/>
+            </date-box>
+            <label id="w7">
+                <text>Ссылка:</text>
+            </label>
+            <linked-domain-objects-table id="w8">
+                <field-path value="exr"/>
+                <linked-form-mapping>
+                    <linked-form name="exr1_form" domain-object-type="exr1" modal-height="400px" modal-width="800px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="exr1" domain-object-type="exr1"/>
+
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name 1">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Name 2" widget-id="w4">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w4"/>
+                        </widget-id-mappings>
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+
+                </summary-table>
+            </linked-domain-objects-table>
+
+            <label id="w9">
+                <field-path value="id"/>
+            </label>
+
+        </widget-config>
+        <widget-groups>
+            <widget-group name="widget group1" id="wg1">
+                <widget-ref id="w1"/>
+                <widget-ref id="w2"/>
+            </widget-group>
+            <widget-group name="widget group2" id="wg2">
+                <widget-ref id="w3"/>
+                <widget-ref id="w4"/>
+            </widget-group>
+        </widget-groups>
+    </form>
+    <form name="exr1_form" domain-object-type="exr1" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                        <td id="td2">
+                            <widget id="w2"/>
+                        </td>
+
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td3">
+                                        <widget id="w3"/>
+                                    </td>
+                                    <td id="td4">
+                                        <widget id="w4"/>
+                                    </td>
+                                </tr>
+                                <tr id="tr3">
+                                    <td id="td5">
+                                        <widget id="w5"/>
+                                    </td>
+                                    <td id="td6">
+                                        <widget id="w6"/>
+                                    </td>
+                                </tr>
+                                <tr id="tr4">
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя1:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name1"/>
+            </text-box>
+            <label id="w3">
+                <field-path/>
+                <text>Имя2:</text>
+            </label>
+            <text-box id="w4">
+                <field-path value="name2"/>
+            </text-box>
+            <label id="w5">
+                <text>Дата создания:</text>
+            </label>
+            <date-box id="w6">
+                <field-path value="created_date"/>
+            </date-box>
+            <label id="w7">
+                <field-path/>
+                <text>Номер1:</text>
+            </label>
+            <integer-box id="w8">
+                <field-path value="number2"/>
+            </integer-box>
+
+        </widget-config>
+        <widget-groups>
+            <widget-group name="widget group1" id="wg1">
+                <widget-ref id="w1"/>
+                <widget-ref id="w2"/>
+            </widget-group>
+            <widget-group name="widget group2" id="wg2">
+                <widget-ref id="w3"/>
+                <widget-ref id="w4"/>
+            </widget-group>
+        </widget-groups>
+    </form>
+
+    <collection name="ex1_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select ex1.id, ex1.name1 ex_name1, ex1.name2 ex_name2, ex1.number1 ex_number1, ex1.number2 ex_number2,
+                exr1.name1 exr_name1, exr1.name2 exr_name2 , exr1.number1 exr_number1, exr1.number2 exr_number2 from ex1
+                inner join exr1 on ex1.exr = exr1.id
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from ex1 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection-view name="ex1_collection_default_view" collection="ex1_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="ex_name1" name="ex_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="ex_name2" name="ex_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="exr_name1" name="exr_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="exr_name2" name="exr_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+</configuration>

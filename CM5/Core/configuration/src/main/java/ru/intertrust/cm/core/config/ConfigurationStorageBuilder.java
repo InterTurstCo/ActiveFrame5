@@ -21,11 +21,7 @@ import ru.intertrust.cm.core.util.AnnotationScanCallback;
 import ru.intertrust.cm.core.util.AnnotationScanner;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -82,7 +78,7 @@ public class ConfigurationStorageBuilder {
         typeMap.put(config.getName(), clonedConfig);
     }
 
-    private void localize(final String locale, LocalizableConfig config) {
+    public void localize(final String locale, LocalizableConfig config) {
         try {
             AnnotationScanner.scanAnnotation(config, Localizable.class, new AnnotationScanCallback() {
                 @Override
@@ -567,6 +563,8 @@ public class ConfigurationStorageBuilder {
             infoField.setName(Configuration.INFO_COLUMN);
             infoField.setLength(512);
             auditLogDomainObjectConfig.getFieldConfigs().add(infoField);
+        }else{
+            auditLogDomainObjectConfig.setExtendsAttribute(getALTableName(domainObjectTypeConfig.getExtendsAttribute()));
         }
         
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
@@ -575,6 +573,7 @@ public class ConfigurationStorageBuilder {
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 
         }
+        
         return auditLogDomainObjectConfig;
     }
 

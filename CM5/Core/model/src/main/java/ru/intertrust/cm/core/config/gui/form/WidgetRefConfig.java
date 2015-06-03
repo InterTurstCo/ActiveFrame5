@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.config.gui.form;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 
 /**
  * @author Lesia Puhova
@@ -10,7 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *         Time: 18:58
  */
 @Root(name="widget-ref")
-public class WidgetRefConfig implements Dto {
+public class WidgetRefConfig implements IdentifiedConfig {
 
     @Attribute(name="id")
     private String id;

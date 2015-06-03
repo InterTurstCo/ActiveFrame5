@@ -545,6 +545,7 @@
                 <permit-role name="Author" />
                 <permit-group name="Administrators" />
                 <permit-role name="Registrator" />
+                <permit-role name="Negotiator" />                
             </read>
             <write>
                 <permit-role name="Author" />
@@ -563,9 +564,7 @@
         </status>
         <status name="Registred">
             <read>
-                <permit-role name="Author" />
-                <permit-group name="Administrators" />
-                <permit-role name="Registrator" />
+                <permit-group name="AllPersons" />
             </read>
             <delete>
                 <permit-role name="Author" />

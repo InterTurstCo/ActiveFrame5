@@ -14,8 +14,11 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
+import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;
@@ -23,6 +26,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
+ *
  * @author vmatsukevich Date: 6/12/13 Time: 5:21 PM
  */
 public class ConfigurationExplorerImpl implements ConfigurationExplorer, ApplicationEventPublisherAware {
@@ -30,7 +34,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final Lock readLock  = readWriteLock.readLock();
+    private final Lock readLock = readWriteLock.readLock();
     private final Lock writeLock = readWriteLock.writeLock();
 
     private ConfigurationStorage configStorage;
@@ -44,6 +48,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Autowired
     private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
+    @Autowired
+    private PlainFormBuilder plainFormBuilder;
+
     //private ObjectCloner objectCloner = new ObjectCloner();
 
     /**
@@ -54,7 +61,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
 
         configurationStorageBuilder.buildConfigurationStorage();
-
+       // plainFormBuilder = new PlainFormBuilderImpl();
         if (!skipLogicalValidation) {
             validate();
         }
@@ -96,7 +103,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     /**
      * Каждый логический валидатор находится в блоке try/catch для отображения всех ошибок, возникнувших в результате
      * валидации, а не только первого бросившего exception
-     *
      */
     private void validate() {
         List<LogicalErrors> logicalErrorsList = new ArrayList<>();
@@ -257,7 +263,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (domainObjectConfigName == null || fieldConfigName == null) {
                 return null;
             }
-            
+
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
             FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 
@@ -348,7 +354,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
         readLock.lock();
-        try {            
+        try {
             if (isAuditLogType(domainObjectType)) {
                 domainObjectType = getParentTypeOfAuditLog(domainObjectType);
             }
@@ -475,6 +481,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     /**
      * Получение имени типа доменного объекта, который необходимо использовать при вычисление прав на доменный объект в случае
      * использования заимствования прав у связанного объекта
+     *
      * @param childTypeName имя типа, для которого необходимо вычислить тип объекта из которого заимствуются права
      * @return имя типа у которого заимствуются права или null в случае если заимствования нет
      */
@@ -519,7 +526,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         try {
             String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
 
-            if (typesHierarchy == null || typesHierarchy.length == 0){
+            if (typesHierarchy == null || typesHierarchy.length == 0) {
                 return null;
             }
 
@@ -535,7 +542,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         try {
             String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
 
-            if (typesHierarchy == null || typesHierarchy.length == 0){
+            if (typesHierarchy == null || typesHierarchy.length == 0) {
                 return typeName;
             }
 
@@ -549,7 +556,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public String[] getDomainObjectTypesHierarchy(String typeName) {
         readLock.lock();
         try {
-            if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)){
+            if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)) {
                 return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
             } else {
                 return getReturnObject(configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName), String[].class);
@@ -580,7 +587,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
     }
-    
+
     @Override
     public List<String> getAllowedToCreateUserGroups(String objectType) {
         List<String> userGroups = new ArrayList<>();
@@ -604,7 +611,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public LogDomainObjectAccessConfig getDomainObjectAccessEventLogsConfiguration(String typeName) {
         readLock.lock();
         try {
-            if (this.configStorage.eventLogDomainObjectAccessConfig.containsKey(typeName)){
+            if (this.configStorage.eventLogDomainObjectAccessConfig.containsKey(typeName)) {
                 return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get(typeName), LogDomainObjectAccessConfig.class);
             } else {
                 return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get("*"), LogDomainObjectAccessConfig.class);
@@ -670,5 +677,83 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         } finally {
             readLock.unlock();
         }
+    }
+
+    @Override
+    public FormConfig getPlainFormConfig(String name) {
+        FormConfig formConfig = getConfig(FormConfig.class, name);
+        readLock.lock();
+        try {
+            if (plainFormBuilder.isRaw(formConfig)) {
+                FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
+                if (formConfigFromCash == null) {
+                    List<FormConfig> parentFormConfigs = getParentFormConfigs(formConfig);
+                    formConfig = plainFormBuilder.buildPlainForm(formConfig, parentFormConfigs);
+                    configStorage.collectedFormConfigMap.put(formConfig.getName(), formConfig);
+                }else{
+                    formConfig = formConfigFromCash;
+                }
+            }
+            return getReturnObject(formConfig, FormConfig.class);
+        } finally {
+            readLock.unlock();
+        }
+
+    }
+
+    @Override
+    public FormConfig getLocalizedPlainFormConfig(String name, String currentLocale) {
+        readLock.lock();
+        try {
+            CaseInsensitiveMap<FormConfig> typeMap = configStorage.localizedCollectedFormConfigMap.get(currentLocale);
+            if (typeMap == null) {
+                typeMap = new CaseInsensitiveMap<>();
+                configStorage.localizedCollectedFormConfigMap.put(currentLocale, typeMap);
+            }
+            FormConfig formConfig = typeMap.get(name);
+            if (formConfig == null) {
+                formConfig = getPlainFormConfig(name);
+                ObjectCloner cloner = ObjectCloner.getInstance();
+                FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
+                configurationStorageBuilder.localize(currentLocale, clonedConfig);
+                typeMap.put(formConfig.getName(), clonedConfig);
+                formConfig = clonedConfig;
+            }
+            return formConfig;
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    public List<FormConfig> getParentFormConfigs(FormConfig formConfig) {
+        if (formConfig == null) {
+            return Collections.EMPTY_LIST;
+        }
+        readLock.lock();
+        try {
+            List<FormConfig> parentFormConfigs = new ArrayList<>();
+            FormConfig parentFormConfig = getParent(formConfig);
+            while (parentFormConfig != null) {
+                if (parentFormConfigs.contains(parentFormConfig)) {
+                    throw new ConfigurationException(String.format("Loop in the form hierarchy, looped form name is '%s'",
+                            parentFormConfig.getName()));
+                }
+                int index = parentFormConfigs.size() == 0 ? 0 : parentFormConfigs.size() - 1;
+                parentFormConfigs.add(index, parentFormConfig);
+                parentFormConfig = getParent(parentFormConfig);
+            }
+            return parentFormConfigs;
+        } finally {
+            readLock.unlock();
+        }
+
+    }
+
+    private FormConfig getParent(FormConfig formConfig) {
+        FormConfig result = null;
+        if (formConfig.getExtends() != null) {
+            result = getConfig(FormConfig.class, formConfig.getExtends());
+        }
+        return result;
     }
 }

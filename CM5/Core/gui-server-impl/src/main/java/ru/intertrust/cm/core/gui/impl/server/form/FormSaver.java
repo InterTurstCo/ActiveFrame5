@@ -44,7 +44,7 @@ public class FormSaver extends FormProcessor {
 
     public void setContext(FormState formState, Map<FieldPath, Value> forcedRootDomainObjectValues) {
         this.formState = formState;
-        this.formConfig = configurationExplorer.getConfig(FormConfig.class, formState.getName());
+        this.formConfig = configurationExplorer.getPlainFormConfig(formState.getName());
         this.formObjects = formState.getObjects();
         this.forcedRootDomainObjectValues = forcedRootDomainObjectValues == null ? new HashMap<FieldPath, Value>(0) : forcedRootDomainObjectValues;
         toCreate = new HashMap<>();

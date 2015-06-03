@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,17 +15,24 @@ import java.util.List;
  */
 
 @Root(name="widget-group")
-public class WidgetGroupConfig implements Dto {
+public class WidgetGroupConfig implements IdentifiedConfig {
 
-    @Attribute
+    @Attribute(name = "name", required = false)
     private String name;
 
-    @ElementList(inline = true)
+    @Attribute(name = "id", required = false)
+    private String id;
+
+    @ElementList(inline = true, required = false)
     private List<WidgetRefConfig> widgetRefConfigList = new ArrayList<WidgetRefConfig>();
 
 
     public String getName() {
         return name;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public List<WidgetRefConfig> getWidgetRefConfigList() {
@@ -46,6 +53,9 @@ public class WidgetGroupConfig implements Dto {
         if (!name.equals(that.name)) {
             return false;
         }
+        if (!id.equals(that.id)) {
+            return false;
+        }
         if (!widgetRefConfigList.equals(that.widgetRefConfigList)) {
             return false;
         }
@@ -56,6 +66,7 @@ public class WidgetGroupConfig implements Dto {
     @Override
     public int hashCode() {
         int result = name.hashCode();
+        result = 31 * result + id.hashCode();
         result = 31 * result + widgetRefConfigList.hashCode();
         return result;
     }

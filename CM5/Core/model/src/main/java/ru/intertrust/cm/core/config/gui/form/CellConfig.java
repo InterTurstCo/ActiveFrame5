@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.form;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 
 /**
@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
  *         Time: 13:09
  */
 @Root(name = "td")
-public class CellConfig implements Dto {
+public class CellConfig implements IdentifiedConfig {
     @Attribute(name = "colspan", required = false)
     private String columnSpan;
 
@@ -29,6 +29,9 @@ public class CellConfig implements Dto {
 
     @Attribute(name = "width", required = false)
     private String width;
+
+    @Attribute(name = "id", required = false)
+    private String id;
 
     @Element(name = "widget", required = false)
     private ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig widgetDisplayConfig;
@@ -81,6 +84,14 @@ public class CellConfig implements Dto {
         this.widgetDisplayConfig = widgetDisplayConfig;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -113,6 +124,9 @@ public class CellConfig implements Dto {
         if (width != null ? !width.equals(that.width) : that.width != null) {
             return false;
         }
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
 
         return true;
     }
@@ -125,6 +139,7 @@ public class CellConfig implements Dto {
         result = 31 * result + (verticalAlignment != null ? verticalAlignment.hashCode() : 0);
         result = 31 * result + (widgetDisplayConfig != null ? widgetDisplayConfig.hashCode() : 0);
         result = 31 * result + (width != null ? width.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

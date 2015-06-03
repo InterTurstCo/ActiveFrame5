@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 
 import java.util.Collection;
 import java.util.List;
@@ -262,4 +263,27 @@ public interface ConfigurationExplorer {
     public <T> T getLocalizedConfig(Class<T> type, String name, String locale);
 
     public <T> Collection<T> getLocalizedConfigs(Class<T> type, String locale);
+
+    /**
+     * Возвращает конфигурацию формы, если форма явлется наследником, то строит форму на основании родителей
+     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
+     * @param name имя формы
+     * @return конфигурацию формы, если нет формы с таким именем - null
+     */
+    FormConfig getPlainFormConfig(String name);
+
+    /**
+     * Возвращает локализованную конфигурацию формы, если форма явлется наследником, то строит форму на основании родителей
+     * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
+     * @param name имя формы
+     * @return конфигурацию формы, если нет формы с таким именем - null
+     */
+    FormConfig getLocalizedPlainFormConfig(String name, String currentLocale);
+
+    /**
+     * Возвращает список родительских конфигураций формы
+     * @param formConfig конфигурация формы, для которой нужно найти родительские конфигурации
+     * @return список родительских конфигураций формы, если родительских конфигураций нет - пустой список
+     */
+    List<FormConfig> getParentFormConfigs(FormConfig formConfig);
 }

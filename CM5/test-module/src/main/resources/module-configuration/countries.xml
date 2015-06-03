@@ -1264,6 +1264,50 @@
                 <text>Coздание города</text>
             </label>
         </widget-config>
+      <!--  <widget-config-extension>
+            &lt;!&ndash; замещает конкретные виджеты &ndash;&gt;
+
+            &lt;!&ndash; добавляет виджеты &ndash;&gt;
+            <add-widgets>
+                    <label id="b_name1_label">
+                        <field-path/>
+                        <text>B. Name 1:</text>
+                    </label>
+                    <text-box id="b_name1">
+                        <field-path value="b1.name1"/>
+                    </text-box>
+            </add-widgets>
+
+            &lt;!&ndash; удаляет виджеты &ndash;&gt;
+            <delete-widgets>
+                <widget-ref id="1"/>
+                <widget-ref id="2"/>
+            </delete-widgets>
+            <replace-widgets>
+                <label id="b_name1_label">
+                    <field-path/>
+                    <text>B. Name 1:</text>
+                </label>
+            </replace-widgets>
+
+        </widget-config-extension>-->
+        <widget-groups>
+            <widget-group name="country-union-group" id="country-union-group">
+                <widget-ref id="100"/>
+                <widget-ref id="101"/>
+            </widget-group>
+        </widget-groups>
+        <!--<widget-groups-extension>
+            <replace-widget-groups>
+                <widget-group name="country-union-group" id="country-union-group">
+                    <widget-ref id="100"/>
+                    <widget-ref id="101"/>
+                </widget-group>
+            </replace-widget-groups>
+
+        </widget-groups-extension>-->
+
+
     </form>
 
     <form name="my-custom-form" domain-object-type="country" debug="false" min-width="900px">

@@ -312,5 +312,19 @@
             </read>
         </status>   
     </access-matrix>    
+
+    <access-matrix type="test_type_13">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+        </status>
+    </access-matrix>
     
 </configuration>

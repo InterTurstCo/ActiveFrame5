@@ -259,6 +259,45 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="FormsExtensionTest" display-text="Наследование форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest2" display-text="Наследование форм2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest3" display-text="Наследование форм3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
         </link>
 
@@ -425,6 +464,25 @@
                             </custom>
                         </plugin>
                     </link>-->
+
+                <link name="ScheduledTasks" display-text="Периодические задачи">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="schedule">
+                            <collection-viewer>
+                                <collection-ref name="allSchedule" use-default="false"/>
+                                <default-sort-criteria column-field="name" order="asc"/>
+                                <act:tool-bar useDefault="true">
+                                    <act:simple-action componentName="simple.action" action-handler="schedule-task-execute"
+                                                       text="Запустить сейчас" permissions="Write">
+                                        <act:after-execution>
+                                            <act:on-success-message text="Задача будет запущена в течение минуты"/>
+                                        </act:after-execution>
+                                    </act:simple-action>
+                                </act:tool-bar>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
             </child-links>
 
             <child-links>

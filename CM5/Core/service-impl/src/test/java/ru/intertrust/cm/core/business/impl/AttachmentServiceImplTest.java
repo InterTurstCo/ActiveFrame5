@@ -16,21 +16,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
-import ru.intertrust.cm.core.business.api.*;
+import ru.intertrust.cm.core.business.api.AttachmentService;
+import ru.intertrust.cm.core.business.api.BaseAttachmentService;
+import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.FormLogicalValidator;
-import ru.intertrust.cm.core.config.NavigationPanelLogicalValidator;
-import ru.intertrust.cm.core.config.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.AttachmentTypesConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 
 import java.io.*;
@@ -127,7 +127,7 @@ public class AttachmentServiceImplTest {
         private AccessControlService accessControlService;
 
         @Mock
-        private CurrentUserAccessor currentUserAccessor;        
+        private CurrentUserAccessor currentUserAccessor;
 
         @Mock
         AccessToken accessToken;
@@ -140,6 +140,9 @@ public class AttachmentServiceImplTest {
 
         @Mock
         private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
+
+        @Mock
+        private PlainFormBuilder plainFormBuilder;
 
         @Mock
         private ApplicationContext context;
@@ -179,6 +182,11 @@ public class AttachmentServiceImplTest {
         }
 
         @Bean
+        public PlainFormBuilder plainFormBuilder(){
+            return plainFormBuilder;
+        }
+
+        @Bean
         public AttachmentContentDao attachmentContentDao() {
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
@@ -186,7 +194,7 @@ public class AttachmentServiceImplTest {
                     return saveContent(inputStream, "Test_File.jpg");
                 }
             }).when(attachmentContentDao).saveContent(any(InputStream.class), any(String.class));
-            
+
             doAnswer(new Answer() {
                 public Object answer(InvocationOnMock invocation) {
                     DomainObject domainObject = (DomainObject) invocation.getArguments()[0];
@@ -270,7 +278,7 @@ public class AttachmentServiceImplTest {
     }
 
     @AfterClass
-    public static void setDownRmi() throws RemoteException, NotBoundException {    
+    public static void setDownRmi() throws RemoteException, NotBoundException {
         Registry registry = LocateRegistry.getRegistry(PORT_RMI);
         registry.unbind(ATTACHMENT_SERVICE_RMI_NAME);
         System.out.println("Unbound AttachmentServiceRmi");
@@ -529,7 +537,7 @@ public class AttachmentServiceImplTest {
             throw new RuntimeException(ex);
         }
     }
-    
+
     private static void deleteContent(DomainObject domainObject) {
         String fileName = ((StringValue) domainObject.getValue("path")).get();
         try {

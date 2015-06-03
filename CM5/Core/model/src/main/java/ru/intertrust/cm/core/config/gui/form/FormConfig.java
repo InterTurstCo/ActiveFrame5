@@ -8,6 +8,9 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.form.extension.markup.MarkupExtensionConfig;
+import ru.intertrust.cm.core.config.gui.form.extension.widget.configuration.WidgetConfigurationExtensionConfig;
+import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.WidgetGroupsExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 
@@ -33,10 +36,10 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     private String domainObjectType;
 
     @Attribute(name = "is-default", required = false)
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @Attribute(name = "debug", required = false)
-    private boolean debug;
+    private Boolean debug;
 
     @Attribute(name = "min-width", required = false)
     private String minWidth;
@@ -51,16 +54,25 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     private String defaultValueSetter;
 
     @Attribute(name = "re-read-in-same-transaction", required = false)
-    private boolean reReadInSameTransaction;
+    private Boolean reReadInSameTransaction;
+
+    @Attribute(name = "extends", required = false)
+    private String parent;
 
     @Element(name = "tool-bar", required = false)
     private ToolBarConfig toolbarConfig;
 
-    @Element(name = "markup")
+    @Element(name = "markup", required = false)
     private MarkupConfig markup;
 
-    @Element(name = "widget-config")
+    @Element(name = "markup-extension", required = false)
+    private MarkupExtensionConfig markupExtensionConfig;
+
+    @Element(name = "widget-config", required = false)
     private WidgetConfigurationConfig widgetConfigurationConfig;
+
+    @Element(name = "widget-config-extension", required = false)
+    private WidgetConfigurationExtensionConfig widgetConfigurationExtensionConfig;
 
     @Element(name = "form-objects-remover", required = false)
     private FormObjectsRemoverConfig formObjectsRemoverConfig;
@@ -70,6 +82,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
 
     @Element(name = "widget-groups", required = false)
     private WidgetGroupsConfig widgetGroupsConfig;
+
+    @Element(name = "widget-groups-extension", required = false)
+    private WidgetGroupsExtensionConfig widgetGroupsExtensionConfig;
 
     @Element(name = "default-value-setter", required = false)
     private DefaultValueSetterConfig defaultValueSetterConfig;
@@ -108,18 +123,26 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     }
 
     public boolean isDefault() {
+        return isDefault == null ? false : isDefault;
+    }
+
+    public Boolean getNotSafeIsDefault(){
         return isDefault;
     }
 
-    public void setDefault(boolean isDefault) {
+    public void setDefault(Boolean isDefault) {
         this.isDefault = isDefault;
     }
 
     public boolean getDebug() {
+        return debug == null ? false : debug;
+    }
+
+    public Boolean getNotSafeIsDebug(){
         return debug;
     }
 
-    public void setDebug(boolean debug) {
+    public void setDebug(Boolean debug) {
         this.debug = debug;
     }
 
@@ -137,6 +160,14 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
 
     public void setWidgetConfigurationConfig(WidgetConfigurationConfig widgetConfigurationConfig) {
         this.widgetConfigurationConfig = widgetConfigurationConfig;
+    }
+
+    public WidgetConfigurationExtensionConfig getWidgetConfigurationExtensionConfig() {
+        return widgetConfigurationExtensionConfig;
+    }
+
+    public void setWidgetConfigurationExtensionConfig(WidgetConfigurationExtensionConfig widgetConfigurationExtensionConfig) {
+        this.widgetConfigurationExtensionConfig = widgetConfigurationExtensionConfig;
     }
 
     public FormObjectsRemoverConfig getFormObjectsRemoverConfig() {
@@ -179,12 +210,36 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
         this.defaultValueSetterConfig = defaultValueSetterConfig;
     }
 
-    public boolean reReadInSameTransaction() {
-        return reReadInSameTransaction;
+    public Boolean reReadInSameTransaction() {
+        return reReadInSameTransaction == null ? false : reReadInSameTransaction;
     }
 
-    public void setReReadInSameTransaction(boolean reReadInSameTransaction) {
+    public void setReReadInSameTransaction(Boolean reReadInSameTransaction) {
         this.reReadInSameTransaction = reReadInSameTransaction;
+    }
+
+    public MarkupExtensionConfig getMarkupExtensionConfig() {
+        return markupExtensionConfig;
+    }
+
+    public void setMarkupExtensionConfig(MarkupExtensionConfig markupExtensionConfig) {
+        this.markupExtensionConfig = markupExtensionConfig;
+    }
+
+    public WidgetGroupsExtensionConfig getWidgetGroupsExtensionConfig() {
+        return widgetGroupsExtensionConfig;
+    }
+
+    public void setWidgetGroupsExtensionConfig(WidgetGroupsExtensionConfig widgetGroupsExtensionConfig) {
+        this.widgetGroupsExtensionConfig = widgetGroupsExtensionConfig;
+    }
+
+    public String getExtends() {
+        return parent;
+    }
+
+    public void setExtends(String parent) {
+        this.parent = parent;
     }
 
     public CaseInsensitiveHashMap<WidgetConfig> getWidgetConfigsById() {
@@ -202,6 +257,14 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
         return widgetConfigsById;
     }
 
+    public void setWidgetGroupsConfig(WidgetGroupsConfig widgetGroupsConfig) {
+        this.widgetGroupsConfig = widgetGroupsConfig;
+    }
+
+    public void setToolbarConfig(ToolBarConfig toolbarConfig) {
+        this.toolbarConfig = toolbarConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -211,19 +274,24 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
             return false;
         }
         FormConfig that = (FormConfig) o;
-        if (isDefault != that.isDefault) {
+        if (isDefault!= null ? !isDefault.equals(that.isDefault) : that.isDefault != null) {
             return false;
         }
-        if (debug != that.debug) {
+        if (debug != null ? !debug.equals(that.debug) : that.debug != null) {
             return false;
         }
-        if (reReadInSameTransaction != that.reReadInSameTransaction) {
+        if (reReadInSameTransaction != null ? !reReadInSameTransaction.equals(that.reReadInSameTransaction)
+                : that.reReadInSameTransaction != null) {
             return false;
         }
         if (domainObjectType != null ? !domainObjectType.equals(that.domainObjectType) : that.domainObjectType != null) {
             return false;
         }
         if (markup != null ? !markup.equals(that.markup) : that.markup != null) {
+            return false;
+        }
+        if (markupExtensionConfig != null ? !markupExtensionConfig.equals(that.markupExtensionConfig)
+                : that.markupExtensionConfig != null) {
             return false;
         }
         if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
@@ -238,8 +306,15 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
         if (defaultValueSetter != null ? !defaultValueSetter.equals(that.defaultValueSetter) : that.defaultValueSetter != null) {
             return false;
         }
+        if (parent != null ? !parent.equals(that.parent) : that.parent != null) {
+            return false;
+        }
         if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.
                 widgetConfigurationConfig) : that.widgetConfigurationConfig != null) {
+            return false;
+        }
+        if (widgetConfigurationExtensionConfig != null ? !widgetConfigurationExtensionConfig.equals(that.
+                widgetConfigurationExtensionConfig) : that.widgetConfigurationExtensionConfig != null) {
             return false;
         }
         if (formObjectsRemoverConfig != null ? !formObjectsRemoverConfig.equals(that.

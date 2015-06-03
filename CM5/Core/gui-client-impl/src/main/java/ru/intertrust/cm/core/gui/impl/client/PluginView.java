@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.util.ActionContextComparator;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
@@ -283,6 +284,8 @@ public abstract class PluginView implements IsWidget {
                 if (isInner) {
                     mBar.addStyleName("decoratedActionLinkPopupInset");
                 }
+
+                Collections.sort(subContext.getInnerContexts(), new ActionContextComparator());
                 for (ActionContext innerContext : subContext.getInnerContexts()) {
                     AbstractActionConfig innerConfig = innerContext.getActionConfig();
                     if (innerConfig instanceof ActionSeparatorConfig) {
@@ -301,6 +304,7 @@ public abstract class PluginView implements IsWidget {
                         }
                     }
                 }
+
                 MenuItem menuItem = new MenuItem(ComponentHelper.createActionGroupHtmlItem(subContext), mBar);
                 updateByConfig(menuItem, config);
                 menuItem.setTitle(config.getTooltip());

@@ -149,7 +149,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         if (accessMatrixConfig == null || accessMatrixConfig.getName() == null
                 || accessMatrixConfig.getPermissions() == null) {
-            return;
+            //Для текущего статуса не найдено вхождения в матрице, отбираем у всех права
+            accessMatrixConfig = new AccessMatrixStatusConfig();
+            accessMatrixConfig.setName(status);
+            accessMatrixConfig.setPermissions(new ArrayList<BaseOperationPermitConfig>());
         }
 
         //Переделываем формирование acl. Вместо полного удаления и создания формируем точечные изменения, приводящие acl в актуальное состояниеы

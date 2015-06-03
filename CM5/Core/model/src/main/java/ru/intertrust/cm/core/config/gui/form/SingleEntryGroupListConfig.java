@@ -1,7 +1,10 @@
 package ru.intertrust.cm.core.config.gui.form;
 
-import org.simpleframework.xml.Element;
+import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Denis Mitavskiy
@@ -10,16 +13,13 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "single-entry-group")
 public class SingleEntryGroupListConfig extends TabGroupListConfig {
-    @Element(name = "tab-group")
-    private TabGroupConfig tabGroupConfig;
+    @ElementList(name = "tab-group", inline = true)
+    private List<TabGroupConfig> tabGroupConfigs = new ArrayList<>();
 
     public TabGroupConfig getTabGroupConfig() {
-        return tabGroupConfig;
+        return tabGroupConfigs.isEmpty() ? null : tabGroupConfigs.get(0);
     }
 
-    public void setTabGroupConfig(TabGroupConfig tabGroupConfig) {
-        this.tabGroupConfig = tabGroupConfig;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -32,7 +32,7 @@ public class SingleEntryGroupListConfig extends TabGroupListConfig {
 
         SingleEntryGroupListConfig that = (SingleEntryGroupListConfig) o;
 
-        if (tabGroupConfig != null ? !tabGroupConfig.equals(that.tabGroupConfig) : that.tabGroupConfig != null) {
+        if (tabGroupConfigs != null ? !tabGroupConfigs.equals(that.tabGroupConfigs) : that.tabGroupConfigs != null) {
             return false;
         }
 
@@ -41,6 +41,11 @@ public class SingleEntryGroupListConfig extends TabGroupListConfig {
 
     @Override
     public int hashCode() {
-        return tabGroupConfig != null ? tabGroupConfig.hashCode() : 0;
+        return tabGroupConfigs != null ? tabGroupConfigs.hashCode() : 0;
+    }
+
+    @Override
+    public List<TabGroupConfig> getTabGroupConfigs() {
+        return tabGroupConfigs;
     }
 }

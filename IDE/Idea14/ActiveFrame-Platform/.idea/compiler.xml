@@ -40,7 +40,6 @@
         <module name="gui-server-impl" />
         <module name="it-test" />
         <module name="jdbc" />
-        <module name="jmeter-tools" />
         <module name="model" />
         <module name="remote-client" />
         <module name="service-api" />
@@ -51,6 +50,13 @@
         <module name="web-login-page" />
         <module name="web-resources" />
         <module name="workstation" />
+      </profile>
+      <profile default="false" name="Annotation profile for jmeter-tools" enabled="true">
+        <sourceOutputDir name="target\generated-sources\annotations" />
+        <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jmeter-tools" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

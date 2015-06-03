@@ -12,6 +12,7 @@ import junit.framework.Assert;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
@@ -81,6 +82,7 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
             etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "start-internal-document-process");            
@@ -96,6 +98,7 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Draft");
             }
@@ -107,15 +110,23 @@ public class TestPermission extends ClientBase {
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Negotiation");
             
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Negotiation");
             }            
@@ -124,17 +135,25 @@ public class TestPermission extends ClientBase {
             createNegotiationCard(internalDocument.getId(), "Сотрудник 7");
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Add new Negotiator");
 
             etalon = new EtalonPermissions();
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Delete);
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Add new Negotiator");
             }            
@@ -147,9 +166,8 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status Registration");
 
             etalon = new EtalonPermissions();
@@ -159,9 +177,8 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 5"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 6"), Permission.Read);
-            etalon.addPermission(getEmployeeId("Сотрудник 7"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Registration");
             }            
@@ -204,12 +221,27 @@ public class TestPermission extends ClientBase {
             internalDocument = getCrudService().save(internalDocument);
             internalDocument = getCrudService().find(internalDocument.getId());
             etalon = new EtalonPermissions();
+            etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Read);
             etalon.addPermission(getEmployeeId("Сотрудник 3"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addPermission(getPersonId("administrator"), Permission.Read);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Read);
             checkPermissions(internalDocument.getId(), etalon, "Status OnRevision");
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status OnRevision");
             }            
 
+            
+            //Статус "Complete" отсутствует в матрице, при переходе в этот статус прав должны обнулятся полностью
+            internalDocument.setString("State", "Complete");
+            internalDocument = getCrudService().save(internalDocument);
+            etalon = new EtalonPermissions();
+            checkPermissions(internalDocument.getId(), etalon, "Status Complete");
+            for (Id negotiationId  : negotiationCards) {
+                checkPermissions(negotiationId, etalon, "Status Complete");
+            }            
+            
+            
             //Создаем письмо
             DomainObject letter = getCrudService().createDomainObject("letter");
             letter.setString("subject", "Тестовое письмо " + System.nanoTime());
@@ -395,7 +427,17 @@ public class TestPermission extends ClientBase {
                 etalon.addPermission(personId, Permission.Read);
             }
             checkPermissions(testType11.getId(), etalon, "test_type_11_Complete");
-            
+
+            //Проверка прав на аудит
+            DomainObject test13Do = createTest13();
+            Id test13AuditId = getTest13AuditLog(test13Do.getId());
+            test13Do = ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).find(test13Do.getId());
+            AccessVerificationService accessVerificationService = ((AccessVerificationService.Remote) getService("AccessVerificationServiceImpl", AccessVerificationService.Remote.class, "person1", "admin"));
+            assertTrue("Test 13 check read access", accessVerificationService.isReadPermitted(test13AuditId));
+
+            assertTrue("Test 13 check write access", accessVerificationService.isWritePermitted(test13AuditId));
+
+            assertFalse("Test 13 check delete access", accessVerificationService.isDeletePermitted(test13AuditId));
             
             log("Test complete");
         } finally {
@@ -403,6 +445,20 @@ public class TestPermission extends ClientBase {
         }
     }
 
+    
+    
+    private Id getTest13AuditLog(Id auditedId) throws NamingException{
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(auditedId));
+        IdentifiableObjectCollection collection =
+                getCollectionService().findCollectionByQuery("select t.id from test_type_12_al t where t.domain_object_id = {0}", params);
+        Id result = null;
+        if (collection.size() > 0) {
+            result = collection.getId(0);
+        }
+        return result;
+    }
+    
     private void deleteObject(Id objectId, String login) throws NamingException {
         CrudService.Remote localCrudService = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, login, "admin"); 
         localCrudService.delete(objectId);
@@ -473,6 +529,13 @@ public class TestPermission extends ClientBase {
         return negotiationCard;
     }
 
+    private DomainObject createTest13() throws NamingException {
+        DomainObject test13 = getCrudService().createDomainObject("test_type_13");
+        test13.setString("description", "xxx" + System.currentTimeMillis());
+        test13 = getCrudService().save(test13);
+        return test13;
+    }    
+    
     private class EtalonPermissions {
         private Map<Id, List<Permission>> personPermission = new HashMap<Id, List<Permission>>();
         private Map<Id, List<String>> personActionPermission = new HashMap<Id, List<String>>();
