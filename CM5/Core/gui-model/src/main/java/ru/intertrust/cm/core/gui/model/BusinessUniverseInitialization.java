@@ -78,10 +78,7 @@ public class BusinessUniverseInitialization implements Dto {
     }
 
     public void setCurrentLogin(String currentLogin) {
-        if (currentLogin == null){
-            this.currentLogin = "";
-        }
-        this.currentLogin = currentLogin;
+        this.currentLogin = currentLogin == null ? "" : currentLogin;
     }
 
     public String getPageNamePrefix() {
@@ -117,10 +114,7 @@ public class BusinessUniverseInitialization implements Dto {
     }
 
     public void setLastName(String lastName) {
-        if (lastName == null){
-            this.lastName = "";
-        }
-        this.lastName = lastName;
+        this.lastName = lastName == null ? "" : lastName;
     }
 
     public String getFirstName() {
@@ -128,10 +122,7 @@ public class BusinessUniverseInitialization implements Dto {
     }
 
     public void setFirstName(String firstName) {
-        if (firstName == null){
-            this.firstName = "";
-        }
-        this.firstName = firstName;
+        this.firstName = firstName == null ? "" : firstName;
     }
 
     public String getLogoImagePath() {
