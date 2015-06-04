@@ -237,8 +237,7 @@ public class DomainObjectQueryHelper {
             //Получаем матрицу для permissionType
             AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
-            if (accessMatrixConfig == null || accessMatrixConfig.isReadEverybody() == null || !accessMatrixConfig.isReadEverybody()
-                    || !isAdministratorWithAllPermissions) {
+            if (!isReadEveryBody(permissionType) && !isAdministratorWithAllPermissions) {
 
                 //Таблица с правами на read получается с учетом наследования типов
                 String aclReadTable = AccessControlUtility
@@ -278,6 +277,10 @@ public class DomainObjectQueryHelper {
             }
 
         }
+    }
+
+    private boolean isReadEveryBody(String domainObjectType) {
+        return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
     }
 
     private void appendTableNameQueryPart(StringBuilder query, String typeName) {
