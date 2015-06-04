@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +49,11 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.api.DatabaseInfo;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
@@ -66,6 +71,10 @@ public class CrudServiceIT extends IntegrationTestBase {
     private static final String PERSON_2_LOGIN = "person2";
     private static final String PERSON_3_LOGIN = "person3";
     
+    protected DomainObjectDao domainObjectDao;
+    
+    protected AccessControlService accessControlService;
+
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -91,10 +100,40 @@ public class CrudServiceIT extends IntegrationTestBase {
         ApplicationContext applicationContext = ApplicationContextProvider.getApplicationContext();
         domainObjectTypeIdCache = applicationContext.getBean(DomainObjectTypeIdCache.class);
         configurationExplorer = applicationContext.getBean(ConfigurationExplorer.class);
+        domainObjectDao = applicationContext.getBean(DomainObjectDao.class);
+        accessControlService = applicationContext.getBean(AccessControlService.class);
     }
 
+    
     @Test
-    public void testSaveFindExists() {
+    public void testReadEveryBody() throws LoginException {
+        LoginContext lc = login(PERSON_2_LOGIN, ADMIN);
+        lc.login();
+
+        String user = PERSON_2_LOGIN;
+        Integer cityTypeId = domainObjectTypeIdCache.getId("city");
+
+        final RdbmsId id = new RdbmsId(cityTypeId, 1);
+        final List<Id> ids = Collections.<Id> singletonList(new RdbmsId(cityTypeId, 1));
+        final Id[] idsArray = new Id[] {new RdbmsId(cityTypeId, 1) };
+        AccessToken accessToken1 = accessControlService.createAccessToken(user, null, DomainObjectAccessType.READ);
+        AccessToken accessToken2 = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
+        AccessToken accessToken3 = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
+        final DomainObject result1 = domainObjectDao.find(id, accessToken1);
+        final DomainObject result2 = domainObjectDao.find(id, accessToken2);
+        final List<DomainObject> result3 = domainObjectDao.find(ids, accessToken1);
+        final List<DomainObject> result4 = domainObjectDao.find(ids, accessToken3);
+
+        assertNotNull(result1);
+        assertNotNull(result2);
+        assertTrue(result3.size() > 0);
+        assertNotNull(result4.size() > 0);
+        lc.logout();
+    }
+    
+    @Test
+    public void testSaveFindExists() throws LoginException {        
+        
         DomainObject personDomainObject = createPersonDomainObject();
         DomainObject savedPersonObject = crudService.save(personDomainObject);
 
