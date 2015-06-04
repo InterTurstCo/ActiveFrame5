@@ -16,26 +16,23 @@ public class IdSorterByType {
     private Set<Integer> domainObjectTypeIds = new HashSet<>();
 
     private Map<Integer, List<Id>> groupedByTypeObjectIds = new HashMap<>();
-    private HashMap<Id, Integer> originalOrder;
+    private RdbmsId[] originalIds;
 
     public IdSorterByType(RdbmsId[] ids) {
-        this.originalOrder = new HashMap<>((int) (ids.length / 0.75) + 1);
-        for (int i = 0; i < ids.length; i++) {
-            RdbmsId id = ids[i];
-            this.originalOrder.put(id, i);
-        }
+        this.originalIds = ids;
         collectDomainObjectTypes(ids);
 
         groupIdsByType(ids);
     }
 
     public ArrayList<DomainObject> restoreOriginalOrder(List<DomainObject> objects) {
-        ArrayList<DomainObject> result = new ArrayList<>(objects.size());
-        for (int i = 0; i < objects.size(); i++) {
-            result.add(null);
-        }
+        HashMap<Id, DomainObject> objectsById = new HashMap<>((int) (objects.size() / 0.75));
         for (DomainObject obj : objects) {
-            result.set(originalOrder.get(obj.getId()), obj);
+            objectsById.put(obj.getId(), obj);
+        }
+        ArrayList<DomainObject> result = new ArrayList<>(objects.size());
+        for (Id id : originalIds) {
+            result.add(objectsById.get(id));
         }
         return result;
     }

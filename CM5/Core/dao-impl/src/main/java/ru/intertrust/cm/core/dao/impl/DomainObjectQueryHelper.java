@@ -67,7 +67,7 @@ public class DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append("=:id");
 
-        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null);
+        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null, true);
     }
 
     /**
@@ -79,9 +79,9 @@ public class DomainObjectQueryHelper {
      */
     public String generateMultiObjectFindQuery(String typeName, AccessToken accessToken, boolean lock) {
         StringBuilder whereClause = new StringBuilder();
-        whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append("in (:ids)");
+        whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append(" in (:ids)");
 
-        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null);
+        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null, false);
     }
 
     /**
@@ -108,11 +108,7 @@ public class DomainObjectQueryHelper {
      */
     public Map<String, Object> initializeParameters(List<Id> ids) {
         Map<String, Object> parameters = new HashMap<>();
-        List<Long> idNumbers = AccessControlUtility
-                .convertRdbmsIdsToLongIds(ids);
-        for (Id id : ids) {
-            idNumbers.add(((RdbmsId) id).getId());
-        }
+        List<Long> idNumbers = AccessControlUtility.convertRdbmsIdsToLongIds(ids);
         parameters.put("ids", idNumbers);
 
         return parameters;
@@ -174,7 +170,7 @@ public class DomainObjectQueryHelper {
     }
 
     protected String generateFindQuery(String typeName, AccessToken accessToken, boolean lock, StringBuilder joinClause,
-                                     StringBuilder whereClause, StringBuilder orderClause) {
+                                     StringBuilder whereClause, StringBuilder orderClause, boolean isSingleDomainObject) {
         String tableAlias = getSqlAlias(typeName);
 
         StringBuilder query = new StringBuilder();
@@ -188,7 +184,7 @@ public class DomainObjectQueryHelper {
         }
 
         query.append(" where ").append(whereClause);
-        appendAccessRightsPart(typeName, accessToken, tableAlias, query);
+        appendAccessRightsPart(typeName, accessToken, tableAlias, query, isSingleDomainObject);
 
         if (orderClause != null) {
             query.append(" order by ").append(orderClause);
@@ -201,7 +197,28 @@ public class DomainObjectQueryHelper {
         return query.toString();
     }
 
-    private void appendAccessRightsPart(String typeName, AccessToken accessToken, String tableAlias, StringBuilder query) {
+    private void appendAccessRightsPart(String typeName, AccessToken accessToken, String tableAlias, StringBuilder query, boolean isSingleDomainObject) {
+        /* IN CASE OF SINGLE DOMAIN OBJECT
+         * and exists (
+         *      select a."object_id" from "country_read" a
+         *      inner join "group_group" gg on a."group_id" = gg."parent_group_id"
+         *      inner join "group_member" gm on gg."child_group_id" = gm."usergroup"
+         *      inner join "country" o on (o."access_object_id" = a."object_id")
+         *      where
+         *      gm."person_id" = 4
+         *      and o."id" = 29
+         *  )
+         *
+         * IN CASE OF MULTIPLE DOMAIN OBJECTS
+         * and exists (
+         *      select a."object_id" from "country_read" a
+         *      inner join "group_group" gg on a."group_id" = gg."parent_group_id"
+         *      inner join "group_member" gm on gg."child_group_id" = gm."usergroup"
+         *      where
+         *      gm."person_id" = 4
+         *      and country1."access_object_id" = a."object_id"
+         *      )
+         */
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(typeName)) != null;
         if (accessToken.isDeferred() && isDomainObject) {
             boolean isAuditLog = configurationExplorer.isAuditLogType(typeName);
@@ -236,21 +253,28 @@ public class DomainObjectQueryHelper {
                 query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                         .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
                 //обавляем в связи с появлением функциональности замещения прав
-                query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
-                query.append(DaoUtils.wrap("access_object_id")).append(" = a.").append(DaoUtils.wrap("object_id")).append(")");
+                if (isSingleDomainObject) {
+                    query.append(" inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
+                    query.append(DaoUtils.wrap("access_object_id")).append(" = a.").append(DaoUtils.wrap("object_id")).append(")");
+                }
                 if (isAuditLog) {
-                    query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(tableAlias).append(".")
+                    query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(tableAlias).append(".") // todo check usage of tableAlias
                             .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
                 }
 
                 query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and ");
 
                 if (isAuditLog) {
-                    query.append("o.").append(wrap("id")).append(" = ").append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN)).append(")");
+                    query.append("o.").append(wrap("id")).append(" = ").append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
 
                 } else {
-                    query.append("o.").append(wrap("id")).append(" = :id)");
+                    if (isSingleDomainObject) {
+                        query.append("o.").append(wrap("id")).append(" = :id");
+                    } else {
+                        query.append(getSqlAlias(domainObjectBaseTable)).append(".\"access_object_id\" = a.\"object_id\"");
+                    }
                 }
+                query.append(")");
             }
 
         }

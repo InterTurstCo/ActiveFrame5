@@ -33,7 +33,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         whereClause.append("gm.").append(wrap("usergroup")).append("=:id and gm.").
                 append(wrap(getReferenceTypeColumnName("usergroup"))).append("=:id_type");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -60,7 +60,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         whereClause.append("gg.").append(wrap("parent_group_id")).append("=:id and gg.").
                 append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -86,7 +86,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         whereClause.append("gm.").append(wrap("person_id")).append("=:id and gm.").
                 append(wrap(getReferenceTypeColumnName("person_id"))).append("=:id_type");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -109,7 +109,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
                 append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
                 append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -130,7 +130,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
         whereClause.append("ggs.").append(wrap("parent_group_id")).append("=:id and ggs.").
                 append(wrap(getReferenceTypeColumnName("parent_group_id"))).append("=:id_type");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -153,7 +153,7 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
                 append(tableAlias).append(".").append(wrap(ID_COLUMN)).append(" <> :id or ").
                 append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" <> :id_type)");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 
     /**
@@ -168,6 +168,6 @@ public class PersonManagementQueryHelper extends DomainObjectQueryHelper {
                 append(tableAlias).append(".").append(wrap(getReferenceTypeColumnName("object_id"))).append("=:id_type and ").
                 append(tableAlias).append(".").append(wrap("group_name")).append("=:name");
 
-        return generateFindQuery(typeName, accessToken, false, null, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, null, whereClause, null, true);
     }
 }

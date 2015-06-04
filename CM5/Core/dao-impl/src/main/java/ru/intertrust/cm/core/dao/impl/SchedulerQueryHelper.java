@@ -33,7 +33,7 @@ public class SchedulerQueryHelper extends DomainObjectQueryHelper {
         StringBuilder orderClause = new StringBuilder();
         orderClause.append(tableAlias).append(".").append(wrap("priority"));
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, orderClause);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, orderClause, true);
     }
 
     public String generateFindNotInStatusTasksQuery(String typeName, AccessToken accessToken) {
@@ -49,6 +49,6 @@ public class SchedulerQueryHelper extends DomainObjectQueryHelper {
         StringBuilder whereClause = new StringBuilder();
         whereClause.append("s").append(".").append(wrap("name")).append("!=:status");
 
-        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null);
+        return generateFindQuery(typeName, accessToken, false, joinClause, whereClause, null, true);
     }
 }
