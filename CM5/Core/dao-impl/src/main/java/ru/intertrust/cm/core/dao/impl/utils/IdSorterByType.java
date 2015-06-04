@@ -32,7 +32,10 @@ public class IdSorterByType {
         }
         ArrayList<DomainObject> result = new ArrayList<>(objects.size());
         for (Id id : originalIds) {
-            result.add(objectsById.get(id));
+            final DomainObject obj = objectsById.get(id);
+            if (obj != null) {
+                result.add(obj);
+            }
         }
         return result;
     }

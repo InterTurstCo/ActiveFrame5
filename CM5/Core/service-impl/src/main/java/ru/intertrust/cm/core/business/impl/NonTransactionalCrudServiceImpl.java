@@ -3,11 +3,15 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.LoggerFactory;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CrudServiceDelegate;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.CrudServiceDelegate}
@@ -55,8 +59,8 @@ public class NonTransactionalCrudServiceImpl extends CrudServiceBaseImpl {
      * Возвращает доменные объекты по их уникальным идентификаторам в системе.
      *
      * @param ids уникальные идентификаторы доменных объектов в системе
-     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные доменные объекты
-     * в результирующем списке представлены null.
+     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные по каким-либо причинам доменные объекты
+     *         в результирующем списке отсутствуют.
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
     @Override
