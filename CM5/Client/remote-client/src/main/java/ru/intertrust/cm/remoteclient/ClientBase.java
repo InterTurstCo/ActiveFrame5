@@ -38,10 +38,10 @@ public abstract class ClientBase {
     private CommandLine commandLine;
     private Properties properties = new Properties();
     private StringBuilder log = new StringBuilder();
-    private String address;
-    private String user;
-    private String password;
-    private String logPath;
+    protected String address;
+    protected String user;
+    protected String password;
+    protected String logPath;
     /**
      * Контекст должен быть обязательно членам класса, и жить все время пока живет процесс. Инициализируется при получение первого сервиса и используется все
      * время только один экземпляр

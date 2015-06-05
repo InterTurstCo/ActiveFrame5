@@ -353,6 +353,13 @@
             <string name="description2" length="128" />
         </fields>
     </domain-object-type>    
+    
+    <domain-object-type name="test_type_14" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>    
+    
 
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
