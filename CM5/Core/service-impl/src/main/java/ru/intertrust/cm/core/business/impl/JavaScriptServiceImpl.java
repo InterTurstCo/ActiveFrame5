@@ -85,20 +85,22 @@ public class JavaScriptServiceImpl implements ScriptService {
     }
 
     protected void injectBeans(Bindings bindings) {
-        if (injectBeans == null){
-            injectBeans = new Hashtable<String, Object>();
-            ApplicationContext context = getInjectedApplicationContext();
-            String[] beanDefinitionNames = context.getBeanDefinitionNames();
-
-            for (String beanDefinitionName : beanDefinitionNames) {
-                if (context.isSingleton(beanDefinitionName) && 
-                        !((AbstractApplicationContext)context).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
-                    Object bean = context.getBean(beanDefinitionName);
-                    injectBeans.put(beanDefinitionName, bean);
+        synchronized (JavaScriptServiceImpl.class) {
+            if (injectBeans == null){
+                injectBeans = new Hashtable<String, Object>();
+                ApplicationContext context = getInjectedApplicationContext();
+                String[] beanDefinitionNames = context.getBeanDefinitionNames();
+    
+                for (String beanDefinitionName : beanDefinitionNames) {
+                    if (context.isSingleton(beanDefinitionName) && 
+                            !((AbstractApplicationContext)context).getBeanFactory().getBeanDefinition(beanDefinitionName).isAbstract() ) {
+                        Object bean = context.getBean(beanDefinitionName);
+                        injectBeans.put(beanDefinitionName, bean);
+                    }
                 }
+                //Добавляем переменные из server.properties
+                injectBeans.put("environment", environment);
             }
-            //Добавляем переменные из server.properties
-            injectBeans.put("environment", environment);
         }
         
         for (String beanName : injectBeans.keySet()) {
