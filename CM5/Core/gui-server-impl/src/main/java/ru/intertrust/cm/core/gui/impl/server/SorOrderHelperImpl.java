@@ -46,11 +46,7 @@ public class SorOrderHelperImpl implements SortOrderHelper {
 
     @Override
     public SortOrder buildSortOrder(String collectionName, SelectionSortCriteriaConfig sortCriteriaConfig) {
-        SortOrder result = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
-        if(result == null){
-            result = buildSortOrderByIdField(collectionName);
-        }
-        return result;
+        return SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
     }
 
 
