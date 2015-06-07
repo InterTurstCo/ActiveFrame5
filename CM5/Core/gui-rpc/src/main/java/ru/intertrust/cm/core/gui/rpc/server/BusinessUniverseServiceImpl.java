@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.impl.server.widget.AttachmentUploaderServlet;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
@@ -73,6 +74,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @Autowired
     private ApplicationContext applicationContext;
 
+    @EJB
+    private UserSettingsFetcher userSettingsFetcher;
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -108,7 +112,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setSearchConfigured(isSearchConfigured());
         Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
         initialization.setGlobalLocalizedResources(messages);
-
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+        initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
         return initialization;
     }
 

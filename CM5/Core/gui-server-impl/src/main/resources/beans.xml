@@ -23,6 +23,10 @@
     <jee:local-slsb id="importDataService"
                     jndi-name="java:module/ImportDataService!ru.intertrust.cm.core.business.api.ImportDataService"
                     business-interface="ru.intertrust.cm.core.business.api.ImportDataService"/>
+
+    <jee:local-slsb id="userSettingsFetcher"
+                    jndi-name="java:module/UserSettingsFetcher!ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher"
+                    business-interface="ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher"/>
                     
     <bean id="applicationVersion" class="ru.intertrust.cm.core.gui.impl.server.util.VersionUtil" scope="singleton" />
 

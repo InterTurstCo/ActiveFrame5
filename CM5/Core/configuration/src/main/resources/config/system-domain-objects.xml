@@ -71,6 +71,7 @@
             <string name="theme" length="128"/>
             <long name="splitter_orientation"/>
             <long name="splitter_position"/>
+            <string name="nav_link" length="128"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="bu_nav_link_collection" initial-status="Active">
@@ -98,7 +99,7 @@
     <collection name="bu_user_settings_collection" idField="id">
         <prototype>
             <![CDATA[
-                    select bus.id, bus.theme, bus.splitter_orientation, bus.splitter_position
+                    select bus.id, bus.theme, bus.splitter_orientation, bus.splitter_position, bus.nav_link
                     from bu_user_settings bus
                     inner join Person p on (p.id = bus.person)
                     ::from-clause
