@@ -414,14 +414,13 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         }
 
-        Map<String, Object>[] parameters = new Map[addAclInfo.size()];
+        Map<String, Object>[] parameters = new Map[addAclInfo.size() * rdbmsObjectIds.length];
 
         int index = 0;
-        for (RdbmsId rdbmsObjectId : rdbmsObjectIds) {
+        for (RdbmsId rdbmsObjectId : rdbmsObjectIds) {            
             for (AclInfo aclInfo : addAclInfo) {
                 RdbmsId rdbmsDynamicGroupId = (RdbmsId) aclInfo.getGroupId();
                 parameters[index] = initializeInsertAclRecordParameters(aclInfo.getAccessType(), rdbmsObjectId, rdbmsDynamicGroupId);
-                ;
                 index++;
             }
         }
@@ -1253,7 +1252,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     @Override
-    public void grantNewObjectPermissions(Id[] domainObjectIds) {
+    public void grantNewObjectPermissions(List<Id> domainObjectIds) {
         Id currentPersonId = currentUserAccessor.getCurrentUserId();
 
         if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
@@ -1263,14 +1262,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             List<AclInfo> aclInfoRead = new ArrayList<>();
             List<AclInfo> aclInfoNoRead = new ArrayList<>();
 
-            for (int i = 0; i < domainObjectIds.length; i++) {
-                aclInfoRead.add(new AclInfo(DomainObjectAccessType.READ, currentPersonGroup));
-                aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.WRITE, currentPersonGroup));
-                aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
-            }
+            aclInfoRead.add(new AclInfo(DomainObjectAccessType.READ, currentPersonGroup));
+            aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.WRITE, currentPersonGroup));
+            aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
 
-            insertAclRecordsInBatch(aclInfoRead, (RdbmsId[]) domainObjectIds, true);
-            insertAclRecordsInBatch(aclInfoNoRead, (RdbmsId[]) domainObjectIds, false);
+            RdbmsId[] idsArray = domainObjectIds.toArray(new RdbmsId[domainObjectIds.size()]);
+
+            insertAclRecordsInBatch(aclInfoRead, idsArray, true);
+            insertAclRecordsInBatch(aclInfoNoRead, idsArray, false);
 
         }
     }

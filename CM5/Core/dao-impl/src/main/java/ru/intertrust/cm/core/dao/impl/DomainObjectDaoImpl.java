@@ -203,15 +203,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject createdObjects[] = create(domainObjects,
                 domainObjectTypeIdCache.getId(domainObjects[0].getTypeName()), accessToken, initialStatus);
 
-        RdbmsId[] domainObjectIds = convertToIdsArray(createdObjects);
-        // Добавляем временные права на чтение для новых объектов используя пакетные операции вставки
+        List<Id> domainObjectIds = convertToIds(createdObjects);
+        // Добавляем временные права на чтение для новых объектов
         permissionService.grantNewObjectPermissions(domainObjectIds);
 
         for (DomainObject createdObject : createdObjects) {
             domainObjectCacheService.putObjectToCache(createdObject, accessToken);
             refreshDynamiGroupsAndAclForCreate(createdObject);
-            
-            //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+
+            // Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
             listener.addCreatedDomainObject(createdObject);
         }
@@ -219,13 +219,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return createdObjects;
     }
 
-    private RdbmsId[] convertToIdsArray(DomainObject[] createdObjects) {
-        RdbmsId[] ids = new RdbmsId[createdObjects.length];
-        int index = 0;
+    private List<Id> convertToIds(DomainObject[] createdObjects) {
+        List<Id> idsList = new ArrayList<>();
+
         for (DomainObject domainObject : createdObjects) {
-            ids[index] = (RdbmsId) domainObject.getId();
+            idsList.add((RdbmsId) domainObject.getId());
+
         }
-        return ids;
+        return idsList;
     }
     
     private DomainObjectActionListener getTransactionListener(){
