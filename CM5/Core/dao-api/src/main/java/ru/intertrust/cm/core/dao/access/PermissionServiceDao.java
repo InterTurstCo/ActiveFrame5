@@ -90,6 +90,14 @@ public interface PermissionServiceDao {
     void grantNewObjectPermissions(Id domainObject);
 
     /**
+     * Дать временные права на вновь созданные доменные объекты. 
+     * Необходимо выполнить сразу после создания не дожидаясь окончания транзакции, 
+     * чтобы можно юыло уже получать объект запросом в течение текущей транзакции
+     * @param domainObject
+     */
+    void grantNewObjectPermissions(Id[] domainObjectIds);
+
+    /**
      * Производит пересчет всех ACL, которые должны пересчитатся в конце транзакции, не дожидаясь окончания транзакции
      */
     void refreshAcls();

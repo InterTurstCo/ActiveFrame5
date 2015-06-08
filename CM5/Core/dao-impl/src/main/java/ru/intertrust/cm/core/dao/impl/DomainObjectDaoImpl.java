@@ -203,11 +203,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject createdObjects[] = create(domainObjects,
                 domainObjectTypeIdCache.getId(domainObjects[0].getTypeName()), accessToken, initialStatus);
 
+        RdbmsId[] domainObjectIds = convertToIdsArray(createdObjects);
+        // Добавляем временные права на чтение для новых объектов используя пакетные операции вставки
+        permissionService.grantNewObjectPermissions(domainObjectIds);
+
         for (DomainObject createdObject : createdObjects) {
             domainObjectCacheService.putObjectToCache(createdObject, accessToken);
             refreshDynamiGroupsAndAclForCreate(createdObject);
-            //Добавляем временные права на чтение для новых объектов
-            permissionService.grantNewObjectPermissions(createdObject.getId());
             
             //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
@@ -217,6 +219,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return createdObjects;
     }
 
+    private RdbmsId[] convertToIdsArray(DomainObject[] createdObjects) {
+        RdbmsId[] ids = new RdbmsId[createdObjects.length];
+        int index = 0;
+        for (DomainObject domainObject : createdObjects) {
+            ids[index] = (RdbmsId) domainObject.getId();
+        }
+        return ids;
+    }
+    
     private DomainObjectActionListener getTransactionListener(){
         DomainObjectActionListener listener = userTransactionService.getListener(DomainObjectActionListener.class);
         if (listener == null){
