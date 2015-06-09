@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
  *
  */
 public interface ReportServiceDelegate {
-    public static final String FORMAP_PARAM = "FORMAT";
+    public static final String FORMAT_PARAM = "FORMAT";
     
     /**
      * Remote интерфейс

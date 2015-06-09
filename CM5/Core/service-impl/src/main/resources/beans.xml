@@ -260,4 +260,8 @@
     <bean id="currentAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.CurrentAttachmentSignatureDataService"/>
 
     <bean id="domainObjectStoreSignatureService" class="ru.intertrust.cm.core.business.impl.crypto.DomainObjectStoreSignatureService"/>
+
+    <beans profile="default">
+        <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>
+    </beans>
 </beans>
