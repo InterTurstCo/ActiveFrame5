@@ -2,9 +2,10 @@ package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -82,47 +83,13 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
     public DomainObject saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
-        StringValue newFilePathValue = null;
-        DomainObject savedDoaminObject = null;
         try {
             contentStream = RemoteInputStreamClient.wrap(inputStream);
-            String fileName = attachmentDomainObject.getString(NAME);
-            AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(contentStream, fileName);
-            String newFilePath = attachmentInfo.getRelativePath();
-
-            attachmentDomainObject.setString(MIME_TYPE, attachmentInfo.getMimeType());
-            attachmentDomainObject.setLong(CONTENT_LENGTH, attachmentInfo.getContentLength());
-            
-            if (newFilePath == null || newFilePath.isEmpty()) {
-                throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
-            }
-            newFilePathValue = new StringValue(newFilePath);
-            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(PATH);
-            attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
-            AccessToken accessToken = createSystemAccessToken();
-
-            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
-
-            //предыдущий файл удаляем
-            if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
-                //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue(PATH, oldFilePathValue);
-                attachmentContentDao.deleteContent(attachmentDomainObject);
-            }
-            savedDoaminObject.setValue("path", newFilePathValue);
-            return savedDoaminObject;
-        } catch (IOException ex) {
-            if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue(PATH, newFilePathValue);
-                attachmentContentDao.deleteContent(attachmentDomainObject);
-            }
-            logger.error("Unexpected exception caught in saveAttachment", ex);
-            throw new UnexpectedException("AttachmentService", "saveAttachment",
-                    "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
+            return saveAttachment(contentStream, attachmentDomainObject);
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in saveAttachment", ex);
             throw new UnexpectedException("AttachmentService", "saveAttachment",
-                    "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
+                    "attachmentDomainObject: " + attachmentDomainObject.getId(), ex);
         } finally {
             if (contentStream != null) {
                 try {
@@ -135,36 +102,66 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         }
     }
 
+    protected DomainObject saveAttachment(InputStream contentStream, DomainObject attachmentDomainObject) {
+        String fileName = attachmentDomainObject.getString(NAME);
+        AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(contentStream, fileName);
+        String newFilePath = attachmentInfo.getRelativePath();
+
+        attachmentDomainObject.setString(MIME_TYPE, attachmentInfo.getMimeType());
+        attachmentDomainObject.setLong(CONTENT_LENGTH, attachmentInfo.getContentLength());
+        
+        if (newFilePath == null || newFilePath.isEmpty()) {
+            throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
+        }
+        StringValue newFilePathValue = new StringValue(newFilePath);
+        StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(PATH);
+        attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
+        AccessToken accessToken = createSystemAccessToken();
+
+        DomainObject savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
+
+        //предыдущий файл удаляем
+        if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
+            //файл может быть и не удален, в случае если заблокирован
+            //TODO Реализовать удаление в конце транзакции - на случай отката
+            attachmentDomainObject.setValue(PATH, oldFilePathValue);
+            attachmentContentDao.deleteContent(attachmentDomainObject);
+        }
+        savedDoaminObject.setValue(PATH, newFilePathValue);
+        return savedDoaminObject;
+    }
+
     private AccessToken createSystemAccessToken() {
         return accessControlService.createSystemAccessToken("AttachmentService");
     }
 
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         InputStream inFile = null;
-        SimpleRemoteInputStream remoteInputStream = null;
+        RemoteInputStream remoteInputStream = null;
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
-            InputStream inputStream = attachmentContentDao.loadContent(attachmentDomainObject);
-            RemoteInputStream export = wrapStream(inputStream);
-            return export;
+            inFile = attachmentContentDao.loadContent(attachmentDomainObject);
+            remoteInputStream = wrapStream(inFile);
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in loadAttachment", ex);
             if (inFile != null) {
                 try {
                     inFile.close();
                 } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
+                    logger.error("Error closing file", e);
                 }
             }
-            if (remoteInputStream != null) {
+            //А.П. remoteInputStream cannot be non-null here
+            /*if (remoteInputStream != null) {
                 remoteInputStream.close();
-            }
+            }*/
             throw new UnexpectedException("AttachmentService", "loadAttachment",
                     "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
+        return remoteInputStream;
     }
 
-    abstract RemoteInputStream wrapStream(InputStream inputStream) throws java.rmi.RemoteException;
+    protected abstract RemoteInputStream wrapStream(InputStream inputStream) throws java.rmi.RemoteException;
 
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
@@ -260,8 +257,17 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         attachmentCopyDomainObject.setLong(CONTENT_LENGTH, attachDomainObject.getLong(CONTENT_LENGTH));
         attachmentCopyDomainObject.setString(DESCRIPTION, attachDomainObject.getString(DESCRIPTION));
 
-        RemoteInputStream remoteInputStream = loadAttachment(attachmentDomainObjectId);
-        attachmentCopyDomainObject = saveAttachment(remoteInputStream, attachmentCopyDomainObject);
+        //RemoteInputStream remoteInputStream = loadAttachment(attachmentDomainObjectId);
+        InputStream inputStream = attachmentContentDao.loadContent(attachDomainObject);
+        try {
+            attachmentCopyDomainObject = saveAttachment(inputStream, attachmentCopyDomainObject);
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                logger.error("Error closing source stream", e);
+            }
+        }
 
         return attachmentCopyDomainObject;
     }
