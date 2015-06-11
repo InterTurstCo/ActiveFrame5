@@ -3,8 +3,10 @@ package ru.intertrust.cm.core.config.gui.form.widget.linkediting;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.FormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +25,20 @@ public class LinkedFormMappingConfig implements Dto {
 
     public void setLinkedFormConfigs(List<LinkedFormConfig> linkedFormConfigs) {
         this.linkedFormConfigs = linkedFormConfigs;
+    }
+
+    public List<FormMappingConfig> toFormMappingConfigList() {
+        if (linkedFormConfigs == null) {
+            return null;
+        }
+        ArrayList<FormMappingConfig> result = new ArrayList<>(linkedFormConfigs.size());
+        for (LinkedFormConfig linkedFormConfig : linkedFormConfigs) {
+            FormMappingConfig formMappingConfig = new FormMappingConfig();
+            formMappingConfig.setDomainObjectType(linkedFormConfig.getDomainObjectType());
+            formMappingConfig.setForm(linkedFormConfig.getName());
+            result.add(formMappingConfig);
+        }
+        return result;
     }
 
     @Override

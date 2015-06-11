@@ -5,6 +5,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
@@ -58,7 +59,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
                 }
             };
             Application.getInstance().getEventBus().fireEvent(new CloseFormDialogWindowsEvent());
-            Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, pluginCloseListener));
+            Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, widget.getLinkedFormMappingConfig(), pluginCloseListener));
 
         }
     }

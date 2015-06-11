@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.api.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -13,10 +14,12 @@ public class OpenHyperlinkInSurferEvent extends GwtEvent<OpenHyperlinkInSurferEv
 
     public static Type<OpenHyperlinkInSurferEventHandler> TYPE = new Type<OpenHyperlinkInSurferEventHandler>();
     private Id id;
+    private LinkedFormMappingConfig linkedFormMappingConfig;
     private PluginCloseListener pluginCloseListener;
 
-    public OpenHyperlinkInSurferEvent(Id id, PluginCloseListener listener) {
+    public OpenHyperlinkInSurferEvent(Id id, LinkedFormMappingConfig linkedFormMappingConfig, PluginCloseListener listener) {
         this.id = id;
+        this.linkedFormMappingConfig = linkedFormMappingConfig;
         this.pluginCloseListener = listener;
     }
 
@@ -36,6 +39,10 @@ public class OpenHyperlinkInSurferEvent extends GwtEvent<OpenHyperlinkInSurferEv
 
     public PluginCloseListener getPluginCloseListener() {
         return pluginCloseListener;
+    }
+
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return linkedFormMappingConfig;
     }
 }
 

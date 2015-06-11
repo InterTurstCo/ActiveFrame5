@@ -263,7 +263,18 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
-        openDomainObjectInFullScreen(event.getId(), DomainObjectSource.COLLECTION, null);
+        final FormPluginState state = new FormPluginState();
+        if (this.getFormPluginState().isEditable()) {
+            state.setEditable(true);
+            state.setToggleEdit(true);
+        } else {
+            state.setEditable(false);
+            state.setToggleEdit(true);
+        }
+        state.setDomainObjectSource(DomainObjectSource.COLLECTION);
+        state.setInCentralPanel(true);
+
+        openFormFullScreen(event.getId(), state, getFormViewerConfig(), null);
     }
 
     @Override
@@ -283,7 +294,30 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     @Override
     public void onOpenHyperlinkInSurfer(OpenHyperlinkInSurferEvent event) {
-        openDomainObjectInFullScreen(event.getId(), DomainObjectSource.HYPERLINK, event.getPluginCloseListener());
+        final FormPluginState state = new FormPluginState();
+        state.setEditable(true);
+        state.setToggleEdit(true);
+        state.setDomainObjectSource(DomainObjectSource.HYPERLINK);
+        state.setInCentralPanel(true);
+
+        FormViewerConfig formViewerConfig = new FormViewerConfig();
+        formViewerConfig.setFormMappingConfigList(event.getLinkedFormMappingConfig().toFormMappingConfigList());
+        openFormFullScreen(event.getId(), state, formViewerConfig, event.getPluginCloseListener());
+    }
+
+    private void openFormFullScreen(Id id, FormPluginState state, FormViewerConfig formViewerConfig, PluginCloseListener pluginCloseListener) {
+        final FormPluginConfig config = new FormPluginConfig(id);
+        config.setPluginState(state);
+        config.setFormViewerConfig(formViewerConfig);
+
+        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPlugin.setConfig(config);
+        formPlugin.setDisplayActionToolBar(true);
+        formPlugin.setLocalEventBus(getLocalEventBus());
+        if (pluginCloseListener != null) {
+            formPlugin.addPluginCloseListener(pluginCloseListener);
+        }
+        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
@@ -298,30 +332,4 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         }
     }
 
-    private void openDomainObjectInFullScreen(Id id, DomainObjectSource domainObjectSource, PluginCloseListener closeListener) {
-
-        final FormPluginConfig config = new FormPluginConfig(id);
-        final FormPluginState state = new FormPluginState();
-        if (this.getFormPluginState().isEditable()
-                || DomainObjectSource.HYPERLINK.equals(domainObjectSource)) {
-            state.setEditable(true);
-            state.setToggleEdit(true);
-        } else {
-            state.setEditable(false);
-            state.setToggleEdit(true);
-        }
-        state.setDomainObjectSource(domainObjectSource);
-        state.setInCentralPanel(true);
-
-        config.setPluginState(state);
-        config.setFormViewerConfig(getFormViewerConfig());
-        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
-        formPlugin.setConfig(config);
-        formPlugin.setDisplayActionToolBar(true);
-        formPlugin.setLocalEventBus(getLocalEventBus());
-        if (closeListener != null) {
-            formPlugin.addPluginCloseListener(closeListener);
-        }
-        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
-    }
 }
