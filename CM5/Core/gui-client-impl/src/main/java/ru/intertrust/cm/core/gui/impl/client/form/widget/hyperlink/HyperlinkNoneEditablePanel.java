@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink;
 
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.web.bindery.event.shared.EventBus;
@@ -22,6 +23,7 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements Hyp
     private boolean tooltipContent;
     private Map<String, PopupTitlesHolder> typeTitleMap;
     private HasLinkedFormMappings widget;
+    private boolean hyperlinkInModalWindow = true;
 
     public HyperlinkNoneEditablePanel(SelectionStyleConfig selectionStyleConfig, EventBus eventBus, boolean tooltipContent,
                                       Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
@@ -30,6 +32,10 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements Hyp
         this.typeTitleMap = typeTitleMap;
         this.widget = widget;
     }
+    public HyperlinkNoneEditablePanel withHyperlinkModalWindow(boolean hyperlinkWindowMode) {
+        this.hyperlinkInModalWindow = hyperlinkWindowMode;
+        return this;
+    }
 
     private void displayHyperlink(Id id, String itemRepresentation) {
         AbsolutePanel element = new AbsolutePanel();
@@ -37,7 +43,9 @@ public class HyperlinkNoneEditablePanel extends NoneEditablePanel implements Hyp
         Label label = new Label(itemRepresentation);
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, tooltipContent, typeTitleMap, widget));
+        ClickHandler clickHandler = new HyperlinkClickHandler(id, this, eventBus, tooltipContent, typeTitleMap, widget)
+                .withModalWindow(hyperlinkInModalWindow);
+        label.addClickHandler(clickHandler);
         element.getElement().getStyle().setDisplay(displayStyle);
         element.add(label);
         if (displayStyle.equals(Style.Display.INLINE_BLOCK)) {

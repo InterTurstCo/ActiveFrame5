@@ -332,8 +332,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         } else {
             LinkedHashMap<Id, String> listValues = state.getListValues();
             HyperlinkNoneEditablePanel noneEditablePanel = (HyperlinkNoneEditablePanel) impl;
-
             if (state.isDisplayingAsHyperlinks()) {
+                boolean modalWindow = state.getSuggestBoxConfig().getDisplayValuesAsLinksConfig().isModalWindow();
+                noneEditablePanel.withHyperlinkModalWindow(modalWindow);
                 noneEditablePanel.displayHyperlinks(listValues, shouldDrawTooltipButton(state));
             } else {
                 noneEditablePanel.displayItems(listValues.values(), shouldDrawTooltipButton(state));
@@ -595,7 +596,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         new SelectedItemComposite(listEntry.getKey(), listEntry.getValue());
                 itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
                 if (isDisplayingAsHyperlink()) {
-                    itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
+                    boolean modalWindow = suggestBoxConfig.getDisplayValuesAsLinksConfig().isModalWindow();
+                    itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite, modalWindow));
                 }
                 super.add(itemComposite, container);
             }
@@ -718,7 +720,8 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             final SelectedItemComposite itemComposite = new SelectedItemComposite(itemId, itemName);
             itemComposite.setCloseBtnListener(createCloseBtnListener(itemComposite));
             if (isDisplayingAsHyperlink()) {
-                itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite));
+                boolean modalWindow = suggestBoxConfig.getDisplayValuesAsLinksConfig().isModalWindow();
+                itemComposite.setHyperlinkListener(createHyperlinkListener(itemComposite, modalWindow));
             }
             if (currentState.isSingleChoice()) {
                 currentState.getSelectedIds().clear();
@@ -746,13 +749,13 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             };
         }
 
-        private EventListener createHyperlinkListener(final SelectedItemComposite itemComposite) {
+        private EventListener createHyperlinkListener(final SelectedItemComposite itemComposite, final boolean modalWindow) {
             return new EventListener() {
                 @Override
                 public void onBrowserEvent(Event event) {
 
                     HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(itemComposite.getId(), null,
-                            localEventBus, false, currentState.getTypeTitleMap(), SuggestBoxWidget.this);
+                            localEventBus, false, currentState.getTypeTitleMap(), SuggestBoxWidget.this).withModalWindow(modalWindow);
                     clickHandler.processClick();
                 }
             };

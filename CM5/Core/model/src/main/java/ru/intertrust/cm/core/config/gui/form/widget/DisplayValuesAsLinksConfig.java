@@ -14,12 +14,23 @@ public class DisplayValuesAsLinksConfig implements Dto {
     @Attribute(name = "value")
     private boolean value;
 
+    @Attribute(name = "modal-window", required = false)
+    private boolean modalWindow = true;
+
     public boolean isValue() {
         return value;
     }
 
     public void setValue(boolean value) {
         this.value = value;
+    }
+
+    public boolean isModalWindow() {
+        return modalWindow;
+    }
+
+    public void setModalWindow(boolean modalWindow) {
+        this.modalWindow = modalWindow;
     }
 
     @Override
@@ -34,6 +45,9 @@ public class DisplayValuesAsLinksConfig implements Dto {
         DisplayValuesAsLinksConfig that = (DisplayValuesAsLinksConfig) o;
 
         if (value != that.value) {
+            return false;
+        }
+        if (modalWindow != that.modalWindow) {
             return false;
         }
 

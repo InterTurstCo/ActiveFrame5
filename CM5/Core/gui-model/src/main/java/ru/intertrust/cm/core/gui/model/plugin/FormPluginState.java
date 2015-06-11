@@ -8,6 +8,7 @@ public class FormPluginState implements PluginState {
     private boolean editable = true;
     private boolean toggleEdit;
     private boolean inCentralPanel;
+    private DomainObjectSource domainObjectSource = DomainObjectSource.COLLECTION;
 
     public boolean isEditable() {
         return editable;
@@ -33,12 +34,21 @@ public class FormPluginState implements PluginState {
         this.inCentralPanel = inCentralPanel;
     }
 
+    public DomainObjectSource getDomainObjectSource() {
+        return domainObjectSource;
+    }
+
+    public void setDomainObjectSource(DomainObjectSource domainObjectSource) {
+        this.domainObjectSource = domainObjectSource;
+    }
+
     @Override
     public FormPluginState createClone() {
         final FormPluginState clone = new FormPluginState();
         clone.editable = this.editable;
         clone.toggleEdit = this.toggleEdit;
         clone.inCentralPanel = this.inCentralPanel;
+        clone.domainObjectSource = this.domainObjectSource;
         return clone;
     }
 }

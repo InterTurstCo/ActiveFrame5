@@ -169,6 +169,7 @@ public class PluginPanel implements IsWidget {
         if (currentPluginToClose == null) {
             return null;
         }
+        currentPluginToClose.notifyCloseListeners();
         currentPluginToClose.clearHandlers();
         this.plugins.remove(this.plugins.size() - 1);
         return currentPluginToClose;

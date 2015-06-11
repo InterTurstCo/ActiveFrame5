@@ -6,12 +6,16 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.gui.api.client.ActionManager;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
+import ru.intertrust.cm.core.gui.api.client.event.OpenHyperlinkInSurferEvent;
+import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.form.CloseFormDialogWindowsEvent;
 
 import java.util.Map;
 
@@ -24,6 +28,8 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     private HyperlinkDisplay hyperlinkDisplay;
     private HasLinkedFormMappings widget;
 
+    private boolean modalWindow = true;
+
     public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
                                  Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
         super(id, eventBus, tooltipContent, typeTitleMap);
@@ -34,11 +40,27 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     @Override
     public void onClick(ClickEvent event) {
         processClick();
+    }
 
+    public HyperlinkClickHandler withModalWindow(boolean modalWindow) {
+        this.modalWindow = modalWindow;
+        return this;
     }
 
     public void processClick() {
-        init(widget);
+        if (modalWindow) {
+            init(widget);
+        } else {
+            PluginCloseListener pluginCloseListener = new PluginCloseListener() {
+                @Override
+                public void onPluginClose() {
+                    eventBus.fireEvent(new HyperlinkStateChangedEvent(id, hyperlinkDisplay, tooltipContent));
+                }
+            };
+            Application.getInstance().getEventBus().fireEvent(new CloseFormDialogWindowsEvent());
+            Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, pluginCloseListener));
+
+        }
     }
 
     protected void noEditableOnCancelClick(FormPlugin formPlugin, FormDialogBox dialogBox) {
@@ -51,7 +73,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     }
 
     protected void editableOnCancelClick(FormPlugin formPlugin, final FormDialogBox dialogBox) {
-        ActionManager actionManager =new ActionManagerImpl(formPlugin.getOwner());
+        ActionManager actionManager = new ActionManagerImpl(formPlugin.getOwner());
         actionManager.checkChangesBeforeExecution(new ConfirmCallback() {
             @Override
             public void onAffirmative() {

@@ -7,6 +7,9 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.gui.api.client.event.OpenHyperlinkInSurferEvent;
+import ru.intertrust.cm.core.gui.api.client.event.OpenHyperlinkInSurferEventHandler;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 
 import java.util.HashMap;
@@ -48,6 +51,7 @@ public class Application {
     private String currentLocale;
     private Map<String, String> localizedResources = new HashMap<>();
     private boolean inUploadProcess;
+    private HandlerRegistration openDoInPluginHandlerRegistration;
     public String getVersion() {
         return version;
     }
@@ -185,5 +189,13 @@ public class Application {
 
     public void setInUploadProcess(boolean inUploadProcess) {
         this.inUploadProcess = inUploadProcess;
+    }
+
+    public void addOpenDoInPluginHandlerRegistration(OpenHyperlinkInSurferEventHandler handler){
+        if(openDoInPluginHandlerRegistration != null){
+            openDoInPluginHandlerRegistration.removeHandler();
+        }
+        openDoInPluginHandlerRegistration = eventBus.addHandler(OpenHyperlinkInSurferEvent.TYPE, handler);
+
     }
 }

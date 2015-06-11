@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -20,6 +21,8 @@ import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.form.CloseFormDialogWindowEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.form.CloseFormDialogWindowsEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
@@ -49,6 +52,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         this.eventBus = eventBus;
         this.tooltipContent = tooltipContent;
         this.typeTitleMap = typeTitleMap;
+
     }
 
     protected void createEditableFormDialogBox(HasLinkedFormMappings widget) {
@@ -68,6 +72,9 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
                 editableOnCancelClick(formPluginEditable, editableFormDialogBox);
             }
         });
+        CloseFormDialogWindowEventHandler closeEventHandler = new CloseFormDialogWindowEventHandler(editableFormDialogBox);
+        HandlerRegistration handlerRegistration = Application.getInstance().getEventBus().addHandler(CloseFormDialogWindowsEvent.TYPE, closeEventHandler);
+        closeEventHandler.setHandlerRegistration(handlerRegistration);
     }
 
     private String getModalHeight(HasLinkedFormMappings widget) {
@@ -125,6 +132,9 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
                 noEditableOnCancelClick(plugin, noneEditableFormDialogBox);
             }
         });
+        CloseFormDialogWindowEventHandler closeEventHandler = new CloseFormDialogWindowEventHandler(noneEditableFormDialogBox);
+        HandlerRegistration handlerRegistration = Application.getInstance().getEventBus().addHandler(CloseFormDialogWindowsEvent.TYPE, closeEventHandler);
+        closeEventHandler.setHandlerRegistration(handlerRegistration);
     }
 
     private FormPluginConfig createFormPluginConfig(HasLinkedFormMappings widget, boolean editable) {
