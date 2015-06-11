@@ -87,7 +87,7 @@
 
 .errorDialogMessage {
     background: url(http://127.0.0.1:8090/cm-sochi/resources/defaulttheme/images/icons/errorDialogWindow.png) no-repeat 0 0;
-    height: 58px;
+    height: 100px;
     padding: 24px 0 0 82px;
 }
 

@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFo
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
@@ -300,6 +301,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             ((DomainObjectSurferPluginData) getInitialData())
                     .setFormPluginData((FormPluginData) source.getPlugin().getInitialData());
             getView().updateActionToolBar();
+            UserSettingsUtil.storeCurrentNavigationLink();
         }
     }
 }

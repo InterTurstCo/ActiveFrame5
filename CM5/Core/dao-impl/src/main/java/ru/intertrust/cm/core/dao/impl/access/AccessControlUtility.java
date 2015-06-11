@@ -1,10 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -14,9 +9,13 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Утилитный класс системы контроля доступа.
@@ -48,7 +47,7 @@ public class AccessControlUtility {
      * @return
      */
     public static List<Long> convertRdbmsIdsToLongIds(List<Id> objectIds) {
-        List<Long> idList = new ArrayList<Long>();
+        List<Long> idList = new ArrayList<>(objectIds.size());
         for (Id id : objectIds) {
             if (id != null && id.getClass().equals(RdbmsId.class)) {
                 idList.add(((RdbmsId) id).getId());

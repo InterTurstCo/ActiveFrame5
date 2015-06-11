@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <access-matrix type="np1">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="np2">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+        </status>
+    </access-matrix>
+    
+    <domain-object-type name="np1" extends="np_parent">
+        <fields>
+            <string name="name" length="128" not-null="true"/>
+            <reference name="np2" type="np2"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+    <domain-object-type name="np2" extends="np_parent">
+        <fields>
+            <string name="name" length="128" not-null="true"/>
+            <reference name="np3" type="np3"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+    <domain-object-type name="np3" extends="np_parent">
+        <fields>
+            <string name="name" length="128" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="np_parent">
+        <fields>
+            <string name="common" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <form name="np1_form" domain-object-type="np1" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                        <td id="td2">
+                            <widget id="w2"/>
+                        </td>
+
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td3">
+                                        <widget id="w3"/>
+                                    </td>
+                                    <td id="td4">
+                                        <widget id="w4"/>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name"/>
+            </text-box>
+            <label id="w3">
+                <field-path/>
+                <text>Ссылка:</text>
+            </label>
+
+            <linked-domain-objects-table id="w4">
+                <field-path value="np2"/>
+                <!-- collection-ref name="np2_collection"/-->
+
+                <linked-form-mapping>
+                    <linked-form name="np2_form" domain-object-type="np2" modal-height="400px" modal-width="800px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="np2" domain-object-type="np2"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name ">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="np2_form" widget-id="w2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name} and {np3.name}"/>
+                    </summary-table-column>
+
+                </summary-table>
+            </linked-domain-objects-table>
+
+        </widget-config>
+    </form>
+    <form name="np2_form" domain-object-type="np2" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td2">
+                                        <widget id="w2"/>
+                                    </td>
+                                    <td id="td3">
+                                        <widget id="w3"/>
+                                    </td>                                    
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя1:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name"/>
+            </text-box>
+            <linked-domain-objects-table id="w3">
+                <field-path value="np3"/>
+                <!-- collection-ref name="np2_collection"/-->
+
+                <linked-form-mapping>
+                    <linked-form name="np3_form" domain-object-type="np3" modal-height="300px" modal-width="600px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="np3" domain-object-type="np3"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name ">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="np3_form" widget-id="w2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name}"/>
+                    </summary-table-column>
+
+                </summary-table>
+            </linked-domain-objects-table>
+
+        </widget-config>
+    </form>
+
+    <form name="np3_form" domain-object-type="np3" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td2">
+                                        <widget id="w2"/>
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя1:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
+
+    <collection name="np1_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select np1.id, np1.name from np1
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from np1 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+    </collection>
+
+    <collection name="np2_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select np2.id, np2.name from np2
+
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from np2 ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    np2.name  = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="np1_collection_default_view" collection="np1_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
+            <column field="name" name="name" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+        </display>
+    </collection-view>
+
+</configuration>

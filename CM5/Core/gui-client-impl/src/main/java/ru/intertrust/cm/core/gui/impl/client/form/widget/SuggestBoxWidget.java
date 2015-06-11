@@ -423,7 +423,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         private SuggestPresenter(LinkCreatorWidgetState state) {
             Element row = DOM.createTR();
-            this.selectedSuggestions = new HashMap<>();
+            this.selectedSuggestions = new LinkedHashMap<>();
             setStyleName("suggest-container-block");
 
             container = DOM.createTD();

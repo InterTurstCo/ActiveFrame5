@@ -37,6 +37,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSu
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -189,8 +190,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         RootLayoutPanel.get().add(root);
         RootLayoutPanel.get().getElement().addClassName("root-layout-panel");
-
-        String initialToken = History.getToken();
+        String userUrlNavLink = History.getToken();
+        String initialToken = userUrlNavLink.isEmpty() ? initializationInfo.getInitialNavigationLink() : userUrlNavLink;
         if (initialToken != null && !initialToken.isEmpty()) {
             try {
                 Application.getInstance().getHistoryManager().setToken(initialToken);
@@ -222,6 +223,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         } else {
             History.fireCurrentHistoryState();
         }
+        UserSettingsUtil.storeCurrentNavigationLink();
     }
 
     // вывод результатов расширенного поиска
@@ -262,19 +264,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     private void addRightPanel(RightPanelConfig rightPanelConfig) {
-        if(rightPanelConfig != null){
-        AbsolutePanel panel = new AbsolutePanel();
-        panel.getElement().setId(ComponentHelper.RIGHT_ID);
-        panel.getElement().getStyle().clearPosition();
-        panel.getElement().setClassName("stickerPanelOff");
+        if (rightPanelConfig != null) {
+            AbsolutePanel panel = new AbsolutePanel();
+            panel.getElement().setId(ComponentHelper.RIGHT_ID);
+            panel.getElement().getStyle().clearPosition();
+            panel.getElement().setClassName("stickerPanelOff");
 
-        center.add(panel);
+            center.add(panel);
         }
 
     }
 
-    private void addBottomPanel(Panel root,BottomPanelConfig bottomPanelConfig) {
-        if(bottomPanelConfig != null){
+    private void addBottomPanel(Panel root, BottomPanelConfig bottomPanelConfig) {
+        if (bottomPanelConfig != null) {
             Panel footerButton = new AbsolutePanel();
             footerButton.addDomHandler(new FooterPanelHandler(footerButton), ClickEvent.getType());
             footerButton.setStyleName("footerOpenButton");

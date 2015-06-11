@@ -36,21 +36,12 @@ public class SorOrderHelperImpl implements SortOrderHelper {
 
     @Override
     public SortOrder buildSortOrder(String collectionName, DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
-        SortOrder result = SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
-        if(result == null){
-            result = buildSortOrderByIdField(collectionName);
-        }
-        return result;
+        return SortOrderBuilder.getSimpleSortOrder(defaultSortCriteriaConfig);
     }
-
 
     @Override
     public SortOrder buildSortOrder(String collectionName, SelectionSortCriteriaConfig sortCriteriaConfig) {
-        SortOrder result = SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
-        if(result == null){
-            result = buildSortOrderByIdField(collectionName);
-        }
-        return result;
+        return SortOrderBuilder.getSelectionSortOrder(sortCriteriaConfig);
     }
 
 

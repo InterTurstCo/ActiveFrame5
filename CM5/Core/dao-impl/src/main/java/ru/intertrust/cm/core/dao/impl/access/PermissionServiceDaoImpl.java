@@ -24,6 +24,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -194,12 +195,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         //Непосредственно удаление или добавление в базу
-        for (AclInfo aclInfo : deleteAclInfo) {
-            deleteAclRecord(aclInfo.getAccessType(), invalidContextId, aclInfo.getGroupId());
-        }
-        for (AclInfo aclInfo : addAclInfo) {
-            insertAclRecord(aclInfo.getAccessType(), invalidContextId, aclInfo.getGroupId());
-        }
+        deleteAclRecords(invalidContextId, deleteAclInfo);
+
+        insertAclRecords(invalidContextId, addAclInfo);
     }
 
     /**
@@ -376,6 +374,59 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return new AclInfo(accessType, dynamicGroupId);
     }
 
+    private void insertAclRecords(Id objectId, List<AclInfo> addAclInfo) {
+        RdbmsId rdbmsObjectId = (RdbmsId) objectId;
+
+        List<AclInfo> aclInfoRead = new ArrayList<>();
+        List<AclInfo> aclInfoNoRead = new ArrayList<>();
+        
+        for (AclInfo aclInfo : addAclInfo) {
+            if (aclInfo.getAccessType() == DomainObjectAccessType.READ) {
+                aclInfoRead.add(aclInfo);
+            } else {
+                aclInfoNoRead.add(aclInfo);
+            }
+        }
+        
+        insertAclRecordsInBatch(aclInfoRead, new RdbmsId[]{rdbmsObjectId}, true);
+        insertAclRecordsInBatch(aclInfoNoRead, new RdbmsId[]{rdbmsObjectId}, false);
+        
+
+    }
+
+    /**
+     * Добавлляет ACL записи в пакетном режиме. Идентификаторы объектов должны быть одного типа.
+     * @param addAclInfo
+     * @param rdbmsObjectIds
+     * @param isReadAcl
+     */
+    private void insertAclRecordsInBatch(List<AclInfo> addAclInfo, RdbmsId[] rdbmsObjectIds, Boolean isReadAcl) {
+        if (addAclInfo == null || addAclInfo.isEmpty() || rdbmsObjectIds == null || rdbmsObjectIds.length == 0) {
+            return;
+        }
+        
+        String query = null;
+        RdbmsId etalonRdbmsId = rdbmsObjectIds[0];
+        if (isReadAcl) {
+            query = generateInsertAclReadRecordQuery(etalonRdbmsId);
+        } else {
+            query = generateInsertAclRecordQuery(etalonRdbmsId);
+
+        }
+
+        Map<String, Object>[] parameters = new Map[addAclInfo.size() * rdbmsObjectIds.length];
+
+        int index = 0;
+        for (RdbmsId rdbmsObjectId : rdbmsObjectIds) {            
+            for (AclInfo aclInfo : addAclInfo) {
+                RdbmsId rdbmsDynamicGroupId = (RdbmsId) aclInfo.getGroupId();
+                parameters[index] = initializeInsertAclRecordParameters(aclInfo.getAccessType(), rdbmsObjectId, rdbmsDynamicGroupId);
+                index++;
+            }
+        }
+        masterNamedParameterJdbcTemplate.batchUpdate(query, parameters);
+    }
+    
     /**
      * Добавляет запись в _ACl (_READ) таблицу.
      * @param accessType
@@ -403,6 +454,48 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     }
 
+    private void deleteAclRecords(Id objectId, List<AclInfo> addAclInfo) {
+        RdbmsId rdbmsObjectId = (RdbmsId) objectId;
+        List<AclInfo> aclInfoRead = new ArrayList<>();
+        List<AclInfo> aclInfoNoRead = new ArrayList<>();
+        
+        for (AclInfo aclInfo : addAclInfo) {
+            if (aclInfo.getAccessType() == DomainObjectAccessType.READ) {
+                aclInfoRead.add(aclInfo);
+            } else {
+                aclInfoNoRead.add(aclInfo);
+            }
+        }
+        
+        deleteAclRecordsInBatch(aclInfoRead, rdbmsObjectId, true);
+        deleteAclRecordsInBatch(aclInfoNoRead, rdbmsObjectId, false);
+
+    }
+
+    private void deleteAclRecordsInBatch(List<AclInfo> addAclInfo, RdbmsId rdbmsObjectId, boolean isReadAcl) {
+        if (addAclInfo == null || addAclInfo.isEmpty()) {
+            return;
+        }
+        String query = null;
+        if (isReadAcl) {
+            query = generateDeleteAclReadRecordQuery(rdbmsObjectId);
+        } else {
+            query = generateDeleteAclRecordQuery(rdbmsObjectId);
+
+        }
+
+        Map<String, Object>[] parameters = new Map[addAclInfo.size()];
+
+        int index = 0;
+        for (AclInfo aclInfo : addAclInfo) {
+            RdbmsId rdbmsDynamicGroupId = (RdbmsId) aclInfo.getGroupId();
+            parameters[index] = initializeDeleteAclRecordParameters(aclInfo.getAccessType(), rdbmsObjectId, rdbmsDynamicGroupId);
+            ;
+            index++;
+        }
+        masterNamedParameterJdbcTemplate.batchUpdate(query, parameters);
+    }
+    
     private void deleteAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
@@ -1155,6 +1248,29 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             if (!result.contains(domainObject.getId())) {
                 result.add(domainObject.getId());
             }
+        }
+    }
+
+    @Override
+    public void grantNewObjectPermissions(List<Id> domainObjectIds) {
+        Id currentPersonId = currentUserAccessor.getCurrentUserId();
+
+        if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
+            // Получение динамической группы текущего пользователя.
+            Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
+
+            List<AclInfo> aclInfoRead = new ArrayList<>();
+            List<AclInfo> aclInfoNoRead = new ArrayList<>();
+
+            aclInfoRead.add(new AclInfo(DomainObjectAccessType.READ, currentPersonGroup));
+            aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.WRITE, currentPersonGroup));
+            aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
+
+            RdbmsId[] idsArray = domainObjectIds.toArray(new RdbmsId[domainObjectIds.size()]);
+
+            insertAclRecordsInBatch(aclInfoRead, idsArray, true);
+            insertAclRecordsInBatch(aclInfoNoRead, idsArray, false);
+
         }
     }
 

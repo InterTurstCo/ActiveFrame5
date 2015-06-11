@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.EnumBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationRequest;
 import ru.intertrust.cm.core.gui.model.form.widget.RepresentationResponse;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -262,7 +264,11 @@ public class RepresentationFormatHandler implements FormatHandler {
                 case DIRECT_REFERENCE:
                     Id referenceId = tempIdentifiableObject.getReference(iterator.getValue());
                     if (referenceId != null) {
-                        tempIdentifiableObject = crudService.find(referenceId);
+                        try {
+                            tempIdentifiableObject = crudService.find(referenceId);
+                        } catch (ObjectNotFoundException | AccessException e) {
+                            return displayValue.toString();
+                        }
                     } else {
                         return displayValue.toString();
                     }

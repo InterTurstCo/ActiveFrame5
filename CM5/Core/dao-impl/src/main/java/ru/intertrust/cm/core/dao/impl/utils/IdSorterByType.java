@@ -1,14 +1,10 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+
+import java.util.*;
 
 /**
  * Группирует идентификаторы доменных объектов по типу. Это нужно для оптимизации поиска списка ДО по списку разнотипных Id, проверки прав доступа к списку ДО разных типов и т.д.
@@ -20,11 +16,28 @@ public class IdSorterByType {
     private Set<Integer> domainObjectTypeIds = new HashSet<>();
 
     private Map<Integer, List<Id>> groupedByTypeObjectIds = new HashMap<>();
+    private RdbmsId[] originalIds;
 
     public IdSorterByType(RdbmsId[] ids) {
+        this.originalIds = ids;
         collectDomainObjectTypes(ids);
 
         groupIdsByType(ids);
+    }
+
+    public ArrayList<DomainObject> restoreOriginalOrder(List<DomainObject> objects) {
+        HashMap<Id, DomainObject> objectsById = new HashMap<>((int) (objects.size() / 0.75));
+        for (DomainObject obj : objects) {
+            objectsById.put(obj.getId(), obj);
+        }
+        ArrayList<DomainObject> result = new ArrayList<>(objects.size());
+        for (Id id : originalIds) {
+            final DomainObject obj = objectsById.get(id);
+            if (obj != null) {
+                result.add(obj);
+            }
+        }
+        return result;
     }
 
     private void groupIdsByType(RdbmsId[] objectIds) {

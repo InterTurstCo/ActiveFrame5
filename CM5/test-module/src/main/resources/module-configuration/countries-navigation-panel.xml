@@ -298,6 +298,19 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="NoPermissionTest" display-text="Права для связанной таблицы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="np1">
+                            <collection-viewer>
+                                <collection-ref name="np1_collection" />
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="np1" form="np1_form" />
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>                                
             </child-links>
         </link>
 

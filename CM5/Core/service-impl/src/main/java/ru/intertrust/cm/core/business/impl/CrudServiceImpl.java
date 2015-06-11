@@ -12,7 +12,9 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
-import javax.ejb.*;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.List;
 import java.util.Map;
@@ -120,8 +122,8 @@ public class CrudServiceImpl implements CrudService, CrudService.Remote {
      * Возвращает доменные объекты по их уникальным идентификаторам в системе.
      *
      * @param ids уникальные идентификаторы доменных объектов в системе
-     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные доменные объекты
-     * в результирующем списке представлены null.
+     * @return список найденных доменных объектов, упорядоченный аналогично оригинальному. Не найденные по каким-либо причинам доменные объекты
+     *         в результирующем списке отсутствуют.
      * @throws NullPointerException, если список или хотя бы один идентификатор в списке есть null
      */
     @Override
