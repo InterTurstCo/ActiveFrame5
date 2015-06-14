@@ -57,6 +57,7 @@ public class LocalizationKeys {
     public static final String DONE_BUTTON_KEY = "DoneButton";
     public static final String SAVE_BUTTON_KEY = "SaveButton";
     public static final String CHANGE_BUTTON_KEY = "ChangeButton";
+    public static final String EDIT_BUTTON_KEY = "EditButton";
     public static final String FIND_BUTTON_KEY = "FindButton";
     public static final String CONTINUE_BUTTON_KEY = "ContinueButton";
 

@@ -121,13 +121,17 @@ public class FormDialogBox extends DialogBox {
 
             }
         });
-
+        formPluginPanel.closeCurrentPlugin();
         formPluginPanel.open(formPlugin);
         return formPlugin;
 
     }
     private String getHeight(){
         return modalHeight == null ? DEFAULT_HEIGHT : modalHeight;
+    }
+
+    public void clearButtons(){
+        buttonsPanel.clear();
     }
 
 }

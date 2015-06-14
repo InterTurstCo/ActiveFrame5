@@ -9,6 +9,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
@@ -295,13 +296,13 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
     @Override
     public void onOpenHyperlinkInSurfer(OpenHyperlinkInSurferEvent event) {
         final FormPluginState state = new FormPluginState();
-        state.setEditable(true);
+        state.setEditable(event.isEditable());
         state.setToggleEdit(true);
         state.setDomainObjectSource(DomainObjectSource.HYPERLINK);
         state.setInCentralPanel(true);
 
         FormViewerConfig formViewerConfig = new FormViewerConfig();
-        formViewerConfig.setFormMappingConfigList(event.getLinkedFormMappingConfig().toFormMappingConfigList());
+        formViewerConfig.setFormMappingConfigList(LinkedFormMappingConfig.toFormMappingConfigList(event.getLinkedFormMappings()));
         openFormFullScreen(event.getId(), state, formViewerConfig, event.getPluginCloseListener());
     }
 

@@ -19,10 +19,11 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.api.client.Predicate;
+import ru.intertrust.cm.core.gui.api.client.event.OpenHyperlinkInSurferEvent;
+import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchybrowser.*;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.EventBlocker;
@@ -45,6 +46,7 @@ import java.util.Set;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+
 /**
  * @author Yaroslav Bondarchuk
  *         Date: 10.12.13
@@ -298,57 +300,70 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         }
     }
 
-    //TODO make method more simpler and verbose
     @Override
     public void onHierarchyBrowserItemClick(HierarchyBrowserItemClickEvent event) {
         HierarchyBrowserItem item = event.getItem();
-        final Id id = item.getId();
-        final String collectionName = item.getNodeCollectionName();
-        final HierarchyBrowserDisplay display = event.getHyperlinkDisplay();
-        final boolean tooltipContent = event.isTooltipContent();
+        String collectionName = item.getNodeCollectionName();
         if (BusinessUniverseConstants.UNDEFINED_COLLECTION_NAME.equalsIgnoreCase(collectionName)) {
             return;
         }
+        Id id = item.getId();
+        HierarchyBrowserDisplay display = event.getHyperlinkDisplay();
+        boolean tooltipContent = event.isTooltipContent();
         NodeCollectionDefConfig nodeCollectionDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
-        final String domainObjectType = item.getDomainObjectType();
-        final FormPluginConfig config = GuiUtil.createFormPluginConfig(id, nodeCollectionDefConfig, domainObjectType, false);
+        boolean modalWindow = HierarchyBrowserUtil.isModalWindow(currentState.getHierarchyBrowserConfig().getDisplayValuesAsLinksConfig(),
+                nodeCollectionDefConfig.getDisplayValuesAsLinksConfig());
+        final HierarchyBrowserHyperlinkStateUpdatedEvent updateEvent =
+                new HierarchyBrowserHyperlinkStateUpdatedEvent(id, collectionName, display, tooltipContent);
         LinkedFormMappingConfig linkedFormMappingConfig = nodeCollectionDefConfig.getLinkedFormMappingConfig();
-        final String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, null);
-        final String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, null);
-        final String title = currentState.getHyperlinkPopupTitle(collectionName,domainObjectType);
-        final boolean resizable = GuiUtil.isFormResizable(domainObjectType, linkedFormMappingConfig, null);
-        final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight, resizable);
-        final FormPlugin noneEditableFormPlugin = noneEditableFormDialogBox.createFormPlugin(config, eventBus);
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW), new ClickHandler() {
+        List<LinkedFormConfig> linkedFormConfigs = GuiUtil.getLinkedFormConfigs(null, linkedFormMappingConfig);
+        if (modalWindow) {
+            String domainObjectType = item.getDomainObjectType();
+            FormPluginConfig config = GuiUtil.createFormPluginConfig(id, nodeCollectionDefConfig, domainObjectType, false);
+            String modalHeight = GuiUtil.getModalHeight(domainObjectType, linkedFormMappingConfig, null);
+            String modalWidth = GuiUtil.getModalWidth(domainObjectType, linkedFormMappingConfig, null);
+            String title = currentState.getHyperlinkPopupTitle(collectionName, domainObjectType);
+            boolean resizable = GuiUtil.isFormResizable(domainObjectType, linkedFormMappingConfig, null);
+            FormDialogBox formDialogBox = new FormDialogBox(title, modalWidth, modalHeight, resizable);
+            formDialogBox.createFormPlugin(config, eventBus);
+            initFormDialogButtons(formDialogBox, id, config, linkedFormConfigs, updateEvent);
+        } else {
+            PluginCloseListener closeListener = createPluginCloseListener(updateEvent);
+            Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, linkedFormConfigs, closeListener, true));
+        }
 
+    }
+
+    private void initFormDialogButtons(final FormDialogBox formDialogBox, final Id id, final FormPluginConfig config,
+                                       final List<LinkedFormConfig> linkedFormConfigs, final HierarchyBrowserHyperlinkStateUpdatedEvent updateEvent) {
+        formDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW),
+                createOpenInFullWindowClickHandler(formDialogBox, id, linkedFormConfigs, updateEvent, false));
+        formDialogBox.initButton(LocalizeUtil.get(EDIT_BUTTON_KEY, EDIT_BUTTON), createEditFormClickHandler(formDialogBox,
+                id, config, linkedFormConfigs, updateEvent));
+        formDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON),
+                createCancelClickHandler(formDialogBox));
+    }
+
+    private ClickHandler createEditFormClickHandler(final FormDialogBox formDialogBox, final Id id,
+                                                    final FormPluginConfig config,final List<LinkedFormConfig> linkedFormConfigs,
+                                                    final HierarchyBrowserHyperlinkStateUpdatedEvent updateEvent) {
+        return new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                noneEditableFormPlugin.setDisplayActionToolBar(true);
-                noneEditableFormPlugin.setLocalEventBus(getEventBus());
-                Application.getInstance().getEventBus()
-                        .fireEvent(new CentralPluginChildOpeningRequestedEvent(noneEditableFormPlugin));
-                noneEditableFormDialogBox.hide();
-                mainPopup.hidePopup();
-            }
-        });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-
-                noneEditableFormDialogBox.hide();
+                formDialogBox.clearButtons();
                 config.getPluginState().setEditable(true);
-                final FormDialogBox editableFormDialogBox = new FormDialogBox(title, modalWidth, modalHeight, resizable);
-                final FormPlugin editableFormPlugin = editableFormDialogBox.createFormPlugin(config, eventBus);
-                editableFormDialogBox.initButton(LocalizeUtil.get(CHANGE_BUTTON_KEY, CHANGE_BUTTON), new ClickHandler() {
+                final FormPlugin editableFormPlugin = formDialogBox.createFormPlugin(config, eventBus);
+                formDialogBox.initButton(LocalizeUtil.get(OPEN_IN_FULL_WINDOW_KEY, OPEN_IN_FULL_WINDOW),
+                        createOpenInFullWindowClickHandler(formDialogBox, id, linkedFormConfigs, updateEvent, true));
+                formDialogBox.initButton(LocalizeUtil.get(SAVE_BUTTON_KEY, SAVE_BUTTON), new ClickHandler() {
                     @Override
                     public void onClick(final ClickEvent event) {
                         final SaveAction action = GuiUtil.createSaveAction(editableFormPlugin, id, true);
                         action.addActionSuccessListener(new ActionSuccessListener() {
                             @Override
                             public void onSuccess() {
-                                editableFormDialogBox.hide();
-                                localEventBus.fireEvent(new HierarchyBrowserHyperlinkStateUpdatedEvent(id,
-                                        collectionName, display, tooltipContent));
+                                formDialogBox.hide();
+                                localEventBus.fireEvent(updateEvent);
 
                             }
                         });
@@ -356,25 +371,45 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
                     }
                 });
-                editableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-
-                        editableFormDialogBox.hide();
-                        config.getPluginState().setEditable(false);
-                    }
-                });
+                formDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), createCancelClickHandler(formDialogBox));
 
             }
 
-        });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCELLATION_BUTTON_KEY, CANCELLATION_BUTTON), new ClickHandler() {
+        };
+    }
+
+    private ClickHandler createOpenInFullWindowClickHandler(final FormDialogBox formDialogBox, final Id id,
+                                                            final List<LinkedFormConfig> linkedFormConfigs,
+                                                            final HierarchyBrowserHyperlinkStateUpdatedEvent updateEvent, final boolean editable) {
+        final PluginCloseListener pluginCloseListener = createPluginCloseListener(updateEvent);
+        return new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                noneEditableFormDialogBox.hide();
+                Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, linkedFormConfigs, pluginCloseListener, editable));
+                formDialogBox.hide();
+                if (mainPopup != null) {
+                    mainPopup.hidePopup();
+                }
             }
-        });
+        };
+    }
 
+    private PluginCloseListener createPluginCloseListener(final HierarchyBrowserHyperlinkStateUpdatedEvent updateEvent) {
+        return new PluginCloseListener() {
+            @Override
+            public void onPluginClose() {
+                localEventBus.fireEvent(updateEvent);
+            }
+        };
+    }
+
+    private ClickHandler createCancelClickHandler(final FormDialogBox formDialogBox) {
+        return new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                formDialogBox.hide();
+            }
+        };
     }
 
     @Override
@@ -537,7 +572,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         hyperlinkContentManager.updateHyperlink();
     }
 
-    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta){
+    private void handleRecursionDeepness(final String collectionName, int recursionDeepness, int delta) {
         NodeCollectionDefConfig nodeDefConfig = currentState.getCollectionNameNodeMap().get(collectionName);
         if (nodeDefConfig.isChildrenRecursive()) {
             List<NodeCollectionDefConfig> nodeDefConfigs = nodeDefConfig.getNodeCollectionDefConfigs();

@@ -5,7 +5,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
@@ -16,8 +16,9 @@ import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.ActionSuccessListener;
 import ru.intertrust.cm.core.gui.impl.client.event.HyperlinkStateChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.form.CloseFormDialogWindowsEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,8 +29,6 @@ import java.util.Map;
 public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     private HyperlinkDisplay hyperlinkDisplay;
     private HasLinkedFormMappings widget;
-
-    private boolean modalWindow = true;
 
     public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
                                  Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
@@ -52,14 +51,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         if (modalWindow) {
             init(widget);
         } else {
-            PluginCloseListener pluginCloseListener = new PluginCloseListener() {
-                @Override
-                public void onPluginClose() {
-                    eventBus.fireEvent(new HyperlinkStateChangedEvent(id, hyperlinkDisplay, tooltipContent));
-                }
-            };
-            Application.getInstance().getEventBus().fireEvent(new CloseFormDialogWindowsEvent());
-            Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, widget.getLinkedFormMappingConfig(), pluginCloseListener));
+           openInFullWindow(true);
 
         }
     }
@@ -69,8 +61,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     }
 
     protected void noEditableOnChangeButtonClick(FormPlugin formPlugin, FormDialogBox dialogBox) {
-        dialogBox.hide();
-        createEditableFormDialogBox(widget);
+        createEditableFormDialogBox(dialogBox, widget);
     }
 
     protected void editableOnCancelClick(FormPlugin formPlugin, final FormDialogBox dialogBox) {
@@ -100,6 +91,25 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
             }
         });
         action.perform();
+    }
+
+    private void openInFullWindow(boolean editable){
+        openInFullWindow(null, editable);
+    }
+
+    protected void openInFullWindow(FormDialogBox dialogBox, boolean editable) {
+        PluginCloseListener pluginCloseListener = new PluginCloseListener() {
+            @Override
+            public void onPluginClose() {
+                eventBus.fireEvent(new HyperlinkStateChangedEvent(id, hyperlinkDisplay, tooltipContent));
+            }
+        };
+        List<LinkedFormConfig> linkedFormConfigs = GuiUtil.getLinkedFormConfigs(widget.getLinkedFormConfig(), widget.getLinkedFormMappingConfig());
+        Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, linkedFormConfigs,
+                pluginCloseListener, editable));
+        if(dialogBox != null){
+        dialogBox.hide();
+        }
     }
 
 }

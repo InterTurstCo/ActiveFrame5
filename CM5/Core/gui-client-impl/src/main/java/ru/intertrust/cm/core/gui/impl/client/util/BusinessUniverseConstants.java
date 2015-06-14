@@ -140,6 +140,7 @@ public class BusinessUniverseConstants {
     public static final String DONE_BUTTON = "Готово";
     public static final String SAVE_BUTTON = "Сохранить";
     public static final String CHANGE_BUTTON = "Изменить";
+    public static final String EDIT_BUTTON = "Редактировать";
     public static final String FIND_BUTTON = "Найти";
     public static final String CONTINUE_BUTTON = "Продолжить";
 

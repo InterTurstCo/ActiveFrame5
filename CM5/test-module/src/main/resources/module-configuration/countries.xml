@@ -583,7 +583,7 @@
 
                 <!-- количество элементов, показываемых на одной странице выпадающего списка -->
                 <page-size>35</page-size>
-                <display-values-as-links value="true"/>
+              <!--  <display-values-as-links value="true"/>-->
                 <!--name может принимать 2 значения inline (стиль Студии Лебедева) и table (текущая реализация).
                     Если тэг отсутствует, то используется "inline"-вариант. -->
                 <selection-style name="inline"/>

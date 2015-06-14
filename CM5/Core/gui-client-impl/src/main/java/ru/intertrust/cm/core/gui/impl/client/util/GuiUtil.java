@@ -141,6 +141,7 @@ public final class GuiUtil {
         action.setPlugin(formPlugin);
         return action;
     }
+
     public static ComplexFiltersParams createComplexFiltersParams(String filterValue, String filterName, WidgetsContainer container,
                                                                   Collection<WidgetIdComponentName> widgetsIds){
         ComplexFiltersParams params = createComplexFiltersParams(container);
@@ -378,5 +379,16 @@ public final class GuiUtil {
 
     public static boolean isDialogWindowResizable(DialogWindowConfig dialogWindowConfig){
        return dialogWindowConfig != null && dialogWindowConfig.isResizable();
+    }
+
+    public static List<LinkedFormConfig> getLinkedFormConfigs(LinkedFormConfig linkedFormConfig,
+                                                              LinkedFormMappingConfig linkedFormMappingConfig){
+        List<LinkedFormConfig> result = null;
+        if (linkedFormMappingConfig != null) {
+            result = linkedFormMappingConfig.getLinkedFormConfigs();
+        } else if(linkedFormConfig != null){
+            result = Arrays.asList(linkedFormConfig);
+        }
+        return result;
     }
 }
