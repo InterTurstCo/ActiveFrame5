@@ -87,6 +87,30 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             idSet.addAll(ids);
         }
 
+        /**
+         * Очищает child node так, чтобы он был перечитан при следующем обращении
+         */
+        private void clearChildDoNode(String... key) {
+            String complexKey = generateKey(key);
+            childDomainObjectIdMap.remove(complexKey);
+        }
+
+        /**
+         * Очищает все child nodes, содержащие данный id так, чтобы они были перечитаны при следующем обращении
+         */
+        private void clearChildDoNodes(Id id) {
+            Iterator<Map.Entry<String, LinkedHashSet<Id>>> iterator = childDomainObjectIdMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, LinkedHashSet<Id>> entry = iterator.next();
+                if (entry.getValue().contains(id)) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        /**
+         * Обновляет child node добавлением списка id, не приводит к последующему перечитыванию этого node
+         */
         private void addChildDoNodeIds(List<Id> ids, String... key) {
             //key - список ключевых слов, см. выше
             String complexKey = generateKey(key);
@@ -97,11 +121,16 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             idSet.addAll(ids);
         }
 
-
+        /**
+         * Обновляет child node добавлением id, не приводит к последующему перечитыванию этого node
+         */
         private void addChildDoNodeId(Id id, String... key) {
             addChildDoNodeIds(Arrays.asList(id), key);
         }
 
+        /**
+         * Обновляет все child nodes, содержащие id, его удалением, не приводит к последующему перечитыванию этих nodes
+         */
         private void delChildDoNodeId(Id id) {
             for (Set<Id> ids : childDomainObjectIdMap.values()) {
                 ids.remove(id);
@@ -278,7 +307,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             domainObjects.clear();
         }
 
-        List<Id> ids = new ArrayList<Id>();
+        List<Id> ids = new ArrayList<>();
         for (DomainObject object : dobjs) {
             DomainObject clonedObject = ObjectCloner.getInstance().cloneObject(object);
             ids.add(clonedObject.getId());
@@ -466,10 +495,6 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             }
         }
     }
-
-    public void removeChildNodesByKey(Id id, String... rey){
-        
-    }
     
     @Override
     public void clear() {
@@ -544,12 +569,12 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         for (Map.Entry<String, Id> ent : newIdParentMap.entrySet()) {
             DomainObjectNode parentDon = getOrCreateDomainObjectNode(ent.getValue(), cacheEntry.getKey());
-            parentDon.clear();
+            parentDon.clearChildDoNode(dobj.getTypeName(), ent.getKey());
         }
 
         for (Id id : prevIdParentSet) {
             DomainObjectNode parentDon = getOrCreateDomainObjectNode(id, cacheEntry.getKey());
-            parentDon.clear();
+            parentDon.clearChildDoNodes(dobj.getId());
         }
 
         don.getParentDoNodeIdSet().clear();
@@ -573,7 +598,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         for (Id id : prevIdParentSet) {
             if (!newIdParentSet.contains(id) && !isEmptyDomainObjectNode(id, cacheEntry.getKey())) {
                 DomainObjectNode parentDon = getOrCreateDomainObjectNode(id, cacheEntry.getKey());
-                parentDon.delChildDoNodeId(id);
+                parentDon.delChildDoNodeId(dobj.getId());
             }
         }
 
