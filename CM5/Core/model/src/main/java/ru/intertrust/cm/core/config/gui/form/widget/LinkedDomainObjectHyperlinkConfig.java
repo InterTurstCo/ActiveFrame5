@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -14,6 +15,9 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "linked-domain-object-hyperlink")
 public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
+
+    @Attribute(name = "modal-window", required = false)
+    private boolean modalWindow = true;
 
     @Element(name = "linked-form")
     private LinkedFormConfig linkedFormConfig;
@@ -109,6 +113,14 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         this.selectionSortCriteriaConfig = selectionSortCriteriaConfig;
     }
 
+    public boolean isModalWindow() {
+        return modalWindow;
+    }
+
+    public void setModalWindow(boolean modalWindow) {
+        this.modalWindow = modalWindow;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -116,7 +128,9 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
         if (!super.equals(o)) return false;
 
         LinkedDomainObjectHyperlinkConfig that = (LinkedDomainObjectHyperlinkConfig) o;
-
+        if (modalWindow != that.modalWindow) {
+            return false;
+        }
         if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) : that.collectionRefConfig != null)
             return false;
         if (formattingConfig != null ? !formattingConfig.equals(that.formattingConfig) : that.formattingConfig != null)

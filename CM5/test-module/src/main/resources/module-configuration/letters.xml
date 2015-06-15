@@ -442,7 +442,7 @@
                 <single-choice value="false"/>
                 <clear-all-button text="Очистить"/>
                 <default-sort-criteria column-field="name" order="desc"/>
-                <display-values-as-links value="true"/>
+                <display-values-as-links value="true" modal-window="false"/>
                 <linked-form-mapping>
                     <linked-form name="organization_form" domain-object-type="Organization" resizable="true"/>
                     <linked-form name="department_form" domain-object-type="Department"/>
@@ -614,7 +614,7 @@
                  <collection-table-buttons display-all-possible="true"/>
             </table-browser>
 
-            <linked-domain-object-hyperlink id="l_hyperlink">
+            <linked-domain-object-hyperlink id="l_hyperlink" modal-window="true">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form"/>
@@ -999,7 +999,7 @@
             <text-box id="position">
                 <field-path value="Position"/>
             </text-box>
-            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
+            <linked-domain-object-hyperlink id="hyperlink" modal-window="false"> <!-- для единичного связанного объекта -->
                 <field-path value="department"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
                 <linked-form name="department_form2">
@@ -1146,11 +1146,13 @@
     </form>
 
     <form name="organization_form" domain-object-type="Organization" is-default="true">
+
         <default-value-setter>
             <widget-states>
                 <widgets ids="letter_priority,subject"/>
             </widget-states>
         </default-value-setter>
+
         <markup>
             <title>
                 <new-object label-widget-id="titleNew"/>
@@ -1206,6 +1208,12 @@
                     </tr>
                     <tr>
                         <td>
+                            <widget id="hyperlink"/>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
                             <widget id="dep_table"/>
                         </td>
                     </tr>
@@ -1252,25 +1260,17 @@
 
                 <text>Departments:</text>
             </label>
-            <linked-domain-object-hyperlink id="hyperlink"> <!-- для единичного связанного объекта -->
-                <field-path value="department^organization"/>
+            <linked-domain-object-hyperlink id="hyperlink" modal-window="false"> <!-- для единичного связанного объекта -->
+                <field-path value="boss"/>
                 <!-- для связанных объектов field-path обязательно должен ссылаться на поле типа reference -->
-                <linked-form name="organization_form">
+                <linked-form name="employee_form">
                 </linked-form>
                 <!-- форма, открывающаяся в модальном окне при нажатии на гиперссылку -->
                 <pattern value="{name} {created_date}"/>
                 <!-- в паттерне ссылки задаются относительно field-path -->
-                <selection-filters row-limit="1"></selection-filters>
-                <formatting>
+               <!-- <selection-filters row-limit="1"></selection-filters>-->
 
-                    <date-format pattern="dd-mm-yyyy HH:mm:ss" style="short">
-                        <time-zone id="Europe/Kiev"/>
-                        <field-paths>
-                            <field-path value="created_date"/>
-                        </field-paths>
-                    </date-format>
-                </formatting>
-                <collection-ref name="Departments"/>
+
 
             </linked-domain-object-hyperlink>
             <date-box id="cmfive1377">
@@ -1890,4 +1890,5 @@
         </filter>
 
     </collection>
+
 </configuration>

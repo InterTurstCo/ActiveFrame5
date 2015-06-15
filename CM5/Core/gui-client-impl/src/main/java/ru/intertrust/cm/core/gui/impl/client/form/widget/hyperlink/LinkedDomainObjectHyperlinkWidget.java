@@ -84,8 +84,9 @@ public class LinkedDomainObjectHyperlinkWidget extends TooltipWidget implements 
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         LinkedDomainObjectHyperlinkState linkedDomainObjectHyperlinkState = (LinkedDomainObjectHyperlinkState) state;
         SelectionStyleConfig selectionStyleConfig = linkedDomainObjectHyperlinkState.getWidgetConfig().getSelectionStyleConfig();
+        boolean hyperlinkInModalWindow = linkedDomainObjectHyperlinkState.getWidgetConfig().isModalWindow();
         return new HyperlinkNoneEditablePanel(selectionStyleConfig, localEventBus, false,
-                linkedDomainObjectHyperlinkState.getTypeTitleMap(), this);
+                linkedDomainObjectHyperlinkState.getTypeTitleMap(), this).withHyperlinkModalWindow(hyperlinkInModalWindow);
     }
 
     @Override

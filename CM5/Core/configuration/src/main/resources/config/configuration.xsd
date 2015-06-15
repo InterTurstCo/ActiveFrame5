@@ -1967,6 +1967,7 @@
 
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id" use="required" />
+                <xs:attribute type="xs:boolean" name="modal-window" use="optional" />
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -2164,7 +2165,8 @@
     </xs:complexType>
 
     <xs:complexType name="displayValuesAsLinksType">
-        <xs:attribute type="xs:boolean" name="value" />
+        <xs:attribute type="xs:boolean" name="value"/>
+        <xs:attribute type="xs:boolean" name="modal-window"/>
     </xs:complexType>
     <xs:complexType name="rootNodeLinkType">
         <xs:attribute type="xs:string" name="title" />

@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ProfileService;
+import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
@@ -48,13 +50,17 @@ public class FormPluginHandler extends ActivePluginHandler {
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private ProfileService profileService;
+    @Autowired
+    private AccessVerificationService accessVerificationService;
 
     public FormPluginData initialize(Dto initialData) {
         final FormPluginConfig formPluginConfig = (FormPluginConfig) initialData;
         GuiContext.get().setFormPluginState(formPluginConfig.getPluginState());
         FormDisplayData form = getFormDisplayData(formPluginConfig);
         final String rootDomainObjectType = form.getFormState().getRootDomainObjectType();
-        if (configurationExplorer.isAuditLogType(rootDomainObjectType)) {
+        Id domainObjectId = formPluginConfig.getDomainObjectId();
+        if (configurationExplorer.isAuditLogType(rootDomainObjectType)
+                || (domainObjectId != null && !accessVerificationService.isWritePermitted(domainObjectId))) {
             formPluginConfig.getPluginState().setEditable(false);
         }
         FormPluginData pluginData = new FormPluginData();

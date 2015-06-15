@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.BaseComponent;
+import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
@@ -46,6 +47,7 @@ public abstract class Plugin extends BaseComponent {
     private PluginView view;
     private List<HandlerRegistration> handlerRegistrations = new ArrayList<HandlerRegistration>();
     private List<PluginViewCreatedEventListener> viewCreatedEventListeners = new ArrayList<PluginViewCreatedEventListener>(1);
+    private List<PluginCloseListener> pluginCloseListeners = new ArrayList<PluginCloseListener>(1);
     private boolean lockScreenImmediately = true;
     static Logger logger = Logger.getLogger("plugin logger");
     private NavigationConfig navigationConfig;
@@ -61,6 +63,10 @@ public abstract class Plugin extends BaseComponent {
 
     public void addViewCreatedListener(PluginViewCreatedEventListener listener) {
         viewCreatedEventListeners.add(listener);
+    }
+
+    public void addPluginCloseListener(PluginCloseListener listener){
+        pluginCloseListeners.add(listener);
     }
 
     public void onDataLoadFailure(Throwable cause) {
@@ -289,5 +295,11 @@ public abstract class Plugin extends BaseComponent {
      * поддерживающих это действие.
      */
     public void refresh() {
+    }
+
+    public void notifyCloseListeners(){
+        for (PluginCloseListener pluginCloseListener : pluginCloseListeners) {
+            pluginCloseListener.onPluginClose();
+        }
     }
 }
