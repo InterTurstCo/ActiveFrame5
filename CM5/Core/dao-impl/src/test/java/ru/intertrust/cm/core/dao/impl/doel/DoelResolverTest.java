@@ -105,7 +105,7 @@ public class DoelResolverTest {
 
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        when(domainObjectCacheService.getObjectsFromCache(docId, accessToken, "Commission", "parent", "0", "0"))
+        when(domainObjectCacheService.getAll(docId, accessToken, "Commission", "parent", "0", "0"))
                 .thenReturn(Arrays.asList((DomainObject) comm1, comm2));
 
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
@@ -246,7 +246,7 @@ public class DoelResolverTest {
         when(domainObjectTypeIdCache.getName(comm1Id)).thenReturn("Commission");
         when(domainObjectTypeIdCache.getName(comm2Id)).thenReturn("Commission");
         when(domainObjectTypeIdCache.getName(linkId)).thenReturn("UniversalLink");
-        when(domainObjectCacheService.getObjectsFromCache(any(Id.class), any(AccessToken.class), Matchers.<String>anyVararg())).thenReturn(null);
+        when(domainObjectCacheService.getAll(any(Id.class), any(AccessToken.class), Matchers.<String>anyVararg())).thenReturn(null);
 
         // Объекты ====================
         DomainObjectTypeConfig documentConfig = new DomainObjectTypeConfig();

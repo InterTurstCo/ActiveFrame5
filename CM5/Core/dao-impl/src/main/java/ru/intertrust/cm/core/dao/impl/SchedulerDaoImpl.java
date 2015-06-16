@@ -82,7 +82,7 @@ public class SchedulerDaoImpl implements SchedulerDao {
         List<DomainObject> result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
 
-        domainObjectCacheService.putObjectsToCache(result, accessToken);
+        domainObjectCacheService.putAllOnRead(result, accessToken);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 

@@ -77,7 +77,7 @@ public class StatusDaoImpl implements StatusDao {
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: " + statusName);
         } else {
-            domainObjectCacheService.putObjectToCache(statusDO);
+            domainObjectCacheService.putOnRead(statusDO);
         }
         return statusDO.getId();
     }
@@ -111,7 +111,7 @@ public class StatusDaoImpl implements StatusDao {
             throw new IllegalArgumentException("Status not found: "
                     + statusId);
         } else {
-            domainObjectCacheService.putObjectToCache(statusDO);
+            domainObjectCacheService.putOnRead(statusDO);
         }
         return statusDO.getString("Name");
     }

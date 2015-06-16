@@ -64,7 +64,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Override
     public List<DomainObject> getPersonsInGroup(Id groupId) {
         List<DomainObject> personsInGroup =
-                domainObjectCacheService.getObjectCollectionFromCache(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
+                domainObjectCacheService.getCollection(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
         if (personsInGroup != null) {
             return personsInGroup;
         } else {
@@ -73,7 +73,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
 
             personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
+            domainObjectCacheService.putCollectionOnRead(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
             return personsInGroup;
         }
     }
@@ -84,7 +84,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Override
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
         List<DomainObject> personsInGroup =
-                domainObjectCacheService.getObjectCollectionFromCache(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
+                domainObjectCacheService.getCollection(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
         if (personsInGroup != null) {
             return personsInGroup;
         } else {
@@ -93,7 +93,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
 
             personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
+            domainObjectCacheService.putCollectionOnRead(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
             return personsInGroup;
         }
     }
@@ -127,7 +127,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Override
     public List<DomainObject> getPersonGroups(Id personId) {
 
-        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(personId, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
+        List<DomainObject> personGroups = domainObjectCacheService.getCollection(personId, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
         if (personGroups != null) {
             return personGroups;
         } else {
@@ -135,7 +135,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
             String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
             personGroups = findMultipleDomainObjects(query, typeName, personId, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(personId, personGroups, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
+            domainObjectCacheService.putCollectionOnRead(personId, personGroups, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
             return personGroups;
         }
     }
@@ -190,7 +190,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllParentGroup(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
+        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
         if (personGroups != null) {
             return personGroups;
         } else {
@@ -198,14 +198,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
             String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
             personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
+            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
             return personGroups;
         }
     }
 
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
         if (personGroups != null) {
             return personGroups;
         } else {
@@ -213,14 +213,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
             String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
             personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
-            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
+            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
             return personGroups;
         }
     }
 
     @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getObjectCollectionFromCache(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
         if (personGroups != null) {
             return personGroups;
         } else {
@@ -229,7 +229,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
             personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
 
-            domainObjectCacheService.putObjectCollectionToCache(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
+            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
             return personGroups;
         }
     }
@@ -384,7 +384,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
             return null;
         }
 
-        domainObjectCacheService.putObjectToCache(result, accessToken);
+        domainObjectCacheService.putOnRead(result, accessToken);
 
         eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
 
@@ -397,7 +397,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         List<DomainObject> result = jdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
 
-        domainObjectCacheService.putObjectsToCache(result, accessToken);
+        domainObjectCacheService.putAllOnRead(result, accessToken);
 
         eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
 

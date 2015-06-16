@@ -48,7 +48,7 @@ public class PersonServiceDaoImpl implements PersonServiceDao {
         if (person == null) {
             throw new IllegalArgumentException("Person not found: " + login);
         } else {
-            domainObjectCacheService.putObjectToCache(person);
+            domainObjectCacheService.putOnRead(person);
         }
         return person;
     }

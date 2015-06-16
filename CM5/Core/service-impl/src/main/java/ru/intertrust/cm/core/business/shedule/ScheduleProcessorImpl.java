@@ -116,7 +116,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 ejbContext.getUserTransaction().begin();
             }
             //Сброс кэша для доменного объекта задача
-            domainObjectCacheService.removeObjectFromCache(taskId);
+            domainObjectCacheService.evict(taskId);
 
             //Сохранение результата
             //Проверяем был ли прерван процесс по таймауту
