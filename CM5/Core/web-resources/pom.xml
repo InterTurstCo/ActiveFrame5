@@ -10,7 +10,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>0.5.15-2-tomee-SNAPSHOT</version>
+        <version>0.5.15-2-tomee</version>
     </parent>
 
     <properties>
