@@ -85,6 +85,32 @@ public class DomainObjectQueryHelper {
     }
 
     /**
+     * Создает SQL запрос для нахождения доменного объекта по уникальному ключу
+     *
+     * @param typeName тип доменного объекта
+     * @return SQL запрос для нахождения доменного объекта
+     */
+    public String generateFindQuery(String typeName, UniqueKeyConfig uniqueKeyConfig, AccessToken accessToken, boolean lock) {
+        StringBuilder whereClause = new StringBuilder();
+
+        String tableAlias = getSqlAlias(typeName);
+        int paramCounter = 0;
+
+        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+            if (paramCounter > 0) {
+                whereClause.append(" and ");
+            }
+            String name = uniqueKeyFieldConfig.getName();
+            whereClause.append(tableAlias).append(".").append(wrap(getSqlName(name))).append(" = :").
+                    append(uniqueKeyFieldConfig.getName().toLowerCase());
+
+            paramCounter++;
+        }
+
+        return generateFindQuery(typeName, accessToken, lock, null, whereClause, null, true);
+    }
+
+    /**
      * Инициализирует параметр c id доменного объекта
      *
      * @param id

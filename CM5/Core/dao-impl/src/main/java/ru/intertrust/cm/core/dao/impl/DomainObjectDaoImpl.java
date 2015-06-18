@@ -1125,7 +1125,42 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     @Override
-    public Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+     public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+        DomainObject result = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken, false);
+
+        if (result != null) {
+            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+        } else {
+            // Проверяем существование доменного объекта с уникальным ключом и логируем доступ
+            DomainObject domainObject = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName,
+                    createSystemAccessToken(), false);
+            if (domainObject != null && eventLogService.isAccessDomainObjectEventEnabled(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false)) {
+                eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public DomainObject finAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+        DomainObject result = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken, true);
+
+        if (result != null) {
+            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+        } else {
+            // Проверяем существование доменного объекта с уникальным ключом и логируем доступ
+            DomainObject domainObject = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, createSystemAccessToken(), false);
+            if (domainObject != null && eventLogService.isAccessDomainObjectEventEnabled(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false)) {
+                eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false);
+            }
+        }
+
+        return result;
+    }
+
+    protected DomainObject retrieveWithoutLoggingByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName,
+                                                             AccessToken accessToken, boolean lock) {
         CaseInsensitiveMap<Value> uniqueKeyValues = new CaseInsensitiveMap<>(uniqueKeyValuesByName);
 
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
@@ -1136,23 +1171,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<UniqueKeyConfig> uniqueKeyConfigs = domainObjectTypeConfig.getUniqueKeyConfigs();
         UniqueKeyConfig uniqueKeyConfig = findUniqueKeyConfig(domainObjectType, uniqueKeyConfigs, uniqueKeyValues);
 
-        String query = generateFindByUniqueKeyQuery(domainObjectType, uniqueKeyConfig);
+        String query = domainObjectQueryHelper.generateFindQuery(domainObjectType, uniqueKeyConfig, accessToken, lock);
 
-        List<Value> params = new ArrayList<>();
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             String name = uniqueKeyFieldConfig.getName().toLowerCase();
 
             Value value = uniqueKeyValues.get(name);
-            //ссылочные параметры обрабатываются в collectionsDao.findCollectionByQuery()
-            params.add(value);
+            parameters.put(name, value.get());
         }
 
-        IdentifiableObjectCollection identifiableObjectCollection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
-        if (identifiableObjectCollection.size() == 0){
-            throw new ObjectNotFoundException(new RdbmsId());
+        DomainObject result = switchableJdbcTemplate.query(query, parameters,
+                new SingleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
+
+        if (result != null) {
+            domainObjectCacheService.putOnRead(result, accessToken);
         }
 
-        return identifiableObjectCollection.get(0).getId();
+        return result;
     }
 
     /**
