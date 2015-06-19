@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStream;
 import org.slf4j.Logger;
@@ -42,6 +43,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
@@ -58,7 +60,7 @@ import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
  * @author apirozhkov
  */
 @ExtensionPoint
-public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
+public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
 
@@ -370,5 +372,19 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             return new InputStreamReader(getStream());
         }
 
+    }
+
+    @Override
+    public void onAfterDelete(DomainObject deletedDomainObject) {
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
+                configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
+        if (configs.size() == 0) {
+            return;
+        }
+        ArrayList<String> solrIds = new ArrayList<>(configs.size());
+        for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
+            solrIds.add(createUniqueId(deletedDomainObject, config));
+        }
+        requestQueue.addRequest(new UpdateRequest().deleteById(solrIds));
     }
 }
