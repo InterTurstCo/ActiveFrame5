@@ -1,49 +1,49 @@
 @sprite .headerExtendedSearch {
-    gwt-image: "extendedSearchIm";
-    height: 32px;
     width: 32px;
+    height: 32px;
+    gwt-image: "extendedSearchIm";
 }
 
 @sprite .headerExtendedSearch:hover {
-    gwt-image: "extendedSearchHoverIm";
-    cursor: pointer;
-    height: 32px;
     width: 32px;
+    height: 32px;
+    cursor: pointer;
+    gwt-image: "extendedSearchHoverIm";
 }
 
 @sprite .columnSettingsButton {
-    gwt-image: "columnSettingsIm";
-    background-color: #f0f4ff;
-    background-position: 50% 50%;
-    border: 1px solid #c0c4cf;
-    border-radius: 3px;
-    box-shadow: none;
-    cursor: pointer;
     float: right;
     margin: 3px 5px 0 5px;
+    border: 1px solid #c0c4cf;
+    border-radius: 3px;
+    background-color: #f0f4ff;
+    background-position: 50% 50%;
+    box-shadow: none;
+    cursor: pointer;
+    gwt-image: "columnSettingsIm";
 }
 
 @sprite .filterOpenBtn {
-    gwt-image: "filterOpenBtnIm";
-    background-position: 50% 50%;
+    float: right;
+    margin: 3px 5px 0 5px;
+    height: 23px;
     border: 1px solid #c0c4cf;
     border-radius: 3px;
+    background-position: 50% 50%;
     box-shadow: none;
     cursor: pointer;
-    float: right;
-    height: 23px;
-    margin: 3px 5px 0 5px;
+    gwt-image: "filterOpenBtnIm";
 }
 
 @sprite .recalculateColumnsWidthBtn {
-    gwt-image: "recalculateColumnsWidthBtnIm";
-    background-position: 50% 50%;
-    border: 1px solid #c0c4cf;
-    border-radius: 3px;
-    box-shadow: none;
-    cursor: pointer;
     float: right;
     margin: 3px 5px 0 5px;
+    border: 1px solid #c0c4cf;
+    border-radius: 3px;
+    background-position: 50% 50%;
+    box-shadow: none;
+    cursor: pointer;
+    gwt-image: "recalculateColumnsWidthBtnIm";
 }
 
 .recalculateColumnsWidthBtn:hover,
@@ -54,133 +54,133 @@
 
 @sprite .confirmDialogIm {
     overflow: auto;
-    gwt-image: "confirmDialogIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    height: 58px;
-    line-height: 20px;
-    padding: 10px 0 0 82px;
     margin: 0 0 20px 0;
+    padding: 10px 0 0 82px;
     width: 247px;
+    height: 58px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    line-height: 20px;
+    gwt-image: "confirmDialogIm";
 }
 
 @sprite .infoDialogIm {
     overflow: auto;
-    gwt-image: "infoDialogIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    height: 58px;
-    line-height: 20px;
-    padding: 10px 0 0 82px;
     margin: 0 0 20px 0;
+    padding: 10px 0 0 82px;
     width: 247px;
+    height: 58px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    line-height: 20px;
+    gwt-image: "infoDialogIm";
 }
 
 @sprite .errorDialogIm {
     overflow: auto;
-    gwt-image: "errorDialogIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    height: 58px;
-    line-height: 20px;
-    padding: 10px 0 0 82px;
     margin: 0 0 20px 0;
+    padding: 10px 0 0 82px;
     width: 247px;
+    height: 58px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    line-height: 20px;
+    gwt-image: "errorDialogIm";
 
 }
 
 @sprite .formFullSizeOn {
-    gwt-image: "formFullSizeOnActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "formFullSizeOnActionIm";
 }
 
 @sprite .formFullSizeOn:hover {
-    gwt-image: "formFullSizeOnHoverActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "formFullSizeOnHoverActionIm";
 }
 
 @sprite .formFullSizeOff {
-    gwt-image: "formFullSizeOffActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "formFullSizeOffActionIm";
 }
 
 @sprite .favoritePanelOn {
-    gwt-image: "favoritePanelOnActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "favoritePanelOnActionIm";
 }
 
 @sprite .favoritePanelOn:hover {
-    gwt-image: "favoritePanelOnHoverActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "favoritePanelOnHoverActionIm";
 }
 
 @sprite .favoritePanelOff {
-    gwt-image: "favoritePanelOffActionIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 35px;
     margin: 4px 0 0 0;
     width: 35px;
+    height: 35px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "favoritePanelOffActionIm";
 }
 
 @sprite .configurationUploader {
-    gwt-image: "configurationUploaderIcon";
-    background-repeat: no-repeat;
-    background-position: 0 0;
     float: left;
-    height: 25px;
     margin: 7px 5px 0 0;
     width: 25px;
+    height: 25px;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    gwt-image: "configurationUploaderIcon";
 }
 
 @sprite .filterBoxClearButtonOn {
-    gwt-image: "filterClearButtonIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    border: 0;
-    cursor: pointer;
     display: inline-block;
     float: right;
-    height: 16px;
     margin: 2px;
     width: 16px;
+    height: 16px;
+    border: 0;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    gwt-image: "filterClearButtonIm";
 }
 
 @sprite .hBFilterClearButton {
-    gwt-image: "filterClearButtonIm";
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    border: 0;
-    cursor: pointer;
     display: inline-block;
-    height: 16px;
     width: 16px;
+    height: 16px;
+    border: 0;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    gwt-image: "filterClearButtonIm";
 }
 
 .filterBoxClearButtonOn:hover {
@@ -202,15 +202,15 @@
 .deleteButton,
 .editButton,
 .viewButton {
+    display: inline-block;
+    margin: 5px;
+    width: 25px;
+    height: 25px;
     border: 1px solid #dfe2e5;
     border-radius: 3px;
     color: #016cad;
-    cursor: default;
-    display: inline-block;
-    height: 25px;
-    margin: 5px;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
-    width: 25px;
+    cursor: default;
 }
 
 .deleteButton {
@@ -225,97 +225,97 @@
 }
 
 @sprite .arrowDownButton {
-    gwt-image: "arrowDownIm";
-    cursor: pointer;
     display: inline-block;
-    height: 36px;
     margin-top: 15px;
     margin-left: -25px;
     min-width: 20px;
     width: 36px;
+    height: 36px;
+    cursor: pointer;
+    gwt-image: "arrowDownIm";
 }
 
 @sprite .magnifierButton {
-    gwt-image: "magnifierIm";
     padding: 3px 2px 0 1px;
+    gwt-image: "magnifierIm";
 
 }
 
 @sprite .refreshBtn {
-    gwt-image: "refreshBtnIm";
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-color: white;
     margin: 7px;
-    border-radius: 3px;
-    white-space: nowrap;
     padding: 12px;
-    box-shadow: 1px 1px 2px 1px #999;
     width: 5px;
     height: 100%;
+    border-radius: 3px;
+    background-color: white;
+    background-position: center center;
+    background-repeat: no-repeat;
+    box-shadow: 1px 1px 2px 1px #999;
+    white-space: nowrap;
+    gwt-image: "refreshBtnIm";
 }
 
 @sprite .addDoBtn {
-    gwt-image: "addDoBtnIm";
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-color: white;
     margin: 7px;
-    border-radius: 3px;
-    white-space: nowrap;
     padding: 12px;
-    box-shadow: 1px 1px 2px 1px #999;
     width: 5px;
     height: 100%;
+    border-radius: 3px;
+    background-color: white;
+    background-position: center center;
+    background-repeat: no-repeat;
+    box-shadow: 1px 1px 2px 1px #999;
+    white-space: nowrap;
+    gwt-image: "addDoBtnIm";
 
 }
 
 @sprite .closeBtn {
-    gwt-image: "closeIm";
-    background-repeat: no-repeat;
+    top: -2px;
+    z-index: 5;
+    float: right;
+    width: 15px;
+    height: 15px;
+    border: 0;
+    border-radius: 50%;
     background-position: -33px -0.5px;
+    background-repeat: no-repeat;
+    cursor: default;
     -webkit-transition: background-color .3s;
     -moz-transition: background-color .3s;
     -ms-transition: background-color .3s;
     -o-transition: background-color .3s;
     transition: background-color .3s;
-    border: 0;
-    border-radius: 50%;
-    cursor: default;
-    height: 15px;
-    top: -2px;
-    width: 15px;
-    z-index: 5;
-    float: right;
+    gwt-image: "closeIm";
 }
 
 @sprite .closeBtn:hover {
-    gwt-image: "closeIm";
-    background-repeat: no-repeat;
-    background-position: 0 -0.5px;
+    width: 15px;
+    height: 15px;
     background-color: rgba(0, 0, 0, 0.5);
+    background-position: 0 -0.5px;
+    background-repeat: no-repeat;
     -webkit-transition: background-color .3s;
     -moz-transition: background-color .3s;
     -ms-transition: background-color .3s;
     -o-transition: background-color .3s;
     transition: background-color .3s;
-    height: 15px;
-    width: 15px;
+    gwt-image: "closeIm";
 
 }
 
 @sprite .closeBtn:active {
-    gwt-image: "closeIm";
-    background-repeat: no-repeat;
-    background-position: -16.7px -0.5px;
+    width: 15px;
+    height: 15px;
     background-color: rgba(250, 250, 250, 0.7);
+    background-position: -16.7px -0.5px;
+    background-repeat: no-repeat;
     -webkit-transition: background-color .3s;
     -moz-transition: background-color .3s;
     -ms-transition: background-color .3s;
     -o-transition: background-color .3s;
     transition: background-color .3s;
-    height: 15px;
-    width: 15px;
+    gwt-image: "closeIm";
 
 }
 
@@ -328,19 +328,19 @@
 }
 
 @sprite .rightBottomResizeCursorArea{
-    gwt-image: 'rightBottomResizeAreaIm';
     position: absolute!important;
-    bottom: 0;
     right: 0;
-    height: 20px;
+    bottom: 0;
     width: 20px;
+    height: 20px;
+    gwt-image: 'rightBottomResizeAreaIm';
 }
 
 @sprite .leftBottomResizeCursorArea{
-    gwt-image: 'leftBottomResizeAreaIm';
     position: absolute!important;
     bottom: 0;
     left: 0;
-    height: 20px;
     width: 20px;
+    height: 20px;
+    gwt-image: 'leftBottomResizeAreaIm';
 }
