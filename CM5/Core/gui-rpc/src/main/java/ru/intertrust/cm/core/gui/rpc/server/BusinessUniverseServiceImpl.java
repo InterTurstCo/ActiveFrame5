@@ -112,7 +112,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setSearchConfigured(isSearchConfigured());
         Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
         initialization.setGlobalLocalizedResources(messages);
-        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(false);
         initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
         return initialization;
     }

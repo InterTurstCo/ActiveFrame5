@@ -23,7 +23,7 @@ public class InitialNavigationLinkActionHandler extends ActionHandler<InitialNav
 
     @Override
     public ActionData executeAction(InitialNavigationLinkContext context) {
-        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(true);
         domainObject.setString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY, context.getInitialNavigationLink());
         crudService.save(domainObject);
         return null;

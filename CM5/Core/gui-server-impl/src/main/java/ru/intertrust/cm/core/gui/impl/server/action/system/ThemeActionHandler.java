@@ -21,7 +21,7 @@ public class ThemeActionHandler extends ActionHandler<ThemeActionContext, Action
 
     @Override
     public ActionData executeAction(ThemeActionContext context) {
-        final DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+        final DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(true);
         domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getThemeName());
         crudService.save(domainObject);
         return null;
