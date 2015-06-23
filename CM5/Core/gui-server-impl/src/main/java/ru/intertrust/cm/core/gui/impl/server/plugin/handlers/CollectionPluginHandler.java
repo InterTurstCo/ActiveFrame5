@@ -70,6 +70,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     @Autowired
     private ProfileService profileService;
 
+    private boolean expandable; //dummy for testing
+
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         final String link = collectionViewerConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
@@ -77,6 +79,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         String collectionName = collectionRefConfig.getName();
         final CollectionViewConfig collectionViewConfig =
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
+        boolean expandable = CollectionPluginHelper.isExpandable(collectionViewConfig);
         final IdentifiableObject identifiableObject = PluginHandlerHelper.getCollectionSettingIdentifiableObject(
                 link, collectionViewConfig.getName(), currentUserAccessor.getCurrentUser(),
                 collectionsService);
@@ -136,6 +139,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         pluginData.setEmbedded(collectionViewerConfig.isEmbedded());
         pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
+        pluginData.setExpandable(expandable);
         return pluginData;
     }
 
@@ -215,6 +219,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                                                        final Map<String, CollectionColumnProperties> columnPropertiesMap,
                                                        final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         CollectionRowItem item = new CollectionRowItem();
+        item.setExpandable(expandable); //stub for poc
+        expandable = !expandable;
         LinkedHashMap<String, Value> row = CollectionPluginHelper.getRowValues(identifiableObject, columnPropertiesMap, fieldMappings);
         item.setId(identifiableObject.getId());
         item.setRow(row);
@@ -341,5 +347,26 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         return result;
     }
+
+    public CollectionRowsResponse getChildrenForExpanding(Dto request){
+        CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
+        String collectionName = rowsRequest.getCollectionName();
+        SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+        List<Filter> filters = new ArrayList<>();
+        filterBuilder.prepareExcludedIdsFilter(Arrays.asList(rowsRequest.getParentId()), filters);
+        IdentifiableObjectCollection collection = collectionsService.
+                findCollection(rowsRequest.getCollectionName(), sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
+        ArrayList<CollectionRowItem> items = new ArrayList<>();
+        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
+        for (IdentifiableObject identifiableObject : collection) {
+            items.add(generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings));
+
+        }
+        CollectionRowsResponse response = new CollectionRowsResponse();
+        response.setCollectionRows(items);
+        return response;
+
+    }
+
 
 }

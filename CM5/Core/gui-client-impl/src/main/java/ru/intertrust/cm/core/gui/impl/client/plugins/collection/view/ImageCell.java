@@ -13,9 +13,6 @@ public class ImageCell extends AbstractCell<String> {
     private String imageWidth;
     private String imageHeight;
 
-    public ImageCell() {
-
-    }
     public ImageCell(String imageWidth, String imageHeight) {
         this.imageWidth = imageWidth;
         this.imageHeight = imageHeight;

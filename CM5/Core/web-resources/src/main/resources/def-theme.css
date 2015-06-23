@@ -3134,3 +3134,60 @@ a:active .icon.back {
 .columnWrapper tr td {
     vertical-align: middle !important;
 }
+
+/* Expandable Collection */
+.collectionCellWrapper {
+    padding: 0 5px 5px 0;
+}
+
+.collectionCellWrapper .hierarchicalFilter {
+    box-sizing: border-box;
+    margin: 5px 0 5px 10px;
+    height: 20px;
+    width: 100px;
+    border: 1px solid #8d97a5;
+    border-radius: 5px;
+    color: #1f2b5d;
+}
+
+.collectionCellWrapper .hierarchicalFilter input {
+    border: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.collectionCellWrapper > div {
+    margin: 5px 0;
+}
+
+.collectionCellWrapper div:first-child {
+    margin-left: 0;
+}
+
+.collectionCellWrapper > div.expandable {
+    margin-left: 10px;
+}
+
+.collectionCellWrapper > div.notExpandable {
+    margin-left: 18px;
+}
+
+.collectionCellWrapper .moreItems {
+    background: #4D90FD;
+    border: none;
+    border-radius: 3px;
+    display: block;
+    margin-left: 10px;
+    padding: 5px 0;
+    opacity: 0.5;
+    width: 150px;
+}
+
+.collectionCellWrapper .moreItems:hover {
+    opacity: 1;
+    color: #fafafa;
+}
+.collectionRowExpanded td {
+    vertical-align: top;
+}
+/* end Expandable Collection */

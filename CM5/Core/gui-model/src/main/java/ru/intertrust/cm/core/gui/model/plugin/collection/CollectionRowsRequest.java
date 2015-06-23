@@ -35,6 +35,7 @@ public class CollectionRowsRequest implements Dto {
     private Map<String, List<String>> filtersMap;
     private TableBrowserParams tableBrowserParams;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
+    private Id parentId;
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                   String simpleSearchQuery, String searchArea) {
@@ -191,5 +192,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setHierarchicalFiltersConfig(CollectionExtraFiltersConfig hierarchicalFiltersConfig) {
         this.hierarchicalFiltersConfig = hierarchicalFiltersConfig;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 }

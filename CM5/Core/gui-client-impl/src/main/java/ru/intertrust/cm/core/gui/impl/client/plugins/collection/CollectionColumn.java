@@ -19,6 +19,7 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
     protected boolean moveable = true;
     protected boolean visible;
     protected int drawWidth;
+    protected boolean expanded;
 
 
     public CollectionColumn(AbstractCell cell) {
@@ -97,6 +98,14 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
         this.drawWidth = drawWidth;
     }
 
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -111,6 +120,7 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
         if (maxWidth != that.maxWidth) {
             return false;
         }
+
         if (minWidth != that.minWidth) {
             return false;
         }
@@ -121,6 +131,9 @@ public abstract class CollectionColumn<CollectionRowItem, T> extends Column<Coll
             return false;
         }
         if (fieldName != null ? !fieldName.equals(that.fieldName) : that.fieldName != null) {
+            return false;
+        }
+        if (expanded != that.expanded) {
             return false;
         }
 

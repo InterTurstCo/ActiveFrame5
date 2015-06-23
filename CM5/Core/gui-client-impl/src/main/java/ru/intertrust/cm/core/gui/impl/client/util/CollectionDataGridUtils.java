@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
 import java.util.*;
@@ -140,6 +141,22 @@ public class CollectionDataGridUtils {
         }
         return result;
 
+    }
+
+    public static CollectionRowItem getEffectedItem(CollectionRowItem item, String id){
+        CollectionRowItem result = null;
+        if(item.getId().toStringRepresentation().equalsIgnoreCase(id)){
+            result = item;
+        } else {
+            List<CollectionRowItem> children = item.getCollectionRowItems();
+            for (CollectionRowItem child : children) {
+                if(child.getId().toStringRepresentation().equalsIgnoreCase(id)){
+                    result = child;
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
 

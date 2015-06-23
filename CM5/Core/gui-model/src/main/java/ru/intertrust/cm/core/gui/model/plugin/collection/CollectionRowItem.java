@@ -4,7 +4,9 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -14,7 +16,9 @@ import java.util.HashMap;
 public class  CollectionRowItem implements Dto{
     private Id id;
     private  HashMap<String, Value> row;
-
+    private boolean expanded;
+    private boolean expandable;
+    private List<CollectionRowItem> collectionRowItems;
     public CollectionRowItem() {
     }
 
@@ -41,6 +45,30 @@ public class  CollectionRowItem implements Dto{
 
     public HashMap<String, Value> getRow () {
         return row;
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public List<CollectionRowItem> getCollectionRowItems() {
+        return collectionRowItems == null ? Collections.<CollectionRowItem>emptyList(): collectionRowItems;
+    }
+
+    public void setCollectionRowItems(List<CollectionRowItem> collectionRowItems) {
+        this.collectionRowItems = collectionRowItems;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
+    }
+
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
     }
 
     @Override

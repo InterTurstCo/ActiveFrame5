@@ -37,6 +37,8 @@ import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.RedrawCollectionRowEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.RedrawCollectionRowEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -70,7 +72,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionPluginView extends PluginView {
+public class CollectionPluginView extends PluginView implements RedrawCollectionRowEventHandler {
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -383,6 +385,7 @@ public class CollectionPluginView extends PluginView {
                         tableBody.redraw();
                     }
                 }));
+        handlerRegistrations.add(eventBus.addHandler(RedrawCollectionRowEvent.TYPE, this));
 
     }
 
@@ -541,7 +544,7 @@ public class CollectionPluginView extends PluginView {
         tableBody.setEmptyTableMessage(!getPluginData().isEmbedded());
     }
 
-    private boolean buildSearchArea(Panel container){
+    private boolean buildSearchArea(Panel container) {
         boolean result = false;
         if (searchArea != null && !searchArea.isEmpty()) {
             FlowPanel simpleSearch = new FlowPanel();
@@ -898,6 +901,46 @@ public class CollectionPluginView extends PluginView {
         if (getPluginData().getTableBrowserParams() == null) {
             columnHeaderController.sideBarFixPositionEvent(event);
         }
+    }
+
+    @Override
+    public void redrawCollectionRow(RedrawCollectionRowEvent event) {
+        final CollectionRowItem parentRowItem = event.getRootRowItem();
+        final CollectionRowItem effectedRowItem = event.getEffectedRowItem();
+        boolean expanded = event.isExpanded();
+        effectedRowItem.setExpanded(expanded);
+        if (expanded) {
+            CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest();
+            collectionRowsRequest.setCollectionName(getPluginData().getCollectionName());
+            collectionRowsRequest.setColumnProperties(getPluginData().getDomainObjectFieldPropertiesMap());
+            collectionRowsRequest.setParentId(effectedRowItem.getId());
+            collectionRowsRequest.setLimit(5);
+            collectionRowsRequest.setOffset(0);
+            Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining updated row");
+                    caught.printStackTrace();
+                }
+
+                @Override
+                public void onSuccess(Dto result) {
+                    CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                    List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
+                    effectedRowItem.setCollectionRowItems(collectionRowItems);
+                    int index = items.indexOf(parentRowItem);
+                    tableBody.redrawRow(index);
+                    tableBody.getRowElement(index).addClassName("collectionRowExpanded");
+
+                }
+            });
+        } else {
+            int index = items.indexOf(parentRowItem);
+            tableBody.redrawRow(index);
+            tableBody.getRowElement(index).removeClassName("collectionRowExpanded");
+        }
+        selectionModel.setSelected(parentRowItem, false);
     }
 
     private class ScrollLazyLoadHandler implements ScrollHandler {

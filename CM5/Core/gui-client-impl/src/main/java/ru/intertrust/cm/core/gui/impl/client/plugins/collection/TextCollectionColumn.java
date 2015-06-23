@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.cell.client.AbstractCell;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
@@ -13,7 +13,7 @@ public class TextCollectionColumn extends CollectionParameterizedColumn {
 
     private ValueConverter converter;
 
-    public TextCollectionColumn(TextCell cell) {
+    public TextCollectionColumn(AbstractCell cell) {
         super(cell);
     }
 
@@ -23,7 +23,7 @@ public class TextCollectionColumn extends CollectionParameterizedColumn {
 
     }
 
-    public TextCollectionColumn(TextCell cell, String fieldName, Boolean resizable, ValueConverter converter) {
+    public TextCollectionColumn(AbstractCell cell, String fieldName, Boolean resizable, ValueConverter converter) {
         super(cell, fieldName, resizable);
         this.converter = converter;
     }

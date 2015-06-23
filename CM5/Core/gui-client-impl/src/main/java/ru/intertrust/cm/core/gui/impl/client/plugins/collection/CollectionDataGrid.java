@@ -74,6 +74,10 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
+            if(event.getValue().isExpanded()){
+               getSelectionModel().setSelected(event.getValue(), false);
+                return;
+            }
             final Id id = event.getValue().getId();
             int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
             switch (nativeEventType) {

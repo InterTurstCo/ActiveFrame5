@@ -38,6 +38,7 @@ public class CollectionPluginData extends ActivePluginData {
     private boolean embedded;
     private boolean hasConfiguredFilters;
     private boolean hasColumnButtons;
+    private boolean expandable;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
@@ -182,5 +183,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setHasColumnButtons(boolean hasColumnButtons) {
         this.hasColumnButtons = hasColumnButtons;
+    }
+
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
     }
 }

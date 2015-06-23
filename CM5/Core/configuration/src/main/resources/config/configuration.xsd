@@ -2446,7 +2446,7 @@
         <xs:attribute type="con:textBreakStyleType" name="text-break-style" />
         <xs:attribute type="xs:boolean" name="date-range" use="optional" />
         <xs:attribute type="con:drillDownStyleType" name="drill-down-style" use="optional" />
-
+        <xs:attribute type="xs:boolean" name="expandable" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="typeCryptoSettings">
