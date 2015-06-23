@@ -12,5 +12,5 @@ public interface UserSettingsFetcher {
     public interface Remote extends UserSettingsFetcher{
     }
 
-    DomainObject getUserSettingsDomainObject();
+    DomainObject getUserSettingsDomainObject(boolean lock);
 }

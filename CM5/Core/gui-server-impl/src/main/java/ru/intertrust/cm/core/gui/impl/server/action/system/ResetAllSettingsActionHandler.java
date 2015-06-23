@@ -19,7 +19,6 @@ import ru.intertrust.cm.core.gui.model.action.system.ResetAllSettingsActionConte
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -41,18 +40,18 @@ public class ResetAllSettingsActionHandler extends ActionHandler<ResetAllSetting
         filters.add(Filter.create("byPerson", 0, new StringValue(currentUserAccessor.getCurrentUser())));
         IdentifiableObjectCollection collection =
                 collectionsService.findCollection("bu_nav_link_collections", null, filters);
-        for (Iterator<IdentifiableObject> it = collection.iterator(); it.hasNext(); ) {
-            ids.add(it.next().getId());
+        for (IdentifiableObject iobj : collection) {
+            ids.add(iobj.getId());
         }
         collection = collectionsService.findCollection("bu_user_settings_collection", null, filters);
-        for (Iterator<IdentifiableObject> it = collection.iterator(); it.hasNext(); ) {
-            ids.add(it.next().getId());
+        for (IdentifiableObject iobj : collection) {
+            ids.add(iobj.getId());
         }
         if (!ids.isEmpty()) {
             crudService.delete(ids);
         }
 
-        final DomainObject domainObject = PluginHandlerHelper.getUserSettingsDomainObject(
+        final DomainObject domainObject = PluginHandlerHelper.findAndLockUserSettingsDomainObject(
                 currentUserAccessor, collectionsService, crudService);
         domainObject.setString(UserSettingsHelper.DO_THEME_FIELD_KEY, context.getDefaultTheme());
         crudService.save(domainObject);

@@ -41,7 +41,7 @@ public class CollectionColumnOrderActionHandler extends ActionHandler<Collection
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_UNKNOWN_URL,
                     "Неизвестный url", profileService.getPersonLocale()));
         }
-        final DomainObject object = PluginHandlerHelper.getCollectionSettingsDomainObject(context.getLink(),
+        final DomainObject object = PluginHandlerHelper.findAndLockCollectionSettingsDomainObject(context.getLink(),
                 context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
         CollectionViewConfig collectionViewConfig = null;
         if (object.getString(DO_COLLECTION_VIEW_FIELD_KEY) != null) {
