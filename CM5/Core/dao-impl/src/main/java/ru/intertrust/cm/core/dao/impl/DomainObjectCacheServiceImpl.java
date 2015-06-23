@@ -1,13 +1,15 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.util.ObjectCloner;
 
@@ -40,8 +42,9 @@ import java.util.*;
 public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
     private static final String LIMITATION_TYPE_MAP_KEY = "AccessLimitationTypeCacheMap";
-
     private static final String OBJECT_COLLECTION_MAP_KEY = "ObjectsCollectionCacheMap";
+    private static final String ID_TO_UNIQUE_KEY_MAP_KEY = "IdToUniqueKeyMap";
+    private static final String UNIQUE_KEY_TO_ID_MAP_KEY = "UniqueToIdKeyMap";
 
     /**
      * позволяет отключить кэш
@@ -53,6 +56,12 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
      * Псевдо-идентификатор для кэширования списков доменных объектов, не имеющих родителя
      */
     private static final Id GLOBAL_PSEUDO_ID = new RdbmsId(-1, -1);
+
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
@@ -71,7 +80,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             //deep clone
             this.domainObject = ObjectCloner.getInstance().cloneObject(domainObject);
         }
-        
+
 
         private void setChildNodeIds(List<Id> ids, String... key) {
             //key - список ключевых слов, см. выше
@@ -284,7 +293,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         return putAllOnRead(GLOBAL_PSEUDO_ID, dobjs, accessToken, key);
     }
-    
+
     @Override
     public List<Id> putCollectionOnRead(Id parentId, List<DomainObject> dobjs, String... key) {
         if (getTxReg().getTransactionKey() == null || dobjs == null) {
@@ -329,13 +338,13 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         if (getTxReg().getTransactionKey() == null) {
             return;
         }
-        
+
         if (key == null || key.length == 0) {
             throw new DaoException("Can't find key.");
         }
         Map<String, List<DomainObject>> objectCollectionMap = getCollectionMap();
         Iterator<String> keyIterator = objectCollectionMap.keySet().iterator();
-        
+
         while (keyIterator.hasNext()) {
             String collectionKey = keyIterator.next();
             if (collectionKey != null && collectionKey.startsWith(DomainObjectNode.generateKey(key))) {
@@ -344,7 +353,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         }
     }
-    
+
     @Override
     public List<DomainObject> getCollection(Id parentId, String... key) {
         if (getTxReg().getTransactionKey() == null) {
@@ -468,6 +477,21 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
     }
 
     /**
+     * Возвращает клон доменного объекта из кеш
+     * @param uniqueKey - уникальный ключ запрашиваемого доменного объекта
+     * @return клон доменного объект
+     */
+    @Override
+    public DomainObject get(String domainObjectType, Map<String, Value> uniqueKey, AccessToken accessToken) {
+        final Id id = getUniqueKeyToIdMap(domainObjectType).get(uniqueKey);
+        if (id != null) {
+            return get(id, accessToken);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Удаляет доменный объект из транзакционного кеша
      * @param id - доменного объекта
      */
@@ -495,8 +519,16 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
                 getOrCreateDomainObjectNode(id, limitationType).clear();
             }
         }
+
+        Set<Map<String, Value>> uniqueKeys = getIdToUniqueKeysMap().get(id);
+        Map<Map<String, Value>, Id> uniqueKeyToIdMap =  getUniqueKeyToIdMap(domainObjectTypeIdCache.getName(id));
+
+        if (uniqueKeys != null) {
+            uniqueKeyToIdMap.remove(uniqueKeys);
+            uniqueKeys.clear();
+        }
     }
-    
+
     @Override
     public void clear() {
         if (getTxReg().getTransactionKey() == null) {
@@ -504,6 +536,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         getAccessLimitationMap().clear();
+        getIdToUniqueKeysMap().clear();
+        getTypeToUniqueKeysMap().clear();
     }
 
     private String generateCollectionKey(Id parentId, String... key) {
@@ -567,6 +601,32 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             if (don != null && don.getInternalDomainObject() != null) {
                 don.setInternalDomainObject(domainObject);
             }
+        }
+
+        List<UniqueKeyConfig> uniqueKeyConfigs =
+                configurationExplorer.getDomainObjectTypeConfig(domainObject.getTypeName()).getUniqueKeyConfigs();
+        if (uniqueKeyConfigs == null || uniqueKeyConfigs.size() == 0) {
+            return;
+        }
+
+        final Set<Map<String, Value>> uniqueKeys = getUniqueKeysById(domainObject.getId());
+        Map<Map<String, Value>, Id> uniqueKeyToIdMap = getUniqueKeyToIdMap(domainObject.getTypeName());
+
+        if (uniqueKeys != null) {
+            uniqueKeyToIdMap.remove(uniqueKeys);
+            uniqueKeys.clear();
+        }
+
+        for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigs) {
+            final List<UniqueKeyFieldConfig> uniqueKeyFieldConfigs = uniqueKeyConfig.getUniqueKeyFieldConfigs();
+            HashMap<String, Value> uniqueKey = new HashMap<>(uniqueKeyFieldConfigs.size());
+
+            for (UniqueKeyFieldConfig fieldConfig : uniqueKeyFieldConfigs) {
+                uniqueKey.put(fieldConfig.getName(), domainObject.getValue(fieldConfig.getName()));
+            }
+
+            uniqueKeyToIdMap.put(uniqueKey, domainObject.getId());
+            uniqueKeys.add(uniqueKey);
         }
     }
 
@@ -657,6 +717,50 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         return accessTypeMap;
+    }
+
+    private Set<Map<String, Value>> getUniqueKeysById(Id id) {
+        Map<Id, Set<Map<String, Value>>> idToUniqueKeyMap = getIdToUniqueKeysMap();
+        Set<Map<String, Value>> uniqueKeys = idToUniqueKeyMap.get(id);
+
+        if (uniqueKeys == null) {
+            uniqueKeys = new HashSet<>();
+            idToUniqueKeyMap.put(id, uniqueKeys);
+        }
+
+        return uniqueKeys;
+    }
+
+    private Map<Map<String, Value>, Id> getUniqueKeyToIdMap(String domainObjectType) {
+        CaseInsensitiveMap<Map<Map<String, Value>, Id>> typeToUniqueKeysMap = getTypeToUniqueKeysMap();
+        Map<Map<String, Value>, Id> uniqueKeyToIdMap = typeToUniqueKeysMap.get(domainObjectType);
+
+        if (uniqueKeyToIdMap == null) {
+            uniqueKeyToIdMap = new HashMap<>();
+            typeToUniqueKeysMap.put(domainObjectType, uniqueKeyToIdMap);
+        }
+
+        return uniqueKeyToIdMap;
+    }
+
+    private Map<Id, Set<Map<String, Value>>> getIdToUniqueKeysMap() {
+        Map<Id, Set<Map<String, Value>>> idToUniqueKeyMap = (Map) getTxReg().getResource(ID_TO_UNIQUE_KEY_MAP_KEY);
+        if (idToUniqueKeyMap == null) {
+            idToUniqueKeyMap = new HashMap<>();
+            getTxReg().putResource(ID_TO_UNIQUE_KEY_MAP_KEY, idToUniqueKeyMap);
+        }
+
+        return idToUniqueKeyMap;
+    }
+
+    private CaseInsensitiveMap<Map<Map<String, Value>, Id>> getTypeToUniqueKeysMap() {
+        CaseInsensitiveMap<Map<Map<String, Value>, Id>> uniqueKeyToIdMap = (CaseInsensitiveMap) getTxReg().getResource(UNIQUE_KEY_TO_ID_MAP_KEY);
+        if (uniqueKeyToIdMap == null) {
+            uniqueKeyToIdMap = new CaseInsensitiveMap<>();
+            getTxReg().putResource(UNIQUE_KEY_TO_ID_MAP_KEY, uniqueKeyToIdMap);
+        }
+
+        return uniqueKeyToIdMap;
     }
 
     private Map<String, List<DomainObject>> getCollectionMap() {

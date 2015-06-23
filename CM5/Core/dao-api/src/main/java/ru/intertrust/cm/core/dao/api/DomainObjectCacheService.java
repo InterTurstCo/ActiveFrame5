@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.dao.api;
 
 import java.util.List;
+import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
@@ -41,7 +43,7 @@ public interface DomainObjectCacheService {
         ALL_CHILD_GROUPS,
         ALL_PARENT_GROUPS
     }
-    
+
     /**
      * Кеширование DomainObject после чтения (не требуется обновление связанных объектов) в транзакционный кеш.
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
@@ -77,7 +79,7 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов кешируемых доменных объектов
      */
     public List<Id> putAllOnRead(List<DomainObject> dobjs, AccessToken accessToken);
-    
+
     /**
      * Кеширование списка DomainObject после чтения (не требуется обновление связанных объектов) в транзакционный кеш,
      * Кеш сохраняет в своей внутренней структуре клон передаваемого DomainObject.
@@ -90,7 +92,7 @@ public interface DomainObjectCacheService {
      * @throws DaoException - если key == null или содержит пустой список.
      */
     public List<Id> putAllOnRead(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String... key);
-    
+
     /**
      * Кеширование списка DomainObject после чтения (не требуется обновление связанных объектов) в транзакционный кеш
      * для случая, когда список не имеет родительского доменного объекта.
@@ -164,7 +166,14 @@ public interface DomainObjectCacheService {
      * null - если не согласованно с базой данных
      */
     public List<DomainObject> getAll(AccessToken accessToken, String... key);
-    
+
+    /**
+     * Возвращает клон доменного объекта из кеш
+     * @param uniqueKey - уникальный ключ запрашиваемого доменного объекта
+     * @return клон доменного объект
+     */
+    DomainObject get(String domainObjectType, Map<String, Value> uniqueKey, AccessToken accessToken);
+
     /**
      * Удаляет доменный объект из транзакционного кеша
      * @param id - доменного объекта
