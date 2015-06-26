@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Конфигурация" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1434362147000</longProp>
+        <longProp name="ThreadGroup.end_time">1434362147000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Конфигурация потоков" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="THREAD_COUNT" elementType="Argument">
+              <stringProp name="Argument.name">THREAD_COUNT</stringProp>
+              <stringProp name="Argument.value">10</stringProp>
+              <stringProp name="Argument.desc">Количество потоков</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="HOST" elementType="Argument">
+              <stringProp name="Argument.name">HOST</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
+              <stringProp name="Argument.desc">Сервер</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="PORT" elementType="Argument">
+              <stringProp name="Argument.name">PORT</stringProp>
+              <stringProp name="Argument.value">8080</stringProp>
+              <stringProp name="Argument.desc">Порт</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Основной поток" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREAD_COUNT}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1434362304000</longProp>
+        <longProp name="ThreadGroup.end_time">1434362304000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+          <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+        </ConfigTestElement>
+        <hashTree/>
+        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+          <collectionProp name="CookieManager.cookies"/>
+          <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+          <stringProp name="CookieManager.implementation">org.apache.jmeter.protocol.http.control.HC4CookieHandler</stringProp>
+        </CookieManager>
+        <hashTree/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Аутентификация" enabled="true"/>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Аутентификауия" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">7|0|7|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.LoginPage/|DA88F757EDA703CC2A1ABC29527CC961|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService|login|ru.intertrust.cm.core.business.api.dto.UserCredentials|ru.intertrust.cm.core.business.api.dto.UserUidWithPassword/2142978794|admin|1|2|3|4|1|5|6|0|7|7|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseAuthenticationService</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Оснавная страница" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">7|0|8|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint/|054A665A66D6A7C42043EAEA61DC385B|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService|getBusinessUniverseInitialization|ru.intertrust.cm.core.gui.model.Client|ru.intertrust.cm.core.gui.model.Browser/2441220581|Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.124 Safari/537.36|GMT+03:00|1|2|3|4|1|5|6|7|8|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseService</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Создание тестового ДО" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">7|0|425|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint/|054A665A66D6A7C42043EAEA61DC385B|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService|executeCommand|ru.intertrust.cm.core.gui.model.Command/931633538|save.action|executeAction|ru.intertrust.cm.core.gui.model.action.SaveActionContext/2769412909|ru.intertrust.cm.core.gui.model.form.FormState/2543100334|java.util.HashMap/1797211028|java.lang.String/2004016611|AuthorizationError|Ошибка авторизации.  |Password|Пароль|MayMonthShortStandalone|Май|[DOMAIN_OBJECT]country|Страна|validate.length.too-small|Длина поля ${field-name} не может быть меньше чем${min-length}|NotificationException|Ошибка отправки сообщения.|SeptemberMonthShort|сент.|GuiException.SearchError|Ошибка при поиске:&#xd;
+|NoNewNotifications|Новых уведомлений нет|WeekSwitchButton|Суббота, Воскресенье|SundayFirstCapital|В|[SEARCH_FIELD]Employee.Position|Должность|EventTriggerException|Ошибка инициализации тригера.|NovemberMonthShort|нояб.|ResetSettings|Сбросить настройки|OctoberMonthShortStandalone|Окт.|GuiException.CommandExecutionError|Команда не может быть выполнена: |LightTheme|Светлая тема|SignOn|Войти|ObjectNotFoundException|Данных не найдено.|ForLastYear|За год|[SEARCH_DOMAIN_OBJECT]Internal_Document|Внутренний документ|CollectionConfigurationException|Ошибка конфигурации коллекции.|ProfileException|Ошибка обработки профиля системы/пользователя.|Monday|Понедельник|[SEARCH_FIELD]Employee.FirstName|Имя|ScheduleException|Ошибка работы подсистемы периодических заданий|GuiException.VersionError|Ошибка получения версии: |[SEARCH_FIELD]Employee.LastName|Фамилия|SaveButton|Сохранить|BlackTheme|Тёмная тема|JunMonthShort|июня|GuiException.ManyDefaultForms|There&apos;s more than 1 default form for type: |SeptemberMonthShortStandalone|Сент|GuiException.NoProcessName|Не задано имя процесса|Info|Справка|AugustMonthShortStandalone|Авг.|SearchException|Ошибка работы подсистемы поиска|ForLastWeek|За неделю|AprilMonthShort|апр.|Wednesday|Среда|ReportServiceException|Ошибка обработки отчета|validate.range.too-small|Значение поля ${field-name} не может быть меньше чем ${range-start}|AddConfigFiles|Добавьте файлы конфигурации:|[SEARCH_FIELD]Employee.EMail|Email|RememberMe|Запомнить меня|CrudException|Ошибка операции с БД.|Friday|Пятница|GuiException.ProcessNotSupported|Process &apos;${processType}&apos; not supported.|ForYesterday|За вчера|ResetAllSettings|Сбросить все настройки|GuiException.RefPathNotSupported|Reference ${path} not supported|AprilMonthShortStandalone|Апр.|JulyMonthShortStandalone|Июль|ActionServiceException|Невозможно получить список действий для объекта.|SystemException|Системная ошибка при выполнении ${commandName}, обратитесь к администратору.|ProcessException|Ошибка выполнения workflow процесса.|[FIELD]country.population|Население|JanuaryMonthShortStandalone|Янв.|JanuaryMonthShort|янв.|ForToday|За сегодня|ColumnsDisplayTooltip|Отображение видимых колонок|AugustMonthShort|авг.|OctoberMonthShort|окт.|GuiException.CollectionViewError|Collection view config has no display tags configured|ConfigurationException|Ошибка конфигурации объекта.|[SEARCH_FIELD]Country.independence_day|День Независимости|FridayFirstCapital|П|validate.integer|&apos;${value}&apos; должно быть целым!|[SEARCH_AREA]Countries-Search-Area|Страны|GuiException.SortingFieldNotFound|Couldn&apos;t find sorting &apos;${field}&apos;|AddReportFiles|Добавьте файлы шаблона отчета:|OpenInFullWindowButton|Открыть в полном окне|NovemberMonthShortStandalone|Нояб.|GuiException.UnknownUrl|Неизвестный url|validate.length.too-big|Длина поля ${field-name} не может быть больше чем ${max-length}|Exit|Выход|GuiException.ObjectNotExist|Object with id: ${objectId} doesn&apos;t exist|MonthSwitchButton|Задачи дня|ChooseLanguage|Выбрать язык|ContinueButton|Продолжить|[FIELD]country.capital|Столица|[SEARCH_DOMAIN_OBJECT]Employee|Сотрудник|GuiException.ReportNameNotFound|Имя отчета не сконфигурировано ни в плагине, ни форме!|GuiException.SingleFieldPath|Only single field-path is supported|FebruaryMonthShort|февр.|validate.precision|Значение поля ${field-name} должно иметь точность ${precision}|CoreVersion|Версия платформы:|NoResults|Результаты отсутствуют|EMail|EMail:|DoelException|Ошибка обработки DOEL выражения.|Superuser|Супер-администратор|NoConnectionError|Ошибка авторизации. Невозможно подключиться к серверу.|MailNotificationException|Ошибка отправки/приема сообщения по email.|MondayFirstCapital|GuiException.ObjectNotSaved|Объект ещё не сохранён|Tuesday|Вторник|ExtensionPointException|Ошибка инициализации точки расширения.|JunMonthShortStandalone|Июнь|ThursdayFirstCapital|Ч|\ufeffAccessException|У вас нет прав доступа к даному объекту.|LucemTheme|Lucem тема|validate.max|Поле ${field-name} не может быть больше чем ${value}!|[SEARCH_FIELD]Employee.Department|Департамент|Saturday|Суббота|AttachmentUnavailable|Невозможно скачать вложение|[SEARCH_DOMAIN_OBJECT]Country|FilterTooltip|Отобразить/Скрыть фильтры|DoelParseException|Ошибка разбора DOEL выражения.|MarchMonthShort|марта|Thursday|Четверг|CloseButton|Закрыть|SizeActionTooltip|Распахнуть/Свернуть|UserName|Имя пользователя|ChooseTheme|Выбрать тему|GuiException.CommandCallError|Ошибка вызова команды: |WrongPswError|Ошибка авторизации. Проверте правильность введенных данных.|MarchMonthShortStandalone|Март|FatalException|Фатальная ошибка приложения.|DefaultTheme|Основная тема|validate.positive-int|&apos;${value}&apos; должно быть целым положительным!|ChoosePeriod|Выбрать период|validate.decimal|&apos;${value}&apos; должно быть десятичным!|Version|Версия:|ServerValidationException|Server-side validation failed|FirstName|Имя:|[FIELD]country.square|Площадь|validate.positive-dec|&apos;${value}&apos; должно быть десятичным положительным!|validate.length.not-equal|Длина поля ${field-name} должна быть равна ${length}|WednesdayFirstCapital|С|[SEARCH_FIELD]Internal_Document.Registrant|Регистратор|MayMonthShort|мая|FavoriteActionTooltip|Показать/Скрыть избранное|CollectionQueryException|Ошибка в SQL запросе.|CancellationButton|Отмена|GuiException.HierarchCollection|Ошибка в конфигурации иерархической коллекции|Login|Логин:|validate.scale|Значение поля ${field-name} должно иметь ${scale} знаков после запятой|SaturdayFirstCapital|GuiException.NoProcessType|Не задано тип процесса|GuiException.ReportFormError|Конфигурация формы отчета не найдена или некорректна! Форма: &apos;${formName}&apos;, отчет: &apos;${reportName}&apos;|validate.unique-field|Поле ${field-name} со значением &apos;${value}&apos; уже существует!|[FIELD]country.name|Название|Administrator|Администратор|validate.pattern|Поле ${field-name} должно соответствовать шаблону ${pattern}!|UnexpectedException|Неизвестная ошибка приложения.|ColumnsWidthTooltip|Отобразить все колонки на экране|LastName|Фамилия:|CancelButton|Отменить|InvalidIdException|Некоректный идентификатор ДО.|FindButton|Найти|Sunday|Воскресенье|TuesdayFirstCapital|GuiException.WidgetIdNotFound|Widget, id: ${widgetId} is not configured with Field Path|DecemberMonthShortStandalone|Дек.|AuthenticationException|Ошибка авторизации.|GuiException.CommandNotFound|Команда ${commandName} не найдена|validate.range.too-big|Значение поля ${field-name} не может быть больше чем ${range-end}|JulyMonthShort|июля|DecemberMonthShort|дек.|OptimisticLockException|Сохранение невозможно, данные изменены другим пользователем.|validate.not-empty|Поле ${field-name} не должно быть пустым!|ChangeButton|Изменить|ValidationException|Исправьте ошибки перед сохранением|PermissionException|Ошибка создания группы.|DoneButton|Готово|Search|Поиск|GuiException.MultipleFieldPaths|Multiply fieldPaths should be all reference type or all backreference type|FebruaryMonthShortStandalone|Февр.|np1_form|ru.intertrust.cm.core.gui.model.form.FormObjects/208332213|ru.intertrust.cm.core.gui.model.form.FieldPath/4003589935||ru.intertrust.cm.core.gui.model.form.SingleObjectNode/2597964450|ru.intertrust.cm.core.business.api.dto.GenericDomainObject/1930765710|np1|java.util.LinkedHashMap/3008245022|created_date|ru.intertrust.cm.core.business.api.dto.DateTimeValue/4282871590|java.util.Date/3385151746|updated_date|java.util.LinkedHashSet/95640124|id|status|created_by|updated_by|name|np2|w3|label|w4|linked-domain-objects-table|w1|w2|text-box|ru.intertrust.cm.core.gui.model.form.widget.TextState/3034406799|${name}|java.util.ArrayList/4159755760|ru.intertrust.cm.core.business.api.dto.Constraint/3820746904|pattern|not-empty|field-name|widget-id|domain-object-type|ru.intertrust.cm.core.business.api.dto.Constraint$Type/2780199869|max-length|128|ru.intertrust.cm.core.gui.model.form.widget.LinkedDomainObjectsTableState/1725912574|ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig/3720076234|ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig/130951234|ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig/438417082|ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig/2435208714|ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig/3182161856|400px|800px|np2_form|ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig/839666214|ru.intertrust.cm.core.config.gui.form.widget.SummaryTableColumnConfig/1797621092|ru.intertrust.cm.core.config.gui.form.widget.LinkedTablePatternConfig/1207603731|{name} and {np3.name}|ru.intertrust.cm.core.config.gui.form.widget.WidgetIdMappingsConfig/474637255|ru.intertrust.cm.core.config.gui.form.widget.WidgetIdMappingConfig/3836051248|Name |ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig/782996961|8c2469fb312bb00c|np3|ru.intertrust.cm.core.gui.model.form.widget.LabelState/42759720|Имя1:|${name2}|300px|600px|np3_form|{name}|97dc64dab773bbc1|${name3}|java.util.Collections$EmptyList/4157118744|ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder/3816150570|ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig/677473702|ru.intertrust.cm.core.config.gui.form.FormMappingConfig/3375716983|ru.intertrust.cm.core.gui.model.plugin.FormPluginState/1343425564|ru.intertrust.cm.core.config.gui.action.ActionConfig/985704273|ru.intertrust.cm.core.config.gui.action.ActionDisplayType/4049623642|actionBar-save|aSave|Сохранить изменения|ru.intertrust.cm.core.config.gui.action.ActionType/3921025904|Write|java.lang.Integer/3438268394|not preview|1|2|3|4|1|5|5|6|0|7|8|9|10|169|11|12|11|13|11|14|11|15|11|16|11|17|11|18|11|19|11|20|11|21|11|22|11|23|11|24|11|25|11|26|11|27|11|28|11|29|11|30|11|31|11|32|11|33|11|34|11|35|11|36|11|37|11|38|11|39|11|40|11|41|11|42|11|43|11|44|11|45|11|46|11|47|11|48|11|49|11|50|11|51|11|52|11|53|11|54|11|55|11|56|11|57|11|58|11|59|11|60|11|61|11|62|11|63|11|64|11|65|11|66|11|67|11|68|11|69|11|70|11|71|11|72|11|73|11|74|11|75|11|76|11|77|11|78|11|79|11|80|11|81|11|82|11|83|11|84|11|85|11|86|11|87|11|88|11|89|11|90|11|91|11|92|11|93|11|94|11|95|11|96|11|97|11|98|11|99|11|100|11|101|11|102|11|103|11|104|11|105|11|106|11|107|11|108|11|109|11|110|11|111|11|112|11|113|11|114|11|115|11|116|11|117|11|118|11|119|11|120|11|121|11|122|11|123|11|124|11|125|11|126|11|127|11|128|11|129|11|130|11|131|11|132|11|133|11|134|11|135|11|136|11|137|11|138|11|139|11|140|11|141|11|142|11|143|11|144|11|145|11|146|11|147|11|148|11|149|11|150|11|151|11|152|11|153|11|154|11|155|11|156|11|157|11|158|11|159|11|160|11|161|11|162|11|163|11|164|11|165|11|166|11|167|11|168|11|169|11|170|11|171|11|172|11|173|11|174|11|175|11|176|11|177|11|178|11|179|11|180|11|181|11|182|11|183|11|184|11|185|11|186|11|187|11|188|11|189|11|190|11|191|11|192|11|193|11|194|11|195|11|196|11|197|11|198|11|199|11|200|-140|11|201|11|202|11|203|11|204|11|205|11|206|11|207|11|208|11|209|11|210|11|211|11|212|11|213|11|214|11|215|11|216|11|217|11|218|11|219|11|220|11|221|11|222|11|223|-12|11|224|11|225|11|226|11|227|11|228|11|229|11|230|11|231|11|232|11|233|11|234|11|235|11|236|11|237|11|238|11|239|11|240|11|241|11|242|11|243|11|244|11|245|11|246|11|247|11|248|11|249|11|250|11|251|11|252|11|253|11|254|11|255|11|256|11|257|11|258|11|259|11|260|11|261|11|262|11|263|11|264|11|265|11|266|11|267|11|268|11|269|11|270|11|271|11|272|11|273|11|274|11|275|11|276|11|277|11|278|11|279|11|280|11|281|11|282|11|283|11|284|11|285|11|286|-262|11|287|11|288|11|289|11|290|11|291|11|292|11|293|11|294|11|295|11|296|11|297|11|298|11|299|11|300|11|301|11|302|11|303|11|304|11|305|11|306|11|307|11|308|11|309|11|310|11|311|11|312|11|313|-26|11|314|11|315|11|316|11|317|11|318|11|319|11|320|11|321|11|322|11|323|11|324|11|325|11|326|11|327|11|328|11|329|11|330|11|331|11|332|11|333|11|334|11|335|11|336|11|337|11|338|11|339|11|340|11|341|11|342|11|343|11|344|11|345|346|347|10|1|348|349|350|351|352|1|353|0|2|11|354|355|356|U3i9B9r|11|357|355|-347|0|358|8|11|359|-345|-348|11|360|11|361|11|362|11|363|11|364|352|0|0|10|4|11|365|11|366|11|367|11|368|11|369|-359|11|370|11|371|10|2|-363|372|0|0|0|373|374|2|375|10|4|11|376|11|377|11|378|-355|11|379|-363|11|380|11|352|381|0|375|10|4|11|382|11|383|-372|-355|-373|-363|-374|-375|381|1|0|0|10|0|-360|384|353|0|0|0|385|0|386|374|1|387|364|364|0|0|388|374|1|389|364|0|390|391|392|0|0|0|0|0|0|0|0|393|0|374|1|394|0|374|1|395|0|396|0|0|0|397|374|1|398|392|370|399|400|0|0|0|0|0|0|0|364|0|367|0|0|0|353|0|1|11|401|9|10|169|-5|-6|-7|-8|-9|-10|-11|-12|-13|-14|-15|-16|-17|-18|-19|-20|-21|-22|-23|-24|-25|-26|-27|-28|-29|-30|-31|-32|-33|-34|-35|-36|-37|-38|-39|-40|-41|-42|-43|-44|-45|-46|-47|-48|-49|-50|-51|-52|-53|-54|-55|-56|-57|-58|-59|-60|-61|-62|-63|-64|-65|-66|-67|-68|-69|-70|-71|-72|-73|-74|-75|-76|-77|-78|-79|-80|-81|-82|-83|-84|-85|-86|-87|-88|-89|-90|-91|-92|-93|-94|-95|-96|-97|-98|-99|-100|-101|-102|-103|-104|-105|-106|-107|-108|-109|-110|-111|-112|-113|-114|-115|-116|-117|-118|-119|-120|-121|-122|-123|-124|-125|-126|-127|-128|-129|-130|-131|-132|-133|-134|-135|-136|-137|-138|-139|-140|-141|-142|-143|-144|-145|-146|-147|-148|-149|-150|-151|-152|-153|-154|-155|-156|-157|-158|-159|-160|-161|-162|-163|-164|-165|-166|-167|-168|-169|-170|-171|-172|-173|-174|-175|-176|-177|-178|-179|-180|-181|-182|-183|-184|-185|-186|-187|-188|-189|-190|-191|-192|-193|-140|-194|-195|-196|-197|-198|-199|-200|-201|-202|-203|-204|-205|-206|-207|-208|-209|-210|-211|-212|-213|-214|-215|-216|-12|-217|-218|-219|-220|-221|-222|-223|-224|-225|-226|-227|-228|-229|-230|-231|-232|-233|-234|-235|-236|-237|-238|-239|-240|-241|-242|-243|-244|-245|-246|-247|-248|-249|-250|-251|-252|-253|-254|-255|-256|-257|-258|-259|-260|-261|-262|-263|-264|-265|-266|-267|-268|-269|-270|-271|-272|-273|-274|-275|-276|-277|-278|-279|-262|-280|-281|-282|-283|-284|-285|-286|-287|-288|-289|-290|-291|-292|-293|-294|-295|-296|-297|-298|-299|-300|-301|-302|-303|-304|-305|-306|-26|-307|-308|-309|-310|-311|-312|-313|-314|-315|-316|-317|-318|-319|-320|-321|-322|-323|-324|-325|-326|-327|-328|-329|-330|-331|-332|-333|-334|-335|-336|-337|-338|392|347|10|1|348|349|350|351|364|1|353|0|2|-345|355|356|U3i9EBb|-348|355|-412|0|358|8|-351|-345|-348|-352|-353|-354|-355|11|402|364|0|0|10|3|-358|-361|-362|-359|-363|-364|10|3|-362|403|0|0|0|0|404|0|0|0|374|0|0|0|10|0|-363|372|0|0|0|405|374|2|375|10|4|-370|-371|-372|-355|-373|-363|-374|-356|-376|375|10|4|-379|-380|-372|-355|-373|-363|-374|-356|-381|0|0|10|0|-358|384|353|0|0|0|385|0|386|374|1|387|402|402|0|0|388|374|1|389|402|0|406|407|408|0|0|0|0|0|0|0|0|393|0|374|1|394|0|374|1|395|0|409|0|0|0|397|374|1|398|408|370|399|400|0|0|0|0|0|0|0|402|0|365|0|0|0|353|0|1|11|410|9|10|169|-5|-6|-7|-8|-9|-10|-11|-12|-13|-14|-15|-16|-17|-18|-19|-20|-21|-22|-23|-24|-25|-26|-27|-28|-29|-30|-31|-32|-33|-34|-35|-36|-37|-38|-39|-40|-41|-42|-43|-44|-45|-46|-47|-48|-49|-50|-51|-52|-53|-54|-55|-56|-57|-58|-59|-60|-61|-62|-63|-64|-65|-66|-67|-68|-69|-70|-71|-72|-73|-74|-75|-76|-77|-78|-79|-80|-81|-82|-83|-84|-85|-86|-87|-88|-89|-90|-91|-92|-93|-94|-95|-96|-97|-98|-99|-100|-101|-102|-103|-104|-105|-106|-107|-108|-109|-110|-111|-112|-113|-114|-115|-116|-117|-118|-119|-120|-121|-122|-123|-124|-125|-126|-127|-128|-129|-130|-131|-132|-133|-134|-135|-136|-137|-138|-139|-140|-141|-142|-143|-144|-145|-146|-147|-148|-149|-150|-151|-152|-153|-154|-155|-156|-157|-158|-159|-160|-161|-162|-163|-164|-165|-166|-167|-168|-169|-170|-171|-172|-173|-174|-175|-176|-177|-178|-179|-180|-181|-182|-183|-184|-185|-186|-187|-188|-189|-190|-191|-192|-193|-140|-194|-195|-196|-197|-198|-199|-200|-201|-202|-203|-204|-205|-206|-207|-208|-209|-210|-211|-212|-213|-214|-215|-216|-12|-217|-218|-219|-220|-221|-222|-223|-224|-225|-226|-227|-228|-229|-230|-231|-232|-233|-234|-235|-236|-237|-238|-239|-240|-241|-242|-243|-244|-245|-246|-247|-248|-249|-250|-251|-252|-253|-254|-255|-256|-257|-258|-259|-260|-261|-262|-263|-264|-265|-266|-267|-268|-269|-270|-271|-272|-273|-274|-275|-276|-277|-278|-279|-262|-280|-281|-282|-283|-284|-285|-286|-287|-288|-289|-290|-291|-292|-293|-294|-295|-296|-297|-298|-299|-300|-301|-302|-303|-304|-305|-306|-26|-307|-308|-309|-310|-311|-312|-313|-314|-315|-316|-317|-318|-319|-320|-321|-322|-323|-324|-325|-326|-327|-328|-329|-330|-331|-332|-333|-334|-335|-336|-337|-338|408|347|10|1|348|349|350|351|402|1|353|0|2|-345|355|356|U3i9EcD|-348|355|-457|0|358|7|-351|-345|-348|-352|-353|-354|-355|402|0|0|10|2|-362|-359|-363|-364|10|2|-362|403|0|0|0|0|404|0|0|0|374|0|0|0|10|0|-363|372|0|0|0|411|374|2|375|10|4|-370|-371|-372|-355|-373|-363|-374|-415|-376|375|10|4|-379|-380|-372|-355|-373|-363|-374|-415|-381|0|0|10|0|0|10|1|-415|412|386|374|1|387|402|402|374|0|374|0|10|1|-415|413|0|0|413|0|0|1|374|0|1|0|10|0|0|10|1|-356|-473|386|374|1|387|364|364|374|0|374|0|10|1|-356|413|0|0|413|0|0|1|374|0|1|0|10|0|414|0|374|1|415|352|374|0|346|0|0|416|1|0|0|417|0|0|0|0|0|6|0|0|418|0|0|419|0|0|1|420|71|421|422|1|0|0|423|10|0|0|0|1|424|200|0|425|0|0|0|0|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseService</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="BeanShell PreProcessor" enabled="true">
+              <stringProp name="filename"></stringProp>
+              <stringProp name="parameters"></stringProp>
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="script">${__RandomString(50,qwertyuiopasdfghjklzxcvbnm,TEST_NAME)};
+vars.put(&quot;name&quot;, &quot;${TEST_NAME}&quot;);
+vars.put(&quot;name2&quot;, &quot;${TEST_NAME}&quot;);
+vars.put(&quot;name3&quot;, &quot;${TEST_NAME}&quot;);</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="BeanShell PostProcessor" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.gwtscript.*;
+
+//Проверка на ошибки
+if (GwtUtil.checkError(prev.getResponseDataAsString())){
+	log.error(prev.getResponseDataAsString());
+	prev.setSuccessful(false);
+}</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Отчет" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="Список ошибок" enabled="true">
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename"></stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

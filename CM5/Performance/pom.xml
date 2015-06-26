@@ -15,6 +15,7 @@
 		<module>dataset-generator</module>
 		<module>dataset-generator-client</module>
 		<module>jmeter-tools</module>
+		<module>gwt-rpc-proxy</module>
 	</modules>
 
 </project>

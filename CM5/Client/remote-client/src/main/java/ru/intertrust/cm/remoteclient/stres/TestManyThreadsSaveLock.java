@@ -81,7 +81,7 @@ public class TestManyThreadsSaveLock extends ClientBase {
         public void run() {
             try {
                 CrudService.Remote crudService = (CrudService.Remote) getServiceLocal(
-                        "CrudServiceImpl", CrudService.Remote.class);
+                        "CrudServiceImpl", CrudService.Remote.class, "person8", "admin");
                 for (int i = 0; i < OBJECT_IN_THREAD_COUNT; i++) {
                     System.out.println("[Thread " + treadName + "]Start create object " + i);
 
@@ -103,7 +103,7 @@ public class TestManyThreadsSaveLock extends ClientBase {
             }
         }
 
-        private Object getServiceLocal(String serviceName, Class remoteInterfaceClass) throws NamingException {
+        private Object getServiceLocal(String serviceName, Class remoteInterfaceClass, String login, String psswd) throws NamingException {
             if (ctx == null) {
                 Properties jndiProps = new Properties();
 
@@ -113,8 +113,8 @@ public class TestManyThreadsSaveLock extends ClientBase {
                 clientProperties.put("remote.connections", "default");
                 clientProperties.put("remote.connection.default.port", address.split(":")[1]);
                 clientProperties.put("remote.connection.default.host", address.split(":")[0]);
-                clientProperties.put("remote.connection.default.username", user);
-                clientProperties.put("remote.connection.default.password", password);
+                clientProperties.put("remote.connection.default.username", login == null ? user : login);
+                clientProperties.put("remote.connection.default.password", psswd == null ? password : psswd);
                 clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
                 clientProperties.put("remote.connection.default.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
 
