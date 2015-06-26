@@ -19,6 +19,9 @@ import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import ru.intertrust.performance.jmetertools.GwtRpcRequest;
 import ru.intertrust.performance.jmetertools.GwtUtil;
 
+import com.cedarsoftware.util.io.JsonWriter;
+import com.google.gwt.user.client.rpc.SerializationException;
+
 public class ProxyContext {
     private int localPort;
     private String targetUri;
@@ -87,7 +90,7 @@ public class ProxyContext {
                             ));
                     responce.setContentType(proxyHttpExchange.getResponse().getEntity().getContentType() != null ? proxyHttpExchange.getResponse().getEntity()
                             .getContentType().getValue() : null);
-                    responce.setJson(GwtUtil.decodeResponceToJson(request.getBody(), responce.getBody(), targetUri));
+                    responce.setJson(decodeResponceToJson(request.getBody(), responce.getBody(), targetUri));
                 }
 
                 requestResponce.setRequest(request);
@@ -113,6 +116,19 @@ public class ProxyContext {
         }
     }
 
+    private String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
+        if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
+            return null;
+        }
+        Object responceObj = GwtUtil.decodeResponce(request, responce, targetUri);
+        String json = JsonWriter.objectToJson(responceObj);
+        try {
+            json = JsonWriter.formatJson(json);
+        } catch (Exception ex) {
+        }
+        return json;
+    }    
+    
     private FileInfo saveFile(byte[] buffer, long contentLength, String contentEncoding, String contentType) throws UnsupportedOperationException, IOException {
         FileInfo fileInfo = new FileInfo();
 

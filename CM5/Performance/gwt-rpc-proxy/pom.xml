@@ -101,11 +101,31 @@
             <artifactId>gui-client-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
-          <groupId>com.cedarsoftware</groupId>
-          <artifactId>json-io</artifactId>
-          <version>4.0.0</version>
-        </dependency>        
+            <groupId>com.cedarsoftware</groupId>
+            <artifactId>json-io</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

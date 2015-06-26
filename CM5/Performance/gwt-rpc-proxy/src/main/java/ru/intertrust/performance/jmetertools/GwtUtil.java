@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -16,12 +18,12 @@ import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
-import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class GwtUtil {
     private static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz _-";
     private static Random rnd = new Random();
+    private static final Logger log = LoggingManager.getLoggerForClass();
 
     public static boolean isError(HTTPSampleResult responce) {
         return responce.getResponseDataAsString().startsWith("//EX");
@@ -38,22 +40,28 @@ public class GwtUtil {
     }
 
     public static Object decodeResponce(String request, String responce, String targetUri) throws SerializationException {
-        if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
-            return null;
+        try {
+            if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
+                return null;
+            }
+
+            GwtRpcRequest gwtRpcRequest = GwtRpcRequest.decode(request, targetUri);
+
+            SyncClientSerializationStreamReader reader = new SyncClientSerializationStreamReader(gwtRpcRequest.getSerializationPolicy());
+            reader.prepareToRead(responce.substring(4));
+            Object responceObj = null;
+            if (reader.hasData()) {
+                responceObj = reader.readObject();
+            }
+            return responceObj;
+        } catch (Throwable ex) {
+            log.error("Error decodeResponce", ex);
+            throw ex;
         }
 
-        GwtRpcRequest gwtRpcRequest = GwtRpcRequest.decode(request, targetUri);
-
-        SyncClientSerializationStreamReader reader = new SyncClientSerializationStreamReader(gwtRpcRequest.getSerializationPolicy());
-        reader.prepareToRead(responce.substring(4));
-        Object responceObj = null;
-        if (reader.hasData()) {
-            responceObj = reader.readObject();
-        }
-        return responceObj;
     }
 
-    public static String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
+    /*public static String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
         if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
             return null;
         }
@@ -64,11 +72,11 @@ public class GwtUtil {
         } catch (Exception ex) {
         }
         return json;
-    }
+    }*/
 
-    public static String decodeResponceToJson(String request, String responce) throws SerializationException {
+    /*public static String decodeResponceToJson(String request, String responce) throws SerializationException {
         return decodeResponceToJson(request, responce, null);
-    }
+    }*/
 
     /**
      * Возвращает объект состояния виджета
@@ -92,15 +100,15 @@ public class GwtUtil {
             sb.append(AB.charAt(rnd.nextInt(AB.length())));
         return sb.toString();
     }
-    
-    public static void setRequest(HTTPSamplerProxy sampler, GwtRpcRequest request) throws SerializationException{
+
+    public static void setRequest(HTTPSamplerProxy sampler, GwtRpcRequest request) throws SerializationException {
         sampler.getArguments().getArgument(0).setValue(request.encode());
     }
 
-    public static Id getRndCollectionsRow(Dto responce){
-        CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse)responce;
+    public static Id getRndCollectionsRow(Dto responce) {
+        CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) responce;
         CollectionRowItem item = collectionRowsResponse.getCollectionRows().get(rnd.nextInt(collectionRowsResponse.getCollectionRows().size()));
         return item.getId();
     }
-    
+
 }
