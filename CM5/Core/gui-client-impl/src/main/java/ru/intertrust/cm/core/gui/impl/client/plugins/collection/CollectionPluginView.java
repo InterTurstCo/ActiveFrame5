@@ -686,7 +686,7 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
             columnHeaderController.changeFiltersInputsVisibility(true);
             filterButton.setValue(true);
         }
-        columnHeaderController.changeVisibilityOfColumns();
+        columnHeaderController.changeVisibilityOfColumns(true);
 
     }
 

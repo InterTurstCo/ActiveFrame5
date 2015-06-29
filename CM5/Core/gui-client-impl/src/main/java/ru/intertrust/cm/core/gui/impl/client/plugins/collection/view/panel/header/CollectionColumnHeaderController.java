@@ -4,12 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -17,13 +12,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.CheckBoxInabilityManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
@@ -151,7 +140,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         popup.showRelativeTo(target);
     }
 
-    public void changeVisibilityOfColumns() {
+    public void changeVisibilityOfColumns(boolean keepUserSettings) {
         int widthBeforeChanges = dataGrid.getOffsetWidth();
         for (int i = 0; i < columnHeaderBlocks.size(); i++) {
             ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
@@ -179,8 +168,12 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
             }
         }
-
-        CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(Math.max(widthBeforeChanges, displayedWidth - otherWidgetsDelta), dataGrid);
+        int tableWidth = displayedWidth - otherWidgetsDelta;
+        if (keepUserSettings) {
+            CollectionDataGridUtils.adjustWidthUserSettingsKeeping(Math.max(widthBeforeChanges, tableWidth), dataGrid);
+        } else {
+            CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(Math.max(widthBeforeChanges, tableWidth), dataGrid);
+        }
         changeFilterInputWidth();
         updateFilterValues();
         dataGrid.redraw();
@@ -445,7 +438,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         @Override
         public void onClick(ClickEvent event) {
             popup.hide();
-            changeVisibilityOfColumns();
+            changeVisibilityOfColumns(false);
             storeUserSettings();
         }
     }
