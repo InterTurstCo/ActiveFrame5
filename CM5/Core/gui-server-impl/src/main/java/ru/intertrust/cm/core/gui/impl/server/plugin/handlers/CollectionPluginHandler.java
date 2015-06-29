@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
@@ -224,6 +225,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         LinkedHashMap<String, Value> row = CollectionPluginHelper.getRowValues(identifiableObject, columnPropertiesMap, fieldMappings);
         item.setId(identifiableObject.getId());
         item.setRow(row);
+        item.setRowType(CollectionRowItem.RowType.DATA);
         return item;
 
     }
@@ -352,21 +354,82 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
         String collectionName = rowsRequest.getCollectionName();
         SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
-        List<Filter> filters = new ArrayList<>();
-        filterBuilder.prepareExcludedIdsFilter(Arrays.asList(rowsRequest.getParentId()), filters);
+        Id parentId = rowsRequest.getParentId();
+        Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
+        List<Filter> filters = prepareFilters(rowsRequest.getParentId(), rowsRequest.getColumnProperties(), filtersMap);
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(rowsRequest.getCollectionName(), sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
+        boolean notMoreItems = rowsRequest.getOffset() == 0;
+        if(notMoreItems){
+        CollectionRowItem filter = new CollectionRowItem();
+        filter.setParentId(parentId);
+        filter.setRowType(CollectionRowItem.RowType.FILTER);
+        filter.setRow(new HashMap<String, Value>(0));
+        filter.setFilters(filtersMap);
+        items.add(filter);
+        }
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings));
+            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings);
+            item.setParentId(parentId);
+            items.add(item);
 
         }
+        if(notMoreItems){
+        CollectionRowItem moreItems = new CollectionRowItem();
+        moreItems.setParentId(parentId);
+        moreItems.setRowType(CollectionRowItem.RowType.BUTTON);
+        moreItems.setRow(new HashMap<String, Value>(0));
+        items.add(moreItems);
+        }
+
         CollectionRowsResponse response = new CollectionRowsResponse();
         response.setCollectionRows(items);
         return response;
 
     }
+    private List<Filter> prepareFilters(Id parentId, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
+                                        Map<String, List<String>> filtersMap){
+        List<Filter> filters = new ArrayList<>();
+        filterBuilder.prepareExcludedIdsFilter(Arrays.asList(parentId), filters);
 
+        InitialFiltersConfig initialFiltersConfig = prepareInitialFiltersConfig(columnPropertiesMap, filtersMap);
+
+        Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.
+                getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
+        InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
+        return filters;
+    }
+    private InitialFiltersConfig prepareInitialFiltersConfig(LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
+                                                             Map<String, List<String>> filtersMap){
+        InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
+        List<InitialFilterConfig> initialFilterList = new ArrayList<>();
+        initialFiltersConfig.setFilterConfigs(initialFilterList);
+        if(filtersMap != null){
+            for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
+                InitialFilterConfig filterConfig = new InitialFilterConfig();
+                CollectionColumnProperties properties = columnPropertiesMap.get(entry.getKey());
+                String filterName = (String) properties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+                String type = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
+                filterConfig.setName(filterName);
+                List<String> filterValues = entry.getValue();
+                List<InitialParamConfig> paramConfigs = new ArrayList<>();
+                for (int i = 0; i < filterValues.size(); i++) {
+                    String s =  filterValues.get(i);
+                    InitialParamConfig paramConfig = new InitialParamConfig();
+                    paramConfig.setName(i);
+                    paramConfig.setType(type);
+                    paramConfig.setValue(s);
+                    paramConfigs.add(paramConfig);
+
+                }
+                filterConfig.setParamConfigs(paramConfigs);
+                initialFilterList.add(filterConfig);
+            }
+        }
+        return initialFiltersConfig;
+    }
 
 }

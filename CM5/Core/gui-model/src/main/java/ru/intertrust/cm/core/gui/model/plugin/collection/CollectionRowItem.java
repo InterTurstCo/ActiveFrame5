@@ -4,21 +4,27 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class  CollectionRowItem implements Dto{
+public class CollectionRowItem implements Dto{
+    public enum RowType{
+        DATA, FILTER, BUTTON;
+    }
     private Id id;
-    private  HashMap<String, Value> row;
+    private HashMap<String, Value> row;
+    private Map<String, List<String>> filters;
     private boolean expanded;
     private boolean expandable;
-    private List<CollectionRowItem> collectionRowItems;
+
+    private Id parentId;
+    private RowType rowType;
     public CollectionRowItem() {
     }
 
@@ -33,6 +39,36 @@ public class  CollectionRowItem implements Dto{
     public String getStringValue(String key) {
         Value value = row.get(key);
         return value == null || value.get() == null ? "" : value.toString();
+    }
+
+    public void setFilters(Map<String, List<String>> filters) {
+        this.filters = filters;
+    }
+
+    public void putFilterValues(String field, List<String> value){
+        if(filters == null){
+            filters = new HashMap<>();
+        }
+        filters.put(field, value);
+    }
+
+    public String getFilterValue(String field){
+        StringBuilder sb = new StringBuilder();
+        if(filters != null){
+        List<String> filterValues = filters.get(field);
+
+        if(filters != null){
+            for (String filterValue : filterValues) {
+                sb.append(filterValue);
+                sb.append(" ");
+            }
+        }
+        }
+        return sb.toString();
+    }
+
+    public Map<String, List<String>> getFilters() {
+        return filters;
     }
 
     public Value getRowValue(String key) {
@@ -51,14 +87,6 @@ public class  CollectionRowItem implements Dto{
         return expanded;
     }
 
-    public List<CollectionRowItem> getCollectionRowItems() {
-        return collectionRowItems == null ? Collections.<CollectionRowItem>emptyList(): collectionRowItems;
-    }
-
-    public void setCollectionRowItems(List<CollectionRowItem> collectionRowItems) {
-        this.collectionRowItems = collectionRowItems;
-    }
-
     public void setExpanded(boolean expanded) {
         this.expanded = expanded;
     }
@@ -69,6 +97,22 @@ public class  CollectionRowItem implements Dto{
 
     public void setExpandable(boolean expandable) {
         this.expandable = expandable;
+    }
+
+    public RowType getRowType() {
+        return rowType;
+    }
+
+    public void setRowType(RowType rowType) {
+        this.rowType = rowType;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 
     @Override
@@ -85,6 +129,12 @@ public class  CollectionRowItem implements Dto{
         if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
+        if (parentId != null ? !parentId.equals(that.parentId) : that.parentId != null) {
+            return false;
+        }
+        if (rowType != null ? !rowType.equals(that.rowType) : that.rowType != null) {
+            return false;
+        }
 
         return true;
     }
@@ -92,6 +142,8 @@ public class  CollectionRowItem implements Dto{
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (parentId != null ? parentId.hashCode() : 0);
+        result = 31 * result + (rowType != null ? rowType.hashCode() : 0);
         return result;
     }
 

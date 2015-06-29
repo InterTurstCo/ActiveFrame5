@@ -37,8 +37,6 @@ import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.collection.RedrawCollectionRowEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.collection.RedrawCollectionRowEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -72,7 +70,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Date: 17/9/13
  *         Time: 12:05 PM
  */
-public class CollectionPluginView extends PluginView implements RedrawCollectionRowEventHandler {
+public class CollectionPluginView extends PluginView {
 
     private CollectionDataGrid tableBody;
     private List<CollectionRowItem> items;
@@ -96,6 +94,7 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
     private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
     private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
     private boolean filteredByUser;
+    private Map<Id, ExpandedRowState> rowStates = new HashMap<Id, ExpandedRowState>();
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -113,9 +112,13 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
         columnHeaderController.adjustColumnsWidth(tableWidth, tableBody);
     }
 
+    public CollectionDataGrid getTableBody() {
+        return tableBody;
+    }
+
     /*This method is invoked when splitter changes position and after initialization of BusinessUniverse
-        so we have to check if scroll is visible. If no load more rows
-     */
+            so we have to check if scroll is visible. If no load more rows
+         */
     public void fetchMoreItemsIfRequired() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             public void execute() {
@@ -385,7 +388,7 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
                         tableBody.redraw();
                     }
                 }));
-        handlerRegistrations.add(eventBus.addHandler(RedrawCollectionRowEvent.TYPE, this));
+
 
     }
 
@@ -619,8 +622,8 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
     }
 
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
-        final CollectionColumn<CollectionRowItem, Boolean> checkColumn =
-                new CollectionColumn<CollectionRowItem, Boolean>(new CheckboxCell(true, false)) {
+        final CollectionColumn<Boolean> checkColumn =
+                new CollectionColumn<Boolean>(new CheckboxCell(true, false)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
                         return getPluginData().getChosenIds().contains(object.getId());
@@ -903,45 +906,6 @@ public class CollectionPluginView extends PluginView implements RedrawCollection
         }
     }
 
-    @Override
-    public void redrawCollectionRow(RedrawCollectionRowEvent event) {
-        final CollectionRowItem parentRowItem = event.getRootRowItem();
-        final CollectionRowItem effectedRowItem = event.getEffectedRowItem();
-        boolean expanded = event.isExpanded();
-        effectedRowItem.setExpanded(expanded);
-        if (expanded) {
-            CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest();
-            collectionRowsRequest.setCollectionName(getPluginData().getCollectionName());
-            collectionRowsRequest.setColumnProperties(getPluginData().getDomainObjectFieldPropertiesMap());
-            collectionRowsRequest.setParentId(effectedRowItem.getId());
-            collectionRowsRequest.setLimit(5);
-            collectionRowsRequest.setOffset(0);
-            Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
-            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-                @Override
-                public void onFailure(Throwable caught) {
-                    GWT.log("something was going wrong while obtaining updated row");
-                    caught.printStackTrace();
-                }
-
-                @Override
-                public void onSuccess(Dto result) {
-                    CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
-                    List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
-                    effectedRowItem.setCollectionRowItems(collectionRowItems);
-                    int index = items.indexOf(parentRowItem);
-                    tableBody.redrawRow(index);
-                    tableBody.getRowElement(index).addClassName("collectionRowExpanded");
-
-                }
-            });
-        } else {
-            int index = items.indexOf(parentRowItem);
-            tableBody.redrawRow(index);
-            tableBody.getRowElement(index).removeClassName("collectionRowExpanded");
-        }
-        selectionModel.setSelected(parentRowItem, false);
-    }
 
     private class ScrollLazyLoadHandler implements ScrollHandler {
         private ScrollPanel scroll;

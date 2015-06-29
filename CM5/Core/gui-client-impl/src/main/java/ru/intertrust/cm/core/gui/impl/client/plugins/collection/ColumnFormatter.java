@@ -8,8 +8,8 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ControlExpandableCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.EditableTextCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
@@ -46,21 +46,21 @@ public class ColumnFormatter {
             String drillDownStyle = (String) columnProperties.getProperty(CollectionColumnProperties.DRILL_DOWN_STYLE);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            collectionColumn = new HierarchicalCollectionColumn(new HierarchicalCell(getCssStyleForText(textBreakStyle), drillDownStyle),
+            collectionColumn = new HierarchicalCollectionColumn(new HierarchicalCell(getCssStyleForText(textBreakStyle), drillDownStyle, field),
                     field, resizable, converter, childCollectionsConfig, eventBus);
         } else if(expandable){
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            ControlExpandableCell expandableCell = new ControlExpandableCell(field, getCssStyleForText(textBreakStyle), converter);
+            ControlExpandableCell expandableCell = new ControlExpandableCell(getCssStyleForText(textBreakStyle), field);
             collectionColumn = new ExpandableColumn(expandableCell, field, resizable, converter, eventBus);
         }
         else {
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            TextCell textCell = new TextCell(field, getCssStyleForText(textBreakStyle), converter);
-            collectionColumn = new TextCollectionColumn(textCell, field, resizable, converter);
+            EditableTextCell textCell = new EditableTextCell(getCssStyleForText(textBreakStyle), field);
+            collectionColumn = new TextCollectionColumn(textCell, field, eventBus,resizable, converter);
         }
         setColumnWidthProperties(collectionColumn, columnProperties);
         String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);

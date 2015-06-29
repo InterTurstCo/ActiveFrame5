@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view;
 
-import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 
@@ -12,12 +11,11 @@ import java.util.Set;
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
-public class HierarchicalCell extends AbstractCell<String> {
-    private String style;
+public class HierarchicalCell extends AbstractTextCell {
     private String drillDownStyle;
 
-    public HierarchicalCell(String style, String drillDownStyle) {
-        this.style = style;
+    public HierarchicalCell(String style, String drillDownStyle, String field) {
+        super(style, field);
         this.drillDownStyle = drillDownStyle;
     }
 

@@ -21,13 +21,11 @@ import java.util.List;
 public class HierarchicalCollectionColumn extends TextCollectionColumn {
 
     private final List<ChildCollectionViewerConfig> childCollectionViewerConfigs;
-    private final EventBus eventBus;
 
     public HierarchicalCollectionColumn(HierarchicalCell cell, String fieldName, Boolean resizable, ValueConverter converter,
                                         List<ChildCollectionViewerConfig> childCollectionViewerConfigs, EventBus eventBus) {
-        super(cell, fieldName, resizable, converter);
+        super(cell, fieldName, eventBus, resizable, converter);
         this.childCollectionViewerConfigs = childCollectionViewerConfigs;
-        this.eventBus = eventBus;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
@@ -23,8 +24,8 @@ public class TextCollectionColumn extends CollectionParameterizedColumn {
 
     }
 
-    public TextCollectionColumn(AbstractCell cell, String fieldName, Boolean resizable, ValueConverter converter) {
-        super(cell, fieldName, resizable);
+    public TextCollectionColumn(AbstractCell cell, String fieldName, EventBus eventBus, boolean resizable, ValueConverter converter) {
+        super(cell, fieldName, eventBus, resizable);
         this.converter = converter;
     }
 
