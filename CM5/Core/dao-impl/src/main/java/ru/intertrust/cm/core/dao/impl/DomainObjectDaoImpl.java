@@ -168,6 +168,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
 
         GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification);
+        domainObjectCacheService.putOnUpdate(result[0], accessToken);
 
         permissionService.notifyDomainObjectChangeStatus(domainObject);
         dynamicGroupService.notifyDomainObjectChanged(domainObject, fieldModification[0], beforeSaveInvalicContexts);
