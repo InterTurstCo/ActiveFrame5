@@ -172,16 +172,16 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(),
                     fieldConfig.getName(), false);
 
-            if (oldFieldConfig == null) {
-                ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
-                if (columnInfo == null) {
-                    newFieldConfigs.add(fieldConfig);
-                } else {
+            ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
+            if (columnInfo == null) {
+                newFieldConfigs.add(fieldConfig);
+            } else {
+                if (oldFieldConfig == null) {
                     fieldConfigDbValidator.validate(fieldConfig, domainObjectTypeConfig, columnInfo);
+                } else if (!fieldConfig.equals(oldFieldConfig) &&
+                        !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
+                    fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
                 }
-            } else if (!fieldConfig.equals(oldFieldConfig) &&
-                    !configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
-                fieldConfigChangeHandler.handle(fieldConfig, oldFieldConfig, domainObjectTypeConfig, configurationExplorer);
             }
         }
 

@@ -647,11 +647,11 @@ public abstract class BasicQueryHelper {
         return query.toString();
     }
 
-    public String generateDeleteColumnQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+    public String generateDeleteColumnQuery(DomainObjectTypeConfig config, String fieldName) {
         StringBuilder query = new StringBuilder();
 
         query.append("alter table ").append(wrap(getSqlName(config))).append(" drop column ").
-                append(wrap(getSqlName(fieldConfig)));
+                append(wrap(getSqlName(fieldName)));
 
         return query.toString();
     }
