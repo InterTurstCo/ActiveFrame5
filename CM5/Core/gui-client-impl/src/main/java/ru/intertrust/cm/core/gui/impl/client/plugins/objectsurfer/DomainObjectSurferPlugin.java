@@ -5,7 +5,6 @@ import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -44,13 +43,13 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_I
 @ComponentName("domain.object.surfer.plugin")
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
         IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler,
-        HierarchicalCollectionEventHandler, OpenDomainObjectFormEventHandler, OpenHyperlinkInSurferEventHandler {
+        HierarchicalCollectionEventHandler, OpenDomainObjectFormEventHandler, OpenHyperlinkInSurferEventHandler,
+        DeleteCollectionRowEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
     // локальная шина событий
     private EventBus eventBus;
-    private HandlerRegistration globalOpenFormHandlerRegistration;
 
     /*
      * Конструктор плагина в котором
@@ -63,6 +62,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         eventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
         eventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
+        eventBus.addHandler(DeleteCollectionRowEvent.TYPE, this);
         Application.getInstance().addOpenDoInPluginHandlerRegistration(this);
     }
 
@@ -288,9 +288,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         super.clearHandlers();
         collectionPlugin.clearHandlers();
         formPlugin.clearHandlers();
-        if (globalOpenFormHandlerRegistration != null) {
-            globalOpenFormHandlerRegistration.removeHandler();
-        }
+
     }
 
     @Override
@@ -319,6 +317,29 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
             formPlugin.addPluginCloseListener(pluginCloseListener);
         }
         Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+    }
+
+    @Override
+    public void deleteCollectionRow(DeleteCollectionRowEvent event) {
+        CollectionPluginView cpView = (CollectionPluginView) collectionPlugin.getView();
+        cpView.delCollectionRow(event.getId());
+        List<Id> selected = cpView.getSelectedIds();
+        FormPluginConfig config;
+        if (selected.isEmpty()) {
+            final String domainObjectType = getRootDomainObject().getTypeName();
+            config = new FormPluginConfig(domainObjectType);
+        } else {
+            config = new FormPluginConfig(selected.get(0));
+        }
+        config.setPluginState(getFormPluginState());
+        config.setFormViewerConfig(getFormViewerConfig());
+        Plugin pluginToHandle = event.getPlugin();
+        if (event.getPlugin() instanceof FormPlugin) {
+            pluginToHandle.getOwner().closeCurrentPlugin();
+
+        }
+        replaceForm(config);
+
     }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {

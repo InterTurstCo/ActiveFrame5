@@ -94,7 +94,6 @@ public class CollectionPluginView extends PluginView {
     private List<IsWidget> breadcrumbWidgets = new ArrayList<>();
     private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
     private boolean filteredByUser;
-    private Map<Id, ExpandedRowState> rowStates = new HashMap<Id, ExpandedRowState>();
 
     protected CollectionPluginView(CollectionPlugin plugin) {
         super(plugin);
@@ -262,14 +261,6 @@ public class CollectionPluginView extends PluginView {
             }
         }));
 
-        // обработчик удаления элемента коллекции (строки в таблице)
-        handlerRegistrations.add(eventBus.addHandler(DeleteCollectionRowEvent.TYPE, new
-                DeleteCollectionRowEventHandler() {
-                    @Override
-                    public void deleteCollectionRow(DeleteCollectionRowEvent event) {
-                        delCollectionRow(event.getId());
-                    }
-                }));
         final ScrollPanel scroll = tableBody.getScrollPanel();
         tableBody.addColumnSortHandler(new ColumnSortEvent.Handler() {
             @Override
@@ -489,7 +480,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     // метод для удаления из коллекции
-    private void delCollectionRow(Id collectionObject) {
+    public void delCollectionRow(Id collectionObject) {
         if (items.isEmpty()) {
             return;  // если в коллекции не было элементов операция удаления ни к чему не приводит
         }
