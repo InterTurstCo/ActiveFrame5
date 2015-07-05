@@ -56,9 +56,7 @@ public class ControlExpandableCell extends AbstractTextCell {
                 sb.append(SafeHtmlUtils.fromTrustedString("type=\"text\" tabindex=\"-1\"></input><div></div></div>"));
                 break;
             case BUTTON:
-                sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"collectionButtonCellWrapper\" >"));
-                sb.append(SafeHtmlUtils.fromTrustedString("<button class=\"moreItems"));
-                sb.append(SafeHtmlUtils.fromTrustedString("\">More</button>"));
+                renderButton(sb);
                 break;
         }
 

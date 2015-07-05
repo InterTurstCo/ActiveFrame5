@@ -108,6 +108,9 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/help.png")
     ImageResource helpIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/dot.png")
+    ImageResource dotIm();
+
     @Source("common.css")
     public CommonCssResource commonCss();
 }

@@ -309,4 +309,5 @@ public class LocalizationKeys {
     public static final String FORMAT_YEAR_QUARTER_SHORT_KEY = "FormatYearQuarterShort";
 
     public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
+    public static final String MORE_ITEMS_KEY = "MoreItems";
 }

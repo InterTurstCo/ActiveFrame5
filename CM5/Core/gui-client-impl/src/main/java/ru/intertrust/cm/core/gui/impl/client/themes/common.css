@@ -344,3 +344,8 @@
     height: 20px;
     gwt-image: 'leftBottomResizeAreaIm';
 }
+@sprite .dotIm {
+    width: 100%;
+    background-repeat: repeat-x;
+    gwt-image: "dotIm";
+}

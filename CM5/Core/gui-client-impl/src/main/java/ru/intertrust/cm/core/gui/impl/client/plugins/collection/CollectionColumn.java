@@ -119,7 +119,7 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem,true));
             }else if(element.getClassName().startsWith("collapseSign")){
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, false));
-            }else if(element.getClassName().startsWith("moreItems")){
+            }else if(element.getClassName().startsWith("collectionButtonCellWrapper")){
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
             }
         }else if(BrowserEvents.KEYDOWN.equalsIgnoreCase(type) && KeyCodes.KEY_ENTER == keyCode && element.getClassName()
@@ -128,7 +128,6 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
             rowItem.putFilterValues("name", Arrays.asList(text));
             eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
         }
-        //  makeEventHandled(event);
 
     }
     private InputElement getInputElement(Element parent) {

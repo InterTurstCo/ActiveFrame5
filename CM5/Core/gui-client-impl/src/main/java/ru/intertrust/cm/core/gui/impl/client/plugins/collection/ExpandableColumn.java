@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ControlExpandableCell;
@@ -31,9 +30,4 @@ public class ExpandableColumn extends CollectionParameterizedColumn {
         this.converter = converter;
     }
 
-
-    private void makeEventHandled(NativeEvent event){
-        event.stopPropagation();
-        event.preventDefault();
-    }
 }

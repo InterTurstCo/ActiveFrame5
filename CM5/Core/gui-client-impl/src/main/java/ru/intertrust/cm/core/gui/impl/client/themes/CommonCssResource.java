@@ -81,4 +81,6 @@ public interface CommonCssResource extends CssResource {
 
     @ClassName("leftBottomResizeCursorArea")
     String leftBottomResizeCursorArea();
+
+    String dotIm();
 }
