@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DecoratedDateTimeBox;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormatInfoImpl;
 import ru.intertrust.cm.core.gui.impl.client.validation.DateRangeValidator;
 import ru.intertrust.cm.core.gui.impl.client.validation.DateValidator;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -46,9 +48,9 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
             dateBoxDecorate.setValue(dbState);
         } else {
             if (dbState.getDateTimeContext().getDateTime() != null) {
-                final Date date = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN)
+                final Date date = PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN)
                         .parse(dbState.getDateTimeContext().getDateTime());
-                final DateTimeFormat formatter = DateTimeFormat.getFormat(dbState.getPattern());
+                final DateTimeFormat formatter = PlatformDateTimeFormat.getDateTimeFormat(dbState.getPattern(), new PlatformDateTimeFormatInfoImpl());
                 final StringBuilder textBuilder = new StringBuilder(formatter.format(date));
                 if (dbState.isDisplayTimeZoneChoice()
                         && dbState.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE
@@ -67,9 +69,9 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
         if (state.getDateTimeContext() != null) {
             String dateTime = state.getDateTimeContext().getDateTime();
             if (dateTime != null) {
-                final DateTimeFormat dtoDateTimeFormat = DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN);
+                final DateTimeFormat dtoDateTimeFormat = PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN);
                 final Date initDate = dtoDateTimeFormat.parse(state.getDateTimeContext().getDateTime());
-                final DateTimeFormat stateDateTimeFormat = DateTimeFormat.getFormat(state.getPattern());
+                final DateTimeFormat stateDateTimeFormat = PlatformDateTimeFormat.getFormat(state.getPattern());
                 final Date clientDate = stateDateTimeFormat.parse(stateDateTimeFormat.format(initDate));
                 initValue = dtoDateTimeFormat.format(clientDate);
             }

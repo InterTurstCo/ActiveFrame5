@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DatePickerPopup;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -18,11 +19,7 @@ import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.DATE_FORMAT_ERROR_KEY;
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.WRONG_DATE_FORMAT_ERROR_MESSAGE_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DATE_FORMAT_ERROR;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EMPTY_VALUE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_CLEAR_BUTTON_ID_PART;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.HEADER_OPEN_DATE_PICKER_BUTTON_ID_PART;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.WRONG_DATE_FORMAT_ERROR_MESSAGE;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -79,18 +76,18 @@ public abstract class DateFilterHeaderWidget extends FilterHeaderWidget {
             return null;
         }
         if (timePattern == null) {
-            return DateTimeFormat.getFormat(datePattern);
+            return PlatformDateTimeFormat.getFormat(datePattern);
         }
         StringBuilder patternBuilder = new StringBuilder(datePattern);
         patternBuilder.append(" ");
         patternBuilder.append(timePattern);
-        return DateTimeFormat.getFormat(patternBuilder.toString());
+        return PlatformDateTimeFormat.getFormat(patternBuilder.toString());
     }
 
     private DateTimeFormat initGuiDateTimeFormat() {
         return !FieldType.TIMELESSDATE.equals(FieldType.forTypeName(fieldType))
-                ? DateTimeFormat.getFormat(GuiConstants.DATE_TIME_FORMAT)
-                : DateTimeFormat.getFormat(GuiConstants.TIMELESS_DATE_FORMAT);
+                ? PlatformDateTimeFormat.getFormat(GuiConstants.DATE_TIME_FORMAT)
+                : PlatformDateTimeFormat.getFormat(GuiConstants.TIMELESS_DATE_FORMAT);
 
     }
 

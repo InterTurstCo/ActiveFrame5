@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.localization;
 
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.i18n.client.impl.cldr.DateTimeFormatInfoImpl;
 import com.google.gwt.user.datepicker.client.CalendarModel;
 
 /**
@@ -10,7 +9,7 @@ import com.google.gwt.user.datepicker.client.CalendarModel;
  *         Time: 17:52
  */
 public class PlatformCalendarModel extends CalendarModel {
-    private static DateTimeFormatInfoImpl dateTimeFormatInfo = new PlatformDateTimeFormatInfoImpl();
+
 
     public PlatformCalendarModel() {
 
@@ -21,7 +20,7 @@ public class PlatformCalendarModel extends CalendarModel {
      * @return the day of month formatter
      */
     protected DateTimeFormat getDayOfMonthFormatter() {
-        return PlatformDateTimeFormat.getDateTimeFormat("d", dateTimeFormatInfo);
+        return PlatformDateTimeFormat.getDateTimeFormat("d");
     }
 
     /**
@@ -30,7 +29,7 @@ public class PlatformCalendarModel extends CalendarModel {
      * @return the day of week formatter
      */
     protected DateTimeFormat getDayOfWeekFormatter() {
-        return PlatformDateTimeFormat.getDateTimeFormat("ccccc", dateTimeFormatInfo);
+        return PlatformDateTimeFormat.getDateTimeFormat("ccccc");
     }
 
     /**
@@ -39,7 +38,7 @@ public class PlatformCalendarModel extends CalendarModel {
      * @return the month and year formatter
      */
     protected DateTimeFormat getMonthAndYearFormatter() {
-        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_ABBR, dateTimeFormatInfo);
+        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_ABBR);
     }
 
     /**
@@ -48,7 +47,7 @@ public class PlatformCalendarModel extends CalendarModel {
      * @return the month formatter
      */
     protected DateTimeFormat getMonthFormatter() {
-        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.MONTH_ABBR, dateTimeFormatInfo);
+        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.MONTH_ABBR);
     }
 
     /**
@@ -57,6 +56,6 @@ public class PlatformCalendarModel extends CalendarModel {
      * @return the year formatter
      */
     protected DateTimeFormat getYearFormatter() {
-        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.YEAR, dateTimeFormatInfo);
+        return PlatformDateTimeFormat.getDateTimeFormat(DateTimeFormat.PredefinedFormat.YEAR);
     }
 }

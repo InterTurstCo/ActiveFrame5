@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.validation;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
 import ru.intertrust.cm.core.gui.model.validation.RangeValidator;
 
 import java.util.Date;
@@ -26,7 +26,7 @@ public class DateRangeValidator extends RangeValidator<Date> {
             return null;
         }
         try {
-            return DateTimeFormat.getFormat(pattern).parse(s);
+            return PlatformDateTimeFormat.getFormat(pattern).parse(s);
         } catch (IllegalArgumentException e) {
             return null;
         }

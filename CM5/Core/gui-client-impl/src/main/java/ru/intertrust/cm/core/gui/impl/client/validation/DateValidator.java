@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.validation;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
 import ru.intertrust.cm.core.business.api.dto.Constraint;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
 import ru.intertrust.cm.core.gui.model.validation.CanBeValidated;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.gui.model.validation.Validator;
@@ -29,7 +29,7 @@ public class DateValidator implements Validator {
         if (canBeValidated != null && canBeValidated.getValue() instanceof String &&
                 !((String)canBeValidated.getValue()).isEmpty()) {
             try {
-                DateTimeFormat.getFormat(pattern).parse((String)canBeValidated.getValue());
+                PlatformDateTimeFormat.getFormat(pattern).parse((String)canBeValidated.getValue());
             } catch (IllegalArgumentException e) {
                 validationResult.addError("Неверный формат даты");
             }

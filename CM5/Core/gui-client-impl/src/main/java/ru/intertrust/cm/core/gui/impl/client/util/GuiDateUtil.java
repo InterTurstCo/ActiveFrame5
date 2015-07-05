@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import com.google.gwt.i18n.client.DateTimeFormat;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
 
 import java.util.Date;
 
@@ -26,6 +26,6 @@ public class GuiDateUtil {
     }
 
     public static String getClientTimeZoneId() {
-        return DateTimeFormat.getFormat("ZZZZ").format(new Date());
+        return PlatformDateTimeFormat.getFormat("ZZZZ").format(new Date());
     }
 }
