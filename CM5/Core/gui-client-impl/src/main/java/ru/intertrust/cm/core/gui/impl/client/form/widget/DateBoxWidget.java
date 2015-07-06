@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelec
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.datebox.DecoratedDateTimeBox;
 import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
-import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormatInfoImpl;
 import ru.intertrust.cm.core.gui.impl.client.validation.DateRangeValidator;
 import ru.intertrust.cm.core.gui.impl.client.validation.DateValidator;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -50,7 +49,7 @@ public class DateBoxWidget extends BaseWidget implements FormRangeDateSelectedEv
             if (dbState.getDateTimeContext().getDateTime() != null) {
                 final Date date = PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN)
                         .parse(dbState.getDateTimeContext().getDateTime());
-                final DateTimeFormat formatter = PlatformDateTimeFormat.getDateTimeFormat(dbState.getPattern(), new PlatformDateTimeFormatInfoImpl());
+                final DateTimeFormat formatter = PlatformDateTimeFormat.getDateTimeFormat(dbState.getPattern());
                 final StringBuilder textBuilder = new StringBuilder(formatter.format(date));
                 if (dbState.isDisplayTimeZoneChoice()
                         && dbState.getDateTimeContext().getOrdinalFieldType() == FieldType.DATETIMEWITHTIMEZONE
