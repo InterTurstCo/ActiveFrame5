@@ -700,6 +700,8 @@ public class CollectionPluginView extends PluginView {
     }
 
     public void insertRows(List<CollectionRowItem> list) {
+        items.clear();
+        items.addAll(list);
         tableBody.setRowData(list);
         listCount = items.size();
 
