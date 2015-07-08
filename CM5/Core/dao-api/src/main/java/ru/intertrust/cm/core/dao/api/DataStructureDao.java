@@ -41,7 +41,7 @@ public interface DataStructureDao {
      * @param config конфигурация доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
      */
-    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isParent);
+    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isAl, boolean isParent);
 
     /**
      * Создает новые индексы для доменного объекта

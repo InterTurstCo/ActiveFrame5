@@ -139,8 +139,7 @@ abstract class AbstractRecursiveConfigurationLoader {
     protected boolean isParentObject(DomainObjectTypeConfig config) {
         boolean isParent = false;
         if (configurationExplorer.isAuditLogType(config.getName())) {
-            String parentDomainObjectName = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
-            DomainObjectTypeConfig parentObjectConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentDomainObjectName);
+            DomainObjectTypeConfig parentObjectConfig = getSourceDomainObjectType(config);
             if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null && (!parentObjectConfig.isTemplate())) {
                 isParent = false;
             } else {
@@ -151,6 +150,15 @@ abstract class AbstractRecursiveConfigurationLoader {
             isParent = config.getExtendsAttribute() == null;
         }
         return isParent;
+    }
+
+    protected DomainObjectTypeConfig getSourceDomainObjectType(DomainObjectTypeConfig config) {
+        if (!configurationExplorer.isAuditLogType(config.getName())) {
+            return null;
+        }
+
+        String name = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        return configurationExplorer.getDomainObjectTypeConfig(name);
     }
 
     private boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {

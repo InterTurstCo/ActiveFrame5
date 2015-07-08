@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfoConverter;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
@@ -133,7 +134,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
             if (!newFieldConfigs.isEmpty()) {
                 boolean isParent = isParentObject(domainObjectTypeConfig);
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false, isParent);
                 setSchemaUpdateDone();
             }
         }
@@ -153,7 +154,24 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
     private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                           DomainObjectTypeConfig oldDomainObjectTypeConfig) {
-        Integer usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
+        boolean isAl = configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName());
+        boolean isParent = isParentObject(domainObjectTypeConfig);
+        DomainObjectTypeConfig sourceDomainObjectTypeConfig = null;
+
+        Integer usedId;
+
+        if (isAl) {
+            sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig);
+            usedId = domainObjectTypeIdDao.findIdByName(sourceDomainObjectTypeConfig.getName());
+        } else {
+            usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
+        }
+
+        if (usedId == null) {
+            throw new FatalException("Cannot update domain object type " + domainObjectTypeConfig.getName() +
+                    " because it's not found in domain_object_type_id table");
+        }
+
         domainObjectTypeConfig.setId(usedId);
 
         processDependentConfigs(domainObjectTypeConfig);
@@ -167,6 +185,23 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
         }
 
         List<FieldConfig> newFieldConfigs = new ArrayList<>();
+
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
+            ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
+            if (columnInfo == null) {
+                newFieldConfigs.add(fieldConfig);
+            }
+        }
+
+        if (isParent) {
+            ReferenceFieldConfig accessObjectIdConfig = new ReferenceFieldConfig();
+            accessObjectIdConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);
+
+            ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, accessObjectIdConfig);
+            if (columnInfo == null) {
+                newFieldConfigs.add(accessObjectIdConfig);
+            }
+        }
 
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             FieldConfig oldFieldConfig = oldConfigExplorer.getFieldConfig(domainObjectTypeConfig.getName(),
@@ -186,8 +221,11 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
         }
 
         if (!newFieldConfigs.isEmpty()) {
-            boolean isParent = isParentObject(domainObjectTypeConfig);
-            dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, isParent);
+            if (isAl) {
+                dataStructureDao.updateTableStructure(sourceDomainObjectTypeConfig, newFieldConfigs, true, isParent);
+            } else {
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false, isParent);
+            }
             setSchemaUpdateDone();
         }
 
