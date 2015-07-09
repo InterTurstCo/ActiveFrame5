@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.business.impl.search;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -393,8 +392,10 @@ public class SearchConfigHelper {
         }
         throw new IllegalStateException("Wrong filter configuration");
     }
-
+/*
     public static class FieldDataType {
+        public static final FieldDataType UNKNOWN = new FieldDataType(null);
+
         private FieldType dataType;
         private boolean multivalued = false;
 
@@ -432,7 +433,7 @@ public class SearchConfigHelper {
             return 529 * dataType.hashCode() + (multivalued ? 31 : 887);
         }
     }
-
+*/
     /**
      * Определяет тип данных индексируемого поля, определённого в конфигурации области поиска.
      * 
@@ -441,7 +442,7 @@ public class SearchConfigHelper {
      * @return тип данных, хранимых в индексируемом поле
      * @throws IllegalArgumentException если конфигурация ссылается на несуществующее поле
      */
-    public FieldDataType getFieldType(IndexedFieldConfig config, String objectType) {
+    public SearchFieldType getFieldType(IndexedFieldConfig config, String objectType) {
         if (config.getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(config.getDoel());
             DoelValidator.DoelTypes analyzed = DoelValidator.validateTypes(expr, objectType);
@@ -450,45 +451,26 @@ public class SearchConfigHelper {
                 return null;
             }
             Set<FieldType> types = analyzed.getResultTypes();
-            return new FieldDataType(types.size() == 1 ? types.iterator().next() : FieldType.STRING,
+            return SearchFieldType.getFieldType(types.size() == 1 ? types.iterator().next() : FieldType.STRING,
                     !analyzed.isSingleResult());
+        } else if (config.getScript() != null) {
+            return null;
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(),
                     config.getName().toLowerCase());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }
-            return new FieldDataType(fieldConfig.getFieldType());
+            return SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
         }
     }
 
     /**
-     * 
-     * @param config конфигурация индексируемого поля
-     * @param objectType имя типа объекта, содержащего поле
-     * @param value значение вычисляемого поля. По значению определяется тип вычисляемого поля.
-     * @return тип данных, хранимых в индексируемом поле
+     * Возвращает набор типов, использ
+     * @param name
+     * @param areas
+     * @return
      */
-    public FieldDataType getFieldType(IndexedFieldConfig config, String objectType, Object value) {
-        if (config.getScript() != null) {
-            return new FieldDataType(getValueType(value));
-        } else {
-            return getFieldType(config, objectType);
-        }
-    }
-
-    private FieldType getValueType(Object value) {
-        if(value instanceof Date){
-            return FieldType.DATETIME;
-        }else if(value instanceof Long){
-            return FieldType.LONG;  
-        }else if(value instanceof Number){
-            return FieldType.DECIMAL;
-        }else{
-            return FieldType.STRING;
-        }
-    }
-
     public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
         Set<SearchFieldType> types = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
@@ -505,8 +487,7 @@ public class SearchConfigHelper {
         for (IndexedDomainObjectConfig config : configs) {
             for (IndexedFieldConfig field : config.getFields()) {
                 if (fieldName.equalsIgnoreCase(field.getName())) {
-                    FieldDataType type = getFieldType(field, config.getType());
-                    types.add(SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued()));
+                    types.add(getFieldType(field, config.getType()));
                     break;      // No more fields with this name should be in this object config
                 }
             }
@@ -514,6 +495,13 @@ public class SearchConfigHelper {
         }
     }
 
+    /**
+     * Определяет, является ли доменный объект объектом вложения (содержит файл).
+     * 
+     * @param object доменный объект
+     * @return true если переданный объект является объектом вложения
+     * @throws NullPointerException если object==null
+     */
     public boolean isAttachmentObject(DomainObject object) {
         String type = object.getTypeName();
         return configurationExplorer.isAttachmentType(type);

@@ -28,6 +28,9 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
         for (SearchFieldType solrType : types) {
             //SearchFieldType solrType = SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued());
             Set<String> infixes = new HashSet<>();
+            if (solrType == null) {
+                solrType = SearchFieldType.TEXT;
+            }
             if (SearchFieldType.TEXT == solrType || SearchFieldType.TEXT_MULTI == solrType) {
                 for (String area : query.getAreas()) {
                     for (String langId : configHelper.getSupportedLanguages(field, area)) {

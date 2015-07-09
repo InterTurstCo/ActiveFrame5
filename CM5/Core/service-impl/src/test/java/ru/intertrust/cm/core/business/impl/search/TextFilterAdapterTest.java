@@ -94,6 +94,19 @@ public class TextFilterAdapterTest {
                 result);
     }
 
+    @Test
+    public void testCalculatedField() {
+        TextSearchFilter filter = new TextSearchFilter("TestField", "Test search");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.<SearchFieldType>singleton(null));
+
+        String result = adapter.getFilterString(filter, query);
+        assertEquals("cm_t_testfield:(Test search)", result);
+    }
+
     @Test(expected = SearchException.class)
     public void testUnpairedQuotes() {
         TextSearchFilter filter = new TextSearchFilter("TestField", "Three \"quotes\" in a \"string");

@@ -57,7 +57,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         Set<SearchFieldType> types = configHelper.getFieldTypes(name, areaNames);
         ArrayList<String> fields = new ArrayList<>(langIds.size());
         for (String langId : langIds) {
-            if (types.contains(SearchFieldType.TEXT)) {
+            if (types.contains(SearchFieldType.TEXT) || types.contains(null)) {
                 fields.add(makeSolrFieldName(name, langId, SearchFieldType.TEXT));
             }
             if (types.contains(SearchFieldType.TEXT_MULTI)) {

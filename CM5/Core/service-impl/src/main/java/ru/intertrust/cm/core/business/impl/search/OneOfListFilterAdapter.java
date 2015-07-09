@@ -26,6 +26,9 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
         }
 
         Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
+        if (types.contains(null)) {
+            types.add(SearchFieldType.REF);
+        }
         if (types.contains(SearchFieldType.REF)) {
             String single = makeSolrFieldFilter(filter.getFieldName(), SearchFieldType.REF, values);
             if (!types.contains(SearchFieldType.REF_MULTI)) {
