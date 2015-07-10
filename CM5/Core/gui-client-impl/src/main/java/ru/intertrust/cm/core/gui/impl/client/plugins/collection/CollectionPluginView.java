@@ -614,7 +614,7 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<Boolean> checkColumn =
-                new CollectionColumn<Boolean>(new CheckboxCell(true, false)) {
+                new CollectionColumn<Boolean>(new CheckboxCell(true, true)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
                         return getPluginData().getChosenIds().contains(object.getId());

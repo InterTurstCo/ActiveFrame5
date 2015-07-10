@@ -121,12 +121,17 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, false));
             }else if(element.getClassName().startsWith("collectionButtonCellWrapper")){
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
+            }else {
+                super.onBrowserEvent(context, target, rowItem, event);
             }
         }else if(BrowserEvents.KEYDOWN.equalsIgnoreCase(type) && KeyCodes.KEY_ENTER == keyCode && element.getClassName()
                 .startsWith("hierarchicalFilterInput")){
             String text = getInputElement(element).getValue();
             rowItem.putFilterValues("name", Arrays.asList(text));
             eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
+        }
+        else {
+            super.onBrowserEvent(context, target, rowItem, event);
         }
 
     }
