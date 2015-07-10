@@ -186,14 +186,14 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         List<FieldConfig> newFieldConfigs = new ArrayList<>();
 
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
-            ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
-            if (columnInfo == null) {
-                newFieldConfigs.add(fieldConfig);
-            }
-        }
-
         if (isParent) {
+            for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
+                ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
+                if (columnInfo == null) {
+                    newFieldConfigs.add(fieldConfig);
+                }
+            }
+
             ReferenceFieldConfig accessObjectIdConfig = new ReferenceFieldConfig();
             accessObjectIdConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);
 
