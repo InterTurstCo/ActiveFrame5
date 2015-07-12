@@ -18,7 +18,9 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowMoreItemsEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.builder.PlatformCellTableBuilder;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
@@ -43,6 +45,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
         setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<>(this, false));
+        setTableBuilder(new PlatformCellTableBuilder(this));
+
         addStyleName("collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
@@ -74,16 +78,23 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
-            if (event.getValue().isExpanded()
-                    || !CollectionRowItem.RowType.DATA.equals(event.getValue().getRowType())) {
-                getSelectionModel().setSelected(event.getValue(), false);
+            CollectionRowItem clickedItem = event.getValue();
+            if (clickedItem.isExpanded()
+                    || CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())) {
+                getSelectionModel().setSelected(clickedItem, false);
+
                 return;
             }
             final Id id = event.getValue().getId();
             int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
             switch (nativeEventType) {
                 case Event.ONCLICK:
+                    if(CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())){
+                        eventBus.fireEvent(new CollectionRowMoreItemsEvent(clickedItem));
+                        getSelectionModel().setSelected(clickedItem, false);
+                    }else{
                     handleClickEvent(id);
+                    }
                     break;
                 case Event.ONKEYDOWN:
                     handleKeyEvents(event);

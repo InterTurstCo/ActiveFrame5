@@ -3181,7 +3181,12 @@ a:active .icon.back {
 .collectionCellWrapper > div.notExpandable {
     margin-left: 18px;
 }
-
+.collectionButtonCellWrapper{
+    background: #e2e2e2;
+    font-size: 20px;
+    text-align: center;
+    padding-bottom: 5px;
+}
 .collectionButtonCellWrapper .moreItems {
     background: #4D90FD;
     border: none;

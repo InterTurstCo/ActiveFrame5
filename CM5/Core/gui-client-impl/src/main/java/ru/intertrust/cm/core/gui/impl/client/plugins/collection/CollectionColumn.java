@@ -6,6 +6,7 @@ import com.google.gwt.dom.client.*;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowFilteredEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
@@ -119,8 +120,6 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem,true));
             }else if(element.getClassName().startsWith("collapseSign")){
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, false));
-            }else if(element.getClassName().startsWith("collectionButtonCellWrapper")){
-                eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
             }else {
                 super.onBrowserEvent(context, target, rowItem, event);
             }
@@ -128,7 +127,7 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
                 .startsWith("hierarchicalFilterInput")){
             String text = getInputElement(element).getValue();
             rowItem.putFilterValues("name", Arrays.asList(text));
-            eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, true));
+            eventBus.fireEvent(new CollectionRowFilteredEvent(rowItem));
         }
         else {
             super.onBrowserEvent(context, target, rowItem, event);

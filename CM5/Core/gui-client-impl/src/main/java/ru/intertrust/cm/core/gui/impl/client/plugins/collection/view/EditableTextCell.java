@@ -18,15 +18,12 @@ public class EditableTextCell extends AbstractTextCell {
     @Override
     public void render(com.google.gwt.cell.client.Cell.Context context, String text, SafeHtmlBuilder sb) {
         CollectionRowItem item = (CollectionRowItem) context.getKey();
-        if(CollectionRowItem.RowType.BUTTON.equals(item.getRowType())){
-          renderButton(sb);
-        }else {
+
         sb.append(SafeHtmlUtils.fromTrustedString("<div "));
         addClassName(item, sb);
         sb.append(SafeHtmlUtils.fromTrustedString(style));
         sb.append(SafeHtmlUtils.fromTrustedString(">"));
         sb.append(SafeHtmlUtils.fromString(text));
-        }
         sb.append(SafeHtmlUtils.fromTrustedString("</div>"));
     }
 

@@ -41,4 +41,9 @@ public class ExpandedRowState implements Dto {
         this.filters = filters;
     }
 
+    public void resetOffset(){
+        offset = 0;
+
+    }
+
 }

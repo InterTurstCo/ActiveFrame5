@@ -55,9 +55,7 @@ public class ControlExpandableCell extends AbstractTextCell {
                 sb.append(SafeHtmlUtils.fromTrustedString("\" "));
                 sb.append(SafeHtmlUtils.fromTrustedString("type=\"text\" tabindex=\"-1\"></input><div></div></div>"));
                 break;
-            case BUTTON:
-                renderButton(sb);
-                break;
+
         }
 
 

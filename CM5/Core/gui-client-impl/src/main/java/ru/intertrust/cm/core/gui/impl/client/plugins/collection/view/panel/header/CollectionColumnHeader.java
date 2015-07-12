@@ -582,6 +582,6 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
     }
 
     private void columnMoved(int fromIndex, int toIndex) {
-        eventBus.fireEvent(new ComponentOrderChangedEvent(column, fromIndex, toIndex));
+        eventBus.fireEvent(new ComponentOrderChangedEvent(column, table.getColumn(toIndex)));
     }
 }

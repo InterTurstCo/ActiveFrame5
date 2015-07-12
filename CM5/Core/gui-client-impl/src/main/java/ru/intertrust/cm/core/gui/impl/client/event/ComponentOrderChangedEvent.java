@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.cellview.client.Column;
 
 /**
  * @author Sergey.Okolot
@@ -9,15 +10,23 @@ import com.google.gwt.event.shared.GwtEvent;
 public class ComponentOrderChangedEvent extends GwtEvent<ComponentOrderChangedHandler> {
     public static final Type<ComponentOrderChangedHandler> TYPE = new Type();
 
-    private final int fromOrder;
-    private final int toOrder;
-    private final Object component;
+    private int fromOrder;
+    private int toOrder;
+    private Object component;
 
+    private Column movedByUser;
+    private Column evicted;
 
+    @Deprecated //use ComponentOrderChangedEvent(Column movedByUser, Column evicted) instead
     public ComponentOrderChangedEvent(final Object component, final int fromOrder, final int toOrder) {
         this.fromOrder = fromOrder;
         this.toOrder = toOrder;
         this.component = component;
+    }
+
+    public ComponentOrderChangedEvent(Column movedByUser, Column evicted) {
+        this.movedByUser = movedByUser;
+        this.evicted = evicted;
     }
 
     public int getFromOrder() {
@@ -30,6 +39,14 @@ public class ComponentOrderChangedEvent extends GwtEvent<ComponentOrderChangedHa
 
     public Object getComponent() {
         return component;
+    }
+
+    public Column getMovedByUser() {
+        return movedByUser;
+    }
+
+    public Column getEvicted() {
+        return evicted;
     }
 
     @Override

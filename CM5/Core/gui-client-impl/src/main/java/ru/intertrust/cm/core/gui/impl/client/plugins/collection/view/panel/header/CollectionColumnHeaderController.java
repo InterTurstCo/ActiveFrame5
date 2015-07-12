@@ -4,6 +4,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -310,24 +311,44 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
     @Override
     public void handleEvent(ComponentOrderChangedEvent event) {
-        Object component = event.getComponent();
-        if (!(component instanceof CollectionColumn)) {
-            return;
-        }
-        int indexFrom = event.getFromOrder();
-        ColumnHeaderBlock columnHeader = columnHeaderBlocks.get(indexFrom);
-        int indexTo = event.getToOrder();
+        Column movedColumn = event.getMovedByUser();
+        Column evicted = event.getEvicted();
+        ColumnHeaderBlock columnHeader = findColumnHeaderBlock(movedColumn);
         columnHeaderBlocks.remove(columnHeader);
-        columnHeaderBlocks.add(indexTo, columnHeader);
-        CollectionColumn movedColumn = columnHeader.getColumn();
+        int listIndexTo = findColumnHeaderBlockIndex(evicted);
+        columnHeaderBlocks.add(listIndexTo, columnHeader);
         if (movedColumn instanceof CollectionParameterizedColumn) {
             saveFilterValues();
-            dataGrid.removeColumn(indexFrom);
-            dataGrid.insertColumn(indexTo, movedColumn, columnHeader.getHeader());
+            int gridIndexTo = dataGrid.getColumnIndex(event.getEvicted());
+            dataGrid.removeColumn(movedColumn);
+            dataGrid.insertColumn(gridIndexTo, movedColumn, columnHeader.getHeader());
             updateFilterValues();
 
         }
         updateOrderSettings();
+    }
+
+    private ColumnHeaderBlock findColumnHeaderBlock(Column column) {
+        ColumnHeaderBlock result = null;
+        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+            if(columnHeaderBlock.getColumn().equals(column)){
+                result = columnHeaderBlock;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private int findColumnHeaderBlockIndex(Column column) {
+        int result = 0;
+        for (int i = 0; i < columnHeaderBlocks.size(); i++) {
+            ColumnHeaderBlock columnHeaderBlock =  columnHeaderBlocks.get(i);
+            if(columnHeaderBlock.getColumn().equals(column)){
+                result = i;
+                break;
+            }
+        }
+        return result;
     }
 
     public void changeTableWidthByCondition() {

@@ -310,4 +310,5 @@ public class LocalizationKeys {
 
     public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
     public static final String MORE_ITEMS_KEY = "MoreItems";
+    public static final String NO_ITEMS_FETCHED = "NoItemsFetched";
 }

@@ -36,6 +36,7 @@ public class CollectionRowsRequest implements Dto {
     private TableBrowserParams tableBrowserParams;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
     private Id parentId;
+
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                   String simpleSearchQuery, String searchArea) {
         this.offset = offset;

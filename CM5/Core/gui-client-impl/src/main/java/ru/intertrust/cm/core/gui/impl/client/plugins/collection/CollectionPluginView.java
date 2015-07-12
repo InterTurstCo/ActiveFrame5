@@ -985,5 +985,6 @@ public class CollectionPluginView extends PluginView {
     public void resetBodyHeight() {
         tableBody.getScrollPanel().getParent().getElement().getStyle().clearHeight();
     }
+
 }
 
