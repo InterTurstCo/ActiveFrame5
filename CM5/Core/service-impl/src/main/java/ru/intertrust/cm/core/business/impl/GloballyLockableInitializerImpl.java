@@ -124,8 +124,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.execute(new LockUpdaterTask());
 
-            //  MessageResourceProvider.setLocaleToResource(localizer.load());
-
+            domainObjectTypeIdCache.build();
             configurationLoader.update();
             executeInitialLoadingTasks();
 

@@ -24,9 +24,6 @@ public class StatusServiceDaoTest extends BaseDaoTest {
     @BeforeClass
     public static void setUp2() throws Exception {
         statusDao = new StatusDaoImpl();
-        statusDao.setJdbcTemplate(namedParameterJdbcOperations);
-        statusDao.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
-        statusDao.setConfigurationExplorer(configurationExplorer);
     }
 
     @Test

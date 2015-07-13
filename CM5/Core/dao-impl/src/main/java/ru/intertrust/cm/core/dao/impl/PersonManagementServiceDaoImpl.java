@@ -1,21 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.api.DomainObjectCacheService.COLLECTION_CACHE_CATEGORY;
-import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
@@ -35,23 +32,7 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     private AccessControlService accessControlService;
 
     @Autowired
-    private EventLogService eventLogService;
-
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    @Autowired
-    private PersonManagementQueryHelper personManagementQueryHelper;
-
-    @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
-    @Qualifier("switchableNamedParameterJdbcTemplate")
-    private NamedParameterJdbcOperations jdbcTemplate;
-
-    @Autowired
-    private DomainObjectCacheService domainObjectCacheService;
+    private IdentifiableObjectConverter identifiableObjectConverter;
 
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
@@ -63,19 +44,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonsInGroup(Id groupId) {
-        List<DomainObject> personsInGroup =
-                domainObjectCacheService.getCollection(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
-        if (personsInGroup != null) {
-            return personsInGroup;
-        } else {
-            String typeName = "Person";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindPersonsInGroupQuery(typeName, accessToken);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-            personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
-            domainObjectCacheService.putCollectionOnRead(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP.toString());
-            return personsInGroup;
-        }
+        Filter filter = new Filter();
+        filter.setFilter("byGroup");
+        filter.addCriterion(0, new ReferenceValue(groupId));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("PersonInGroup",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     /**
@@ -83,19 +59,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getAllPersonsInGroup(Id groupId) {
-        List<DomainObject> personsInGroup =
-                domainObjectCacheService.getCollection(groupId, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
-        if (personsInGroup != null) {
-            return personsInGroup;
-        } else {
-            String typeName = "Person";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindAllPersonsInGroupQuery(typeName, accessToken);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-            personsInGroup = findMultipleDomainObjects(query, typeName, groupId, accessToken);
-            domainObjectCacheService.putCollectionOnRead(groupId, personsInGroup, COLLECTION_CACHE_CATEGORY.PERSON_IN_GROUP_AND_SUBGROUP.toString());
-            return personsInGroup;
-        }
+        Filter filter = new Filter();
+        filter.setFilter("byGroup");
+        filter.addCriterion(0, new ReferenceValue(groupId));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("AllPersonInGroup",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     /**
@@ -126,18 +97,14 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
      */
     @Override
     public List<DomainObject> getPersonGroups(Id personId) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-        List<DomainObject> personGroups = domainObjectCacheService.getCollection(personId, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
-        if (personGroups != null) {
-            return personGroups;
-        } else {
-            String typeName = "User_Group";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindPersonGroups(typeName, accessToken);
-            personGroups = findMultipleDomainObjects(query, typeName, personId, accessToken);
-            domainObjectCacheService.putCollectionOnRead(personId, personGroups, COLLECTION_CACHE_CATEGORY.GROUP_FOR_PERSON.toString());
-            return personGroups;
-        }
+        Filter filter = new Filter();
+        filter.setFilter("byPerson");
+        filter.addCriterion(0, new ReferenceValue(personId));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("PersonGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     /**
@@ -184,54 +151,46 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     /**
      * Получение всех родительских групп для группы. с учетом иерархии
+     *
+     *
      * @param parent
      *            Идентификатор родительской группы
      * @return
      */
     @Override
     public List<DomainObject> getAllParentGroup(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
-        if (personGroups != null) {
-            return personGroups;
-        } else {
-            String typeName = "User_Group";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindAllParentGroups(typeName, accessToken);
-            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
-            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_PARENT_GROUPS.toString());
-            return personGroups;
-        }
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+
+        Filter filter = new Filter();
+        filter.setFilter("allParentGroups");
+        filter.addCriterion(0, new ReferenceValue(parent));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("DynamicGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
-        if (personGroups != null) {
-            return personGroups;
-        } else {
-            String typeName = "User_Group";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindChildGroups(typeName, accessToken);
-            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
-            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.CHILD_GROUPS.toString());
-            return personGroups;
-        }
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+
+        Filter filter = new Filter();
+        filter.setFilter("byParent");
+        filter.addCriterion(0, new ReferenceValue(parent));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     @Override
     public List<DomainObject> getAllChildGroups(Id parent) {
-        List<DomainObject> personGroups = domainObjectCacheService.getCollection(parent, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
-        if (personGroups != null) {
-            return personGroups;
-        } else {
-            String typeName = "User_Group";
-            AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-            String query = personManagementQueryHelper.generateFindAllChildGroups(typeName, accessToken);
-            personGroups = findMultipleDomainObjects(query, typeName, parent, accessToken);
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-            domainObjectCacheService.putCollectionOnRead(parent, personGroups, COLLECTION_CACHE_CATEGORY.ALL_CHILD_GROUPS.toString());
-            return personGroups;
-        }
+        Filter filter = new Filter();
+        filter.setFilter("allChildGroups");
+        filter.addCriterion(0, new ReferenceValue(parent));
+
+        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("DynamicGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken));
     }
 
     @Override
@@ -356,52 +315,34 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     public void removeGroupMembers(Id groupId) {
         List<DomainObject> persons = getPersonsInGroup(groupId);
 
-        for (DomainObject person : persons) {
+        for (IdentifiableObject person : persons) {
             remotePersonFromGroup(groupId, person.getId());
         }
 
         List<DomainObject> groups = getChildGroups(groupId);
 
-        for (DomainObject group : groups) {
+        for (IdentifiableObject group : groups) {
             remoteGroupFromGroup(groupId, group.getId());
         }
     }
 
     @Override
-    public DomainObject findDynamicGroup(String name, Id contectId) {
-        String typeName = "User_Group";
+    public DomainObject findDynamicGroup(String name, Id connectId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
 
-        String query = personManagementQueryHelper.generateFindDynamicGroup(typeName, accessToken);
+        Filter filter = new Filter();
+        filter.setFilter("byObjectIdAndGroupName");
+        filter.addCriterion(0, new ReferenceValue(connectId));
+        filter.addCriterion(1, new StringValue(name));
 
-        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(contectId, accessToken);
-        parameters.put("name", name);
+        IdentifiableObjectCollection result = collectionsDao.findCollection("DynamicGroups",
+                Collections.singletonList(filter), null, 0, 0, accessToken);
 
-        DomainObject result = jdbcTemplate.query(query, parameters,
-                new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
-
-        if (result == null) {
+        if (result == null || result.size() == 0) {
             return null;
         }
 
-        domainObjectCacheService.putOnRead(result, accessToken);
-
-        eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-
-        return result;
-    }
-
-    private List<DomainObject> findMultipleDomainObjects(String query, String typeName, Id id, AccessToken accessToken) {
-        Map<String, Object> parameters = personManagementQueryHelper.initializeParameters(id, accessToken);
-
-        List<DomainObject> result = jdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
-
-        domainObjectCacheService.putAllOnRead(result, accessToken);
-
-        eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
-
-        return result;
+        return identifiableObjectConverter.convertToDomainObject(result.get(0));
     }
 
 }

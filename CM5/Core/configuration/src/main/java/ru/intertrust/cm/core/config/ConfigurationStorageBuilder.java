@@ -340,6 +340,10 @@ public class ConfigurationStorageBuilder {
     }
 
     public void updateAuditLogConfigs(DomainObjectTypeConfig oldConfig, DomainObjectTypeConfig newConfig) {
+        if (oldConfig != null && oldConfig.isTemplate()) {
+            return;
+        }
+
         if (oldConfig != null) {
             DomainObjectTypeConfig oldAuditLogConfig = createAuditLogConfig(oldConfig);
             removeTopLevelConfigFromMap(oldAuditLogConfig);
@@ -520,7 +524,7 @@ public class ConfigurationStorageBuilder {
     }
 
     private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        if (domainObjectTypeConfig == null) {
+        if (domainObjectTypeConfig == null || domainObjectTypeConfig.isTemplate()) {
             return;
         }
 

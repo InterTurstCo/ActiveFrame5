@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.Collection;
 
@@ -10,6 +12,9 @@ import java.util.Collection;
 * Designed as prototype, not thread-safe, instances are not reusable!!!
 */
 public class RecursiveConfigurationLoader extends AbstractRecursiveConfigurationLoader {
+
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     /**
      * Recursively loads configuration from {@code ConfigurationExplorer}
@@ -25,6 +30,8 @@ public class RecursiveConfigurationLoader extends AbstractRecursiveConfiguration
         }
 
         dataStructureDao.createServiceTables();
+        domainObjectTypeIdCache.build();
+
         processConfigs(configList);
         createAclTables(configList);
     }

@@ -687,7 +687,7 @@
 
         <prototype>
             <![CDATA[
-                select p.id
+                select p.*
                 from Person p
                 inner join group_member gm on (gm.person_id = p.id)
                 where 1=1 ::where-clause
@@ -707,7 +707,7 @@
 
         <prototype>
             <![CDATA[
-                select p.id
+                select p.*
                 from Person p
                 inner join group_member gm on (gm.person_id = p.id)
                 inner join group_group gg on (gg.child_group_id = gm.usergroup)
@@ -748,7 +748,7 @@
 
         <prototype>
             <![CDATA[
-                select ug.id
+                select ug.*
                 from User_Group ug
                 inner join group_group gg on (gg.parent_group_id = ug.id)
                 inner join group_member gm on (gg.child_group_id = gm.usergroup)
@@ -945,7 +945,7 @@
         <prototype>
             <![CDATA[
                 select
-                    g.id
+                    g.*
                 from
                     User_Group g
                     inner join group_group_settings gs on (g.id = gs.child_group_id)
@@ -1083,6 +1083,96 @@
                 ]]>
             </criteria>
         </filter>
+    </collection>
+
+    <collection name="ScheduleTasks" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    sch.*
+                from
+                    schedule sch join status st on sch.status = st.id
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="notInStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    st.name != {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    st.name = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="activeByStatus">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    st.name = {0} and sch.active = 1
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection name="DynamicGroups" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    ug.*
+                from
+                    User_Group ug ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byObjectIdAndGroupName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ug.object_id = {0} and ug.group_name = {1}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="allParentGroups">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    join group_group gg on gg.parent_group_id = ug.id
+                ]]>
+            </reference>
+
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gg.child_group_id = {0} and ug.id != {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="allChildGroups">
+            <reference placeholder="from-clause">
+                <![CDATA[
+                    join group_group gg on gg.child_group_id = ug.id
+                ]]>
+            </reference>
+
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    gg.parent_group_id = {0} and ug.id != {0}
+                ]]>
+            </criteria>
+        </filter>
+
     </collection>
 
 </configuration>

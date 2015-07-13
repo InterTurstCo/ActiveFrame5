@@ -411,8 +411,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                                 DynamicGroupTrackDomainObjectCollector.class,
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                                 false);
-                                // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
-                                ((DynamicGroupTrackDomainObjectCollector) collector).setMasterNamedParameterJdbcTemplate(masterNamedParameterJdbcTemplate);
                                 collector.init(config, collectorConfig);
                                 registerCollector(collector, config, configuration);
                             }

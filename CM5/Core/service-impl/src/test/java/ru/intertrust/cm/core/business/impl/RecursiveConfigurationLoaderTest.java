@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
@@ -22,6 +23,8 @@ public class RecursiveConfigurationLoaderTest {
     private RecursiveConfigurationLoader recursiveConfigurationLoader = new RecursiveConfigurationLoader();
     @Mock
     private DataStructureDao dataStructureDao;
+    @Mock
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private ConfigurationExplorerImpl configExplorer;
 

@@ -1,61 +1,23 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
-import ru.intertrust.cm.core.config.BasePermit;
-import ru.intertrust.cm.core.config.CollectorConfig;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ContextRoleConfig;
-import ru.intertrust.cm.core.config.CreateChildConfig;
-import ru.intertrust.cm.core.config.DeleteConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.ExecuteActionConfig;
-import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
-import ru.intertrust.cm.core.config.PermitGroup;
-import ru.intertrust.cm.core.config.PermitRole;
-import ru.intertrust.cm.core.config.ReadConfig;
-import ru.intertrust.cm.core.config.StaticGroupCollectorConfig;
-import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
-import ru.intertrust.cm.core.config.WriteConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
-import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -63,6 +25,16 @@ import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Реализация сервиса обновления списков доступа.
@@ -76,6 +48,17 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private TransactionSynchronizationRegistry txReg;
 
     private ApplicationContext applicationContext;
+
+    @Autowired
+    protected NamedParameterJdbcOperations masterNamedParameterJdbcTemplate; // Use for data modifying operations
+
+    @Autowired
+    protected NamedParameterJdbcOperations switchableNamedParameterJdbcTemplate; // User for read operations
+
+    public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
+        this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
+    }
+
 
     //Реестр коллекторов по отслеживаемому типу
     private Hashtable<String, List<ContextRoleRegisterItem>> collectors =
@@ -494,24 +477,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             index++;
         }
         masterNamedParameterJdbcTemplate.batchUpdate(query, parameters);
-    }
-    
-    private void deleteAclRecord(AccessType accessType, Id objectId, Id dynamicGroupId) {
-        RdbmsId rdbmsObjectId = (RdbmsId) objectId;
-        RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
-
-        String query = null;
-        if (accessType == DomainObjectAccessType.READ) {
-            query = generateDeleteAclReadRecordQuery(rdbmsObjectId);
-        } else {
-            query = generateDeleteAclRecordQuery(rdbmsObjectId);
-
-        }
-
-        Map<String, Object> parameters =
-                initializeDeleteAclRecordParameters(accessType, rdbmsObjectId, rdbmsDynamicGroupId);
-        masterNamedParameterJdbcTemplate.update(query, parameters);
-
     }
 
     private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {

@@ -77,9 +77,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private CurrentUserAccessor currentUserAccessor;
 
     @Autowired
-    private CollectionsDao collectionsDao;
-
-    @Autowired
     private UserTransactionService userTransactionService;
 
     @Autowired
@@ -1933,19 +1930,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private DomainObject getStatusByName(String statusName) {
-        String query = "select s.* from " + wrap(STATUS_DO) + " s where s." + wrap("name") + "=:name";
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("name", statusName);
-        DomainObject statusDO = switchableJdbcTemplate.query(query, paramMap,
-                new SingleObjectRowMapper(STATUS_DO, configurationExplorer,
-                        domainObjectTypeIdCache));
-        if (statusDO == null) {
-            throw new IllegalArgumentException("Status not found: "
-                    + statusName);
-        } else {
-            domainObjectCacheService.putOnRead(statusDO);
-        }
-        return statusDO;
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        Map<String, Value> uniqueKeyValuesByName = new HashMap<>();
+        uniqueKeyValuesByName.put("name", new StringValue(statusName));
+
+        return findByUniqueKey(STATUS_DO, uniqueKeyValuesByName, accessToken);
     }
 
     /**

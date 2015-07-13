@@ -10,15 +10,6 @@ import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
 public interface AuthenticationDao {
 
     /**
-     * Добавление пользователя в базу данных
-     * @param authenticationInfo {@link AuthenticationInfoAndRole}
-     * @return
-     */
-    int insertAuthenticationInfo(AuthenticationInfoAndRole authenticationInfo);
-
-
-
-    /**
      * Проверяет, существует ли пользователь с указанным логином.
      * @param login логин пользователя
      * @return true, если существует пользователь, false иначе

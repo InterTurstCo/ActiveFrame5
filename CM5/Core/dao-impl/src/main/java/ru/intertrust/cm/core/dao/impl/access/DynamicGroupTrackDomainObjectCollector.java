@@ -68,7 +68,7 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
                 DoelExpression expression = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
                 //Проверяем статус
                 if (trackDomainObjects.getStatus() != null) {
-                    String status = getStatusFor(domainObject.getId());
+                    String status = getStatusFor(domainObject);
                     if (trackDomainObjects.getStatus().equals(status)) {
                         AccessToken accessToken =
                                 accessControlService.createSystemAccessToken(this.getClass().getName());
@@ -85,7 +85,7 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
                 //bind контекст не указан, значит отслеживаемый объект и является контекстом
                 //Если указан статус то проверяем его, если нет то сразу добавляем текущий объект
                 if (trackDomainObjects.getStatus() != null) {
-                    String status = getStatusFor(domainObject.getId());
+                    String status = getStatusFor(domainObject);
                     if (trackDomainObjects.getStatus().equals(status)) {
                         result.add(domainObject.getId());
                     }

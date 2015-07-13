@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.Date;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.AuthenticationDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.AuthenticationInfoAndRole;
-import ru.intertrust.cm.core.dao.api.AuthenticationDao;
-
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Реализация DAO для работы с системным объектом AuthenticationInfo.
@@ -21,45 +20,25 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 public class AuthenticationDaoImpl implements AuthenticationDao {
 
     @Autowired
-    @Qualifier("masterNamedParameterJdbcTemplate")
-    private NamedParameterJdbcOperations masterJdbcTemplate; // Use for data modifying operations
+    private DomainObjectDao domainObjectDao;
 
     @Autowired
-    @Qualifier("switchableNamedParameterJdbcTemplate")
-    private NamedParameterJdbcOperations switchableJdbcTemplate; // User for read operations
-
-    /**
-     * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#insertAuthenticationInfo(ru.intertrust.cm.core.business.api.dto.AuthenticationInfo)
-     */
-    @Override
-    public int insertAuthenticationInfo(AuthenticationInfoAndRole authenticationInfo) {
-        String query = "insert into authentication_info (id, user_uid, created_date, updated_date, password) values (:id, :user_uid, :created_date, :updated_date, :password)";
-
-        Date currentDate = new Date();
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("id", authenticationInfo.getId());
-        paramMap.put("user_uid", authenticationInfo.getUserUid());
-        paramMap.put("password", authenticationInfo.getPassword());
-        paramMap.put("created_date", currentDate);
-        paramMap.put("updated_date", currentDate);
-
-
-        return masterJdbcTemplate.update(query, paramMap);
-    }
-
-
+    private AccessControlService accessControlService;
 
     /**
      * Смотри @see ru.intertrust.cm.core.dao.api.AuthenticationDao#existsAuthenticationInfo(java.lang.String)
      */
     @Override
     public boolean existsAuthenticationInfo(String userUid) {
-        String query = "select count(*) from " + wrap("authentication_info") + " ai where ai." + wrap("user_uid") + "=:user_uid";
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("user_uid", userUid);
-        @SuppressWarnings("deprecation")
-        int total = switchableJdbcTemplate.queryForInt(query, paramMap);
-        return total > 0;
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        Map<String, Value> uniqueKeyValuesByName = new HashMap<>();
+        uniqueKeyValuesByName.put("user_uid", new StringValue(userUid));
+
+        DomainObject authenticationInfo =
+                domainObjectDao.findByUniqueKey("authentication_info", uniqueKeyValuesByName, accessToken);
+
+        return authenticationInfo != null;
     }
 
 }

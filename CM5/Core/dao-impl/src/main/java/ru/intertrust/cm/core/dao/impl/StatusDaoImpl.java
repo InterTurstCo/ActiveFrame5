@@ -1,23 +1,19 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.dao.impl.utils.SingleObjectRowMapper;
-
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
 
 /**
  * Реализация сервиса работы со статусами.
@@ -29,30 +25,10 @@ public class StatusDaoImpl implements StatusDao {
     private Map<String, Id> statusNameToId = new HashMap<String, Id>();
 
     @Autowired
-    @Qualifier("switchableNamedParameterJdbcTemplate")
-    private NamedParameterJdbcOperations jdbcTemplate;
+    private AccessControlService accessControlService;
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
-
-    @Autowired
-    private DomainObjectTypeIdCache domainObjectTypeIdCache;
-
-    @Autowired
-    private DomainObjectCacheService domainObjectCacheService;
-
-    public void setJdbcTemplate(NamedParameterJdbcOperations jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
-    }
-
-    public void setDomainObjectTypeIdCache(DomainObjectTypeIdCache domainObjectTypeIdCache) {
-        this.domainObjectTypeIdCache = domainObjectTypeIdCache;
-    }
-
+    private DomainObjectDao domainObjectDao;
 
     @Override
     public Id getStatusIdByName(String statusName) {
@@ -68,17 +44,17 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     private Id readStatusIdByName(String statusName) {
-        String query = "select s.* from " + wrap(GenericDomainObject.STATUS_DO) + " s where s." + wrap("name") + "=:name";
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("name", statusName);
-        DomainObject statusDO = jdbcTemplate.query(query, paramMap,
-                new SingleObjectRowMapper(GenericDomainObject.STATUS_DO, configurationExplorer,
-                        domainObjectTypeIdCache));
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        Map<String, Value> uniqueKeyValuesByName = new HashMap<>();
+        uniqueKeyValuesByName.put("name", new StringValue(statusName));
+
+        DomainObject statusDO = domainObjectDao.findByUniqueKey(STATUS_DO, uniqueKeyValuesByName, accessToken);
+
         if (statusDO == null) {
             throw new IllegalArgumentException("Status not found: " + statusName);
-        } else {
-            domainObjectCacheService.putOnRead(statusDO);
         }
+
         return statusDO.getId();
     }
 
@@ -95,24 +71,17 @@ public class StatusDaoImpl implements StatusDao {
     }
 
     private String readStatusNameById(Id statusId) {
-        String query = "select s.* from " + wrap(GenericDomainObject.STATUS_DO) + " s where s." + wrap("id") + "=:id";
-        Map<String, Object> paramMap = new HashMap<String, Object>();
-
         if (statusId == null) {
             throw new IllegalArgumentException("StatusId is null");
         }
 
-        paramMap.put("id", ((RdbmsId) statusId).getId());
-        DomainObject statusDO = jdbcTemplate.query(query, paramMap,
-                new SingleObjectRowMapper(GenericDomainObject.STATUS_DO, configurationExplorer,
-                        domainObjectTypeIdCache));
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        DomainObject statusDO = domainObjectDao.find(statusId, accessToken);
 
         if (statusDO == null) {
-            throw new IllegalArgumentException("Status not found: "
-                    + statusId);
-        } else {
-            domainObjectCacheService.putOnRead(statusDO);
+            throw new IllegalArgumentException("Status not found: " + statusId);
         }
+
         return statusDO.getString("Name");
     }
 
