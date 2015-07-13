@@ -15,6 +15,8 @@ import ru.intertrust.cm.core.gui.impl.client.action.ToggleAction;
 import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.report.ReportPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.ActionContextComparator;
 import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
@@ -182,7 +184,8 @@ public abstract class PluginView implements IsWidget {
     }
 
     private void addExtraStyleClassIfRequired() {
-        if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin || plugin instanceof CalendarPlugin) {
+        if (plugin instanceof DomainObjectSurferPlugin || plugin instanceof ConfigurationDeployerPlugin
+                || plugin instanceof CalendarPlugin || plugin instanceof ReportPlugin || plugin instanceof ReportUploadPlugin) {
             Node node = viewWidget.getElement().getFirstChildElement().getLastChild();
             node.getFirstChild().getParentElement().addClassName("pluginExtraClass");
         }
