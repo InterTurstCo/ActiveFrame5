@@ -328,8 +328,10 @@ public class SqlLogger {
             String parameterWord = ":" + parameterName;
             prevIndex = 0;
 
-            while ((index = query.indexOf(parameterWord, prevIndex)) >= 0 && query.indexOf(parameterWord + DomainObjectDao.REFERENCE_TYPE_POSTFIX) != index) {
-                parametersPositionMap.put(index, parameterName);
+            while ((index = query.indexOf(parameterWord, prevIndex)) >= 0) {
+                if (query.indexOf(parameterWord + DomainObjectDao.REFERENCE_TYPE_POSTFIX, prevIndex) != index) {
+                    parametersPositionMap.put(index, parameterName);
+                }
                 prevIndex = index + 1;
             }
         }

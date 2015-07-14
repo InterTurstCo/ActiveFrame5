@@ -167,7 +167,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             collectionQueryCache.putCollectionQuery(collectionName, filterValues, sortOrder, offset, limit, accessToken, collectionQueryEntry);
         }
 
-        fillFilterParameters(filterValues, parameters);
+        fillFilterParameters(filterValues, parameters, false);
 
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
@@ -539,7 +539,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
 
         Map<String, Object> parameters = new HashMap<>();
-        fillFilterParameters(filterValues, parameters);
+        fillFilterParameters(filterValues, parameters, true);
 
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
@@ -614,7 +614,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     /**
      * Заполняет параметры. Имена параметров в формате имя_фильтра + ключ парметра, указанный в конфигурации.
      */
-    private void fillFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
+    private void fillFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters, boolean fillReferenceParams) {
         if (filterValues != null) {
             for (Filter filter : filterValues) {
                 for (Integer key : filter.getCriterionKeys()) {
@@ -629,7 +629,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 //                    if(!(filter instanceof IdsIncludedFilter) && !(filter instanceof IdsExcludedFilter) && criterion instanceof ReferenceValue){
 //                        continue;
 //                    }
-                    if (criterion instanceof Value) {
+                    if (criterion instanceof Value && (fillReferenceParams || !(criterion instanceof ReferenceValue))) {
                         setParameter(parameterName, (Value) criterion, parameters);
                     } else if (criterion instanceof List) {
                         List<Value> valuesList = (List) criterion;
