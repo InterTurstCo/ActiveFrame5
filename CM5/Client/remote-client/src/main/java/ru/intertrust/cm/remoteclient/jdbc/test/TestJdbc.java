@@ -71,20 +71,25 @@ public class TestJdbc extends ClientBase {
         resultset.close();
         prepareStatement.close();
         
-        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status, t.description ";
         query += "from Outgoing_Document t ";
-        query += "where (? is null or t.description = ?)";
+        query += "where (CAST(? AS VARCHAR) is null or t.description = ?)";
 
         prepareStatement =
                 connection.prepareStatement(query);
 
+        prepareStatement.setString(1, "xx");
+        prepareStatement.setString(2, "xx");
+        resultset = prepareStatement.executeQuery();
+        printResultSet(query, resultset);
+        resultset.close();
+        
         prepareStatement.setNull(1, Types.VARCHAR);
         prepareStatement.setNull(2, Types.VARCHAR);
         resultset = prepareStatement.executeQuery();
-
         printResultSet(query, resultset);
-        
         resultset.close();
+        
         prepareStatement.close();
         
 
@@ -123,6 +128,11 @@ public class TestJdbc extends ClientBase {
         document.setString("Name", "Outgoing_Document");
         document.setReference("Author", findDomainObject("person", "login", "person1"));
         document.setLong("Long_Field", 10L);
+        
+        //Случайным образом заполняем или не заполняем description
+        if ((System.currentTimeMillis() % 2) == 0){
+            document.setString("Description", "xx");
+        }
 
         document = crudService.save(document);
         return document;

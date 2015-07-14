@@ -233,7 +233,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public void clearParameters() throws SQLException {
         parameters.clear();
-
+        resetPartition();
     }
 
     @Override
@@ -444,6 +444,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     private void addParameter(int parameterIndex, Object value) throws SQLException {
         parameters.put(parameterIndex, value);
+        resetPartition();
     }
 
     @Override
