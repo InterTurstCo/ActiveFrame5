@@ -43,7 +43,7 @@ public class NodeCollectionDefConfig implements Dto, HasLinkedFormMappings {
     @Attribute(name = "display-create-button", required = false)
     private boolean displayCreateButton = true;
 
-    @Element(name = "selection-pattern", required = false)
+    @Element(name = "selection-pattern", required = true)
     private SelectionPatternConfig selectionPatternConfig;
 
     @Element(name = "input-text-filter", required = false)

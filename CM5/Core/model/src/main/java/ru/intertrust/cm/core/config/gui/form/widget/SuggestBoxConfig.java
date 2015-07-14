@@ -23,10 +23,10 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "drop-down-pattern", required = false)
+    @Element(name = "drop-down-pattern", required = true)
     private DropdownPatternConfig dropdownPatternConfig;
 
-    @Element(name = "selection-pattern", required = false)
+    @Element(name = "selection-pattern", required = true)
     private SelectionPatternConfig selectionPatternConfig;
 
     @Element(name = "input-text-filter", required = false)
