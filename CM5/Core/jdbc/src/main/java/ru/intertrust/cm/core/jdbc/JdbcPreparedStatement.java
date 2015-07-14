@@ -19,10 +19,12 @@ import java.sql.SQLException;
 import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
@@ -37,7 +39,8 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 public class JdbcPreparedStatement extends JdbcStatement implements PreparedStatement {
-    private Hashtable<Integer, Object> parameters = new Hashtable<Integer, Object>();
+    private Map<Integer, Object> parameters = new HashMap<Integer, Object>();
+    private Map<Integer, Integer> nullParameterType = new HashMap<Integer, Integer>();
     private String query;
 
     public JdbcPreparedStatement(SochiClient client, String query) {
@@ -67,11 +70,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private List<Value> getParams() {
         List<Value> result = new ArrayList<Value>();
 
-        int index = 1;
-        Object value = null;
-        while((value = parameters.get(index)) != null){
+        
+        for(int index = 1; index <= parameters.size(); index++){
             Value parameter = null;
-            if (value instanceof Integer) {
+            Object value = parameters.get(index);
+            if (value == null) {
+                parameter = getNullValue(index);
+            }else if (value instanceof Integer) {
                 parameter = new LongValue((Integer)value);
             } else if (value instanceof Long) {
                 parameter = new LongValue((Long)value);
@@ -97,9 +102,28 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
             } 
             
             result.add(parameter);            
-            index++;
         }
         
+        return result;
+    }
+
+    /**
+     * Получение значения null параметра с нужным типом
+     * @param index
+     * @return
+     */
+    private Value getNullValue(int index) {
+        Value result = null;
+        int type = nullParameterType.get(index);
+        if (type == Types.INTEGER){
+            result = new LongValue();
+        }else if (type == Types.BOOLEAN){
+            result = new BooleanValue();
+        }else if (type == Types.DATE || type == Types.TIMESTAMP || type == Types.TIME){
+            result = new DateTimeValue();
+        }else{
+            result = new StringValue();
+        }
         return result;
     }
 
@@ -110,13 +134,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNull(int parameterIndex, int sqlType) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        addParameter(parameterIndex, null);
+        nullParameterType.put(parameterIndex, sqlType);
     }
 
     @Override
     public void setBoolean(int parameterIndex, boolean value) throws SQLException {
-        parameters.put(parameterIndex, value);
+        addParameter(parameterIndex, value);
     }
 
     @Override
@@ -289,8 +313,8 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
 
     @Override
     public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        throw new UnsupportedOperationException();
-
+        addParameter(parameterIndex, null);
+        nullParameterType.put(parameterIndex, sqlType);
     }
 
     @Override
