@@ -302,8 +302,11 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public String getPersonLocale() {
         Profile profile = getPersonProfile();
-        if (profile != null && profile.getString(ProfileService.LOCALE) != null) {
-            return profile.getString(ProfileService.LOCALE);
+        if (profile != null) {
+            final String locale = profile.getString(ProfileService.LOCALE);
+            if (locale != null && MessageResourceProvider.getAvailableLocales().contains(locale)) {
+                return locale;
+            }
         }
         final DefaultLocaleConfig defaultLocaleConfig = configurationService.getGlobalSettings().getDefaultLocaleConfig();
         return defaultLocaleConfig != null ? defaultLocaleConfig.getName() : MessageResourceProvider.getDefaultLocale();
