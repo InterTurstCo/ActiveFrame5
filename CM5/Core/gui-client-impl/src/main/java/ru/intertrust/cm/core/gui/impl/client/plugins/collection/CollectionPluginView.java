@@ -415,11 +415,13 @@ public class CollectionPluginView extends PluginView {
     private void updateFilterConfig() {
         final CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
         final List<InitialFilterConfig> configs = new ArrayList<InitialFilterConfig>();
+        Map<String, CollectionColumnProperties> columnPropertiesMap = getPluginData().getDomainObjectFieldPropertiesMap();
         for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
             if (entry.getValue() != null && !entry.getValue().isEmpty()) {
                 final InitialFilterConfig initialFilterConfig = new InitialFilterConfig();
-                initialFilterConfig.setName((String) getPluginData().getDomainObjectFieldPropertiesMap()
-                        .get(entry.getKey()).getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY));
+                String filterName = (String) columnPropertiesMap
+                        .get(entry.getKey()).getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+                initialFilterConfig.setName(filterName);
                 final List<InitialParamConfig> paramConfigs = new ArrayList<InitialParamConfig>();
                 for (int index = 0; index < entry.getValue().size(); index++) {
                     final InitialParamConfig paramConfig = new InitialParamConfig();
@@ -427,9 +429,9 @@ public class CollectionPluginView extends PluginView {
                     final String paramValue = entry.getValue().get(index).trim();
                     if (!paramValue.isEmpty()) {
                         paramConfig.setValue(entry.getValue().get(index));
-                        paramConfig.setType((String) getPluginData().getDomainObjectFieldPropertiesMap()
+                        paramConfig.setType((String) columnPropertiesMap
                                 .get(entry.getKey()).getProperty(CollectionColumnProperties.TYPE_KEY));
-                        paramConfig.setTimeZoneId((String) getPluginData().getDomainObjectFieldPropertiesMap()
+                        paramConfig.setTimeZoneId((String) columnPropertiesMap
                                 .get(entry.getKey()).getProperty(CollectionColumnProperties.TIME_ZONE_ID));
                         paramConfigs.add(paramConfig);
                     }
@@ -442,7 +444,8 @@ public class CollectionPluginView extends PluginView {
         }
         List<InitialFilterConfig> previous = config.getInitialFiltersConfig() == null ? null
                 : config.getInitialFiltersConfig().getFilterConfigs();
-        List<InitialFilterConfig> mergedConfigs = CollectionDataGridUtils.mergeInitialFiltersConfigs(configs, previous);
+        List<InitialFilterConfig> mergedConfigs = CollectionDataGridUtils.mergeInitialFiltersConfigs(configs, previous,
+                columnPropertiesMap);
         if (mergedConfigs.isEmpty()) {
             config.setInitialFiltersConfig(null);
         } else {
