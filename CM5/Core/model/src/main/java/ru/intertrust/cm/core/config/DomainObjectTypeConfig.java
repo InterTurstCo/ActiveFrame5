@@ -3,7 +3,9 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Order;
 import org.simpleframework.xml.Root;
+
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -16,6 +18,7 @@ import java.util.List;
  *         Time: 8:50 PM
  */
 @Root(name = "domain-object-type")
+@Order(elements={"fields", "uniqueKey", "indices", "attachment-types"})
 public class DomainObjectTypeConfig implements TopLevelConfig {
 
     private Integer id;

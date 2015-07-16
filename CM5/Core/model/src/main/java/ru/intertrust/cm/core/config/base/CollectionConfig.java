@@ -1,12 +1,13 @@
 package ru.intertrust.cm.core.config.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Order;
 import org.simpleframework.xml.Root;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Java модель конфигурации одной коллекции
@@ -14,6 +15,7 @@ import java.util.List;
  *
  */
 @Root(name = "collection")
+@Order(elements={"prototype", "counting-prototype", "generator", "filter"})
 public class CollectionConfig implements TopLevelConfig {
 
     @Attribute(required = true)

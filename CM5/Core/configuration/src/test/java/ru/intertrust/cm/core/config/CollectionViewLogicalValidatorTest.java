@@ -16,6 +16,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH;
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 13/9/13
@@ -71,6 +72,7 @@ public class CollectionViewLogicalValidatorTest {
         result.getModuleList().add(conf);
         conf.setConfigurationPaths(new ArrayList<String>());
         conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
+        conf.getConfigurationPaths().add(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH);        
         conf.getConfigurationPaths().add(COLLECTION_XML_PATH);
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.getConfigurationPaths().add(configPath);

@@ -1,4 +1,4 @@
-<configuration>
+<configuration xmlns="https://cm5.intertrust.ru/config">
    <domain-object-type name="Outgoing_Document">
       <fields>
          <string name="Registration_Number" not-null="false" immutable="false" length="128"/>
@@ -14,7 +14,21 @@
       <uniqueKey>
          <field name="Registration_Number"/>
       </uniqueKey>
-      <indices/>
+      <indices>
+         <index type="btree">
+            <field name="Registration_Number"/>
+            <field name="Name"/>
+         </index>
+         <index>
+            <field name="Name"/>
+         </index>
+         <index>
+            <field name="Description"/>
+         </index>
+      </indices>
+      <attachment-types>
+         <attachment-type name="Outgoing_Document_Content"/>
+      </attachment-types>
    </domain-object-type>
    <domain-object-type name="Assignment">
       <fields>
@@ -167,9 +181,9 @@
       </filter>
    </collection>
    <collection name="Employees_2" idField="id" useClone="false">
+      <generator class-name="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
       <filter name="byName"/>
       <filter name="byDepartment"/>
-      <generator class-name="ru.intertrust.cm.core.business.impl.EmployeesCollectionRenderer"/>
    </collection>
    <global-settings>
       <product title="Платформа CM Сочи"/>
