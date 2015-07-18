@@ -176,7 +176,7 @@ public class CollectionPluginView extends PluginView {
         buildPanel();
         createTableColumns();
         applySelectionModel();
-        insertRows(items);
+        insertInitialRows();
 
         csvController = new CollectionCsvController(root);
 
@@ -706,6 +706,12 @@ public class CollectionPluginView extends PluginView {
         items.clear();
         items.addAll(list);
         tableBody.setRowData(list);
+        listCount = items.size();
+
+    }
+
+    private void insertInitialRows() {
+        tableBody.setRowData(items);
         listCount = items.size();
 
     }
