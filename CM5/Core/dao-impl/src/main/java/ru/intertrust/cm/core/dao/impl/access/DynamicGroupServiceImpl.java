@@ -25,6 +25,8 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -351,11 +353,11 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query =
-                "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId()
-                        + " and object_id_type = " +
-                        ((RdbmsId) domainObjectId).getTypeId();
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
+        String query = "select t.id from user_group t where object_id = {0}";
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(domainObjectId));
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
+        
         for (IdentifiableObject identifiableObject : collection) {
             domainObjectDao.delete(identifiableObject.getId(), accessToken);
         }
