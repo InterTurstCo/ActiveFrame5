@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
@@ -14,8 +13,6 @@ import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -33,9 +30,6 @@ import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 import ru.intertrust.cm.core.service.api.ReportDS;
 
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,7 +38,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.Future;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -146,11 +139,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             reportAttachment.setString("name", "report");
             
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
-            SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
+            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
 
-            RemoteInputStream remoteInputStream;
-            remoteInputStream = simpleRemoteInputStream.export();
-            attachmentService.saveAttachment(remoteInputStream, reportAttachment);
+            attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
 
             //Сохраняем параметры как вложение
             if (params != null){
@@ -159,10 +150,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
                 paramAttachment.setString("name", "params");
 
                 bis = new ByteArrayInputStream(getParametersAsByteArray(params));
-                simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
-    
-                remoteInputStream = simpleRemoteInputStream.export();
-                attachmentService.saveAttachment(remoteInputStream, paramAttachment);
+                directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+
+                attachmentService.saveAttachment(directRemoteInputStream, paramAttachment);
             }
         }
         return resultId;

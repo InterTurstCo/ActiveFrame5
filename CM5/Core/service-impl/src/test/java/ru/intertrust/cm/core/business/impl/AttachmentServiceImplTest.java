@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
@@ -330,10 +331,9 @@ public class AttachmentServiceImplTest {
         try {
             byte[] expBytes = {1, 2, 3, 4, 5, 6, 7, 8, 9};
             ByteArrayInputStream bis = new ByteArrayInputStream(expBytes);
-            SimpleRemoteInputStream stream = new SimpleRemoteInputStream(bis);
+            DirectRemoteInputStream stream = new DirectRemoteInputStream(bis, false);
             DomainObject domainObject = new GenericDomainObjectWrapper();
-            RemoteInputStream remoteInputStream = stream.export();
-            String path = stubAttachmentService.saveAttachment(remoteInputStream, domainObject);
+            String path = stubAttachmentService.saveAttachment(stream, domainObject);
             Assert.assertTrue(path != null);
             ByteArrayOutputStream actBytes = new ByteArrayOutputStream();
             Files.copy(Paths.get(absDirPath, path), actBytes);

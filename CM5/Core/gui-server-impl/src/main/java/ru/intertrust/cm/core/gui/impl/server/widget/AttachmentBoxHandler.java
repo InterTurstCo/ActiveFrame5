@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -135,7 +134,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             }
             File fileToSave = getTemporaryFile(attachmentItem);
             try (InputStream fileData = new FileInputStream(fileToSave);
-                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+                 DirectRemoteInputStream remoteFileData = new DirectRemoteInputStream(fileData, false)) {
                 DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject, attachmentType);
                 DomainObject savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
                 newObjects.add(savedDo);
@@ -173,7 +172,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     private DomainObject saveAttachment(DomainObject attachmentDomainObject, DomainObject parentDomainObject,
-                                        FieldPath fieldPath, RemoteInputStreamServer remoteFileData) {
+                                        FieldPath fieldPath, DirectRemoteInputStream remoteFileData) {
         DomainObject savedDo;
         if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
             String parentLinkFieldName = fieldPath.getLinkToParentName();

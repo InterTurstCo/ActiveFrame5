@@ -23,6 +23,8 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
+
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
@@ -112,11 +114,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                                 "report_template_attach");
                 attachment.setString("Name", file.getName());
                 ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
-                SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
+                DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
 
-                RemoteInputStream remoteInputStream;
-                remoteInputStream = simpleRemoteInputStream.export();
-                attachmentService.saveAttachment(remoteInputStream, attachment);
+                attachmentService.saveAttachment(directRemoteInputStream, attachment);
 
                 //Удаляем, больше нам не нужен
                 file.delete();
