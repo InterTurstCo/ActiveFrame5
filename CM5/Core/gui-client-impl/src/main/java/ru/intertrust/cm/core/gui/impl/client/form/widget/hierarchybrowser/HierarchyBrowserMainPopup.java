@@ -104,8 +104,8 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         VerticalPanel linksSection = new VerticalPanel();
         linksSection.addStyleName("hierarchyLinksSection");
         resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(linksAndNodesSection, null, NODE_VIEW_HEIGHT_FACTOR));
-        linksSection.setWidth(LINKS_SECTION_WIDTH_FACTOR * popupWidth + "px");
-        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(linksSection, LINKS_SECTION_WIDTH_FACTOR, null));
+//        linksSection.setWidth(LINKS_SECTION_WIDTH_FACTOR * popupWidth + "px");
+//        resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(linksSection, LINKS_SECTION_WIDTH_FACTOR, null));
         popupChosenContent = new HierarchyBrowserItemsView(selectionStyleConfig, eventBus, displayAsHyperlinks);
         popupChosenContent.setHeight(POPUP_CHOSEN_CONTENT_HEIGHT_FACTOR * popupHeight + "px");
         resizablePanel.addResizeListener(new HierarchyBrowserElementResizeListener(popupChosenContent, null, POPUP_CHOSEN_CONTENT_HEIGHT_FACTOR));
