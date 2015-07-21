@@ -45,8 +45,8 @@ public class HierarchyBrowserItemsView extends Composite implements HierarchyBro
     private void init(SelectionStyleConfig selectionStyleConfig){
         mainBoxPanel = new WidgetCollectionPanel();
         mainBoxPanel.setStyleName("hierarchyBrowserMainBox");
-        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
         mainBoxPanel.getElement().getStyle().clearOverflow();
+        displayStyle = DisplayStyleBuilder.getDisplayStyle(selectionStyleConfig);
 
         WidgetNavigator<HierarchyBrowserItemPanel> widgetNavigator =
                 new WidgetNavigatorImpl<HierarchyBrowserItemPanel>(mainBoxPanel.getChildren(),HierarchyBrowserItemPanel.class);
