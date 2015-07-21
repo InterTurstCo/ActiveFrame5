@@ -230,7 +230,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private DomainObjectActionListener getTransactionListener(){
         DomainObjectActionListener listener = userTransactionService.getListener(DomainObjectActionListener.class);
         if (listener == null){
-            listener = new DomainObjectActionListener();
+            listener = new DomainObjectActionListener(userTransactionService.getTransactionId());
             userTransactionService.addListener(listener);
         }
         return listener;
@@ -2337,45 +2337,32 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private class DomainObjectActionListener implements ActionListener {
-        Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new Hashtable<>();
-        List<DomainObject> savedDomainObjects = new ArrayList<>();
-        List<DomainObject> createdDomainObjects = new ArrayList<>();
-        Map<Id, DomainObject> deletedDomainObjects = new Hashtable<Id, DomainObject>();
-        List<Id> changeStatusDomainObjects = new ArrayList<Id>();
 
+        private DomainObjectsModification domainObjectsModification;
+
+        private DomainObjectActionListener(String transactionId) {
+            domainObjectsModification = new DomainObjectsModification(transactionId);
+        }
 
         @Override
         public void onAfterCommit() {
             //Точки расширения вызываем в специальном EJB чтобы открылась новая транзакция
-            afterCommitExtensionPointService.afterCommit(savedDomainObjectsModificationMap, savedDomainObjects,
-                    createdDomainObjects, deletedDomainObjects, changeStatusDomainObjects);
-        }
-
-        private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
-            List<FieldModification> result = new ArrayList<FieldModification>();
-            for (FieldModification field : map.values()) {
-                result.add(field);
-            }
-            return result;
+            afterCommitExtensionPointService.afterCommit(domainObjectsModification);
         }
 
         public void addCreatedDomainObject(DomainObject domainObject){
             if (isIgnoredOnCreateAndSave(domainObject)) {
                 return;
             }
-            createdDomainObjects.add(domainObject);
+            domainObjectsModification.addCreatedDomainObject(domainObject);
         }
 
         public void addChangeStatusDomainObject(Id id){
-            if (!changeStatusDomainObjects.contains(id)){
-                changeStatusDomainObjects.add(id);
-            }
+            domainObjectsModification.addChangeStatusDomainObject(id);
         }
 
         public void addDeletedDomainObject(DomainObject domainObject){
-            if (deletedDomainObjects.get(domainObject.getId()) == null){
-                deletedDomainObjects.put(domainObject.getId(), domainObject);
-            }
+            domainObjectsModification.addDeletedDomainObject(domainObject);
         }
 
         public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
@@ -2383,27 +2370,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 return;
             }
 
-            if (!savedDomainObjects.contains(domainObject)) {
-                savedDomainObjects.add(domainObject);
-            }
-
-            //Ишем не сохраняли ранее
-            Map<String, FieldModification> fields = savedDomainObjectsModificationMap.get(domainObject.getId());
-            if (fields == null){
-                fields = new Hashtable<String, FieldModification>();
-                savedDomainObjectsModificationMap.put(domainObject.getId(), fields);
-            }
-            //Мержим информацию об измененных полях
-            for (FieldModification newFieldModification : newFields) {
-                FieldModificationImpl registeredFieldModification = (FieldModificationImpl)fields.get(newFieldModification.getName());
-                if (registeredFieldModification == null){
-                    registeredFieldModification = new FieldModificationImpl(newFieldModification.getName(),
-                            newFieldModification.getBaseValue(), newFieldModification.getComparedValue());
-                    fields.put(newFieldModification.getName(), registeredFieldModification);
-                }else{
-                    registeredFieldModification.setComparedValue(newFieldModification.getComparedValue());
-                }
-            }
+            domainObjectsModification.addSavedDomainObject(domainObject, newFields);
         }
 
         @Override
@@ -2430,6 +2397,5 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             return false;
         }
-
     }
 }
