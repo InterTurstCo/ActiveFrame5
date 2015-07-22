@@ -358,8 +358,12 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         params.add(new ReferenceValue(domainObjectId));
         IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
         
+        List<Id> idForDelete = new ArrayList<Id>();
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.delete(identifiableObject.getId(), accessToken);
+            idForDelete.add(identifiableObject.getId());
+        }
+        if (idForDelete.size() > 0){
+            domainObjectDao.delete(idForDelete, accessToken);
         }
     }
 
