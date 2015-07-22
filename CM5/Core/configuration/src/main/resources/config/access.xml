@@ -296,6 +296,38 @@
         </groups>
     </context-role>
 
+   <context-role name="profile_owner">
+        <context>
+            <domain-object type="person_profile" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>Person^profile</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+    
+   <context-role name="system_profile_value_reader">
+        <context>
+            <domain-object type="profile_value" />
+        </context>
+        <groups>
+            <!-- Для системного профиля -->
+            <track-domain-objects>
+                <get-group>
+                    <query>
+                        select id from user_group where group_name = 'AllPersons'
+                        and exists(select pv.id from profile_value pv
+                        inner join system_profile sp on pv.profile = sp.id
+                        where pv.id = {0})
+                    </query>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>
+
     <!-- <dynamic-group name="Редактор Стран"> По одной группе на каждый объект "Person" (пользователь) в системе <context> <domain-object type="country"
         /> </context> <members> Отслеживаем сохранение/удаление объектов типа "Person" в статусе "active" и включаем их в соответствующую группу, т.е.
         где контекст = объекту <track-domain-objects type="country" status="Active" /> </members> </dynamic-group> <context-role name="Редактор Стран">
@@ -761,17 +793,35 @@
         </create>
     </access-matrix>
 
-    <access-matrix type="profile" read-everybody="true">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
+    <access-matrix type="system_profile">
+        <status name="*">
+            <read>
+                <permit-group name="AllPersons"/>
+            </read>
+        </status>
     </access-matrix>
 
-    <access-matrix type="profile_value" read-everybody="true">
+    <access-matrix type="person_profile">
         <create>
             <permit-group name="AllPersons" />
         </create>
+        <status name="*">
+            <read>
+                <permit-role name="profile_owner"/>
+            </read>
+            <write>
+                <permit-role name="profile_owner"/>
+            </write>
+            <delete>
+                <permit-role name="profile_owner"/>
+            </delete>
+            <create-child type="profile_value">
+                <permit-role name="profile_owner"/>
+            </create-child>
+        </status>
     </access-matrix>
+
+    <access-matrix type="profile_value" matrix-reference-field="profile"/>
 
     <access-matrix type="email_messages" read-everybody="true"/>
     

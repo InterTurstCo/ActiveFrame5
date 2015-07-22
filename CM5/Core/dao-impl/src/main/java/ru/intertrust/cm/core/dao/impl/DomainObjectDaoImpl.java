@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
@@ -1906,7 +1907,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (parentIds != null && parentIds.length > 0) {
             AccessType accessType = new CreateChildAccessType(domainObjectType);
             for (Id parentId : parentIds) {
-                accessControlService.verifyAccessToken(accessToken, parentId, accessType);
+                AccessToken linkAccessToken = accessControlService.createAccessToken(currentUserAccessor.getCurrentUser(), parentId, new CreateChildAccessType(domainObjectType));
+                accessControlService.verifyAccessToken(linkAccessToken, parentId, accessType);
             }
         } else {
 

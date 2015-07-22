@@ -413,7 +413,7 @@
 
     <domain-object-type name="profile_value">
         <fields>
-            <reference name="profile" type="profile" not-null="true"/>
+            <reference name="profile" type="profile" not-null="true" immutable="true"/>
             <string name="key" length="256" not-null="true" />
             <boolean name="readonly" not-null="false"/>
         </fields>

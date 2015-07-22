@@ -250,12 +250,19 @@ public class ProfileServiceImpl implements ProfileService {
                 cleanProfileAttributes(profileId);
             }
 
-            // save person profile DO
+            // Set parent profile
             Id parentProfileId = profile.getParent();
-            personProfileDo.setReference("parent", parentProfileId);
-            personProfileDo = crudService.save(personProfileDo);
+            if ((parentProfileId == null && personProfileDo.getReference("parent") != null) ||
+                    (parentProfileId != null && !parentProfileId.equals(personProfileDo.getReference("parent")))){
+                personProfileDo.setReference("parent", parentProfileId);
+            }
+
+            // save person profile DO
+            if (personProfileDo.isNew() || personProfileDo.isDirty()){
+                personProfileDo = crudService.save(personProfileDo);
+            }
             
-            //Если это новый провиль то обновляем обьект персоны
+            // Если это новый провиль то обновляем обьект персоны
             if (profileId == null){
                 profileId = personProfileDo.getId();
                 Id currentUserId = currentUserAccessor.getCurrentUserId();
