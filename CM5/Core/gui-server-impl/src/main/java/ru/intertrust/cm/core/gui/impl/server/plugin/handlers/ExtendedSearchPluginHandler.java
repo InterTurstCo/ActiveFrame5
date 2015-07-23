@@ -1,34 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.BooleanSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchQuery;
-import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -56,20 +33,12 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.TextState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+
+import java.util.*;
 
 /**
  * User: IPetrov Date: 03.01.14 Time: 15:58 Обработчик плагина расширенного
@@ -91,9 +60,6 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
     @Autowired
     private GuiService guiService;
-
-    @Autowired
-    private ProfileService profileService;
 
     protected ExtendedSearchPluginData extendedSearchPluginData;
 
@@ -155,11 +121,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
             String searchAreaName = areaData.getKey();
             result.put(searchAreaName, MessageResourceProvider.getMessage(new MessageKey(searchAreaName,
-                    MessageResourceProvider.SEARCH_AREA), profileService.getPersonLocale()));
+                    MessageResourceProvider.SEARCH_AREA), GuiContext.getUserLocale()));
             List<String> domainObjectTypes = areaData.getValue();
             for (String doType : domainObjectTypes) {
                 result.put(doType, MessageResourceProvider.getMessage(new MessageKey(doType, MessageResourceProvider
-                        .SEARCH_DOMAIN_OBJECT), profileService.getPersonLocale()));
+                        .SEARCH_DOMAIN_OBJECT), GuiContext.getUserLocale()));
             }
         }
         for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
@@ -168,7 +134,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 Map<String, String> context = new HashMap<>();
                 context.put(MessageResourceProvider.DOMAIN_OBJECT_CONTEXT, doType);
                 result.put(field, MessageResourceProvider.getMessage(new MessageKey(field, MessageResourceProvider
-                        .SEARCH_FIELD, context), profileService.getPersonLocale()));
+                        .SEARCH_FIELD, context), GuiContext.getUserLocale()));
             }
         }
 
@@ -410,7 +376,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         } catch (Exception ge) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SEARCH,
                     "Ошибка при поиске:\\n",
-                    profileService.getPersonLocale()) + ge.getMessage());
+                    GuiContext.getUserLocale()) + ge.getMessage());
         }
     }
 

@@ -51,4 +51,8 @@ public class GuiContext {
     public static String getUserTimeZoneId() {
         return get().getUserInfo().getTimeZoneId();
     }
+
+    public static String getUserLocale() {
+        return get().getUserInfo().getLocale();
+    }
 }

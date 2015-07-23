@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.businessuniverse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.businessuniverse.UserExtraInfoBuilder;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.PlainTextUserExtraInfo;
@@ -19,9 +19,6 @@ import java.util.List;
  */
 @ComponentName("default.user.extra.info.builder")
 public class DefaultUserExtraInfoBuilder implements UserExtraInfoBuilder {
-    @Autowired
-    private ProfileService profileService;
-
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
@@ -41,9 +38,9 @@ public class DefaultUserExtraInfoBuilder implements UserExtraInfoBuilder {
                 continue;
             }
             if (groupName.equals("Superusers")) {
-                return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Superuser", profileService.getPersonLocale(), null));
+                return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Superuser", GuiContext.getUserLocale(), null));
             } else if (groupName.equals("Administrators") || groupName.equals("Administrators_Read_Only")) {
-                return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Administrator", profileService.getPersonLocale(), null));
+                return new PlainTextUserExtraInfo(MessageResourceProvider.getMessage("Administrator", GuiContext.getUserLocale(), null));
             }
             if (groupName.equals("AllPersons") || groupName.equals("Person")) { // system groups, ignore them
                 continue;

@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -48,8 +47,6 @@ public class FormPluginHandler extends ActivePluginHandler {
     private ActionConfigBuilder actionConfigBuilder;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private ProfileService profileService;
     @Autowired
     private AccessVerificationService accessVerificationService;
 
@@ -145,7 +142,7 @@ public class FormPluginHandler extends ActivePluginHandler {
                 formData.getToolBarConfig() == null ? new ToolBarConfig() : formData.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;
         if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
-            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, profileService.getPersonLocale());
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, GuiContext.getUserLocale());
         } else {
             defaultToolbarConfig = null;
         }

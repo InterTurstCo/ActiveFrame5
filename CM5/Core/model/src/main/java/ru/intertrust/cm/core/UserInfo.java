@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class UserInfo implements Dto {
 
     private String timeZoneId;
+    private String locale;
 
     public String getTimeZoneId() {
         return timeZoneId;
@@ -18,10 +19,19 @@ public class UserInfo implements Dto {
         this.timeZoneId = timeZoneId;
     }
 
+    public String getLocale() {
+        return locale;
+    }
+
+    public void setLocale(String locale) {
+        this.locale = locale;
+    }
+
     @Override
     public String toString() {
-        return new StringBuilder(UserInfo.class.getSimpleName())
-                .append(": timeZoneId=").append(timeZoneId)
-                .toString();
+        return "UserInfo{" +
+                "timeZoneId='" + timeZoneId + '\'' +
+                ", locale='" + locale + '\'' +
+                '}';
     }
 }

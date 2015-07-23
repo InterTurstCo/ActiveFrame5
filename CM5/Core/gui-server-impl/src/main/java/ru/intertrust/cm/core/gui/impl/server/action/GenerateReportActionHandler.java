@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -12,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -38,8 +38,6 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
     private ApplicationContext applicationContext;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
-    @Autowired
-    private ProfileService profileService;
 
     @Override
     public GenerateReportActionData executeAction(GenerateReportActionContext context) {
@@ -92,7 +90,7 @@ public class GenerateReportActionHandler extends ActionHandler<GenerateReportAct
 
     private List<WidgetConfig> getWidgetConfigs(FormState formState) {
         FormConfig formConfig = configurationExplorer.getLocalizedPlainFormConfig(formState.getName(),
-                profileService.getPersonLocale());
+                GuiContext.getUserLocale());
         WidgetConfigurationConfig widgetConfigurationConfig = formConfig.getWidgetConfigurationConfig();
         return widgetConfigurationConfig.getWidgetConfigList();
     }

@@ -1,14 +1,13 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.handlers.FormPluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -28,9 +27,6 @@ public class SendProcessEventActionHandler extends ActionHandler<SendProcessEven
     private ProcessService processservice;
 
     @Autowired
-    private ProfileService profileService;
-
-    @Autowired
     private PermissionService permissionService;
 
     @Override
@@ -39,7 +35,7 @@ public class SendProcessEventActionHandler extends ActionHandler<SendProcessEven
         if (domainObjectId == null) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_OBJECT_NOT_SAVED,
                     "Объект ещё не сохранён",
-                    profileService.getPersonLocale()));
+                    GuiContext.getUserLocale()));
         }
 
         // todo: do some action with this domain object or with new domain
