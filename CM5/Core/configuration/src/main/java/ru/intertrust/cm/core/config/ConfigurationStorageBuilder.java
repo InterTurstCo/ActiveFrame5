@@ -229,6 +229,10 @@ public class ConfigurationStorageBuilder {
             }
         }
 
+        if (result == null) {
+            result = NullValues.ACCESS_MATRIX_STATUS_CONFIG;
+        }
+
         configurationStorage.accessMatrixByObjectTypeAndStatusMap.put(new FieldConfigKey(domainObjectType, status), result);
         return result;
     }
@@ -281,10 +285,11 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        if (result != null) {
-            configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
+        if (result == null) {
+            result = NullValues.STRING;
         }
 
+        configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
         return result;
     }
 

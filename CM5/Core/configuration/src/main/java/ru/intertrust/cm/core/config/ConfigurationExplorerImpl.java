@@ -315,10 +315,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigContextMap(domainObjectType);
             }
 
-            if (dynamicGroups == null) {
-                return new ArrayList<>();
-            }
-
             List<DynamicGroupConfig> result = new ArrayList<>();
             result.addAll(dynamicGroups);
 
@@ -368,6 +364,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
             if (result == null) {
                 result = configurationStorageBuilder.fillAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
+            }
+
+            if (NullValues.isNull(result)) {
+                return null;
             }
 
             return getReturnObject(result, AccessMatrixStatusConfig.class);
@@ -493,6 +493,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
             if (result == null) {
                 result = configurationStorageBuilder.fillMatrixReferenceTypeNameMap(childTypeName);
+            }
+
+            if (NullValues.isNull(result)) {
+                return null;
             }
 
             return getReturnObject(result, String.class);
@@ -689,11 +693,21 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 if (formConfigFromCash == null) {
                     List<FormConfig> parentFormConfigs = getParentFormConfigs(formConfig);
                     formConfig = plainFormBuilder.buildPlainForm(formConfig, parentFormConfigs);
+
+                    if (formConfig == null) {
+                        formConfig = NullValues.FORM_CONFIG;
+                    }
+
                     configStorage.collectedFormConfigMap.put(formConfig.getName(), formConfig);
-                }else{
+                } else {
                     formConfig = formConfigFromCash;
                 }
             }
+
+            if (NullValues.isNull(formConfig)) {
+                return null;
+            }
+
             return getReturnObject(formConfig, FormConfig.class);
         } finally {
             readLock.unlock();
@@ -710,15 +724,26 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 typeMap = new CaseInsensitiveMap<>();
                 configStorage.localizedCollectedFormConfigMap.put(currentLocale, typeMap);
             }
+
             FormConfig formConfig = typeMap.get(name);
             if (formConfig == null) {
                 formConfig = getPlainFormConfig(name);
                 ObjectCloner cloner = ObjectCloner.getInstance();
                 FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
                 configurationStorageBuilder.localize(currentLocale, clonedConfig);
+
+                if (clonedConfig == null) {
+                    clonedConfig = NullValues.FORM_CONFIG;
+                }
+
                 typeMap.put(formConfig.getName(), clonedConfig);
                 formConfig = clonedConfig;
             }
+
+            if (NullValues.isNull(formConfig)) {
+                return null;
+            }
+
             return formConfig;
         } finally {
             readLock.unlock();
