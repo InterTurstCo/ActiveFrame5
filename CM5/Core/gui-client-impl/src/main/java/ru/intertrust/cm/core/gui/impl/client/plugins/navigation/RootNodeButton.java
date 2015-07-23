@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.ui.HTML;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 /**
  * @author akarandey
@@ -75,7 +76,7 @@ public class RootNodeButton extends HTML {
     private static String getHtml(final String image, final String displayText, final Long collectionCount, boolean autoCut) {
         String styleForWordsAutoCut = autoCut ? " style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\"" : "";
         final StringBuilder builder = new StringBuilder("<li><a><img width='60' height='50' border='0' alt='' src='")
-                .append(image)
+                .append(GlobalThemesManager.getResourceFolder()).append(image)
                 .append("'><span ")
                 .append(styleForWordsAutoCut)
                 .append(">")
