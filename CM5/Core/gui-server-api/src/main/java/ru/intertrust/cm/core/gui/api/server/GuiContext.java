@@ -53,6 +53,7 @@ public class GuiContext {
     }
 
     public static String getUserLocale() {
-        return get().getUserInfo().getLocale();
+        UserInfo userInfo = get().getUserInfo();
+        return userInfo == null ? null : userInfo.getLocale();
     }
 }
