@@ -383,7 +383,9 @@ h1 {
     background: url(icons/filter-clear-button.png) no-repeat -32px 0;
 }
 
-.dummy {
+.minimalLeftMargin > table tr td:nth-child(2) {
+    margin-left: -20px;
+    display: inline-block;
 }
 
 .table-browser-filter-editor {
@@ -934,7 +936,7 @@ a[href='#login']:hover {
     left: 15px;
     padding-top: 10px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     display: block;
 }
 

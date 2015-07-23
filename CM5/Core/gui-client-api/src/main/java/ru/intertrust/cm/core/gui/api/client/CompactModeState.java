@@ -13,7 +13,8 @@ public class CompactModeState {
     private boolean navigationTreePanelExpanded;
     private boolean rightPanelExpanded;
     private boolean rightPanelConfigured;
-
+    private int secondLevelNavigationPanelWidth;
+    private int firstLevelNavigationPanelWidth;
     public boolean isNavigationTreePanelExpanded() {
         return navigationTreePanelExpanded;
     }
@@ -52,5 +53,21 @@ public class CompactModeState {
 
     public void setRightPanelExpanded(boolean rightPanelExpanded) {
         this.rightPanelExpanded = rightPanelExpanded;
+    }
+
+    public int getSecondLevelNavigationPanelWidth() {
+        return secondLevelNavigationPanelWidth;
+    }
+
+    public void setSecondLevelNavigationPanelWidth(int secondLevelNavigationPanelWidth) {
+        this.secondLevelNavigationPanelWidth = secondLevelNavigationPanelWidth;
+    }
+
+    public int getFirstLevelNavigationPanelWidth() {
+        return firstLevelNavigationPanelWidth;
+    }
+
+    public void setFirstLevelNavigationPanelWidth(int firstLevelNavigationPanelWidth) {
+        this.firstLevelNavigationPanelWidth = firstLevelNavigationPanelWidth;
     }
 }

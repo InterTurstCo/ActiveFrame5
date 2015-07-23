@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.action.system;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
@@ -22,10 +23,6 @@ public class SizeToggleAction extends ToggleAction {
     protected void execute() {
         final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
         final ToggleActionContext actionContext = getInitialContext();
-        if (!compactModeState.isExpanded()) {
-            compactModeState.setLeft(getPlugin().getView().asWidget().getParent().getParent()
-                    .getElement().getOffsetLeft());
-        }
         compactModeState.setExpanded(!compactModeState.isExpanded());
         actionContext.setPushed(compactModeState.isExpanded());
         updateSize(compactModeState);
@@ -43,9 +40,11 @@ public class SizeToggleAction extends ToggleAction {
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+        center.getStyle().clearMarginLeft();
         final Element right = DOM.getElementById(ComponentHelper.RIGHT_ID);
         if (center.hasClassName(CENTRAL_SECTION_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_STYLE, CENTRAL_SECTION_FULL_SIZE_STYLE);
+
         } else if (center.hasClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_RIGHT_PANEL_OPEN_STYLE, CENTRAL_SECTION_RIGHT_PANEL_OPEN_FULL_STYLE);
             right.setClassName(RIGHT_SECTION_EXPANDED_FULL_STYLE);
@@ -64,10 +63,14 @@ public class SizeToggleAction extends ToggleAction {
         final Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
         final Element header = DOM.getElementById(ComponentHelper.HEADER_ID);
         final Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+
         if (center.hasClassName(CENTRAL_SECTION_FULL_SIZE_STYLE)) {
             center.replaceClassName(CENTRAL_SECTION_FULL_SIZE_STYLE, CENTRAL_SECTION_STYLE);
             if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
                 center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
+                int firstLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getFirstLevelNavigationPanelWidth();
+                int secondLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth();
+                center.getStyle().setMarginLeft(secondLevelNavigationPanelWidth + firstLevelNavigationPanelWidth, Style.Unit.PX);
             }
         } else {
             if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {

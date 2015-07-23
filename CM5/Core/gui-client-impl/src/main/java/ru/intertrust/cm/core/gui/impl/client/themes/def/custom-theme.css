@@ -427,7 +427,7 @@ div.gwt-Good-Label {
 .gwt-custom-TreeItem-selected .treeItemTitle:after {
     position: absolute;
     top: -5px;
-    right: -30px;
+    right: -15px;
     display: block;
     margin-left: 5px;
     width: 40px;

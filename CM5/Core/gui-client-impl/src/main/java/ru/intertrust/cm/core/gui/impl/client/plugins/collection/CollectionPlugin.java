@@ -132,7 +132,10 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     @Override
     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
-        ((CollectionPluginView) getView()).sideBarFixPositionEvent(event);
+        CollectionPluginView collectionPluginView = (CollectionPluginView) getView();
+        if(collectionPluginView != null){
+                collectionPluginView.sideBarFixPositionEvent(event);
+        }
     }
 
     @Override

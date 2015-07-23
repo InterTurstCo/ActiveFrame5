@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
@@ -67,8 +69,24 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     public void onRootNodeSelected(RootLinkSelectedEvent event) {
-        NavigationTreePluginView pluginView = (NavigationTreePluginView) getView();
-        pluginView.repaintNavigationTrees(event.getSelectedRootLinkName(), null);
+       openPluginAndRedrawNavigationTree(event.getSelectedRootLinkName(), null);
+
+    }
+    private void openPluginAndRedrawNavigationTree(String linkName, String childToOpen){
+        NavigationTreePluginData pluginData = getInitialData();
+        LinkConfig linkConfig = findLinkConfig(linkName, pluginData.getNavigationConfig().getLinkConfigList());
+        if (linkConfig == null) {
+            return;
+        }
+        if (linkConfig.getChildLinksConfigList().isEmpty()) {
+            NavigationTreeItemSelectedEvent event = new NavigationTreeItemSelectedEvent(linkConfig.getPluginDefinition().getPluginConfig(),
+                    linkConfig.getName(), pluginData.getNavigationConfig());
+            Application.getInstance().getEventBus().fireEventFromSource(event, NavigationTreePlugin.this);
+
+        } else {
+            NavigationTreePluginView pluginView = (NavigationTreePluginView) getView();
+            pluginView.repaintNavigationTrees(linkConfig, childToOpen);
+        }
     }
 
     public void clearCurrentSelectedItemValue() {
@@ -82,26 +100,26 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
         final String selectedLinkName = view.getSelectedLinkName() == null ? "" : view.getSelectedLinkName();
         //TODO: [CMFIVE-451] commented out to be able to move back from hierarchical link to normal. Need to find a better way.
         //if (!selectedLinkName.equals(historyManager.getLink())) {
-            final NavigationTreePluginData data = getInitialData();
-            final Pair<String, String> selectedNavigationItems = getHistoryNavigationItems(data);
-            if (selectedNavigationItems != null) {
-                view.showAsSelectedRootLink(selectedNavigationItems.getFirst());
-                view.repaintNavigationTrees(selectedNavigationItems.getFirst(), selectedNavigationItems.getSecond());
-                return true;
-            } else {
-                //try to find requested link among hierarchical links and emulate tree item selection
-                NavigationConfig navigationConfig = getNavigationConfig();
-                for (LinkConfig hierarchicalLink : navigationConfig.getHierarchicalLinkList()) {
-                    if (hierarchicalLink.getName().equals(historyManager.getLink())) {
-                        Application.getInstance().getEventBus().fireEvent(new NavigationTreeItemSelectedEvent(
-                                hierarchicalLink.getPluginDefinition().getPluginConfig(), hierarchicalLink.getName(),
-                                navigationConfig));
-                        return true;
-                    }
+        final NavigationTreePluginData data = getInitialData();
+        final Pair<String, String> selectedNavigationItems = getHistoryNavigationItems(data);
+        if (selectedNavigationItems != null) {
+            view.showAsSelectedRootLink(selectedNavigationItems.getFirst());
+            openPluginAndRedrawNavigationTree(selectedNavigationItems.getFirst(), selectedNavigationItems.getSecond());
+            return true;
+        } else {
+            //try to find requested link among hierarchical links and emulate tree item selection
+            NavigationConfig navigationConfig = getNavigationConfig();
+            for (LinkConfig hierarchicalLink : navigationConfig.getHierarchicalLinkList()) {
+                if (hierarchicalLink.getName().equals(historyManager.getLink())) {
+                    Application.getInstance().getEventBus().fireEvent(new NavigationTreeItemSelectedEvent(
+                            hierarchicalLink.getPluginDefinition().getPluginConfig(), hierarchicalLink.getName(),
+                            navigationConfig));
+                    return true;
                 }
-                ApplicationWindow.errorAlert("Пункт меню '" + historyManager.getLink() + "' не найден");
             }
-       // }
+            ApplicationWindow.errorAlert("Пункт меню '" + historyManager.getLink() + "' не найден");
+        }
+        // }
         return false;
     }
 
@@ -158,6 +176,15 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     public void onLeavingLeftPanel(LeaveLeftPanelEvent event) {
-        ((NavigationTreePluginView)(getView())).onLeavingLeftPanel();
+        ((NavigationTreePluginView) (getView())).onLeavingLeftPanel();
+    }
+
+    private LinkConfig findLinkConfig(final String linkName, List<LinkConfig> linkConfigs) {
+        return GuiUtil.find(linkConfigs, new Predicate<LinkConfig>() {
+            @Override
+            public boolean evaluate(LinkConfig input) {
+                return input.getName().equalsIgnoreCase(linkName);
+            }
+        });
     }
 }

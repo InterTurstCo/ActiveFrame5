@@ -65,6 +65,7 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
         }
         String navigationPanelName = navigationConfig.getName();
         LogicalErrors logicalErrors = LogicalErrors.getInstance(navigationPanelName, "navigation panel");
+        validatePinnedState(navigationConfig, logicalErrors);
         List<LinkConfig> linkConfigList = navigationConfig.getLinkConfigList();
 
         if (linkConfigList == null) {
@@ -80,6 +81,16 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
             logicalErrorsList.add(logicalErrors);
         }
     }
+
+    private void validatePinnedState(NavigationConfig navigationConfig, LogicalErrors logicalErrors){
+        if(!navigationConfig.isUnpinEnabled()
+                && NavigationPanelSecondLevelDefaultState.UNPINNED_STATE.equals(navigationConfig.getSecondLevelDefaultState())){
+            String error = "Default second level panel state  couldn't be 'unpinned' when unpin is disabled";
+            logger.error(error);
+            logicalErrors.addError(error);
+        }
+    }
+
     private void validateNameUniqueness(LinkConfig linkConfig, Set<String> linkNames, LogicalErrors logicalErrors){
         String linkName = linkConfig.getName();
         if(linkNames.contains(linkName)){

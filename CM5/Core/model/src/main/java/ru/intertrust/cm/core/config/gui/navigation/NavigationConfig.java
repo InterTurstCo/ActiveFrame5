@@ -30,6 +30,18 @@ public class NavigationConfig implements LocalizableConfig {
     @Attribute(name = "merge", required = false)
     private boolean merge;
 
+    @Attribute(name = "level2-panel-width", required = false)
+    private String secondLevelPanelWidth;
+
+    @Attribute(name = "level2-default-state", required = false)
+    private String secondLevelDefaultState;
+
+    @Attribute(name = "unpin-enabled", required = false)
+    private boolean unpinEnabled = true;
+
+    @Attribute(name = "margin-size", required = false)
+    private String marginSize;
+
     @Override
     public String getName() {
         return name;
@@ -75,34 +87,89 @@ public class NavigationConfig implements LocalizableConfig {
         return merge;
     }
 
+    public String getSecondLevelPanelWidth() {
+        return secondLevelPanelWidth;
+    }
+
+    public void setSecondLevelPanelWidth(String secondLevelPanelWidth) {
+        this.secondLevelPanelWidth = secondLevelPanelWidth;
+    }
+
+    public NavigationPanelSecondLevelDefaultState getSecondLevelDefaultState() {
+        return NavigationPanelSecondLevelDefaultState.forState(secondLevelDefaultState);
+    }
+
+    public void setSecondLevelDefaultState(String secondLevelDefaultState) {
+        this.secondLevelDefaultState = secondLevelDefaultState;
+    }
+
+    public boolean isUnpinEnabled() {
+        return unpinEnabled;
+    }
+
+    public void setUnpinEnabled(boolean unpinEnabled) {
+        this.unpinEnabled = unpinEnabled;
+    }
+
+    public NavigationPanelSecondLevelMarginSize getMarginSize() {
+        return NavigationPanelSecondLevelMarginSize.forCode(marginSize);
+    }
+
+    public void setMarginSize(String marginSize) {
+        this.marginSize = marginSize;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         NavigationConfig that = (NavigationConfig) o;
 
-        if (isDefault != that.isDefault) return false;
-        if (hierarchicalLinkList != null ? !hierarchicalLinkList.equals(that.hierarchicalLinkList) : that.hierarchicalLinkList != null)
+        if (isDefault != that.isDefault) {
             return false;
-        if (linkConfigList != null ? !linkConfigList.equals(that.linkConfigList) : that.linkConfigList != null)
+        }
+        if (hierarchicalLinkList != null ? !hierarchicalLinkList.equals(that.hierarchicalLinkList)
+                : that.hierarchicalLinkList != null) {
             return false;
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
-        if (sideBarOpeningTime != null ? !sideBarOpeningTime.equals(that.sideBarOpeningTime) : that.sideBarOpeningTime != null)
+        }
+        if (linkConfigList != null ? !linkConfigList.equals(that.linkConfigList) : that.linkConfigList != null) {
             return false;
-        if (merge != that.merge)
+        }
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
+        }
+        if (sideBarOpeningTime != null ? !sideBarOpeningTime.equals(that.sideBarOpeningTime) : that.sideBarOpeningTime != null) {
+            return false;
+        }
+        if (merge != that.merge) {
+            return false;
+        }
+        if (secondLevelPanelWidth != null ? !secondLevelPanelWidth.equals(that.secondLevelPanelWidth)
+                : that.secondLevelPanelWidth != null) {
+            return false;
+        }
+        if (secondLevelDefaultState != null ? !secondLevelDefaultState.equals(that.secondLevelDefaultState)
+                : that.secondLevelDefaultState != null) {
+            return false;
+        }
+        if (unpinEnabled != that.unpinEnabled) {
+            return false;
+        }
+        if (marginSize != null ? !marginSize.equals(that.marginSize) : that.marginSize != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = linkConfigList != null ? linkConfigList.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (isDefault ? 1 : 0);
-        result = 31 * result + (sideBarOpeningTime != null ? sideBarOpeningTime.hashCode() : 0);
-        result = 31 * result + (hierarchicalLinkList != null ? hierarchicalLinkList.hashCode() : 0);
-        result = 31 * result + (merge ? 1 : 0);
-        return result;
+        return  31 * (name != null ? name.hashCode() : 0);
+
     }
+
 }

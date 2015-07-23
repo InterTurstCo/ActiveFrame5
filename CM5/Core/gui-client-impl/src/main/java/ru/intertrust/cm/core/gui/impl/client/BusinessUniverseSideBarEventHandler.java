@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.client.DOM;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.CompactModeState;
@@ -19,6 +20,14 @@ public class BusinessUniverseSideBarEventHandler implements SideBarResizeEventHa
     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
         final CompactModeState compactModeState = Application.getInstance().getCompactModeState();
         Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
+        int sidebarWidth =  event.getSideBarWidths();
+        Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
+        int firstLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getFirstLevelNavigationPanelWidth();
+        if(sidebarWidth == 0){
+            center.getStyle().setMarginLeft(firstLevelNavigationPanelWidth, Style.Unit.PX);
+        }else {
+            center.getStyle().setMarginLeft(sidebarWidth + firstLevelNavigationPanelWidth, Style.Unit.PX);
+        }
         if (!compactModeState.isExpanded()) {
             left.setClassName(event.getStyleForLeftSector());
             setCentralDivPanelClassName(event.getStyleForCenterSector());

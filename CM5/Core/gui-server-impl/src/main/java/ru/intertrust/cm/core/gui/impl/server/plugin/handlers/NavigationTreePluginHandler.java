@@ -1,14 +1,18 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
 import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
+import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelSecondLevelDefaultState;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
+import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
+import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.List;
 
@@ -17,6 +21,9 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
     @Autowired
     GuiService guiService;
+
+    @Autowired
+    private UserSettingsFetcher userSettingsFetcher;
 
     @Override
     public PluginData initialize(Dto param) {
@@ -33,6 +40,14 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
             navigationTreePluginData.setRootLinkConfig(rootLinkConfig);
         }
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(true);
+        Boolean pinnedByUser = domainObject.getBoolean(UserSettingsHelper.DO_NAVIGATION_PANEL_SECOND_LEVEL_PINNED_KEY);
+        boolean pinned = pinnedByUser == null
+                ? NavigationPanelSecondLevelDefaultState.PINNED_STATE.equals(navigationConfig.getSecondLevelDefaultState())
+                : pinnedByUser;
+        navigationTreePluginData.setPinned(pinned);
+        boolean hasSecondLevelNavigationPanel = hasSecondLevelNavigationPanel(navigationConfig.getLinkConfigList());
+        navigationTreePluginData.setHasSecondLevelNavigationPanel(hasSecondLevelNavigationPanel);
         return navigationTreePluginData;
     }
 
@@ -66,6 +81,17 @@ public class NavigationTreePluginHandler extends PluginHandler {
         } else {
             return null;
         }
+    }
+
+    private boolean hasSecondLevelNavigationPanel(List<LinkConfig> linkConfigList) {
+        boolean result = false;
+        for (LinkConfig linkConfig : linkConfigList) {
+            if(!linkConfig.getChildLinksConfigList().isEmpty()){
+                result = true;
+                break;
+            }
+        }
+        return result;
     }
 
 }
