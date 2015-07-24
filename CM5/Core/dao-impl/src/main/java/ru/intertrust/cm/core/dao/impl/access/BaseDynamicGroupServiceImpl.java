@@ -12,9 +12,7 @@ import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -233,13 +231,9 @@ public class BaseDynamicGroupServiceImpl {
      * @param targetCollection
      * @param sourceCollection
      */
-    protected void addAllWithoutDuplicate(List targetCollection, List sourceCollection) {
-        if (sourceCollection != null) {
-            for (Object id : sourceCollection) {
-                if (!targetCollection.contains(id)) {
-                    targetCollection.add(id);
-                }
-            }
+    protected <T> void addAllWithoutDuplicate(Set<T> targetCollection, Collection<T> sourceCollection) {
+        if (sourceCollection != null && targetCollection != null) {
+            targetCollection.addAll(sourceCollection);
         }
     }
 

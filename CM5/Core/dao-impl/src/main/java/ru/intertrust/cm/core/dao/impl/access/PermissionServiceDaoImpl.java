@@ -34,7 +34,6 @@ import javax.transaction.TransactionSynchronizationRegistry;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Реализация сервиса обновления списков доступа.
@@ -92,7 +91,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidContexts = new ArrayList<Id>();
+        Set<Id> invalidContexts = new HashSet<Id>();
 
         //Для нового объекта и если сменился статус всегда добавляем в не валидный контекст сам создаваемый или измененный объект, 
         //чтобы рассчитались права со статичными или без контекстными группами
@@ -149,7 +148,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         */
 
         //Получение необходимого состава acl
-        List<AclInfo> newAclInfos = new ArrayList<AclInfo>();
+        Set<AclInfo> newAclInfos = new HashSet<>();
         for (BaseOperationPermitConfig operationPermitConfig : accessMatrixConfig.getPermissions()) {
             AccessType accessType = getAccessType(operationPermitConfig);
             //Добавляем без дублирования
@@ -162,19 +161,15 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         //Получение разницы в составе acl
         //Получаем новые элементы в acl
-        List<AclInfo> addAclInfo = new ArrayList<AclInfo>();
-        for (AclInfo aclInfo : newAclInfos) {
-            if (!oldAclInfos.contains(aclInfo)) {
-                addAclInfo.add(aclInfo);
-            }
+        Set<AclInfo> addAclInfo = new HashSet<>();
+        if (newAclInfos != null) {
+            addAclInfo.addAll(newAclInfos);
         }
 
         //Получаем те элементы acl которые надо удалить
-        List<AclInfo> deleteAclInfo = new ArrayList<AclInfo>();
-        for (AclInfo aclInfo : oldAclInfos) {
-            if (!newAclInfos.contains(aclInfo)) {
-                deleteAclInfo.add(aclInfo);
-            }
+        Set<AclInfo> deleteAclInfo = new HashSet<AclInfo>();
+        if (oldAclInfos != null) {
+            deleteAclInfo.addAll(oldAclInfos);
         }
 
         //Непосредственно удаление или добавление в базу
@@ -357,7 +352,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return new AclInfo(accessType, dynamicGroupId);
     }
 
-    private void insertAclRecords(Id objectId, List<AclInfo> addAclInfo) {
+    private void insertAclRecords(Id objectId, Set<AclInfo> addAclInfo) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
 
         List<AclInfo> aclInfoRead = new ArrayList<>();
@@ -437,7 +432,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     }
 
-    private void deleteAclRecords(Id objectId, List<AclInfo> addAclInfo) {
+    private void deleteAclRecords(Id objectId, Set<AclInfo> addAclInfo) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         List<AclInfo> aclInfoRead = new ArrayList<>();
         List<AclInfo> aclInfoNoRead = new ArrayList<>();
@@ -1049,7 +1044,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return domainObjectTypeIdCache.getName(typeId);
     }
 
-    private void regRecalcInvalidAcl(List<Id> invalidContext) {
+    private void regRecalcInvalidAcl(Set<Id> invalidContext) {
         //не обрабатываем вне транзакции
         if (getTxReg().getTransactionKey() == null) {
             return;
@@ -1078,12 +1073,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private class RecalcAclSynchronization implements Synchronization {
-        private List<Id> contextIds = new CopyOnWriteArrayList<Id>();
+        private Set<Id> contextIds = new HashSet<>();
 
         public RecalcAclSynchronization() {
         }
 
-        public void addContext(List<Id> invalidContexts) {
+        public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
         }
 
@@ -1098,7 +1093,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         public void afterCompletion(int status) {
         }
         
-        public List<Id> getInvalidContexts(){
+        public Set<Id> getInvalidContexts(){
             return contextIds;
         }
     }
