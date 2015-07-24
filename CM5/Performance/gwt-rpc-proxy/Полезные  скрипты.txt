@@ -4,6 +4,8 @@ ${__RandomString(50,qwertyuiopasdfghjklzxcvbnm)}
 
 //”становка имени вложени€ (надо заменить в тексте запроса им€ которое было сохранено при записи)
 ${ATTACHMENT_TEMP_NAME}
+
+
 //=====================================================
 
 //«амена текстового пол€ в форме
@@ -27,6 +29,14 @@ textState.setText("frtretretwertwertwer");
 
 // одируем измененный запрос
 sampler.getArguments().getArgument(0).setValue(request.encode());
+
+
+
+
+
+
+
+
 //=====================================================
 
 
@@ -54,13 +64,15 @@ capital.getSelectedIds().get(0).add(vars.getObject("RND_CITY"));
 
 // одируем измененный запрос и записываем в семплер
 GwtUtil.setRequest(sampler, request);
+
+
 //=====================================================
 
 //—охранение случайного значени€ справочника в переменной
 import ru.intertrust.performance.jmetertools.*;
 
-ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse responce = GwtUtil.decodeResponce(prev);
-
+//—охранение случайного значени€ справочника в переменной
+ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData responce = GwtUtil.decodeResponce(prev);
 //«апоминаем случайный город
 ru.intertrust.cm.core.business.api.dto.Id city = GwtUtil.getRndCollectionsRow(responce);
 //—охран€ем в переменной

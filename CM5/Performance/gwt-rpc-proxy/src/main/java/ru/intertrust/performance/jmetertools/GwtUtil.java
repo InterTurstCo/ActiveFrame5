@@ -14,8 +14,8 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import com.google.gwt.user.client.rpc.SerializationException;
@@ -106,8 +106,8 @@ public class GwtUtil {
     }
 
     public static Id getRndCollectionsRow(Dto responce) {
-        CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) responce;
-        CollectionRowItem item = collectionRowsResponse.getCollectionRows().get(rnd.nextInt(collectionRowsResponse.getCollectionRows().size()));
+        CollectionPluginData collectionPluginData = (CollectionPluginData) responce;
+        CollectionRowItem item = collectionPluginData.getItems().get(rnd.nextInt(collectionPluginData.getItems().size()));
         return item.getId();
     }
 
