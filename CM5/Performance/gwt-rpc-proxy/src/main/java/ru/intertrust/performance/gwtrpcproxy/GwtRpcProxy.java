@@ -51,8 +51,6 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
 import ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui;
-import ru.intertrust.performance.jmetertools.GwtRpcRequest;
-import ru.intertrust.performance.jmetertools.GwtUtil;
 
 public class GwtRpcProxy {
     public static void main(String[] args) {
