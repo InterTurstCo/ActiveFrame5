@@ -41,10 +41,12 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 
 
 public class NavigationTreePluginView extends PluginView {
-    public static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
-    public static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
-    public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 136;
-    public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN = 20;
+    private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
+    private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
+    private static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 136;
+    private static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN = 20;
+    private static final int LINK_TEXT_MARGIN = 55;
+    private static final double ONE_CHAR_WIDTH = 6.6D;
     private final int DURATION = 500;
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
@@ -351,12 +353,17 @@ public class NavigationTreePluginView extends PluginView {
         SelectionHandler<TreeItem> handler = createSelectionHandler();
         Tree.Resources resources = GWT.create(MyTreeImages.class);
         List<ChildLinksConfig> childLinksConfigs = selectedRootLinkConfig.getChildLinksConfigList();
+        int linkTextMargin = NavigationPanelSecondLevelMarginSize.DEFAULT.equals(data.getNavigationConfig().getMarginSize())
+                ? LINK_TEXT_MARGIN + FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN : LINK_TEXT_MARGIN;
+        int visibleCharsLength = (int) ((Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth()
+                        - linkTextMargin) / ONE_CHAR_WIDTH);
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             NavigationTreeBuilder navigationTreeBuilder = new NavigationTreeBuilder(childLinksConfig);
             navigationTreeBuilder
                     .addSelectionHandler(handler)
                     .setChildToOpenName(childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
-                    .setResources(resources);
+                    .setResources(resources)
+                    .setVisibleCharsLength(visibleCharsLength);
             Tree tree = navigationTreeBuilder.toTree();
             counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
             verticalPanel.add(tree);
