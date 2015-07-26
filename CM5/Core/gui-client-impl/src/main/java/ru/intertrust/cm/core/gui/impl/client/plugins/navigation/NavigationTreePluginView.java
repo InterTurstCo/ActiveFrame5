@@ -126,7 +126,7 @@ public class NavigationTreePluginView extends PluginView {
                 onPinButtonClick();
             }
         });
-
+        changeSecondLevelNavigationPanelHeight();
         navigationTreeContainer.addMouseOutHandler(new MouseOutHandler() {
             @Override
             public void onMouseOut(MouseOutEvent event) {
@@ -142,9 +142,11 @@ public class NavigationTreePluginView extends PluginView {
         }
         return navigationTreeContainer;
     }
+    public void changeSecondLevelNavigationPanelHeight(){
+        navigationTreesPanel.setHeight(Window.getClientHeight() - TOP_MARGIN + "px");
+    }
 
     private void changeState() {
-            openTreePanel();
             final Timer timer = new Timer() {
                 @Override
                 public void run() {
@@ -200,7 +202,7 @@ public class NavigationTreePluginView extends PluginView {
         mouseHoldTimer = new Timer() {
             @Override
             public void run() {
-                navigationTreesPanel.setHeight(Window.getClientHeight() - TOP_MARGIN + "px");
+
                 String leftSectionStyle = pinButtonPressed ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
                 String centralSectionStyle = pinButtonPressed ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
                 SideBarResizeEvent sideBarResizeEvent =

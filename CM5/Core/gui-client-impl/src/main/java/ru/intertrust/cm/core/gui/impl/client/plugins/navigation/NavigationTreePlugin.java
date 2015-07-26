@@ -13,9 +13,7 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.LeaveLeftPanelEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
@@ -24,7 +22,8 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import java.util.List;
 
 @ComponentName("navigation.tree")
-public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, LeaveLeftPanelEventHandler {
+public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEventHandler, LeaveLeftPanelEventHandler,
+        PluginPanelSizeChangedEventHandler {
     private Integer sideBarOpenningTime;
     protected EventBus eventBus;
 
@@ -64,7 +63,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     protected GwtEvent.Type[] getEventTypesToHandle() {
-        return new GwtEvent.Type[]{RootLinkSelectedEvent.TYPE};
+        return new GwtEvent.Type[]{RootLinkSelectedEvent.TYPE, PluginPanelSizeChangedEvent.TYPE};
     }
 
     @Override
@@ -186,5 +185,10 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
                 return input.getName().equalsIgnoreCase(linkName);
             }
         });
+    }
+
+    @Override
+    public void updateSizes() {
+        ((NavigationTreePluginView) (getView())).changeSecondLevelNavigationPanelHeight();
     }
 }
