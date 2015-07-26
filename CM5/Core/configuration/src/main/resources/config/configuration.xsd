@@ -929,6 +929,7 @@
         <xs:attribute name="level2-default-state" type="con:level2DefaultStateType" use="optional"/>
         <xs:attribute name="unpin-enabled" type="xs:boolean" use="optional"/>
         <xs:attribute name="margin-size" type="con:marginSizeType" use="optional"/>
+        <xs:attribute name="text-auto-cut" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
     <xs:simpleType name="level2DefaultStateType">

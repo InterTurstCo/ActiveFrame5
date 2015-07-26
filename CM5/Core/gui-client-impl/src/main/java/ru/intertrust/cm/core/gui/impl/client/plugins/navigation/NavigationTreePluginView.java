@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.navigation;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
@@ -226,8 +227,6 @@ public class NavigationTreePluginView extends PluginView {
                 Application.getInstance().getEventBus()
                         .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                 resizeTreeAnimation.run(DURATION);
-                //navigationTreesPanel.getElement().getStyle().clearDisplay();
-
 
             }
         };
@@ -365,15 +364,20 @@ public class NavigationTreePluginView extends PluginView {
                     .addSelectionHandler(handler)
                     .setChildToOpenName(childToOpen == null ? selectedRootLinkConfig.getChildToOpen() : childToOpen)
                     .setResources(resources)
-                    .setVisibleCharsLength(visibleCharsLength);
+                    .setVisibleCharsLength(visibleCharsLength)
+                    .setBaseAutoCut(data.getNavigationConfig().isTextAutoCut());
             Tree tree = navigationTreeBuilder.toTree();
             counterDecorators.addAll(navigationTreeBuilder.getCounterDecorators());
             verticalPanel.add(tree);
 
         }
-
         navigationTreesPanel.add(verticalPanel);
+
+
     }
+    private native void setScrollLeft(Element elem) /*-{
+        elem.scrollLeft = 0;
+    }-*/;
 
     private void decorateNavigationTreeContainer(FocusPanel navigationTreeContainer) {
         navigationTreeContainer.getElement().getStyle().setColor("white");
@@ -419,6 +423,11 @@ public class NavigationTreePluginView extends PluginView {
             Application.getInstance().getEventBus().fireEventFromSource(
                     new NavigationTreeItemSelectedEvent(pluginConfig, linkName, navigationTreePluginData.getNavigationConfig()),
                     plugin);
+            /**
+             * scroll is moved in the middle  after selection for a some reason,
+             * so we set it to the left position
+             */
+            setScrollLeft(navigationTreesPanel.getElement());
         }
     }
 
@@ -458,9 +467,11 @@ public class NavigationTreePluginView extends PluginView {
                                       SidebarView sideBarView, boolean hasSecondLevelNavigationPanel) {
         LinkConfig result = null;
         final ClickHandler clickHandler = new RootNodeButtonClickHandler();
+        NavigationTreePluginData data = plugin.getInitialData();
+        boolean baseAutoCut = data.getNavigationConfig().isTextAutoCut();
         for (LinkConfig linkConfig : linkConfigList) {
 
-            final RootNodeButton nodeButton = new RootNodeButton(linkConfig);
+            final RootNodeButton nodeButton = new RootNodeButton(linkConfig, baseAutoCut);
             if (linkConfig.getChildToOpen() != null) {
                 CounterRootNodeDecorator counterRootNodeDecorator = new CounterRootNodeDecorator(nodeButton);
                 String collectionToBeOpened = findCollectionForOpen(linkConfig);

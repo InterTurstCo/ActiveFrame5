@@ -18,7 +18,8 @@ public class RootNodeButton extends HTML {
     private String image;
     private String displayText;
     private boolean selected;
-    private boolean autoCut;
+    private Boolean autoCut;
+    private boolean baseAutoCut;
     /**
      * todo will be used action config to initialize instance.
      *
@@ -29,7 +30,7 @@ public class RootNodeButton extends HTML {
      */
     @Deprecated //use RootNodeButton(LinkConfig linkConfig) instead
     public RootNodeButton(final Long collectionCount, final String name, final String image, final String displayText) {
-        super(getHtml(image, displayText, collectionCount, true));
+        super(getHtml(image, displayText, collectionCount, true, true));
         this.name = name;
         this.image = image;
         this.displayText = displayText;
@@ -39,12 +40,13 @@ public class RootNodeButton extends HTML {
             setTitle(displayText);
         }
     }
-    public RootNodeButton(LinkConfig linkConfig){
-        super(getHtml(linkConfig));
+    public RootNodeButton(LinkConfig linkConfig, boolean baseAutoCut){
+        super(getHtml(linkConfig, baseAutoCut));
         this.name = linkConfig.getName();
         this.image = linkConfig.getImage();
         this.displayText = linkConfig.getDisplayText();
         this.autoCut = linkConfig.isAutoCut();
+        this.baseAutoCut = baseAutoCut;
         setStyleName(NON_SELECTED_STYLE);
         getElement().getStyle().setCursor(Style.Cursor.POINTER);
         if(linkConfig.getTooltip() != null){
@@ -66,14 +68,16 @@ public class RootNodeButton extends HTML {
     }
 
     public void updateCollectionCount(Long collectionCount) {
-        super.setHTML(getHtml(image, displayText, collectionCount, autoCut));
+        super.setHTML(getHtml(image, displayText, collectionCount, autoCut, baseAutoCut));
     }
 
-    private static String getHtml(LinkConfig linkConfig){
-        return getHtml(linkConfig.getImage(), linkConfig.getDisplayText(), null, linkConfig.isAutoCut());
+    private static String getHtml(LinkConfig linkConfig, boolean baseAutoCut){
+        return getHtml(linkConfig.getImage(), linkConfig.getDisplayText(), null, linkConfig.isAutoCut(), baseAutoCut);
     }
 
-    private static String getHtml(final String image, final String displayText, final Long collectionCount, boolean autoCut) {
+    private static String getHtml(final String image, final String displayText, final Long collectionCount, Boolean linkAutoCut,
+                                  boolean baseAutoCut) {
+        boolean autoCut = (linkAutoCut != null && linkAutoCut) || (linkAutoCut == null && baseAutoCut);
         String styleForWordsAutoCut = autoCut ? " style = \"overflow: hidden; text-overflow: ellipsis; white-space: nowrap;\"" : "";
         final StringBuilder builder = new StringBuilder("<li><a><img width='60' height='50' border='0' alt='' src='")
                 .append(GlobalThemesManager.getResourceFolder()).append(image)

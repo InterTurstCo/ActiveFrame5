@@ -42,6 +42,9 @@ public class NavigationConfig implements LocalizableConfig {
     @Attribute(name = "margin-size", required = false)
     private String marginSize;
 
+    @Attribute(name = "text-auto-cut", required = false)
+    private boolean textAutoCut = true;
+
     @Override
     public String getName() {
         return name;
@@ -119,6 +122,14 @@ public class NavigationConfig implements LocalizableConfig {
         this.marginSize = marginSize;
     }
 
+    public boolean isTextAutoCut() {
+        return textAutoCut;
+    }
+
+    public void setTextAutoCut(boolean textAutoCut) {
+        this.textAutoCut = textAutoCut;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -161,6 +172,9 @@ public class NavigationConfig implements LocalizableConfig {
             return false;
         }
         if (marginSize != null ? !marginSize.equals(that.marginSize) : that.marginSize != null) {
+            return false;
+        }
+        if (textAutoCut != that.textAutoCut) {
             return false;
         }
         return true;

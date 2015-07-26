@@ -23,7 +23,7 @@ public class ChildLinksConfig implements Dto {
     private String groupName;
 
     @Attribute(name = "auto-cut", required = false)
-    private boolean autoCut = true;
+    private Boolean autoCut;
 
     @Attribute(name = "tooltip", required = false)
     @Localizable
@@ -48,11 +48,11 @@ public class ChildLinksConfig implements Dto {
         this.linkConfigList = linkConfigList;
     }
 
-    public boolean isAutoCut() {
+    public Boolean isAutoCut() {
         return autoCut;
     }
 
-    public void setAutoCut(boolean autoCut) {
+    public void setAutoCut(Boolean autoCut) {
         this.autoCut = autoCut;
     }
 
@@ -83,7 +83,7 @@ public class ChildLinksConfig implements Dto {
         if (groupName != null ? !groupName.equals(that.getGroupName()) : that.getGroupName() != null) {
             return false;
         }
-        if (autoCut != that.autoCut) {
+        if (autoCut != null ? !autoCut.equals(that.autoCut) : that.autoCut != null) {
             return false;
         }
         if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) {

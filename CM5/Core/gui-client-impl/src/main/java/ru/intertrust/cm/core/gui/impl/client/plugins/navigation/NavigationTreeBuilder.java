@@ -22,6 +22,7 @@ class NavigationTreeBuilder {
     private List<SelectionHandler<TreeItem>> handlers = new ArrayList<>();
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
     private int visibleCharsLength;
+    private boolean baseAutoCut;
     public NavigationTreeBuilder(ChildLinksConfig childLinksConfig) {
         this.childLinksConfig = childLinksConfig;
     }
@@ -100,12 +101,16 @@ class NavigationTreeBuilder {
         this.visibleCharsLength = visibleCharsLength;
         return this;
     }
+    public NavigationTreeBuilder setBaseAutoCut(boolean baseAutoCut) {
+        this.baseAutoCut = baseAutoCut;
+        return this;
+    }
 
     private TreeItem composeGroupItem() {
         Label label = new Label();
         label.getElement().getStyle().setFloat(Style.Float.LEFT);
         String displayText = childLinksConfig.getGroupName();
-        boolean autoCut = childLinksConfig.isAutoCut();
+        Boolean autoCut = childLinksConfig.isAutoCut();
         int startDepth = 0;
         if (isTextCut(displayText, autoCut, startDepth)) {
             String cutDisplayText = displayText.substring(0, visibleCharsLength);
@@ -130,7 +135,7 @@ class NavigationTreeBuilder {
         String displayText = linkConfig.getDisplayText();
         String treeItemName = linkConfig.getName();
 
-        boolean autoCut = linkConfig.isAutoCut();
+        Boolean autoCut = linkConfig.isAutoCut();
         Panel container = new AbsolutePanel();
         container.setStyleName("tree-label");
         container.getElement().getStyle().clearOverflow();
@@ -159,11 +164,12 @@ class NavigationTreeBuilder {
         return treeItem;
     }
 
-    private boolean isTextCut(String displayText, boolean autoCut, int depth){
-        return autoCut && displayText.length() > visibleCharsLength && depth < 5;
+    private boolean isTextCut(String displayText, Boolean autoCut, int depth){
+        return ((autoCut != null && autoCut) || (autoCut == null && baseAutoCut))
+                && displayText.length() > visibleCharsLength && depth < 5;
     }
 
-    private String getTooltip(String tooltip, String displayText, boolean autoCut, int depth){
+    private String getTooltip(String tooltip, String displayText, Boolean autoCut, int depth){
         return tooltip == null ? (isTextCut(displayText, autoCut, depth) ? displayText : "") : tooltip;
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
-    <navigation name="panel" level2-panel-width="220px"  level2-default-state="unpinned"  margin-size="default"
+    <navigation name="panel" level2-panel-width="220px"  level2-default-state="unpinned"  margin-size="default" text-auto-cut="false"
                                                  is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
@@ -184,7 +184,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="Cities" display-text="Города">
+                <link name="Cities" display-text="Города, текст этого линка может не поместиться на весь экран">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
@@ -303,7 +303,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="NoPermissionTest" display-text="Права для связанной таблицы">
+                <link name="NoPermissionTest" display-text="Права для связанной таблицы" auto-cut="true">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="np1">
                             <collection-viewer>
