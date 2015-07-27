@@ -165,16 +165,7 @@
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
-                                <initial-filters>
-                                    <initial-filter name="byMultipleName">
-                                        <param name="0" value="Л" type="string"/>
-                                        <param name="1" value="К" type="string"/>
-                                        <param name="2" value="Я" type="string"/>
-                                    </initial-filter>
-                                    <initial-filter name="byId">
-                                        <param name="0" value="5" type="long"/>
-                                    </initial-filter>
-                                </initial-filters>
+
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
                             <form-viewer>
