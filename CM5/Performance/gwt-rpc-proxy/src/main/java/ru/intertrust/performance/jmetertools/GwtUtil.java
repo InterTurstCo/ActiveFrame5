@@ -35,7 +35,7 @@ public class GwtUtil {
                 ((org.apache.jmeter.protocol.http.util.HTTPArgument) sampleProxy.getArguments().getArgument(0)).getValue(),
                 sampleProxy.getUrl().toString());
         } catch (Throwable ex) {
-            log.error("Error decodeRequest", ex);
+            log.error("Error decodeRequest " + sampleProxy.getName(), ex);
             throw ex;
         }        
     }
