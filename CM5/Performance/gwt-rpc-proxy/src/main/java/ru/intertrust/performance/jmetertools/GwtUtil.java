@@ -30,9 +30,14 @@ public class GwtUtil {
     }
 
     public static GwtRpcRequest decodeRequest(HTTPSamplerProxy sampleProxy) throws MalformedURLException {
-        return GwtRpcRequest.decode(
+        try {
+            return GwtRpcRequest.decode(
                 ((org.apache.jmeter.protocol.http.util.HTTPArgument) sampleProxy.getArguments().getArgument(0)).getValue(),
                 sampleProxy.getUrl().toString());
+        } catch (Throwable ex) {
+            log.error("Error decodeRequest", ex);
+            throw ex;
+        }        
     }
 
     public static Object decodeResponce(HTTPSampleResult sampleResult) throws SerializationException {
