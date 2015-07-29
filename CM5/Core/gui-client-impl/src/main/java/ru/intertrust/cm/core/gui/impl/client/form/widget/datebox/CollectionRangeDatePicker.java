@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.FilterEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.RangeDateSelectedEvent;
@@ -14,16 +15,8 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import java.util.Date;
 import java.util.List;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.CHOOSE_DATE_RANGE_LABEL_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_LAST_WEEK_LABEL_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_LAST_YEAR_LABEL_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_TODAY_LABEL_KEY;
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FOR_YESTERDAY_LABEL_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHOOSE_DATE_RANGE_LABEL;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_LAST_WEEK_LABEL;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_LAST_YEAR_LABEL;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_TODAY_LABEL;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FOR_YESTERDAY_LABEL;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -41,7 +34,8 @@ public class CollectionRangeDatePicker extends RangeDatePicker {
         container.setStyleName("compositeDateTimeContainerHidden");
         container.add(startDateTimePicker);
         container.add(endDateTimePicker);
-        Button submit = new Button(LocalizeUtil.get(BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
+        Button submit = new Button(LocalizeUtil.get(LocalizationKeys.DONE_BUTTON_KEY,
+                BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
         submit.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

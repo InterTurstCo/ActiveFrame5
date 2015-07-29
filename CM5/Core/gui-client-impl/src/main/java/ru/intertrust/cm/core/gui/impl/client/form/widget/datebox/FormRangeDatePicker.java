@@ -8,6 +8,7 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeEndConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.datebox.RangeStartConfig;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.FormRangeDateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -75,7 +76,8 @@ public class FormRangeDatePicker extends RangeDatePicker {
         container.setStyleName("compositeDateTimeContainerHidden");
         container.add(startDateTimePicker);
         container.add(endDateTimePicker);
-        Button submit = new Button(LocalizeUtil.get(BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
+        Button submit = new Button(LocalizeUtil.get(LocalizationKeys.DONE_BUTTON_KEY,
+                BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
         submit.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

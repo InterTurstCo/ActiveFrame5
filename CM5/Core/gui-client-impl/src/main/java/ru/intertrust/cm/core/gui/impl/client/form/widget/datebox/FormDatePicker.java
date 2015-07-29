@@ -6,6 +6,7 @@ import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -28,7 +29,8 @@ public class FormDatePicker extends OneDatePicker {
 
         container.add(dateTimePicker);
         if (dateTimePicker.showTime()) {
-            Button submit = new Button(LocalizeUtil.get(BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
+            Button submit = new Button(LocalizeUtil.get(LocalizationKeys.DONE_BUTTON_KEY,
+                    BusinessUniverseConstants.DATETIME_PICKER_BUTTON));
             submit.setStyleName("darkButton");
             submit.addClickHandler(new ClickHandler() {
                 @Override
