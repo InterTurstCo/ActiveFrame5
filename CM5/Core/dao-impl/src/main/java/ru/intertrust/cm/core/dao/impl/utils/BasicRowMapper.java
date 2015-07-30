@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 
@@ -43,24 +44,22 @@ public class BasicRowMapper extends ValueReader {
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
-    protected FieldConfig getFieldConfigByDbTypeName(String columnName, String columnTypeName) {
+    protected FieldConfig getFieldConfigByDbTypeName(String columnName, int columnType) {
         FieldConfig result;
 
-        if (columnTypeName.startsWith("int")) {
+        if (columnType == Types.BIGINT || columnType == Types.INTEGER) {
             result =  new LongFieldConfig();
-        } else if (columnTypeName.equalsIgnoreCase("timestamp")) {
+        } else if (columnType == Types.TIMESTAMP) {
             result = new DateTimeFieldConfig();
-        } else if (columnTypeName.equalsIgnoreCase("date")) {
+        } else if (columnType == Types.DATE) {
             result = new TimelessDateFieldConfig();
-        }else if (columnTypeName.equalsIgnoreCase("varchar") || columnTypeName.equals("unknown")
-                || columnTypeName.equals("text")) {
+        } else if (columnType == Types.VARCHAR || columnType == Types.LONGVARCHAR || columnType == Types.LONGNVARCHAR ||
+                columnType == Types.CLOB || columnType == Types.NCLOB || columnType == Types.OTHER) {
             result = new StringFieldConfig();
-        } else if (columnTypeName.equalsIgnoreCase("bool")) {
+        } else if (columnType == Types.BOOLEAN || columnType == Types.SMALLINT) {
             result = new BooleanFieldConfig();
-        } else if (columnTypeName.equalsIgnoreCase("numeric")) {
+        } else if (columnType == Types.DECIMAL) {
             result = new DecimalFieldConfig();
-        } else if (columnTypeName.equalsIgnoreCase("bigint") || columnTypeName.equalsIgnoreCase("number")) {
-            result = new LongFieldConfig();
         } else {
             result = new StringFieldConfig();
         }
