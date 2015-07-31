@@ -3131,6 +3131,7 @@ a:active .icon.back {
 }
 
 .linkedTableActionImageWrapper{
+    padding: 0px 5px;
 }
 
 .columnWrapper tr td {
