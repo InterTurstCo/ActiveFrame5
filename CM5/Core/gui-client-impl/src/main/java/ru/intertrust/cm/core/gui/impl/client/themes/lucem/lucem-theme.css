@@ -132,6 +132,9 @@
 .H_td_links .decorated-help {
     padding: 0 0 0 5px;
 }
+.decorated-help:hover {
+    background: url(css/icons/icon-helpHover.png) 5px 0 no-repeat;
+}
 
 .H_td_links .gwt-Anchor {
     background: url(resources/lucemtheme/images/icons/help.png) no-repeat 0 0;
