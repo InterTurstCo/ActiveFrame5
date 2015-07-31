@@ -3285,3 +3285,9 @@ a:active .icon.back {
     background: none;
 }
 /* end Expandable Collection */
+/* Calendar*/
+.gwt-HTML {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+}
