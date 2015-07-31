@@ -507,13 +507,16 @@
     border-bottom: 1px dotted #f00;
 }
 .decorated-action-link .calendarMonth {
-    background: url("resources/defaulttheme/images/icons/icon-calendar-month.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/calendar_icon_month.png") no-repeat 0 0;
+    margin: 4px 5px;
 }
 
 .decorated-action-link .calendarWeek {
-    background: url("resources/defaulttheme/images/icons/icon-calendar-week.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/calendar_icon_week.png") no-repeat 0 0;
+    margin: 4px 5px;
 }
 
 .decorated-action-link .calendarToday {
-    background: url("resources/defaulttheme/images/icons/icon-calendar-today.png") no-repeat 0 0;
+    background: url("resources/defaulttheme/images/icons/calendar_icon_day.png") no-repeat 0 0;
+    margin: 4px 5px;
 }
