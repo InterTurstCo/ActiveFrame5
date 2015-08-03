@@ -243,6 +243,8 @@
     padding: 10px 0 10px 0;
     position: relative;
     z-index: 10;
+    width: 100% !important;
+    height: 46px !important;
 }
 
 .form-panel-header > tbody {
