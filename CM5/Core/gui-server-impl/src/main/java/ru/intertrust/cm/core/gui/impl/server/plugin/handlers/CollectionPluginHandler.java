@@ -92,6 +92,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionPluginData pluginData = new CollectionPluginData();
 
         pluginData.setCollectionViewConfigName(collectionViewConfig.getName());
+        pluginData.setRowsSelectionConfig(collectionViewerConfig.getRowsSelectionConfig());
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         InitialFiltersConfig initialFiltersConfig = collectionViewerConfig.getInitialFiltersConfig();

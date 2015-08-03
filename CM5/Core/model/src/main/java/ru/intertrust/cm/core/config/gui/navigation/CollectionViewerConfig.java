@@ -48,6 +48,9 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "non-read-elements-definition", required = false)
     private NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig;
 
+    @Element(name = "rows-selection", required = false)
+    private RowsSelectionConfig rowsSelectionConfig;
+
     private TableBrowserParams tableBrowserParams;
 
     private boolean isEmbedded;
@@ -183,6 +186,14 @@ public class CollectionViewerConfig extends PluginConfig {
         this.isEmbedded = embedded;
     }
 
+    public RowsSelectionConfig getRowsSelectionConfig() {
+        return rowsSelectionConfig;
+    }
+
+    public void setRowsSelectionConfig(RowsSelectionConfig rowsSelectionConfig) {
+        this.rowsSelectionConfig = rowsSelectionConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -226,6 +237,9 @@ public class CollectionViewerConfig extends PluginConfig {
 
         if (nonReadElementsDefinitionConfig != null ? !nonReadElementsDefinitionConfig.equals(that.nonReadElementsDefinitionConfig)
                 : that.nonReadElementsDefinitionConfig!= null) {
+            return false;
+        }
+        if (rowsSelectionConfig != null ? !rowsSelectionConfig.equals(that.rowsSelectionConfig) : that.rowsSelectionConfig != null) {
             return false;
         }
 
