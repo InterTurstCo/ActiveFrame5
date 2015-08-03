@@ -664,7 +664,7 @@ h1 {
     border: none !important;
     position: relative;
     float: left;
-    margin: 6px 0 0 10px;
+    margin: 6px 4px 0 10px;
     cursor: pointer;
     height: 25px;
 }
@@ -3287,8 +3287,8 @@ a:active .icon.back {
 }
 /* end Expandable Collection */
 /* Calendar*/
-.gwt-HTML {
+.monthDetailPanel>div:nth-child(2)>div {
     text-align: center;
     font-weight: bold;
-    padding: 5px 0 3px;
+    padding: 10px 0;
 }
