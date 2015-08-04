@@ -1,5 +1,12 @@
 package ru.intertrust.cm.core.business.shedule;
 
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_MONTH;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_DAY_OF_WEEK;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_HOUR;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MINUTE;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_MONTH;
+import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_YEAR;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -12,7 +19,7 @@ import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Schedule;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
@@ -49,9 +56,8 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
-import static ru.intertrust.cm.core.business.api.ScheduleService.*;
 
-@Stateless(name = "SchedulerBean")
+@Singleton(name = "SchedulerBean")
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @RunAs("system")
@@ -115,6 +121,7 @@ public class SchedulerBean {
                 //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
                 //на случай если они не завершились по причине остановки сервера приложений
                 if (firstRun) {
+                    ejbContext.getUserTransaction().begin();
                     List<DomainObject> notSleepTasks = schedulerDao.getNonSleepTasks();
                     for (DomainObject notSleepTask : notSleepTasks) {
                         domainObjectDao.setStatus(notSleepTask.getId(),
@@ -123,6 +130,7 @@ public class SchedulerBean {
                     }
                     //Пока сервер запущен не проверяем больше статусы
                     firstRun = false;
+                    ejbContext.getUserTransaction().commit();
                 }
 
                 if (logger.isDebugEnabled()) {

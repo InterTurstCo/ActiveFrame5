@@ -77,7 +77,7 @@ public class CollectionPluginView extends PluginView {
     private VerticalPanel root = new VerticalPanel();
     private int listCount;
     private int tableWidth;
-    private boolean displayCheckBoxes = false;
+    private boolean embeddedDisplayCheckBoxes = false;
     private SortCollectionState sortCollectionState;
     private ToggleButton filterButton = new ToggleButton();
     private HandlerRegistration scrollHandlerRegistration;
@@ -138,8 +138,9 @@ public class CollectionPluginView extends PluginView {
         final CollectionPluginData collectionPluginData = plugin.getInitialData();
         final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
         collectionViewerConfig.setInitialFiltersConfig(collectionPluginData.getInitialFiltersConfig());
-        displayCheckBoxes = collectionPluginData.isDisplayCheckBoxes();
-        tableBody.setDisplayCheckBoxes(displayCheckBoxes);
+        embeddedDisplayCheckBoxes = collectionPluginData.isEmbeddedDisplayCheckBoxes();
+        tableBody.setEmbeddedDisplayCheckBoxes(embeddedDisplayCheckBoxes);
+        tableBody.setDisplayCheckBoxes(collectionPluginData.isDisplayCheckBoxes());
         searchArea = collectionPluginData.getSearchArea();
         items = collectionPluginData.getItems();
         hierarchicalFiltersConfig = collectionPluginData.getHierarchicalFiltersConfig();
@@ -221,9 +222,13 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumns() {
         List<ColumnHeaderBlock> columnHeaderBlocks = new ArrayList<ColumnHeaderBlock>();
-        if (displayCheckBoxes) {
+        CollectionPluginData pluginData = getPluginData();
+        if (embeddedDisplayCheckBoxes) {
+            createEmbeddedTableColumnsWithCheckBoxes(columnHeaderBlocks);
+        }else if(pluginData.isDisplayCheckBoxes()){
             createTableColumnsWithCheckBoxes(columnHeaderBlocks);
-        } else {
+        }
+        else {
             createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
         }
     }
@@ -615,8 +620,8 @@ public class CollectionPluginView extends PluginView {
         return breadCrumbsPanel;
     }
 
-    private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
-        final CollectionColumn<Boolean> checkColumn =
+    private void createEmbeddedTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
+        final CollectionColumn<Boolean> checkBoxColumn =
                 new CollectionColumn<Boolean>(new CheckboxCell(true, true)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
@@ -625,7 +630,7 @@ public class CollectionPluginView extends PluginView {
                     }
                 };
 
-        checkColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
+        checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
                 Id id = object.getId();
@@ -638,17 +643,43 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         });
-        checkColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
-        checkColumn.setMinWidth(CHECK_BOX_MAX_WIDTH);
-        checkColumn.setUserWidth(CHECK_BOX_MAX_WIDTH);
-        checkColumn.setVisible(true);
-        checkColumn.setResizable(false);
-        checkColumn.setMoveable(false);
-        tableBody.addColumn(checkColumn);
-        checkColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
-        HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(checkColumn, null, null);
-        CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkColumn, headerWidget, eventBus);
-        ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkColumn);
+        createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
+    }
+
+    private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
+        final CollectionColumn<Boolean> checkBoxColumn =
+                new CollectionColumn<Boolean>(new CheckboxCell(false, false)) {
+                    @Override
+                    public Boolean getValue(CollectionRowItem object) {
+                        CollectionPlugin collectionPlugin = getPlugin();
+                        Boolean changedState = collectionPlugin.getChangedRowsState().get(object.getId());
+                        return changedState == null ? collectionPlugin.getCheckBoxDefaultState() : changedState;
+
+                    }
+                };
+
+        checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
+            @Override
+            public void update(int index, CollectionRowItem object, Boolean value) {
+                Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
+                Id id = object.getId();
+                if(changedRowsSelection.get(id) == null){
+                    changedRowsSelection.put(id, value);
+                }else {
+                    changedRowsSelection.remove(id);
+                }
+                tableBody.redraw();
+            }
+        });
+        createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
+    }
+
+    private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
+        ColumnFormatter.formatCheckBoxColumn(checkBoxColumn);
+        tableBody.addColumn(checkBoxColumn);
+        HeaderWidget headerWidget = HeaderWidgetFactory.getInstance(checkBoxColumn, null, null);
+        CollectionColumnHeader collectionColumnHeader = new CollectionColumnHeader(tableBody, checkBoxColumn, headerWidget, eventBus);
+        ColumnHeaderBlock columnHeaderBlock = new ColumnHeaderBlock(collectionColumnHeader, checkBoxColumn);
         columnHeaderBlocks.add(columnHeaderBlock);
         createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
     }
@@ -724,7 +755,7 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void applySelectionModel() {
-        if (displayCheckBoxes) {
+        if (embeddedDisplayCheckBoxes) {
             selectionModel = new MultiSelectionModel<>();
         } else {
             selectionModel = new SingleSelectionModel<>();
@@ -993,6 +1024,10 @@ public class CollectionPluginView extends PluginView {
 
     public void resetBodyHeight() {
         tableBody.getScrollPanel().getParent().getElement().getStyle().clearHeight();
+    }
+
+    private CollectionPlugin getPlugin(){
+        return (CollectionPlugin) plugin;
     }
 
 }

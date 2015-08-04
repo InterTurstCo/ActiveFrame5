@@ -15,6 +15,9 @@ import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 import java.util.List;
 
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
+
 /**
  * @author Yaroslav Bondacrhuk
  *         Date: 14/02/14
@@ -70,6 +73,16 @@ public class ColumnFormatter {
         boolean hidden = (Boolean) columnProperties.getProperty(CollectionColumnProperties.HIDDEN);
         collectionColumn.setVisible(!hidden);
         return collectionColumn;
+    }
+
+    public static void formatCheckBoxColumn(CollectionColumn checkBoxColumn){
+        checkBoxColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setMinWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setUserWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setVisible(true);
+        checkBoxColumn.setResizable(false);
+        checkBoxColumn.setMoveable(false);
+        checkBoxColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
     }
 
     private static String getCssStyleForText(String textBreakStyle) {

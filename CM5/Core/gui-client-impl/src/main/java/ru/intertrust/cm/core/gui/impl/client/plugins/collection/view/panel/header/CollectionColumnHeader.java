@@ -547,7 +547,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
                 ghostColumn.removeFromParent();
                 ghostLine.removeFromParent();
                 if (fromIndex != toIndex)
-                    columnMoved(fromIndex, toIndex);
+                    columnMoved(toIndex);
                 dragCallback.dragFinished();
             }
         }
@@ -581,7 +581,7 @@ public class CollectionColumnHeader extends Header<HeaderWidget> {
 
     }
 
-    private void columnMoved(int fromIndex, int toIndex) {
+    private void columnMoved(int toIndex) {
         eventBus.fireEvent(new ComponentOrderChangedEvent(column, table.getColumn(toIndex)));
     }
 }

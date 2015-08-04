@@ -7,6 +7,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionDefaultState;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -44,7 +46,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     protected EventBus eventBus;
     protected DomainObjectSurferPlugin containingDomainObjectSurferPlugin;
     private Map<Id, ExpandedRowState> rowStates = new HashMap<Id, ExpandedRowState>();
-
+    private Map<Id, Boolean> changedRowsSelection = new HashMap<Id, Boolean>();
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -201,6 +203,16 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             rowState.setFilters(effectedRowItem.getFilters());
         }
         fetchAndHandleItems(index, effectedRowItem, rowState);
+    }
+
+    public Map<Id, Boolean> getChangedRowsState(){
+          return changedRowsSelection;
+    }
+
+    public Boolean getCheckBoxDefaultState(){
+       RowsSelectionConfig rowsSelectionConfig = getPluginData().getRowsSelectionConfig();
+       return rowsSelectionConfig == null ? null : RowsSelectionDefaultState.SELECTED.equals(rowsSelectionConfig.getDefaultState());
+
     }
 
     private void removeItems(List<CollectionRowItem> items, List<CollectionRowItem> itemsToRemove){
