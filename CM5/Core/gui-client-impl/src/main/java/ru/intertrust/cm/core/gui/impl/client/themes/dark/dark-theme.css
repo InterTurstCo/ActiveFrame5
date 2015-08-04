@@ -320,7 +320,7 @@
     width: 165px;
 }
 
-.gwt-custom-TreeItem-selected .tree-label:after {
+.gwt-custom-TreeItem-selected .treeItemTitle:after {
     content: open-quote;
     display: block;
     position: absolute;
@@ -333,7 +333,7 @@
     margin-left: 5px;
 }
 
-.gwt-custom-TreeItem-selected .tree-label:before {
+.gwt-custom-TreeItem-selected .treeItemTitle:before {
     content: open-quote;
     display: block;
     position: absolute;
@@ -344,6 +344,14 @@
     top: -5px;
     font-size: 0px;
     /*margin-left: 5px;*/
+}
+.gwt-custom-TreeItem-selected .treeItemTitle {
+    background: url(http://free.selcet.com.ua/folder-list-selected-bg.png) no-repeat scroll 0 100%;
+}
+.treeItemTitle {
+    margin-left: -4px;
+    padding: 0 0 2px 5px;
+    height: 16px;
 }
 
 .gwt-custom-TreeItem-selected .tree-label {
