@@ -26,7 +26,6 @@ import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
@@ -926,6 +925,7 @@ public class CollectionPluginView extends PluginView {
                     selectionModel.clear();
                     selectionModel.setSelected(item, true);
                 }
+                listCount = listCount + 1;
                 tableBody.setRowData(items);
                 tableBody.redraw();
                 tableBody.flush();
