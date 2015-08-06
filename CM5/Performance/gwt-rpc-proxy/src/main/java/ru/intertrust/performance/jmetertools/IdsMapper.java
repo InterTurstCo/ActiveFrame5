@@ -3,6 +3,8 @@ package ru.intertrust.performance.jmetertools;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,13 +62,13 @@ public class IdsMapper {
         }
     }
 
-    public void replaceIdsInParams(Object[] parameters) throws IllegalArgumentException, IllegalAccessException {
+    public void replaceIdsInParams(Object[] parameters) throws Exception{
         for (Object parameter : parameters) {
             replaceIdInParam(parameter);
         }
     }
 
-    private void replaceIdInParam(Object parameter) throws IllegalArgumentException, IllegalAccessException {
+    private void replaceIdInParam(Object parameter) throws IllegalArgumentException, IllegalAccessException, InstantiationException, InvocationTargetException, NoSuchMethodException, SecurityException {
         Class superClass = parameter.getClass();
         do {
             Field[] fields = superClass.getDeclaredFields();
@@ -78,14 +80,36 @@ public class IdsMapper {
                     Map savedMap = (Map) field.get(parameter);
                     if (savedMap != null) {
                         for (Object key : savedMap.keySet()) {
-                            replaceIdInParam(savedMap.get(key));
+                            Object value = savedMap.get(key);
+                            if (Id.class.isAssignableFrom(value.getClass())){
+                                if (idsMap.containsKey(value)){
+                                    savedMap.put(key, idsMap.get(value));
+                                }
+                            }else{
+                                replaceIdInParam(savedMap.get(key));
+                            }
                         }
                     }
-                } else if (List.class.isAssignableFrom(field.getType())) {
-                    List list = (List) field.get(parameter);
+                } else if (Collection.class.isAssignableFrom(field.getType())) {
+                    Collection list = (Collection) field.get(parameter);
                     if (list != null) {
-                        for (Object item : list) {
-                            replaceIdInParam(item);
+                        Object[] listAsArray = list.toArray();
+                        boolean changed = false;
+                        for (int i=0; i< listAsArray.length; i++) {
+                            Object value = listAsArray[i];
+                            if (Id.class.isAssignableFrom(value.getClass())){
+                                if (idsMap.containsKey(value)){
+                                    listAsArray[i] = idsMap.get(value);
+                                    changed = true;
+                                }
+                            }else{
+                                replaceIdInParam(value);
+                            }
+                        }
+                        if (changed){
+                            list.clear();
+                            list.addAll(Arrays.asList(listAsArray));                        
+                            field.set(parameter, list);
                         }
                     }
 
@@ -105,7 +129,7 @@ public class IdsMapper {
         Id savedId = (Id) field.get(data);
         if (idsMap.containsKey(savedId)) {
             field.set(data, idsMap.get(savedId));
-            log.info("Replace " + savedId + " to " + idsMap.get(savedId));
+            log.info("In field " + field + " replace " + savedId + " to " + idsMap.get(savedId));
         }
     }
 }
