@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
@@ -18,6 +19,8 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class GwtUtil {
@@ -66,23 +69,6 @@ public class GwtUtil {
 
     }
 
-    /*public static String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
-        if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
-            return null;
-        }
-        Object responceObj = decodeResponce(request, responce, targetUri);
-        String json = JsonWriter.objectToJson(responceObj);
-        try {
-            json = JsonWriter.formatJson(json);
-        } catch (Exception ex) {
-        }
-        return json;
-    }*/
-
-    /*public static String decodeResponceToJson(String request, String responce) throws SerializationException {
-        return decodeResponceToJson(request, responce, null);
-    }*/
-
     /**
      * Возвращает объект состояния виджета
      * @param request
@@ -115,5 +101,87 @@ public class GwtUtil {
         CollectionRowItem item = collectionPluginData.getItems().get(rnd.nextInt(collectionPluginData.getItems().size()));
         return item.getId();
     }
+    
+    public static void updateIdMap(JMeterContext context) throws Throwable{
+        try {
+            HTTPSampleResult sampleResult = (HTTPSampleResult)context.getPreviousResult();
+            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy)context.getCurrentSampler();
+            Object realResponce = decodeResponce(sampleResult.getQueryString(), sampleResult.getResponseDataAsString(), sampleResult.getURL().toString());
+            String savedResponceJson = sampleProxy.getPropertyAsString("GwtRpcResponceJson");            
+            Object savedResponce = JsonReader.jsonToJava(savedResponceJson);
+            
+            IdsMapper mapper = (IdsMapper)context.getVariables().getObject("IdsMapper");
+            if (mapper == null){
+                mapper = new IdsMapper();
+                context.getVariables().putObject("IdsMapper", mapper);
+            }
+            mapper.addToMap(savedResponce, realResponce);
+                
+        } catch (Throwable ex) {
+            log.error("Error updateIdMap " + context.getCurrentSampler().getName(), ex);
+            throw ex;
+        }
+    }
+    
+    public static void applyIdMap(JMeterContext context) throws Throwable{
+        try {
+            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy)context.getCurrentSampler();
 
+            GwtRpcRequest request = decodeRequest(sampleProxy);
+            
+            IdsMapper mapper = (IdsMapper)context.getVariables().getObject("IdsMapper");
+            if (mapper == null){
+                mapper = new IdsMapper();
+                context.getVariables().putObject("IdsMapper", mapper);
+            }
+            mapper.replaceIdsInParams(request.getParameters());
+            
+            setRequest(sampleProxy, request);
+        } catch (Throwable ex) {
+            log.error("Error applyIdMap " + context.getCurrentSampler().getName(), ex);
+            throw ex;
+        }
+    }
+
+    public static void extractDomainObjects(JMeterContext context) throws Throwable{
+        try {
+            HTTPSampleResult sampleResult = (HTTPSampleResult)context.getPreviousResult();
+            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy)context.getCurrentSampler();
+            Object realResponce = decodeResponce(sampleResult.getQueryString(), sampleResult.getResponseDataAsString(), sampleResult.getURL().toString());
+            String savedResponceJson = sampleProxy.getPropertyAsString("GwtRpcResponceJson");            
+            Object savedResponce = JsonReader.jsonToJava(savedResponceJson);
+            
+            DomainObjectMapper mapper = (DomainObjectMapper)context.getVariables().getObject("DomainObjectMapper");
+            if (mapper == null){
+                mapper = new DomainObjectMapper();
+                context.getVariables().putObject("DomainObjectMapper", mapper);
+            }
+            mapper.addToMap(savedResponce, realResponce);
+                
+        } catch (Throwable ex) {
+            log.error("Error updateIdMap " + context.getCurrentSampler().getName(), ex);
+            throw ex;
+        }
+    }
+    
+    public static void replaceDomainObjects(JMeterContext context) throws Throwable{
+        try {
+            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy)context.getCurrentSampler();
+
+            GwtRpcRequest request = decodeRequest(sampleProxy);
+            
+            DomainObjectMapper mapper = (DomainObjectMapper)context.getVariables().getObject("DomainObjectMapper");
+            if (mapper == null){
+                mapper = new DomainObjectMapper();
+                context.getVariables().putObject("DomainObjectMapper", mapper);
+            }
+            mapper.replaceIdsInParams(request.getParameters());
+            
+            setRequest(sampleProxy, request);
+        } catch (Throwable ex) {
+            log.error("Error applyIdMap " + context.getCurrentSampler().getName(), ex);
+            throw ex;
+        }
+    }
+    
 }
