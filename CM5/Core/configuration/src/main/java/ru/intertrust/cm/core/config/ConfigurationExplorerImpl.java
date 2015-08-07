@@ -253,6 +253,27 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * {@inheritDoc}
      */
     @Override
+    public Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName) {
+        readLock.lock();
+        try {
+            Set<ReferenceFieldConfig> referenceFieldConfigs = configStorage.referenceFieldsMap.get(domainObjectConfigName);
+            if (referenceFieldConfigs == null) {
+                referenceFieldConfigs = configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
+            }
+
+            Set<ReferenceFieldConfig> result = new HashSet<>(referenceFieldConfigs.size());
+            result.addAll(referenceFieldConfigs);
+
+            return getReturnObject(result, HashSet.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
         readLock.lock();
         try {

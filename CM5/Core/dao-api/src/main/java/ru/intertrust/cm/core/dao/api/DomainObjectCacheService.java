@@ -91,7 +91,7 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putAllOnRead(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String... key);
+    public void putAllOnRead(Id parentId, List<DomainObject> dobjs, AccessToken accessToken, String... key);
 
     /**
      * Кеширование списка DomainObject после чтения (не требуется обновление связанных объектов) в транзакционный кеш
@@ -104,7 +104,7 @@ public interface DomainObjectCacheService {
      * @return список идентификаторов доменных объектов добавленных в кеш
      * @throws DaoException - если key == null или содержит пустой список.
      */
-    public List<Id> putAllOnRead(List<DomainObject> dobjs, AccessToken accessToken, String... key);
+    public void putAllOnRead(List<DomainObject> dobjs, AccessToken accessToken, String... key);
 
     /**
      * Кеширование коллекции объектов после чтения (не требуется обновление связанных объектов) в транзакционном кеше.
@@ -116,7 +116,7 @@ public interface DomainObjectCacheService {
      * @param key категория тестирования
      * @return
      */
-    public List<Id> putCollectionOnRead(Id parentId, List<DomainObject> dobjs, String... key);
+    public void putCollectionOnRead(Id parentId, List<DomainObject> dobjs, String... key);
 
     /**
      * Возвращает клонированную коллекцию доменных объектов из кеша.
