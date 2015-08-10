@@ -64,7 +64,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         return paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
     }
     
-    protected BinaryExpression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
+    protected Expression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
         BinaryExpression expressionForReferenceId = null;
         if (isEquals) {
             expressionForReferenceId = new EqualsTo();
@@ -84,9 +84,9 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         expressionForReferenceId.setRightExpression(referenceParameter);
         // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
         // фильтр {например, t.id = 1 and t.id_type = 2 }
-        BinaryExpression newReferenceExpression = null;
+        Expression newReferenceExpression = null;
         newReferenceExpression =
-                new AndExpression(expressionForReferenceId, expressionForReferenceType);
+                new Parenthesis(new AndExpression(expressionForReferenceId, expressionForReferenceType));
 
         return newReferenceExpression;
     }
