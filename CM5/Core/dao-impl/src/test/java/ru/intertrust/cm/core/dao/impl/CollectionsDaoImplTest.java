@@ -51,6 +51,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 /**'employee'
@@ -61,6 +62,10 @@ import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CollectionsDaoImplTest {
+
+    private static final String COLLECTION_NOT_EQUALS_REFERENCE_RESULT = "SELECT s.\"id\", s.\"id_type\" FROM \"person\" s WHERE s.\"boss\" = :PARAM0 AND s.\"boss_type\" = :PARAM0_type AND s.\"id\" <> :PARAM1 AND s.\"id_type\" <> :PARAM1_type";
+
+    private static final String COLLECTION_NOT_EQUALS_REFERENCE = "select s.id from Person s where s.boss = {0} and s.id !={1}";
 
     private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r " +
     		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
@@ -307,6 +312,16 @@ public class CollectionsDaoImplTest {
         return accessToken;
     }
 
+    private AccessToken createMockSystemAccessToken() {
+        AccessToken accessToken = mock(AccessToken.class);
+        when(accessToken.isDeferred()).thenReturn(false);
+
+        UserSubject subject = mock(UserSubject.class);
+        when(subject.getUserId()).thenReturn(1);
+        when(accessToken.getSubject()).thenReturn(subject);
+        return accessToken;
+    }
+    
     @Test
     public void testFindCollectionWithFilters() throws Exception {
         Filter filter = new Filter();
@@ -488,8 +503,27 @@ public class CollectionsDaoImplTest {
 
         verify(jdbcTemplate).query(eq(ACTUAL_COLLECTION_QUERY_WITH_LIMITS),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
+
     }
 
+    @Test
+    public void testFindCollectionByQueryWithReferenceParams() throws Exception {
+        AccessToken accessToken = createMockSystemAccessToken();
+        
+        List<Value> referenceValues =
+                Arrays.<Value> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
+        
+        List<Value> params = new ArrayList<>();
+        params.addAll(referenceValues);
+
+        
+        collectionsDaoImpl.findCollectionByQuery(COLLECTION_NOT_EQUALS_REFERENCE, params, 0, 0, accessToken);
+
+        verify(jdbcTemplate).query(eq(COLLECTION_NOT_EQUALS_REFERENCE_RESULT),
+                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
+
+    }
+    
     //@Test
     public void testFindCollectionCountWithFilters() throws Exception {
         List<Filter> filterValues = new ArrayList<>();
