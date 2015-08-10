@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -21,6 +20,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZo
  * @author atsvetkov
  */
 public class ValueReader {
+
     private static final ThreadLocal<Calendar> gmtCalendar = new ThreadLocal<Calendar>() {
         protected Calendar initialValue() {
             return Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -43,23 +43,26 @@ public class ValueReader {
 
         BasicRowMapper.Column column = columns.get(columnIndex);
 
-        if (fieldConfig != null &&
-                (StringFieldConfig.class.equals(fieldConfig.getClass()) ||
-                        TextFieldConfig.class.equals(fieldConfig.getClass()))) {
+        if (fieldConfig == null) {
+            return null;
+        }
+
+        if (StringFieldConfig.class.equals(fieldConfig.getClass()) ||
+                TextFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readStringValue(rs, column);
-        } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (LongFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readLongValue(rs, column);
-        } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDecimalValue(rs, column);
-        } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readReferenceValue(rs, columns, columnIndex);
-        } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDateTimeValue(rs, column);
-        } else if (fieldConfig != null && DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDateTimeWithTimeZoneValue(rs, columns, columnIndex);
-        } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readTimelessDateValue(rs, column);
-        } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readBooleanValue(rs, column);
         }
 
@@ -106,21 +109,11 @@ public class ValueReader {
     }
 
     protected DecimalValue readDecimalValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        BigDecimal fieldValue = rs.getBigDecimal(column.getIndex());
-        if (fieldValue != null) {
-            return new DecimalValue(fieldValue);
-        } else {
-            return new DecimalValue();
-        }
+        return new DecimalValue(rs.getBigDecimal(column.getIndex()));
     }
 
     protected StringValue readStringValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        String fieldValue = rs.getString(column.getIndex());
-        if (fieldValue != null) {
-            return new StringValue(fieldValue);
-        } else {
-            return new StringValue();
-        }
+        return new StringValue(rs.getString(column.getIndex()));
     }
 
     protected ReferenceValue readReferenceValue(ResultSet rs, List<BasicRowMapper.Column> columns, int columnIndex)
@@ -240,9 +233,9 @@ public class ValueReader {
     protected BooleanValue readBooleanValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
         Number booleanInt = (Number) rs.getObject(column.getIndex());
         if (booleanInt != null) {
-            return new BooleanValue(booleanInt.intValue() == 1);
+            return booleanInt.intValue() == 1 ? BooleanValue.TRUE : BooleanValue.FALSE;
         } else {
-            return new BooleanValue();
+            return BooleanValue.EMPTY;
         }
     }
 

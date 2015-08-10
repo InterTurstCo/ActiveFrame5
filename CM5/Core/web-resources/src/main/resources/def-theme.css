@@ -669,6 +669,14 @@ h1 {
     height: 25px;
 }
 
+.decorated-action-link {
+    width: 1100px;
+}
+
+.arrow-action-panel {
+
+}
+
 .centerTopBottomDividerRoot {
     /*background: #ffffff;*/
     border-radius: 0 0 5px 5px;

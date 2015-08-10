@@ -926,6 +926,7 @@ public class CollectionPluginView extends PluginView {
                     selectionModel.clear();
                     selectionModel.setSelected(item, true);
                 }
+                listCount = listCount + 1;
                 tableBody.setRowData(items);
                 tableBody.redraw();
                 tableBody.flush();
