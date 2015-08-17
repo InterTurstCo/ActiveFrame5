@@ -47,7 +47,7 @@ public class LabelConfig extends WidgetConfig implements Dto {
     private TextDecorationConfig textDecorationConfig;
 
     @Override
-    public Boolean getReadOnly() {
+    public boolean isReadOnly() {
         return true;
     }
 

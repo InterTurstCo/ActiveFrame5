@@ -144,7 +144,7 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
         fieldPathStates = new HashMap<>(widgetConfigs.size());
         for (WidgetConfig config : widgetConfigs) {
             FieldPathConfig fieldPathConfig = config.getFieldPathConfig();
-            if (fieldPathConfig == null || fieldPathConfig.getValue() == null || config.getReadOnly()) {
+            if (fieldPathConfig == null || fieldPathConfig.getValue() == null || config.isReadOnly()) {
                 continue;
             }
 

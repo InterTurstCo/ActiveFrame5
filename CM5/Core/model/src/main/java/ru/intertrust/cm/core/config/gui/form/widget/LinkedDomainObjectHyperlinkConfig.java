@@ -75,7 +75,7 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
     }
 
     @Override
-    public Boolean getReadOnly() {
+    public boolean isReadOnly() {
         return true;
     }
 

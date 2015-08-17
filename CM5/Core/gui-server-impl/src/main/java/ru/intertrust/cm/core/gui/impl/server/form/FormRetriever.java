@@ -181,7 +181,7 @@ public class FormRetriever extends FormProcessor {
             List<Constraint> constraints = buildConstraints(context);
             initialState.setConstraints(constraints);
             initialState.setWidgetProperties(buildWidgetProps(constraints, formConfig.getType()));
-            boolean readOnly = widgetContext.getWidgetConfig().getReadOnly();
+            boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
             initialState.setEditable(!readOnly);
             widgetStateMap.put(widgetId, initialState);
         }
@@ -292,7 +292,7 @@ public class FormRetriever extends FormProcessor {
                 }
                 WidgetState initialState = widgetHandler.getInitialState(widgetContext);
                 if (initialState != null) {
-                    boolean readOnly = widgetContext.getWidgetConfig().getReadOnly();
+                    boolean readOnly = widgetContext.getWidgetConfig().isReadOnly();
                     initialState.setEditable(!readOnly);
                     widgetStateMap.put(widgetId, initialState);
                     widgetComponents.put(widgetId, config.getComponentName());
@@ -302,7 +302,7 @@ public class FormRetriever extends FormProcessor {
 
 
             // field path config can point to multiple paths
-            boolean readOnly = config.getReadOnly();
+            boolean readOnly = config.isReadOnly();
             FieldPath[] fieldPaths = FieldPath.createPaths(fieldPathConfig.getValue());
             final ExactTypesConfig exactTypesConfig = fieldPathConfig.getExactTypesConfig();
             for (FieldPath fieldPath : fieldPaths) {

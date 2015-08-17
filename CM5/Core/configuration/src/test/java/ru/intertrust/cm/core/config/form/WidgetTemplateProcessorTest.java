@@ -45,7 +45,7 @@ public class WidgetTemplateProcessorTest extends AbstractConfigProcessingTest{
 
         Assert.assertEquals("300px", suggestBoxConfig.getMaxTooltipHeight());
         Assert.assertEquals("300px", suggestBoxConfig.getMaxTooltipWidth());
-        Assert.assertTrue(suggestBoxConfig.getReadOnly());
+        Assert.assertTrue(suggestBoxConfig.isReadOnly());
         Assert.assertFalse(suggestBoxConfig.getFieldPathConfig() == null);
         Assert.assertEquals("name", suggestBoxConfig.getFieldPathConfig().getValue());
 

@@ -133,7 +133,7 @@ public class TableViewerConfig extends WidgetConfig {
     }
 
     @Override
-    public Boolean getReadOnly() {
+    public boolean isReadOnly() {
         return true;
     }
 

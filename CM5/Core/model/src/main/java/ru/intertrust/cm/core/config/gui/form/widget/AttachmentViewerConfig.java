@@ -41,7 +41,7 @@ public class AttachmentViewerConfig extends WidgetConfig implements Dto {
     }
 
     @Override
-    public Boolean getReadOnly() {
+    public boolean isReadOnly() {
         return true;
     }
 }

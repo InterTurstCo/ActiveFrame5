@@ -54,18 +54,13 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         this.fieldPathConfig = fieldPathConfig;
     }
 
-    public Boolean getReadOnly() {
+    public boolean isReadOnly() {
         return readOnly == null ? false : readOnly;
     }
 
-   /* public Boolean getReadOnly() {
-        return readOnly;
-    }*/
-
-    public void setReadOnly(Boolean readOnly) {
+    public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
-
 
     public String getMaxTooltipWidth() {
         return maxTooltipWidth == null ? MAX_DEFAULT_TOOLTIP_WIDTH : maxTooltipWidth;
