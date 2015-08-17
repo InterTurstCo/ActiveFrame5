@@ -143,6 +143,9 @@ public class AttachmentServiceImplTest {
         private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
 
         @Mock
+        private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
+
+        @Mock
         private PlainFormBuilder plainFormBuilder;
 
         @Mock
@@ -185,6 +188,11 @@ public class AttachmentServiceImplTest {
         @Bean
         public PlainFormBuilder plainFormBuilder(){
             return plainFormBuilder;
+        }
+
+        @Bean
+        public WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator(){
+            return widgetConfigurationLogicalValidator;
         }
 
         @Bean

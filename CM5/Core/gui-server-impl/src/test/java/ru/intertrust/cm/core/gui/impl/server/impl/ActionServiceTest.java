@@ -156,11 +156,16 @@ public class ActionServiceTest {
         public NavigationPanelLogicalValidator navigationPanelLogicalValidator(){
             return Mockito.mock(NavigationPanelLogicalValidator.class);
         }
+
         @Bean
         public PlainFormBuilder plainFormBuilder(){
             return Mockito.mock(PlainFormBuilder.class);
         }
 
+        @Bean
+        public WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator(){
+            return Mockito.mock(WidgetConfigurationLogicalValidator.class);
+        }
 
         @Bean
         public UserGroupGlobalCache userGroupGlobalCache(){

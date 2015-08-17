@@ -61,7 +61,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
 
         configurationStorageBuilder.buildConfigurationStorage();
-       // plainFormBuilder = new PlainFormBuilderImpl();
         if (!skipLogicalValidation) {
             validate();
         }
@@ -691,8 +690,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (plainFormBuilder.isRaw(formConfig)) {
                 FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
                 if (formConfigFromCash == null) {
-                    List<FormConfig> parentFormConfigs = getParentFormConfigs(formConfig);
-                    formConfig = plainFormBuilder.buildPlainForm(formConfig, parentFormConfigs);
+                    formConfig = plainFormBuilder.buildPlainForm(formConfig);
 
                     if (formConfig == null) {
                         formConfig = NullValues.FORM_CONFIG;

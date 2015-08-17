@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -36,7 +37,8 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig implements HasL
     @Element(name = "pattern", required = false)
     private PatternConfig patternConfig;
 
-    @Element(name = "summary-table")
+    @NotNullLogicalValidation
+    @Element(name = "summary-table", required = false)
     private SummaryTableConfig summaryTableConfig;
 
     @Element(name = "single-choice", required = false)

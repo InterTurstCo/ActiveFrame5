@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -22,15 +23,19 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
     @Attribute(name = "resizable", required = false)
     private boolean resizable;
 
+    @NotNullLogicalValidation
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 
+    @NotNullLogicalValidation
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "selection-pattern", required = true)
+    @NotNullLogicalValidation
+    @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
 
+    @NotNullLogicalValidation
     @Element(name = "input-text-filter", required = false)
     private InputTextFilterConfig inputTextFilterConfig;
 

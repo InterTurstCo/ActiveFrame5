@@ -1214,6 +1214,13 @@
         <counting-prototype>
             select count(*) from so_orgsystem ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    so_orgsystem.shortname like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection name="SO_Parent_SU_Collection" idField="id">
         <prototype>
@@ -1277,6 +1284,13 @@
                   ::where-clause
            ]]>
         </prototype>
+        <filter name="byTitle">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    m.title like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="SO_PostPlain_Collection" idField="id">
@@ -1415,5 +1429,12 @@
         <counting-prototype>
             select count(*) from SS_ModuleType ::from-clause WHERE 1=1 ::where-clause
         </counting-prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    SS_ModuleType.name like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 </configuration>

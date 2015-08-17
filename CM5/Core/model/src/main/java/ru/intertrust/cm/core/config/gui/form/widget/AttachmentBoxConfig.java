@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,14 +11,14 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "attachment-box")
 public class AttachmentBoxConfig extends WidgetConfig {
-
-    @Element(name = "attachment-type-ref")
+    @NotNullLogicalValidation
+    @Element(name = "attachment-type-ref", required = false)
     private AttachmentTypeRefConfig attachmentType;
 
-    @Element(name = "scanner")
+    @Element(name = "scanner", required = false)
     private ScannerConfig scanner;
 
-    @Element(name = "selection-style")
+    @Element(name = "selection-style", required = false)
     private SelectionStyleConfig selectionStyle;
 
     @Element(name = "single-choice", required = false)

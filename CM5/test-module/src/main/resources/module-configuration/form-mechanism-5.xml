@@ -237,6 +237,13 @@
                     1=1 ::where-clause
             ]]>
         </prototype>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    b4.name1 like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection name="c4_collection" idField="id">

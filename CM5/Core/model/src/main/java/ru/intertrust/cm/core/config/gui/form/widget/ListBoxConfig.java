@@ -12,7 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 @Root(name = "list-box")
 public class ListBoxConfig extends WidgetConfig implements Dto {
 
-    @Element(name = "pattern")
+    @Element(name = "pattern", required = false)
     private PatternConfig patternConfig;
 
     @Element(name = "single-choice", required = false)

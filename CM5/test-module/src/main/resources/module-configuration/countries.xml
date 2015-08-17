@@ -526,11 +526,11 @@
                 <text>Столица:</text>
                 <force-required-asterisk value="true"/>
             </label>
-            <list-box id="8a">
+            <!--<list-box id="8a">
                 <field-path value="capital"/>
-                <!--а для области столицы: capital . federal_unit_city^city . federal_unit . name -->
+                &lt;!&ndash;а для области столицы: capital . federal_unit_city^city . federal_unit . name &ndash;&gt;
                 <pattern value="{name} ({population} чел.)"/>
-            </list-box>
+            </list-box>-->
 
             <label id="7a">
                 <text>Известный город:</text>
@@ -750,7 +750,11 @@
             <label id="flagAttachmentLbl">
                 <text>Государственный флаг:</text>
             </label>
-            <attachment-box id="flag_attachment">
+            <template-based-widget id="flag_attachment" template-name="attachment-box-template">
+                <field-path value="flag"/>
+
+            </template-based-widget>
+           <!-- <attachment-box id="flag_attachment">
                 <field-path value="flag"/>
                 <images-only>
                     <read-only-preview preserve-proportion="true"/>
@@ -763,7 +767,7 @@
                 <choice-style name="popup"/>
                 <delete-button display="true"/>
                 <clear-all-button image="resources/defaulttheme/images/icons/icon-clear2.png"/>
-            </attachment-box>
+            </attachment-box>-->
 
             <label id="faunaAttachmentLbl">
                 <text>Представители фауны:</text>
@@ -907,19 +911,17 @@
                 <single-choice value="false"/>
 
             </linked-domain-objects-table>
-            <!-- <label id="bad_label">
-                 <pattern value="date {created_date}"/>
-                 <field-path value="created_date"/>
-             <formatting>
 
-                 <date-format pattern="dd.MM.yyyy HH:mm" style="short">
-                 <time-zone id="Etc/GMT+1"/>
-                     <field-paths>
-                         <field-path value="created_date"/>
-                     </field-paths>
-                 </date-format>
-             </formatting>
-             </label>-->
+            <template-based-widget  max-tooltip-height="500px" max-tooltip-width="500px" read-only="false" template-name="city-suggest-box-template">
+                <override>
+                    <suggest-box id="8a">
+                        <drop-down-pattern value="{name}"/>
+                        <clear-all-button text="Очистить всё"/>
+                        <field-path value="capital"/>
+                        <selection-pattern value="{name}"/>
+                    </suggest-box>
+                </override>
+            </template-based-widget>
         </widget-config>
         <widget-groups>
             <widget-group name="country-union-group">
@@ -1443,6 +1445,13 @@
                     1=1 ::where-clause
             ]]>
         </prototype>
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    co.name like {0}
+                ]]>
+            </criteria>
+        </filter>
     </collection>
     <collection-view name="countries_default_view" collection="Countries" is-default="true">
         <display>
@@ -1563,5 +1572,32 @@
             </groups>
         </form-mapping>
     </form-mappings>
+
+    <widget-template name="city-suggest-box-template">
+        <suggest-box>
+            <collection-ref name="Cities"/>
+            <input-text-filter name="byName"/>
+            <page-size>30</page-size>
+            <selection-style name="inline"/>
+            <clear-all-button text="Очистить"/>
+            <default-sort-criteria column-field="name" order="asc"/>
+        </suggest-box>
+    </widget-template>
+
+    <widget-template name="attachment-box-template">
+        <attachment-box>
+            <attachment-type-ref name="country_flag"/>
+            <images-only>
+                <read-only-preview preserve-proportion="true"/>
+                <small-preview display="true" preserve-proportion="true"/>
+                <large-preview display="true" preserve-proportion="true" width="400px" height="300px"/>
+            </images-only>
+            <scanner enabled="true"/>
+            <selection-style name="inline"/>
+            <choice-style name="popup"/>
+            <delete-button display="true"/>
+            <clear-all-button image="images/icons/icon-clear2.png"/>
+        </attachment-box>
+    </widget-template>
 
 </configuration>

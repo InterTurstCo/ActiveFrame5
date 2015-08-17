@@ -72,7 +72,7 @@ public class FormSaver extends FormProcessor {
         widgetConfigsById = new CaseInsensitiveHashMap<>(widgetConfigurationConfig.getWidgetConfigList().size());
         for (WidgetConfig config : widgetConfigurationConfig.getWidgetConfigList()) {
             widgetConfigsById.put(config.getId(), config);
-            if (formState.getWidgetState(config.getId()) != null && !config.isReadOnly() && !(getWidgetHandler(config) instanceof SelfManagingWidgetHandler)) {
+            if (formState.getWidgetState(config.getId()) != null && !config.getReadOnly() && !(getWidgetHandler(config) instanceof SelfManagingWidgetHandler)) {
                 widgetConfigs.add(config);
             }
         }

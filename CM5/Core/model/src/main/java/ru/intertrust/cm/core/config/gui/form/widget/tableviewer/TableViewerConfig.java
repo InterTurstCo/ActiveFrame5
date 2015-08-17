@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -16,6 +17,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "table-viewer")
 public class TableViewerConfig extends WidgetConfig {
+    @NotNullLogicalValidation
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 
@@ -131,7 +133,7 @@ public class TableViewerConfig extends WidgetConfig {
     }
 
     @Override
-    public boolean isReadOnly() {
+    public Boolean getReadOnly() {
         return true;
     }
 

@@ -61,7 +61,7 @@ public class WidgetConfigUtil {
         @Override
         public boolean evaluate(Object input) {
             WidgetConfig config = (WidgetConfig) input;
-            return !config.isReadOnly();
+            return !config.getReadOnly();
         }
     }
 
