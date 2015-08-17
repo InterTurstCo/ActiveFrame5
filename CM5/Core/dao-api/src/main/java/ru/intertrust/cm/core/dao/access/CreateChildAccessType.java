@@ -40,4 +40,9 @@ public class CreateChildAccessType implements AccessType {
         return childType.equals(other.childType);
     }
 
+    @Override
+    public String toString() {
+        return "CreateChildAccessType [childType=" + childType + "]";
+    }
+    
 }

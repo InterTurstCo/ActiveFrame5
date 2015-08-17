@@ -38,4 +38,11 @@ public class ExecuteActionAccessType implements AccessType {
         return actionName.equals(other.actionName);
     }
 
+    @Override
+    public String toString() {
+        return "ExecuteActionAccessType [actionName=" + actionName + "]";
+    }
+    
+    
+
 }

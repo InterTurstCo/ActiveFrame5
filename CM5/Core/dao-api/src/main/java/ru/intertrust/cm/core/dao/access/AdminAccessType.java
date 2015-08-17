@@ -32,4 +32,9 @@ public class AdminAccessType implements AccessType {
         return this == obj;     // singleton объект можно сравнивать и так
     }
 
+    @Override
+    public String toString() {
+        return "AdminAccessType []";
+    }
+
 }
