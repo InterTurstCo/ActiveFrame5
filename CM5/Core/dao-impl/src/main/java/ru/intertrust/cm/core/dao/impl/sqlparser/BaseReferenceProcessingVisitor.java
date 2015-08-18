@@ -85,9 +85,14 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
         // фильтр {например, t.id = 1 and t.id_type = 2 }
         Expression newReferenceExpression = null;
-        newReferenceExpression =
-                new Parenthesis(new AndExpression(expressionForReferenceId, expressionForReferenceType));
+        if (isEquals) {
+            newReferenceExpression =
+                    new AndExpression(expressionForReferenceId, expressionForReferenceType);
 
+        } else {
+            newReferenceExpression =
+                    new Parenthesis(new OrExpression(expressionForReferenceId, expressionForReferenceType));
+        }
         return newReferenceExpression;
     }
 

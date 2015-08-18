@@ -37,7 +37,11 @@ import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 import ru.intertrust.cm.core.model.PermissionException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -710,12 +714,19 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
         @Override
         public void beforeCompletion() {
-            for (Id groupId : groupIds) {
-                recalcGroup(groupId);
-            }
-
-            for (int i = contextsForDelete.size() - 1; i > -1; i--) {
-                deleteContextGroups(contextsForDelete.get(i));
+            try{
+                for (Id groupId : groupIds) {
+                    recalcGroup(groupId);
+                }
+    
+                for (int i = contextsForDelete.size() - 1; i > -1; i--) {
+                    deleteContextGroups(contextsForDelete.get(i));
+                }
+            } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                logger.error("Unexpected exception caught in beforeCompletion", ex);
+                throw new UnexpectedException("RecalcGroupSynchronization.beforeCompletion " + ex.getMessage());
             }
         }
 
