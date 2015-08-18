@@ -3351,3 +3351,9 @@ a:active .icon.back {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d3d3d3', endColorstr='#545454',GradientType=0 ); /* IE6-9 */
 }
 
+/* Calendar*/
+.monthDetailPanel>div:nth-child(2)>div {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px 0;
+}
