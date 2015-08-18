@@ -62,7 +62,7 @@ import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 @RunWith(MockitoJUnitRunner.class)
 public class CollectionsDaoImplTest {
 
-    private static final String COLLECTION_NOT_EQUALS_REFERENCE_RESULT = "SELECT s.\"id\", s.\"id_type\" FROM \"person\" s WHERE (s.\"boss\" = :PARAM0 AND s.\"boss_type\" = :PARAM0_type) AND (s.\"id\" <> :PARAM1 AND s.\"id_type\" <> :PARAM1_type)";
+    private static final String COLLECTION_NOT_EQUALS_REFERENCE_RESULT = "SELECT s.\"id\", s.\"id_type\" FROM \"person\" s WHERE s.\"boss\" = :PARAM0 AND s.\"boss_type\" = :PARAM0_type AND (s.\"id\" <> :PARAM1 OR s.\"id_type\" <> :PARAM1_type)";
 
     private static final String COLLECTION_NOT_EQUALS_REFERENCE = "select s.id from Person s where s.boss = {0} and s.id !={1}";
 
