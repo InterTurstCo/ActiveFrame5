@@ -23,10 +23,7 @@ import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ConfigurationStorageBuilder {
     private static Logger log = LoggerFactory.getLogger(ConfigurationStorageBuilder.class);
@@ -405,6 +402,29 @@ public class ConfigurationStorageBuilder {
         domainObjectTypeConfig.getDomainObjectFieldsConfig().setFieldConfigs(allFieldsConfig);
 
         fillFieldsConfigMap(domainObjectTypeConfig);
+    }
+
+    public Set<ReferenceFieldConfig> fillReferenceFieldsMap(String domainObjectTypeConfigName) {
+        String[] hierarchy = configurationExplorer.getDomainObjectTypesHierarchy(domainObjectTypeConfigName);
+
+        List<String> allTypeNames = hierarchy == null ? new ArrayList<String>(1) : new ArrayList<String>(hierarchy.length + 1);
+        allTypeNames.add(domainObjectTypeConfigName);
+        if (hierarchy != null) {
+            allTypeNames.addAll(Arrays.asList(hierarchy));
+        }
+
+        Set<ReferenceFieldConfig> referenceFieldConfigs = new HashSet<>();
+        for (String typeName : allTypeNames) {
+            DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(typeName);
+            for (FieldConfig fieldConfig : config.getFieldConfigs()) {
+                if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                }
+            }
+        }
+
+        configurationStorage.referenceFieldsMap.put(domainObjectTypeConfigName, referenceFieldConfigs);
+        return referenceFieldConfigs;
     }
 
     private void fillConfigurationMapOfChildDomainObjectType(DomainObjectTypeConfig type) {

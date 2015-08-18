@@ -4,6 +4,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Transient;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
@@ -19,16 +20,19 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "suggest-box", strict = false)
 public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
-
+    @NotNullLogicalValidation
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "drop-down-pattern", required = true)
+    @NotNullLogicalValidation
+    @Element(name = "drop-down-pattern", required = false)
     private DropdownPatternConfig dropdownPatternConfig;
 
-    @Element(name = "selection-pattern", required = true)
+    @NotNullLogicalValidation
+    @Element(name = "selection-pattern", required = false)
     private SelectionPatternConfig selectionPatternConfig;
 
+    @NotNullLogicalValidation
     @Element(name = "input-text-filter", required = false)
     private InputTextFilterConfig inputTextFilterConfig;
 

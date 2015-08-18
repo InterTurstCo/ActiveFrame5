@@ -34,6 +34,13 @@
                 ]]>
             </criteria>
         </filter>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(t.title) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="type_accessory_collection_view" collection="type_accessory_collection" is-default="true">

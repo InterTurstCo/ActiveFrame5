@@ -552,10 +552,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (configurationExplorer.isAuditLogType(domainObjectType)) {
             throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
         }
-        deleteMany(new Id[]{id}, accessToken);
+        deleteMany(new Id[]{id}, accessToken, false);
     }
 
-    private int deleteMany(Id[] ids, AccessToken accessToken) throws InvalidIdException,
+    private int deleteMany(Id[] ids, AccessToken accessToken, boolean ignoreObjectNotFound) throws InvalidIdException,
             ObjectNotFoundException {
 
         checkIfAuditLog(ids);
@@ -575,15 +575,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         AccessToken systemAccessToken = createSystemAccessToken();
 
         DomainObject[] deletedObjects = new DomainObject[ids.length];
-        List<String> parentTypes = null;
+        Map<Id, List<String>> objectsParentTypes = new HashMap<Id, List<String>>();
         int i = 0;
         for (Id id : ids) {
             DomainObject deletedObject = find(id, systemAccessToken);
             deletedObjects[i++] = deletedObject;
+            //Прверка наличия доменного объекта
+            if (deletedObject == null){        
+                //Если взведен флаг игнорировать отсутствие ДО то пропускаем идентификатор, иначе бросаем исключение
+                if (ignoreObjectNotFound){
+                    continue;
+                }else{
+                    throw new ObjectNotFoundException(id);
+                }
+            }
             List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
             // Точка расширения до удаления
-            parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
+            List<String> parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
             //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
             parentTypes.add("");
             for (String typeName : parentTypes) {
@@ -591,13 +600,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
                 beforeDeleteEH.onBeforeDelete(deletedObject);
             }
+            objectsParentTypes.put(id, parentTypes);
 
             //Пересчет прав непосредственно перед удалением объекта из базы, чтобы не нарушать целостность данных
             refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
         }
 
         //непосредственно удаление из базыы
-        int deleted = internalDelete(ids);
+        int deleted = internalDelete(ids, ignoreObjectNotFound);
 
         //Удалене из кэша
         for (Id id : ids) {
@@ -606,6 +616,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Пишем в аудит лог
         for (DomainObject deletedObject : deletedObjects) {
+            if (deletedObject == null){
+                continue;
+            }
             String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
             Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
 
@@ -613,13 +626,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         // Точка расширения после удаления, вызывается с установкой фильтра текущего типа и всех наследников
-        for (String typeName : parentTypes) {
-            AfterDeleteExtensionHandler afterDeleteEH = extensionService
-                    .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
-            for (DomainObject deletedObject : deletedObjects) {
+        for (DomainObject deletedObject : deletedObjects) {
+            if (deletedObject == null) {
+                continue;
+            }
+
+            for (String typeName : objectsParentTypes.get(deletedObject.getId())) {
+                AfterDeleteExtensionHandler afterDeleteEH = extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
+
                 afterDeleteEH.onAfterDelete(deletedObject);
 
-                //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+                //Добавляем слушателя коммита транзакции, чтобы вызвать точки расширения после транзакции
                 DomainObjectActionListener listener = getTransactionListener();
                 listener.addDeletedDomainObject(deletedObject);
             }
@@ -665,7 +682,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * Удаление объекта из базяы
      * @param deletedIds
      */
-    private int internalDelete(Id [] deletedIds) {
+    private int internalDelete(Id [] deletedIds, boolean ignoreObjectNotFound) {
         RdbmsId rdbmsId = (RdbmsId) deletedIds[0];
 
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
@@ -688,8 +705,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             count += deletedObject;
         }
 
-        if (count == 0) {
-            throw new ObjectNotFoundException(rdbmsId);
+        if (count < deletedIds.length) {
+            if (!ignoreObjectNotFound){
+                throw new ObjectNotFoundException(rdbmsId);
+            }
         }
 
         // Удаление родительского объекта, перенесено ниже удаления дочернего
@@ -701,8 +720,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parentIds[j] = parentId;
         }
 
-
-        internalDelete(parentIds);
+        internalDelete(parentIds, ignoreObjectNotFound);
 
         return count;
     }
@@ -724,7 +742,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         int count = 0;
         for (List<Id> idsByType : idsByTypes) {
             try {
-                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken);
+                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken, true);
             } catch (ObjectNotFoundException e) {
                 // ничего не делаем пока
             }

@@ -61,7 +61,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
 
         configurationStorageBuilder.buildConfigurationStorage();
-       // plainFormBuilder = new PlainFormBuilderImpl();
         if (!skipLogicalValidation) {
             validate();
         }
@@ -245,6 +244,27 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         readLock.lock();
         try {
             return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName) {
+        readLock.lock();
+        try {
+            Set<ReferenceFieldConfig> referenceFieldConfigs = configStorage.referenceFieldsMap.get(domainObjectConfigName);
+            if (referenceFieldConfigs == null) {
+                referenceFieldConfigs = configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
+            }
+
+            Set<ReferenceFieldConfig> result = new HashSet<>(referenceFieldConfigs.size());
+            result.addAll(referenceFieldConfigs);
+
+            return getReturnObject(result, HashSet.class);
         } finally {
             readLock.unlock();
         }
@@ -691,8 +711,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (plainFormBuilder.isRaw(formConfig)) {
                 FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
                 if (formConfigFromCash == null) {
-                    List<FormConfig> parentFormConfigs = getParentFormConfigs(formConfig);
-                    formConfig = plainFormBuilder.buildPlainForm(formConfig, parentFormConfigs);
+                    formConfig = plainFormBuilder.buildPlainForm(formConfig);
 
                     if (formConfig == null) {
                         formConfig = NullValues.FORM_CONFIG;

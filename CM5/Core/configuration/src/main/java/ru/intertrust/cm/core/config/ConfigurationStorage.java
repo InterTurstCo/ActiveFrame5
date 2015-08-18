@@ -10,10 +10,7 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigurationStorage {
 
@@ -29,6 +26,8 @@ public class ConfigurationStorage {
 
     public Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     public Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+
+    public CaseInsensitiveMap<Set<ReferenceFieldConfig>> referenceFieldsMap = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> directChildDomainObjectTypesMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> indirectChildDomainObjectTypesMap = new CaseInsensitiveMap<>();

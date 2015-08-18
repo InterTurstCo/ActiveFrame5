@@ -39,6 +39,9 @@ public class FormLogicalValidator implements ConfigurationValidator {
     private ConfigurationExplorer configurationExplorer;
     @Autowired
     private PlainFormBuilder plainFormBuilder;
+    @Autowired
+    private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
+
     private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
     public FormLogicalValidator() {
@@ -89,8 +92,7 @@ public class FormLogicalValidator implements ConfigurationValidator {
     private FormConfig buildFormIfRequired(FormConfig formConfig) {
         FormConfig result = formConfig;
         if (plainFormBuilder.isRaw(formConfig)) {
-            List<FormConfig> parents = configurationExplorer.getParentFormConfigs(formConfig);
-            result = plainFormBuilder.buildPlainForm(formConfig, parents);
+            result = plainFormBuilder.buildPlainForm(formConfig);
 
         }
         return result;
@@ -124,8 +126,8 @@ public class FormLogicalValidator implements ConfigurationValidator {
         validateBody(data, logicalErrors);
         validateWidgetsForExtendingHandler(data, logicalErrors);
         if (!FormConfig.TYPE_REPORT.equals(formConfig.getType())) {
-            WidgetConfigurationLogicalValidator validator = new WidgetConfigurationLogicalValidator(configurationExplorer);
-            validator.validate(data, logicalErrors);
+
+            widgetConfigurationLogicalValidator.validate(data, logicalErrors);
 
         } else {
             ReportFormLogicalValidator validator = new ReportFormLogicalValidator();
@@ -341,7 +343,9 @@ public class FormLogicalValidator implements ConfigurationValidator {
                 continue;
             }
             String componentName = widgetConfig.getComponentName();
-
+            if(componentName.equalsIgnoreCase("template-based-widget")){
+                continue;
+            }
             Object bean = null;
             try {
                 bean = context.getBean(componentName);

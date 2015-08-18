@@ -56,4 +56,6 @@ public class DomainObjectAccessType implements AccessType {
         DomainObjectAccessType other = (DomainObjectAccessType) obj;
         return type == other.type;
     }
+    
+    
 }
