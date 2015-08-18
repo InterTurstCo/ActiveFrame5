@@ -223,7 +223,7 @@ public class TestDynamicGroup extends ClientBase {
                 } else if (firstArgType.equals("E")) {
                     // Создание сотрудника
                     attributes.put("Name", "Employee" + firstArg);
-                    attributes.put("Login", "TestEmployee" + firstArg);
+                    attributes.put("Login", "Employee" + System.currentTimeMillis());
                     attributes.put("Department", ids.get("D" + secondArg));
                     attributes.put("Position", "Бухгалтер");
                     attributes.put("Phone", "+7" + System.nanoTime());
