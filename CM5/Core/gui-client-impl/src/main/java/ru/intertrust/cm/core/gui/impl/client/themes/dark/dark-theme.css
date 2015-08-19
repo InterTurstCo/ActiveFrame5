@@ -366,6 +366,14 @@
     white-space: nowrap;
 }
 
+.gwt-TreeItem[role="treeitem"] {
+    display: inline-block !important;
+    margin-left: 5px;
+}
+.gwt-Tree .gwt-TreeItem-selected {
+    background: none !important;
+}
+
 .gwt-custom-TreeItem-selected td {
     vertical-align: bottom;
 }
