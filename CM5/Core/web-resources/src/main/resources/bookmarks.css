@@ -104,8 +104,10 @@ ins {
     position: absolute;
     z-index: 1;
     outline: none;
-    top: 31px;
-    left: -23px;
+    top: 57px;
+    left: -44px;
+    min-width: 105px;
+    text-align: center;
 }
 
 /* Кнопки END */
@@ -169,7 +171,7 @@ ins {
     /*margin-left: 10px;*/
     /*padding-left: 37px !important;*/
 
-    padding: 17px 10px 10px 37px;
+    padding: 17px 10px 58px 37px;
     position: relative;
     background: #fff;
     border: none;
@@ -187,6 +189,7 @@ ins {
 }
 
 .vertical-tab-text {
+    display: inline-block;
 
 }
 
