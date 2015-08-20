@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.model.PermissionException;
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
@@ -211,11 +212,13 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             result.getContextRoleAclInfo().add(contextRoleAclInfo);
         }
 
-        //Вызов обработчиков точки расширения
-        OnCalculateContextRoleExtensionHandler handler =
-                extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
+        //Регистрация на вызов после окончания транзакции
+        RecalcAclSynchronization recalcGroupSynchronization =
+                (RecalcAclSynchronization) getTxReg().getResource(RecalcAclSynchronization.class);
+        if (recalcGroupSynchronization != null) {
+            recalcGroupSynchronization.setAclData(domainObjectId, result);
+        }
 
-        handler.onCalculate(result, domainObjectId);
     }
 
     /**
@@ -1117,12 +1120,17 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private class RecalcAclSynchronization implements Synchronization {
         private Set<Id> contextIds = new HashSet<>();
+        private Map<Id, AclData> aclDatas = new HashMap<Id, AclData>();
 
         public RecalcAclSynchronization() {
         }
 
         public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
+        }
+        
+        public void setAclData(Id id, AclData aclData){
+            aclDatas.put(id, aclData);
         }
 
         @Override
@@ -1134,6 +1142,15 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         @Override
         public void afterCompletion(int status) {
+            if (status == Status.STATUS_COMMITTED){
+                //Вызов обработчиков точки расширения изменения прав
+                OnCalculateContextRoleExtensionHandler handler =
+                        extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
+    
+                for (Id id : aclDatas.keySet()) {
+                    handler.onCalculate(aclDatas.get(id), id);
+                }
+            }
         }
 
         public Set<Id> getInvalidContexts() {
