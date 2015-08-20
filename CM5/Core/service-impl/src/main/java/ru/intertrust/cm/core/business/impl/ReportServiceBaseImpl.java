@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
@@ -8,11 +9,13 @@ import net.sf.jasperreports.engine.export.JRRtfExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
 import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -25,6 +28,8 @@ import ru.intertrust.cm.core.config.model.ReportParametersData;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.extension.AfterGenerateReportExtentionHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
@@ -66,13 +71,14 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
     @Autowired
     private CurrentDataSourceContext currentDataSourceContext;
 
-    
+    @Autowired
+    private ExtensionService extensionService;
+
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters) {
         return generate(name, parameters, null);
     }
-    
-    
+
     /**
      * Формирование отчета
      */
@@ -92,6 +98,15 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             //Формирование отчета
             File result = generateReport(reportMetadata, templateFolder, parameters);
 
+            //Вызов точки расширения после генерации отчета
+            //Сначала для точек расширения у которых указан фильтр
+            AfterGenerateReportExtentionHandler extentionHandler = 
+                    extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, name);
+            extentionHandler.onAfterGenerateReport(name, parameters, result);
+            //После для точек расширения у которых не указан фильтр
+            extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
+            extentionHandler.onAfterGenerateReport(name, parameters, result);
+
             //Сохранеие результата в хранилище
             Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
 
@@ -104,7 +119,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
             //Удаляем временный файл
             result.delete();
-            
+
             return reportResult;
         } catch (Exception ex) {
             logger.error(ex.getMessage());
@@ -114,7 +129,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
     private Id saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
             Map<String, Object> params, Integer keepDays) throws Exception {
-    	Id resultId = null;
+        Id resultId = null;
         if ((keepDays != null && keepDays > 0) || (reportMetadata.getKeepDays() != null && reportMetadata.getKeepDays() > 0)) {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
@@ -124,9 +139,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             reportResult.setReference("template_id", template.getId());
             reportResult.setReference("owner", currentUserAccessor.getCurrentUserId());
             Calendar calendar = Calendar.getInstance();
-            if (keepDays != null && keepDays > 0){
+            if (keepDays != null && keepDays > 0) {
                 calendar.add(Calendar.DAY_OF_MONTH, keepDays);
-            }else{
+            } else {
                 calendar.add(Calendar.DAY_OF_MONTH, reportMetadata.getKeepDays());
             }
             reportResult.setTimestamp("keep_to", calendar.getTime());
@@ -137,14 +152,14 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             DomainObject reportAttachment =
                     attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
             reportAttachment.setString("name", "report");
-            
+
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
             DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
 
             attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
 
             //Сохраняем параметры как вложение
-            if (params != null){
+            if (params != null) {
                 DomainObject paramAttachment =
                         attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
                 paramAttachment.setString("name", "params");
@@ -183,7 +198,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
         //Получение директории с шаблонами
         File templatesFolder = new File(tempFolder, TEMPLATES_FOLDER_NAME);
         File templateFolder = new File(templatesFolder, reportTemplateDo.getString("name"));
-        boolean dirCreated = false; 
+        boolean dirCreated = false;
         if (!templateFolder.exists()) {
             templateFolder.mkdirs();
             dirCreated = true;
@@ -197,7 +212,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             for (File file : files) {
                 file.delete();
             }
-            
+
             //Получение всех вложений
             List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateDo);
             for (DomainObject attachment : attachments) {
@@ -307,7 +322,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
     private String getFormat(ReportMetadataConfig reportMetadata, Map<String, Object> params) {
         String formatParam = null;
-        if (params != null){
+        if (params != null) {
             formatParam = (String) params.get(FORMAP_PARAM);
         }
         String format = null;
