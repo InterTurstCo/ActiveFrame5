@@ -1,5 +1,23 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Status;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -8,6 +26,10 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
@@ -15,10 +37,36 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
+import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
+import ru.intertrust.cm.core.config.BasePermit;
+import ru.intertrust.cm.core.config.CollectorConfig;
+import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.ContextRoleConfig;
+import ru.intertrust.cm.core.config.CreateChildConfig;
+import ru.intertrust.cm.core.config.DeleteConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
+import ru.intertrust.cm.core.config.ExecuteActionConfig;
+import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
+import ru.intertrust.cm.core.config.PermitGroup;
+import ru.intertrust.cm.core.config.PermitRole;
+import ru.intertrust.cm.core.config.ReadConfig;
+import ru.intertrust.cm.core.config.StaticGroupCollectorConfig;
+import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
+import ru.intertrust.cm.core.config.WriteConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
-import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.access.AccessType;
+import ru.intertrust.cm.core.dao.access.AclData;
+import ru.intertrust.cm.core.dao.access.AclInfo;
+import ru.intertrust.cm.core.dao.access.ContextRoleAclInfo;
+import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
+import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
+import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
+import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHandler;
@@ -28,17 +76,6 @@ import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Status;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Реализация сервиса обновления списков доступа.
@@ -61,6 +98,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Autowired
     private ExtensionService extensionService;
+
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
         this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
@@ -1128,8 +1168,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
         }
-        
-        public void setAclData(Id id, AclData aclData){
+
+        public void setAclData(Id id, AclData aclData) {
             aclDatas.put(id, aclData);
         }
 
@@ -1142,13 +1182,24 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         @Override
         public void afterCompletion(int status) {
-            if (status == Status.STATUS_COMMITTED){
+            if (status == Status.STATUS_COMMITTED) {
                 //Вызов обработчиков точки расширения изменения прав
-                OnCalculateContextRoleExtensionHandler handler =
-                        extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
-    
-                for (Id id : aclDatas.keySet()) {
-                    handler.onCalculate(aclDatas.get(id), id);
+                TransactionStatus transactionStatus = null;
+                try {
+                    transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
+
+                    OnCalculateContextRoleExtensionHandler handler =
+                            extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
+
+                    for (Id id : aclDatas.keySet()) {
+                        handler.onCalculate(aclDatas.get(id), id);
+                    }
+                    transactionManager.commit(transactionStatus);
+                } catch (Exception ex) {
+                    if (transactionStatus != null) {
+                        transactionManager.rollback(transactionStatus);
+                    }
+                    throw ex;
                 }
             }
         }
