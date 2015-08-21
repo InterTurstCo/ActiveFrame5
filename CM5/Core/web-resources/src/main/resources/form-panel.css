@@ -245,6 +245,7 @@
     z-index: 10;
     width: 100% !important;
     /*height: 65px !important;*/
+    min-height: 45px;
 }
 
 .form-panel-header > tbody {
