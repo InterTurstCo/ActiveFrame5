@@ -2,6 +2,10 @@ package ru.intertrust.cm.core.config.form.processor;
 
 import org.springframework.beans.BeanUtils;
 import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.gui.form.*;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.util.ObjectCloner;
 import ru.intertrust.cm.core.util.ReflectionUtil;
 
 import java.lang.reflect.Field;
@@ -35,6 +39,58 @@ public class FormProcessingUtil {
             throw new ConfigurationException(builder.toString());
 
         }
+    }
+
+    private static void processWidgetIds(String prefix, List<WidgetConfig> widgetConfigs){
+        for (WidgetConfig widgetConfig : widgetConfigs) {
+            widgetConfig.setId(createId(prefix, widgetConfig.getId()));
+        }
+    }
+
+    public static void processTabIds(String prefix, TabConfig tabConfig){
+        tabConfig.setId(createId(prefix, tabConfig.getId()));
+        List<TabGroupConfig> tabGroupConfigs = tabConfig.getGroupList().getTabGroupConfigs();
+        for (TabGroupConfig tabGroupConfig : tabGroupConfigs) {
+            processTabGroupIds(prefix, tabGroupConfig);
+        }
+    }
+
+    private static void processTabGroupIds(String prefix, TabGroupConfig tabGroupConfig){
+        tabGroupConfig.setId(createId(prefix, tabGroupConfig.getId()));
+        processTableIds(prefix, tabGroupConfig.getLayout());
+    }
+
+    public static void processTableIds(String prefix, TableLayoutConfig tableLayoutConfig){
+        List<RowConfig> rowConfigs = tableLayoutConfig.getRows();
+        for (RowConfig rowConfig : rowConfigs) {
+            processRowConfigIds(prefix, rowConfig);
+        }
+    }
+
+    public static void processWidgetConfigs(String idsPrefix, List<WidgetConfig> formWidgetConfigs, List<WidgetConfig> template){
+        List<WidgetConfig> cloned = ObjectCloner.getInstance().cloneObject(template);
+        if(idsPrefix != null){
+            FormProcessingUtil.processWidgetIds(idsPrefix, cloned);
+        }
+        formWidgetConfigs.addAll(cloned);
+    }
+
+    private static void processRowConfigIds(String prefix, RowConfig rowConfig){
+        rowConfig.setId(createId(prefix, rowConfig.getId()));
+        List<CellConfig> cellConfigs = rowConfig.getCells();
+        for (CellConfig cellConfig : cellConfigs) {
+            processCellConfigIds(prefix, cellConfig);
+        }
+    }
+
+    private static void processCellConfigIds(String prefix, CellConfig cellConfig){
+        cellConfig.setId(createId(prefix, cellConfig.getId()));
+        WidgetDisplayConfig widgetDisplayConfig = cellConfig.getWidgetDisplayConfig();
+        widgetDisplayConfig.setId(createId(prefix, widgetDisplayConfig.getId()));
+    }
+
+    private static String createId(String prefix, String previousId){
+        return String.format("%s%s", prefix, previousId == null ? "" : previousId);
     }
 
     private static String[] getNullPropertyNames (Object source) {

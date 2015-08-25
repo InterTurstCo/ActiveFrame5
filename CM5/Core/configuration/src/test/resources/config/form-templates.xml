@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <form name="ex1_form_with_templates" domain-object-type="ex1">
+        <markup>
+            <header>
+                <template-based-table template="ex1-header-template" ids-prefix="prefix_"/>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb2">
+                    <bookmarks>
+                        <tab-group id ="tbg2" name="tbg2">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group id="tbg3" name="tbg3">
+                            <table>
+                                <tr id="tr5">
+                                    <td id="td9">
+                                        <widget id="w10"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+
+                <template-based-tab template="ex1-tab-template" ids-prefix="prefix_"/>
+
+                <tab name="Tab2" id="tb2">
+                    <bookmarks>
+                        <tab-group id ="tbg2" name="tbg2">
+                            <table>
+                                <tr id="tr4">
+                                    <td id="td7">
+                                        <widget id="w7"/>
+                                    </td>
+                                    <td id="td8">
+                                        <widget id="w8"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group id="tbg3" name="tbg3">
+                            <template-based-table template="ex1-tab-group-template" ids-prefix="prefix_"/>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+
+            </body>
+        </markup>
+
+        <widget-config>
+
+            <label id="w7">
+                <text>Ссылка:</text>
+            </label>
+            <linked-domain-objects-table id="w8">
+                <field-path value="exr"/>
+                <linked-form-mapping>
+                    <linked-form name="exr1_form" domain-object-type="exr1" modal-height="400px" modal-width="800px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="exr1" domain-object-type="exr1"/>
+
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name 1">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Name 2" widget-id="w4">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w4"/>
+                        </widget-id-mappings>
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+
+                </summary-table>
+            </linked-domain-objects-table>
+
+            <label id="w10">
+                <text>empty</text>
+            </label>
+
+        </widget-config>
+
+    </form>
+
+
+
+    <form-table-template name = "ex1-header-template">
+        <table>
+            <tr id="tr1">
+                <td id="td1">
+                    <widget id="w1"/>
+                </td>
+                <td id="td2">
+                    <widget id="w2"/>
+                </td>
+
+            </tr>
+        </table>
+        <widget-config>
+            <label id="w1">
+                <field-path/>
+                <text>Имя1:</text>
+            </label>
+            <text-box id="w2">
+                <field-path value="name1"/>
+            </text-box>
+        </widget-config>
+    </form-table-template>
+
+    <form-table-template name = "ex1-tab-group-template">
+        <table>
+            <tr id="tr5">
+                <td id="td9">
+                    <widget id="w9"/>
+                </td>
+            </tr>
+        </table>
+        <widget-config>
+            <label id="w9">
+                <field-path value="id"/>
+            </label>
+        </widget-config>
+    </form-table-template>
+
+    <form-tab-template name="ex1-tab-template">
+        <tab name="Tab1" id="tb1">
+            <single-entry-group>
+                <tab-group>
+                    <table>
+                        <tr id="tr2">
+                            <td id="td3">
+                                <widget id="w3"/>
+                            </td>
+                            <td id="td4">
+                                <widget id="w4"/>
+                            </td>
+                        </tr>
+                        <tr id="tr3">
+                            <td id="td5">
+                                <widget id="w5"/>
+                            </td>
+                            <td id="td6">
+                                <widget id="w6"/>
+                            </td>
+                        </tr>
+                        <tr id="tr4">
+                            <td id="td7">
+                                <widget id="w7"/>
+                            </td>
+                            <td id="td8">
+                                <widget id="w8"/>
+                            </td>
+
+                        </tr>
+                    </table>
+                </tab-group>
+            </single-entry-group>
+        </tab>
+
+        <widget-config>
+
+            <label id="w3">
+                <field-path/>
+                <text>Имя2:</text>
+            </label>
+            <text-box id="w4">
+                <field-path value="name2"/>
+            </text-box>
+            <label id="w5">
+                <text>Дата создания:</text>
+            </label>
+            <date-box id="w6">
+                <field-path value="created_date"/>
+            </date-box>
+            <label id="w7">
+                <text>Ссылка:</text>
+            </label>
+            <linked-domain-objects-table id="w8">
+                <field-path value="exr"/>
+                <linked-form-mapping>
+                    <linked-form name="exr1_form" domain-object-type="exr1" modal-height="400px" modal-width="800px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object text="exr1" domain-object-type="exr1"/>
+
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Name 1">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w2"/>
+                        </widget-id-mappings>
+                        <pattern value="{name1}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Name 2" widget-id="w4">
+                        <widget-id-mappings>
+                            <widget-id-mapping linked-form-name="exr1_form" widget-id="w4"/>
+                        </widget-id-mappings>
+                        <pattern value="{name2}"/>
+                    </summary-table-column>
+
+                </summary-table>
+            </linked-domain-objects-table>
+
+        </widget-config>
+    </form-tab-template>
+</configuration>

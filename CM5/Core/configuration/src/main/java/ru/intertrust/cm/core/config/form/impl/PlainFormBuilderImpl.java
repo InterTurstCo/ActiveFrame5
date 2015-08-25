@@ -1,14 +1,12 @@
 package ru.intertrust.cm.core.config.form.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
-import ru.intertrust.cm.core.config.form.processor.WidgetTemplateProcessor;
+import ru.intertrust.cm.core.config.form.processor.FormTemplateProcessor;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.util.ObjectCloner;
-
-import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -21,7 +19,16 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     private FormExtensionsProcessor formExtensionsProcessor;
 
     @Autowired
-    private WidgetTemplateProcessor widgetTemplateProcessor;
+    @Qualifier("widgetTemplateProcessor")
+    private FormTemplateProcessor widgetTemplateProcessor;
+
+    @Autowired
+    @Qualifier("tabTemplateProcessor")
+    private FormTemplateProcessor tabTemplateProcessor;
+
+    @Autowired
+    @Qualifier("tableTemplateProcessor")
+    private FormTemplateProcessor tableTemplateProcessor;
 
     private ObjectCloner clonePerformer;
 
@@ -35,10 +42,14 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         if (formExtensionsProcessor.hasExtensions(rawFormConfig)) {
             result = formExtensionsProcessor.processExtensions(result);
         }
-        List<WidgetConfig> widgetConfigs = result.getWidgetConfigurationConfig().getWidgetConfigList();
-        if (widgetTemplateProcessor.hasTemplateBasedWidgets(widgetConfigs)) {
-            List<WidgetConfig> processedWidgets = widgetTemplateProcessor.processTemplates(result.getName(), widgetConfigs);
-            result.getWidgetConfigurationConfig().setWidgetConfigList(processedWidgets);
+        if(tabTemplateProcessor.hasTemplateBasedElements(result)){
+            result = tabTemplateProcessor.processTemplates(result);
+        }
+        if(tableTemplateProcessor.hasTemplateBasedElements(result)){
+            result = tableTemplateProcessor.processTemplates(result);
+        }
+        if (widgetTemplateProcessor.hasTemplateBasedElements(result)) {
+            result = widgetTemplateProcessor.processTemplates(result);
         }
         return result;
     }
@@ -46,7 +57,9 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     @Override
     public boolean isRaw(FormConfig formConfig) {
         return formExtensionsProcessor.hasExtensions(formConfig)
-                || widgetTemplateProcessor.hasTemplateBasedWidgets(formConfig.getWidgetConfigurationConfig().getWidgetConfigList());
+                || widgetTemplateProcessor.hasTemplateBasedElements(formConfig)
+                || tableTemplateProcessor.hasTemplateBasedElements(formConfig)
+                || tabTemplateProcessor.hasTemplateBasedElements(formConfig);
     }
 
 }

@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
+import ru.intertrust.cm.core.config.gui.form.template.TemplateBasedTableConfig;
 
 /**
  * @author Denis Mitavskiy
@@ -25,6 +26,9 @@ public class TabGroupConfig implements IdentifiedConfig {
 
     @Element(name = "table", required = false)
     private TableLayoutConfig tableLayout;
+
+    @Element(name = TemplateBasedTableConfig.CONFIG_TAG_NAME, required=false)
+    private TemplateBasedTableConfig templateBasedTableConfig;
 
     public String getName() {
         return name;
@@ -58,6 +62,14 @@ public class TabGroupConfig implements IdentifiedConfig {
         this.tableLayout = tableLayout;
     }
 
+    public TemplateBasedTableConfig getTemplateBasedTableConfig() {
+        return templateBasedTableConfig;
+    }
+
+    public void setTemplateBasedTableConfig(TemplateBasedTableConfig templateBasedTableConfig) {
+        this.templateBasedTableConfig = templateBasedTableConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -79,6 +91,10 @@ public class TabGroupConfig implements IdentifiedConfig {
             return false;
         }
         if (initialState != null ? !initialState.equals(that.initialState) : that.initialState != null) {
+            return false;
+        }
+        if (templateBasedTableConfig != null ? !templateBasedTableConfig.equals(that.templateBasedTableConfig)
+                : that.templateBasedTableConfig != null) {
             return false;
         }
 

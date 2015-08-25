@@ -27,6 +27,12 @@
     <bean id="widgetTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetTemplateProcessorImpl">
         <property name="configurationExplorer" ref="configurationExplorer"/>
     </bean>
+    <bean id="tabTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabTemplateProcessor">
+        <property name="configurationExplorer" ref="configurationExplorer"/>
+    </bean>
+    <bean id="tableTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TableTemplateProcessor">
+        <property name="configurationExplorer" ref="configurationExplorer"/>
+    </bean>
     <bean id="formLogicalValidator" class="ru.intertrust.cm.core.config.FormLogicalValidator"/>
     <bean id="navigationPanelLogicalValidator" class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
     <bean id="label" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>

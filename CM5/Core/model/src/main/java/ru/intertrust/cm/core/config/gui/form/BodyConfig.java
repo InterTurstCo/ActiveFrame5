@@ -2,8 +2,12 @@ package ru.intertrust.cm.core.config.gui.form;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.converter.BodyConverter;
+import ru.intertrust.cm.core.config.gui.form.template.TemplateBasedTabConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +18,18 @@ import java.util.List;
  *         Time: 18:00
  */
 @Root(name = "body")
+@Convert(BodyConverter.class)
 public class BodyConfig implements Dto {
     @Attribute(name = "display-single-tab")
     private boolean displaySingleTab;
 
-    @ElementList(inline = true, required = false)
     private List<TabConfig> tabs = new ArrayList<TabConfig>();
+
+    @ElementListUnion({
+            @ElementList(name = "tab", type = TabConfig.class, required = false, inline = true),
+            @ElementList(name = TemplateBasedTabConfig.CONFIG_TAG_NAME, type = TemplateBasedTabConfig.class, required = false, inline = true)
+    })
+    private List<TabConfigMarker> tabConfigMarkers = new ArrayList<TabConfigMarker>();
 
     public boolean isDisplaySingleTab() {
         return displaySingleTab;
@@ -37,6 +47,10 @@ public class BodyConfig implements Dto {
         this.tabs = tabs;
     }
 
+    public List<TabConfigMarker> getTabConfigMarkers() {
+        return tabConfigMarkers;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -52,6 +66,9 @@ public class BodyConfig implements Dto {
             return false;
         }
         if (tabs != null ? !tabs.equals(that.tabs) : that.tabs != null) {
+            return false;
+        }
+        if (tabConfigMarkers != null ? !tabConfigMarkers.equals(that.tabConfigMarkers) : that.tabConfigMarkers != null) {
             return false;
         }
 

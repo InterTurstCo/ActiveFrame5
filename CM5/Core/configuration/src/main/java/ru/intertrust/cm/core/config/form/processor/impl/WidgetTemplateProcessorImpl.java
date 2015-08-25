@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.form.processor.impl;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.FormProcessingUtil;
 import ru.intertrust.cm.core.config.form.processor.WidgetTemplateProcessor;
+import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.template.OverrideConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.template.TemplateBasedWidgetConfig;
@@ -130,4 +131,16 @@ public class WidgetTemplateProcessorImpl implements WidgetTemplateProcessor {
         return TemplateBasedWidgetConfig.COMPONENT_NAME.equalsIgnoreCase(widgetConfig.getComponentName());
     }
 
+    @Override
+    public FormConfig processTemplates(FormConfig formConfig) {
+        List<WidgetConfig> widgetConfigs = processTemplates(formConfig.getName(),
+                formConfig.getWidgetConfigurationConfig().getWidgetConfigList());
+        formConfig.getWidgetConfigurationConfig().setWidgetConfigList(widgetConfigs);
+        return formConfig;
+    }
+
+    @Override
+    public boolean hasTemplateBasedElements(FormConfig formConfig) {
+        return hasTemplateBasedWidgets(formConfig.getWidgetConfigurationConfig().getWidgetConfigList());
+    }
 }
