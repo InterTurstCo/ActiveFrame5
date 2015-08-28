@@ -102,7 +102,7 @@
 
 .form-dialog-box-content {
     display: inline-block;
-    width: 512px;
+    width: 800px !important;
 }
 
 .dialogBoxBody .form-dialog-box-content {
