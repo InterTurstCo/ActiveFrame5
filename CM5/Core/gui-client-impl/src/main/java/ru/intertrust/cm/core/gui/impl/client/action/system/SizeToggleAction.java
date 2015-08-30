@@ -68,9 +68,8 @@ public class SizeToggleAction extends ToggleAction {
             center.replaceClassName(CENTRAL_SECTION_FULL_SIZE_STYLE, CENTRAL_SECTION_STYLE);
             if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
                 center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
-                int firstLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getFirstLevelNavigationPanelWidth();
-                int secondLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth();
-                center.getStyle().setMarginLeft(secondLevelNavigationPanelWidth + firstLevelNavigationPanelWidth, Style.Unit.PX);
+                center.getStyle().setMarginLeft(Application.getInstance().getCompactModeState().getFullNavigationPanelWidth(),
+                        Style.Unit.PX);
             }
         } else {
             if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {
