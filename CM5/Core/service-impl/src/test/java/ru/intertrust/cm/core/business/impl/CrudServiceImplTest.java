@@ -58,6 +58,13 @@ public class CrudServiceImplTest {
         crudService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
     }
 
+    @Test
+    public void testCreateMissingType() throws Exception {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage("Domain Object Type '_some_missing_type_' doesn't exist");
+        crudService.createDomainObject("_some_missing_type_");
+    }
+
 
     @Test
     public void testSaveAttachment() throws Exception {

@@ -256,6 +256,10 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             domainObject.setTypeName(name);
 
             DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(name);
+            if (config == null) {
+                throw new IllegalArgumentException("Domain Object Type '" + name + "' doesn't exist");
+            }
+
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
                 domainObject.setValue(fieldConfig.getName(), null);
             }
