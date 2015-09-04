@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
 import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.ejb.Local;
@@ -45,6 +46,7 @@ import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 @Local(NotificationService.class)
 @Remote(NotificationService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@RunAs("system")
 public class NotificationServiceImpl implements NotificationService {
     private static final Logger logger = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
