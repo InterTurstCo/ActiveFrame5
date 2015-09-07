@@ -14,6 +14,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.EncodedResource;
 import org.springframework.core.io.support.ResourcePropertySource;
 
 public class CmClassPathXmlApplicationContext extends ClassPathXmlApplicationContext {
@@ -57,8 +58,8 @@ public class CmClassPathXmlApplicationContext extends ClassPathXmlApplicationCon
         }
 
         List<PropertySource> resources = new ArrayList<PropertySource>();
-        resources.add(new ResourcePropertySource(new ClassPathResource("server-default.properties")));
-        resources.add(new ResourcePropertySource(serverPropertiesResource));
+        resources.add(new ResourcePropertySource(new EncodedResource(new ClassPathResource("server-default.properties"), "utf8")));
+        resources.add(new ResourcePropertySource(new EncodedResource(serverPropertiesResource, "utf8")));
 
         return resources;
     }

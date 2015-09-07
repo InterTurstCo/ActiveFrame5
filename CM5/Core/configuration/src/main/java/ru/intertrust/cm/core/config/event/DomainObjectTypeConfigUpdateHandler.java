@@ -28,7 +28,9 @@ public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHand
         
         if (oldConfig != null) {
             configStorage.domainObjectTypesHierarchy.remove(oldConfig.getName());
+            configStorage.referenceFieldsMap.remove(oldConfig.getName());
         }
+
     }
 
     @Override

@@ -294,6 +294,19 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
+                <link name="FormsTemplatesTest" display-text="Шаблоны форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form_with_templates"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
                 <link name="NoPermissionTest" display-text="Права для связанной таблицы" auto-cut="true">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="np1">

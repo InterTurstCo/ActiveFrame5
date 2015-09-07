@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -42,6 +43,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private static final String PARAM_DOMAIN_OBJECT_ID = "domain_object_id";
     private static final String PARAM_DOMAIN_OBJECT_TYPE_ID = "domain_object_typeid";
     private static final String RESULT_TYPE_ID = "result_type_id";
+    private static final int BATCH_SIZE = 1000;
+
+    @Autowired
+    private JdbcOperations masterJdbcOperations;
 
     @Autowired
     @Qualifier("masterNamedParameterJdbcTemplate")
@@ -444,7 +449,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject[] parentDOs =
                 updateParentDO(domainObjectTypeConfig, domainObjects, accessToken, isUpdateStatus, changedFields);
 
-        String query = generateUpdateQuery(domainObjectTypeConfig, isUpdateStatus);
+        Query query = generateUpdateQuery(domainObjectTypeConfig, isUpdateStatus);
 
         Date currentDate = new Date();
         // В случае если сохранялся родительский объект то берем дату
@@ -456,26 +461,31 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         if (query != null) {
-
-            Map<String, Object>[] parameters = new Map[domainObjects.length];
+            List<Map<String, Object>> parameters = new ArrayList<>(domainObjects.length);
             for (int i = 0; i < updatedObjects.length; i++) {
-                parameters[i] = initializeUpdateParameters(
-                        updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus);
+                parameters.add(initializeUpdateParameters(
+                        updatedObjects[i], domainObjectTypeConfig, accessToken, currentDate, isUpdateStatus));
             }
 
-            int[] count = masterJdbcTemplate.batchUpdate(query, parameters);
+            BatchPreparedStatementSetter batchPreparedStatementSetter =
+                    new BatchPreparedStatementSetter(query.getParameterIndexMap());
+            int[][] count = masterJdbcOperations.batchUpdate(query.getQuery(), parameters, BATCH_SIZE, batchPreparedStatementSetter);
 
-            for (int i = 0; i < updatedObjects.length; i++) {
-                if (count[i] == 0 && (!exists(updatedObjects[i].getId()))) {
-                    throw new ObjectNotFoundException(updatedObjects[i].getId());
-                }
-
-                if (!isDerived(domainObjectTypeConfig)) {
-                    if (count[i] == 0) {
-                        throw new OptimisticLockException(updatedObjects[i]);
+            int n = 0;
+            for (int j = 0; j < count.length; j ++) {
+                for (int i = 0; i < count[j].length; i++) {
+                    if (count[j][i] == 0 && (!exists(updatedObjects[n].getId()))) {
+                        throw new ObjectNotFoundException(updatedObjects[n].getId());
                     }
-                }
 
+                    if (!isDerived(domainObjectTypeConfig)) {
+                        if (count[j][i] == 0) {
+                            throw new OptimisticLockException(updatedObjects[n]);
+                        }
+                    }
+
+                    n += count[j][i];
+                }
             }
         }
 
@@ -552,10 +562,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (configurationExplorer.isAuditLogType(domainObjectType)) {
             throw new FatalException("It is not allowed to delete Audit Log using CRUD service, table: " + domainObjectType);
         }
-        deleteMany(new Id[]{id}, accessToken);
+        deleteMany(new Id[]{id}, accessToken, false);
     }
 
-    private int deleteMany(Id[] ids, AccessToken accessToken) throws InvalidIdException,
+    private int deleteMany(Id[] ids, AccessToken accessToken, boolean ignoreObjectNotFound) throws InvalidIdException,
             ObjectNotFoundException {
 
         checkIfAuditLog(ids);
@@ -575,15 +585,24 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         AccessToken systemAccessToken = createSystemAccessToken();
 
         DomainObject[] deletedObjects = new DomainObject[ids.length];
-        List<String> parentTypes = null;
+        Map<Id, List<String>> objectsParentTypes = new HashMap<Id, List<String>>();
         int i = 0;
         for (Id id : ids) {
             DomainObject deletedObject = find(id, systemAccessToken);
             deletedObjects[i++] = deletedObject;
+            //Прверка наличия доменного объекта
+            if (deletedObject == null){        
+                //Если взведен флаг игнорировать отсутствие ДО то пропускаем идентификатор, иначе бросаем исключение
+                if (ignoreObjectNotFound){
+                    continue;
+                }else{
+                    throw new ObjectNotFoundException(id);
+                }
+            }
             List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
             // Точка расширения до удаления
-            parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
+            List<String> parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
             //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
             parentTypes.add("");
             for (String typeName : parentTypes) {
@@ -591,13 +610,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                         .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
                 beforeDeleteEH.onBeforeDelete(deletedObject);
             }
+            objectsParentTypes.put(id, parentTypes);
 
             //Пересчет прав непосредственно перед удалением объекта из базы, чтобы не нарушать целостность данных
             refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
         }
 
         //непосредственно удаление из базыы
-        int deleted = internalDelete(ids);
+        int deleted = internalDelete(ids, ignoreObjectNotFound);
 
         //Удалене из кэша
         for (Id id : ids) {
@@ -606,6 +626,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         // Пишем в аудит лог
         for (DomainObject deletedObject : deletedObjects) {
+            if (deletedObject == null){
+                continue;
+            }
             String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(deletedObject.getTypeName());
             Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
 
@@ -613,13 +636,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         // Точка расширения после удаления, вызывается с установкой фильтра текущего типа и всех наследников
-        for (String typeName : parentTypes) {
-            AfterDeleteExtensionHandler afterDeleteEH = extensionService
-                    .getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
-            for (DomainObject deletedObject : deletedObjects) {
+        for (DomainObject deletedObject : deletedObjects) {
+            if (deletedObject == null) {
+                continue;
+            }
+
+            for (String typeName : objectsParentTypes.get(deletedObject.getId())) {
+                AfterDeleteExtensionHandler afterDeleteEH = extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
+
                 afterDeleteEH.onAfterDelete(deletedObject);
 
-                //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+                //Добавляем слушателя коммита транзакции, чтобы вызвать точки расширения после транзакции
                 DomainObjectActionListener listener = getTransactionListener();
                 listener.addDeletedDomainObject(deletedObject);
             }
@@ -665,7 +692,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * Удаление объекта из базяы
      * @param deletedIds
      */
-    private int internalDelete(Id [] deletedIds) {
+    private int internalDelete(Id [] deletedIds, boolean ignoreObjectNotFound) {
         RdbmsId rdbmsId = (RdbmsId) deletedIds[0];
 
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
@@ -688,8 +715,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             count += deletedObject;
         }
 
-        if (count == 0) {
-            throw new ObjectNotFoundException(rdbmsId);
+        if (count < deletedIds.length) {
+            if (!ignoreObjectNotFound){
+                throw new ObjectNotFoundException(rdbmsId);
+            }
         }
 
         // Удаление родительского объекта, перенесено ниже удаления дочернего
@@ -701,8 +730,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parentIds[j] = parentId;
         }
 
-
-        internalDelete(parentIds);
+        internalDelete(parentIds, ignoreObjectNotFound);
 
         return count;
     }
@@ -724,7 +752,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         int count = 0;
         for (List<Id> idsByType : idsByTypes) {
             try {
-                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken);
+                count += deleteMany(idsByType.toArray(new Id[idsByType.size()]), accessToken, true);
             } catch (ObjectNotFoundException e) {
                 // ничего не делаем пока
             }
@@ -1238,7 +1266,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("access_object_id", ((RdbmsId) getAccessObjectId(domainObject)).getId());
 
         }
-        parameters.put("type_id", type);
 
         List<FieldConfig> feldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
@@ -1333,48 +1360,59 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            конфигурация доменного объекта
      * @return строку запроса для модиификации доменного объекта с параметрами
      */
-    protected String generateUpdateQuery(
-            DomainObjectTypeConfig domainObjectTypeConfig, boolean isUpdateStatus) {
-
-        StringBuilder query = new StringBuilder();
+    protected Query generateUpdateQuery(DomainObjectTypeConfig domainObjectTypeConfig, boolean isUpdateStatus) {
+        Query query = new Query();
+        StringBuilder queryBuilder = new StringBuilder();
 
         String tableName = getSqlName(domainObjectTypeConfig);
 
-        List<FieldConfig> feldConfigs = domainObjectTypeConfig
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getDomainObjectFieldsConfig().getFieldConfigs();
 
-        feldConfigs = removeImmutableFields(feldConfigs);
+        fieldConfigs = removeImmutableFields(fieldConfigs);
 
         List<String> columnNames = DataStructureNamingHelper
-                .getColumnNames(feldConfigs);
+                .getColumnNames(fieldConfigs);
 
-        String fieldsWithparams = DaoUtils
+        String fieldsWithParams = DaoUtils
                 .generateCommaSeparatedListWithParams(columnNames);
 
-        if (isDerived(domainObjectTypeConfig) && fieldsWithparams.isEmpty()) {
+        if (isDerived(domainObjectTypeConfig) && fieldsWithParams.isEmpty()) {
             return null;
         }
-        query.append("update ").append(wrap(tableName)).append(" set ");
+        queryBuilder.append("update ").append(wrap(tableName)).append(" set ");
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(wrap(UPDATED_DATE_COLUMN)).append("=:current_date, ");
-            query.append(wrap(UPDATED_BY)).append("=:updated_by, ");
-            query.append(wrap(UPDATED_BY_TYPE_COLUMN)).append("=:updated_by_type, ");
+            queryBuilder.append(wrap(UPDATED_DATE_COLUMN)).append("=?, ");
+            query.addParameter("current_date");
+
+            queryBuilder.append(wrap(UPDATED_BY)).append("=?, ");
+            query.addParameter(UPDATED_BY);
+
+            queryBuilder.append(wrap(UPDATED_BY_TYPE_COLUMN)).append("=?, ");
+            query.addParameter(UPDATED_BY_TYPE_COLUMN);
 
             if (isUpdateStatus) {
-                query.append(wrap(STATUS_FIELD_NAME)).append("=:status, ");
+                queryBuilder.append(wrap(STATUS_FIELD_NAME)).append("=?, ");
+                query.addParameter(STATUS_FIELD_NAME);
             }
-
         }
 
-        query.append(fieldsWithparams);
-        query.append(" where ").append(wrap(ID_COLUMN)).append("=:id");
+        if (columnNames.size() > 0) {
+            queryBuilder.append(fieldsWithParams);
+            query.addParameters(columnNames);
+        }
+
+        queryBuilder.append(" where ").append(wrap(ID_COLUMN)).append("=?");
+        query.addParameter(ID_COLUMN);
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(" and ").append(wrap(UPDATED_DATE_COLUMN)).append("=:updated_date");
+            queryBuilder.append(" and ").append(wrap(UPDATED_DATE_COLUMN)).append("=?");
+            query.addParameter(UPDATED_DATE_COLUMN);
         }
 
-        return query.toString();
+        query.setQuery(queryBuilder.toString());
+        return query;
 
     }
 
@@ -1437,8 +1475,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      *            конфигурация доменного объекта
      * @return строку запроса для создания доменного объекта с параметрами
      */
-    protected String generateCreateQuery(
+    protected Query generateCreateQuery(
             DomainObjectTypeConfig domainObjectTypeConfig) {
+        Query query = new Query();
+
         List<FieldConfig> fieldConfigs = domainObjectTypeConfig
                 .getFieldConfigs();
 
@@ -1448,48 +1488,55 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String commaSeparatedColumns =
                 new DelimitedListFormatter<String>().formatAsDelimitedList(columnNames, ", ", "\"");
-        String commaSeparatedParameters = DaoUtils
-                .generateCommaSeparatedParameters(columnNames);
 
-        StringBuilder query = new StringBuilder();
-        query.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
-        query.append(wrap(TYPE_COLUMN));
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
+        query.addParameter(ID_COLUMN);
+
+        queryBuilder.append(wrap(TYPE_COLUMN));
+        query.addParameter(TYPE_COLUMN);
 
         if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", ");
-            query.append(wrap(CREATED_DATE_COLUMN)).append(", ")
+            queryBuilder.append(", ");
+            queryBuilder.append(wrap(CREATED_DATE_COLUMN)).append(", ")
                     .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
+            query.addParameters(CREATED_DATE_COLUMN, UPDATED_DATE_COLUMN);
 
-            query.append(wrap(CREATED_BY)).append(", ")
+            queryBuilder.append(wrap(CREATED_BY)).append(", ")
                     .append(wrap(CREATED_BY_TYPE_COLUMN)).append(", ");
+            query.addParameters(CREATED_BY, CREATED_BY_TYPE_COLUMN);
 
-            query.append(wrap(UPDATED_BY)).append(", ")
+            queryBuilder.append(wrap(UPDATED_BY)).append(", ")
                     .append(wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");
+            query.addParameters(UPDATED_BY, UPDATED_BY_TYPE_COLUMN);
 
-            query.append(wrap(STATUS_FIELD_NAME)).append(", ")
+            queryBuilder.append(wrap(STATUS_FIELD_NAME)).append(", ")
                     .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
+            query.addParameters(STATUS_FIELD_NAME, STATUS_TYPE_COLUMN);
 
-            query.append(wrap(ACCESS_OBJECT_ID));
+            queryBuilder.append(wrap(ACCESS_OBJECT_ID));
+            query.addParameter(ACCESS_OBJECT_ID);
         }
 
         if (commaSeparatedColumns.length() > 0) {
-            query.append(", ").append(commaSeparatedColumns);
+            queryBuilder.append(", ").append(commaSeparatedColumns);
+            query.addParameters(columnNames);
         }
 
-        query.append(") values (:id , :type_id");
+        queryBuilder.append(") values (");
 
-        if (!isDerived(domainObjectTypeConfig)) {
-            query.append(", :created_date, :updated_date, :created_by, :created_by_type, :updated_by, :updated_by_type, :status, :status_type, :access_object_id");
+        for (int i = 0; i < query.getParameterIndexMap().size(); i ++) {
+            if (i > 0) {
+                queryBuilder.append(", ");
+            }
+
+            queryBuilder.append("?");
         }
 
-        if (commaSeparatedParameters.length() > 0) {
-            query.append(", ").append(commaSeparatedParameters);
-        }
+        queryBuilder.append(")");
 
-        query.append(")");
-
-        return query.toString();
-
+        query.setQuery(queryBuilder.toString());
+        return query;
     }
 
     /**
@@ -1872,9 +1919,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             updatedObjects[i].setModifiedBy(currentUser);
         }
 
-        String query = generateCreateQuery(domainObjectTypeConfig);
+        Query query = generateCreateQuery(domainObjectTypeConfig);
 
-        Map<String, Object>[] parameters = new Map[updatedObjects.length];
+        List<Map<String, Object>> parameters = new ArrayList<>(updatedObjects.length);
 
         for (int i = 0; i < updatedObjects.length; i++) {
 
@@ -1892,10 +1939,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             updatedObjects[i].setId(doId);
             updatedObjects[i].resetDirty();
 
-            parameters[i] = initializeCreateParameters(
-                    updatedObjects[i], domainObjectTypeConfig, type, accessToken);
+            parameters.add(initializeCreateParameters(
+                    updatedObjects[i], domainObjectTypeConfig, type, accessToken));
         }
-        masterJdbcTemplate.batchUpdate(query, parameters);
+
+        BatchPreparedStatementSetter batchPreparedStatementSetter =
+                new BatchPreparedStatementSetter(query.getParameterIndexMap());
+        masterJdbcOperations.batchUpdate(query.getQuery(), parameters, BATCH_SIZE, batchPreparedStatementSetter);
 
         return updatedObjects;
     }

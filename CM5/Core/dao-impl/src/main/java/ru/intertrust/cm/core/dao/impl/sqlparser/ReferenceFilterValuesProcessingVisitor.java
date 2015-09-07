@@ -173,7 +173,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                             String paramName = new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).toString();
                             addParameters(paramName, referenceValue);
                          
-                            BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
+                            Expression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
                             replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                         }
                     }

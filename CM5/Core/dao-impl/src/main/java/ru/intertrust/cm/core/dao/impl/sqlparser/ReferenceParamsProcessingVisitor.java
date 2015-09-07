@@ -7,8 +7,6 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
@@ -92,7 +90,7 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
                     }
                     String paramName = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
                     addParameters(paramName, referenceValue);
-                    BinaryExpression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
+                    Expression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
                     replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                 }
             }

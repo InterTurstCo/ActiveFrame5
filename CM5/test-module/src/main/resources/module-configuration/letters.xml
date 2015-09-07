@@ -755,6 +755,17 @@
                             <!-- путь к узлу верхнего уровня (относительно пути этого узла) от узла данного уровня -->
 
                         </node-collection-def>
+                        <node-collection-def collection="employees" parent-filter="byDepartment" >
+                            <single-choice value="true"/>
+                            <!-- название фильтра по тексту, введённому пользователем -->
+                            <fill-parent-on-add field-to-fill="department"/>
+                            <input-text-filter name="byName"/>
+                            <!-- паттерн отображения уже выбранных значений -->
+                            <selection-pattern value="{name} {position}"/>
+                            <linked-form-mapping>
+                                <linked-form name="employee_form" domain-object-type="employee" modal-height="500px" modal-width="400px"/>
+                            </linked-form-mapping>
+                        </node-collection-def>
                     </node-collection-def>
                 </node-collection-def>
 
@@ -1656,9 +1667,9 @@
                                     <td h-align="left">
                                         <widget id="hyperlink"/>
                                     </td>
-                                    <!--<td h-align="left">
+                                    <td h-align="left">
                                         <widget id="language"/>
-                                    </td>-->
+                                    </td>
 
                                 </tr>
                             </table>
@@ -1729,7 +1740,7 @@
                 </formatting>
             </linked-domain-object-hyperlink>
 
-            <enumeration-box>
+            <enumeration-box id="language">
                 <field-path value="language"/>
                 <mapping>
                     <map value="Java" display-text="Java"/>

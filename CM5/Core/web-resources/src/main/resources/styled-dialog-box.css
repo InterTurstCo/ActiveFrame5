@@ -34,7 +34,7 @@
     border: none;
     padding: 5px 6px 7px;
     color: white;
-    margin-right: 30px;
+    margin: 0 30px 5px 0;
     vertical-align: middle;
     white-space: nowrap;
 }
@@ -102,7 +102,7 @@
 
 .form-dialog-box-content {
     display: inline-block;
-    width: 512px;
+    width: 800px !important;
 }
 
 .dialogBoxBody .form-dialog-box-content {

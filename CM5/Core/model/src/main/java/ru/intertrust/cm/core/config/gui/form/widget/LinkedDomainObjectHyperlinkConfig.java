@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
@@ -19,10 +20,11 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
     @Attribute(name = "modal-window", required = false)
     private boolean modalWindow = true;
 
-    @Element(name = "linked-form")
+    @Element(name = "linked-form", required = false)
     private LinkedFormConfig linkedFormConfig;
 
-    @Element(name = "pattern")
+    @NotNullLogicalValidation
+    @Element(name = "pattern", required = false)
     private PatternConfig patternConfig;
 
     @Element(name = "selection-style", required = false)

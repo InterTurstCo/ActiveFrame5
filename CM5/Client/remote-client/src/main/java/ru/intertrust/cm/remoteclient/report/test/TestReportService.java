@@ -3,6 +3,7 @@ package ru.intertrust.cm.remoteclient.report.test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
@@ -53,6 +54,10 @@ public class TestReportService extends ClientBase {
             result = generateReport("all-employee", null);
             //и еще раз генерим тот же отчет
             result = generateReport("all-employee", null);
+            //Проверка точки расширения
+            Map params = new HashMap();
+            params.put("REPLACE_RESULT", Boolean.TRUE);
+            result = generateReport("all-employee", params);
 
             deployReport("../reports/reports/employee-groups");
             result = generateReport("employee-groups", null);

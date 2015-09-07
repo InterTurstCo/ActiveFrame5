@@ -132,6 +132,9 @@
 .H_td_links .decorated-help {
     padding: 0 0 0 5px;
 }
+.decorated-help:hover {
+    background: url(css/icons/icon-helpHover.png) 5px 0 no-repeat;
+}
 
 .H_td_links .gwt-Anchor {
     background: url(resources/lucemtheme/images/icons/help.png) no-repeat 0 0;
@@ -263,10 +266,10 @@
 .calendarScrollPanel {
     position: absolute !important;
     top: 65px;
-    right: -16px;
+    right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(248, 249, 255);
+    background: rgb(248, 249, 255);
 
     /*   overflow-y: hidden !important;*/
 
@@ -480,35 +483,77 @@
     width: 165px;
 }
 
-.gwt-custom-TreeItem-selected .tree-label:after {
-    content: open-quote;
-    display: block;
+/*.gwt-custom-TreeItem-selected .tree-label:after {*/
+    /*content: open-quote;*/
+    /*display: block;*/
+    /*position: absolute;*/
+    /*width: 27px;*/
+    /*height: 25px;*/
+    /*background: url(images/folder-list-selected-bg.png) right top no-repeat;*/
+    /*right: -11px;*/
+    /*font-size: 0px;*/
+    /*top: -5px;*/
+    /*margin-left: 5px;*/
+/*}*/
+
+/*.gwt-custom-TreeItem-selected .tree-label:before {*/
+    /*content: open-quote;*/
+    /*display: block;*/
+    /*position: absolute;*/
+    /*height: 25px;*/
+    /*background: url(images/folder-list-selected-bg.png) left top no-repeat;*/
+    /*left: -5px;*/
+    /*right: 0;*/
+    /*top: -5px;*/
+    /*font-size: 0px;*/
+    /*/!*margin-left: 5px;*!/*/
+/*}*/
+
+.gwt-custom-TreeItem-selected .treeItemTitle:after {
     position: absolute;
-    width: 27px;
+    top: -5px;
+    right: -15px;
+    display: block;
+    margin-left: 5px;
+    width: 40px;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) right top no-repeat;
-    right: -11px;
+    content: open-quote;
     font-size: 0px;
-    top: -5px;
-    margin-left: 5px;
 }
 
-.gwt-custom-TreeItem-selected .tree-label:before {
-    content: open-quote;
-    display: block;
+.gwt-custom-TreeItem-selected .treeItemTitle:before {
     position: absolute;
+    top: -5px;
+    right: 0;
+    left: -5px;
+    display: block;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: -5px;
-    right: 0;
-    top: -5px;
+    content: open-quote;
     font-size: 0px;
     /*margin-left: 5px;*/
 }
 
+/*.gwt-custom-TreeItem-selected .tree-label {*/
+    /*text-decoration: underline !important;*/
+    /*display: inherit;*/
+/*}*/
+
 .gwt-custom-TreeItem-selected .tree-label {
-    text-decoration: underline !important;
+    position: relative;
     display: inherit;
+    color: #fff !important;
+    text-decoration: underline !important;
+    white-space: nowrap;
+}
+
+.gwt-TreeItem[role="treeitem"] {
+    display: inline-block !important;
+    margin-left: 5px;
+}
+.gwt-Tree .gwt-TreeItem-selected {
+    background: none !important;
 }
 
 .gwt-custom-TreeItem-selected .tree-label,

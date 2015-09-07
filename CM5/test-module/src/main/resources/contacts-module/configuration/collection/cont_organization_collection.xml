@@ -43,6 +43,13 @@
                 ]]>
             </criteria>
         </filter>
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    lower(o.name) like lower({0})
+                ]]>
+            </criteria>
+        </filter>
     </collection>
 
     <collection-view name="cont_organization_collection_view" collection="cont_organization_collection" is-default="true">

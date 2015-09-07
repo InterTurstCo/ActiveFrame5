@@ -121,7 +121,11 @@ public class CollectionPluginView extends PluginView {
     public void fetchMoreItemsIfRequired() {
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             public void execute() {
-                tableBody.setFocus(true);
+                /**
+                 * Need to find better way to set table focus automatically
+                 * causes table shift AFVTBCNT-161
+                 * tableBody.setFocus(true);
+                 */
                 if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody)) {
                     if (sortCollectionState != null) {
                         sortCollectionState.setResetCollection(false);

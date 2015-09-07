@@ -32,18 +32,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.model.SearchException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
@@ -58,11 +52,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     @Autowired
     private SolrServer solrServer;
 
-    @Autowired
-    private CollectionsService collectionsService;
+    //@Autowired
+    //private CollectionsService collectionsService;
 
-    @Autowired
-    private IdService idService;
+    //@Autowired
+    //private IdService idService;
 
     @Autowired
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
@@ -98,8 +92,8 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (fetchLimit <= 0) {
                     fetchLimit = response.getResults().size();
                 }
-                IdentifiableObjectCollection result =
-                        queryCollection(targetCollectionName, response.getResults(), maxResults);
+                IdentifiableObjectCollection result = new NamedCollectionRetriever(targetCollectionName)
+                        .queryCollection(response.getResults(), maxResults);
                 if (response.getResults().size() == fetchLimit && result.size() < maxResults) {
                     // Увеличиваем размер выборки в Solr
                     fetchLimit = estimateFetchLimit(response.getResults().size(), result.size());
@@ -120,6 +114,22 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Override
     public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName, int maxResults) {
+        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName), maxResults);
+    }
+
+    @Override
+    public IdentifiableObjectCollection search(SearchQuery query, String targetCollectionName,
+            List<? extends Filter> collectionFilters, int maxResults) {
+        return complexSearch(query, new NamedCollectionRetriever(targetCollectionName, collectionFilters), maxResults);
+    }
+
+    @Override
+    public IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery, int maxResults) {
+        return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery), maxResults);
+    }
+
+    private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
+            int maxResults) {
         try {
             // Анализ запроса и разделение фильтров по типам объектов
             ComplexQuery solrMultiQuery = new ComplexQuery();
@@ -132,7 +142,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 if (fetchLimit <= 0) {
                     fetchLimit = found.size();
                 }
-                IdentifiableObjectCollection result = queryCollection(targetCollectionName, found, maxResults);
+                IdentifiableObjectCollection result = collectionRetriever.queryCollection(found, maxResults);
                 if (found.size() == fetchLimit && result.size() < maxResults) {
                     // Увеличиваем размер выборки в Solr
                     fetchLimit = estimateFetchLimit(found.size(), result.size());
@@ -145,7 +155,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         } catch (Exception ex) {
             log.error("Unexpected exception caught in search", ex);
             throw new UnexpectedException("SearchService", "search",
-                "query: " + query + ", targetCollectionName: " + targetCollectionName, ex);
+                "query: " + query /*+ ", targetCollectionName: " + targetCollectionName*/, ex);
         }
     }
 
@@ -435,19 +445,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             throw new SearchException("Search error: " + e.getMessage());
         }
     }
-
-    private IdentifiableObjectCollection queryCollection(String collectionName, SolrDocumentList found,
-            int maxResults) {
-        ArrayList<ReferenceValue> ids = new ArrayList<>();
-        for (SolrDocument doc : found) {
-            Id id = idService.createId((String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID));
-            ids.add(new ReferenceValue(id));
-        }
-        Filter idFilter = new IdsIncludedFilter(ids);
-        return collectionsService.findCollection(collectionName, new SortOrder(), Collections.singletonList(idFilter),
-                0, maxResults);
+/*
+    private IdentifiableObjectCollection queryCollection(String collectionName,
+            List<? extends Filter> collectionFilters, SolrDocumentList found, int maxResults) {
     }
-
+*/
     private boolean isAttachmentObjectField(String fieldName) {
         return AttachmentService.NAME.equals(fieldName)
             || AttachmentService.DESCRIPTION.equals(fieldName)

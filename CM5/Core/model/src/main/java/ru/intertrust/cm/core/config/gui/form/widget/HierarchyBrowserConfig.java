@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,7 +11,7 @@ import org.simpleframework.xml.Root;
  */
 @Root(name = "hierarchy-browser")
 public class HierarchyBrowserConfig extends WidgetConfig {
-
+    @NotNullLogicalValidation
     @Element(name = "node-collection-def")
     private NodeCollectionDefConfig nodeCollectionDefConfig;
 

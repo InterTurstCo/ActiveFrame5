@@ -47,7 +47,7 @@
         <configuration-path>module-configuration/numerator.xml</configuration-path>
         <configuration-path>module-configuration/org-descriptions.xml</configuration-path>
         <configuration-path>module-configuration/schedule.xml</configuration-path>
-        
+        <configuration-path>module-configuration/form-templates.xml</configuration-path>
         <!-- Настройка импорта -->
         <configuration-path>module-configuration/import-settings.xml</configuration-path>        
 

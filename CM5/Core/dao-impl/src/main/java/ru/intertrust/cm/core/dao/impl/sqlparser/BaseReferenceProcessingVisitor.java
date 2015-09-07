@@ -64,34 +64,34 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         return paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
     }
     
-    protected BinaryExpression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
-        BinaryExpression modifiedEqualsToForReferenceId = null;
+    protected Expression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
+        BinaryExpression expressionForReferenceId = null;
         if (isEquals) {
-            modifiedEqualsToForReferenceId = new EqualsTo();
+            expressionForReferenceId = new EqualsTo();
         } else {
-            modifiedEqualsToForReferenceId = new NotEqualsTo();
+            expressionForReferenceId = new NotEqualsTo();
         }
 
-        modifiedEqualsToForReferenceId.setLeftExpression(equalsTo.getLeftExpression());
-        modifiedEqualsToForReferenceId.setRightExpression(equalsTo.getRightExpression());
+        expressionForReferenceId.setLeftExpression(equalsTo.getLeftExpression());
+        expressionForReferenceId.setRightExpression(equalsTo.getRightExpression());
 
-        BinaryExpression equalsToForReferenceType =
+        BinaryExpression expressionForReferenceType =
                 createComparisonExpressionForReferenceType(column, paramName, isEquals);
 
         JdbcNamedParameter referenceParameter = new JdbcNamedParameter();
         referenceParameter.setName(paramName);
-        
-        modifiedEqualsToForReferenceId.setRightExpression(referenceParameter);
+
+        expressionForReferenceId.setRightExpression(referenceParameter);
         // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
         // фильтр {например, t.id = 1 and t.id_type = 2 }
-        BinaryExpression newReferenceExpression = null;
+        Expression newReferenceExpression = null;
         if (isEquals) {
             newReferenceExpression =
-                    new AndExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
+                    new AndExpression(expressionForReferenceId, expressionForReferenceType);
 
         } else {
             newReferenceExpression =
-                    new OrExpression(modifiedEqualsToForReferenceId, equalsToForReferenceType);
+                    new Parenthesis(new OrExpression(expressionForReferenceId, expressionForReferenceType));
         }
         return newReferenceExpression;
     }

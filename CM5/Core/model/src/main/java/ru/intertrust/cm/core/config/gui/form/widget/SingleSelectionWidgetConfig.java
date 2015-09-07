@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.config.gui.form.widget;
 
 import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 
 /**
  * @author Lesia Puhova
@@ -13,7 +13,8 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  *  Является супер-классом для конкретных конфигураций, таких как ComboBoxConfig и RadioButtonConfig.
  */
 public abstract class SingleSelectionWidgetConfig extends WidgetConfig implements Dto {
-    @Element(name = "pattern")
+    @NotNullLogicalValidation
+    @Element(name = "pattern", required = false)
     protected PatternConfig patternConfig;
 
     public PatternConfig getPatternConfig() {

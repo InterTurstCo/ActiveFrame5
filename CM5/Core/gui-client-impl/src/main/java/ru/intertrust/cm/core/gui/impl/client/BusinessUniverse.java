@@ -33,6 +33,7 @@ import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -47,7 +48,6 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.START_SIDEBAR_WIDTH;
 
 /**
  * @author Denis Mitavskiy
@@ -155,7 +155,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         centralPluginPanel = new CentralPluginPanel();
         centralPluginPanel.setStyle("rightSectionWrapper");
         centralDivPanel.add(centralPluginPanel);
-        centralPluginWidth = Window.getClientWidth() - 160;
+        centralPluginWidth = Window.getClientWidth() - NavigationTreePluginView.FIRST_LEVEL_NAVIGATION_PANEL_WIDTH - stickerPluginWidth;
         centralPluginHeight = Window.getClientHeight();
         centralPluginPanel.setVisibleWidth(centralPluginWidth);
         centralPluginPanel.setVisibleHeight(centralPluginHeight);
@@ -201,7 +201,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         }
         History.addValueChangeHandler(new HistoryValueChangeHandler());
-        navigationTreePanel.setVisibleWidth(START_SIDEBAR_WIDTH);
+        navigationTreePanel.setVisibleWidth(NavigationTreePluginView.FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
         navigationTreePanel.open(navigationTreePlugin);
     }
 

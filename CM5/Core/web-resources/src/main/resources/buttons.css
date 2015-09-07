@@ -17,7 +17,7 @@
     color: #f1f1f1;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0874b6', endColorstr='#016cad', GradientType=0);
-    cursor: default;
+    cursor: pointer;
 }
 
 .darkButton:hover {
@@ -67,7 +67,7 @@ a.darkButton:active {
     color: #016cad;
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eaeef1', GradientType=0);
-    cursor: default;
+    cursor: pointer;
 }
 
 .lightButton:hover {

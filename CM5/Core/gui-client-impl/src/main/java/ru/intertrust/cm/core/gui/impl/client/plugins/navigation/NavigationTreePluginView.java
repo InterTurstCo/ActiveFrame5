@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.ActionManager;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -44,8 +45,9 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 public class NavigationTreePluginView extends PluginView {
     private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
     private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
-    private static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 136;
-    private static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN = 20;
+    public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 134;
+    private static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN = 17;
+    private static final int LEVELS_INTERSECTION = 20;
     private static final int LINK_TEXT_MARGIN = 55;
     private static final double ONE_CHAR_WIDTH = 6.6D;
     private final int DURATION = 500;
@@ -89,20 +91,21 @@ public class NavigationTreePluginView extends PluginView {
         } else {
             navigationTreeOpeningTime = navigationTreePluginData.getSideBarOpenningTime();
         }
-        int endWidgetWidth = navigationConfig.getSecondLevelPanelWidth() == null
+        int secondLevelNavigationPanelWidth = navigationConfig.getSecondLevelPanelWidth() == null
                 ? DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH
                 : StringUtil.getIntValue(navigationConfig.getSecondLevelPanelWidth());
-        Application.getInstance().getCompactModeState().setSecondLevelNavigationPanelWidth(endWidgetWidth);
-        Application.getInstance().getCompactModeState().setFirstLevelNavigationPanelWidth(FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
-
-        endWidgetWidthInPx = endWidgetWidth + "px";
+        CompactModeState compactModeState =  Application.getInstance().getCompactModeState();
+        compactModeState.setSecondLevelNavigationPanelWidth(secondLevelNavigationPanelWidth);
+        compactModeState.setFirstLevelNavigationPanelWidth(FIRST_LEVEL_NAVIGATION_PANEL_WIDTH);
+        boolean minimalMargin = NavigationPanelSecondLevelMarginSize.MINIMAL.equals(navigationConfig.getMarginSize());
+        int levelsIntersection = minimalMargin ? LEVELS_INTERSECTION : 0;
+        compactModeState.setLevelsIntersection(levelsIntersection);
+        endWidgetWidthInPx = secondLevelNavigationPanelWidth + "px";
         pinButton = new HTML();
         navigationTreesPanel.setStyleName("navigation-dynamic-panel");
         navigationTreeContainer = new FocusPanel();
-        if(NavigationPanelSecondLevelMarginSize.MINIMAL.equals(navigationConfig.getMarginSize())){
+        if(minimalMargin){
         navigationTreeContainer.addStyleName("minimalLeftMargin");
-            Application.getInstance().getCompactModeState()
-                    .setFirstLevelNavigationPanelWidth(FIRST_LEVEL_NAVIGATION_PANEL_WIDTH - FIRST_LEVEL_NAVIGATION_PANEL_WIDTH_MARGIN);
 
         }
         decorateNavigationTreeContainer(navigationTreeContainer);
@@ -110,9 +113,10 @@ public class NavigationTreePluginView extends PluginView {
         GlobalThemesManager.getNavigationTreeStyles().ensureInjected();
         List<LinkConfig> linkConfigList = navigationConfig.getLinkConfigList();
         String selectedRootLinkName = navigationTreePluginData.getRootLinkSelectedName();
-        boolean hasSecondLevelNavigationPanel = navigationTreePluginData.hasSecondLevelNavigationPanel();
+        boolean isDynamic = navigationTreePluginData.hasSecondLevelNavigationPanel() &&
+                navigationConfig.isUnpinEnabled();
         final LinkConfig selectedLinkConfig = buildRootLinks(linkConfigList, selectedRootLinkName, sideBarView,
-                hasSecondLevelNavigationPanel);
+                isDynamic);
         final HorizontalPanel horizontalPanel = new HorizontalPanel();
 
         horizontalPanel.add(sideBarView);
@@ -207,7 +211,7 @@ public class NavigationTreePluginView extends PluginView {
                 String leftSectionStyle = pinButtonPressed ? LEFT_SECTION_ACTIVE_STYLE : LEFT_SECTION_STYLE;
                 String centralSectionStyle = pinButtonPressed ? CENTRAL_SECTION_ACTIVE_STYLE : CENTRAL_SECTION_STYLE;
                 SideBarResizeEvent sideBarResizeEvent =
-                        new SideBarResizeEvent(0, leftSectionStyle, centralSectionStyle);
+                        new SideBarResizeEvent(START_WIDGET_WIDTH, leftSectionStyle, centralSectionStyle);
                 Application.getInstance().getEventBus().fireEvent(sideBarResizeEvent);
                 resizeTreeAnimation = new ResizeTreeAnimation(Application.getInstance().getCompactModeState().getSecondLevelNavigationPanelWidth(),
                         navigationTreesPanel);
@@ -225,7 +229,7 @@ public class NavigationTreePluginView extends PluginView {
             public void run() {
                 resizeTreeAnimation = new ResizeTreeAnimation(START_WIDGET_WIDTH, navigationTreesPanel);
                 Application.getInstance().getEventBus()
-                        .fireEvent(new SideBarResizeEvent(0, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
+                        .fireEvent(new SideBarResizeEvent(START_WIDGET_WIDTH, LEFT_SECTION_STYLE, CENTRAL_SECTION_STYLE));
                 resizeTreeAnimation.run(DURATION);
 
             }
@@ -464,7 +468,7 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     private LinkConfig buildRootLinks(final List<LinkConfig> linkConfigList, final String selectedRootLinkName, final
-                                      SidebarView sideBarView, boolean hasSecondLevelNavigationPanel) {
+                                      SidebarView sideBarView, boolean isDynamic) {
         LinkConfig result = null;
         final ClickHandler clickHandler = new RootNodeButtonClickHandler();
         NavigationTreePluginData data = plugin.getInitialData();
@@ -480,7 +484,7 @@ public class NavigationTreePluginView extends PluginView {
                 rootCounterDecorators.add(counterRootNodeDecorator);
             }
             sideBarView.getMenuItems().add(nodeButton);
-            if(hasSecondLevelNavigationPanel){
+            if(isDynamic){
             navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
                 public void onMouseMove(MouseMoveEvent mouseMoveEvent) {

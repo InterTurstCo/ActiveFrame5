@@ -3,7 +3,7 @@ package ru.intertrust.cm.core.config.gui.form;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetTemplateConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.template.WidgetTemplateConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -16,7 +16,7 @@ public class FormsParenConf implements Dto {
     private FormConfig formConfig;
 
     @Element(name = "widget-template")
-    private ru.intertrust.cm.core.config.gui.form.widget.WidgetTemplateConfig widgetTemplateConfig;
+    private WidgetTemplateConfig widgetTemplateConfig;
 
     @Element(name = "form-mappings")
     private FormMappingsConfig formMappingsConfig;

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
+import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 
 /**
  * @author Denis Mitavskiy
@@ -12,16 +13,20 @@ import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 public abstract class WidgetConfig implements IdentifiedConfig {
     private static final String MAX_DEFAULT_TOOLTIP_WIDTH = "400px";
     private static final String MAX_DEFAULT_TOOLTIP_HEIGHT = "300px";
+
+    @NotNullLogicalValidation
     @Attribute(name = "id", required = false)
     protected String id;
     @Attribute(name = "read-only", required = false)
-    protected boolean readOnly;
+    protected Boolean readOnly;
     @Attribute(name = "handler", required = false)
     protected String handler;
     @Attribute(name = "max-tooltip-width", required = false)
     protected String maxTooltipWidth;
     @Attribute(name = "max-tooltip-height", required = false)
     protected String maxTooltipHeight;
+
+    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer"})
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 
@@ -50,13 +55,12 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     }
 
     public boolean isReadOnly() {
-        return readOnly;
+        return readOnly == null ? false : readOnly;
     }
 
     public void setReadOnly(boolean readOnly) {
         this.readOnly = readOnly;
     }
-
 
     public String getMaxTooltipWidth() {
         return maxTooltipWidth == null ? MAX_DEFAULT_TOOLTIP_WIDTH : maxTooltipWidth;
@@ -85,7 +89,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
 
         WidgetConfig that = (WidgetConfig) o;
 
-        if (readOnly != that.readOnly) {
+        if (readOnly!= null ? !readOnly.equals(that.readOnly) : that.readOnly != null) {
             return false;
         }
         if (fieldPathConfig != null ? !fieldPathConfig.equals(that.fieldPathConfig) : that.fieldPathConfig != null) {
@@ -110,7 +114,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (readOnly ? 1 : 0);
+        result = 31 * result + (readOnly != null ? readOnly.hashCode() : 0);
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
         return result;
     }

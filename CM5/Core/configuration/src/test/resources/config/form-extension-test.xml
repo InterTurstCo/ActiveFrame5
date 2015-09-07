@@ -895,48 +895,65 @@
         </widget-config>
     </form>
 
-    <form name="coordination_task_form" domain-object-type="Docm_Coordination" extends="execution_form" is-default="false" default-value-setter="execution.default.values.handler">
-        <act:tool-bar useDefault="false">
-            <act:action-ref name-ref="aToggleEditOff" merged="false"/>
-            <act:action-ref name-ref="aSave" merged="false"/>
-            <act:simple-action name="executed.execution" componentName="simple.action"
-                               action-handler="executed.execution" text="Выполнить"
-                               imageClass="actionBar-create" merged="true" tooltip="Выполнить"
-                               visibility-checker="status.execution.visibility.checker"
-                               order="700"/>
-            <act:simple-action name="denied.execution" componentName="simple.action"
-                               action-handler="denied.execution" text="Отказать"
-                               imageClass="actionBar-create" merged="true" tooltip="Отказать"
-                               visibility-checker="status.execution.visibility.checker"
-                               order="800"/>
+    <form name="form_with_templates" domain-object-type="city" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr id="tr1">
+                        <td id="td1">
+                            <widget id="w1"/>
+                        </td>
 
-        </act:tool-bar>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Tab1" id="tb1">
+                    <single-entry-group>
+                        <tab-group id="tbg1">
+                            <table>
+                                <tr id="tr2">
+                                    <td id="td4">
+                                        <widget id="w2"/>
+                                    </td>
+                                </tr>
 
-        <markup-extension>
-            <add-tab-groups>
-                <before-tab-group id="mainTabGroup">
-                    <tab-group name="Документ">
-                        <table>
-                            <tr>
-                                <td colspan="2">
-                                    <widget id="attachment_value"/>
-                                </td>
-                            </tr>
-                        </table>
-                    </tab-group>
-                </before-tab-group>
-            </add-tab-groups>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
 
-        </markup-extension>
+        <widget-config>
 
-        <widget-config-extension>
-            <add-widgets>
-                <!--вкладка Документ-->
-                <attachment-viewer id="attachment_value" width="900px" height="600px" read-only="true">
-                    <field-path value="docm_attachment"/>
-                </attachment-viewer>
-            </add-widgets>
-        </widget-config-extension>
+            <date-box id="w2">
+                <field-path value="created_date"/>
+            </date-box>
+            <template-based-widget handler="handler" max-tooltip-height="300px" max-tooltip-width="300px" read-only="true" template-name="suggest-box-template">
+                <field-path value="name"/>
+                <override>
+                    <suggest-box id="w1">
+                        <drop-down-pattern value="{e_name3}"/>
+                        <clear-all-button text="Очистить всё"/>
+                    </suggest-box>
+                </override>
+            </template-based-widget>
+        </widget-config>
 
     </form>
+
+    <widget-template name="suggest-box-template">
+        <suggest-box id="e1_1:N">
+            <field-path value="e1^a1"/>
+            <collection-ref name="e1_collection"/>
+            <drop-down-pattern value="{e_name1} {e_name2}"/>
+            <selection-pattern value="{e_name1} {e_name2}"/>
+            <input-text-filter name="byName1"/>
+            <page-size>30</page-size>
+            <selection-style name="inline"/>
+            <clear-all-button text="Очистить"/>
+            <default-sort-criteria column-field="name1" order="asc"/>
+        </suggest-box>
+    </widget-template>
 </configuration>

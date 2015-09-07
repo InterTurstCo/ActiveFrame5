@@ -86,5 +86,11 @@ public class CreateObjectAccessType implements AccessType {
 
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "CreateObjectAccessType [objectType=" + objectType + ", parentTypes=" + parentTypes + "]";
+    }
+    
     
 }

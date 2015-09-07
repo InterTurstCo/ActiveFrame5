@@ -29,7 +29,7 @@ public interface Constants {
     String MODULES_CUSTOM_SCHEMA = MODULES_CONFIG_FOLDER + "/test-module/custom-configuration-test.xsd";
     String FORM_EXTENSION_CONFIG = "config/form-extension-test.xml";
     String FORM_EXTENSION_INVALID_CONFIG = "config/form-extension-invalid-test.xml";
-
+    String FORM_TEMPLATES_CONFIG = "config/form-templates.xml";
     Set<String> CONFIG_PATHS =
             new HashSet<>(Arrays.asList(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH, DOMAIN_OBJECTS_CONFIG_PATH, COLLECTIONS_CONFIG_PATH));
 
