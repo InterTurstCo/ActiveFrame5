@@ -24,7 +24,7 @@ public class HierarchicalCell extends AbstractTextCell {
         if ("combined-link".equals(drillDownStyle)) {
             sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/><span class=\"expand-arrow\">"));
             sb.append(SafeHtmlUtils.fromString(text));
-            sb.append(SafeHtmlUtils.fromTrustedString(" ►<span></div>"));
+            sb.append(SafeHtmlUtils.fromTrustedString(" ►</span></div>"));
         } else {
             sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"hierarchical-column\" " + style + "/>"));
             sb.append(SafeHtmlUtils.fromString(text));
