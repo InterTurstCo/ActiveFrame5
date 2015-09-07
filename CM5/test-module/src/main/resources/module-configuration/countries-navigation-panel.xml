@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
-    <navigation name="panel"
-                is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+    <navigation name="panel" level2-panel-width="220px"  level2-default-state="unpinned"  margin-size="default" text-auto-cut="false"
+                                                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
                 <link name="Calendar1" display-text="Календарь1">
@@ -153,9 +153,9 @@
         <!--</link>-->
 
         <!-- Пример на основе "Руководства разработчика"-->
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries" tooltip="Вкладка 'География'">
             <child-links>
-                <link name="Countries" display-text="Страны" counter-type="non-read">
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран" counter-type="non-read"  auto-cut="true" >
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
@@ -165,11 +165,7 @@
                                 <search-area-ref name="Countries-Search-Area"/>
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
-                                <initial-filters>
-                                    <initial-filter name="byName">
-                                        <param name="0" value="Яп%" type="string"/>
-                                    </initial-filter>
-                                </initial-filters>
+                                <rows-selection default-state="empty"/>
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
                             <form-viewer>
@@ -179,7 +175,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="Cities" display-text="Города">
+                <link name="Cities" display-text="Города, текст этого линка может не поместиться на весь экран">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="city">
                             <collection-viewer>
@@ -298,7 +294,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="NoPermissionTest" display-text="Права для связанной таблицы">
+                <link name="NoPermissionTest" display-text="Права для связанной таблицы" auto-cut="true">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="np1">
                             <collection-viewer>
@@ -310,7 +306,7 @@
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
-                </link>                                
+                </link>
             </child-links>
         </link>
 
@@ -581,7 +577,7 @@
             </child-links>
         </link>
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
-            <child-links group-name="Группа1">
+            <child-links group-name="Группа....................                  1" tooltip="Группа №1" auto-cut="false">
                 <link name="TasksTest" display-text="Задачи">
 
                     <plugin>
@@ -595,7 +591,7 @@
                         </domain-object-surfer>
                     </plugin>
 
-                    <child-links>
+                    <child-links group-name="nestedGroup">
                         <link name="TasksHigh" display-text="Задачи высокого приоритета">
                             <plugin>
                                 <domain-object-surfer domain-object-type-to-create="Internal_Document">
@@ -1425,132 +1421,62 @@
         </link>
     </navigation>
 
-    <navigation name="panel_1" is-default="false" merge="true">
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
-            <child-links group-name="Group1">
-                <link name="Countries" display-text="Страны-1" counter-type="non-read">
-                    <plugin>
-                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
-                        <domain-object-surfer domain-object-type-to-create="country">
-                            <collection-viewer>
-                                <collection-ref name="Countries"/>
-                                <default-sort-criteria column-field="name" order="desc"/>
-                                <search-area-ref name="Countries-Search-Area"/>
-                                <search-collection-ref name="Countries"/>
-                                <filter-panel panel-state="open"/>
-                                <initial-filters>
-                                    <initial-filter name="byName">
-                                        <param name="0" value="Яп%" type="string"/>
-                                    </initial-filter>
-                                </initial-filters>
-                            </collection-viewer>
-                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
-                            <form-viewer>
-                                <form-mapping domain-object-type="country" form="country_form"/>
-                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
-                            </form-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
-                <link name="Cities" display-text="Города-1">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="city">
-                            <collection-viewer>
-                                <collection-ref name="Cities"/>
-                                <default-sort-criteria column-field="population" order="desc"/>
-                            </collection-viewer>
-                        </domain-object-surfer>
-                    </plugin>
-                    <decorations>
-                        <collection-counter/>
-                    </decorations>
-                </link>
-            </child-links>
+    <navigation name="panel_1" is-default="true">
+        <link name="Geography" display-text="География" image="images/analitika.png" >
+            <plugin>
+                <!--domain-object-type-to-create="country" - temp solution - remove later-->
+                <domain-object-surfer domain-object-type-to-create="country">
+                    <collection-viewer>
+                        <collection-ref name="Countries"/>
+                        <default-sort-criteria column-field="name" order="desc"/>
+                        <search-area-ref name="Countries-Search-Area"/>
+                        <search-collection-ref name="Countries"/>
+                        <filter-panel panel-state="open"/>
+                        <initial-filters>
+                            <initial-filter name="byName">
+                                <param name="0" value="Яп%" type="string"/>
+                            </initial-filter>
+                        </initial-filters>
+                    </collection-viewer>
+                    <!--form-viewer form-mapping-component="custom.mapping.component"/-->
+                    <form-viewer>
+                        <form-mapping domain-object-type="country" form="country_form"/>
+                        <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
+                    </form-viewer>
+                </domain-object-surfer>
+            </plugin>
 
-            <child-links group-name="Group2">
-                <link name="FormsTest1" display-text="Механизм форм 1">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="a1">
-                            <collection-viewer>
-                                <collection-ref name="a1_collection"/>
-                            </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
-                <link name="FormsTest2" display-text="Механизм форм 2">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="a2">
-                            <collection-viewer>
-                                <collection-ref name="a2_collection"/>
-                            </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                    <child-links>
-                        <link name="Countries2" display-text="Страны-2" counter-type="non-read">
-                            <plugin>
-                                <domain-object-surfer domain-object-type-to-create="country">
-                                    <collection-viewer>
-                                        <collection-ref name="Countries"/>
-                                        <default-sort-criteria column-field="name" order="desc"/>
-                                        <search-area-ref name="Countries-Search-Area"/>
-                                        <search-collection-ref name="Countries"/>
-                                    </collection-viewer>
-                                    <toggle-edit>true</toggle-edit>
-                                </domain-object-surfer>
-                            </plugin>
-                        </link>
-                        <link name="Cities2" display-text="Города-2">
-                            <plugin>
-                                <domain-object-surfer domain-object-type-to-create="city">
-                                    <collection-viewer>
-                                        <collection-ref name="Cities"/>
-                                        <default-sort-criteria column-field="population" order="desc"/>
-                                    </collection-viewer>
-                                </domain-object-surfer>
-                            </plugin>
-                            <decorations>
-                                <collection-counter/>
-                            </decorations>
-                        </link>
-                    </child-links>
-                </link>
-            </child-links>
         </link>
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
-            <child-links>
-                <link name="Calendar1" display-text="Календарь1">
-                    <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
-                            <calendar-view>
-                                <collection-ref name="letters"/>
-                                <date-field-path value="actual_start_period"/>
-                                <date-field-filter name="byActualStartPeriod" type="datetime"/>
-                                <sort-criteria>
-                                    <sort-criterion field="created_date" order="asc"/>
-                                </sort-criteria>
-                                <month-item type="link">
-                                    <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
-                                </month-item>
-                                <day-items>
-                                    <day-item type="link">
-                                        <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
-                                    </day-item>
-                                    <day-item type="label">
-                                        <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
-                                    </day-item>
-                                </day-items>
-                                <image-field name="letter_image">
-                                    <image-mappings imageWidth="10px" imageHeight="10px">
-                                        <mapping value="" image="cancel.png"/>
-                                    </image-mappings>
-                                </image-field>
-                            </calendar-view>
-                        </calendar>
-                    </plugin>
-                </link>
-            </child-links>
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" >
+            <plugin>
+                <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                    <calendar-view>
+                        <collection-ref name="letters"/>
+                        <date-field-path value="actual_start_period"/>
+                        <date-field-filter name="byActualStartPeriod" type="datetime"/>
+                        <sort-criteria>
+                            <sort-criterion field="created_date" order="asc"/>
+                        </sort-criteria>
+                        <month-item type="link">
+                            <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                        </month-item>
+                        <day-items>
+                            <day-item type="link">
+                                <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                            </day-item>
+                            <day-item type="label">
+                                <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                            </day-item>
+                        </day-items>
+                        <image-field name="letter_image">
+                            <image-mappings imageWidth="10px" imageHeight="10px">
+                                <mapping value="" image="cancel.png"/>
+                            </image-mappings>
+                        </image-field>
+                    </calendar-view>
+                </calendar>
+            </plugin>
+
         </link>
     </navigation>
 
@@ -1713,12 +1639,10 @@
         </navigation-panel-mapping>
 
         <navigation-panel-mapping name="panel_1">
-            <!--users>
-                <user uid="person1"/>
-            </users-->
-            <groups>
+
+           <!-- <groups>
                 <group-name value="test-group-1" priority="10"/>
-            </groups>
+            </groups>-->
         </navigation-panel-mapping>
     </navigation-panel-mappings>
 

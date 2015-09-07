@@ -7,7 +7,6 @@ import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -17,6 +16,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectCon
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
@@ -70,9 +70,6 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     protected FieldPathHelper fieldPathHelper;
-
-    @Autowired
-    private ProfileService profileService;
 
     private static final String DEFAULT_EDIT_ACCESS_CHECKER = "default.edit.access.checker";
     private static final String DEFAULT_DELETE_ACCESS_CHECKER = "default.delete.access.checker";
@@ -204,7 +201,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
             String savedObjectType = formState.getRootDomainObjectType();
 
             List<String> validationResult = PluginHandlerHelper.doServerSideValidation(formState, applicationContext,
-                    profileService.getPersonLocale());
+                    GuiContext.getUserLocale());
             if (!validationResult.isEmpty()) {
                 throw new ValidationException("Server-side validation failed", validationResult);
             }

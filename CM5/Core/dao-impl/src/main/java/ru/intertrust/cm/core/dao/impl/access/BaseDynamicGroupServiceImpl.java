@@ -1,55 +1,25 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-import ru.intertrust.cm.core.dao.impl.utils.ObjectIdRowMapper;
+
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * @author atsvetkov
  */
 public class BaseDynamicGroupServiceImpl {
-
-    public static final String USER_GROUP_DOMAIN_OBJECT = "user_group";
-
-    public static final String GROUP_MEMBER_DOMAIN_OBJECT = "group_member";
-
-    @Autowired
-    protected NamedParameterJdbcOperations masterNamedParameterJdbcTemplate; // Use for data modifying operations
-
-    @Autowired
-    protected NamedParameterJdbcOperations switchableNamedParameterJdbcTemplate; // User for read operations
 
     @Autowired
     protected DoelResolver doelResolver;
@@ -59,6 +29,9 @@ public class BaseDynamicGroupServiceImpl {
 
     @Autowired
     protected DomainObjectDao domainObjectDao;
+
+    @Autowired
+    protected StatusDao statusDao;
 
     @Autowired
     protected AccessControlService accessControlService;
@@ -77,10 +50,6 @@ public class BaseDynamicGroupServiceImpl {
     
     @Autowired
     protected UserGroupGlobalCache userGroupGlobalCache;
-    
-    public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
-        this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
-    }
 
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
@@ -105,36 +74,6 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     /**
-     * Удаляет динамическую группу по названию и контекстному объекту.
-     * @param groupName
-     *            название динамической группы
-     * @param contextObjectId
-     *            идентфикатор контекстного объекта
-     * @return идентификатор удаленной динамической группы
-     */
-    protected Id deleteUserGroupByGroupNameAndObjectId(Id userGroupId, String groupName, Long contextObjectId) {
-        if (userGroupId != null) {
-            String query = generateDeleteUserGroupQuery();
-
-            Map<String, Object> parameters = initializeProcessUserGroupWithContextParameters(groupName, contextObjectId);
-            masterNamedParameterJdbcTemplate.update(query, parameters);
-        }
-
-        return userGroupId;
-    }
-
-    private String generateDeleteUserGroupQuery() {
-        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        StringBuilder query = new StringBuilder();
-        query.append("delete from ");
-        query.append(DaoUtils.wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name and ").
-                append("ug.").append(DaoUtils.wrap("object_id")).append(" = :object_id");
-
-        return query.toString();
-    }
-
-    /**
      * Возвращает идентификатор группы пользователей по имени группы и идентификатору контекстного объекта
      * @param groupName
      *            имя динамической группы
@@ -151,45 +90,21 @@ public class BaseDynamicGroupServiceImpl {
         return result;
     }
 
-    private Map<String, Object> initializeProcessUserGroupWithContextParameters(String groupName, Long contextObjectId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("group_name", groupName);
-        parameters.put("object_id", contextObjectId);
-        return parameters;
-    }
-
-    private String generateGetUserGroupWithContextQuery() {
-        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        StringBuilder query = new StringBuilder();
-        query.append("select ug.").append(DaoUtils.wrap("id")).append(" from ");
-        query.append(DaoUtils.wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name and ug.").
-                append(DaoUtils.wrap("object_id")).append(" = :object_id");
-
-        return query.toString();
-    }
-
     public Id getUserGroupByGroupName(String groupName) {
-        String query = generateGetUserGroupQuery();
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        Map<String, Object> parameters = initializeProcessUserGroupParameters(groupName);
-        Integer doTypeId = domainObjectTypeIdCache.getId(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        return switchableNamedParameterJdbcTemplate.query(query, parameters, new ObjectIdRowMapper("id", doTypeId));
-    }
+        Filter filter = new Filter();
+        filter.setFilter("byName");
+        filter.addCriterion(0, new StringValue(groupName));
 
-    private Map<String, Object> initializeProcessUserGroupParameters(String groupName) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("group_name", groupName);
-        return parameters;
-    }
+        IdentifiableObjectCollection resultCollection = collectionsService.findCollection("GroupByName",
+                Collections.singletonList(filter), null, 0, 0, accessToken);
 
-    private String generateGetUserGroupQuery() {
-        String tableName = getSqlName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        StringBuilder query = new StringBuilder();
-        query.append("select ug.").append(DaoUtils.wrap("id")).append(" from ");
-        query.append(DaoUtils.wrap(tableName)).append(" ug");
-        query.append(" where ug.").append(DaoUtils.wrap("group_name")).append(" = :group_name");
-        return query.toString();
+        if (resultCollection == null || resultCollection.size() == 0) {
+            return null;
+        }
+
+        return resultCollection.getId(0);
     }
 
     /**
@@ -199,21 +114,27 @@ public class BaseDynamicGroupServiceImpl {
      * @return статус доменного объекта
      */
     protected String getStatusFor(Id objectId) {
-        String status = null;
         String query = generateGetStatusForQuery(objectId);
-        Map<String, Object> parameters = initializeGetStatusParameters(objectId);
-        status = masterNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<String>() {
-            @Override
-            public String extractData(ResultSet rs) throws SQLException, DataAccessException {
-                String status = null;
-                while (rs.next()) {
-                    status = rs.getString(1);
-                }
-                return status;
-            }
-        });
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        return status;
+        IdentifiableObjectCollection resultCollection = collectionsService.findCollectionByQuery(query,
+                Collections.singletonList(new ReferenceValue(objectId)), 0, 0, accessToken);
+
+        if (resultCollection == null || resultCollection.size() == 0) {
+            return null;
+        }
+
+        return resultCollection.get(0).getString("name");
+    }
+
+    /**
+     * Возвращает строковое представление статуса доменного объекта
+     * @param domainObject
+     *            доменный объект
+     * @return статус доменного объекта
+     */
+    protected String getStatusFor(DomainObject domainObject) {
+        return statusDao.getStatusNameById(domainObject.getStatus());
     }
 
     /**
@@ -237,46 +158,9 @@ public class BaseDynamicGroupServiceImpl {
         query.append("select s.").append(DaoUtils.wrap("name")).append(" from ").append(DaoUtils.wrap(tableName)).
                 append(" o inner join ").append(DaoUtils.wrap(GenericDomainObject.STATUS_DO)).append(" s on ").
                 append("s.").append(DaoUtils.wrap("id")).append(" = o.").append(DaoUtils.wrap(GenericDomainObject.STATUS_FIELD_NAME));
-        query.append(" where o.").append(DaoUtils.wrap("id")).append(" = :object_id");
+        query.append(" where o.").append(DaoUtils.wrap("id")).append(" = {0}");
 
         return query.toString();
-    }
-
-    private Map<String, Object> initializeGetStatusParameters(Id objectId) {
-        RdbmsId rdbmsId = (RdbmsId) objectId;
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("object_id", rdbmsId.getId());
-        return parameters;
-    }
-
-    /**
-     * Отображает {@link java.sql.ResultSet} на список идентификаторов доменных объектов {@link Id}
-     * @author atsvetkov
-     */
-    protected class ListObjectIdRowMapper implements ResultSetExtractor<List<Id>> {
-
-        private String idField;
-
-        private Integer domainObjectType;
-
-        public ListObjectIdRowMapper(String idField, Integer domainObjectType) {
-            this.idField = idField;
-            this.domainObjectType = domainObjectType;
-        }
-
-        @Override
-        public List<Id> extractData(ResultSet rs) throws SQLException, DataAccessException {
-            List<Id> personIds = new ArrayList<>();
-
-            while (rs.next()) {
-                Long longValue = rs.getLong(idField);
-
-                Id id = new RdbmsId(domainObjectType, longValue);
-                personIds.add(id);
-
-            }
-            return personIds;
-        }
     }
 
     protected Id createUserGroup(String dynamicGroupName, Id contextObjectId) {
@@ -347,13 +231,9 @@ public class BaseDynamicGroupServiceImpl {
      * @param targetCollection
      * @param sourceCollection
      */
-    protected void addAllWithoutDuplicate(List targetCollection, List sourceCollection) {
-        if (sourceCollection != null) {
-            for (Object id : sourceCollection) {
-                if (!targetCollection.contains(id)) {
-                    targetCollection.add(id);
-                }
-            }
+    protected <T> void addAllWithoutDuplicate(Set<T> targetCollection, Collection<T> sourceCollection) {
+        if (sourceCollection != null && targetCollection != null) {
+            targetCollection.addAll(sourceCollection);
         }
     }
 

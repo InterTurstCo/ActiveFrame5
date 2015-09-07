@@ -1,12 +1,50 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
+import static ru.intertrust.cm.core.business.api.dto.FieldType.BOOLEAN;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.DATETIME;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.DATETIMEWITHTIMEZONE;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.DECIMAL;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.LONG;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.REFERENCE;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.STRING;
+import static ru.intertrust.cm.core.business.api.dto.FieldType.TIMELESSDATE;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.UserInfo;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.BooleanSearchFilter;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
+import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
+import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
+import ru.intertrust.cm.core.business.api.dto.SearchFilter;
+import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
+import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -34,22 +72,25 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
+import ru.intertrust.cm.core.gui.model.form.widget.EnumBoxState;
 import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.TextState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
-import java.util.*;
-
 /**
- * User: IPetrov
- * Date: 03.01.14
- * Time: 15:58
- * Обработчик плагина расширенного поиска
- * получает данные о конфигурации поиска и вызывает сервис поиска
+ * User: IPetrov Date: 03.01.14 Time: 15:58 Обработчик плагина расширенного
+ * поиска получает данные о конфигурации поиска и вызывает сервис поиска
  */
 @ComponentName("extended.search.plugin")
 public class ExtendedSearchPluginHandler extends PluginHandler {
@@ -68,13 +109,10 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     @Autowired
     private GuiService guiService;
 
-    @Autowired
-    private ProfileService profileService;
-
     protected ExtendedSearchPluginData extendedSearchPluginData;
 
     @Override
-    public  ExtendedSearchPluginData initialize(Dto params) {
+    public ExtendedSearchPluginData initialize(Dto params) {
         // область поиска - список целевых ДО
         HashMap<String, ArrayList<String>> searchAreas = new HashMap<String, ArrayList<String>>();
         // целевой ДО - список его полей
@@ -85,19 +123,21 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         extendedSearchPluginData = new ExtendedSearchPluginData();
         Collection<SearchAreaConfig> searchAreaConfigs = configurationService.getConfigs(SearchAreaConfig.class);
 
-        for(SearchAreaConfig searchAreaConfig  : searchAreaConfigs){
+        for (SearchAreaConfig searchAreaConfig : searchAreaConfigs) {
             List<TargetDomainObjectConfig> targetObjects = searchAreaConfig.getTargetObjects();
             // список целевых ДО в конкретной области поиска
             ArrayList<String> arrayTargetObjects = new ArrayList<String>();
             for (TargetDomainObjectConfig targetObject : targetObjects) {
-                // получаем результирующую форму поиска(удаляем несоответствующие поля)
+                // получаем результирующую форму поиска(удаляем
+                // несоответствующие поля)
                 List<IndexedFieldConfig> fields = targetObject.getFields();
-                ArrayList <String> fieldNames = new ArrayList<String>(fields.size());
-                for (IndexedFieldConfig field :fields) {
+                ArrayList<String> fieldNames = new ArrayList<String>(fields.size());
+                for (IndexedFieldConfig field : fields) {
                     fieldNames.add(field.getName());
                 }
                 searchFields.put(targetObject.getType(), fieldNames);
-                // если форма поиска для данного ДО не сконфигурирована, в интерфейсе не отображается
+                // если форма поиска для данного ДО не сконфигурирована, в
+                // интерфейсе не отображается
                 final UserInfo userInfo = GuiContext.get().getUserInfo();
                 FormDisplayData form = guiService.getSearchForm(targetObject.getType(), new HashSet<String>(fieldNames), userInfo);
                 if (form != null) {
@@ -105,20 +145,21 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                     targetCollectionNames.put(targetObject.getType(), targetObject.getCollectionConfig().getName());
                 }
             }
-            // если у области поиска нет сконфигурированной формы для поиска ДО, ее не отображаем
+            // если у области поиска нет сконфигурированной формы для поиска ДО,
+            // ее не отображаем
             if (!arrayTargetObjects.isEmpty()) {
                 searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
             }
         }
         List<BusinessUniverseConfig> businessUniverseConfigs = (List<BusinessUniverseConfig>) configurationService
                 .getConfigs(BusinessUniverseConfig.class);
-        if(!businessUniverseConfigs.isEmpty()){
+        if (!businessUniverseConfigs.isEmpty()) {
             extendedSearchPluginData.setExtendedSearchPopupConfig(businessUniverseConfigs.get(0).getExtendedSearchPopupConfig());
         }
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);
         extendedSearchPluginData.setSearchFieldsData(searchFields);
-        Map<String,String> valueToDisplayText = getLocalizationMap();
+        Map<String, String> valueToDisplayText = getLocalizationMap();
         extendedSearchPluginData.setValueToDisplayText(valueToDisplayText);
         return extendedSearchPluginData;
     }
@@ -128,11 +169,11 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
             String searchAreaName = areaData.getKey();
             result.put(searchAreaName, MessageResourceProvider.getMessage(new MessageKey(searchAreaName,
-                    MessageResourceProvider.SEARCH_AREA), profileService.getPersonLocale()));
+                    MessageResourceProvider.SEARCH_AREA), GuiContext.getUserLocale()));
             List<String> domainObjectTypes = areaData.getValue();
             for (String doType : domainObjectTypes) {
                 result.put(doType, MessageResourceProvider.getMessage(new MessageKey(doType, MessageResourceProvider
-                        .SEARCH_DOMAIN_OBJECT), profileService.getPersonLocale()));
+                        .SEARCH_DOMAIN_OBJECT), GuiContext.getUserLocale()));
             }
         }
         for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
@@ -141,14 +182,14 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                 Map<String, String> context = new HashMap<>();
                 context.put(MessageResourceProvider.DOMAIN_OBJECT_CONTEXT, doType);
                 result.put(field, MessageResourceProvider.getMessage(new MessageKey(field, MessageResourceProvider
-                        .SEARCH_FIELD, context), profileService.getPersonLocale()));
+                        .SEARCH_FIELD, context), GuiContext.getUserLocale()));
             }
         }
 
         return result;
     }
 
-    public HashSet<String> selectSearchFormFields (String targetDomainObject) {
+    public HashSet<String> selectSearchFormFields(String targetDomainObject) {
         // набор полей результирующей формы для поиска
         HashSet<String> searchFormFields = new HashSet<String>();
         List<ArrayList<String>> tempDataList = new ArrayList<ArrayList<String>>();
@@ -174,25 +215,26 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         ArrayList<String> biggest = new ArrayList<String>();
         // пробегаем списки полей, чтобы найти наибольший список
         for (ArrayList<String> item : tempDataList) {
-             if (item.size() > largestSize) {
-                 largestSize = item.size();
-                 biggest = item;
-             }
+            if (item.size() > largestSize) {
+                largestSize = item.size();
+                biggest = item;
+            }
         }
 
         for (ArrayList<String> item : tempDataList) {
-             for (String field : biggest) {
-                 if (item.contains(field)) {
-                     searchFormFields.add(field);
-                 }
-             }
+            for (String field : biggest) {
+                if (item.contains(field)) {
+                    searchFormFields.add(field);
+                }
+            }
         }
 
         return searchFormFields;
     }
 
-    // обработка условий расширенного поиска и формирование результирующих данных
-    public  Dto searchFormDataProcessor (Dto dto) {
+    // обработка условий расширенного поиска и формирование результирующих
+    // данных
+    public Dto searchFormDataProcessor(Dto dto) {
         ExtendedSearchData extendedSearchData = (ExtendedSearchData) dto;
         FormConfig formConfig = guiService.getFormConfig(extendedSearchData.getSearchQuery().getTargetObjectType(),
                 FormConfig.TYPE_SEARCH);
@@ -206,13 +248,15 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         // данные из полей формы поиска
         Map<String, WidgetState> formWidgetsData = extendedSearchData.getFormWidgetsData();
-        // Кэш диапазонных фильтров - чтобы не искать их в поисковом запросе при обработке второго виджета
+        // Кэш диапазонных фильтров - чтобы не искать их в поисковом запросе при
+        // обработке второго виджета
         Map<String, TimeIntervalFilter> rangeFilters = new HashMap<>();
 
-        // проходим по полям формы поиска, собираем данные и строим поисковые фильтры
+        // проходим по полям формы поиска, собираем данные и строим поисковые
+        // фильтры
         for (Map.Entry<String, WidgetState> entry : formWidgetsData.entrySet()) {
             String widgetId = entry.getKey();
-            WidgetState widgetState = entry.getValue();//formWidgetsData.get(key);
+            WidgetState widgetState = entry.getValue();// formWidgetsData.get(key);
             WidgetConfig widgetConfig = widgetConfigById.get(widgetId);
             String fieldPath = widgetConfig.getFieldPathConfig().getValue();
 
@@ -245,16 +289,26 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                     }
                     DateBoxConfig dateBoxConfig = (DateBoxConfig) widgetConfig;
                     if (dateBoxConfig.getRangeEndConfig() != null) {
-                        // Есть ссылка на виджет конца диапазона - значит, выбранный виджет задаёт начало
+                        // Есть ссылка на виджет конца диапазона - значит,
+                        // выбранный виджет задаёт начало
                         initStartDate(filter, value);
                     } else if (dateBoxConfig.getRangeStartConfig() != null) {
                         initEndDate(filter, value);
                     } else {
-                        // Виджет не связан по диапазону - ищем по фиксированной дате
+                        // Виджет не связан по диапазону - ищем по фиксированной
+                        // дате
                         initEndDate(filter, value);
                         initEndDate(filter, value);
                     }
                 }
+            } else if (widgetState instanceof CheckBoxState) {
+                boolean value = ((CheckBoxState) widgetState).isSelected();
+                BooleanSearchFilter filter = new BooleanSearchFilter(fieldPath, value);
+                searchQuery.addFilter(filter);
+            } else if (widgetState instanceof EnumBoxState) {
+                EnumBoxState state = (EnumBoxState) widgetState;
+                Value<?> value = state.getDisplayTextToValue().get(state.getSelectedText());
+                searchQuery.addFilter(buildFilterForEnumBox(fieldPath, value));
             }
         }
 
@@ -283,7 +337,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         for (IdentifiableObject identifiableObject : collection) {
             final Map<String, Map<Value, ImagePathValue>> fieldMaps = defaultImageMapper.getImageMaps(columnPropertiesMap);
             searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(
-                            identifiableObject, columnPropertiesMap, fieldMaps));
+                    identifiableObject, columnPropertiesMap, fieldMaps));
         }
         final CollectionPluginData collectionPluginData = collectionPluginHandler
                 .getExtendedCollectionPluginData(targetCollectionName, "ext-search", searchResultRowItems);
@@ -312,8 +366,9 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         final ToolbarContext toolbarContext = formPluginHandler.initialize(formPluginConfig).getToolbarContext();
 
         // нужно получить инициализацию формы поиска
-        //ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler = (ExtendedSearchFormPluginHandler)
-        //                                                      applicationContext.getBean("extended.search.form.plugin");
+        // ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler =
+        // (ExtendedSearchFormPluginHandler)
+        // applicationContext.getBean("extended.search.form.plugin");
 
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
         formPluginData.setPluginState(formPluginConfig.getPluginState());
@@ -324,7 +379,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         CollectionRefConfig refConfig = new CollectionRefConfig();
         refConfig.setName(extendedSearchData.getTargetCollectionNames().get(extendedSearchData.getSearchQuery().
-                                                                                                getTargetObjectType()));
+                getTargetObjectType()));
 
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         collectionViewerConfig.setCollectionRefConfig(refConfig);
@@ -338,6 +393,40 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);
         return result;
+    }
+
+    protected SearchFilter buildFilterForEnumBox(String fieldPath, Value<?> value) {
+        FieldType type = value.getFieldType();
+        if (type.equals(LONG)) {
+            long v = (Long) value.get();
+            NumberRangeFilter filter = new NumberRangeFilter(fieldPath);
+            filter.setMin(v);
+            filter.setMax(v);
+            return filter;
+        } else if (type.equals(DECIMAL)) {
+            BigDecimal v = (BigDecimal) value.get();
+            NumberRangeFilter filter = new NumberRangeFilter(fieldPath);
+            filter.setMin(v);
+            filter.setMax(v);
+            return filter;
+        } else if (type.equals(BOOLEAN)) {
+            return new BooleanSearchFilter(fieldPath, (Boolean) value.get());
+        } else if (type.equals(DATETIMEWITHTIMEZONE)) {
+            DateTimeWithTimeZone v = (DateTimeWithTimeZone) value.get();
+            return new TimeIntervalFilter(fieldPath, v, v);
+        } else if (type.equals(TIMELESSDATE)) {
+            TimelessDate v = (TimelessDate) value.get();
+            return new TimeIntervalFilter(fieldPath, v, v);
+        } else if (type.equals(DATETIME)) {
+            Date v = (Date) value.get();
+            return new TimeIntervalFilter(fieldPath, v, v);
+        } else if (type.equals(REFERENCE)) {
+            return new OneOfListFilter(fieldPath, (Id) value.get());
+        } else if (type.equals(STRING)) {
+            return new TextSearchFilter(fieldPath, (String) value.get());
+        } else {
+            return new EmptyValueFilter(fieldPath);
+        }
     }
 
     private void initStartDate(TimeIntervalFilter filter, Value<?> date) {
@@ -368,12 +457,12 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
     public IdentifiableObjectCollection extendedSearch(ExtendedSearchData extendedSearchData) {
         try {
             return searchService.search(extendedSearchData.getSearchQuery(),
-                             extendedSearchData.getTargetCollectionNames().
-                             get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
+                    extendedSearchData.getTargetCollectionNames().
+                            get(extendedSearchData.getSearchQuery().getTargetObjectType()), extendedSearchData.getMaxResults());
         } catch (Exception ge) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SEARCH,
                     "Ошибка при поиске:\\n",
-                    profileService.getPersonLocale()) + ge.getMessage());
+                    GuiContext.getUserLocale()) + ge.getMessage());
         }
     }
 

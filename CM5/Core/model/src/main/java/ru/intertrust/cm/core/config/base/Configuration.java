@@ -1,13 +1,15 @@
 package ru.intertrust.cm.core.config.base;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
-import org.simpleframework.xml.convert.Convert;
-import ru.intertrust.cm.core.config.converter.ConfigurationConverter;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Namespace;
+import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.Convert;
+
+import ru.intertrust.cm.core.config.converter.ConfigurationConverter;
 
 /**
  * @author Denis Mitavskiy
@@ -16,6 +18,7 @@ import java.util.List;
  */
 @Root
 @Convert(ConfigurationConverter.class)
+@Namespace(reference="https://cm5.intertrust.ru/config")
 public class Configuration implements Serializable {
     
     public static String OPERATION_COLUMN = "operation";

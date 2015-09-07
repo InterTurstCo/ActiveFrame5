@@ -229,6 +229,10 @@ public class ConfigurationStorageBuilder {
             }
         }
 
+        if (result == null) {
+            result = NullValues.ACCESS_MATRIX_STATUS_CONFIG;
+        }
+
         configurationStorage.accessMatrixByObjectTypeAndStatusMap.put(new FieldConfigKey(domainObjectType, status), result);
         return result;
     }
@@ -281,10 +285,11 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        if (result != null) {
-            configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
+        if (result == null) {
+            result = NullValues.STRING;
         }
 
+        configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
         return result;
     }
 
@@ -340,6 +345,10 @@ public class ConfigurationStorageBuilder {
     }
 
     public void updateAuditLogConfigs(DomainObjectTypeConfig oldConfig, DomainObjectTypeConfig newConfig) {
+        if (oldConfig != null && oldConfig.isTemplate()) {
+            return;
+        }
+
         if (oldConfig != null) {
             DomainObjectTypeConfig oldAuditLogConfig = createAuditLogConfig(oldConfig);
             removeTopLevelConfigFromMap(oldAuditLogConfig);
@@ -520,7 +529,7 @@ public class ConfigurationStorageBuilder {
     }
 
     private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        if (domainObjectTypeConfig == null) {
+        if (domainObjectTypeConfig == null || domainObjectTypeConfig.isTemplate()) {
             return;
         }
 

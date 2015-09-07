@@ -17,6 +17,7 @@ import javax.ejb.EJB;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import com.healthmarketscience.rmiio.*;
 import org.jboss.arquillian.junit.Arquillian;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,11 +34,6 @@ import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
-
 /**
  * Интеграционный тест работы с вложениями.
  * @author atsvetkov
@@ -48,7 +44,10 @@ public class AttachmentServiceIT extends IntegrationTestBase {
     private static final int BUF_SIZE = 0x1000;
 
     @EJB
-    private AttachmentService.Remote attachmentService;
+    private AttachmentService.Remote attachmentServiceRemote;
+
+    @EJB
+    private AttachmentService attachmentServiceLocal;
 
     @EJB
     ConfigurationService.Remote configurationService;
@@ -85,27 +84,27 @@ public class AttachmentServiceIT extends IntegrationTestBase {
 
         DomainObject attachmentDomainObject = createAttachmentDomainObject(savedCountryObject.getId(), attachmentType);
 
-        DomainObject attachment = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
+        DomainObject attachment = attachmentServiceRemote.saveAttachment(remoteFileData, attachmentDomainObject);
         assertNotNull(attachment);
 
-        RemoteInputStream loadedData = attachmentService.loadAttachment(attachment.getId());
+        RemoteInputStream loadedData = attachmentServiceRemote.loadAttachment(attachment.getId());
         assertNotNull(loadedData);
 
         List<DomainObject> attachments =
-                attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
+                attachmentServiceRemote.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
 
-        attachments = attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId());
+        attachments = attachmentServiceRemote.findAttachmentDomainObjectsFor(savedCountryObject.getId());
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
 
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
 
-        attachmentService.deleteAttachment(attachment.getId());
+        attachmentServiceRemote.deleteAttachment(attachment.getId());
         attachments =
-                attachmentService.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
+                attachmentServiceRemote.findAttachmentDomainObjectsFor(savedCountryObject.getId(), attachmentType);
         assertTrue(attachments.size() == 0);
 
     }
@@ -132,16 +131,16 @@ public class AttachmentServiceIT extends IntegrationTestBase {
         InputStream inputStream = classLoader.getResourceAsStream("/beans.xml");
         RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(inputStream);
 
-        attachment = attachmentService.saveAttachment(remoteFileData, attachment);
+        attachment = attachmentServiceRemote.saveAttachment(remoteFileData, attachment);
 
         List<DomainObject> attachments =
-                attachmentService.findAttachmentDomainObjectsFor(childDocId, "Person_Attachment");
+                attachmentServiceRemote.findAttachmentDomainObjectsFor(childDocId, "Person_Attachment");
         System.out.println(Integer.toString(attachments.size()) + " attachment(s) found");
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
 
-        attachments = attachmentService.findAttachmentDomainObjectsFor(childDocId);
+        attachments = attachmentServiceRemote.findAttachmentDomainObjectsFor(childDocId);
         assertTrue(attachments.size() > 0);
         assertNotNull(attachments.get(0));
         assertTrue(attachment.getId().equals(attachments.get(0).getId()));
@@ -149,7 +148,69 @@ public class AttachmentServiceIT extends IntegrationTestBase {
     }
 
     @Test
-    public void testCopyAttachment() throws IOException {
+    public void testCopyAttachmentLocal() throws IOException {
+
+        InputStream loadedData = null;
+        InputStream testData = null;
+
+        try {
+            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream("/beans.xml");
+            DirectRemoteInputStream remoteFileData = new DirectRemoteInputStream(inputStream, false);
+
+            DomainObject countryObject = createCountryDomainObject();
+            countryObject = crudService.save(countryObject);
+
+            DomainObjectTypeConfig countryConfig = configurationService.getConfig(DomainObjectTypeConfig.class, "country");
+            String attachmentType = countryConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0).getName();
+
+            DomainObject attachmentDomainObject = createAttachmentDomainObject(countryObject.getId(), attachmentType);
+            attachmentDomainObject = attachmentServiceLocal.saveAttachment(remoteFileData, attachmentDomainObject);
+            RemoteInputStream loadedRemoteData = attachmentServiceLocal.loadAttachment(attachmentDomainObject.getId());
+            loadedData = RemoteInputStreamClient.wrap(loadedRemoteData);
+            ByteArrayOutputStream loadedBytes = new ByteArrayOutputStream();
+            copy(loadedData, loadedBytes);
+
+            DomainObject destinationObject = createCountryDomainObject();
+            destinationObject = crudService.save(destinationObject);
+
+            DomainObject copiedAttachmentDomainObject =
+                    attachmentServiceLocal.copyAttachment(attachmentDomainObject.getId(), destinationObject.getId(), attachmentType);
+
+            List<DomainObject> testAttachmentDomainObjects = attachmentServiceLocal.findAttachmentDomainObjectsFor(destinationObject.getId());
+            assertNotNull(testAttachmentDomainObjects);
+            assertTrue(testAttachmentDomainObjects.size() == 1);
+
+            DomainObject testAttachmentDomainObject = testAttachmentDomainObjects.get(0);
+            assertEquals(copiedAttachmentDomainObject.getId(), testAttachmentDomainObject.getId());
+            assertEquals(copiedAttachmentDomainObject.getLong(BaseAttachmentService.CONTENT_LENGTH),
+                    testAttachmentDomainObject.getLong(BaseAttachmentService.CONTENT_LENGTH));
+            assertEquals(copiedAttachmentDomainObject.getString(BaseAttachmentService.DESCRIPTION),
+                    testAttachmentDomainObject.getString(BaseAttachmentService.DESCRIPTION));
+            assertEquals(copiedAttachmentDomainObject.getString(BaseAttachmentService.MIME_TYPE),
+                    testAttachmentDomainObject.getString(BaseAttachmentService.MIME_TYPE));
+            assertEquals(copiedAttachmentDomainObject.getString(BaseAttachmentService.NAME),
+                    testAttachmentDomainObject.getString(BaseAttachmentService.NAME));
+
+            RemoteInputStream testRemoteData = attachmentServiceRemote.loadAttachment(testAttachmentDomainObject.getId());
+            testData = RemoteInputStreamClient.wrap(testRemoteData);
+            ByteArrayOutputStream testBytes = new ByteArrayOutputStream();
+            copy(testData, testBytes);
+            assertArrayEquals(loadedBytes.toByteArray(), testBytes.toByteArray());
+        } finally {
+            if (loadedData != null) {
+                loadedData.close();
+            }
+
+            if (testData != null) {
+                testData.close();
+            }
+        }
+
+    }
+
+    @Test
+    public void testCopyAttachmentRemote() throws IOException {
 
         InputStream loadedData = null;
         InputStream testData = null;
@@ -166,8 +227,8 @@ public class AttachmentServiceIT extends IntegrationTestBase {
             String attachmentType = countryConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs().get(0).getName();
 
             DomainObject attachmentDomainObject = createAttachmentDomainObject(countryObject.getId(), attachmentType);
-            attachmentDomainObject = attachmentService.saveAttachment(remoteFileData, attachmentDomainObject);
-            RemoteInputStream loadedRemoteData = attachmentService.loadAttachment(attachmentDomainObject.getId());
+            attachmentDomainObject = attachmentServiceRemote.saveAttachment(remoteFileData, attachmentDomainObject);
+            RemoteInputStream loadedRemoteData = attachmentServiceRemote.loadAttachment(attachmentDomainObject.getId());
             loadedData = RemoteInputStreamClient.wrap(loadedRemoteData);
             ByteArrayOutputStream loadedBytes = new ByteArrayOutputStream();
             copy(loadedData, loadedBytes);
@@ -176,9 +237,9 @@ public class AttachmentServiceIT extends IntegrationTestBase {
             destinationObject = crudService.save(destinationObject);
 
             DomainObject copiedAttachmentDomainObject =
-                    attachmentService.copyAttachment(attachmentDomainObject.getId(), destinationObject.getId(), attachmentType);
+                    attachmentServiceRemote.copyAttachment(attachmentDomainObject.getId(), destinationObject.getId(), attachmentType);
 
-            List<DomainObject> testAttachmentDomainObjects = attachmentService.findAttachmentDomainObjectsFor(destinationObject.getId());
+            List<DomainObject> testAttachmentDomainObjects = attachmentServiceRemote.findAttachmentDomainObjectsFor(destinationObject.getId());
             assertNotNull(testAttachmentDomainObjects);
             assertTrue(testAttachmentDomainObjects.size() == 1);
 
@@ -193,7 +254,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
             assertEquals(copiedAttachmentDomainObject.getString(BaseAttachmentService.NAME),
                     testAttachmentDomainObject.getString(BaseAttachmentService.NAME));
 
-            RemoteInputStream testRemoteData = attachmentService.loadAttachment(testAttachmentDomainObject.getId());
+            RemoteInputStream testRemoteData = attachmentServiceRemote.loadAttachment(testAttachmentDomainObject.getId());
             testData = RemoteInputStreamClient.wrap(testRemoteData);
             ByteArrayOutputStream testBytes = new ByteArrayOutputStream();
             copy(testData, testBytes);
@@ -211,7 +272,7 @@ public class AttachmentServiceIT extends IntegrationTestBase {
     }
 
     private DomainObject createAttachmentDomainObject(Id childDocId, String attachmentType) {
-        DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(childDocId, attachmentType);
+        DomainObject attachment = attachmentServiceRemote.createAttachmentDomainObjectFor(childDocId, attachmentType);
         attachment.setValue(BaseAttachmentService.NAME, new StringValue(GenericDomainObject.ATTACHMENT_TEMPLATE));
         attachment.setValue(BaseAttachmentService.DESCRIPTION, new StringValue("Attachment Description"));
         String mimeType = "text/xml";

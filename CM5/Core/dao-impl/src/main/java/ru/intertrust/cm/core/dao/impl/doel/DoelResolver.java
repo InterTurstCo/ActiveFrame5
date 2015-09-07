@@ -28,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -184,7 +182,7 @@ public class DoelResolver implements DoelEvaluator {
                 if (nextObjects == null) {
                     nextObjects = new ArrayList<>(nextIds.size());
                     for (RdbmsId objId : sourceIds) {
-                        DomainObject obj = domainObjectCacheService.getObjectFromCache(objId, accessToken);
+                        DomainObject obj = domainObjectCacheService.get(objId, accessToken);
                         if (obj == null) {
                             break useCache;
                         }
@@ -220,7 +218,7 @@ public class DoelResolver implements DoelEvaluator {
                         DoelExpression.ElementType.FIELD == expr.getElements()[step + 1].getElementType();
 
                 for (RdbmsId objId : sourceIds) {
-                    List<DomainObject> children = domainObjectCacheService.getObjectsFromCache(objId, accessToken,
+                    List<DomainObject> children = domainObjectCacheService.getAll(objId, accessToken,
                             childrenElem.getChildType(), childrenElem.getParentLink(), "0", "0");
                     if (children == null) {
                         break useCache;

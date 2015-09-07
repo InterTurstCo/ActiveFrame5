@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -13,24 +12,11 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.gui.UserConfig;
 import ru.intertrust.cm.core.config.gui.UsersConfig;
-import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
-import ru.intertrust.cm.core.config.gui.navigation.GroupConfig;
-import ru.intertrust.cm.core.config.gui.navigation.GroupsConfig;
-import ru.intertrust.cm.core.config.gui.navigation.LinkConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelMappingConfig;
-import ru.intertrust.cm.core.config.gui.navigation.NavigationPanelMappingsConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IPetrov on 05.03.14.
@@ -44,9 +30,6 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
 
     @Autowired
     private PersonManagementService personManagementService;
-
-    @Autowired
-    private ProfileService profileService;
 
     private NavigationPanelsCache navigationPanelsCache;
 
@@ -266,6 +249,6 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
     }
 
     private NavigationConfig getLocalizedNavigationConfig(String navConfigName) {
-        return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navConfigName, profileService.getPersonLocale());
+        return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navConfigName, GuiContext.getUserLocale());
     }
 }

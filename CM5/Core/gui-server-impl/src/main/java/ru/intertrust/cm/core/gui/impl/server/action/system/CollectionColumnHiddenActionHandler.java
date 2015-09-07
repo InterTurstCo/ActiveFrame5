@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.action.system;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -33,15 +32,14 @@ public class CollectionColumnHiddenActionHandler extends ActionHandler<Collectio
     @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
-    @Autowired private ProfileService profileService;
 
     @Override
     public ActionData executeAction(CollectionColumnHiddenActionContext context) {
         if (context.getLink() == null) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_UNKNOWN_URL,
-                    "Неизвестный url", profileService.getPersonLocale()));
+                    "Неизвестный url", GuiContext.getUserLocale()));
         }
-        final DomainObject object = PluginHandlerHelper.getCollectionSettingsDomainObject(context.getLink(),
+        final DomainObject object = PluginHandlerHelper.findAndLockCollectionSettingsDomainObject(context.getLink(),
                 context.getCollectionViewName(), currentUserAccessor, crudService, collectionsService);
         CollectionViewConfig collectionViewConfig = null;
         if (object.getString(DO_COLLECTION_VIEW_FIELD_KEY) != null) {

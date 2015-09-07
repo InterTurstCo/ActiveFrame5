@@ -332,8 +332,7 @@ public class MigrationService {
                             "." + renameFieldFieldConfig.getNewName() + " because it doesn't exist");
                 }
 
-                dataStructureDao.renameColumn(domainObjectTypeConfig, renameFieldFieldConfig.getName(),
-                        renameFieldFieldConfig.getNewName());
+                dataStructureDao.renameColumn(domainObjectTypeConfig, renameFieldFieldConfig.getName(), fieldConfig);
             }
         }
     }

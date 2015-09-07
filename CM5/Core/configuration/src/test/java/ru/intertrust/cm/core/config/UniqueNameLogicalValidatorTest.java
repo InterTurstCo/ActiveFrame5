@@ -15,6 +15,7 @@ import java.util.ArrayList;
 
 import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH;
 
 /**
  * Test for {@link ru.intertrust.cm.core.config.UniqueNameLogicalValidator}
@@ -61,6 +62,7 @@ public class UniqueNameLogicalValidatorTest {
         conf.getConfigurationPaths().add(COLLECTION_XML_PATH);
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.getConfigurationPaths().add(configPath);
+        conf.getConfigurationPaths().add(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH);        
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         URL moduleUrl = getClass().getClassLoader().getResource(".");
         conf.setModuleUrl(moduleUrl);

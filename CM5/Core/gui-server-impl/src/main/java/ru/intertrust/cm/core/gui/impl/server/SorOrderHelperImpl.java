@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.SelectionSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 
@@ -26,7 +27,7 @@ public class SorOrderHelperImpl implements SortOrderHelper {
     public SortOrder buildSortOrder(String collectionName, DefaultSortCriteriaConfig defaultSortCriteriaConfig,
                                     CollectionDisplayConfig collectionDisplayConfig) {
         SortOrder result = SortOrderBuilder.getInitSortOrder(defaultSortCriteriaConfig, collectionDisplayConfig,
-                profileService.getPersonLocale());
+                GuiContext.getUserLocale());
         if(result == null) {
             result = buildSortOrderByIdField(collectionName);
 

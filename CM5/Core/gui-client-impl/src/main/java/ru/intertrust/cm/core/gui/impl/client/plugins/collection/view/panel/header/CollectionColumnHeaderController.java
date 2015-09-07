@@ -4,12 +4,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.PopupPanel;
-import com.google.gwt.user.client.ui.UIObject;
+import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -17,17 +13,10 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentOrderChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.ComponentWidthChangedHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.form.CheckBoxInabilityManager;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionParameterizedColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.util.CollectionDataGridUtils;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
@@ -35,10 +24,7 @@ import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnHiddenActio
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnOrderActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionColumnWidthActionContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.FILTER_CONTAINER_MARGIN;
@@ -151,7 +137,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         popup.showRelativeTo(target);
     }
 
-    public void changeVisibilityOfColumns() {
+    public void changeVisibilityOfColumns(boolean keepUserSettings) {
         int widthBeforeChanges = dataGrid.getOffsetWidth();
         for (int i = 0; i < columnHeaderBlocks.size(); i++) {
             ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
@@ -179,8 +165,12 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
             }
         }
-
-        CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(Math.max(widthBeforeChanges, displayedWidth - otherWidgetsDelta), dataGrid);
+        int tableWidth = displayedWidth - otherWidgetsDelta;
+        if (keepUserSettings) {
+            CollectionDataGridUtils.adjustWidthUserSettingsKeeping(Math.max(widthBeforeChanges, tableWidth), dataGrid);
+        } else {
+            CollectionDataGridUtils.adjustWidthWithoutUserSettingsKeeping(Math.max(widthBeforeChanges, tableWidth), dataGrid);
+        }
         changeFilterInputWidth();
         updateFilterValues();
         dataGrid.redraw();
@@ -219,17 +209,14 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     @Override
     public void handleEvent(ComponentWidthChangedEvent event) {
         Object component = event.getComponent();
-        if (!(component instanceof CollectionColumn)) {
-            return;
-        }
+
         CollectionColumn column = (CollectionColumn) component;
 
         int oldWidth = column.getDrawWidth();
         int newWidth = event.getWidth();
         int delta = oldWidth - newWidth;
         if (CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)) {
-            int index = dataGrid.getColumnIndex(column);
-            changeRelativeRightColumnWidth(index, delta);
+            changeRelativeRightColumnWidth(column, delta);
 
         } else {
             changeLastColumnWidth(delta);
@@ -244,8 +231,8 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         updateWidthSettings();
     }
 
-    private void changeRelativeRightColumnWidth(int index, int delta) {
-        ColumnHeaderBlock relativeRightColumnHeaderBlock = findNextVisibleRightColumnBlock(index);
+    private void changeRelativeRightColumnWidth(CollectionColumn column, int delta) {
+        ColumnHeaderBlock relativeRightColumnHeaderBlock = findNextVisibleRightColumnBlock(column);
         if (relativeRightColumnHeaderBlock == null) {
             return;
         }
@@ -260,34 +247,25 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
     }
 
-    private ColumnHeaderBlock findNextVisibleRightColumnBlock(int index) {
-        int columnCount = dataGrid.getColumnCount();
-        if (columnCount == index + 1) {
-            return null; //column is last
-        }
-        int size = columnHeaderBlocks.size();
-        for (int i = 0; i < size; i++) {
-            ColumnHeaderBlock columnHeaderBlock = columnHeaderBlocks.get(i);
-            CollectionColumn column = columnHeaderBlock.getColumn();
-            if (i == index + 1) {
-                if (column.isVisible()) {
-                    return columnHeaderBlock;
-
-                } else {
-                    int shift = 2;
-                    while (index + shift < size) {
-                        shift++;
-                        ColumnHeaderBlock shiftedColumnHeaderBlock = columnHeaderBlocks.get(index + shift);
-                        CollectionColumn shiftedColumn = shiftedColumnHeaderBlock.getColumn();
-                        if (shiftedColumn.isVisible()) {
-                            return shiftedColumnHeaderBlock;
-                        }
-
-                    }
-                }
-
+    private ColumnHeaderBlock findNextVisibleRightColumnBlock(CollectionColumn column) {
+        Iterator<ColumnHeaderBlock> iterator = columnHeaderBlocks.iterator();
+        while (iterator.hasNext()){
+            ColumnHeaderBlock columnHeaderBlock = iterator.next();
+            CollectionColumn iteratedColumn = columnHeaderBlock.getColumn();
+            if(iteratedColumn.equals(column)){
+               return findNextVisibleRightColumnBlock(iterator);
             }
+        }
+        return null;
+    }
 
+    private ColumnHeaderBlock findNextVisibleRightColumnBlock(Iterator<ColumnHeaderBlock> iterator){
+        while (iterator.hasNext()){
+            ColumnHeaderBlock rightSideColumnHeaderBlock = iterator.next();
+            CollectionColumn rightSideColumn = rightSideColumnHeaderBlock .getColumn();
+            if(rightSideColumn.isVisible()){
+                return rightSideColumnHeaderBlock;
+            }
         }
         return null;
     }
@@ -317,24 +295,41 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
     @Override
     public void handleEvent(ComponentOrderChangedEvent event) {
-        Object component = event.getComponent();
-        if (!(component instanceof CollectionColumn)) {
-            return;
-        }
-        int indexFrom = event.getFromOrder();
-        ColumnHeaderBlock columnHeader = columnHeaderBlocks.get(indexFrom);
-        int indexTo = event.getToOrder();
+        Column movedColumn = event.getMovedByUser();
+        Column evicted = event.getEvicted();
+        ColumnHeaderBlock columnHeader = findColumnHeaderBlock(movedColumn);
+        int listIndexTo = findColumnHeaderBlockIndex(evicted);
         columnHeaderBlocks.remove(columnHeader);
-        columnHeaderBlocks.add(indexTo, columnHeader);
-        CollectionColumn movedColumn = columnHeader.getColumn();
-        if (movedColumn instanceof CollectionParameterizedColumn) {
-            saveFilterValues();
-            dataGrid.removeColumn(indexFrom);
-            dataGrid.insertColumn(indexTo, movedColumn, columnHeader.getHeader());
-            updateFilterValues();
-
-        }
+        columnHeaderBlocks.add(listIndexTo, columnHeader);
+        saveFilterValues();
+        int gridIndexTo = dataGrid.getColumnIndex(event.getEvicted());
+        dataGrid.removeColumn(movedColumn);
+        dataGrid.insertColumn(gridIndexTo, movedColumn, columnHeader.getHeader());
+        updateFilterValues();
         updateOrderSettings();
+    }
+
+    private ColumnHeaderBlock findColumnHeaderBlock(Column column) {
+        ColumnHeaderBlock result = null;
+        for (ColumnHeaderBlock columnHeaderBlock : columnHeaderBlocks) {
+            if(columnHeaderBlock.getColumn().equals(column)){
+                result = columnHeaderBlock;
+                break;
+            }
+        }
+        return result;
+    }
+
+    private int findColumnHeaderBlockIndex(Column column) {
+        int result = 0;
+        for (int i = 0; i < columnHeaderBlocks.size(); i++) {
+            ColumnHeaderBlock columnHeaderBlock =  columnHeaderBlocks.get(i);
+            if(columnHeaderBlock.getColumn().equals(column)){
+                result = i;
+                break;
+            }
+        }
+        return result;
     }
 
     public void changeTableWidthByCondition() {
@@ -445,7 +440,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         @Override
         public void onClick(ClickEvent event) {
             popup.hide();
-            changeVisibilityOfColumns();
+            changeVisibilityOfColumns(false);
             storeUserSettings();
         }
     }

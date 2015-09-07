@@ -34,7 +34,7 @@ public class EnumBoxHandler extends ValueEditingWidgetHandler {
         EnumBoxState enumBoxState = new EnumBoxState();
         final FieldConfig fieldConfig = getFieldConfig(context);
 
-        FieldType fieldType = fieldConfig.getFieldType();
+        FieldType fieldType = fieldConfig == null ? null : fieldConfig.getFieldType();
         enumBoxState.setFieldType(fieldType);
 
         EnumBoxConfig config = context.getWidgetConfig();
@@ -52,7 +52,7 @@ public class EnumBoxHandler extends ValueEditingWidgetHandler {
             if (dbValue != null && dbValue.get() != null) {
                 selectedText = dbValue.get().toString();
                 displayTextToValue.put(selectedText, dbValue);
-            } else if (!fieldConfig.isNotNull()) {
+            } else if (fieldConfig == null || !fieldConfig.isNotNull()) {
                 selectedText = "";
                 displayTextToValue.put(selectedText, dbValue);
             }
@@ -74,11 +74,11 @@ public class EnumBoxHandler extends ValueEditingWidgetHandler {
     }
 
     private Value stringToValue(String string, FieldType fieldType, boolean isNull) {
-        if (isNull) {
+        if (isNull || (string.isEmpty() && fieldType != FieldType.STRING)) {
             string = null;
         }
-        else if (string.isEmpty() && fieldType != FieldType.STRING) {
-            string = null;
+        if(fieldType == null){
+            fieldType = FieldType.STRING;
         }
         return ValueUtil.stringValueToObject(string, fieldType);
     }

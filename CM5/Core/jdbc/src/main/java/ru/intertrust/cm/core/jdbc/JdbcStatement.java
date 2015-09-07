@@ -304,5 +304,8 @@ public class JdbcStatement implements Statement {
         collectionPartition++;
         return collection;
     }
-
+    
+    protected void resetPartition(){
+        collectionPartition = 0;
+    }
 }

@@ -32,12 +32,12 @@ public class UserSettingsFetcherImpl implements UserSettingsFetcher {
     @Autowired
     private CrudService crudService;
 
-    public DomainObject getUserSettingsDomainObject() {
+    public DomainObject getUserSettingsDomainObject(boolean lock) {
         final IdentifiableObject identifiableObject =
                 getUserSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
         if (identifiableObject != null) {
-            result = crudService.find(identifiableObject.getId());
+            result = lock ? crudService.findAndLock(identifiableObject.getId()) : crudService.find(identifiableObject.getId());
         } else {
             result = crudService.createDomainObject("bu_user_settings");
             result.setReference("person", currentUserAccessor.getCurrentUserId());

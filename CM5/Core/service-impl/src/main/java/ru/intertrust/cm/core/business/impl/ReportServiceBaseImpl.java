@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
@@ -143,11 +142,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             reportAttachment.setString("name", "report");
             
             ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
-            SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
+            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
 
-            RemoteInputStream remoteInputStream;
-            remoteInputStream = simpleRemoteInputStream.export();
-            attachmentService.saveAttachment(remoteInputStream, reportAttachment);
+            attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
 
             //Сохраняем параметры как вложение
             if (params != null){
@@ -156,10 +153,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
                 paramAttachment.setString("name", "params");
 
                 bis = new ByteArrayInputStream(getParametersAsByteArray(params));
-                simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
-    
-                remoteInputStream = simpleRemoteInputStream.export();
-                attachmentService.saveAttachment(remoteInputStream, paramAttachment);
+                directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+
+                attachmentService.saveAttachment(directRemoteInputStream, paramAttachment);
             }
         }
         return resultId;

@@ -26,6 +26,9 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         }
 
         Set<SearchFieldType> types = configHelper.getFieldTypes(filter.getFieldName(), query.getAreas());
+        if (types.contains(null)) {
+            types.add(SearchFieldType.DATE);
+        }
         if (types.contains(SearchFieldType.DATE)) {
             String single = makeSolrFieldFilter(filter, SearchFieldType.DATE);
             if (!types.contains(SearchFieldType.DATE_MULTI)) {

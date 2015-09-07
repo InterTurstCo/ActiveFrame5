@@ -235,8 +235,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
         try {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-            return find(byUniqueKey);
+            return domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
         } catch (AccessException | ObjectNotFoundException e) {
             throw e;
         } catch (Exception ex){
@@ -410,8 +409,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
         try {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
-            Id byUniqueKey = domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-            return findAndLock(byUniqueKey);
+            return domainObjectDao.finAndLockByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
         } catch (AccessException | ObjectNotFoundException e) {
             throw e;
         } catch (Exception ex){

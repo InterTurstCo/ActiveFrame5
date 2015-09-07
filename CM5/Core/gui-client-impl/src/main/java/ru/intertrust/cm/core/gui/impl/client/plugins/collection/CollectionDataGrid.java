@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.DataGrid;
@@ -18,7 +20,9 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ConfirmCallback;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowMoreItemsEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.builder.PlatformCellTableBuilder;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
@@ -32,6 +36,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
     private HeaderPanel panel;
     private EventBus eventBus;
     private CollectionPlugin plugin;
+    private boolean embeddedDisplayCheckBoxes;
     private boolean displayCheckBoxes;
     private Widget emptyTableWidget;
 
@@ -43,6 +48,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         panel.getHeaderWidget().getElement().getFirstChildElement().setClassName("dataGridHeaderRow");
         setAutoHeaderRefreshDisabled(false);
         setHeaderBuilder(new HeaderBuilder<>(this, false));
+        setTableBuilder(new PlatformCellTableBuilder(this));
+
         addStyleName("collection-plugin-view-container");
         addCellPreviewHandler(new CollectionCellPreviewHandler());
         sinkEvents(Event.ONDBLCLICK | Event.ONCLICK | Event.KEYEVENTS | Event.FOCUSEVENTS);
@@ -65,6 +72,10 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         emptyTableWidget.setWidth(width + com.google.gwt.dom.client.Style.Unit.PX.getType());
     }
 
+    public void setEmbeddedDisplayCheckBoxes(boolean embeddedDisplayCheckBoxes) {
+        this.embeddedDisplayCheckBoxes = embeddedDisplayCheckBoxes;
+    }
+
     public void setDisplayCheckBoxes(boolean displayCheckBoxes) {
         this.displayCheckBoxes = displayCheckBoxes;
     }
@@ -74,11 +85,23 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
         @Override
         public void onCellPreview(final CellPreviewEvent<CollectionRowItem> event) {
-            final Id id = event.getValue().getId();
+            CollectionRowItem clickedItem = event.getValue();
+            EventTarget eventTarget = event.getNativeEvent().getEventTarget();
+            Element element = Element.as(eventTarget);
+            if (cancelSelection(clickedItem, element)) {
+                getSelectionModel().setSelected(clickedItem, false);
+                return;
+            }
+            final Id id = clickedItem.getId();
             int nativeEventType = Event.getTypeInt(event.getNativeEvent().getType());
             switch (nativeEventType) {
                 case Event.ONCLICK:
+                    if(CollectionRowItem.RowType.BUTTON.equals(clickedItem.getRowType())){
+                        eventBus.fireEvent(new CollectionRowMoreItemsEvent(clickedItem));
+                        getSelectionModel().setSelected(clickedItem, false);
+                    }else{
                     handleClickEvent(id);
+                    }
                     break;
                 case Event.ONKEYDOWN:
                     handleKeyEvents(event);
@@ -86,6 +109,12 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
             }
 
+        }
+
+        private boolean cancelSelection( CollectionRowItem clickedItem, Element element){
+            return clickedItem.isExpanded()
+                    || CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
+                    || (displayCheckBoxes && "checkbox".equalsIgnoreCase(element.getPropertyString("type")));
         }
 
         private void handleKeyEvents(CellPreviewEvent<CollectionRowItem> event) {
@@ -102,7 +131,7 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         }
 
         private void handleKeyArrowUpAndDown() {
-            if (displayCheckBoxes) {
+            if (embeddedDisplayCheckBoxes) {
                 return;
             }
             int rowIndex = getKeyboardSelectedRow();

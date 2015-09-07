@@ -15,7 +15,8 @@ public class NavigationTreePluginData extends PluginData {
     private String childToOpen;
     private String rootLinkSelectedName;
     private Integer sideBarOpenningTime;
-
+    private boolean pinned;
+    private boolean hasSecondLevelNavigationPanel = true;
     public String getChildToOpen() {
         return childToOpen;
     }
@@ -55,5 +56,21 @@ public class NavigationTreePluginData extends PluginData {
 
     public void setSideBarOpenningTime(Integer sideBarOpenningTime) {
         this.sideBarOpenningTime = sideBarOpenningTime;
+    }
+
+    public Boolean isPinned() {
+        return pinned;
+    }
+
+    public void setPinned(Boolean pinned) {
+        this.pinned = pinned;
+    }
+
+    public boolean hasSecondLevelNavigationPanel() {
+        return hasSecondLevelNavigationPanel;
+    }
+
+    public void setHasSecondLevelNavigationPanel(boolean hasSecondLevelNavigationPanel) {
+        this.hasSecondLevelNavigationPanel = hasSecondLevelNavigationPanel;
     }
 }

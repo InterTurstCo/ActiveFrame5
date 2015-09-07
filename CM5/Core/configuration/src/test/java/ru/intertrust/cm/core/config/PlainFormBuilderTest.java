@@ -39,7 +39,7 @@ public class PlainFormBuilderTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Test
-    public void testGetPlainCityForm() throws Exception {
+    public void testPlainCityForm() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(FORM_EXTENSION_CONFIG);
         Configuration config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config, true);
@@ -85,7 +85,7 @@ public class PlainFormBuilderTest {
     }
 
     @Test
-    public void testGetPlainParentCityForm() throws Exception {
+    public void testPlainParentCityForm() throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(FORM_EXTENSION_CONFIG);
         Configuration config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config, true);
@@ -154,6 +154,38 @@ public class PlainFormBuilderTest {
         List<FormConfig> parentConfigs = configExplorer.getParentFormConfigs(rawFormConfig);
         plainFormBuilder.buildPlainForm(rawFormConfig, parentConfigs);
     }
+    @Test
+    public void testPlainFormWithoutParent() throws Exception {
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(FORM_EXTENSION_CONFIG);
+        Configuration config = configurationSerializer.deserializeConfiguration();
+        configExplorer = new ConfigurationExplorerImpl(config, true);
+
+        FormConfig rawFormConfig = configExplorer.getConfig(FormConfig.class, "coordination_form");
+        List<FormConfig> parentConfigs = configExplorer.getParentFormConfigs(rawFormConfig);
+        FormConfig plainFormConfig = plainFormBuilder.buildPlainForm(rawFormConfig, parentConfigs);
+
+        List<RowConfig> headerRowConfigs = plainFormConfig.getMarkup().getHeader().getTableLayout().getRows();
+        List<CellConfig> cellConfigs = headerRowConfigs.get(0).getCells();
+        assertEquals(8, cellConfigs.size());
+        assertEquals("td_added", cellConfigs.get(1).getId());
+    }
+
+    @Test
+    public void testGetPlainFormWithMissingParent() throws Exception {
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(FORM_EXTENSION_CONFIG);
+        Configuration config = configurationSerializer.deserializeConfiguration();
+        expectedException.expect(ConfigurationException.class);
+        expectedException.expectMessage("Configuration of form extension with name 'coordination_task_form' " +
+                "was built with errors.Count: 1 Content:\n" +
+                "Parent form with name 'execution_form' was not found");
+        configExplorer = new ConfigurationExplorerImpl(config, true);
+
+        FormConfig rawFormConfig = configExplorer.getConfig(FormConfig.class, "coordination_task_form");
+        List<FormConfig> parentConfigs = configExplorer.getParentFormConfigs(rawFormConfig);
+        plainFormBuilder.buildPlainForm(rawFormConfig, parentConfigs);
+
+    }
+
 
     private ConfigurationSerializer createConfigurationSerializer(String confPath) throws Exception {
         ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс

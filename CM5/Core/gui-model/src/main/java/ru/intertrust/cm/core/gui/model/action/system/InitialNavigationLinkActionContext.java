@@ -8,14 +8,14 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
  *         Date: 03.06.2015
  *         Time: 8:44
  */
-public class InitialNavigationLinkContext extends ActionContext {
-    public static final String COMPONENT_NAME = "initial.navigation.link";
+public class InitialNavigationLinkActionContext extends ActionContext {
+    public static final String COMPONENT_NAME = "initial.navigation.link.action";
     private String initialNavigationLink;
 
-    public InitialNavigationLinkContext() {
+    public InitialNavigationLinkActionContext() {
     }
 
-    public InitialNavigationLinkContext(AbstractActionConfig actionConfig) {
+    public InitialNavigationLinkActionContext(AbstractActionConfig actionConfig) {
         super(actionConfig);
     }
 

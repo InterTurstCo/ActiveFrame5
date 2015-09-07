@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.datechange.DateSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.DateBoxWidget;
+import ru.intertrust.cm.core.gui.impl.client.localization.PlatformDateTimeFormat;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
 
@@ -64,7 +65,7 @@ public class DecoratedDateTimeBox extends Composite {
 
     public String getText() {
         final String result = dateBox.getValue() == null ? null
-                : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
+                : PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).format(dateBox.getValue());
         return result;
     }
 
@@ -88,7 +89,7 @@ public class DecoratedDateTimeBox extends Composite {
         dateBtn.setStyleName("date-box-button");
         final Date date = getDate(state.getDateTimeContext());
         String pattern = state.getPattern();
-        final DateTimeFormat dtFormat = DateTimeFormat.getFormat(pattern);
+        final DateTimeFormat dtFormat = PlatformDateTimeFormat.getFormat(pattern);
 
         DateBox.Format format = new DateBox.DefaultFormat(dtFormat);
         dateBox = new DecoratedDateBox();
@@ -132,7 +133,7 @@ public class DecoratedDateTimeBox extends Composite {
     private Date getDate(DateTimeContext context) {
         final Date result = context.getDateTime() == null
                 ? null
-                : DateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).parse(context.getDateTime());
+                : PlatformDateTimeFormat.getFormat(ModelUtil.DTO_PATTERN).parse(context.getDateTime());
         return result;
     }
 

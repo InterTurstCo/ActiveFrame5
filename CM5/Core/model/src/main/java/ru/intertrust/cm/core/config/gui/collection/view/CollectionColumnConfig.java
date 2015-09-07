@@ -72,6 +72,9 @@ public class CollectionColumnConfig implements Dto {
     @Attribute(name ="drill-down-style", required = false)
     private String drillDownStyle;
 
+    @Attribute(name="expandable", required = false)
+    private boolean expandable;
+
     @Element(name = "asc-sort-criteria", required = false)
     private AscSortCriteriaConfig ascSortCriteriaConfig;
 
@@ -256,6 +259,14 @@ public class CollectionColumnConfig implements Dto {
         return childCollectionViewerConfigList;
     }
 
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -335,6 +346,9 @@ public class CollectionColumnConfig implements Dto {
             return false;
         }
         if (drillDownStyle != null ? !drillDownStyle.equals(that.drillDownStyle) : that.drillDownStyle != null) {
+            return false;
+        }
+        if (expandable != that.expandable) {
             return false;
         }
         return true;

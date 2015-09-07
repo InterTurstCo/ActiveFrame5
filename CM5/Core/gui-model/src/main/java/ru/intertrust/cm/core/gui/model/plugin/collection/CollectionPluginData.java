@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtra
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.FilterPanelConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 
@@ -38,13 +39,26 @@ public class CollectionPluginData extends ActivePluginData {
     private boolean embedded;
     private boolean hasConfiguredFilters;
     private boolean hasColumnButtons;
+    private boolean expandable;
+    private RowsSelectionConfig rowsSelectionConfig;
 
     public CollectionPluginData() {
         domainObjectFieldPropertiesMap = new LinkedHashMap<>();
     }
 
-    public boolean isDisplayCheckBoxes() {
+    public boolean isEmbeddedDisplayCheckBoxes() {
         return tableBrowserParams != null && tableBrowserParams.isDisplayCheckBoxes();
+    }
+    public boolean isDisplayCheckBoxes() {
+        return rowsSelectionConfig != null;
+    }
+
+    public RowsSelectionConfig getRowsSelectionConfig() {
+        return rowsSelectionConfig;
+    }
+
+    public void setRowsSelectionConfig(RowsSelectionConfig rowsSelectionConfig) {
+        this.rowsSelectionConfig = rowsSelectionConfig;
     }
 
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() { //TODO check why is not used
@@ -182,5 +196,13 @@ public class CollectionPluginData extends ActivePluginData {
 
     public void setHasColumnButtons(boolean hasColumnButtons) {
         this.hasColumnButtons = hasColumnButtons;
+    }
+
+    public boolean isExpandable() {
+        return expandable;
+    }
+
+    public void setExpandable(boolean expandable) {
+        this.expandable = expandable;
     }
 }

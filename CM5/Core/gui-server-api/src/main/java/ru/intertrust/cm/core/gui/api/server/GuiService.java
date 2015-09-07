@@ -61,7 +61,7 @@ public interface GuiService {
 
     SimpleActionData executeSimpleAction(SimpleActionContext context);
 
-    SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context);
+    SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context, UserInfo userInfo);
 
     String getUserUid();
 

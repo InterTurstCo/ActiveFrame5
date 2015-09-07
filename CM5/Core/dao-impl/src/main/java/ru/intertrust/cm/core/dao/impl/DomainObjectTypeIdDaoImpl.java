@@ -95,6 +95,10 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
      */
     @Override
     public Integer findIdByName(String configName) {
-        return jdbcTemplate.queryForObject(SELECT_ID_BY_NAME_QUERY, Integer.class, configName);
+        List<Integer> ids = jdbcTemplate.queryForList(SELECT_ID_BY_NAME_QUERY, Integer.class, configName);
+        if (ids == null || ids.isEmpty()) {
+            return null;
+        }
+         return ids.get(0);
     }
 }

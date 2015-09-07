@@ -91,7 +91,6 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
         }
-        String locale = profileService.getPersonLocale();
         try {
             final Dto dto = (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(componentHandler, command.getParameter());
@@ -99,19 +98,19 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND,
-                    "Команда ${commandName} не найдена", locale));
+                    "Команда ${commandName} не найдена", GuiContext.getUserLocale()));
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
             log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL,
-                    "Ошибка вызова команды: ", locale) + e.getMessage(), e);
+                    "Ошибка вызова команды: ", GuiContext.getUserLocale()) + e.getMessage(), e);
             throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION,
-                    "Команда не может быть выполнена: ", locale)
+                    "Команда не может быть выполнена: ", GuiContext.getUserLocale())
                     + command.getName(), e);
         }
     }
@@ -153,7 +152,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     private DomainObject saveFormImpl(FormState formState, UserInfo userInfo, List<ValidatorConfig> validatorConfigs) {
         List<String> errorMessages = PluginHandlerHelper.doCustomServerSideValidation(formState, validatorConfigs,
-                profileService.getPersonLocale());
+                userInfo.getLocale());
         if (!errorMessages.isEmpty()) {
             throw new ValidationException("Server-side validation failed", errorMessages);
         }
@@ -169,7 +168,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         if (((SimpleActionConfig) context.getActionConfig()).reReadInSameTransaction()) {
             result = executeSimpleActionImpl(context);
         } else {
-            result = newTransactionGuiService.executeSimpleActionInNewTransaction(context);
+            result = newTransactionGuiService.executeSimpleActionInNewTransaction(context, GuiContext.get().getUserInfo());
         }
 
         final SimpleActionConfig config = context.getActionConfig();
@@ -188,12 +187,14 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context) {
+    public SimpleActionData executeSimpleActionInNewTransaction(SimpleActionContext context, UserInfo userInfo) {
+        final GuiContext guiCtx = GuiContext.get();
+        guiCtx.setUserInfo(userInfo);
         return executeSimpleActionImpl(context);
     }
 
     private SimpleActionData executeSimpleActionImpl(SimpleActionContext context) {
-        String locale = profileService.getPersonLocale();
+        String locale = GuiContext.getUserLocale();
         final List<String> errorMessages =
                 PluginHandlerHelper.doServerSideValidation(context.getMainFormState(), applicationContext, locale);
         if (context.getConfirmFormState() != null) {
@@ -276,7 +277,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private String buildMessage(String message, String defaultValue) {
-        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
+        return MessageResourceProvider.getMessage(message, defaultValue, GuiContext.getUserLocale());
     }
 
     @Override

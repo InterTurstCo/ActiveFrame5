@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.gui.api.client.Predicate;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionColumn;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionDataGrid;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
+import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
@@ -116,7 +117,8 @@ public class CollectionDataGridUtils {
             column.setDrawWidth(calculatedWidth);
         }
     }
-
+    @Deprecated /*use List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
+    List<InitialFilterConfig> previous,Map<String, CollectionColumnProperties> columnPropertiesMap) instead */
     public static List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
                                                                        List<InitialFilterConfig> previous){
         if(WidgetUtil.isEmpty(previous)){
@@ -124,12 +126,12 @@ public class CollectionDataGridUtils {
         }
         List<InitialFilterConfig> result = new ArrayList<InitialFilterConfig>();
         for (final InitialFilterConfig currentConfig: current) {
-                InitialFilterConfig previousConfig = GuiUtil.find(previous, new Predicate<InitialFilterConfig>() {
-                    @Override
-                    public boolean evaluate(InitialFilterConfig input) {
-                        return input.getName().equalsIgnoreCase(currentConfig.getName());
-                    }
-                });
+            InitialFilterConfig previousConfig = GuiUtil.find(previous, new Predicate<InitialFilterConfig>() {
+                @Override
+                public boolean evaluate(InitialFilterConfig input) {
+                    return input.getName().equalsIgnoreCase(currentConfig.getName());
+                }
+            });
             if(previousConfig == null){
                 result.add(currentConfig);
             } else {
@@ -141,6 +143,39 @@ public class CollectionDataGridUtils {
         return result;
 
     }
+    public static List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
+                                                                       List<InitialFilterConfig> previous,
+                                                                       Map<String, CollectionColumnProperties> columnPropertiesMap){
+        if(WidgetUtil.isEmpty(previous)){
+            return current;
+        }
+        Set<String> visibleUiFiltersNames = new HashSet<String>();
+        for (CollectionColumnProperties collectionColumnProperties : columnPropertiesMap.values()) {
+            Boolean hidden = (Boolean)collectionColumnProperties.getProperty(CollectionColumnProperties.HIDDEN);
+            if(!hidden){
+                String filterName = (String)collectionColumnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+                visibleUiFiltersNames.add(filterName);
+            }
+        }
 
+        return mergeInitialFiltersConfigs(current, previous, visibleUiFiltersNames);
+
+    }
+
+    private static List<InitialFilterConfig> mergeInitialFiltersConfigs(List<InitialFilterConfig> current,
+                                                                       List<InitialFilterConfig> previous,
+                                                                       Set<String> visibleUiFiltersNames){
+        List<InitialFilterConfig> merged = new ArrayList<>(previous);
+        Iterator<InitialFilterConfig> iterator = merged.iterator();
+        while (iterator.hasNext()){
+            InitialFilterConfig config = iterator.next();
+            if(visibleUiFiltersNames.contains(config.getName())){
+                iterator.remove();
+            }
+        }
+        merged.addAll(current);
+        return merged;
+
+    }
 
 }

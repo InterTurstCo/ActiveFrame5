@@ -16,7 +16,10 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.FileUtils;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -65,8 +68,6 @@ public class BaseDaoTest {
     protected static DomainObjectDaoImpl domainObjectDao;
     protected static CollectionsDaoImpl collectionsDao;
     protected static AccessToken accessToken;
-
-    protected static StatusDaoImpl statusDao;
 
     private static DomainObject savedOrganizationObject;
 
@@ -157,7 +158,6 @@ public class BaseDaoTest {
                         new DynamicGroupTrackDomainObjectCollector();
                 trackDomainObjectCollector.setConfigurationExplorer(configurationExplorer);
                 trackDomainObjectCollector.setAccessControlService(accessControlService);
-                trackDomainObjectCollector.setMasterNamedParameterJdbcTemplate(namedParameterJdbcOperations);
                 trackDomainObjectCollector.setDomainObjectDao(domainObjectDao);
                 trackDomainObjectCollector.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
                 return trackDomainObjectCollector;
@@ -170,7 +170,6 @@ public class BaseDaoTest {
         };
         dynamicGroupService.setConfigurationExplorer(configurationExplorer);
         dynamicGroupService.setDomainObjectDao(domainObjectDao);
-        dynamicGroupService.setMasterNamedParameterJdbcTemplate(namedParameterJdbcOperations);
         dynamicGroupService.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
         // dynamicGroupService.onLoad();
 

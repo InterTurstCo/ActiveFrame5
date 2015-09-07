@@ -45,43 +45,7 @@
                     </tr>
                 </after-tr>
             </add-trs>
-           <!-- <add-tds>
-                &lt;!&ndash; после какой-то ячейки &ndash;&gt;
-                <after-td id="td1">
-                    <td h-align="right">
-                        <widget id="w1"/>
-                    </td>
-                </after-td>
 
-                &lt;!&ndash; перед какой-то ячейкой &ndash;&gt;
-                <before-td id="td1">
-                    <td h-align="right">
-                        <widget id="w4"/>
-                    </td>
-                </before-td>
-            </add-tds>
-
-            &lt;!&ndash; добавление строк в табличную разметку &ndash;&gt;
-            <add-trs>
-                <before-tr id="tr1">
-                    <tr id="tr0">
-                        <td>
-                            <widget id="w11"/>
-                        </td>
-
-                    </tr>
-                </before-tr>
-                <after-tr id="tr1">
-                    <tr>
-                        <td>
-                            <widget id="w10"/>
-                        </td>
-                        <td>
-                            <widget id="w8"/>
-                        </td>
-                    </tr>
-                </after-tr>
-            </add-trs>-->
         </markup-extension>
 
         <form-objects-remover/>
@@ -325,4 +289,654 @@
         </widget-groups>
     </form>
 
+    <form name="coordination_form" domain-object-type="Docm_Coordination" is-default="true" default-value-setter="execution.default.values.handler">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aToggleEditOff" merged="false"/>
+            <act:action-ref name-ref="aSave" merged="false"/>
+            <act:simple-action name="executed.execution" componentName="simple.action"
+                               action-handler="executed.execution" text="Выполнить"
+                               imageClass="actionBar-create" merged="true" tooltip="Выполнить"
+                               visibility-checker="status.execution.visibility.checker"
+                               order="700"/>
+            <act:simple-action name="denied.execution" componentName="simple.action"
+                               action-handler="denied.execution" text="Отказать"
+                               imageClass="actionBar-create" merged="true" tooltip="Отказать"
+                               visibility-checker="status.execution.visibility.checker"
+                               order="800"/>
+
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td id="td1">
+                            <widget id="header"/>
+                        </td>
+
+                        <td h-align="left">
+                            <widget id="author_label"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="author_value"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="created_date_label"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="created_date_value"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="status_label"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="status_value"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Информация">
+                    <bookmarks>
+                        <tab-group id="mainTabGroup" name="Основное" initial-state="expanded">
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="title_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="title_value"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="executor_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="executor_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="start_off_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="start_off_value"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="exec_date_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="exec_date_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="temp_tasks_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="temp_tasks_value"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="type_tasks_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="type_tasks_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <!-- Версия документа -->
+                                    <td h-align="left">
+                                        <widget id="doc_version_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="doc_version_value"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="document_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="document_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="delegated_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="delegated_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="classifiers_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="classifiers_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                        <tab-group name="Исполнение">
+                            <table>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="desc_label"/>
+                                    </td>
+                                    <td h-align="left" colspan="3">
+                                        <widget id="desc_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td h-align="left">
+                                        <widget id="result_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="result_value"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="executed_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="executed_value"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="comments_label"/>
+                                    </td>
+                                    <td colspan="3">
+                                        <widget id="comments_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </bookmarks>
+                </tab>
+                <tab name="Наблюдатели задания">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="observers_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Зависимости">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="dependencies_value"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+
+            </body>
+        </markup>
+        <markup-extension>
+            <add-tds>
+                <after-td id="td1">
+                    <td id="td_added">
+                        <widget id="dependencies_added"/>
+                    </td>
+                </after-td>
+            </add-tds>
+        </markup-extension>
+        <widget-config>
+            <label id="header">
+                <text>Согласование</text>
+            </label>
+            <label id="dependencies_added">
+                <text>Added</text>
+            </label>
+            <!--вкладка Информация, Основное-->
+            <label id="title_label">
+                <text>Заголовок</text>
+                <relates-to widget-id="title_value"/>
+            </label>
+            <text-box id="title_value">
+                <field-path value="title"/>
+            </text-box>
+            <label id="start_off_label">
+                <text>Дата начала</text>
+                <relates-to widget-id="start_off_value"/>
+            </label>
+            <date-box id="start_off_value">
+                <field-path value="start_off"/>
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
+                <display-time-box>true</display-time-box>
+            </date-box>
+            <label id="exec_date_label">
+                <text>Закончить до</text>
+            </label>
+            <date-box id="exec_date_value">
+                <field-path value="term_execution"/>
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
+                <display-time-box>true</display-time-box>
+            </date-box>
+            <label id="executor_label">
+                <text>Исполнитель</text>
+            </label>
+            <hierarchy-browser id="executor_value">
+                <field-path value="executor"/>
+                <node-collection-def collection="entp_enterp_unit_collection" title="Подразделения"
+                                     display-create-button="false" selective="false">
+                    <root-node-link title="Подраздедле"/>
+                    <input-text-filter name="byName"/>
+                    <selection-pattern value="{name}"/>
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <selection-sort-criteria>
+                        <sort-criterion field="name" order="asc"/>
+                    </selection-sort-criteria>
+                    <node-collection-def collection="appointment_collection" title="Назначения"
+                                         parent-filter="byEnterpUnit" display-create-button="false">
+                        <fill-parent-on-add field-to-fill="entp_enterp_unit_collection"/>
+                        <display-values-as-links value="false"/>
+                        <selection-pattern value="{name} {employee}"/>
+                        <default-sort-criteria column-field="name" order="asc"/>
+                    </node-collection-def>
+                </node-collection-def>
+                <page-size>10</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="false"/>
+            </hierarchy-browser>
+            <label id="author_label">
+                <text>Автор</text>
+            </label>
+            <suggest-box id="author_value" read-only="true">
+                <field-path value="created_by"/>
+                <collection-ref name="person_collection"/>
+                <drop-down-pattern value="{employee_name} {login}"/>
+                <selection-pattern value="{employee_name} {login}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="doc_version_label">
+                <text>Версия документа</text>
+            </label>
+            <label id="doc_version_value">
+                <field-path value="document_version.version"/>
+            </label>
+            <label id="temp_tasks_label">
+                <text>Шаблон Задания</text>
+                <relates-to widget-id="temp_tasks_value"/>
+            </label>
+            <suggest-box id="temp_tasks_value" read-only="true">
+                <field-path value="temp_tasks"/>
+                <collection-ref name="temp_task_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <display-values-as-links value="true"/>
+                <linked-form-mapping>
+                    <linked-form name="task_temp_tasks_form_employee" domain-object-type="Task_Temp_Tasks_Employ" modal-width="1200px" modal-height="800px"/>
+                    <linked-form name="task_temp_tasks_form_division" domain-object-type="Task_Temp_Tasks_Division" modal-width="1200px" modal-height="800px"/>
+                </linked-form-mapping>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="created_date_label">
+                <text>Дата регистрации</text>
+            </label>
+            <date-box id="created_date_value" read-only="true">
+                <field-path value="created_date"/>
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
+                <display-time-box>true</display-time-box>
+            </date-box>
+            <label id="document_label">
+                <text>Документ</text>
+            </label>
+            <suggest-box id="document_value" read-only="true">
+                <field-path value="document"/>
+                <collection-ref name="document_collection"/>
+                <drop-down-pattern value="{document_number} от {created_date}"/>
+                <selection-pattern value="{document_number} от {created_date}"/>
+                <input-text-filter name="byText"/>
+                <display-values-as-links value="true"/>
+                <linked-form-mapping>
+                    <linked-form name="correspondence_form" domain-object-type="Docm_Correspondence_In" modal-width="1200px" modal-height="800px"/>
+                    <linked-form name="correspondence_out_form" domain-object-type="Docm_Correspondence_Out" modal-width="1200px" modal-height="800px"/>
+                </linked-form-mapping>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="delegated_label">
+                <text>Делегат</text>
+            </label>
+            <suggest-box id="delegated_value" read-only="true">
+                <field-path value="delegated"/>
+                <collection-ref name="appointment_collection"/>
+                <drop-down-pattern value="{name} {employee}"/>
+                <selection-pattern value="{name} {employee}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="exec_type_label">
+                <text>Вид работ</text>
+            </label>
+            <enumeration-box id="exec_type_value" read-only="true">
+                <field-path value="type_execution"/>
+                <mapping>
+                    <map value="1" display-text="Резолюция"/>
+                    <map value="2" display-text="Согласование"/>
+                    <map value="3" display-text="Утверждение"/>
+                    <map value="4" display-text="Подписание"/>
+                    <map value="5" display-text="Разметка"/>
+                </mapping>
+            </enumeration-box>
+            <label id="type_tasks_label">
+                <text>Тип Задачи</text>
+                <relates-to widget-id="type_tasks_value"/>
+            </label>
+            <suggest-box id="type_tasks_value">
+                <field-path value="type_tasks"/>
+                <collection-ref name="task_type_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <collection-extra-filters>
+                    <extra-filter name="forCoordination"/>
+                </collection-extra-filters>
+            </suggest-box>
+            <label id="status_label">
+                <text>Состояние</text>
+                <relates-to widget-id="status_value"/>
+            </label>
+            <suggest-box id="status_value" read-only="true">
+                <field-path value="status"/>
+                <collection-ref name="status_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="task_type_label">
+                <text>Тип задания</text>
+            </label>
+            <suggest-box id="task_type_value">
+                <field-path value="type_tasks"/>
+                <collection-ref name="task_type_collection"/>
+                <drop-down-pattern value="{title}"/>
+                <selection-pattern value="{title}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+            <label id="classifiers_label">
+                <text>Классификаторы</text>
+            </label>
+            <hierarchy-browser id="classifiers_value">
+                <field-path value="Docm_Qual_Coordination^coordination.classifier"/>
+                <node-collection-def collection="col_doc_qualifier_groups"
+                                     title="Группы классификаторов" display-create-button="false" selective="false">
+                    <root-node-link title="Классификаторы"/>
+                    <!-- название фильтра по тексту, введённому пользователем -->
+                    <input-text-filter name="byName"/>
+                    <single-choice value="false"/>
+                    <!-- паттерн отображения уже выбранных значений -->
+                    <selection-pattern value="{name}"/>
+                    <default-sort-criteria column-field="name" order="asc"/>
+                    <selection-sort-criteria>
+                        <sort-criterion field="name" order="asc"/>
+                    </selection-sort-criteria>
+
+                    <collection-extra-filters>
+                        <extra-filter name="byDobject">
+                            <param name="0" type="string" value="Docm_Coordination"/>
+                        </extra-filter>
+                    </collection-extra-filters>
+
+                    <node-collection-def collection="col_doc_qualifier" parent-filter="byQualifierGroup"
+                                         title="Классификатор" display-create-button="false">
+                        <fill-parent-on-add field-to-fill="classifier_group"/>
+                        <single-choice>
+                            <parent-object-field name="One_OfThe_Groups" value="true"/>
+                        </single-choice>
+                        <display-values-as-links value="false"/>
+                        <selection-pattern value="{groupname} - {name}"/>
+                        <default-sort-criteria column-field="name" order="asc"/>
+                        <collection-extra-filters>
+                            <extra-filter name="byDobject">
+                                <param name="0" type="string" value="Docm_Coordination"/>
+                            </extra-filter>
+                        </collection-extra-filters>
+                    </node-collection-def>
+
+                    <display-values-as-links value="false"/>
+                </node-collection-def>
+                <page-size>10</page-size>
+                <single-choice value="false"/>
+                <clear-all-button text="Очистить"/>
+                <add-button image="..." text="Добавить"/>
+                <display-values-as-links value="false"/>
+            </hierarchy-browser>
+
+            <!--вкладка Информация, Исполнение-->
+            <label id="result_label">
+                <text>Результат Исполнения</text>
+            </label>
+            <enumeration-box id="result_value">
+                <field-path value="result"/>
+                <mapping>
+                    <map value="1" display-text="Одобрено"/>
+                    <map value="3" display-text="Отказано"/>
+                </mapping>
+            </enumeration-box>
+            <label id="desc_label">
+                <text>Рецензия</text>
+            </label>
+            <text-box id="desc_value">
+                <field-path value="description"/>
+            </text-box>
+            <label id="executed_label">
+                <text>Дата исполнения</text>
+                <relates-to widget-id="executed_value"/>
+            </label>
+            <date-box id="executed_value">
+                <field-path value="executed"/>
+                <pattern>dd.MM.yyyy hh:mm:ss</pattern>
+                <display-time-box>true</display-time-box>
+            </date-box>
+
+            <!--закладка наблюдатели-->
+            <linked-domain-objects-table id="observers_value">
+                <field-path value="Task_Observer^task"/>
+                <linked-form name="task_observer_form" inline="true" modal-width="500px" modal-height="500px"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="Task_Observer" name="task_observer_form" modal-width="500px" modal-height="500px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object domain-object-type="Task_Observer" text="Наблюдатели"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Наблюдатель" widget-id="observer_value">
+                        <!--TODO разобраться как вытянуть текст из suggest-box-->
+                        <!--<pattern value="{employee_name}"/>-->
+                        <action type="view_or_edit"/>
+                        <pattern value="{observer.login}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Роль наблюдателя" widget-id="role_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{role}"/>
+                    </summary-table-column>
+                    <summary-table-column header="На изменение" widget-id="notify_changes_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{notify_changes}"/>
+                    </summary-table-column>
+                    <summary-table-column header="При отклонении" widget-id="notify_rejecting_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{notify_rejecting}"/>
+                    </summary-table-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+
+            <label id="comments_label">
+                <text>Комментарии</text>
+            </label>
+            <linked-domain-objects-table id="comments_value">
+                <field-path value="Task_Comment^task"/>
+                <linked-form name="task_comment_form" inline="true" modal-width="450px" modal-height="500px"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="Task_Comment" name="task_comment_form" modal-width="450px" modal-height="500px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object domain-object-type="Task_Comment" text="Комментарии"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Автор">
+                        <action type="view_or_edit"/>
+                        <pattern value="{created_by.login}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Дата создания">
+                        <action type="view_or_edit"/>
+                        <pattern value="{created_date}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Описание">
+                        <action type="view_or_edit"/>
+                        <pattern value="{description}"/>
+                    </summary-table-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+
+            <!--закладка зависимости-->
+            <linked-domain-objects-table id="dependencies_value">
+                <field-path value="Task_Dependence_Tasks^dependent"/>
+                <linked-form name="task_dependence_tasks_t_form" inline="true" modal-width="550px" modal-height="500px"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="Task_Dependence_Tasks_T" name="task_dependence_tasks_t_form" modal-width="450px" modal-height="500px"/>
+                    <linked-form domain-object-type="Task_Dependence_Tasks_S" name="task_dependence_tasks_s_form" modal-width="450px" modal-height="500px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object domain-object-type="Task_Dependence_Tasks_T" text="Зависимость от Задания"/>
+                    <created-object domain-object-type="Task_Dependence_Tasks_S" text="Зависимость от Состояния"/>
+                </created-objects>
+                <summary-table>
+                    <summary-table-column header="Зависит от" widget-id="determining_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{determining.title}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Исполнитель" widget-id="determining_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{determining.executor.login}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Тип" widget-id="type_dependence_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{type_dependence}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Закончить до" widget-id="determining_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{determining.term_execution}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Статус" widget-id="state_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{state.description}"/>
+                    </summary-table-column>
+                    <summary-table-column header="Состояние" widget-id="state1_value">
+                        <action type="view_or_edit"/>
+                        <pattern value="{state1.description}"/>
+                    </summary-table-column>
+                </summary-table>
+                <single-choice value="false"/>
+            </linked-domain-objects-table>
+
+
+            <!-- for add executions from Docm_Copy_Document - version_form -->
+            <suggest-box id="main_attachment_value">
+                <field-path value="docm_attachment"/>
+                <collection-ref name="main_attachments_collection"/>
+                <linked-form-mapping>
+                    <linked-form domain-object-type="Docm_Doc_Attachments" name="docm_doc_attachments_form"
+                                 modal-width="850px" modal-height="650px"/>
+                </linked-form-mapping>
+                <drop-down-pattern value="{description} от {created_date} версия {version} автор {created_by.login}"/>
+                <selection-pattern value="{description} от {created_date} версия {version} автор {created_by.login}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+                <display-values-as-links value="true"/>
+            </suggest-box>
+            <suggest-box id="copy_document_value" read-only="true">
+                <field-path value="copy_document"/>
+                <collection-ref name="docm_copy_document_collection"/>
+                <drop-down-pattern value="{document_number} от {created_date}"/>
+                <selection-pattern value="{document_number} от {created_date}"/>
+                <input-text-filter name="byText"/>
+                <display-values-as-links value="true" modal-window="false"/>
+                <linked-form-mapping>
+                    <linked-form name="version_form" domain-object-type="Docm_Copy_Document" modal-width="1200px" modal-height="800px"/>
+                </linked-form-mapping>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+
+    <form name="coordination_task_form" domain-object-type="Docm_Coordination" extends="execution_form" is-default="false" default-value-setter="execution.default.values.handler">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aToggleEditOff" merged="false"/>
+            <act:action-ref name-ref="aSave" merged="false"/>
+            <act:simple-action name="executed.execution" componentName="simple.action"
+                               action-handler="executed.execution" text="Выполнить"
+                               imageClass="actionBar-create" merged="true" tooltip="Выполнить"
+                               visibility-checker="status.execution.visibility.checker"
+                               order="700"/>
+            <act:simple-action name="denied.execution" componentName="simple.action"
+                               action-handler="denied.execution" text="Отказать"
+                               imageClass="actionBar-create" merged="true" tooltip="Отказать"
+                               visibility-checker="status.execution.visibility.checker"
+                               order="800"/>
+
+        </act:tool-bar>
+
+        <markup-extension>
+            <add-tab-groups>
+                <before-tab-group id="mainTabGroup">
+                    <tab-group name="Документ">
+                        <table>
+                            <tr>
+                                <td colspan="2">
+                                    <widget id="attachment_value"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </tab-group>
+                </before-tab-group>
+            </add-tab-groups>
+
+        </markup-extension>
+
+        <widget-config-extension>
+            <add-widgets>
+                <!--вкладка Документ-->
+                <attachment-viewer id="attachment_value" width="900px" height="600px" read-only="true">
+                    <field-path value="docm_attachment"/>
+                </attachment-viewer>
+            </add-widgets>
+        </widget-config-extension>
+
+    </form>
 </configuration>

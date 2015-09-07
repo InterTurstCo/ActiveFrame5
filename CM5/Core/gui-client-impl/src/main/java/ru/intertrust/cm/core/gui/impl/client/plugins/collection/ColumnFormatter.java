@@ -7,12 +7,16 @@ import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ControlExpandableCell;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.EditableTextCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.TextCell;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 import java.util.List;
+
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_COLUMN_NAME;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CHECK_BOX_MAX_WIDTH;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -29,6 +33,7 @@ public class ColumnFormatter {
         String field = (String) columnProperties.getProperty(CollectionColumnProperties.FIELD_NAME);
         String textBreakStyle = (String) columnProperties.getProperty(CollectionColumnProperties.TEXT_BREAK_STYLE);
         Boolean resizable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.RESIZABLE);
+        boolean expandable = (Boolean) columnProperties.getProperty(CollectionColumnProperties.EXPANDABLE);
         final CollectionColumn collectionColumn;
         RendererConfig rendererConfig = columnProperties.getRendererConfig();
         if (rendererConfig != null) {
@@ -44,13 +49,21 @@ public class ColumnFormatter {
             String drillDownStyle = (String) columnProperties.getProperty(CollectionColumnProperties.DRILL_DOWN_STYLE);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            collectionColumn = new HierarchicalCollectionColumn(new HierarchicalCell(getCssStyleForText(textBreakStyle), drillDownStyle),
+            collectionColumn = new HierarchicalCollectionColumn(new HierarchicalCell(getCssStyleForText(textBreakStyle), drillDownStyle, field),
                     field, resizable, converter, childCollectionsConfig, eventBus);
-        } else {
+        } else if(expandable){
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
             ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
             converter.init(columnProperties.getProperties());
-            collectionColumn = new TextCollectionColumn(new TextCell(getCssStyleForText(textBreakStyle)), field, resizable, converter);
+            ControlExpandableCell expandableCell = new ControlExpandableCell(getCssStyleForText(textBreakStyle), field);
+            collectionColumn = new ExpandableColumn(expandableCell, field, resizable, converter, eventBus);
+        }
+        else {
+            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            EditableTextCell textCell = new EditableTextCell(getCssStyleForText(textBreakStyle), field);
+            collectionColumn = new TextCollectionColumn(textCell, field, eventBus,resizable, converter);
         }
         setColumnWidthProperties(collectionColumn, columnProperties);
         String columnName = (String) columnProperties.getProperty(CollectionColumnProperties.NAME_KEY);
@@ -60,6 +73,16 @@ public class ColumnFormatter {
         boolean hidden = (Boolean) columnProperties.getProperty(CollectionColumnProperties.HIDDEN);
         collectionColumn.setVisible(!hidden);
         return collectionColumn;
+    }
+
+    public static void formatCheckBoxColumn(CollectionColumn checkBoxColumn){
+        checkBoxColumn.setMaxWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setMinWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setUserWidth(CHECK_BOX_MAX_WIDTH);
+        checkBoxColumn.setVisible(true);
+        checkBoxColumn.setResizable(false);
+        checkBoxColumn.setMoveable(false);
+        checkBoxColumn.setDataStoreName(CHECK_BOX_COLUMN_NAME);
     }
 
     private static String getCssStyleForText(String textBreakStyle) {

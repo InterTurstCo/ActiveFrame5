@@ -63,6 +63,24 @@ public class DomainObjectQueryHelperTest {
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, true));
     }
 
+    @Test
+    public void testGenerateFindByUniqueKeyQuery() throws Exception {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
+        Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
+                domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, false));
+    }
+
+    @Test
+    public void testGenerateFindByUniqueKeyQueryWithLock() throws Exception {
+        AccessToken accessToken = createMockAccessToken();
+        String expectedQuery = "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id) for update";
+        Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
+                domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, true));
+    }
+
     private void initConfigs() {
 
         /*
@@ -103,6 +121,10 @@ public class DomainObjectQueryHelperTest {
         UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
         uniqueKeyFieldConfig1.setName("EMail");
         uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
+
+        UniqueKeyFieldConfig uniqueKeyFieldConfig2 = new UniqueKeyFieldConfig();
+        uniqueKeyFieldConfig2.setName("Login");
+        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig2);
 
         DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
         internalEmployee.setName("Internal_Employee");

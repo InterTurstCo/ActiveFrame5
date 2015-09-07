@@ -736,3 +736,14 @@ a.action-bar-button:hover {
     	border-width:1;
     	border-color: GRAY;
 }
+
+.Caption {
+    background: #fafafa;
+    background: -moz-linear-gradient(top, #fafafa 0%, #e8edf0 100%);
+    background: -webkit-gradient(linear, left 2e5e92, left bottom, color-stop(0%, #fafafa), color-stop(100%, #e8edf0));
+    background: -webkit-linear-gradient(top, #fafafa 0%, #e8edf0 100%);
+    background: -o-linear-gradient(top, #fafafa 0%, #e8edf0 100%);
+    background: -ms-linear-gradient(top, #fafafa 0%, #e8edf0 100%);
+    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#fafafa", endColorstr\= "#e8edf0", GradientType\=0 \);
+    background: linear-gradient(top, #fafafa 0%, #e8edf0 100%);
+}

@@ -48,11 +48,11 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
     private HasLinkedFormMappings widget;
 
     private BaseWidget parent;
+    private boolean modalWindow = true;
 
     public TableBrowserItemsView(SelectionStyleConfig selectionStyleConfig, EventBus eventBus,
                                  Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget,
                                  BaseWidget parent) {
-
         this.eventBus = eventBus;
         this.typeTitleMap = typeTitleMap;
         this.widget = widget;
@@ -61,6 +61,12 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         init(selectionStyleConfig);
         initWidget(root);
     }
+
+    public TableBrowserItemsView withModalWindow(boolean modalWindow){
+        this.modalWindow = modalWindow;
+        return this;
+    }
+
     private void init(SelectionStyleConfig selectionStyleConfig){
         root = new WidgetCollectionPanel();
         root.setStyleName("facebook-main-box linkedWidgetsBorderStyle");
@@ -131,8 +137,8 @@ public class TableBrowserItemsView extends Composite implements HyperlinkDisplay
         Label label = new Label(entry.getValue());
         label.setStyleName("facebook-label");
         label.addStyleName("facebook-clickable-label");
-
-        label.addClickHandler(new HyperlinkClickHandler(id, this, eventBus, false, typeTitleMap, widget));
+        ClickHandler clickHandler = new HyperlinkClickHandler(id, this, eventBus, false, typeTitleMap, widget).withModalWindow(modalWindow);
+        label.addClickHandler(clickHandler);
         FocusPanel delBtn = new FocusPanel();
         delBtn.addStyleName("facebook-btn facebookElementDel");
         delBtn.addClickHandler(new ClickHandler() {

@@ -78,7 +78,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
             DoelExpression expr = DoelExpression.parse(trackDomainObjects.getBindContext().getDoel());
 
             if (trackDomainObjects.getStatus() != null && trackDomainObjects.getStatus().length() > 0) {
-                String status = getStatusFor(domainObject.getId());
+                String status = getStatusFor(domainObject);
                 if (trackDomainObjects.getStatus().equals(status)) {
                     AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
                     List<Value> contextIds = doelResolver.evaluate(expr, domainObject.getId(), accessToken);
@@ -94,7 +94,7 @@ public class ContextRoleTrackDomainObjectCollector extends BaseDynamicGroupServi
             //зависимые объекты не указаны, значит контекстом является текущий объект
             //поверяем его статус
             if (trackDomainObjects.getStatus() != null && trackDomainObjects.getStatus().length() > 0) {
-                String status = getStatusFor(domainObject.getId());
+                String status = getStatusFor(domainObject);
                 if (trackDomainObjects.getStatus().equals(status)) {
                     result.add(domainObject.getId());
                 }

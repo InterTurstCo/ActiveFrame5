@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.gui.model.util;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.ARRAY_DELIMITER;
 
@@ -88,5 +88,9 @@ public class StringUtil {
             }
         }
         return builder.length() == 0 ? null : builder.toString();
+    }
+    public static int getIntValue(String sizeString){
+        String raw = sizeString.replaceAll("px", "").trim();
+        return Integer.parseInt(raw);
     }
 }

@@ -1,17 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -52,8 +51,6 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     private AccessVerificationService accessVerificationService;
     @Autowired
     private CrudService crudService;
-    @Autowired
-    private ProfileService profileService;
 
     @Override
     public AttachmentBoxState getInitialState(WidgetContext context) {
@@ -135,7 +132,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
             }
             File fileToSave = getTemporaryFile(attachmentItem);
             try (InputStream fileData = new FileInputStream(fileToSave);
-                 RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(fileData)) {
+                 DirectRemoteInputStream remoteFileData = new DirectRemoteInputStream(fileData, false)) {
                 DomainObject attachmentDomainObject = createAttachmentDomainObject(attachmentItem, domainObject, attachmentType);
                 DomainObject savedDo = saveAttachment(attachmentDomainObject, domainObject, fieldPath, remoteFileData);
                 newObjects.add(savedDo);
@@ -173,7 +170,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     private DomainObject saveAttachment(DomainObject attachmentDomainObject, DomainObject parentDomainObject,
-                                        FieldPath fieldPath, RemoteInputStreamServer remoteFileData) {
+                                        FieldPath fieldPath, DirectRemoteInputStream remoteFileData) {
         DomainObject savedDo;
         if (fieldPath.isOneToManyReference() || fieldPath.isOneToOneBackReference()) {
             String parentLinkFieldName = fieldPath.getLinkToParentName();
@@ -212,7 +209,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
                         || fieldPath.isOneToOneBackReference()){
                     throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS,
                             "Multiply fieldPaths should be all reference type or all backreference type",
-                            profileService.getPersonLocale()));
+                            GuiContext.getUserLocale()));
                 }
             }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField()

@@ -28,7 +28,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
-    @Element(name = "selection-pattern", required = false)
+    @Element(name = "selection-pattern", required = true)
     private SelectionPatternConfig selectionPatternConfig;
 
     @Element(name = "input-text-filter", required = false)

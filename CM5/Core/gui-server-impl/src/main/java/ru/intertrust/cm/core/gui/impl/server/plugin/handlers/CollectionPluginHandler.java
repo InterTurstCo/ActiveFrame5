@@ -3,15 +3,16 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
@@ -67,8 +68,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     @Autowired
     private SortOrderHelper sortOrderHelper;
 
-    @Autowired
-    private ProfileService profileService;
+    private boolean expandable; //dummy for testing
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -77,6 +77,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         String collectionName = collectionRefConfig.getName();
         final CollectionViewConfig collectionViewConfig =
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
+        boolean expandable = CollectionPluginHelper.isExpandable(collectionViewConfig);
         final IdentifiableObject identifiableObject = PluginHandlerHelper.getCollectionSettingIdentifiableObject(
                 link, collectionViewConfig.getName(), currentUserAccessor.getCurrentUser(),
                 collectionsService);
@@ -91,12 +92,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionPluginData pluginData = new CollectionPluginData();
 
         pluginData.setCollectionViewConfigName(collectionViewConfig.getName());
+        pluginData.setRowsSelectionConfig(collectionViewerConfig.getRowsSelectionConfig());
         collectionViewerConfig.getSearchAreaRefConfig();
         DefaultSortCriteriaConfig sortCriteriaConfig = collectionViewerConfig.getDefaultSortCriteriaConfig();
         InitialFiltersConfig initialFiltersConfig = collectionViewerConfig.getInitialFiltersConfig();
         LinkedHashMap<String, CollectionColumnProperties> columnPropertyMap =
                 CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig,
-                        initialFiltersConfig, profileService.getPersonLocale());
+                        initialFiltersConfig, GuiContext.getUserLocale());
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
         List<Filter> filters = new ArrayList<>();
         TableBrowserParams tableBrowserParams = collectionViewerConfig.getTableBrowserParams();
@@ -136,6 +138,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         pluginData.setEmbedded(collectionViewerConfig.isEmbedded());
         pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
+        pluginData.setExpandable(expandable);
         return pluginData;
     }
 
@@ -168,7 +171,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
 
         final LinkedHashMap<String, CollectionColumnProperties> map =
-                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null, profileService.getPersonLocale());
+                CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, null, null, GuiContext.getUserLocale());
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
@@ -182,7 +185,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 viewerConfig.getToolBarConfig() == null ? new ToolBarConfig() : viewerConfig.getToolBarConfig();
         ToolBarConfig defaultToolbarConfig;
         if (toolbarConfig.isRendered() && toolbarConfig.isUseDefault()) {
-            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, profileService.getPersonLocale());
+            defaultToolbarConfig = actionService.getDefaultToolbarConfig(COMPONENT_NAME, GuiContext.getUserLocale());
         } else {
             defaultToolbarConfig = null;
         }
@@ -207,7 +210,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         return PluginHandlerHelper.findCollectionViewConfig(collectionName, viewName,
                 currentUserAccessor.getCurrentUser(),
-                link, configurationService, collectionsService, profileService.getPersonLocale());
+                link, configurationService, collectionsService, GuiContext.getUserLocale());
     }
 
 
@@ -215,9 +218,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                                                        final Map<String, CollectionColumnProperties> columnPropertiesMap,
                                                        final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
         CollectionRowItem item = new CollectionRowItem();
+        item.setExpandable(expandable); //stub for poc
+        expandable = !expandable;
         LinkedHashMap<String, Value> row = CollectionPluginHelper.getRowValues(identifiableObject, columnPropertiesMap, fieldMappings);
         item.setId(identifiableObject.getId());
         item.setRow(row);
+        item.setRowType(CollectionRowItem.RowType.DATA);
         return item;
 
     }
@@ -288,6 +294,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
         InitialFiltersParams initialFiltersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, initialFiltersParams, filters);
+        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplexFiltersParams(), filters);
         Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {
             filterBuilder.prepareIncludedIdsFilter(includedIds, filters);
@@ -340,6 +347,88 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             }
         }
         return result;
+    }
+
+    public CollectionRowsResponse getChildrenForExpanding(Dto request){
+        CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
+        String collectionName = rowsRequest.getCollectionName();
+        SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+        Id parentId = rowsRequest.getParentId();
+        Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
+        List<Filter> filters = prepareFilters(rowsRequest.getParentId(), rowsRequest.getColumnProperties(), filtersMap);
+        IdentifiableObjectCollection collection = collectionsService.
+                findCollection(rowsRequest.getCollectionName(), sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
+        ArrayList<CollectionRowItem> items = new ArrayList<>();
+        boolean notMoreItems = rowsRequest.getOffset() == 0;
+        if(notMoreItems){
+        CollectionRowItem filter = new CollectionRowItem();
+        filter.setParentId(parentId);
+        filter.setRowType(CollectionRowItem.RowType.FILTER);
+        filter.setRow(new HashMap<String, Value>(0));
+        filter.setFilters(filtersMap);
+        items.add(filter);
+        }
+        Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
+        for (IdentifiableObject identifiableObject : collection) {
+            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings);
+            item.setParentId(parentId);
+            items.add(item);
+
+        }
+        if(notMoreItems){
+        CollectionRowItem moreItems = new CollectionRowItem();
+        moreItems.setParentId(parentId);
+        moreItems.setRowType(CollectionRowItem.RowType.BUTTON);
+        moreItems.setRow(new HashMap<String, Value>(0));
+        items.add(moreItems);
+        }
+
+        CollectionRowsResponse response = new CollectionRowsResponse();
+        response.setCollectionRows(items);
+        return response;
+
+    }
+    private List<Filter> prepareFilters(Id parentId, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
+                                        Map<String, List<String>> filtersMap){
+        List<Filter> filters = new ArrayList<>();
+        filterBuilder.prepareExcludedIdsFilter(Arrays.asList(parentId), filters);
+
+        InitialFiltersConfig initialFiltersConfig = prepareInitialFiltersConfig(columnPropertiesMap, filtersMap);
+
+        Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.
+                getFilterNameColumnPropertiesMap(columnPropertiesMap, initialFiltersConfig);
+        InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
+        filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
+        return filters;
+    }
+    private InitialFiltersConfig prepareInitialFiltersConfig(LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
+                                                             Map<String, List<String>> filtersMap){
+        InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
+        List<InitialFilterConfig> initialFilterList = new ArrayList<>();
+        initialFiltersConfig.setFilterConfigs(initialFilterList);
+        if(filtersMap != null){
+            for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
+                InitialFilterConfig filterConfig = new InitialFilterConfig();
+                CollectionColumnProperties properties = columnPropertiesMap.get(entry.getKey());
+                String filterName = (String) properties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
+                String type = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
+                filterConfig.setName(filterName);
+                List<String> filterValues = entry.getValue();
+                List<InitialParamConfig> paramConfigs = new ArrayList<>();
+                for (int i = 0; i < filterValues.size(); i++) {
+                    String s =  filterValues.get(i);
+                    InitialParamConfig paramConfig = new InitialParamConfig();
+                    paramConfig.setName(i);
+                    paramConfig.setType(type);
+                    paramConfig.setValue(s);
+                    paramConfigs.add(paramConfig);
+
+                }
+                filterConfig.setParamConfigs(paramConfigs);
+                initialFilterList.add(filterConfig);
+            }
+        }
+        return initialFiltersConfig;
     }
 
 }

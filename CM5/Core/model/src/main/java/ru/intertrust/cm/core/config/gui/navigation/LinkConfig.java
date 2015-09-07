@@ -35,6 +35,13 @@ public class  LinkConfig implements Dto {
     @Attribute(name = "child-to-open", required = false)
     private String childToOpen;
 
+    @Attribute(name = "auto-cut", required = false)
+    private Boolean autoCut;
+
+    @Attribute(name = "tooltip", required = false)
+    @Localizable
+    private String tooltip;
+
     @Element(name = "plugin", required = false)
     private LinkPluginDefinition pluginDefinition;
 
@@ -133,6 +140,22 @@ public class  LinkConfig implements Dto {
         this.counterType = counterType;
     }
 
+    public Boolean isAutoCut() {
+        return autoCut;
+    }
+
+    public void setAutoCut(Boolean autoCut) {
+        this.autoCut = autoCut;
+    }
+
+    public String getTooltip() {
+        return tooltip;
+    }
+
+    public void setTooltip(String tooltip) {
+        this.tooltip = tooltip;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -175,6 +198,12 @@ public class  LinkConfig implements Dto {
             return false;
         }
         if (pluginDefinition != null ? !pluginDefinition.equals(that.pluginDefinition) : that.pluginDefinition != null) {
+            return false;
+        }
+        if (autoCut != null ? !autoCut.equals(that.autoCut) : that.autoCut != null) {
+            return false;
+        }
+        if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) {
             return false;
         }
 

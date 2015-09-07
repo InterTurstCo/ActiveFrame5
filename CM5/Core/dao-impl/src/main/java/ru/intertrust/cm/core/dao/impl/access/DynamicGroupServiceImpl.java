@@ -1,10 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
@@ -25,6 +21,8 @@ import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -112,8 +110,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 configurationExplorer.getConfig(DynamicGroupConfig.class, dynGroup.getString("group_name"));
 
         //Получаем состав
-        List<Id> groupMembres = new ArrayList<Id>();
-        List<Id> groupMembresGroups = new ArrayList<Id>();
+        Set<Id> groupMembres = new HashSet<>();
+        Set<Id> groupMembresGroups = new HashSet<Id>();
 
         List<DynamicGroupRegisterItem> collectors = collectorsByGroupName.get(config.getName());
         if (collectors != null) {
@@ -181,7 +179,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      * @param personIds
      *            список персон
      */
-    private void refreshGroupMembers(Id dynamicGroupId, List<Id> newPersonIds, List<Id> newGroupIds) {
+    private void refreshGroupMembers(Id dynamicGroupId, Set<Id> newPersonIds, Set<Id> newGroupIds) {
         //Оптимизируем метод заполнения динамической группы
         /*personManagementService.removeGroupMembers(dynamicGroupId);
         insertGroupMembers(dynamicGroupId, personIds);
@@ -351,13 +349,17 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         AccessToken accessToken = accessControlService
                 .createSystemAccessToken(this.getClass().getName());
 
-        String query =
-                "select t.id from user_group t where object_id = " + ((RdbmsId) domainObjectId).getId()
-                        + " and object_id_type = " +
-                        ((RdbmsId) domainObjectId).getTypeId();
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
+        String query = "select t.id from user_group t where object_id = {0}";
+        List<Value> params = new ArrayList<>();
+        params.add(new ReferenceValue(domainObjectId));
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
+        
+        List<Id> idForDelete = new ArrayList<Id>();
         for (IdentifiableObject identifiableObject : collection) {
-            domainObjectDao.delete(identifiableObject.getId(), accessToken);
+            idForDelete.add(identifiableObject.getId());
+        }
+        if (idForDelete.size() > 0){
+            domainObjectDao.delete(idForDelete, accessToken);
         }
     }
 
@@ -411,8 +413,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                                                 DynamicGroupTrackDomainObjectCollector.class,
                                                 AutowireCapableBeanFactory.AUTOWIRE_BY_NAME,
                                                 false);
-                                // TODO Я конечно против использования базы напрямую, но так сделано изначально, пока не переделываем
-                                ((DynamicGroupTrackDomainObjectCollector) collector).setMasterNamedParameterJdbcTemplate(masterNamedParameterJdbcTemplate);
                                 collector.init(config, collectorConfig);
                                 registerCollector(collector, config, configuration);
                             }
@@ -692,7 +692,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     private class RecalcGroupSynchronization implements Synchronization {
-        private List<Id> groupIds = new ArrayList<Id>();
+        private Set<Id> groupIds = new HashSet<Id>();
         private List<Id> contextsForDelete = new ArrayList<Id>();
 
         public RecalcGroupSynchronization() {

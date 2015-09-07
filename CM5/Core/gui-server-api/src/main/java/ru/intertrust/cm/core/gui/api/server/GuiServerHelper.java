@@ -1,11 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
@@ -83,7 +78,8 @@ public final class GuiServerHelper {
                 .addProperty(CollectionColumnProperties.SORTABLE, config.isSortable())
                 .addProperty(CollectionColumnProperties.DATE_RANGE, config.isDateRange())
                 .addProperty(CollectionColumnProperties.HIDDEN, config.isHidden())
-                .addProperty(CollectionColumnProperties.DRILL_DOWN_STYLE, config.getDrillDownStyle());
+                .addProperty(CollectionColumnProperties.DRILL_DOWN_STYLE, config.getDrillDownStyle())
+                .addProperty(CollectionColumnProperties.EXPANDABLE, config.isExpandable());
         if (field.equalsIgnoreCase(sortedField)) {
             properties.addProperty(
                     CollectionColumnProperties.SORTED_MARKER, getSortedMarker(sortCriteriaConfig));

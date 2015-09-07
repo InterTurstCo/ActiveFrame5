@@ -311,10 +311,22 @@ public interface DomainObjectDao {
     /**
      * Возвращает доменный объект по его уникальному ключу
      *
+     *
      * @param domainObjectType типа доменного объекта
      * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
      * @return ID доменного объекта
      * @throws ObjectNotFoundException,  если объект не найден
      */
-    Id findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken);
+    DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken);
+
+    /**
+     * Возвращает и блокирует доменный объект по его уникальному ключу
+     *
+     *
+     * @param domainObjectType типа доменного объекта
+     * @param uniqueKeyValuesByName Map с наименованиями и значениями ключа
+     * @return ID доменного объекта
+     * @throws ObjectNotFoundException,  если объект не найден
+     */
+    DomainObject finAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken);
 }

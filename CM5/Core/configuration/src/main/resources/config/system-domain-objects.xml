@@ -72,6 +72,7 @@
             <long name="splitter_orientation"/>
             <long name="splitter_position"/>
             <string name="nav_link" length="128"/>
+            <boolean name="nav_panel_level2_pinned" not-null="false"/>
         </fields>
     </domain-object-type>
     <domain-object-type name="bu_nav_link_collection" initial-status="Active">

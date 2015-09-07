@@ -147,8 +147,10 @@ public class TableBrowserViewsBuilder {
                 return new TableBrowserCollectionViewHolder(collection);
             } else {
                 SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
+                DisplayValuesAsLinksConfig displayValuesAsLinksConfig = state.getTableBrowserConfig().getDisplayValuesAsLinksConfig();
+                boolean modalWindow = displayValuesAsLinksConfig == null || displayValuesAsLinksConfig.isModalWindow();
                 HyperlinkNoneEditablePanel widget = new HyperlinkNoneEditablePanel(styleConfig, eventBus, false,
-                        state.getTypeTitleMap(), hasLinkedFormMappings);
+                        state.getTypeTitleMap(), hasLinkedFormMappings).withHyperlinkModalWindow(modalWindow);
                 return new HyperlinkNoneEditablePanelViewHolder(widget);
             }
         }
@@ -157,8 +159,10 @@ public class TableBrowserViewsBuilder {
     class TableBrowserEditableViewBuilder {
         private ViewHolder buildViewHolder() {
             SelectionStyleConfig styleConfig = state.getTableBrowserConfig().getSelectionStyleConfig();
+            DisplayValuesAsLinksConfig displayValuesAsLinksConfig = state.getTableBrowserConfig().getDisplayValuesAsLinksConfig();
+            boolean modalWindow = displayValuesAsLinksConfig == null || displayValuesAsLinksConfig.isModalWindow();
             TableBrowserItemsView itemsWidget = new TableBrowserItemsView(styleConfig, eventBus, state.getTypeTitleMap(),
-                    hasLinkedFormMappings, parent);
+                    hasLinkedFormMappings, parent).withModalWindow(modalWindow);
             if (state.isTableView()) {
                 TableBrowserCollection collection = createTableBrowserCollection(false, true,
                         state.getTableBrowserConfig().isResizable());

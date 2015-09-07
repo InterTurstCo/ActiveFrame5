@@ -383,7 +383,9 @@ h1 {
     background: url(icons/filter-clear-button.png) no-repeat -32px 0;
 }
 
-.dummy {
+.minimalLeftMargin > table tr td:nth-child(2) {
+    margin-left: -20px;
+    display: inline-block;
 }
 
 .table-browser-filter-editor {
@@ -667,6 +669,14 @@ h1 {
     height: 25px;
 }
 
+.decorated-action-link {
+    width: 1100px;
+}
+
+.arrow-action-panel {
+
+}
+
 .centerTopBottomDividerRoot {
     /*background: #ffffff;*/
     border-radius: 0 0 5px 5px;
@@ -934,7 +944,7 @@ a[href='#login']:hover {
     left: 15px;
     padding-top: 10px;
     overflow-y: auto;
-    overflow-x: hidden;
+    overflow-x: auto;
     display: block;
 }
 
@@ -2619,15 +2629,15 @@ a:active .icon.back {
 }
 
 .Caption {
-    background: #356a9e;
-    background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e), color-stop(100%, #1f2b5d));
-    background: -webkit-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    background: -o-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    background: -ms-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#356a9e", endColorstr\= "#1f2b5d", GradientType\=0 \);
-    background: linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
-    border-radius: 7px;
+    background: #2e5e92;
+    background: -moz-linear-gradient(top, #2e5e92 0%, #2b578b 100%);
+    background: -webkit-gradient(linear, left 2e5e92, left bottom, color-stop(0%, #2e5e92), color-stop(100%, #2b578b));
+    background: -webkit-linear-gradient(top, #2e5e92 0%, #2b578b 100%);
+    background: -o-linear-gradient(top, #2e5e92 0%, #2b578b 100%);
+    background: -ms-linear-gradient(top, #2e5e92 0%, #2b578b 100%);
+    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#2e5e92", endColorstr\= "#2b578b", GradientType\=0 \);
+    background: linear-gradient(top, #2e5e92 0%, #2b578b 100%);
+    border-radius: 5px 5px 0 0;
     color: #fafafa;
     display: block;
     height: 13px;
@@ -3134,3 +3144,152 @@ a:active .icon.back {
 .columnWrapper tr td {
     vertical-align: middle !important;
 }
+
+/* Expandable Collection */
+.collectionCellWrapper {
+    /*padding: 0 5px 5px 0;*/
+}
+
+.collectionFilterCellWrapper {
+    background: #ededed;
+    border-radius: 30px 0 0 30px;
+    margin-left: 10px;
+    padding: 5px 0 5px 25px;
+}
+
+.collectionFilterCellWrapper .hierarchicalFilter {
+    background: #ffffff;
+    box-sizing: border-box;
+    border: 1px solid #8d97a5;
+    border-radius: 3px;
+    color: #1f2b5d;
+    padding: 2px 4px;
+    width: 150px;
+}
+
+.collectionFilterCellWrapper .hierarchicalFilter input {
+    box-sizing: border-box;
+    border: none;
+    width: 100%;
+}
+
+.collectionCellWrapper > div.childRow {
+    background: #ededed;
+    border-radius: 30px 0 0 30px;
+    margin-left: 10px;
+    padding: 5px 0 5px 5px;
+}
+
+.collectionCellWrapper div:first-child {
+    /*margin-left: 0;*/
+}
+
+.collectionCellWrapper > div.expandable {
+    margin-left: 10px;
+}
+
+.collectionCellWrapper > div.notExpandable {
+    margin-left: 18px;
+}
+.collectionButtonCellWrapper{
+    background: #e2e2e2;
+    font-size: 20px;
+    text-align: center;
+    padding-bottom: 5px;
+}
+.collectionButtonCellWrapper .moreItems {
+    background: #4D90FD;
+    border: none;
+    border-radius: 3px;
+    display: block;
+    margin: 0 0 10px 30px;
+    padding: 5px 0;
+    opacity: 0.5;
+    width: 150px;
+    -webkit-transition: opacity .3s, color .3s;
+    -moz-transition: opacity .3s, color .3s;
+    -ms-transition: opacity .3s, color .3s;
+    -o-transition: opacity .3s, color .3s;
+    transition: opacity .3s, color .3s;
+}
+
+.collectionButtonCellWrapper .moreItems:hover {
+    opacity: 1;
+    color: #fafafa;
+    cursor: pointer;
+    -webkit-transition: opacity .3s, color .3s;
+    -moz-transition: opacity .3s, color .3s;
+    -ms-transition: opacity .3s, color .3s;
+    -o-transition: opacity .3s, color .3s;
+    transition: opacity .3s, color .3s;
+}
+.collectionRowExpanded td {
+    vertical-align: top;
+}
+.expandable,
+.notExpandable{
+    height: 17px;
+}
+
+.collapseSign {
+    background: #E9E9E9;
+    border-radius: 50%;
+    color: #171717;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 5px 0 0;
+    padding: 0 6px 2px;
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.collapseSign:hover {
+    background: #e2e2e2;
+    color: #4D90FD;
+    cursor: pointer;
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.expandSign {
+    background: #E9E9E9;
+    border-radius: 50%;
+    color: #171717;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: bold;
+    margin: 0 5px 0 0;
+    padding: 1px 4px 1px;
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.childRow .expandSign {
+    background: #f5f5f5;
+}
+
+.expandSign:hover {
+    background: #e2e2e2;
+    color: #4D90FD;
+    cursor: pointer;
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+}
+
+.notExpandable .expandSign {
+    background: none;
+}
+/* end Expandable Collection */

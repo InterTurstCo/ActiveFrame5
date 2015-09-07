@@ -37,14 +37,31 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     public FormConfig buildPlainForm(FormConfig rawFormConfig, List<FormConfig> formConfigs) {
         FormConfig result = null;
         List<String> errors = new ArrayList<>();
+        if (requiredParentExists(rawFormConfig, formConfigs)) {
+            result = buildPlainForm(rawFormConfig, formConfigs, errors);
+        } else {
+            errors.add(String.format("Parent form with name '%s' was not found", rawFormConfig.getExtends()));
+        }
+        failIfErrors(rawFormConfig, errors);
+
+        return result;
+    }
+
+    private FormConfig buildPlainForm(FormConfig rawFormConfig, List<FormConfig> formConfigs, List<String> errors){
+        FormConfig result = null;
         if (formConfigs.isEmpty()) {
             result = applyExtensions(rawFormConfig, errors);
         } else {
             result = buildInheritanceFormConfig(rawFormConfig, formConfigs, errors);
         }
-        failIfErrors(rawFormConfig, errors);
-
         return result;
+    }
+
+    private boolean requiredParentExists(FormConfig rawFormConfig, List<FormConfig> formConfigs) {
+        String parentName = rawFormConfig.getExtends();
+        int parentFormsCount = formConfigs.size();
+        return parentName == null
+                || (parentFormsCount != 0 && formConfigs.get(parentFormsCount - 1).getName().equalsIgnoreCase(parentName));
     }
 
     private FormConfig buildInheritanceFormConfig(FormConfig rawConfig, List<FormConfig> formConfigs, List<String> errors) {
@@ -55,7 +72,12 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
             if (parentFormConfig == null) {
                 parentFormConfig = applyExtensions(currentFormConfig, errors);
             } else {
-                parentFormConfig = applyExtensions(currentFormConfig, parentFormConfig, errors);
+                if (parentFormConfig.getName().equalsIgnoreCase(currentFormConfig.getExtends())) {
+                    parentFormConfig = applyExtensions(currentFormConfig, parentFormConfig, errors);
+                } else {
+                    errors.add(String.format("Parent form with name '%s' was not found", currentFormConfig.getExtends()));
+                    return null;
+                }
             }
         }
 
@@ -115,7 +137,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         return formConfig;
     }
 
-    private void applyMarkupExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors){
+    private void applyMarkupExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors) {
         if (rawForm.getMarkup() == null) {
             processMarkupExtension(formConfig.getMarkup(), rawForm.getMarkupExtensionConfig(), errors);
         } else {
@@ -124,7 +146,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         }
     }
 
-    private void applyWidgetConfigurationExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors){
+    private void applyWidgetConfigurationExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors) {
         if (rawForm.getWidgetConfigurationConfig() == null) {
             processWidgetConfigurationExtension(formConfig.getWidgetConfigurationConfig(), rawForm.getWidgetConfigurationExtensionConfig(), errors);
         } else {
@@ -133,7 +155,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         }
     }
 
-    private void applyWidgetGroupsExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors){
+    private void applyWidgetGroupsExtension(FormConfig rawForm, FormConfig formConfig, List<String> errors) {
         if (rawForm.getWidgetGroupsConfig() == null) {
             processWidgetGroupsExtension(formConfig.getWidgetGroupsConfig(), rawForm.getWidgetGroupsExtensionConfig(), errors);
         } else {
@@ -141,13 +163,14 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
             processWidgetGroupsExtension(formConfig.getWidgetGroupsConfig(), rawForm.getWidgetGroupsExtensionConfig(), errors);
         }
     }
-    private void applyToolbarExtension(FormConfig rawForm, FormConfig formConfig){
+
+    private void applyToolbarExtension(FormConfig rawForm, FormConfig formConfig) {
         if (rawForm.getToolbarConfig() != null) {
             formConfig.setToolbarConfig(rawForm.getToolbarConfig());
         }
     }
 
-    private void cleanExtensionConfigs(FormConfig formConfig){
+    private void cleanExtensionConfigs(FormConfig formConfig) {
         formConfig.setMarkupExtensionConfig(null);
         formConfig.setWidgetConfigurationExtensionConfig(null);
         formConfig.setWidgetConfigurationExtensionConfig(null);
@@ -156,7 +179,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     private void processMarkupExtension(MarkupConfig markupConfig, MarkupExtensionConfig markupExtensionConfig, List<String> errors) {
         if (markupExtensionConfig != null) {
             if (markupConfig == null) {
-                errors.add("Could not process nullable markup config");
+                errors.add("Could not process nullable markup config\n");
             } else {
                 List<FormExtensionOperation> operations = markupExtensionConfig.getOperations();
                 for (FormExtensionOperation operation : operations) {
@@ -173,7 +196,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
                                                      List<String> errors) {
         if (widgetConfigurationExtensionConfig != null) {
             if (widgetConfiguration == null) {
-                errors.add("Could not process nullable widget configuration config");
+                errors.add("Could not process nullable widget configuration config\n");
             } else {
                 List<FormExtensionOperation> operations =
                         widgetConfigurationExtensionConfig.getWidgetConfigurationExtensionOperations();
@@ -190,7 +213,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
                                               List<String> errors) {
         if (widgetGroupsExtensionConfig != null) {
             if (widgetGroupsConfig == null) {
-                errors.add("Could not process nullable widget groups config");
+                errors.add("Could not process nullable widget groups config\n");
             } else {
                 List<FormExtensionOperation> operations =
                         widgetGroupsExtensionConfig.getWidgetGroupsExtensionOperations();
@@ -204,7 +227,7 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         }
     }
 
-    private void applyFormSaveExtension(FormConfig rawForm, FormConfig formConfig){
+    private void applyFormSaveExtension(FormConfig rawForm, FormConfig formConfig) {
         if (rawForm.getFormSaveExtensionConfig() != null) {
             if (rawForm.getFormSaveExtensionConfig().getAfterSaveComponent() == null
                     && rawForm.getFormSaveExtensionConfig().getBeforeSaveComponent() == null) {
@@ -215,9 +238,9 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         }
     }
 
-    private void applyFormObjectsRemover(FormConfig rawForm, FormConfig formConfig){
-        if(rawForm.getFormObjectsRemoverConfig() != null){
-            if(rawForm.getFormObjectsRemoverConfig().getHandler() == null){
+    private void applyFormObjectsRemover(FormConfig rawForm, FormConfig formConfig) {
+        if (rawForm.getFormObjectsRemoverConfig() != null) {
+            if (rawForm.getFormObjectsRemoverConfig().getHandler() == null) {
                 formConfig.setFormObjectsRemoverConfig(null);
             } else {
                 formConfig.setFormObjectsRemoverConfig(rawForm.getFormObjectsRemoverConfig());
@@ -225,31 +248,31 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
         }
     }
 
-    private void applyFormAttributes(FormConfig rawForm, FormConfig formConfig){
+    private void applyFormAttributes(FormConfig rawForm, FormConfig formConfig) {
         formConfig.setName(rawForm.getName());
-        if(rawForm.getDomainObjectType() != null){
-        formConfig.setDomainObjectType(rawForm.getDomainObjectType());
+        if (rawForm.getDomainObjectType() != null) {
+            formConfig.setDomainObjectType(rawForm.getDomainObjectType());
         }
-        if(rawForm.getNotSafeIsDefault() != null){
-        formConfig.setDefault(rawForm.isDefault());
+        if (rawForm.getNotSafeIsDefault() != null) {
+            formConfig.setDefault(rawForm.isDefault());
         }
-        if(rawForm.getNotSafeIsDebug() != null){
-        formConfig.setDebug(rawForm.getDebug());
+        if (rawForm.getNotSafeIsDebug() != null) {
+            formConfig.setDebug(rawForm.getDebug());
         }
-        if(rawForm.getMinWidth() != null){
-        formConfig.setMinWidth(rawForm.getMinWidth());
+        if (rawForm.getMinWidth() != null) {
+            formConfig.setMinWidth(rawForm.getMinWidth());
         }
-        if(rawForm.getType() != null){
-        formConfig.setType(rawForm.getType());
+        if (rawForm.getType() != null) {
+            formConfig.setType(rawForm.getType());
         }
-        if(rawForm.getReportTemplate() != null){
-        formConfig.setReportTemplate(rawForm.getReportTemplate());
+        if (rawForm.getReportTemplate() != null) {
+            formConfig.setReportTemplate(rawForm.getReportTemplate());
         }
-        if(rawForm.getDefaultValueSetter() != null){
-        formConfig.setDefaultValueSetter(rawForm.getDefaultValueSetter());
+        if (rawForm.getDefaultValueSetter() != null) {
+            formConfig.setDefaultValueSetter(rawForm.getDefaultValueSetter());
         }
-        if(rawForm.reReadInSameTransaction() != null){
-        formConfig.setReReadInSameTransaction(rawForm.reReadInSameTransaction());
+        if (rawForm.reReadInSameTransaction() != null) {
+            formConfig.setReReadInSameTransaction(rawForm.reReadInSameTransaction());
         }
         formConfig.setExtends(null);
     }

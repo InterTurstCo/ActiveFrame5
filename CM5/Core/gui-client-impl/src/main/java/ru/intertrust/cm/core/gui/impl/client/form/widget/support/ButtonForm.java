@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.support;
 
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 /**
  * Created with IntelliJ IDEA.
@@ -53,7 +54,7 @@ public class ButtonForm extends Composite{
 
 
     public void addImage(String img){
-        Image pic = new Image(img);
+        Image pic = new Image(GlobalThemesManager.getResourceFolder() + img);
         pic.setStyleName("common-widget-button-style");
         buttonPanel.insert(pic, 0);
     }

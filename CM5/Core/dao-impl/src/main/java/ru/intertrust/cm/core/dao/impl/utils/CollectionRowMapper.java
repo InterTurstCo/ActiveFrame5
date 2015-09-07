@@ -12,8 +12,10 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,9 +55,11 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
         ColumnModel columnModel = buildColumnModel(rs);
         Map<String, FieldConfig> columnTypeMap = new HashMap<>();
-        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-            String fieldName = rs.getMetaData().getColumnName(i);
-            columnTypeMap.put(fieldName, getFieldConfigByDbTypeName(fieldName, rs.getMetaData().getColumnTypeName(i)));
+        ResultSetMetaData metaData = rs.getMetaData();
+
+        for (int i = 1; i <= metaData.getColumnCount(); i++) {
+            String fieldName = metaData.getColumnName(i);
+            columnTypeMap.put(fieldName, getFieldConfigByDbTypeName(fieldName, metaData.getColumnType(i)));
         }
 
         addMissedFieldConfigs(columnModel, columnTypeMap);
@@ -111,15 +115,14 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
     private List<FieldConfig> collectFieldConfigs(ColumnModel columnModel) {
         List<String> fieldNamesToDisplay = collectColumnNamesToDisplay(columnModel);
-
         List<FieldConfig> collectionFieldConfigs = new ArrayList<FieldConfig>();
 
-        for (String columnName : fieldNamesToDisplay) {
+        ObjectCloner cloner = ObjectCloner.getInstance();
 
+        for (String columnName : fieldNamesToDisplay) {
             FieldConfig columnFieldConfig = columnToConfigMap.get(columnName);
             if (columnFieldConfig != null) {
-                FieldConfig collectionColumnFieldConfig = BeanUtils.instantiate(columnFieldConfig.getClass());
-                BeanUtils.copyProperties(columnFieldConfig, collectionColumnFieldConfig);
+                FieldConfig collectionColumnFieldConfig = cloner.cloneObject(columnFieldConfig, FieldConfig.class);
                 collectionColumnFieldConfig.setName(columnName);
 
                 collectionFieldConfigs.add(collectionColumnFieldConfig);

@@ -32,6 +32,9 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
                 strings.add(makeSolrFieldFilter(filter, type));
             }
         }
+        if (strings.size() == 0 && types.contains(null)) {
+            strings.add(makeSolrFieldFilter(filter, SearchFieldType.LONG));
+        }
         if (strings.size() == 1) {
             return strings.get(0);
         }

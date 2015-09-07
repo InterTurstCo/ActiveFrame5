@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-import com.healthmarketscience.rmiio.RemoteInputStreamServer;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+import com.healthmarketscience.rmiio.*;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -85,11 +83,14 @@ public class AttachmentTextBoxHandler extends LinkEditingWidgetHandler {
         } else {
             attachmentDo = crudService.find(attachmentId);
         }
-        try (RemoteInputStreamServer remoteFileData = new SimpleRemoteInputStream(new ByteArrayInputStream(text.getBytes("UTF-8")));) {
+        try (DirectRemoteInputStream remoteFileData = new DirectRemoteInputStream(new ByteArrayInputStream(text.getBytes("UTF-8")), false)) {
             attachmentDo = attachmentService.saveAttachment(remoteFileData, attachmentDo);
             updateDomainObjectReference(context, domainObject, fieldName, attachmentDo.getId());
             return Collections.singletonList(attachmentDo);
         } catch (UnsupportedEncodingException e) { // impossible
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }

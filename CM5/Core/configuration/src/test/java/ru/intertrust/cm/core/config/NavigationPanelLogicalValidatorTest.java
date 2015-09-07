@@ -18,8 +18,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
 import static org.powermock.api.support.membermodification.MemberModifier.suppress;
-import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
-import static ru.intertrust.cm.core.config.Constants.DOMAIN_OBJECTS_CONFIG_PATH;
+import static ru.intertrust.cm.core.config.Constants.*;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -61,7 +60,8 @@ public class NavigationPanelLogicalValidatorTest {
     public void validateIncorrectNavigationPanel() throws Exception {
 
         String exceptionMessage = ("Configuration of "
-                + "navigation panel with name 'panel' was validated with errors.Count: 3 Content:\n"
+                + "navigation panel with name 'panel' was validated with errors.Count: 4 Content:\n"
+                + "Default second level panel state  couldn't be 'unpinned' when unpin is disabled\n"
                 + "Child link to open is not found for link with name 'Administration'\n"
                 + "Duplicate link name 'Cities' was found\n"
                 + "Child link to open is not found for link with name 'Documents In Work'");
@@ -72,7 +72,7 @@ public class NavigationPanelLogicalValidatorTest {
 
         List<LogicalErrors> errors = panelValidator.validate();
         assertEquals(1, errors.size());
-        assertEquals(3, errors.get(0).getErrorCount());
+        assertEquals(4, errors.get(0).getErrorCount());
         assertEquals(exceptionMessage, errors.get(0).toString());
 
 
@@ -96,6 +96,7 @@ public class NavigationPanelLogicalValidatorTest {
         conf.getConfigurationPaths().add(DOMAIN_OBJECTS_CONFIG_PATH);
         conf.getConfigurationPaths().add(GLOBAL_XML_PATH);
         conf.getConfigurationPaths().add(configPath);
+        conf.getConfigurationPaths().add(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH);        
         conf.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         final URL moduleUrl = getClass().getClassLoader().getResource(".");
         conf.setModuleUrl(moduleUrl);

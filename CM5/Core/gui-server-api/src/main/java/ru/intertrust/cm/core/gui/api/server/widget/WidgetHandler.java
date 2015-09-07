@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormState;
@@ -85,7 +86,7 @@ public abstract class WidgetHandler implements ComponentHandler {
                   throw new GuiException(MessageResourceProvider.getMessage(
                           LocalizationKeys.GUI_EXCEPTION_MULTIPLE_FIELDPATHS,
                           "Multiply fieldPaths should be all reference type or all backreference type",
-                          profileService.getPersonLocale()));
+                          GuiContext.getUserLocale()));
               }
            }
             singleChoiceAnalyzed = fieldPath.isOneToOneDirectReference() || fieldPath.isField();
@@ -98,7 +99,7 @@ public abstract class WidgetHandler implements ComponentHandler {
         if (fieldPaths.length > 1) {
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_SINGLE_FIELDPATH,
                     "Only single field-path is supported",
-                    profileService.getPersonLocale()));
+                    GuiContext.getUserLocale()));
         }
         if (fieldPaths[0].isField() || fieldPaths[0].isOneToOneDirectReference()) {
             return !configurationService.getFieldConfig(widgetContext.getFormObjects().getRootDomainObjectType(), fieldPaths[0].getFieldName()).isNotNull();

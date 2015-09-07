@@ -925,8 +925,25 @@
         <xs:attribute name="is-default" type="xs:string" use="optional" />
         <xs:attribute name="side-bar-opening-time" type="xs:integer" use="optional" />
         <xs:attribute name="merge" type="xs:boolean" use="optional" />
+        <xs:attribute name="level2-panel-width" type="xs:string" use="optional"/>
+        <xs:attribute name="level2-default-state" type="con:level2DefaultStateType" use="optional"/>
+        <xs:attribute name="unpin-enabled" type="xs:boolean" use="optional"/>
+        <xs:attribute name="margin-size" type="con:marginSizeType" use="optional"/>
+        <xs:attribute name="text-auto-cut" type="xs:boolean" use="optional"/>
     </xs:complexType>
 
+    <xs:simpleType name="level2DefaultStateType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="pinned" />
+            <xs:enumeration value="unpinned" />
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="marginSizeType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="default"/>
+            <xs:enumeration value="minimal"/>
+        </xs:restriction>
+    </xs:simpleType>
     <!-- Конфигурация области поиска  -->
     <xs:complexType name="defaultSearchAreasType">
         <xs:sequence>
@@ -950,6 +967,8 @@
         <xs:attribute type="xs:boolean" name="display-counter" use="optional" />
         <xs:attribute type="con:counterType" name="counter-type" use="optional" />
         <xs:attribute type="xs:string" name="child-to-open" use="optional" />
+        <xs:attribute type="xs:boolean" name="auto-cut" use="optional"/>
+        <xs:attribute type="xs:string" name="tooltip" use="optional"/>
     </xs:complexType>
 
     <xs:simpleType name="counterType">
@@ -985,6 +1004,8 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute type="xs:string" name="group-name" use="optional" />
+        <xs:attribute type="xs:boolean" name="auto-cut" use="optional"/>
+        <xs:attribute type="xs:string" name="tooltip" use="optional"/>
     </xs:complexType>
 
     <xs:element type="con:domainObjectSurferType" name="domain-object-surfer" substitutionGroup="con:pluginConfig" />
@@ -1023,8 +1044,20 @@
             <xs:element type="con:filterPanelType" name="filter-panel" xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0" />
             <xs:element type="con:nonReadElementsDefinitionType" name="non-read-elements-definition" xmlns:con="https://cm5.intertrust.ru/config"
                 minOccurs="0" />
+            <xs:element type="con:rowsSelectionType" name="rows-selection"/>
         </xs:choice>
     </xs:complexType>
+
+    <xs:complexType name="rowsSelectionType">
+        <xs:attribute name="default-state" use="optional"  type="con:rowsSelectionDefaultStateType"/>
+    </xs:complexType>
+
+    <xs:simpleType name="rowsSelectionDefaultStateType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="selected"/>
+            <xs:enumeration value="empty"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="formViewerType">
         <xs:sequence>
@@ -2446,7 +2479,7 @@
         <xs:attribute type="con:textBreakStyleType" name="text-break-style" />
         <xs:attribute type="xs:boolean" name="date-range" use="optional" />
         <xs:attribute type="con:drillDownStyleType" name="drill-down-style" use="optional" />
-
+        <xs:attribute type="xs:boolean" name="expandable" use="optional" />
     </xs:complexType>
 
     <xs:complexType name="typeCryptoSettings">

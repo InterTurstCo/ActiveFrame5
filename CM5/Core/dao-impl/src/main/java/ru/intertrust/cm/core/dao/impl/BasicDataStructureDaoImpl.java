@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.DataStructureDao} для PostgreSQL
@@ -65,7 +64,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.DomainObjectTypeConfig)} Dot шаблон (с
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#createTable(ru.intertrust.cm.core.config.DomainObjectTypeConfig, boolean)} Dot шаблон (с
      * isTemplate = true) не отображается в базе данных
      */
     @Override
@@ -98,8 +97,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     /**
      * Создание индексов для _ACL, _READ таблиц по полям object_id, group_id
-     * @param config
-     * @return
+     * @param config конфигурация доменного объяекта
      */
     private void createAclIndexes(DomainObjectTypeConfig config) {
         String aclTableName = getSqlName(config) + BasicQueryHelper.ACL_TABLE_SUFFIX;
@@ -112,15 +110,15 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override
-    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isParent) {
+    public void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isAl, boolean isParent) {
         if (config == null || ((fieldConfigList == null || fieldConfigList.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
-        String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), false), fieldConfigList);
+        String query = getQueryHelper().generateAddColumnsQuery(getName(config.getName(), isAl), fieldConfigList);
         jdbcTemplate.update(query);
 
-        createAutoIndices(config, fieldConfigList, false, true, isParent);
+        createAutoIndices(config, fieldConfigList, isAl, true, isParent);
     }
 
     @Override
@@ -151,7 +149,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                 if (indexExpression instanceof IndexFieldConfig) {
                     indexFields.add(getSqlName(((IndexFieldConfig) indexExpression).getName()));
                 } else if (indexExpression instanceof IndexExpressionConfig) {
-                    indexExpressions.add(getSqlName(((IndexExpressionConfig) indexExpression).getValue()));
+                    indexExpressions.add(getSqlName((indexExpression).getValue()));
                 }
             }
 
@@ -279,15 +277,31 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void deleteColumn(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
-        jdbcTemplate.update(getQueryHelper().generateDeleteColumnQuery(config, fieldConfig));
+        jdbcTemplate.update(getQueryHelper().generateDeleteColumnQuery(config, fieldConfig.getName()));
+
+        if (fieldConfig instanceof ReferenceFieldConfig) {
+            jdbcTemplate.update(getQueryHelper().generateDeleteColumnQuery(config,
+                    getReferenceTypeColumnName(fieldConfig.getName())));
+        } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+            jdbcTemplate.update(getQueryHelper().generateDeleteColumnQuery(config,
+                    getTimeZoneIdColumnName(fieldConfig.getName())));
+        }
     }
 
     /**
-     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#renameColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, String, String)}
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#renameColumn(ru.intertrust.cm.core.config.DomainObjectTypeConfig, String, FieldConfig)}
      */
     @Override
-    public void renameColumn(DomainObjectTypeConfig config, String oldName, String newName) {
-        jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, oldName, newName));
+    public void renameColumn(DomainObjectTypeConfig config, String oldName, FieldConfig newFieldConfig) {
+        jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, oldName, newFieldConfig.getName()));
+
+        if (newFieldConfig instanceof ReferenceFieldConfig) {
+            jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, getReferenceTypeColumnName(oldName),
+                    getReferenceTypeColumnName(newFieldConfig.getName())));
+        } else if (newFieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+            jdbcTemplate.update(getQueryHelper().generateRenameColumnQuery(config, getTimeZoneIdColumnName(oldName),
+                    getTimeZoneIdColumnName(newFieldConfig.getName())));
+        }
     }
 
     /**

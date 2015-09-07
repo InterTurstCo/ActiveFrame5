@@ -280,7 +280,8 @@ public class HierarchyBrowserHandler extends LinkEditingWidgetHandler {
                     findCollection(collectionName, sortOrder, filters, offset, numberOfItems);
             FormattingConfig formattingConfig = nodeContentRequest.getFormattingConfig();
             Boolean singleChoice = isSingleChoice(parent, nodeConfig.getSingleChoiceConfig());
-            if (rootNodeCollectionDefConfig.isChildrenRecursive() && !nodeConfig.isChildrenRecursive()) {
+            if (rootNodeCollectionDefConfig.isChildrenRecursive() && !nodeConfig.isChildrenRecursive()
+                    && rootNodeCollectionDefConfig.getCollection().equalsIgnoreCase(nodeConfig.getCollection())) {
                 nodeConfig.setRecursiveDeepness(nodeConfig.getRecursiveDeepness() + 1);
             }
             for (IdentifiableObject identifiableObject : collection) {

@@ -5,7 +5,6 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -21,6 +20,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZo
  * @author atsvetkov
  */
 public class ValueReader {
+
     private static final ThreadLocal<Calendar> gmtCalendar = new ThreadLocal<Calendar>() {
         protected Calendar initialValue() {
             return Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -43,23 +43,26 @@ public class ValueReader {
 
         BasicRowMapper.Column column = columns.get(columnIndex);
 
-        if (fieldConfig != null &&
-                (StringFieldConfig.class.equals(fieldConfig.getClass()) ||
-                        TextFieldConfig.class.equals(fieldConfig.getClass()))) {
+        if (fieldConfig == null) {
+            return null;
+        }
+
+        if (StringFieldConfig.class.equals(fieldConfig.getClass()) ||
+                TextFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readStringValue(rs, column);
-        } else if (fieldConfig != null && LongFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (LongFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readLongValue(rs, column);
-        } else if (fieldConfig != null && DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DecimalFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDecimalValue(rs, column);
-        } else if (fieldConfig != null && ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readReferenceValue(rs, columns, columnIndex);
-        } else if (fieldConfig != null && DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DateTimeFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDateTimeValue(rs, column);
-        } else if (fieldConfig != null && DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readDateTimeWithTimeZoneValue(rs, columns, columnIndex);
-        } else if (fieldConfig != null && TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (TimelessDateFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readTimelessDateValue(rs, column);
-        } else if (fieldConfig != null && BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
+        } else if (BooleanFieldConfig.class.equals(fieldConfig.getClass())) {
             value = readBooleanValue(rs, column);
         }
 
@@ -67,68 +70,58 @@ public class ValueReader {
     }
 
     protected RdbmsId readId(ResultSet rs, Column column) throws SQLException {
-        Long longValue = rs.getLong(column.getIndex());
-        if (rs.wasNull()) {
+        Number longValue = (Number) rs.getObject(column.getIndex());
+        if (longValue == null) {
             return null;
         }
 
-        int idType = rs.getInt(column.getIndex() + 1);
+        Number idType = (Number) rs.getObject(column.getIndex() + 1);
 
-        if (rs.wasNull()) {
+        if (idType == null) {
             return null;
         }
 
-        return new RdbmsId(idType, longValue);
+        return new RdbmsId(idType.intValue(), longValue.longValue());
     }
 
     @Deprecated
     protected RdbmsId readId(ResultSet rs, String columnName) throws SQLException {
-        Long longValue = rs.getLong(columnName);
-        if (rs.wasNull()) {
+        Number longValue = (Number) rs.getObject(columnName);
+        if (longValue == null) {
             return null;
         }
 
-        Integer idType = rs.getInt(getReferenceTypeColumnName(columnName).toLowerCase());
-        if (rs.wasNull()) {
+        Number idType = (Number) rs.getObject(getReferenceTypeColumnName(columnName).toLowerCase());
+        if (idType == null) {
             return null;
         }
 
-        return new RdbmsId(idType, longValue);
+        return new RdbmsId(idType.intValue(), longValue.longValue());
     }
 
     protected LongValue readLongValue (ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        Long longValue = rs.getLong(column.getIndex());
-        if (!rs.wasNull()) {
-            return new LongValue(longValue);
+        Number longValue = (Number) rs.getObject(column.getIndex());
+        if (longValue != null) {
+            return new LongValue(longValue.longValue());
         } else {
             return new LongValue();
         }
     }
 
     protected DecimalValue readDecimalValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        BigDecimal fieldValue = rs.getBigDecimal(column.getIndex());
-        if (!rs.wasNull()) {
-            return new DecimalValue(fieldValue);
-        } else {
-            return new DecimalValue();
-        }
+        return new DecimalValue(rs.getBigDecimal(column.getIndex()));
     }
 
     protected StringValue readStringValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        String fieldValue = rs.getString(column.getIndex());
-        if (!rs.wasNull()) {
-            return new StringValue(fieldValue);
-        } else {
-            return new StringValue();
-        }
+        return new StringValue(rs.getString(column.getIndex()));
     }
 
     protected ReferenceValue readReferenceValue(ResultSet rs, List<BasicRowMapper.Column> columns, int columnIndex)
             throws SQLException {
         BasicRowMapper.Column column = columns.get(columnIndex);
 
-        Long longValue = rs.getLong(column.getIndex());
-        if (rs.wasNull()) {
+        Number longValue = (Number) rs.getObject(column.getIndex());
+        if (longValue == null) {
             return new ReferenceValue();
         } else {
             if (columns.size() == columnIndex + 1) {
@@ -141,9 +134,9 @@ public class ValueReader {
                 throw new FatalException("Reference type field can not be null for column " + column);
             }
 
-            Integer typeId = rs.getInt(nextColumn.getIndex());
-            if (!rs.wasNull()) {
-                return new ReferenceValue(new RdbmsId(typeId, longValue));
+            Number typeId = (Number) rs.getObject(nextColumn.getIndex());
+            if (typeId != null) {
+                return new ReferenceValue(new RdbmsId(typeId.intValue(), longValue.longValue()));
             } else {
                 throw new FatalException("Reference type field can not be null for column " + column);
             }
@@ -153,14 +146,14 @@ public class ValueReader {
     @Deprecated
     protected ReferenceValue readReferenceValue(ResultSet rs, String columnName)
             throws SQLException {
-        Long longValue = rs.getLong(columnName);
-        if (rs.wasNull()) {
+        Number longValue = (Number) rs.getObject(columnName);
+        if (longValue == null) {
             return new ReferenceValue();
         } else {
             String typeColumnName = getReferenceTypeColumnName(columnName);
-            Integer typeId = rs.getInt(typeColumnName);
-            if (!rs.wasNull()) {
-                return new ReferenceValue(new RdbmsId(typeId, longValue));
+            Number typeId = (Number) rs.getObject(typeColumnName);
+            if (typeId != null) {
+                return new ReferenceValue(new RdbmsId(typeId.intValue(), longValue.longValue()));
             } else {
                 throw new FatalException("Reference type field can not be null for column " + columnName);
             }
@@ -171,7 +164,7 @@ public class ValueReader {
         Timestamp timestamp = rs.getTimestamp(column.getIndex(), gmtCalendar.get());
 
         DateTimeValue value;
-        if (!rs.wasNull()) {
+        if (timestamp != null) {
             Date date = new Date(timestamp.getTime());
             value = new DateTimeValue(date);
         } else {
@@ -187,7 +180,7 @@ public class ValueReader {
         Timestamp timestamp = rs.getTimestamp(column.getIndex(), calendar);
 
         TimelessDateValue value;
-        if (!rs.wasNull()) {
+        if (timestamp != null) {
             calendar.setTime(timestamp);
 
             TimelessDate timelessDate = new TimelessDate();
@@ -212,7 +205,7 @@ public class ValueReader {
         Timestamp timestamp = rs.getTimestamp(column.getIndex(), gmtCalendar);
 
         DateTimeWithTimeZoneValue value;
-        if (!rs.wasNull()) {
+        if (timestamp != null) {
             if (columns.size() == columnIndex + 1) {
                 throw new FatalException("TimeZone id field can not be null for column " + column.getName());
             }
@@ -224,7 +217,7 @@ public class ValueReader {
             }
 
             String timeZoneId = rs.getString(nextColumn.getIndex());
-            if (!rs.wasNull()) {
+            if (timeZoneId != null) {
                 DateTimeWithTimeZone dateTimeWithTimeZone = getDateTimeWithTimeZone(timestamp, timeZoneId);
                 value = new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
             } else {
@@ -238,11 +231,11 @@ public class ValueReader {
     }
 
     protected BooleanValue readBooleanValue(ResultSet rs, BasicRowMapper.Column column) throws SQLException {
-        Integer booleanInt = rs.getInt(column.getIndex());
-        if (!rs.wasNull()) {
-            return new BooleanValue(booleanInt == 1);
+        Number booleanInt = (Number) rs.getObject(column.getIndex());
+        if (booleanInt != null) {
+            return booleanInt.intValue() == 1 ? BooleanValue.TRUE : BooleanValue.FALSE;
         } else {
-            return new BooleanValue();
+            return BooleanValue.EMPTY;
         }
     }
 

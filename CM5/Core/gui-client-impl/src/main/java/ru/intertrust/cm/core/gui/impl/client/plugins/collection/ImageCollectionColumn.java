@@ -14,10 +14,6 @@ public class ImageCollectionColumn extends CollectionParameterizedColumn {
         super(cell);
     }
 
-    public ImageCollectionColumn(ImageCell cell, String fieldName, Boolean resizable) {
-        super(cell, fieldName, resizable);
-    }
-
     @Override
     public String getValue(CollectionRowItem object) {
         return object.getStringValue(fieldName);

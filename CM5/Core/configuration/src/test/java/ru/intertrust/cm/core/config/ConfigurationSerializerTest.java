@@ -55,6 +55,11 @@ public class ConfigurationSerializerTest {
 
         String expectedSerializedConfiguration = readTextFile(SERIALIZED_CONFIGURATION_PATH).replaceAll("\r\n", "\n");
         assertEquals(expectedSerializedConfiguration, serializedConfiguration);
+        
+        //повторная десериализация сгенеренного xml (так как на данном этапе expectedSerializedConfiguration и serializedConfiguration идентичны то на вход десериализатора передаем файл SERIALIZED_CONFIGURATION_PATH)
+        configurationSerializer = createConfigurationSerializer(SERIALIZED_CONFIGURATION_PATH);
+        configuration = configurationSerializer.deserializeConfiguration();
+        
     }
 
     @Test

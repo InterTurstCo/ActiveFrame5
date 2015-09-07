@@ -12,7 +12,6 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
@@ -41,11 +40,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
+import ru.intertrust.cm.core.business.api.ScriptContext;
+import ru.intertrust.cm.core.business.api.ScriptService;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -70,7 +70,8 @@ public class DomainObjectIndexAgentTest {
     @Mock private SearchConfigHelper configHelper;
     @Mock private DoelEvaluator doelEvaluator;
     @Mock private DomainObjectDao domainObjectDao;
-    
+    @Mock private ScriptService scriptService;
+
     @Mock private AccessControlService accessControlService;
     @Mock private AttachmentContentDao attachmentContentDao;
 
@@ -122,11 +123,29 @@ public class DomainObjectIndexAgentTest {
         IndexedFieldConfig doelField = mock(IndexedFieldConfig.class);
         when(doelField.getName()).thenReturn("DoelField");
         when(doelField.getDoel()).thenReturn("doel^multiple.strings");
+        // Поля поисковой области, вычисляемые скриптами
+        IndexedFieldConfig scriptStringField = mock(IndexedFieldConfig.class);
+        when(scriptStringField.getName()).thenReturn("ScriptStringField");
+        when(scriptStringField.getScript()).thenReturn("return String");
+        IndexedFieldConfig scriptLongField = mock(IndexedFieldConfig.class);
+        when(scriptLongField.getName()).thenReturn("ScriptLongField");
+        when(scriptLongField.getScript()).thenReturn("return Long");
+        IndexedFieldConfig scriptDateField = mock(IndexedFieldConfig.class);
+        when(scriptDateField.getName()).thenReturn("ScriptDateField");
+        when(scriptDateField.getScript()).thenReturn("return Date");
+        IndexedFieldConfig scriptBoolField = mock(IndexedFieldConfig.class);
+        when(scriptBoolField.getName()).thenReturn("ScriptBoolField");
+        when(scriptBoolField.getScript()).thenReturn("return Boolean");
+        IndexedFieldConfig scriptFloatArrayField = mock(IndexedFieldConfig.class);
+        when(scriptFloatArrayField.getName()).thenReturn("ScriptFloatArrayField");
+        when(scriptFloatArrayField.getScript()).thenReturn("return Array of Floats");
+
         TargetDomainObjectConfig objectConfig = mock(TargetDomainObjectConfig.class);
         when(objectConfig.getType()).thenReturn("TestType");
         when(objectConfig.getFields()).thenReturn(Arrays.asList(
                 stringField, ruStringField, ruEnGeTextField,
-                longField, decimalField, dateField, referenceField, doelField));
+                longField, decimalField, dateField, referenceField, doelField,
+                scriptStringField, scriptLongField, scriptDateField, scriptBoolField, scriptFloatArrayField));
         SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
         when(areaConfig.getAreaName()).thenReturn("TestArea");
         when(areaConfig.getTargetObjectType()).thenReturn("TestType");
@@ -137,22 +156,14 @@ public class DomainObjectIndexAgentTest {
                 .thenReturn(Arrays.asList(areaConfig));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType("TestType", "TestType")).thenReturn(true);
-        when(configHelper.getFieldType(same(stringField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
-        when(configHelper.getFieldType(same(ruStringField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
-        when(configHelper.getFieldType(same(ruEnGeTextField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.TEXT));
-        when(configHelper.getFieldType(same(longField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.LONG));
-        when(configHelper.getFieldType(same(decimalField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.DECIMAL));
-        when(configHelper.getFieldType(same(dateField), anyString(),anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.DATETIME));
-        when(configHelper.getFieldType(same(referenceField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.REFERENCE));
-        when(configHelper.getFieldType(same(doelField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING, true));
+        when(configHelper.getFieldType(same(stringField), anyString())).thenReturn(SearchFieldType.TEXT);
+        when(configHelper.getFieldType(same(ruStringField), anyString())).thenReturn(SearchFieldType.TEXT);
+        when(configHelper.getFieldType(same(ruEnGeTextField), anyString())).thenReturn(SearchFieldType.TEXT);
+        when(configHelper.getFieldType(same(longField), anyString())).thenReturn(SearchFieldType.LONG);
+        when(configHelper.getFieldType(same(decimalField), anyString())).thenReturn(SearchFieldType.DOUBLE);
+        when(configHelper.getFieldType(same(dateField), anyString())).thenReturn(SearchFieldType.DATE);
+        when(configHelper.getFieldType(same(referenceField), anyString())).thenReturn(SearchFieldType.REF);
+        when(configHelper.getFieldType(same(doelField), anyString())).thenReturn(SearchFieldType.TEXT_MULTI);
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(configHelper.getSupportedLanguages(eq("RuStringField"), anyString())).thenReturn(Arrays.asList("ru"));
         when(configHelper.getSupportedLanguages(eq("RuEnGeTextField"), anyString())).thenReturn(
@@ -178,7 +189,16 @@ public class DomainObjectIndexAgentTest {
         when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel^multiple.strings")), same(id),
                 Mockito.any(AccessToken.class))).thenReturn(Arrays.asList(
                         (Value) new StringValue("String 1"), new StringValue("String 2"), new StringValue("String 3")));
-        
+
+        @SuppressWarnings("deprecation")
+        Date calculatedDate = new Date(Date.parse("Thu, 9 Jul 2015 10:15:25 GMT+0300"));
+        when(scriptService.eval(eq("return String"), any(ScriptContext.class))).thenReturn("Calculated");
+        when(scriptService.eval(eq("return Long"), any(ScriptContext.class))).thenReturn(555L);
+        when(scriptService.eval(eq("return Date"), any(ScriptContext.class))).thenReturn(calculatedDate);
+        when(scriptService.eval(eq("return Boolean"), any(ScriptContext.class))).thenReturn(true);
+        when(scriptService.eval(eq("return Array of Floats"), any(ScriptContext.class)))
+                .thenReturn(new Float[] { 2.81f, 3.14f } );
+
         when(domainObjectDao.find(id, mockToken)).thenReturn(object);
 
         // Вызов тестируемого метода
@@ -208,6 +228,11 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_r_referencefield"), hasProperty("value", equalTo("RefId"))));
         assertThat(doc, hasEntry(equalTo("cm_ts_doelfield"), hasProperty("value",
                         containsInAnyOrder("String 1", "String 2", "String 3"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_scriptstringfield"), hasProperty("value", equalTo("Calculated"))));
+        assertThat(doc, hasEntry(equalTo("cm_l_scriptlongfield"), hasProperty("value", equalTo(555L))));
+        assertThat(doc, hasEntry(equalTo("cm_dt_scriptdatefield"), hasProperty("value", equalTo(calculatedDate))));
+        assertThat(doc, hasEntry(equalTo("cm_b_scriptboolfield"), hasProperty("value", equalTo(true))));
+        assertThat(doc, hasEntry(equalTo("cm_ds_scriptfloatarrayfield"), hasProperty("value")));   //*****
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -235,8 +260,7 @@ public class DomainObjectIndexAgentTest {
                 .thenReturn(Arrays.asList(areaConfig));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
-        when(configHelper.getFieldType(same(stringField), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
+        when(configHelper.getFieldType(same(stringField), anyString())).thenReturn(SearchFieldType.TEXT);
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -296,8 +320,7 @@ public class DomainObjectIndexAgentTest {
                 .thenReturn(Arrays.asList(areaConfig));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
-        when(configHelper.getFieldType(same(stringField), anyString()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
+        when(configHelper.getFieldType(same(stringField), anyString())).thenReturn(SearchFieldType.TEXT);
         //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
@@ -362,8 +385,7 @@ public class DomainObjectIndexAgentTest {
         when(configHelper.isSuitableType("TestType", "TestType")).thenReturn(true);
         when(configHelper.isSuitableType("ParentFit", "ParentType")).thenReturn(true);
         when(configHelper.isSuitableType("ParentNotFit", "ParentType")).thenReturn(false);
-        when(configHelper.getFieldType(same(field), anyString(), any()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.LONG));
+        when(configHelper.getFieldType(same(field), anyString())).thenReturn(SearchFieldType.LONG);
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 
         // Модель сохраняемого объекта и его изменений
@@ -456,8 +478,8 @@ public class DomainObjectIndexAgentTest {
                 .thenReturn(Arrays.asList(area1, area2, area3, area4));
         when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
         when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
-        when(configHelper.getFieldType(Mockito.any(IndexedFieldConfig.class), anyString(), anyObject()))
-                .thenReturn(new SearchConfigHelper.FieldDataType(FieldType.STRING));
+        when(configHelper.getFieldType(Mockito.any(IndexedFieldConfig.class), anyString()))
+                .thenReturn(SearchFieldType.TEXT);
         when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
         when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
 

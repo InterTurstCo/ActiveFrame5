@@ -17,7 +17,7 @@ public interface Constants {
     String DOMAIN_OBJECTS_TEST_SERIALIZER_CONFIG_PATH = "config/domain-objects-serializer-test.xml";
     
     String DOMAIN_OBJECTS_LOOP_IN_HIERARCHY_CONFIG_PATH = "config/domain-objects-loop-in-hierarchy-test.xml";
-    String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "test-config/system-domain-objects-test.xml";
+    String SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH = "config/system-domain-objects-test.xml";
     String COLLECTIONS_CONFIG_PATH = "config/collections-test.xml";
 
     String MODULES_CONFIG_FOLDER = "modules-configuration";

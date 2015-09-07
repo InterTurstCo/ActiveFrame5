@@ -81,7 +81,7 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/recalculateColumnsWidthIm.png")
     ImageResource recalculateColumnsWidthBtnIm();
 
-    @Source("ru/intertrust/cm/core/gui/impl/images/addButton.png")
+    @Source("ru/intertrust/cm/core/gui/impl/images/icon-create.png")
     ImageResource addDoBtnIm();
 
     @Source("ru/intertrust/cm/core/gui/impl/images/refreshBtn.gif")
@@ -107,6 +107,9 @@ public interface ThemeBundle extends ClientBundle {
 
     @Source("ru/intertrust/cm/core/gui/impl/images/help.png")
     ImageResource helpIm();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/dot.png")
+    ImageResource dotIm();
 
     @Source("common.css")
     public CommonCssResource commonCss();

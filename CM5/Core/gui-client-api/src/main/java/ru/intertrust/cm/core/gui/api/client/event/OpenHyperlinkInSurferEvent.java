@@ -2,7 +2,9 @@ package ru.intertrust.cm.core.gui.api.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
+
+import java.util.List;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -10,17 +12,17 @@ import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappin
  *         Time: 0:14
  */
 public class OpenHyperlinkInSurferEvent extends GwtEvent<OpenHyperlinkInSurferEventHandler> {
-
-
     public static Type<OpenHyperlinkInSurferEventHandler> TYPE = new Type<OpenHyperlinkInSurferEventHandler>();
     private Id id;
-    private LinkedFormMappingConfig linkedFormMappingConfig;
+    private List<LinkedFormConfig> linkedFormMappings;
     private PluginCloseListener pluginCloseListener;
+    private boolean editable;
 
-    public OpenHyperlinkInSurferEvent(Id id, LinkedFormMappingConfig linkedFormMappingConfig, PluginCloseListener listener) {
+    public OpenHyperlinkInSurferEvent(Id id, List<LinkedFormConfig> linkedFormMappings, PluginCloseListener listener, boolean editable) {
         this.id = id;
-        this.linkedFormMappingConfig = linkedFormMappingConfig;
+        this.linkedFormMappings = linkedFormMappings;
         this.pluginCloseListener = listener;
+        this.editable = editable;
     }
 
     @Override
@@ -41,8 +43,12 @@ public class OpenHyperlinkInSurferEvent extends GwtEvent<OpenHyperlinkInSurferEv
         return pluginCloseListener;
     }
 
-    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
-        return linkedFormMappingConfig;
+    public List<LinkedFormConfig> getLinkedFormMappings() {
+        return linkedFormMappings;
+    }
+
+    public boolean isEditable() {
+        return editable;
     }
 }
 

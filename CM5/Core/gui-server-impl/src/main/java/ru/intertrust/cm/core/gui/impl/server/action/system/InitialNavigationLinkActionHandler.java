@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionData;
-import ru.intertrust.cm.core.gui.model.action.system.InitialNavigationLinkContext;
+import ru.intertrust.cm.core.gui.model.action.system.InitialNavigationLinkActionContext;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 /**
@@ -15,22 +15,22 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
  *         Date: 03.06.2015
  *         Time: 8:51
  */
-@ComponentName(InitialNavigationLinkContext.COMPONENT_NAME)
-public class InitialNavigationLinkActionHandler extends ActionHandler<InitialNavigationLinkContext, ActionData> {
+@ComponentName(InitialNavigationLinkActionContext.COMPONENT_NAME)
+public class InitialNavigationLinkActionHandler extends ActionHandler<InitialNavigationLinkActionContext, ActionData> {
 
     @Autowired
     private UserSettingsFetcher userSettingsFetcher;
 
     @Override
-    public ActionData executeAction(InitialNavigationLinkContext context) {
-        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+    public ActionData executeAction(InitialNavigationLinkActionContext context) {
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(true);
         domainObject.setString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY, context.getInitialNavigationLink());
         crudService.save(domainObject);
         return null;
     }
 
     @Override
-    public InitialNavigationLinkContext getActionContext(final ActionConfig actionConfig) {
-        return new InitialNavigationLinkContext(actionConfig);
+    public InitialNavigationLinkActionContext getActionContext(final ActionConfig actionConfig) {
+        return new InitialNavigationLinkActionContext(actionConfig);
     }
 }

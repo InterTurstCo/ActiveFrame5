@@ -1,14 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.action;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
@@ -17,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -24,6 +18,11 @@ import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.util.PlaceholderResolver;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sergey.Okolot Created on 03.11.2014 16:19.
@@ -35,9 +34,6 @@ public class GenericWorkflowActionHandler
 
     @Autowired
     private ProcessService processService;
-
-    @Autowired
-    private ProfileService profileService;
 
     @Override
     public SimpleActionData executeAction(SimpleActionContext context) {
@@ -97,7 +93,7 @@ public class GenericWorkflowActionHandler
     }
 
     private String buildMessage(String message, String defaultValue) {
-        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
+        return MessageResourceProvider.getMessage(message, defaultValue, GuiContext.getUserLocale());
     }
 
     private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {

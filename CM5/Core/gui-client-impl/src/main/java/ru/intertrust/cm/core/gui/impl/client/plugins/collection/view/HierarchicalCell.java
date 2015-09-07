@@ -11,12 +11,11 @@ import java.util.Set;
  *         Date: 14/02/14
  *         Time: 12:05 PM
  */
-public class HierarchicalCell extends TextCell {
-
+public class HierarchicalCell extends AbstractTextCell {
     private String drillDownStyle;
 
-    public HierarchicalCell(String style, String drillDownStyle) {
-        super(style);
+    public HierarchicalCell(String style, String drillDownStyle, String field) {
+        super(style, field);
         this.drillDownStyle = drillDownStyle;
     }
 

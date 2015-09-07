@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -29,14 +28,11 @@ import java.util.List;
 public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActionData> {
 
     @Autowired
-    private ProfileService profileService;
-
-    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
     @Override
     public SaveActionData executeAction(SaveActionContext context) {
-        String locale = profileService.getPersonLocale();
+        String locale = GuiContext.getUserLocale();
         final FormState formState = context.getFormState();
         final List<String> errorMessages =
                 PluginHandlerHelper.doServerSideValidation(formState, applicationContext,

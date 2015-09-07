@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
-import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
@@ -18,6 +17,7 @@ import ru.intertrust.cm.core.config.gui.UsersConfig;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.model.GuiException;
 
@@ -37,9 +37,6 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Autowired
     private PersonManagementService personManagementService;
-
-    @Autowired
-    private ProfileService profileService;
 
     private FormsCache editingFormsCache;
     private FormsCache searchFormsCache;
@@ -179,7 +176,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
     }
 
     private FormConfig getLocalizedFormConfig(String formName) {
-        return configurationExplorer.getLocalizedPlainFormConfig(formName, profileService.getPersonLocale());
+        return configurationExplorer.getLocalizedPlainFormConfig(formName, GuiContext.getUserLocale());
     }
 
     private class FormsCache {
@@ -225,7 +222,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
                     if (defaultFormByDomainObjectType.containsKey(domainObjectType)) {
                         throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_MANY_DEFAULT_FORMS,
                                 "There's more than 1 default form for type: ",
-                                profileService.getPersonLocale()) + domainObjectType);
+                                GuiContext.getUserLocale()) + domainObjectType);
                     }
                     defaultFormByDomainObjectType.put(domainObjectTypeInLowerCase, formConfig.getName());
                 }

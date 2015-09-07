@@ -17,6 +17,21 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Registration_Number"/>
         </uniqueKey>
+        <indices>
+            <index type="btree">
+                <field name="Registration_Number" />
+                <field name="Name" />
+            </index>
+            <index>
+                <field name="Name" />
+            </index>
+            <index>
+                <field name="Description" />
+            </index>
+        </indices>        
+        <attachment-types>
+            <attachment-type name="Outgoing_Document_Content" />
+        </attachment-types>        
     </domain-object-type>
 
     <domain-object-type name="Assignment"> <!-- ASSIGNMENT table -->

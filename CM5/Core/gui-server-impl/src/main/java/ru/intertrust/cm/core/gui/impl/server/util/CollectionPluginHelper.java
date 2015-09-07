@@ -261,4 +261,16 @@ public class CollectionPluginHelper {
         }
 
     }
+
+    public static boolean isExpandable(CollectionViewConfig collectionViewConfig){
+        boolean result = false;
+        List<CollectionColumnConfig> columnConfigs = collectionViewConfig.getCollectionDisplayConfig().getColumnConfig();
+        for (CollectionColumnConfig columnConfig : columnConfigs) {
+            if(columnConfig.isExpandable()){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
 }

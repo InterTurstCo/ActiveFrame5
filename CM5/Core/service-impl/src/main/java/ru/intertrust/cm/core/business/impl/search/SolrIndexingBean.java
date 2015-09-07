@@ -57,7 +57,7 @@ public class SolrIndexingBean {
             AbstractUpdateRequest request = requestQueue.fetchRequest();
             try {
                 solrServer.request(request);
-                if (request instanceof UpdateRequest) {
+                if (request instanceof UpdateRequest && ((UpdateRequest) request).getDocuments() != null) {
                     processed += ((UpdateRequest) request).getDocuments().size();
                 } else {
                     processed++;

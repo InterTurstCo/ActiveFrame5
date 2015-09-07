@@ -28,6 +28,7 @@ import org.apache.solr.common.SolrDocumentList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -204,9 +205,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, String targetType) {
             Set<String> types;
             if (SearchFilter.EVERYWHERE.equals(fieldName)) {
-                types = configHelper.findAllObjectTypes(areaNames, targetType);
+                //types = configHelper.findAllObjectTypes(areaNames, targetType);
+                types = Collections.singleton("*");
             } else if (SearchFilter.CONTENT.equals(fieldName)) {
-                types = configHelper.findObjectTypesWithContent(areaNames, targetType);
+                //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
+                types = Collections.singleton("*");
             } else {
                 types = configHelper.findObjectTypesContainingField(fieldName, areaNames, targetType);
             }
@@ -232,9 +235,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         .setQuery(entry.getValue().toString())
                         .addFilterQuery(SolrFields.AREA + ":" + areas)
                         .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
-                        .addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
+                        //.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                         .addField(SolrFields.MAIN_OBJECT_ID)
                         .addField(SolrUtils.SCORE_FIELD);
+                if (!"*".equals(entry.getKey())) {
+                    solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
+                }
                 if (fetchLimit > 0) {
                     solrQuery.setRows(Math.round(fetchLimit / riddlingFactor));
                 }
@@ -457,11 +463,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return foundSize * factor;
     }
 
+    @Value("${search.dump.file:search-index-dump.txt}")
+    private String dumpFileName;
+
     @Override
     public void dumpAll() {
         PrintStream out = null;
         try {
-            out = new PrintStream("search-index-dump.txt", "cp1251");
+            out = new PrintStream(dumpFileName, "cp1251");
             SolrQuery testQuery = new SolrQuery()
                     .setQuery("*:*")
                     .addField("*")

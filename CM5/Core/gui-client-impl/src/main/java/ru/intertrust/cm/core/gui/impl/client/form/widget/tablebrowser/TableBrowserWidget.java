@@ -429,8 +429,20 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             currentState.getSelectedIds().remove(id);
             handleItems(common);
             } else {
+                handlePossibleSingleChoice();
                 currentState.getSelectedIds().add(id);
                 fetchTableBrowserItems();
+            }
+
+        }
+    }
+
+    private void handlePossibleSingleChoice(){
+        if(currentState.isSingleChoice()){
+            Id idToRemove = currentState.getSelectedIds().isEmpty() ? null : currentState.getSelectedIds().iterator().next();
+            if(idToRemove != null){
+                currentState.getSelectedIds().clear();
+                localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(idToRemove), false));
             }
 
         }

@@ -530,7 +530,7 @@
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Выбрать"/>
                 <default-sort-criteria column-field="name" order="desc"/>
-                <display-values-as-links value="true"/>
+                <display-values-as-links value="true" modal-window="false"/>
 
                 <linked-form-mapping>
                     <linked-form name="organization_form" domain-object-type="Organization" modal-height="300px" modal-width="700px" resizable="true"/>
@@ -764,7 +764,7 @@
                 <single-choice value="true"/>
                 <clear-all-button text="Очистить"/>
                 <add-button image="..." text="Добавить"/>
-                <display-values-as-links value="true"/>
+                <display-values-as-links value="true" modal-window="false"/>
 
             </hierarchy-browser>
             <hierarchy-browser id="2c">

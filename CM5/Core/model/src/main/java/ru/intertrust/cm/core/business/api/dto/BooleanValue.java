@@ -8,6 +8,11 @@ package ru.intertrust.cm.core.business.api.dto;
  * Time: 16:25
  */
 public class BooleanValue extends Value<BooleanValue> {
+
+    public static BooleanValue TRUE = new BooleanValue(Boolean.TRUE);
+    public static BooleanValue FALSE = new BooleanValue(Boolean.FALSE);
+    public static BooleanValue EMPTY = new BooleanValue();
+
     private Boolean value;
 
     /**
@@ -22,6 +27,14 @@ public class BooleanValue extends Value<BooleanValue> {
      */
     public BooleanValue(Boolean value) {
         this.value = value;
+    }
+
+    /**
+     * Создает булево значение
+     * @param value булево значение
+     */
+    public BooleanValue(boolean value) {
+        this.value = value ? Boolean.TRUE : Boolean.FALSE;
     }
 
     @Override

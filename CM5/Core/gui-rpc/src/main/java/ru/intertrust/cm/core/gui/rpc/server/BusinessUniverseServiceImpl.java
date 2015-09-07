@@ -86,10 +86,12 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
         getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
+        UserInfo userInfo = getUserInfo();
+        GuiContext.get().setUserInfo(userInfo);
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
         addInformationToInitializationObject(initialization);
-        String currentLocale = profileService.getPersonLocale();
+        String currentLocale = userInfo.getLocale();
         initialization.setCurrentLocale(currentLocale);
         final BusinessUniverseConfig businessUniverseConfig = configurationService.getLocalizedConfig(BusinessUniverseConfig.class,
                 BusinessUniverseConfig.NAME, currentLocale);
@@ -112,7 +114,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setSearchConfigured(isSearchConfigured());
         Map<String, String> messages = MessageResourceProvider.getMessages(currentLocale);
         initialization.setGlobalLocalizedResources(messages);
-        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject();
+        DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(false);
         initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
         return initialization;
     }
@@ -140,7 +142,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
         final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
-                profileService.getPersonLocale());
+                GuiContext.getUserLocale());
         final String message = messageInfo.getFirst();
         final Boolean toLog = messageInfo.getSecond();
         if (toLog) {
@@ -218,6 +220,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         final Client client = (Client) this.getThreadLocalRequest().getSession().getAttribute(CLIENT_INFO_SESSION_ATTRIBUTE);
         final UserInfo userInfo = new UserInfo();
         userInfo.setTimeZoneId(client.getTimeZoneId());
+        userInfo.setLocale(profileService.getPersonLocale());
         return userInfo;
     }
 

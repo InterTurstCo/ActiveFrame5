@@ -6,11 +6,13 @@ import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonManagementService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 
@@ -18,7 +20,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 public class AfterSaveTestType14 implements AfterSaveExtensionHandler{
 
     @Autowired
-    private PersonManagementService personManagementService;
+    private CollectionsService collectionsService;
 
     @Autowired
     private CrudService crudService;
@@ -27,23 +29,24 @@ public class AfterSaveTestType14 implements AfterSaveExtensionHandler{
     @Override
     public void onAfterSave(DomainObject domainObject, List<FieldModification> changedFields) {
         //Поиск персоны
-        Id person1Id = personManagementService.getPersonId("person1");
+        IdentifiableObjectCollection collection =  collectionsService.findCollectionByQuery("select id from test_type_13");
         
         //Получаем с блокировкой, Меняем поле и сохраняем
-        DomainObject person1 = crudService.findAndLock(person1Id);
-        String lastName = person1.getString("LastName");
+        DomainObject testType13 = crudService.findAndLock(collection.get(0).getId());
+        String lastName = testType13.getString("description");
         
         Pattern p = Pattern.compile("[^\\d]*(\\d+)");
         Matcher m = p.matcher(lastName);
-        int num = 0;
+        long num = 0;
         if (m.find()) {
-            num = Integer.parseInt(m.group(1));
+            num = Long.parseLong(m.group(1));
             num++;
         }
         
-        person1.setString("LastName", "LastName-" + num);
-        System.out.println("person1 last name = " + person1.getString("LastName"));
-        crudService.save(person1);        
+        testType13.setString("description", "description-" + num);
+        testType13.setString("description2", "description-" + num);
+        System.out.println("person1 last name = " + testType13.getString("description"));
+        crudService.save(testType13);        
     }
 
 }

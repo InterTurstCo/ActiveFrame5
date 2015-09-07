@@ -3,8 +3,7 @@ package ru.intertrust.cm.core.dao.impl.extension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -20,7 +19,6 @@ import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Stateless(name = "AfterCommitExtensionPointService")
 @Local(AfterCommitExtensionPointService.class)
@@ -38,12 +36,10 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public void afterCommit(Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap,
-                            List<DomainObject> savedDomainObjects, List<DomainObject> createdDomainObjects,
-                            Map<Id, DomainObject> deletedDomainObjects, List<Id> changeStatusDomainObjectIds) {
+    public void afterCommit(DomainObjectsModification domainObjectsModification) {
         AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
 
-        for (DomainObject domainObject : createdDomainObjects) {
+        for (DomainObject domainObject : domainObjectsModification.getCreatedDomainObjects()) {
             if (domainObject != null) {
                 // Вызов точки расширения после создания после коммита
                 List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
@@ -57,7 +53,8 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             }
         }
 
-        List<DomainObject> changeStatusDomainObjects = domainObjectDao.find(changeStatusDomainObjectIds, sysAccessTocken);
+        List<DomainObject> changeStatusDomainObjects =
+                domainObjectDao.find(domainObjectsModification.getChangeStatusDomainObjectIds(), sysAccessTocken);
         for (DomainObject domainObject : changeStatusDomainObjects) {
             if (domainObject != null) {
                 // Вызов точки расширения после смены статуса после коммита
@@ -72,7 +69,7 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             }
         }
 
-        for (DomainObject domainObject : savedDomainObjects) {
+        for (DomainObject domainObject : domainObjectsModification.getSavedDomainObjects()) {
             if (domainObject != null) {
 
                 // Вызов точки расширения после сохранения после коммита
@@ -82,12 +79,13 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
                 for (String typeName : parentTypes) {
                     AfterSaveAfterCommitExtensionHandler extension = extensionService
                             .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
-                    extension.onAfterSave(domainObject, getFieldModificationList(savedDomainObjectsModificationMap.get(domainObject.getId())));
+                    extension.onAfterSave(domainObject,
+                            domainObjectsModification.getFieldModificationList(domainObject.getId()));
                 }
             }
         }
 
-        for (DomainObject deletedDomainObject : deletedDomainObjects.values()) {
+        for (DomainObject deletedDomainObject : domainObjectsModification.getDeletedDomainObjects()) {
             // Вызов точки расширения после удаления после коммита
             List<String> parentTypes = getAllParentTypes(deletedDomainObject.getTypeName());
             //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
@@ -116,14 +114,6 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
         }
 
-        return result;
-    }
-
-    private List<FieldModification> getFieldModificationList(Map<String, FieldModification> map) {
-        List<FieldModification> result = new ArrayList<FieldModification>();
-        for (FieldModification field : map.values()) {
-            result.add(field);
-        }
         return result;
     }
 }

@@ -96,11 +96,11 @@ table.hierarh-browser-inline td {
 }
 
 .popup-chosen-content {
-    background: #fff;
-    border-bottom: 1px solid gray;
-    margin: 0 8px 0 6px;
+    background: #ffffff;
+    border-radius: 1px;
+    margin: 0 8px 5px 6px;
     overflow-x: hidden;
-    padding: 5px 5px 0 0;
+    padding: 5px 5px 8px 0;
 }
 
 .white-background {
@@ -110,11 +110,11 @@ table.hierarh-browser-inline td {
 .grey-background {
     background: #DCDCDC;
     margin-left: 6px;
-    margin-right: 8px;
+    margin-right: 3px;
 }
 
 .hierarchyBrowserNode {
-    background: #DCDCDC;
+    /*background: #DCDCDC;*/
     padding-right: 4px;
 }
 
@@ -174,8 +174,7 @@ table.hierarh-browser-inline td {
 .node-link {
     margin-left: 7px;
     margin-top: 2px;
-    color: white !important;
-    border-bottom: 1px dotted #fff;
+    border-bottom: 1px dotted #356A9E;
 }
 
 .node-item-link {
@@ -190,6 +189,8 @@ table.hierarh-browser-inline td {
 
 .node-section {
     background: #DCDCDC;
+    border-bottom: 7px solid #dcdcdc;
+    border-right: 7px solid #dcdcdc;
     width: 100%;
 }
 
@@ -206,6 +207,7 @@ table.hierarh-browser-inline td {
 .node-section-scroll {
     display: block;
     overflow-x: auto;
+    padding-right: 5px;
 }
 
 .search-bar {
@@ -238,38 +240,58 @@ table.hierarh-browser-inline td {
 }
 
 .input-text {
-    border: #AFBCC3;
-    border-style: solid;
-    -moz-border-top-right-radius: 5px 5px;
-    -moz-border-bottom-right-radius: 5px 5px;
--webkit-border( top-right-radius : 5 px 5 px );
--webkit-border( bottom-right-radius : 5 px 5 px );
-    border-top-right-radius: 5px 5px;
-    border-bottom-right-radius: 5px 5px;
-    padding: 2px 2px 3px 4px;
+    border: 2px solid #AFBCC3;
+    border-radius: 0 5px 5px 0;
+    box-sizing: border-box;
+    color: #1F76A5;
+    height: 25px;
     margin-right: 8px;
-    width: 80%;
-    height: 100%;
+    padding: 2px 2px 3px 4px;
+    width: 97%;
 }
+
+/* .input-text Placeholders style */
+.input-text::-webkit-input-placeholder {
+    color: #91A0BB;
+    line-height: 13px;
+}
+
+.input-text:-moz-placeholder { /* Firefox 18- */
+    color: #91A0BB;
+    line-height: 13px;
+}
+
+.input-text::-moz-placeholder {  /* Firefox 19+ */
+    color: #91A0BB;
+    line-height: 13px;
+}
+
+.input-text:-ms-input-placeholder {
+    color: #91A0BB;
+    line-height: 13px;
+}
+/* end .input-text Placeholders style */
 
 .selected-node-link {
     width: 100%;
-    background: #356a9e;;
-    vertical-align: middle !important;
+    padding: 7px 0 5px;
+    /* background: #356a9e; */
+    display: block;
+    vertical-align: middle;
 }
 
 .link-arrow {
     float: right;
-    vertical-align: middle !important;
-    padding-bottom: 2px;
+    padding: 2px 0 0 5px;
+    vertical-align: middle;
 }
 
 .selected-node-link td {
-    vertical-align: middle !important;
+    vertical-align: middle;
 }
 
 .selected-node-link a {
-    color: #fff !important;
+    color: #356A9E;
 }
 
 .reset-button {

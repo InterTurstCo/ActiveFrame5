@@ -161,4 +161,12 @@ public class HierarchyBrowserUtil {
                 && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId()))));
 
     }
+    public static boolean isModalWindow(DisplayValuesAsLinksConfig commonDisplayValuesAsLinks,
+                                      DisplayValuesAsLinksConfig nodeDisplayValuesAsLinks){
+        return nodeDisplayValuesAsLinks == null
+                ? (commonDisplayValuesAsLinks == null || commonDisplayValuesAsLinks.isModalWindow())
+                : nodeDisplayValuesAsLinks.isModalWindow();
+
+    }
+
 }

@@ -5,7 +5,9 @@ import com.google.gwt.user.client.Timer;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.system.InitialNavigationLinkAction;
-import ru.intertrust.cm.core.gui.model.action.system.InitialNavigationLinkContext;
+import ru.intertrust.cm.core.gui.impl.client.action.system.NavigationPanelStateAction;
+import ru.intertrust.cm.core.gui.model.action.system.InitialNavigationLinkActionContext;
+import ru.intertrust.cm.core.gui.model.action.system.NavigationPanelStateActionContext;
 
 /**
  * Created by
@@ -27,9 +29,26 @@ public class UserSettingsUtil {
         final Timer timer = new Timer() {
             @Override
             public void run() {
-                InitialNavigationLinkContext context = new InitialNavigationLinkContext(UserSettingsUtil.createActionConfig());
+                InitialNavigationLinkActionContext context = new InitialNavigationLinkActionContext(UserSettingsUtil.createActionConfig());
                 context.setInitialNavigationLink(History.getToken());
-                InitialNavigationLinkAction action = ComponentRegistry.instance.get(InitialNavigationLinkContext.COMPONENT_NAME);
+                InitialNavigationLinkAction action = ComponentRegistry.instance.get(InitialNavigationLinkActionContext.COMPONENT_NAME);
+                action.setInitialContext(context);
+                action.perform();
+                this.cancel();
+
+            }
+        };
+        timer.schedule(DELAY_FOR_CURRENT_LINK_STORING);
+
+    }
+
+    public static void storeNavigationPanelState(final boolean pinned) {
+        final Timer timer = new Timer() {
+            @Override
+            public void run() {
+                NavigationPanelStateActionContext context = new NavigationPanelStateActionContext(UserSettingsUtil.createActionConfig());
+                context.setPinned(pinned);
+                NavigationPanelStateAction action = ComponentRegistry.instance.get(NavigationPanelStateActionContext.COMPONENT_NAME);
                 action.setInitialContext(context);
                 action.perform();
                 this.cancel();

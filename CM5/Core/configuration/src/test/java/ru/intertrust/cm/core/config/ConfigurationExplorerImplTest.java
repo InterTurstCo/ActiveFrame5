@@ -86,11 +86,11 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(14, domainObjectTypeConfigs.size());
+        assertEquals(17, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         List<String> tables = Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Assignment",
-                "EmployeeNew", "Incoming_Document", "Incoming_Document2");
+                "EmployeeNew", "Incoming_Document", "Incoming_Document2", "Attachment", "Status");
 
         List<String> auditLogTables = createAuditLogTables(tables);
         domainObjectNames.addAll(tables);
@@ -98,7 +98,7 @@ public class ConfigurationExplorerImplTest {
 
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             String name = domainObjectTypeConfig.getName();
-            assertTrue(domainObjectNames.contains(name));
+            assertTrue("Contains " + name, domainObjectNames.contains(name));
             domainObjectNames.remove(name);
         }
     }
@@ -271,6 +271,7 @@ public class ConfigurationExplorerImplTest {
         confCore.setConfigurationPaths(new ArrayList<String>());
         confCore.getConfigurationPaths().add(configPath);
         confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
+        confCore.getConfigurationPaths().add(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
         confCore.getConfigurationPaths().add(ACCESS_CONFIG_PATH);
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);

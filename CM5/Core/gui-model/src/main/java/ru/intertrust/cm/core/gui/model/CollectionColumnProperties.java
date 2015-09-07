@@ -36,6 +36,7 @@ public class CollectionColumnProperties implements Dto {
     public static final String HIDDEN = "hidden";
     public static final String CHILD_COLLECTIONS_CONFIG = "childCollectionsConfig";
     public static final String DRILL_DOWN_STYLE = "textBreakStyle";
+    public static final String EXPANDABLE= "expandable";
 
     private AscSortCriteriaConfig ascSortCriteriaConfig;
     private DescSortCriteriaConfig descSortCriteriaConfig;

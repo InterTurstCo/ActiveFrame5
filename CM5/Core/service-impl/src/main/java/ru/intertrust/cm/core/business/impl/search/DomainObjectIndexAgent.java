@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.ContentStream;
 import org.slf4j.Logger;
@@ -42,6 +46,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
@@ -58,7 +63,7 @@ import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
  * @author apirozhkov
  */
 @ExtensionPoint
-public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
+public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterDeleteExtensionHandler {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
 
@@ -108,24 +113,26 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
                 doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
                 doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
                 for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+                    SearchFieldType type =
+                            configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
                     Object value = calculateField(domainObject, fieldConfig);
-                    SearchConfigHelper.FieldDataType type =
-                            configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType(), value);
-                    //test this area
-                    if (isTextField(type.getDataType())) {
+                    if (type == null) {
+                        type = getTypeByValue(value);
+                    }
+                    if (isTextField(type)) {
                         List<String> languages =
                                 configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
                         /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
                             doc.addField(name, value);
                         }*/
-                        for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(),
-                                type.isMultivalued())) {
+                        boolean multiValued = type == SearchFieldType.TEXT_MULTI;
+                        for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), multiValued)) {
                             doc.addField(name, value);
                         }
                     } else {
                         StringBuilder fieldName = new StringBuilder()
                             .append(SolrFields.FIELD_PREFIX)
-                            .append(SearchFieldType.getFieldType(type.getDataType(), type.isMultivalued()).getInfix())
+                            .append(type.getInfix())
                             .append(fieldConfig.getName().toLowerCase());
                         doc.addField(fieldName.toString(), value);
                     }
@@ -251,20 +258,6 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             }
         }
         return ids;
-        /*if (values.size() == 0) {
-            return null;
-        }
-        if (values.size() != 1) {
-            log.warn("Unexpected result count (" + values.size() + ") while calculating main object for " + objectId +
-                    " by expression: " + parentConfig.getDoel());
-        }
-        Value value = values.get(0);
-        if (!(value instanceof ReferenceValue)) {
-            log.warn("Wrong result type (" + value.getFieldType() + ") of main object reference for " + objectId +
-                    " by expression: " + parentConfig.getDoel());
-            return null;
-        }
-        return ((ReferenceValue) value).get();*/
     }
 
     private Object convertValue(Value<?> value) {
@@ -304,32 +297,41 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
            .append(":").append(config.getTargetObjectType());
         return buf.toString();
     }
-/*
-    private Iterable<String> getSolrTextFieldNames(final String fieldName, final boolean multivalued,
-            final List<String> languages) {
-        return new Iterable<String>() {
-            @Override
-            public Iterator<String> iterator() {
-                return new DelegatingIterator<String>(languages) {
 
-                    @Override
-                    public String next() {
-                        String lang = super.next();
-                        return new StringBuilder()
-                                .append(SolrFields.FIELD_PREFIX)
-                                .append(lang.isEmpty()
-                                        ? SearchFieldType.getFieldType(FieldType.STRING, multivalued).getInfix()
-                                        : "_" + lang)
-                                .append(fieldName.toLowerCase())
-                                .toString();
-                    }
-                };
-            }
-        };
+    private boolean isTextField(SearchFieldType type) {
+        return type == SearchFieldType.TEXT || type == SearchFieldType.TEXT_MULTI;
     }
-*/
-    private boolean isTextField(FieldType type) {
-        return type == FieldType.STRING || type == FieldType.TEXT;
+
+    private SearchFieldType getTypeByValue(Object value) {
+        if (value == null) {
+            return SearchFieldType.TEXT;
+        }
+        if (value.getClass().isArray()) {
+            return SearchFieldType.getFieldType(getFieldType(((Object[]) value)[0]), true);
+        }
+        if (value instanceof Collection<?>) {
+            return SearchFieldType.getFieldType(getFieldType(((Collection<?>) value).iterator().next()), true);
+        }
+        return SearchFieldType.getFieldType(getFieldType(value), false);
+    }
+
+    private FieldType getFieldType(Object value) {
+        if (value == null || value instanceof String) {
+            return FieldType.STRING;
+        }
+        if (value instanceof Long || value instanceof Integer || value instanceof Byte) {
+            return FieldType.LONG;
+        }
+        if (value instanceof Date || value instanceof Calendar) {
+            return FieldType.DATETIME;
+        }
+        if (value instanceof Float || value instanceof Double || value instanceof BigDecimal) {
+            return FieldType.DECIMAL;
+        }
+        if (value instanceof Boolean) {
+            return FieldType.BOOLEAN;
+        }
+        return FieldType.STRING;    //*****
     }
 
     public class SolrAttachmentFeeder implements ContentStream {
@@ -370,5 +372,19 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler {
             return new InputStreamReader(getStream());
         }
 
+    }
+
+    @Override
+    public void onAfterDelete(DomainObject deletedDomainObject) {
+        List<SearchConfigHelper.SearchAreaDetailsConfig> configs =
+                configHelper.findEffectiveConfigs(deletedDomainObject.getTypeName());
+        if (configs.size() == 0) {
+            return;
+        }
+        ArrayList<String> solrIds = new ArrayList<>(configs.size());
+        for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
+            solrIds.add(createUniqueId(deletedDomainObject, config));
+        }
+        requestQueue.addRequest(new UpdateRequest().deleteById(solrIds));
     }
 }

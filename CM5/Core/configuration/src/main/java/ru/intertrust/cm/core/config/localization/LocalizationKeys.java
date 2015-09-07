@@ -57,6 +57,7 @@ public class LocalizationKeys {
     public static final String DONE_BUTTON_KEY = "DoneButton";
     public static final String SAVE_BUTTON_KEY = "SaveButton";
     public static final String CHANGE_BUTTON_KEY = "ChangeButton";
+    public static final String EDIT_BUTTON_KEY = "EditButton";
     public static final String FIND_BUTTON_KEY = "FindButton";
     public static final String CONTINUE_BUTTON_KEY = "ContinueButton";
 
@@ -175,6 +176,46 @@ public class LocalizationKeys {
     public static final String FRIDAY_FIRST_CAPITAL_KEY = "FridayFirstCapital";
     public static final String SATURDAY_FIRST_CAPITAL_KEY = "SaturdayFirstCapital";
 
+    public static final String SUNDAY_FULL_KEY = "SundayFull";
+    public static final String MONDAY_FULL_KEY = "MondayFull";
+    public static final String TUESDAY_FULL_KEY = "TuesdayFull";
+    public static final String WEDNESDAY_FULL_KEY = "WednesdayFull";
+    public static final String THURSDAY_FULL_KEY = "ThursdayFull";
+    public static final String FRIDAY_FULL_KEY = "FridayFull";
+    public static final String SATURDAY_FULL_KEY = "SaturdayFull";
+
+    public static final String SUNDAY_FULL_STANDALONE_KEY = "SundayFullStandalone";
+    public static final String MONDAY_FULL_STANDALONE_KEY = "MondayFullStandalone";
+    public static final String TUESDAY_FULL_STANDALONE_KEY = "TuesdayFullStandalone";
+    public static final String WEDNESDAY_FULL_STANDALONE_KEY = "WednesdayFullStandalone";
+    public static final String THURSDAY_FULL_STANDALONE_KEY = "ThursdayFullStandalone";
+    public static final String FRIDAY_FULL_STANDALONE_KEY = "FridayFullStandalone";
+    public static final String SATURDAY_FULL_STANDALONE_KEY = "SaturdayFullStandalone";
+
+    public static final String SUNDAY_NARROW_KEY = "SundayNarrow";
+    public static final String MONDAY_NARROW_KEY = "MondayNarrow";
+    public static final String TUESDAY_NARROW_KEY = "TuesdayNarrow";
+    public static final String WEDNESDAY_NARROW_KEY = "WednesdayNarrow";
+    public static final String THURSDAY_NARROW_KEY = "ThursdayNarrow";
+    public static final String FRIDAY_NARROW_KEY = "FridayNarrow";
+    public static final String SATURDAY_NARROW_KEY = "SaturdayNarrow";
+
+    public static final String SUNDAY_SHORT_KEY = "SundayShort";
+    public static final String MONDAY_SHORT_KEY = "MondayShort";
+    public static final String TUESDAY_SHORT_KEY = "TuesdayShort";
+    public static final String WEDNESDAY_SHORT_KEY = "WednesdayShort";
+    public static final String THURSDAY_SHORT_KEY = "ThursdayShort";
+    public static final String FRIDAY_SHORT_KEY = "FridayShort";
+    public static final String SATURDAY_SHORT_KEY = "SaturdayShort";
+
+    public static final String SUNDAY_SHORT_STANDALONE_KEY = "SundayShortStandalone";
+    public static final String MONDAY_SHORT_STANDALONE_KEY = "MondayShortStandalone";
+    public static final String TUESDAY_SHORT_STANDALONE_KEY = "TuesdayShortStandalone";
+    public static final String WEDNESDAY_SHORT_STANDALONE_KEY = "WednesdayShortStandalone";
+    public static final String THURSDAY_SHORT_STANDALONE_KEY = "ThursdayShortStandalone";
+    public static final String FRIDAY_SHORT_STANDALONE_KEY = "FridayShortStandalone";
+    public static final String SATURDAY_SHORT_STANDALONE_KEY = "SaturdayShortStandalone";
+
     public static final String JANUARY_MONTH_SHORT_KEY = "JanuaryMonthShort";
     public static final String FEBRUARY_MONTH_SHORT_KEY = "FebruaryMonthShort";
     public static final String MARCH_MONTH_SHORT_KEY = "MarchMonthShort";
@@ -188,5 +229,86 @@ public class LocalizationKeys {
     public static final String NOVEMBER_MONTH_SHORT_KEY = "NovemberMonthShort";
     public static final String DECEMBER_MONTH_SHORT_KEY = "DecemberMonthShort";
 
+    public static final String JANUARY_MONTH_NARROW_KEY = "JanuaryMonthNarrow";
+    public static final String FEBRUARY_MONTH_NARROW_KEY = "FebruaryMonthNarrow";
+    public static final String MARCH_MONTH_NARROW_KEY = "MarchMonthNarrow";
+    public static final String APRIL_MONTH_NARROW_KEY = "AprilMonthNarrow";
+    public static final String MAY_MONTH_NARROW_KEY = "MayMonthNarrow";
+    public static final String JUN_MONTH_NARROW_KEY = "JunMonthNarrow";
+    public static final String JULY_MONTH_NARROW_KEY = "JulyMonthNarrow";
+    public static final String AUGUST_MONTH_NARROW_KEY = "AugustMonthNarrow";
+    public static final String SEPTEMBER_MONTH_NARROW_KEY = "SeptemberMonthNarrow";
+    public static final String OCTOBER_MONTH_NARROW_KEY = "OctoberMonthNarrow";
+    public static final String NOVEMBER_MONTH_NARROW_KEY = "NovemberMonthNarrow";
+    public static final String DECEMBER_MONTH_NARROW_KEY = "DecemberMonthNarrow";
+
+    public static final String JANUARY_MONTH_FULL_STANDALONE_KEY = "JanuaryMonthFullStandalone";
+    public static final String FEBRUARY_MONTH_FULL_STANDALONE_KEY = "FebruaryMonthFullStandalone";
+    public static final String MARCH_MONTH_FULL_STANDALONE_KEY = "MarchMonthFullStandalone";
+    public static final String APRIL_MONTH_FULL_STANDALONE_KEY = "AprilMonthFullStandalone";
+    public static final String MAY_MONTH_FULL_STANDALONE_KEY = "MayMonthFullStandalone";
+    public static final String JUN_MONTH_FULL_STANDALONE_KEY = "JunMonthFullStandalone";
+    public static final String JULY_MONTH_FULL_STANDALONE_KEY = "JulyMonthFullStandalone";
+    public static final String AUGUST_MONTH_FULL_STANDALONE_KEY = "AugustMonthFullStandalone";
+    public static final String SEPTEMBER_MONTH_FULL_STANDALONE_KEY = "SeptemberMonthFullStandalone";
+    public static final String OCTOBER_MONTH_FULL_STANDALONE_KEY = "OctoberMonthFullStandalone";
+    public static final String NOVEMBER_MONTH_FULL_STANDALONE_KEY = "NovemberMonthFullStandalone";
+    public static final String DECEMBER_MONTH_FULL_STANDALONE_KEY = "DecemberMonthFullStandalone";
+
+    public static final String JANUARY_MONTH_FULL_KEY = "JanuaryMonthFull";
+    public static final String FEBRUARY_MONTH_FULL_KEY = "FebruaryMonthFull";
+    public static final String MARCH_MONTH_FULL_KEY = "MarchMonthFull";
+    public static final String APRIL_MONTH_FULL_KEY = "AprilMonthFull";
+    public static final String MAY_MONTH_FULL_KEY = "MayMonthFull";
+    public static final String JUN_MONTH_FULL_KEY = "JunMonthFull";
+    public static final String JULY_MONTH_FULL_KEY = "JulyMonthFull";
+    public static final String AUGUST_MONTH_FULL_KEY = "AugustMonthFull";
+    public static final String SEPTEMBER_MONTH_FULL_KEY = "SeptemberMonthFull";
+    public static final String OCTOBER_MONTH_FULL_KEY = "OctoberMonthFull";
+    public static final String NOVEMBER_MONTH_FULL_KEY = "NovemberMonthFull";
+    public static final String DECEMBER_MONTH_FULL_KEY = "DecemberMonthFull";
+
+    public static final String QUARTER_FIRST_SHORT_KEY = "QuarterFirstShort";
+    public static final String QUARTER_SECOND_SHORT_KEY = "QuarterSecondShort";
+    public static final String QUARTER_THIRD_SHORT_KEY = "QuarterThirdShort";
+    public static final String QUARTER_FORTH_SHORT_KEY = "QuarterForthShort";
+
+    public static final String QUARTER_FIRST_FULL_KEY = "QuarterFirstFull";
+    public static final String QUARTER_SECOND_FULL_KEY = "QuarterSecondFull";
+    public static final String QUARTER_THIRD_FULL_KEY = "QuarterThirdFull";
+    public static final String QUARTER_FORTH_FULL_KEY = "QuarterForthFull";
+
+    public static final String DATE_SEPARATOR_KEY = "DateSeparator";
+
+    public static final String DATE_FORMAT_FULL_KEY = "DateFormatFull";
+    public static final String DATE_FORMAT_LONG_KEY = "DateFormatLong";
+    public static final String DATE_FORMAT_MEDIUM_KEY = "DateFormatMedium";
+    public static final String DATE_FORMAT_SHORT_KEY = "DateFormatShort";
+
+    public static final String ERA_BEFORE_FULL_KEY = "EraFullBefore";
+    public static final String ERA_NOW_FULL_KEY = "EraFullNow";
+
+    public static final String ERA_BEFORE_SHORT_KEY = "EraShortBefore";
+    public static final String ERA_NOW_SHORT_KEY = "EraShortNow";
+
+    public static final String FORMAT_HOUR_24_MINUTE_KEY = "FormatHour24Minute";
+    public static final String FORMAT_HOUR_24_MINUTE_SECOND_KEY = "FormatHour24MinuteSecond";
+    public static final String FORMAT_MONTH_ABBREV_DAY_KEY = "FormatMonthAbbrevDay";
+    public static final String FORMAT_MONTH_FULL_DAY_KEY = "FormatMonthFullDay";
+    public static final String FORMAT_MONTH_FULL_WEEKDAY_DAY_KEY = "FormatMonthFullWeekdayDay";
+    public static final String FORMAT_MONTH_NUM_DAY_KEY = "FormatMonthNumDay";
+    public static final String FORMAT_YEAR_MONTH_ABBREV_KEY = "FormatYearMonthAbbrev";
+
+    public static final String FORMAT_YEAR_MONTH_ABBREV_DAY_KEY = "FormatYearMonthAbbrevDay";
+    public static final String FORMAT_YEAR_MONTH_FULL_KEY = "FormatYearMonthFull";
+    public static final String FORMAT_YEAR_MONTH_FULL_DAY_KEY = "FormatYearMonthDayFull";
+    public static final String FORMAT_YEAR_MONTH_NUM_KEY = "FormatYearMonthNum";
+    public static final String FORMAT_YEAR_MONTH_NUM_DAY_KEY = "FormatYearMonthNumDay";
+    public static final String FORMAT_YEAR_MONTH_WEEKDAY_DAY_KEY = "FormatYearMonthWeekdayDay";
+    public static final String FORMAT_YEAR_QUARTER_FULL_KEY = "FormatYearQuarterFull";
+    public static final String FORMAT_YEAR_QUARTER_SHORT_KEY = "FormatYearQuarterShort";
+
     public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
+    public static final String MORE_ITEMS_KEY = "MoreItems";
+    public static final String NO_ITEMS_FETCHED = "NoItemsFetched";
 }

@@ -15,25 +15,24 @@ import ru.intertrust.cm.core.gui.model.counters.CounterKey;
 import java.util.*;
 
 class NavigationTreeBuilder {
-
     private Tree.Resources resources;
     private String childToOpenName;
-    private List<LinkConfig> linkConfigs;
-    private String groupName;
+    private ChildLinksConfig childLinksConfig;
     private Tree tree;
     private List<SelectionHandler<TreeItem>> handlers = new ArrayList<>();
     private List<CounterDecorator> counterDecorators = new ArrayList<>();
-
-    public NavigationTreeBuilder(List<LinkConfig> linkConfigs, String groupName) {
-        this.linkConfigs = linkConfigs;
-        this.groupName = groupName;
+    private int visibleCharsLength;
+    private boolean baseAutoCut;
+    public NavigationTreeBuilder(ChildLinksConfig childLinksConfig) {
+        this.childLinksConfig = childLinksConfig;
     }
 
     public Tree toTree() {
         tree = createTreeWidget(resources);
         addSelectionEventToTree(tree, handlers);
-        if (groupName != null) {
-            TreeItem group = composeGroupItem(groupName);
+        List<LinkConfig> linkConfigs = childLinksConfig.getLinkConfigList();
+        if (childLinksConfig.getGroupName() != null) {
+            TreeItem group = composeGroupItem();
             for (LinkConfig linkConfig : linkConfigs) {
                 buildGroup(linkConfig, group);
             }
@@ -49,9 +48,10 @@ class NavigationTreeBuilder {
 
     private void buildGroup(LinkConfig linkConfig, TreeItem group) {
         tree.addItem(group);
-        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+        int startDepth = 0;
+        TreeItem treeItem = composeTreeItem(linkConfig, startDepth);
         collectCounterDecorators(linkConfig, treeItem);
-        addChildrenTreeItems(treeItem, linkConfig);
+        addChildrenTreeItems(treeItem, linkConfig, startDepth);
         group.addItem(treeItem);
         if (linkConfig.getName().equals(childToOpenName)) {
             treeItem.setSelected(true);
@@ -71,10 +71,10 @@ class NavigationTreeBuilder {
     }
 
     private void buildTree(LinkConfig linkConfig) {
-        LinkPluginDefinition pluginDefinition = linkConfig.getPluginDefinition();
-        TreeItem treeItem = composeTreeItem(linkConfig.getName(), linkConfig.getDisplayText(), pluginDefinition);
+        int startDepth = 0;
+        TreeItem treeItem = composeTreeItem(linkConfig, startDepth);
         collectCounterDecorators(linkConfig, treeItem);
-        addChildrenTreeItems(treeItem, linkConfig);
+        addChildrenTreeItems(treeItem, linkConfig, startDepth);
         tree.addItem(treeItem);
         if (linkConfig.getName().equals(childToOpenName)) {
             treeItem.setSelected(true);
@@ -97,17 +97,28 @@ class NavigationTreeBuilder {
         return this;
     }
 
-    private TreeItem composeGroupItem(String displayText) {
+    public NavigationTreeBuilder setVisibleCharsLength(int  visibleCharsLength) {
+        this.visibleCharsLength = visibleCharsLength;
+        return this;
+    }
+    public NavigationTreeBuilder setBaseAutoCut(boolean baseAutoCut) {
+        this.baseAutoCut = baseAutoCut;
+        return this;
+    }
+
+    private TreeItem composeGroupItem() {
         Label label = new Label();
         label.getElement().getStyle().setFloat(Style.Float.LEFT);
-
-        if (displayText.length() > 18) {
-            String cutDisplayText = displayText.substring(0, 18);
+        String displayText = childLinksConfig.getGroupName();
+        Boolean autoCut = childLinksConfig.isAutoCut();
+        int startDepth = 0;
+        if (isTextCut(displayText, autoCut, startDepth)) {
+            String cutDisplayText = displayText.substring(0, visibleCharsLength);
             label.setText(cutDisplayText + "...");
-            label.setTitle(displayText);
         } else {
             label.setText(displayText);
         }
+        label.setTitle(getTooltip(childLinksConfig.getTooltip(), displayText, autoCut, startDepth));
         label.setStyleName("tree-label");
 
         final TreeItem treeItem = new TreeItem(label);
@@ -120,18 +131,22 @@ class NavigationTreeBuilder {
         return treeItem;
     }
 
-    private TreeItem composeTreeItem(String treeItemName, String displayText, LinkPluginDefinition pluginDefinition) {
+    private TreeItem composeTreeItem(LinkConfig linkConfig, int depth) {
+        String displayText = linkConfig.getDisplayText();
+        String treeItemName = linkConfig.getName();
+
+        Boolean autoCut = linkConfig.isAutoCut();
         Panel container = new AbsolutePanel();
         container.setStyleName("tree-label");
         container.getElement().getStyle().clearOverflow();
         Label label = new Label();
-        if (displayText.length() > 18) {
-            String cutDisplayText = displayText.substring(0, 18);
+        if (isTextCut(displayText, autoCut, depth)) {
+            String cutDisplayText = displayText.substring(0, visibleCharsLength);
             label.setText(cutDisplayText + "...");
-            label.setTitle(displayText);
         } else {
             label.setText(displayText);
         }
+        label.setTitle(getTooltip(linkConfig.getTooltip(), displayText, autoCut, depth));
         label.setStyleName("treeItemTitle");
         label.getElement().getStyle().setTextDecoration(Style.TextDecoration.UNDERLINE);
         container.add(label);
@@ -141,11 +156,21 @@ class NavigationTreeBuilder {
         Map<String, Object> treeUserObjects = new HashMap<>();
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_NAME, treeItemName);
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT, treeItem.getText());
+        LinkPluginDefinition pluginDefinition = linkConfig.getPluginDefinition();
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
 
         treeItem.addStyleName("tree-item-padding-style");
         return treeItem;
+    }
+
+    private boolean isTextCut(String displayText, Boolean autoCut, int depth){
+        return ((autoCut != null && autoCut) || (autoCut == null && baseAutoCut))
+                && displayText.length() > visibleCharsLength && depth < 5;
+    }
+
+    private String getTooltip(String tooltip, String displayText, Boolean autoCut, int depth){
+        return tooltip == null ? (isTextCut(displayText, autoCut, depth) ? displayText : "") : tooltip;
     }
 
     private void fireEventsOnChildrenToOpen() {
@@ -172,16 +197,15 @@ class NavigationTreeBuilder {
         }
     }
 
-    private void addChildrenTreeItems(TreeItem parentTreeItem, LinkConfig parentLinkConfig) {
+    private void addChildrenTreeItems(TreeItem parentTreeItem, LinkConfig parentLinkConfig, int depth) {
         List<ChildLinksConfig> childLinksConfigs = parentLinkConfig.getChildLinksConfigList();
         for (ChildLinksConfig childLinksConfig : childLinksConfigs) {
             List<LinkConfig> linkConfigList = childLinksConfig.getLinkConfigList();
             for (LinkConfig linkConfig : linkConfigList) {
-                TreeItem item = composeTreeItem(
-                        linkConfig.getName(), linkConfig.getDisplayText(), linkConfig.getPluginDefinition());
+                TreeItem item = composeTreeItem(linkConfig, depth);
                 collectCounterDecorators(linkConfig, item);
                 parentTreeItem.addItem(item);
-                addChildrenTreeItems(item, linkConfig);
+                addChildrenTreeItems(item, linkConfig, ++depth);
             }
         }
     }

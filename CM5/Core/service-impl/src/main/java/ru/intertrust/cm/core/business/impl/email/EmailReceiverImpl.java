@@ -22,6 +22,7 @@ import javax.mail.search.FlagTerm;
 import javax.mail.search.NotTerm;
 import javax.mail.search.SearchTerm;
 
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,11 +207,10 @@ public class EmailReceiverImpl implements EmailReceiver {
         DomainObject attachment = attachmentService.createAttachmentDomainObjectFor(messageId, "email_message_attachment");
         attachment.setString("Name", mailAttachment.fileName);
         attachment.setString("mimetype", mailAttachment.contentType);
-        SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(mailAttachment.inputStream);
+        DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(mailAttachment.inputStream, false);
 
         RemoteInputStream remoteInputStream;
-        remoteInputStream = simpleRemoteInputStream.export();
-        DomainObject result = attachmentService.saveAttachment(remoteInputStream, attachment);
+        DomainObject result = attachmentService.saveAttachment(directRemoteInputStream, attachment);
         return result;
     }
 

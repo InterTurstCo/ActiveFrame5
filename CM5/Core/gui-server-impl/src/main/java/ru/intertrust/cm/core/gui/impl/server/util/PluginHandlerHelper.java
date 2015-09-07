@@ -119,14 +119,14 @@ public class PluginHandlerHelper {
         return collection.size() == 0 ? null : collection.get(0);
     }
 
-    public static DomainObject getUserSettingsDomainObject(final CurrentUserAccessor currentUserAccessor,
-                                                           final CollectionsService collectionsService,
-                                                           final CrudService crudService) {
+    public static DomainObject findAndLockUserSettingsDomainObject(final CurrentUserAccessor currentUserAccessor,
+                                                                   final CollectionsService collectionsService,
+                                                                   final CrudService crudService) {
         final IdentifiableObject identifiableObject =
                 getUserSettingsIdentifiableObject(currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
         if (identifiableObject != null) {
-            result = crudService.find(identifiableObject.getId());
+            result = crudService.findAndLock(identifiableObject.getId());
         } else {
             result = crudService.createDomainObject("bu_user_settings");
             result.setReference("person", currentUserAccessor.getCurrentUserId());
@@ -147,10 +147,10 @@ public class PluginHandlerHelper {
         return collection.size() == 0 ? null : collection.get(0);
     }
 
-    public static DomainObject getCollectionSettingsDomainObject(final String link, final String viewName,
-                                           final CurrentUserAccessor currentUserAccessor,
-                                           final CrudService crudService,
-                                           final CollectionsService collectionsService) {
+    public static DomainObject findAndLockCollectionSettingsDomainObject(final String link, final String viewName,
+                                                                         final CurrentUserAccessor currentUserAccessor,
+                                                                         final CrudService crudService,
+                                                                         final CollectionsService collectionsService) {
         final IdentifiableObject identifiableObject = getCollectionSettingIdentifiableObject(link,
                 viewName, currentUserAccessor.getCurrentUser(), collectionsService);
         final DomainObject result;
@@ -160,7 +160,7 @@ public class PluginHandlerHelper {
             result.setValue("collection_view_name", new StringValue(viewName));
             result.setValue("person", new ReferenceValue(currentUserAccessor.getCurrentUserId()));
         } else {
-            result = crudService.find(identifiableObject.getId());
+            result = crudService.findAndLock(identifiableObject.getId());
         }
         return result;
     }

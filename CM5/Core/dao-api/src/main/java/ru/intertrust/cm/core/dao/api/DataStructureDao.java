@@ -41,7 +41,7 @@ public interface DataStructureDao {
      * @param config конфигурация доменного объекта, таблицу которого необходимо обновить
      * @param fieldConfigList список колонок для добавления
      */
-    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isParent);
+    void updateTableStructure(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigList, boolean isAl, boolean isParent);
 
     /**
      * Создает новые индексы для доменного объекта
@@ -148,9 +148,9 @@ public interface DataStructureDao {
      * Переименовывает поле типа доменного объекта
      * @param config конфигурация типа доменного объекта
      * @param oldName имя поля типа доменного объекта
-     * @param newName новое имя поля типа доменного объекта
+     * @param newFieldConfig
      */
-    void renameColumn(DomainObjectTypeConfig config, String oldName, String newName);
+    void renameColumn(DomainObjectTypeConfig config, String oldName, FieldConfig newFieldConfig);
 
     /**
      * Физически удаляет тип ДО

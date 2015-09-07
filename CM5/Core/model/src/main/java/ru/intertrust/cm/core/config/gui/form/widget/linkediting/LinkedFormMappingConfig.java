@@ -27,7 +27,7 @@ public class LinkedFormMappingConfig implements Dto {
         this.linkedFormConfigs = linkedFormConfigs;
     }
 
-    public List<FormMappingConfig> toFormMappingConfigList() {
+    public static List<FormMappingConfig> toFormMappingConfigList(List<LinkedFormConfig> linkedFormConfigs) {
         if (linkedFormConfigs == null) {
             return null;
         }

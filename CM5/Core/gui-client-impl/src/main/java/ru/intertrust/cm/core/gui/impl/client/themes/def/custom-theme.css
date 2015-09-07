@@ -1,28 +1,28 @@
 .gwt-TabPanel {
     position: relative;
-    width: 100%;
     z-index: 10;
+    width: 100%;
 }
 
 .gwt-TabPanelBottom {
-    background-color: #ffffff;
-    border: 0;
-    padding: 0;
     position: relative;
     z-index: 1;
+    padding: 0;
+    border: 0;
+    background-color: #ffffff;
 }
 
 .gwt-TabBar {
-    background: #bfdfea; /* Old browsers */
-    background: -moz-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #bfdfea), color-stop(100%, #c2e7f0)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Opera11.10+ */
-    background: -ms-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE10+ */
-    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#bfdfea', endColorstr='#c2e7f0', GradientType=0)"); /* IE6-9 */
-    background: linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
-    height: 35px;
-    padding-top: 2px;
+    padding-top: 2px; /* Old browsers */
+    height: 35px; /* FF3.6+ */
+    background: #bfdfea; /* Chrome,Safari4+ */
+    background: -moz-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* Chrome10+,Safari5.1+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #bfdfea), color-stop(100%, #c2e7f0)); /* Opera11.10+ */
+    background: -webkit-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE10+ */
+    background: -o-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* IE6-9 */
+    background: -ms-linear-gradient(top, #bfdfea 0%, #c2e7f0 100%); /* W3C */
+    background: linear-gradient(top, #bfdfea 0%, #c2e7f0 100%);
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#bfdfea', endColorstr='#c2e7f0', GradientType=0)");
 }
 
 .ext-search-content-wrapper .gwt-TabBar {
@@ -38,10 +38,10 @@
 }
 
 .gwt-TabBar .gwt-TabBarItem {
-    background: none;
-    cursor: pointer;
     margin-right: 10px;
     padding: 0;
+    background: none;
+    cursor: pointer;
 }
 
 .gwt-TabBarItem {
@@ -50,16 +50,16 @@
 }
 
 .gwt-TabBarItem.gwt-TabBarItem-selected {
-    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0;
-    cursor: default;
-    font-weight: bold;
     padding-right: 24px;
+    background: url(css/images/tabs_selected_r.png) no-repeat scroll 100% 0;
+    font-weight: bold;
+    cursor: default;
 }
 
 .gwt-Label {
+    padding: 8px;
     border-radius: 5px 0 0 0;
     font-size: 100%;
-    padding: 8px;
 }
 
 .gwt-TabBarItem.gwt-TabBarItem-selected .gwt-Label {
@@ -78,20 +78,20 @@
 }
 
 .gwt-PopupPanel.header-notification-popup {
-    background: none repeat scroll 0 0 #fffdf0;
-    border-radius: 5px;
-    border: 1px solid;
-    border-color: #fff1ca #ffedbe #ffedbe;
-    box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, .3);
     top: 12px !important;
     right: 420px;
     left: 168px !important;
     z-index: 100;
+    border: 1px solid;
+    border-color: #fff1ca #ffedbe #ffedbe;
+    border-radius: 5px;
+    background: none repeat scroll 0 0 #fffdf0;
+    box-shadow: 3px 3px 5px 0 rgba(0, 0, 0, .3);
 }
 
 .gwt-Label.header-notification {
-    padding-top: 2px !important;
     margin-top: 10px;
+    padding-top: 2px !important;
 }
 
 .section-suggest-item .gwt-Label {
@@ -106,15 +106,15 @@
 
 
 .H_td_links .gwt-Anchor {
+    float: left;
+    overflow: hidden;
+    margin-right: 1px;
     width: 32px;
     height: 32px;
-    cursor: pointer;
-    white-space: nowrap;
-    float: left;
-    margin-right: 1px;
-    font-size: 0px;
     text-indent: 9999px;
-    overflow: hidden;
+    white-space: nowrap;
+    font-size: 0px;
+    cursor: pointer;
 }
 
 .H_td_links .decorated-settings .gwt-Anchor {
@@ -128,9 +128,9 @@
 .gwt-TextBox,
 .gwt-ListBox,
 .gwt-TextArea {
+    margin: 0;
     padding: 10px 7px 11px;
     border: 1px solid #ccc;
-    margin: 0;
     font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -145,19 +145,19 @@
 }
 
 .gwt-ListBox {
+    width: 100%;
+    background: #fff url(images/arrow-down.png) no-repeat 99.5% center;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    background: #fff url(images/arrow-down.png) no-repeat 99.5% center;
-    width: 100%;
 }
 
 select.gwt-ListBox {
+    text-indent: 0.01px;
+    text-overflow: '';
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
-    text-indent: 0.01px;
-    text-overflow: '';
 }
 
 select.gwt-ListBox::-ms-expand {
@@ -175,12 +175,12 @@ select.gwt-ListBox::-ms-expand {
 }
 
 .facebook-element .gwt-Label {
-    padding: 1px 7px;
     margin: 5px;
-    background: #f1f1f1;
-    border-radius: 5px;
-    text-decoration: underline;
+    padding: 1px 7px;
     border: 1px solid #f1f1f1;
+    border-radius: 5px;
+    background: #f1f1f1;
+    text-decoration: underline;
 }
 
 .facebook-element .facebook-label,
@@ -193,37 +193,37 @@ select.gwt-ListBox::-ms-expand {
 }
 
 .ext-search-root-div .gwt-Label {
-    margin-left: 0px;
     margin-bottom: 10px;
+    margin-left: 0px;
 }
 
 .ext-search-save-query-popup-button-div .gwt-Button {
-    background: url(images/button_open.png) no-repeat;
-    border: none;
-    font-size: 0px;
-    text-indent: 999px;
-    height: 19px;
     margin-left: 5px;
+    height: 19px;
     outline: none;
+    border: none;
+    background: url(images/button_open.png) no-repeat;
+    text-indent: 999px;
+    font-size: 0px;
 }
 
 .ext-query-close-button-div .gwt-Button {
-    background: url(css/icons/icon-close.png) left top no-repeat;
-    display: inline-block;
     position: relative;
-    height: 16px;
-    width: 16px;
     left: auto;
-    border-bottom: none !important;
-    vertical-align: bottom;
-    cursor: pointer;
-    margin-right: 16px;
+    display: inline-block;
     float: right;
-    font-size: 0px;
-    border: none;
+    margin-right: 16px;
     margin-left: 61px;
+    width: 16px;
+    height: 16px;
     outline: none;
+    border: none;
+    border-bottom: none !important;
+    background: url(css/icons/icon-close.png) left top no-repeat;
+    vertical-align: bottom;
     text-indent: 9999px;
+    font-size: 0px;
+    cursor: pointer;
 }
 
 .ext-query-link-div .gwt-Label,
@@ -235,23 +235,23 @@ select.gwt-ListBox::-ms-expand {
 
 .ext-query-link-div .gwt-Label:hover,
 .ext-search-save-query-link-div .gwt-Label:hover {
-    color: #ff0000;
     border-bottom: 1px dotted #ff0000;
+    color: #ff0000;
 }
 
 #gwt-splitter {
-    overflow: visible;
     top: 30%;
-    left: -1px !important;
     right: 0;
-    border-collapse: collapse;
+    left: -1px !important;
     z-index: 2;
+    overflow: visible;
+    border-collapse: collapse;
 }
 
 .gwt-SplitLayoutPanel-VDragger {
+    overflow: hidden;
     background: url("css/images/mover-bg-hor.gif") /* tpa=http://intertrust/f/icons/mover-bg-hor.gif */ top left repeat-x;
     cursor: row-resize;
-    overflow: hidden;
 }
 
 .gwt-SplitLayoutPanel-HDragger {
@@ -260,15 +260,15 @@ select.gwt-ListBox::-ms-expand {
 }
 
 div.gwt-Good-Label {
-    font-weight: bold;
     margin: 5px;
+    font-weight: bold;
 }
 
 .gwt-Red-Label {
+    padding-top: 5px;
     color: #ff0000;
     vertical-align: super;
     font-weight: bold;
-    padding-top: 5px;
 }
 
 .ext-search-content-wrapper .gwt-TabLayoutPanelContentContainer {
@@ -277,16 +277,16 @@ div.gwt-Good-Label {
 
 /* ------------>>> Tab panel <<<------------ */
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+    margin-right: 20px;
+    margin-left: 0;
     padding-top: 6px;
     padding-left: 5px;
-    margin-left: 0;
-    margin-right: 20px;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelContentContainer {
-    border-color: #ccc;
-    border-style: solid;
     border-width: 0px 1px 1px;
+    border-style: solid;
+    border-color: #ccc;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
@@ -295,36 +295,36 @@ div.gwt-Good-Label {
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
-    color: #000000;
-    font-size: 110%;
-    margin-left: 4px;
     margin-right: 20px;
-    cursor: pointer;
-    cursor: hand;
-    font-weight: normal;
-    text-align: center;
+    margin-left: 4px;
     -moz-border-radius: 3px 3px 0px 0px;
     border-radius: 3px 3px 0px 0px;
+    color: #000000;
+    text-align: center;
+    font-weight: normal;
+    font-size: 110%;
+    cursor: pointer;
+    cursor: hand;
     /*text-decoration: underline;*/
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
-    cursor: default;
-    color: #333;
-    font-weight: bold;
-    text-decoration: none;
     background: url("css/images/tabs_selected_r.png") no-repeat scroll 100% 0 transparent;
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: default;
 }
 
 .gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-corner {
-    background: url("css/images/tabs_selected_l.gif") no-repeat 0 0 #ffffff;
     margin-right: 24px;
     padding: 1px;
+    background: url("css/images/tabs_selected_l.gif") no-repeat 0 0 #ffffff;
 }
 
 .radio-button-widget .gwt-RadioButton {
-    margin-top: 3px;
     display: inline-block;
+    margin-top: 3px;
 }
 
 .radio-button-widget .gwt-RadioButton label {
@@ -332,21 +332,21 @@ div.gwt-Good-Label {
 }
 
 .default .center-section {
+    position: absolute !important;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: block;
+    height: auto;
     background: #4c93c9;
     background: -moz-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4c93c9), color-stop(51%, #3b649a), color-stop(100%, #232464));
     background: -webkit-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -o-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
     background: -ms-linear-gradient(top, #478BCC 0%, #3b649a 51%, #232464 100%);
-    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0)");
     background: linear-gradient(478 BCC);
-    display: block;
-    height: auto;
-    position: absolute !important;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#478BCC ', endColorstr='#232464', GradientType=0)");
 }
 /* ------------>>> end Tab panel <<<------------ */
 
@@ -357,17 +357,17 @@ div.gwt-Good-Label {
 .gwt-ToggleButton-down,
 .gwt-ToggleButton-down-hovering,
 .gwt-ToggleButton-down-disabled {
-    background: none;
-    border: none;
     padding: 0;
+    border: none;
+    background: none;
 }
 /* ------------>>> end top date picker <<<------------ */
 
 /* ------------>>> treePanel items <<<------------ */
 .gwt-TreeItem[role="treeitem"] {
-    background: none;
     display: inline-block !important;
     margin-left: 5px;
+    background: none;
 }
 
 .treeItemSelectionDecorator {
@@ -380,10 +380,10 @@ div.gwt-Good-Label {
 }
 
 .treeItemTitle {
-    height: 16px;
     margin-left: -4px;
-    /*padding: 6px 0 2px 7px;*/
     padding: 0 0 2px 5px;
+    /*padding: 6px 0 2px 7px;*/
+    height: 16px;
 }
 
 .gwt-custom-TreeItem-selected {
@@ -395,15 +395,15 @@ div.gwt-Good-Label {
 }
 
 .treeItemCounter {
-    border-radius: 3px;
-    color: #fafafa;
-    font-weight: normal;
-    font-size: 10px;
-    padding: 1px 3px;
     position: absolute;
     top: 0px;
     right: -17px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    color: #fafafa;
     text-shadow: 1px 1px 0 #0B0086;
+    font-weight: normal;
+    font-size: 10px;
 }
 
 .treeItemWrapper:hover,
@@ -417,49 +417,49 @@ div.gwt-Good-Label {
     white-space: nowrap;
 }
 .gwt-TreeItem{
-    font-family: Arial, sans-serif;
     font-size: 12px;
+    font-family: Arial, sans-serif;
 }
 
 .gwt-custom-TreeItem-selected td {
     vertical-align: bottom;
 }
 .gwt-custom-TreeItem-selected .treeItemTitle:after {
-    content: open-quote;
-    display: block;
     position: absolute;
+    top: -5px;
+    right: -15px;
+    display: block;
+    margin-left: 5px;
     width: 40px;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) right top no-repeat;
-    right: -30px;
+    content: open-quote;
     font-size: 0px;
-    top: -5px;
-    margin-left: 5px;
 }
 
 .gwt-custom-TreeItem-selected .treeItemTitle:before {
-    content: open-quote;
-    display: block;
     position: absolute;
+    top: -5px;
+    right: 0;
+    left: -5px;
+    display: block;
     height: 25px;
     background: url(images/folder-list-selected-bg.png) left top no-repeat;
-    left: -5px;
-    right: 0;
-    top: -5px;
+    content: open-quote;
     font-size: 0px;
     /*margin-left: 5px;*/
 }
 
 .gwt-custom-TreeItem-selected .tree-label {
-    text-decoration: underline !important;
-    display: inherit;
     position: relative;
-    white-space: nowrap;
+    display: inherit;
     color: #fff !important;
+    text-decoration: underline !important;
+    white-space: nowrap;
 }
 /* ------------>>> end treePanel items <<<------------ */
 .gwt-attachment-viewer-panel {
-        border-style: solid;
-    	border-width:1;
+        border-width:1;
+    	border-style: solid;
     	border-color: GRAY;
 }

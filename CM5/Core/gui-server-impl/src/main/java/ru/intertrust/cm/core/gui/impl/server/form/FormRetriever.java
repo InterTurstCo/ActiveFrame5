@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageKey;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.gui.api.server.DomainObjectUpdater;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.FormMappingHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.FormDefaultValueSetter;
 import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
@@ -101,7 +102,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -146,7 +147,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -274,7 +275,7 @@ public class FormRetriever extends FormProcessor {
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(profileService.getPersonLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
         formState.setParentState(parentFormState);
         formState.setParentId(parentId);
         for (final WidgetConfig config : widgetConfigs) {
@@ -561,11 +562,11 @@ public class FormRetriever extends FormProcessor {
             //localize domain object name:
             String domainObjectName = params.get(Constraint.PARAM_DOMAIN_OBJECT_TYPE);
             String localizedDomainObjectName = MessageResourceProvider.getMessage(new MessageKey(domainObjectName,
-                    domainObjectKey), profileService.getPersonLocale());
+                    domainObjectKey), GuiContext.getUserLocale());
             //localize field name:
             String fieldName = params.get(Constraint.PARAM_FIELD_NAME);
             String localizedFieldName = MessageResourceProvider.getMessage(new MessageKey(fieldName, fieldKey, params),
-                    profileService.getPersonLocale());
+                    GuiContext.getUserLocale());
 
             params.put(Constraint.PARAM_DOMAIN_OBJECT_TYPE, localizedDomainObjectName);
             params.put(Constraint.PARAM_FIELD_NAME, localizedFieldName);
@@ -575,11 +576,11 @@ public class FormRetriever extends FormProcessor {
     }
 
     private FormConfig getLocalizedFormConfig(String formName) {
-        return configurationExplorer.getLocalizedPlainFormConfig(formName, profileService.getPersonLocale());
+        return configurationExplorer.getLocalizedPlainFormConfig(formName, GuiContext.getUserLocale());
     }
 
     private String buildMessage(String message, String defaultValue) {
-        return MessageResourceProvider.getMessage(message, defaultValue, profileService.getPersonLocale());
+        return MessageResourceProvider.getMessage(message, defaultValue, GuiContext.getUserLocale());
     }
 
     private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
