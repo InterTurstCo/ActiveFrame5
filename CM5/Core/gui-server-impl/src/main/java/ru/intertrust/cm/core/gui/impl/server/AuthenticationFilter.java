@@ -2,8 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,8 +31,11 @@ public class AuthenticationFilter implements Filter {
     private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
     private static final String REMOTE = "/remote";
 
+
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -38,6 +43,8 @@ public class AuthenticationFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpSession session = request.getSession();
         String requestURI = request.getRequestURI();
+
+
         if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
             filterChain.doFilter(servletRequest, servletResponse);
             return;
