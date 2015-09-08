@@ -223,11 +223,16 @@
 .ext-search-form-style .gwt-Good-Label {
     min-width: 179px;
     text-align: left;
-    padding: 0;
+    padding: 0 0 0 10px;
     color: #ffffff;
     display: inline-block;
     margin: 5px 0;
 }
+
+.ext-search-form-style .gwt-Red-Label  {
+    width: 0;
+}
+
 .ext-search-form-style .gwt-ListBox {
     width: 418px;
     height: 24px;
@@ -235,8 +240,6 @@
     padding: 1px 2px !important;
     background: rgba(255, 255, 255, 0.70);
     margin: 5px 0;
-    left: -6px;
-    position: relative;
 }
 .ext-search-form-style .gwt-TextBox {
     width: 418px;
