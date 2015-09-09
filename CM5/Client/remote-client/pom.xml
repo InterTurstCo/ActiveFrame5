@@ -35,6 +35,11 @@
         </dependency>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dao-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>gui-model</artifactId>
             <version>${project.version}</version>
         </dependency>
