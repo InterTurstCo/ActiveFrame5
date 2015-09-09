@@ -1885,6 +1885,7 @@ a[href='#login']:hover {
 
 .dialogBoxBody .frm-pnl-top {
     bottom: 40px;
+    overflow: inherit;
 }
 
 .frm-pnl {
