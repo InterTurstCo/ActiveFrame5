@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.dao.impl.BatchPreparedStatementSetter;
+import ru.intertrust.cm.core.dao.impl.Query;
 
 /**
  * Тестирование времени выполнения JDBC запроса при вставке или обновления
@@ -219,40 +220,38 @@ public class TestLageDomainObject {
     }
     
     private long updateUsingJdbcOperation(int countFields) throws SQLException {
-        String query = "update test_lage_table set ";
+        String queryString = "update test_lage_table set ";
         for (int i = 0; i < countFields; i++) {
             if (i > 0) {
-                query += ",";
+                queryString += ",";
             }
-            query += "field" + i + "= ?";
+            queryString += "field" + i + "= ?";
         }
-        query += " where id = ?";
+        queryString += " where id = ?";
 
         List<Map<String, Object>> parameters = new ArrayList<>(1);
         
         
         Map<String, Object> parameter = new HashMap<String, Object>();
-        Map<String, List<Integer>> parameterIndexMap = new HashMap<String, List<Integer>>();        
+        Query query = new Query();
 
         for (int i = 0; i < countFields; i++) {
             parameter.put("field" + i, null);
             List<Integer> index = new ArrayList<Integer>();
             index.add(i+1);
-            parameterIndexMap.put("field" + i, index);
+            query.addLongParameter("field" + i);
         }
 
         parameter.put("id", getRndId());
         parameters.add(parameter);
+
+        query.addLongParameter("id");
         
-        List<Integer> index = new ArrayList<Integer>();
-        index.add(countFields + 1);
-        parameterIndexMap.put("id", index);
-        
-        BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter(parameterIndexMap);
+        BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter(query);
         
         long start = System.currentTimeMillis();
         if (countFields > 0) {
-            jdbcOperations.batchUpdate(query, parameters, 1, batchPreparedStatementSetter);
+            jdbcOperations.batchUpdate(queryString, parameters, 1, batchPreparedStatementSetter);
         }
         long result = System.currentTimeMillis() - start; 
         return result;
@@ -312,40 +311,38 @@ public class TestLageDomainObject {
     }
     
     private long insertUsingJdbcOperation(int countFields) throws SQLException {
-        String query = "insert into test_lage_table (id";
+        String queryString = "insert into test_lage_table (id";
         for (int i = 0; i < countFields; i++) {
-            query += ", field" + i;
+            queryString += ", field" + i;
         }
-        query += ") values (";
-        query += "?";
+        queryString += ") values (";
+        queryString += "?";
         for (int i = 0; i < countFields; i++) {
-            query += ", ?";
+            queryString += ", ?";
         }
-        query += ")";
+        queryString += ")";
 
         List<Map<String, Object>> parameters = new ArrayList<>(1);        
         
         Map<String, Object> parameter = new HashMap<String, Object>();
-        Map<String, List<Integer>> parameterIndexMap = new HashMap<String, List<Integer>>();        
+        Query query = new Query();
 
         for (int i = 0; i < countFields; i++) {
             parameter.put("field" + i, null);
             List<Integer> index = new ArrayList<Integer>();
             index.add(i+2);
-            parameterIndexMap.put("field" + i, index);
+            query.addLongParameter("field" + i);
         }
 
         parameter.put("id", getNextId());
         parameters.add(parameter);
+
+        query.addLongParameter("id");
         
-        List<Integer> index = new ArrayList<Integer>();
-        index.add(1);
-        parameterIndexMap.put("id", index);
-        
-        BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter(parameterIndexMap);
+        BatchPreparedStatementSetter batchPreparedStatementSetter = new BatchPreparedStatementSetter(query);
         
         long start = System.currentTimeMillis();
-        jdbcOperations.batchUpdate(query, parameters, 1, batchPreparedStatementSetter);
+        jdbcOperations.batchUpdate(queryString, parameters, 1, batchPreparedStatementSetter);
         return System.currentTimeMillis() - start;
     }
 
