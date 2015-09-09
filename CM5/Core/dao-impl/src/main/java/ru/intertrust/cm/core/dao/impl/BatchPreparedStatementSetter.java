@@ -1,12 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.jdbc.core.SqlTypeValue;
-import org.springframework.jdbc.core.StatementCreatorUtils;
+import ru.intertrust.cm.core.dao.impl.utils.ParameterType;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -15,14 +13,10 @@ import java.util.Map;
  */
 public class BatchPreparedStatementSetter implements org.springframework.jdbc.core.ParameterizedPreparedStatementSetter<Map<String, Object>> {
 
-    private Map<String, List<Integer>> parameterIndexMap;
+    private Query query;
 
-    public BatchPreparedStatementSetter(Map<String, List<Integer>> parameterIndexMap) {
-        if (parameterIndexMap != null) {
-            this.parameterIndexMap = parameterIndexMap;
-        } else {
-            this.parameterIndexMap = new HashMap<>();
-        }
+    public BatchPreparedStatementSetter(Query query) {
+        this.query = query;
     }
 
     /**
@@ -39,10 +33,24 @@ public class BatchPreparedStatementSetter implements org.springframework.jdbc.co
         }
 
         for (Map.Entry<String, Object> entry : argument.entrySet()) {
-            List<Integer> indexes = parameterIndexMap.get(entry.getKey());
-            if (indexes != null) {
-                for (Integer index : indexes) {
-                    StatementCreatorUtils.setParameterValue(ps, index, SqlTypeValue.TYPE_UNKNOWN, entry.getValue());
+            Query.ParameterInfo parameterInfo = query.getParameterInfoMap().get(entry.getKey());
+            if (parameterInfo == null) {
+                continue;
+            }
+
+            Integer index = parameterInfo.getIndex();
+            if (index == null) {
+                continue;
+            }
+
+            if (entry.getValue() == null) {
+                ps.setNull(index, parameterInfo.getType().getSqlType());
+            } else {
+                if (ParameterType.DATE == parameterInfo.getType()){
+                    Calendar cal = (Calendar) entry.getValue();
+                    ps.setTimestamp(index, new java.sql.Timestamp(cal.getTime().getTime()), cal);
+                } else {
+                    ps.setObject(index, entry.getValue(), parameterInfo.getType().getSqlType());
                 }
             }
         }
