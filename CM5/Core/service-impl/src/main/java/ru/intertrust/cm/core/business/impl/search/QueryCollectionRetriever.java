@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
@@ -11,6 +12,7 @@ import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
 public class QueryCollectionRetriever extends CollectionRetriever {
 
@@ -18,9 +20,15 @@ public class QueryCollectionRetriever extends CollectionRetriever {
     @Autowired private IdService idService;
 
     private String sqlQuery;
+    private List<? extends Value<?>> sqlParameters;
 
     public QueryCollectionRetriever(String sqlQuery) {
         this.sqlQuery = sqlQuery;
+    }
+
+    public QueryCollectionRetriever(String sqlQuery, List<? extends Value<?>> sqlParameters) {
+        this.sqlQuery = sqlQuery;
+        this.sqlParameters = sqlParameters;
     }
 
     @Override
@@ -35,8 +43,9 @@ public class QueryCollectionRetriever extends CollectionRetriever {
         int fetchSize = maxResults;
         int fieldsCount = 0;
         while (true) {
-            IdentifiableObjectCollection sample =
-                    collectionsService.findCollectionByQuery(sqlQuery, fetchStart, fetchSize);
+            IdentifiableObjectCollection sample = sqlParameters == null
+                    ? collectionsService.findCollectionByQuery(sqlQuery, fetchStart, fetchSize)
+                    : collectionsService.findCollectionByQuery(sqlQuery, sqlParameters, fetchStart, fetchSize);
             if (fetchStart == 0) {
                 result.setFieldsConfiguration(sample.getFieldsConfiguration());
                 fieldsCount = sample.getFieldsConfiguration().size();
