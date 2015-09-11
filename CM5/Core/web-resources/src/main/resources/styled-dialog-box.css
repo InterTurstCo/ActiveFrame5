@@ -68,6 +68,10 @@
     z-index: 25;
 }
 
+.dialogBoxBody .gwt-Good-Label.labelWidgetDefault {
+    width: auto !important;
+}
+
 .search-popup-body {
     display: inline-block;
 }

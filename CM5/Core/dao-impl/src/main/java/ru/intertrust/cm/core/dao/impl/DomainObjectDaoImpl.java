@@ -468,7 +468,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
             BatchPreparedStatementSetter batchPreparedStatementSetter =
-                    new BatchPreparedStatementSetter(query.getParameterIndexMap());
+                    new BatchPreparedStatementSetter(query);
             int[][] count = masterJdbcOperations.batchUpdate(query.getQuery(), parameters, BATCH_SIZE, batchPreparedStatementSetter);
 
             int n = 0;
@@ -1384,31 +1384,31 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         if (!isDerived(domainObjectTypeConfig)) {
             queryBuilder.append(wrap(UPDATED_DATE_COLUMN)).append("=?, ");
-            query.addParameter("current_date");
+            query.addDateParameter("current_date");
 
             queryBuilder.append(wrap(UPDATED_BY)).append("=?, ");
-            query.addParameter(UPDATED_BY);
+            query.addReferenceParameter(UPDATED_BY);
 
             queryBuilder.append(wrap(UPDATED_BY_TYPE_COLUMN)).append("=?, ");
-            query.addParameter(UPDATED_BY_TYPE_COLUMN);
+            query.addReferenceTypeParameter(UPDATED_BY_TYPE_COLUMN);
 
             if (isUpdateStatus) {
                 queryBuilder.append(wrap(STATUS_FIELD_NAME)).append("=?, ");
-                query.addParameter(STATUS_FIELD_NAME);
+                query.addReferenceParameter(STATUS_FIELD_NAME);
             }
         }
 
         if (columnNames.size() > 0) {
             queryBuilder.append(fieldsWithParams);
-            query.addParameters(columnNames);
+            query.addParameters(columnNames, fieldConfigs);
         }
 
         queryBuilder.append(" where ").append(wrap(ID_COLUMN)).append("=?");
-        query.addParameter(ID_COLUMN);
+        query.addReferenceParameter(ID_COLUMN);
 
         if (!isDerived(domainObjectTypeConfig)) {
             queryBuilder.append(" and ").append(wrap(UPDATED_DATE_COLUMN)).append("=?");
-            query.addParameter(UPDATED_DATE_COLUMN);
+            query.addDateParameter(UPDATED_DATE_COLUMN);
         }
 
         query.setQuery(queryBuilder.toString());
@@ -1491,41 +1491,41 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         StringBuilder queryBuilder = new StringBuilder();
         queryBuilder.append("insert into ").append(wrap(tableName)).append(" (").append(wrap(ID_COLUMN)).append(", ");
-        query.addParameter(ID_COLUMN);
+        query.addReferenceParameter(ID_COLUMN);
 
         queryBuilder.append(wrap(TYPE_COLUMN));
-        query.addParameter(TYPE_COLUMN);
+        query.addReferenceTypeParameter(TYPE_COLUMN);
 
         if (!isDerived(domainObjectTypeConfig)) {
             queryBuilder.append(", ");
             queryBuilder.append(wrap(CREATED_DATE_COLUMN)).append(", ")
                     .append(wrap(UPDATED_DATE_COLUMN)).append(", ");
-            query.addParameters(CREATED_DATE_COLUMN, UPDATED_DATE_COLUMN);
+            query.addParameters(DateTimeFieldConfig.class, CREATED_DATE_COLUMN, UPDATED_DATE_COLUMN);
 
             queryBuilder.append(wrap(CREATED_BY)).append(", ")
                     .append(wrap(CREATED_BY_TYPE_COLUMN)).append(", ");
-            query.addParameters(CREATED_BY, CREATED_BY_TYPE_COLUMN);
+            query.addReferenceParameters(CREATED_BY);
 
             queryBuilder.append(wrap(UPDATED_BY)).append(", ")
                     .append(wrap(UPDATED_BY_TYPE_COLUMN)).append(", ");
-            query.addParameters(UPDATED_BY, UPDATED_BY_TYPE_COLUMN);
+            query.addReferenceParameters(UPDATED_BY);
 
             queryBuilder.append(wrap(STATUS_FIELD_NAME)).append(", ")
                     .append(wrap(STATUS_TYPE_COLUMN)).append(", ");
-            query.addParameters(STATUS_FIELD_NAME, STATUS_TYPE_COLUMN);
+            query.addReferenceParameters(STATUS_FIELD_NAME);
 
             queryBuilder.append(wrap(ACCESS_OBJECT_ID));
-            query.addParameter(ACCESS_OBJECT_ID);
+            query.addLongParameter(ACCESS_OBJECT_ID);
         }
 
         if (commaSeparatedColumns.length() > 0) {
             queryBuilder.append(", ").append(commaSeparatedColumns);
-            query.addParameters(columnNames);
+            query.addParameters(columnNames, fieldConfigs);
         }
 
         queryBuilder.append(") values (");
 
-        for (int i = 0; i < query.getParameterIndexMap().size(); i ++) {
+        for (int i = 0; i < query.getParameterInfoMap().size(); i ++) {
             if (i > 0) {
                 queryBuilder.append(", ");
             }
@@ -1944,7 +1944,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         BatchPreparedStatementSetter batchPreparedStatementSetter =
-                new BatchPreparedStatementSetter(query.getParameterIndexMap());
+                new BatchPreparedStatementSetter(query);
         masterJdbcOperations.batchUpdate(query.getQuery(), parameters, BATCH_SIZE, batchPreparedStatementSetter);
 
         return updatedObjects;

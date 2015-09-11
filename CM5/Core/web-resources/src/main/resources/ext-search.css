@@ -200,6 +200,14 @@
     height: 100%;
 }
 
+.ext-search-form-style .gwt-TabPanelBottom table tr {
+    display: inline-table;
+}
+
+.ext-search-form-style .suggest-container-block {
+    width: 423px !important;
+}
+
 .ext-search-form-style tr {
     margin: 5px 0;
 }
@@ -213,15 +221,20 @@
 }
 
 .ext-search-form-style .gwt-Good-Label {
-    width: 120px;
-    text-align: right;
-    padding: 0 10px;
+    min-width: 179px;
+    text-align: left;
+    padding: 0 0 0 10px;
     color: #ffffff;
     display: inline-block;
     margin: 5px 0;
 }
+
+.ext-search-form-style .gwt-Red-Label  {
+    width: 0;
+}
+
 .ext-search-form-style .gwt-ListBox {
-    width: 450px;
+    width: 418px;
     height: 24px;
     display: inline-block;
     padding: 1px 2px !important;
@@ -229,7 +242,7 @@
     margin: 5px 0;
 }
 .ext-search-form-style .gwt-TextBox {
-    width: 450px;
+    width: 418px;
     height: 20px;
     display: inline-block;
     padding: 1px 2px !important;

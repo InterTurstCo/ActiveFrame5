@@ -1,9 +1,15 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.impl.utils.ParameterType;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateReferenceTypeParameter;
 
 /**
  * Служебный класс для работы с параметризованными запросами напрямую через PreparedStatement.
@@ -12,7 +18,7 @@ import java.util.Map;
 public class Query {
 
     private String query;
-    private Map<String, List<Integer>> parameterIndexMap = new HashMap<>();
+    private Map<String, ParameterInfo> parameterInfoMap = new HashMap<>();
     private int parameterCounter = 1;
 
     public String getQuery() {
@@ -27,37 +33,114 @@ public class Query {
      * Возвращает карту соответствия имен параметров их позициям в запросе
      * @return
      */
-    public Map<String, List<Integer>> getParameterIndexMap() {
-        return parameterIndexMap;
+    public Map<String, ParameterInfo> getParameterInfoMap() {
+        return parameterInfoMap;
     }
 
     /**
      * Добавляет именованный параметр в запрос
      */
-    public void addParameter(String parameter) {
+    public int addParameter(String parameter, Class<? extends FieldConfig> type) {
+        if (LongFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.NUMERIC);
+            return 1;
+        } else if (DateTimeFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.DATE);
+            return 1;
+        } else if (ReferenceFieldConfig.class.equals(type)) {
+            addReferenceParameters(parameter);
+            return 2;
+        } else if (PasswordFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.STRING);
+            return 1;
+        } else if (TimelessDateFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.DATE);
+            return 1;
+        } else if (DateTimeWithTimeZoneFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.DATE);
+            addParameter(getTimeZoneIdColumnName(parameter), ParameterType.STRING);
+            return 2;
+        } else if (DecimalFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.DECIMAL);
+            return 1;
+        } else if (TextFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.STRING);
+            return 1;
+        } else if (BooleanFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.NUMERIC);
+            return 1;
+        } else if (StringFieldConfig.class.equals(type)) {
+            addParameter(parameter, ParameterType.STRING);
+            return 1;
+        } else {
+            throw new IllegalArgumentException("Unsupported field config type '" + type +
+                    "' for parameter '" + parameter + "'");
+        }
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    public void addLongParameter(String parameter) {
+        addParameter(parameter, ParameterType.NUMERIC);
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    public void addReferenceParameter(String parameter) {
+        addParameter(parameter, ParameterType.NUMERIC);
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    public void addReferenceTypeParameter(String parameter) {
+        addParameter(parameter, ParameterType.NUMERIC);
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    public void addReferenceParameters(String parameter) {
+        addParameter(parameter, ParameterType.NUMERIC);
+        addParameter(generateReferenceTypeParameter(parameter), ParameterType.NUMERIC);
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    public void addDateParameter(String parameter) {
+        addParameter(parameter, ParameterType.DATE);
+    }
+
+    /**
+     * Добавляет именованный параметр в запрос
+     */
+    private void addParameter(String parameter, ParameterType type) {
         if (parameter == null) {
             return;
         }
 
-        List<Integer> indexes = parameterIndexMap.get(parameter);
-        if (indexes == null) {
-            indexes = new LinkedList<>();
-            parameterIndexMap.put(parameter, indexes);
+        ParameterInfo parameterInfo = parameterInfoMap.get(parameter);
+        if (parameterInfo == null) {
+            parameterInfo = new ParameterInfo(type);
+            parameterInfoMap.put(parameter, parameterInfo);
         }
-        indexes.add(parameterCounter++);
+        parameterInfo.addParameterIndex(parameterCounter++);
     }
 
     /**
      * Добавляет именованные параметры в запрос
      * @param parameters
      */
-    public void addParameters(String... parameters) {
+    public void addParameters(Class<? extends FieldConfig> type, String... parameters) {
         if (parameters == null) {
             return;
         }
 
         for (String parameter : parameters) {
-            addParameter(parameter);
+            addParameter(parameter, type);
         }
     }
 
@@ -65,13 +148,35 @@ public class Query {
      * Добавляет именованные параметры в запрос
      * @param parameters
      */
-    public void addParameters(List<String> parameters) {
-        if (parameters == null) {
+    public void addParameters(List<String> parameters, List<FieldConfig> fieldConfigs) {
+        if (parameters == null || fieldConfigs == null) {
             return;
         }
 
-        for (String parameter : parameters) {
-            addParameter(parameter);
+        int j = 0;
+        for (FieldConfig fieldConfig : fieldConfigs) {
+            j += addParameter(parameters.get(j), fieldConfig.getClass());
+        }
+    }
+
+    static class ParameterInfo {
+        private ParameterType type;
+        private Integer index;
+
+        private ParameterInfo(ParameterType type) {
+            this.type = type;
+        }
+
+        public ParameterType getType() {
+            return type;
+        }
+
+        public Integer getIndex() {
+            return index;
+        }
+
+        public void addParameterIndex(int index) {
+            this.index = index;
         }
     }
 }
