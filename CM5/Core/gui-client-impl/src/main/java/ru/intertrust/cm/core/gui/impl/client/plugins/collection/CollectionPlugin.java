@@ -3,10 +3,12 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionDefaultState;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -235,21 +237,31 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     private void fetchAndHandleItems(final int itemIndex, CollectionRowItem effectedItem, final ExpandedRowState rowState, final CommandCallBack commandCallBack){
         CollectionRowsRequest collectionRowsRequest = createRequest(effectedItem, rowState);
-        Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining updated row");
-                caught.printStackTrace();
-            }
 
-            @Override
-            public void onSuccess(Dto result) {
-                CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
-                handleItems(itemIndex, collectionRowsResponse, rowState, commandCallBack);
+        CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig)getConfig();
+        if(collectionViewerConfig.getChildCollectionConfig()!=null){
+            collectionRowsRequest.setCollectionName(collectionViewerConfig.getChildCollectionConfig().getName());
+            collectionRowsRequest.setHierarchicalFiltersConfig(collectionViewerConfig.getChildCollectionConfig().getCollectionExtraFiltersConfig());
+            Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining updated row");
+                    caught.printStackTrace();
+                }
 
-            }
-        });
+                @Override
+                public void onSuccess(Dto result) {
+                    CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                    handleItems(itemIndex, collectionRowsResponse, rowState, commandCallBack);
+
+                }
+            });
+        } else {
+            Window.alert("Дочерняя коллекция не задана в конфигурации.");
+        }
+
+
     }
     private CollectionRowsRequest createRequest(CollectionRowItem effectedItem, ExpandedRowState rowState){
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest();

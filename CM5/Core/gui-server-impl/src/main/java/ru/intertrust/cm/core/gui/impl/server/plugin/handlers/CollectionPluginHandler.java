@@ -9,7 +9,9 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -69,6 +71,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     private SortOrderHelper sortOrderHelper;
 
     private boolean expandable; //dummy for testing
+
+
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -351,13 +355,18 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse getChildrenForExpanding(Dto request){
         CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
+
         String collectionName = rowsRequest.getCollectionName();
         SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
         Id parentId = rowsRequest.getParentId();
         Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
-        List<Filter> filters = prepareFilters(rowsRequest.getParentId(), rowsRequest.getColumnProperties(), filtersMap);
+        List<Filter> filters = new ArrayList<Filter>();
+
+
+        filterBuilder.prepareExtraFilters(rowsRequest.getHierarchicalFiltersConfig(), new ComplexFiltersParams(rowsRequest.getParentId()), filters);
+
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(rowsRequest.getCollectionName(), sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
+                findCollection(collectionName, sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
         if(notMoreItems){

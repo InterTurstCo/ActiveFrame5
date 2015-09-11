@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 
 /**
  * @author Ravil Abdulkhairov
@@ -15,20 +16,28 @@ public class ChildCollectionConfig extends PluginConfig {
     @Attribute(name = "name", required = true)
     private String name;
 
-    @Element(name = "initial-filters", required = false)
-    private InitialFiltersConfig initialFiltersConfig;
+    @Element(name = "collection-extra-filters", required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
     @Override
     public String getComponentName() {
         return "collection.plugin";
     }
 
-    public InitialFiltersConfig getInitialFiltersConfig() {
-        return initialFiltersConfig;
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
     }
 
-    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
-        this.initialFiltersConfig = initialFiltersConfig;
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override
@@ -42,7 +51,7 @@ public class ChildCollectionConfig extends PluginConfig {
 
         ChildCollectionConfig that = (ChildCollectionConfig) o;
 
-        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
+        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.collectionExtraFiltersConfig != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
@@ -54,7 +63,7 @@ public class ChildCollectionConfig extends PluginConfig {
 
     @Override
     public int hashCode() {
-        int result = initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0;
+        int result = collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }
