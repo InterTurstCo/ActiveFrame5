@@ -1175,8 +1175,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         @Override
         public void beforeCompletion() {
-            for (Id contextId : contextIds) {
+            //Перекладываем в массив чтобы избежать ConcurrentModificationException
+            Id[] ids = contextIds.toArray(new Id[contextIds.size()]);
+            //Очищаем contextIds
+            contextIds.clear();
+            
+            //Цикл по сформированному массиву
+            for (Id contextId : ids) {
                 refreshAclFor(contextId);
+            }
+            
+            //Если в процессе назначения прав в методе refreshAclFor был изменен список contextIds то вызываем повторно
+            if (contextIds.size() > 0){
+                beforeCompletion();
             }
         }
 

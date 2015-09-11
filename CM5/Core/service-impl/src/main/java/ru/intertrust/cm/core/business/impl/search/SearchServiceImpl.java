@@ -128,6 +128,12 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery), maxResults);
     }
 
+    @Override
+    public IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery,
+            List<? extends ru.intertrust.cm.core.business.api.dto.Value<?>> sqlParams, int maxResults) {
+        return complexSearch(searchQuery, new QueryCollectionRetriever(sqlQuery, sqlParams), maxResults);
+    }
+
     private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
             int maxResults) {
         try {

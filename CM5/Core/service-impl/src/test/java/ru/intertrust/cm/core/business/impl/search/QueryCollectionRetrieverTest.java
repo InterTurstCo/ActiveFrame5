@@ -41,6 +41,12 @@ public class QueryCollectionRetrieverTest {
 
     @InjectMocks private QueryCollectionRetriever retriever = new QueryCollectionRetriever("Test SQL");
 
+    @Mock private Value<?> param1;
+    @Mock private Value<?> param2;
+    private List<? extends Value<?>> parameters = Arrays.asList(param1, param2);
+    @InjectMocks private QueryCollectionRetriever parametrizedRetriever =
+            new QueryCollectionRetriever("Test SQL", parameters);
+
     static {
         ApplicationContext appCtx = mock(ApplicationContext.class);
         when(appCtx.getAutowireCapableBeanFactory()).thenAnswer(RETURNS_MOCKS);
@@ -179,6 +185,41 @@ public class QueryCollectionRetrieverTest {
                 pair(id6, new ReferenceValue(id6), new StringValue("object 6"))
                 );
         assertThat(result, new IdentifiableObjectCollectionMatcher(expected));
+    }
+
+    @Test
+    public void testParametrizedQuery() {
+        SolrDocument doc1 = mock(SolrDocument.class);
+        when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
+        SolrDocument doc2 = mock(SolrDocument.class);
+        when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        SolrDocument doc3 = mock(SolrDocument.class);
+        when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id3");
+        SolrDocumentList docList = new SolrDocumentList();
+        docList.addAll(Arrays.asList(doc2, doc3, doc1));    // mixed
+
+        Id id1 = mock(Id.class);
+        when(idService.createId("id1")).thenReturn(id1);
+        Id id2 = mock(Id.class);
+        when(idService.createId("id2")).thenReturn(id2);
+        Id id3 = mock(Id.class);
+        when(idService.createId("id3")).thenReturn(id3);
+
+        FieldConfig field1 = mock(FieldConfig.class);
+        when(field1.getName()).thenReturn("Id");
+        FieldConfig field2 = mock(FieldConfig.class);
+        when(field2.getName()).thenReturn("Id");
+        IdentifiableObjectCollection sample = collection(Arrays.asList(field1, field2),
+                pair(id1, new ReferenceValue(id1), new StringValue("object 1")),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
+                pair(id3, new ReferenceValue(id3), new StringValue("object 3"))
+                );
+        when(collectionsService.findCollectionByQuery("Test SQL", parameters, 0, 20))
+                .thenReturn(sample);
+
+        IdentifiableObjectCollection result = parametrizedRetriever.queryCollection(docList, 20);
+
+        assertThat(result, new IdentifiableObjectCollectionMatcher(sample));
     }
 
     private static Pair<Id, List<Value<?>>> pair(Id id, Value<?>... values) {
