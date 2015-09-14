@@ -118,6 +118,16 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         return getReference(SystemField.updated_by.name());
     }
 
+    /**
+     * Возвращает идентификатор объекта, по которому определяются права на данный объект
+     *
+     * @return идентификатор объекта, по которому определяются права на данный объект
+     */
+    @Override
+    public Id getAccessObjectId() {
+        return getReference(SystemField.access_object_id.name());
+    }
+
     public void setModifiedBy(Id modifiedBy) {
         setReference(SystemField.updated_by.name(), modifiedBy);
     }

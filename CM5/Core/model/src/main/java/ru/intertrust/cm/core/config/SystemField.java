@@ -13,7 +13,8 @@ public enum SystemField {
     updated_date(DateTimeFieldConfig.class),
     status(ReferenceFieldConfig.class, GenericDomainObject.STATUS_DO),
     created_by(ReferenceFieldConfig.class, GenericDomainObject.PERSON_DOMAIN_OBJECT),
-    updated_by(ReferenceFieldConfig.class, GenericDomainObject.PERSON_DOMAIN_OBJECT);
+    updated_by(ReferenceFieldConfig.class, GenericDomainObject.PERSON_DOMAIN_OBJECT),
+    access_object_id(ReferenceFieldConfig.class);
 
     private Class<? extends FieldConfig> fieldConfigClass;
     private String referenceType;

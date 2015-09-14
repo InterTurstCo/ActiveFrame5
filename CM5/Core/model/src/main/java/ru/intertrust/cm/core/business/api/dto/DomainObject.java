@@ -48,6 +48,13 @@ public interface DomainObject extends IdentifiableObject {
     Id getModifiedBy();
 
     /**
+     * Возвращает идентификатор объекта, по которому определяются права на данный объект
+     *
+     * @return идентификатор объекта, по которому определяются права на данный объект
+     */
+    Id getAccessObjectId();
+
+    /**
      * Определяет является ли объект новым
      *
      * @return true если объект новый иначе возвращает false
