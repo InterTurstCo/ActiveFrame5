@@ -85,8 +85,7 @@ public class DaoUtils {
                 builder.append(", ");
             }
             builder.append(wrap(column));
-            builder.append("=:");
-            builder.append(column.toLowerCase());
+            builder.append("=?");
 
         }
 

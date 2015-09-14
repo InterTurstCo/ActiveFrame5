@@ -10,6 +10,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.CompactModeState;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.action.system.CollectionColumnWidthAction;
@@ -41,7 +42,6 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     private CollectionDataGrid dataGrid;
     private ColumnSelectorPopup popup;
     private int displayedWidth;
-    private int otherWidgetsDelta;
     private boolean filtersVisibility;
     private List<com.google.web.bindery.event.shared.HandlerRegistration> handlerRegistrations = new ArrayList<>();
 
@@ -165,7 +165,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
 
             }
         }
-        int tableWidth = displayedWidth - otherWidgetsDelta;
+        int tableWidth = displayedWidth - getOtherWidgetsDelta();
         if (keepUserSettings) {
             CollectionDataGridUtils.adjustWidthUserSettingsKeeping(Math.max(widthBeforeChanges, tableWidth), dataGrid);
         } else {
@@ -180,7 +180,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     public void adjustColumnsWidth(int tableWidth, CollectionDataGrid dataGrid) {
         displayedWidth = tableWidth;
         saveFilterValues();
-        CollectionDataGridUtils.adjustWidthUserSettingsKeeping(displayedWidth - otherWidgetsDelta, dataGrid);
+        CollectionDataGridUtils.adjustWidthUserSettingsKeeping(displayedWidth - getOtherWidgetsDelta(), dataGrid);
         changeFilterInputWidth();
 
         updateFilterValues();
@@ -336,7 +336,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         if (CollectionDataGridUtils.isTableHorizontalScrollNotVisible(dataGrid)) {
             return;
         }
-        changeColumnsWidth(displayedWidth - otherWidgetsDelta);
+        changeColumnsWidth(displayedWidth - getOtherWidgetsDelta());
     }
 
     private void changeColumnsWidth(int tableWidth) {
@@ -359,10 +359,7 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
     }
 
     public void sideBarFixPositionEvent(final SideBarResizeEvent event) {
-        if (otherWidgetsDelta != 0) {
             changeColumnsWidth(displayedWidth);
-        }
-        otherWidgetsDelta = event.getSideBarWidths();
 
     }
 
@@ -472,6 +469,10 @@ public class CollectionColumnHeaderController implements ComponentWidthChangedHa
         action.setInitialContext(context);
         action.perform();
 
+    }
+    private int getOtherWidgetsDelta(){
+        CompactModeState compactModeState = Application.getInstance().getCompactModeState();
+        return compactModeState.isNavigationTreePanelExpanded() ? compactModeState.getSecondLevelNavigationPanelWidth() : 0;
     }
 }
 

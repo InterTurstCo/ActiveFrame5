@@ -13,7 +13,7 @@ import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
  *         Time: 18:02
  */
 @Root(name = "tab")
-public class TabConfig implements IdentifiedConfig {
+public class TabConfig implements IdentifiedConfig, TabConfigMarker {
     @Attribute(name = "name", required = false)
     @Localizable
     private String name;

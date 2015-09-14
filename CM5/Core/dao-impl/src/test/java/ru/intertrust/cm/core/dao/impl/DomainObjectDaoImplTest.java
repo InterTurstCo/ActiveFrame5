@@ -122,11 +122,10 @@ public class DomainObjectDaoImplTest {
         String checkCreateQuery =
                 "insert into \"person\" (\"id\", \"id_type\", \"created_date\", \"updated_date\", \"created_by\", \"created_by_type\", \"updated_by\", "
                 + "\"updated_by_type\", \"status\", \"status_type\", \"access_object_id\", \"email\", \"login\", \"password\", \"boss\", \"boss_type\") "
-                + "values (:id , :type_id, :created_date, :updated_date, :created_by, :created_by_type, :updated_by, "
-                + ":updated_by_type, :status, :status_type, :access_object_id, :email,:login,:password,:boss,:boss_type)";
+                + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        String query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
-        assertEquals(checkCreateQuery, query);
+        Query query = domainObjectDaoImpl.generateCreateQuery(domainObjectTypeConfig);
+        assertEquals(checkCreateQuery, query.getQuery());
     }
 
     //@Test Метод update удален, так как непонятно чем он отличается от save
@@ -172,12 +171,12 @@ public class DomainObjectDaoImplTest {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
 
-        String checkUpdateQuery = "update \"person\" set \"updated_date\"=:current_date, \"updated_by\"=:updated_by, "
-                + "\"updated_by_type\"=:updated_by_type, \"status\"=:status, \"email\"=:email, \"login\"=:login, "
-                + "\"password\"=:password, \"boss\"=:boss, \"boss_type\"=:boss_type where \"id\"=:id and \"updated_date\"=:updated_date";
+        String checkUpdateQuery = "update \"person\" set \"updated_date\"=?, \"updated_by\"=?, "
+                + "\"updated_by_type\"=?, \"status\"=?, \"email\"=?, \"login\"=?, "
+                + "\"password\"=?, \"boss\"=?, \"boss_type\"=? where \"id\"=? and \"updated_date\"=?";
 
-        String query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
-        assertEquals(checkUpdateQuery, query);
+        Query query = domainObjectDaoImpl.generateUpdateQuery(domainObjectTypeConfig, true);
+        assertEquals(checkUpdateQuery, query.getQuery());
     }
 
     @Test

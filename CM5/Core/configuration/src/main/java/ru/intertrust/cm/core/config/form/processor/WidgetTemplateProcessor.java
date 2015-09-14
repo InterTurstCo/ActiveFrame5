@@ -9,7 +9,7 @@ import java.util.List;
  *         Date: 10.08.2015
  *         Time: 9:35
  */
-public interface WidgetTemplateProcessor {
+public interface WidgetTemplateProcessor extends FormTemplateProcessor {
     List<WidgetConfig> processTemplates(String formName, List<WidgetConfig> widgetConfigs);
     boolean hasTemplateBasedWidgets(List<WidgetConfig> widgetConfigs);
 }

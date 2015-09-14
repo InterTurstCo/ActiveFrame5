@@ -48,6 +48,9 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "non-read-elements-definition", required = false)
     private NonReadElementsDefinitionConfig nonReadElementsDefinitionConfig;
 
+    @Element(name = "child-collection", required = false)
+    private ChildCollectionConfig childCollectionConfig;
+
     @Element(name = "rows-selection", required = false)
     private RowsSelectionConfig rowsSelectionConfig;
 
@@ -194,6 +197,14 @@ public class CollectionViewerConfig extends PluginConfig {
         this.rowsSelectionConfig = rowsSelectionConfig;
     }
 
+    public ChildCollectionConfig getChildCollectionConfig() {
+        return childCollectionConfig;
+    }
+
+    public void setChildCollectionConfig(ChildCollectionConfig childCollectionConfig) {
+        this.childCollectionConfig = childCollectionConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -213,6 +224,11 @@ public class CollectionViewerConfig extends PluginConfig {
 
         if (collectionRefConfig != null ? !collectionRefConfig.equals(that.getCollectionRefConfig()) : that.
                 getCollectionRefConfig() != null) {
+            return false;
+        }
+
+        if (childCollectionConfig != null ? !childCollectionConfig.equals(that.getChildCollectionConfig()) : that.
+                getChildCollectionConfig() != null) {
             return false;
         }
 
@@ -254,6 +270,7 @@ public class CollectionViewerConfig extends PluginConfig {
         result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
+        result = 31 * result + (childCollectionConfig != null ? childCollectionConfig.hashCode() : 0);
         result = 31 * result + (filterPanelConfig != null ? filterPanelConfig.hashCode() : 0);
         return result;
     }

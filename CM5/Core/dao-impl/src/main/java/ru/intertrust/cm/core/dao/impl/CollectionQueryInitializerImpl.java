@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl.PARAM_NAME_PREFIX;
+import static ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl.adjustParameterNamesBeforePreProcessing;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getFilterParameterPrefix;
 import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.transformToCountQuery;
 
@@ -77,6 +79,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         String filledQuery = fillPrototypeQuery(filledFilterConfigs, prototypeQuery);
 
         filledQuery = processPersonParameter(filledQuery);
+        filledQuery = adjustParameterNamesBeforePreProcessing(filledQuery, PARAM_NAME_PREFIX);
 
         filledQuery = postProcessQuery(collectionConfig, filterValues, sortOrder, offset, limit, accessToken, filledQuery);
 
@@ -98,6 +101,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
             String filledQuery = fillPrototypeQuery(filledFilterConfigs, prototypeQuery);
             filledQuery = processPersonParameter(filledQuery);
+            filledQuery = adjustParameterNamesBeforePreProcessing(filledQuery, PARAM_NAME_PREFIX);
             filledQuery = postProcessQuery(collectionConfig, filterValues, accessToken, filledQuery);
             return filledQuery;
         } else {
@@ -131,23 +135,31 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
                 if (!filterConfig.getName().equals(filterValue.getFilter())) {
                     continue;
                 }
-                CollectionFilterConfig filledFilterConfig = replaceFilterCriteriaParam(filterConfig, filterValue);
+                CollectionFilterConfig filledFilterConfig = replaceFilterParam(filterConfig, filterValue);
                 filledFilterConfigs.add(filledFilterConfig);
             }
         }
         return filledFilterConfigs;
     }
 
-    private CollectionFilterConfig replaceFilterCriteriaParam(CollectionFilterConfig filterConfig, Filter filterValue) {
+    private CollectionFilterConfig replaceFilterParam(CollectionFilterConfig filterConfig, Filter filterValue) {
         CollectionFilterConfig clonedFilterConfig = cloneFilterConfig(filterConfig);
 
-        String criteria = clonedFilterConfig.getFilterCriteria().getValue();
         String filterName = filterValue.getFilter();
-
         String parameterPrefix = getFilterParameterPrefix(filterName);
-        String newFilterCriteria = CollectionsDaoImpl.adjustParameterNames(criteria, parameterPrefix);
 
-        clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
+        if (clonedFilterConfig.getFilterCriteria() != null) {
+            String criteria = clonedFilterConfig.getFilterCriteria().getValue();
+            String newFilterCriteria = CollectionsDaoImpl.adjustParameterNames(criteria, parameterPrefix);
+            clonedFilterConfig.getFilterCriteria().setValue(newFilterCriteria);
+        }
+
+        if (clonedFilterConfig.getFilterReference() != null) {
+            String reference = clonedFilterConfig.getFilterReference().getValue();
+            String newFilterReference = CollectionsDaoImpl.adjustParameterNames(reference, parameterPrefix);
+            clonedFilterConfig.getFilterReference().setValue(newFilterReference);
+        }
+
         return clonedFilterConfig;
     }
 
@@ -183,7 +195,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
     private String processPersonParameter(String filledQuery) {
         if (filledQuery.indexOf(CollectionsDaoImpl.CURRENT_PERSON_PARAM) > 0) {
-            String parameterPrefix = CollectionsDaoImpl.PARAM_NAME_PREFIX;
+            String parameterPrefix = PARAM_NAME_PREFIX;
             filledQuery = CollectionsDaoImpl.adjustParameterNames(filledQuery, parameterPrefix);
         }
         return filledQuery;

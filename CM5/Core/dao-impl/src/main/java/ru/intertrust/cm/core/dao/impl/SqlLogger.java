@@ -26,6 +26,8 @@ import ru.intertrust.cm.core.config.TransactionTrace;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 /**
  * @author vmatsukevich
@@ -123,6 +125,15 @@ public class SqlLogger {
             for (int count : counts) {
                 rows += count;
             }
+        } else if (returnValue instanceof int[][] && query != null && !query.trim().toUpperCase().startsWith("SELECT")) {
+            // для batchUpdate (INSERT, DELETE, UPDATE)
+            int[][] counts = (int[][]) returnValue;
+            rows = 0;
+            for (int j = 0; j < counts.length; j ++) {
+                for (int i = 0; i < counts[j].length; i++) {
+                    rows += counts[j][i];
+                }
+            }
         }
         else {
             // для прочих
@@ -193,12 +204,13 @@ public class SqlLogger {
 
     private String resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
         if (isResolve) {
-            if (joinPoint.getThis() instanceof JdbcOperations) {
-                Object[] parameters = getParametersArray(joinPoint.getArgs());
-                query = (parameters == null ? query : fillParameters(query, parameters));
-            } else if (joinPoint.getThis() instanceof NamedParameterJdbcOperations) {
-                Map<String, Object> parameters = getParametersMap(joinPoint.getArgs());
-                query = (parameters == null ? query : fillParameters(query, parameters));
+            if (joinPoint.getThis() instanceof JdbcOperations || joinPoint.getThis() instanceof NamedParameterJdbcOperations) {
+                Object parameters = getParameters(joinPoint.getArgs());
+                if (parameters instanceof Object[]) {
+                    query = fillParameters(query, (Object[]) parameters);
+                } else if (parameters instanceof Map) {
+                    query = fillParameters(query, (Map) parameters);
+                }
             } else {
                 throw new IllegalStateException("SqlLogger intercepts unsupported class type");
             }
@@ -223,34 +235,26 @@ public class SqlLogger {
         return traceStringBuilder.toString();
     }
     
-    private Map<String, Object> getParametersMap(Object[] methodArgs) {
-        Map<String, Object> parameters = null;
+    private Object getParameters(Object[] methodArgs) {
+        Object parameters = null;
         for (int i = 1; i < methodArgs.length; i++) {
             Object argument = methodArgs[i];
             if (argument instanceof Map) {
-                parameters = (Map<String, Object>) argument;
+                parameters = argument;
                 break;
-            }
-            if (argument instanceof Map[]) {
+            } else if (argument instanceof Map[]) {
                 Map[] args = (Map[]) argument;
                 if (args.length > 0) {
                     // todo only for one string
-                    parameters = (Map<String, Object>) args[0];
+                    parameters = args[0];
                 }
+                break;
+            } else if (argument instanceof Object[]) {
+                parameters = argument;
                 break;
             }
         }
         return parameters;
-    }
-
-    private Object[] getParametersArray(Object[] methodArgs) {
-        for (int i = 1, n = methodArgs.length; i < n; i++) {
-            Object argument = methodArgs[i];
-            if (argument instanceof Object[]) {
-                return (Object[]) argument;
-            }
-        }
-        return null;
     }
 
     private String fillParameters(String query, Object[] sqlArgs) {

@@ -202,4 +202,5 @@ public class CollectionRowsRequest implements Dto {
         this.parentId = parentId;
     }
 
+
 }

@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.WidgetTemplateConverter;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
@@ -16,7 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
  */
 @Root(name = "widget-template")
 @Convert(WidgetTemplateConverter.class)
-public class WidgetTemplateConfig implements Dto, TopLevelConfig {
+public class WidgetTemplateConfig implements TopLevelConfig {
     @Attribute(name = "name")
     private String name;
 

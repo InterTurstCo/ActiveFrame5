@@ -383,9 +383,17 @@ h1 {
     background: url(icons/filter-clear-button.png) no-repeat -32px 0;
 }
 
+.minimalLeftMargin > table tr td:nth-child(1) img {
+    margin-left: 15px;
+}
+
 .minimalLeftMargin > table tr td:nth-child(2) {
-    margin-left: -20px;
+    margin-left: -17px;
     display: inline-block;
+}
+
+.minimalLeftMargin > table tr td:nth-child(2) .groupTree .gwt-TreeItem[role="treeitem"] {
+    margin-left: 20px;
 }
 
 .table-browser-filter-editor {
@@ -670,7 +678,7 @@ h1 {
 }
 
 .decorated-action-link {
-    width: 1100px;
+    /*width: 1100px;*/
 }
 
 .arrow-action-panel {

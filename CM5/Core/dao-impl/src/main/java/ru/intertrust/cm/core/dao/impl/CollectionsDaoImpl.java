@@ -39,7 +39,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     public static final String CURRENT_PERSON_PARAM = "CURRENT_PERSON";
 
     public static final String JDBC_PARAM_PREFIX = "PARAM";
-    
+
     private static final String PARAM_NAME_PREFIX_SPRING = ":";
 
     public static final String IDS_EXCLUDED_FILTER_PREFIX = "idsExcluded";
@@ -161,7 +161,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
             collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, filterValues, columnToConfigMap, parameters);
 
-            collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+            collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
             collectionQueryCache.putCollectionQuery(collectionName, filterValues, sortOrder, offset, limit, accessToken, collectionQueryEntry);
@@ -532,7 +532,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
             collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
-            collectionQuery = adjustParameterNamesForSpring(collectionQuery);
+            collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, null);
             collectionQueryCache.putCollectionCountQuery(collectionName, filterValues, accessToken, collectionQueryEntry);

@@ -22,11 +22,11 @@ public class BusinessUniverseSideBarEventHandler implements SideBarResizeEventHa
         Element left = DOM.getElementById(ComponentHelper.LEFT_ID);
         int sidebarWidth =  event.getSideBarWidths();
         Element center = DOM.getElementById(ComponentHelper.DOMAIN_ID);
-        int firstLevelNavigationPanelWidth = Application.getInstance().getCompactModeState().getFirstLevelNavigationPanelWidth();
+        int firstLevelNavigationPanelWidth = compactModeState.getFirstLevelNavigationPanelWidth();
         if(sidebarWidth == 0){
             center.getStyle().setMarginLeft(firstLevelNavigationPanelWidth, Style.Unit.PX);
         }else {
-            center.getStyle().setMarginLeft(sidebarWidth + firstLevelNavigationPanelWidth, Style.Unit.PX);
+            center.getStyle().setMarginLeft(compactModeState.getFullNavigationPanelWidth(), Style.Unit.PX);
         }
         if (!compactModeState.isExpanded()) {
             left.setClassName(event.getStyleForLeftSector());

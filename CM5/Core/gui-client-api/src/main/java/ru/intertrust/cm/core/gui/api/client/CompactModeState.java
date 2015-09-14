@@ -15,6 +15,8 @@ public class CompactModeState {
     private boolean rightPanelConfigured;
     private int secondLevelNavigationPanelWidth;
     private int firstLevelNavigationPanelWidth;
+    private int levelsIntersection;
+
     public boolean isNavigationTreePanelExpanded() {
         return navigationTreePanelExpanded;
     }
@@ -69,5 +71,13 @@ public class CompactModeState {
 
     public void setFirstLevelNavigationPanelWidth(int firstLevelNavigationPanelWidth) {
         this.firstLevelNavigationPanelWidth = firstLevelNavigationPanelWidth;
+    }
+
+   public int getFullNavigationPanelWidth(){
+       return firstLevelNavigationPanelWidth + secondLevelNavigationPanelWidth - levelsIntersection;
+   }
+
+    public void setLevelsIntersection(int levelsIntersection) {
+        this.levelsIntersection = levelsIntersection;
     }
 }

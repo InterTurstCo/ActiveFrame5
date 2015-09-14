@@ -128,6 +128,7 @@ class NavigationTreeBuilder {
                 treeItem.setState(!treeItem.getState());
             }
         });
+        treeItem.addStyleName("groupTree");
         return treeItem;
     }
 
