@@ -110,7 +110,7 @@
 }
 
 .dialogBoxBody .form-dialog-box-content {
-    /*height: 250px;*/
+    min-height: 250px;
 }
 .form-dialog-box-content .frm-pnl-top {
     top: 0px!important;

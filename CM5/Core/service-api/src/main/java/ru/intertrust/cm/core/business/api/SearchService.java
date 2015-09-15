@@ -5,6 +5,7 @@ import java.util.List;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
+import ru.intertrust.cm.core.business.api.dto.Value;
 
 /**
  * Сервис поиска по содержимому доменных объектов и вложений.
@@ -67,6 +68,20 @@ public interface SearchService {
      *      не объявленные в конфигурации
      */
     IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery, String sqlQuery, int maxResults);
+
+    /**
+     * Выполняет многокритериальный по полям доменных объектов и вложениям в одной или нескольких областях поиска.
+     * 
+     * @param searchQuery Критерии поиска
+     * @param sqlQuery SQL-запрос для выборки найденных объектов
+     * @param sqlParams параметры SQL-запроса
+     * @param maxResults Ограничение количества найденных объектов
+     * @return Коллекция найденных доменных объектов
+     * @throws IllegalArgumentException если критерии поиска содержат области поиска или типы искомых объектов,
+     *      не объявленные в конфигурации
+     */
+    IdentifiableObjectCollection searchAndQuery(SearchQuery searchQuery,
+            String sqlQuery, List<? extends Value<?>> sqlParams, int maxResults);
 
     void dumpAll();
 }
