@@ -145,6 +145,10 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         center.add(centralDivPanel);
         navigationTreePanel = new PluginPanel();
+        //если получен URL вида /baseurl/application_name
+        if(initializationInfo.getApplicationName()!=null){
+                ;
+        }
         // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
         navigationTreePlugin = ComponentRegistry.instance.get("navigation.tree");
         // данному плагину устанавливается глобальная шина событий

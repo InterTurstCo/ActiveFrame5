@@ -1007,6 +1007,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="optional"/>
+        <xs:attribute name="application" type="xs:string" use="optional"/>
         <xs:attribute name="is-default" type="xs:string" use="optional"/>
         <xs:attribute name="side-bar-opening-time" type="xs:integer" use="optional"/>
         <xs:attribute name="merge" type="xs:boolean" use="optional"/>

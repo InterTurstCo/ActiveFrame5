@@ -37,6 +37,7 @@ public class BusinessUniverseInitialization implements Dto {
     private boolean searchConfigured;
     private UserExtraInfo userExtraInfo;
     private String initialNavigationLink;
+    private String applicationName;
 
     public String getHelperLink() {
         return helperLink;
@@ -220,5 +221,13 @@ public class BusinessUniverseInitialization implements Dto {
 
     public void setInitialNavigationLink(String initialNavigationLink) {
         this.initialNavigationLink = initialNavigationLink;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 }

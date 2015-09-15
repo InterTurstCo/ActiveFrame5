@@ -51,6 +51,7 @@ import java.util.*;
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+    private static final String APPLICATION_ATTRIBUTE = "appName";
 
     private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
@@ -85,11 +86,18 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
+
         getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
         UserInfo userInfo = getUserInfo();
         GuiContext.get().setUserInfo(userInfo);
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
+
+        if(getThreadLocalRequest().getSession().getAttribute(APPLICATION_ATTRIBUTE)!=null)
+        {
+            initialization.setApplicationName(getThreadLocalRequest().getSession().getAttribute(APPLICATION_ATTRIBUTE).toString());
+        }
+
         addInformationToInitializationObject(initialization);
         String currentLocale = userInfo.getLocale();
         initialization.setCurrentLocale(currentLocale);
@@ -139,6 +147,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
             throw handleEjbException(command, e);
         }
     }
+
+
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
         final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
