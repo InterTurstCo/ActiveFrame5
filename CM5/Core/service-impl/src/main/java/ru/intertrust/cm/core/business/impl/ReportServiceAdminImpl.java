@@ -28,8 +28,6 @@ import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -91,7 +89,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
-            
+
             //Получаем текущую версию документа из ДОПа отчета.
             //Если версия отсутствует устанавливаем версию в 0.
             Long currentVersion = 0L;
@@ -112,18 +110,18 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject = createDomainObject("report_template");
                 reportTemplateObject.setString("name", reportMetadata.getName());
 
-            } else if (newVersion >= currentVersion){
+            } else if (newVersion > currentVersion){
                 //Если существует то удаляем все вложения по нему
                 List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
                 for (DomainObject attachment : attachments) {
                     attachmentService.deleteAttachment(attachment.getId());
                 }
             }
-            if (newVersion >= currentVersion){
+            if (newVersion > currentVersion){
                 reportTemplateObject.setString("description", reportMetadata.getDescription());
                 reportTemplateObject.setLong("version", newVersion);
                 reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
-    
+
                 //Получаем все вложения из временной директории и сохраняем их как вложения
                 File[] filelist = tmpFolder.listFiles();
                 for (File file : filelist) {
@@ -133,9 +131,9 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                     attachment.setString("Name", file.getName());
                     ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
                     DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
-    
+
                     attachmentService.saveAttachment(directRemoteInputStream, attachment);
-    
+
                     //Удаляем, больше нам не нужен
                     file.delete();
                 }
