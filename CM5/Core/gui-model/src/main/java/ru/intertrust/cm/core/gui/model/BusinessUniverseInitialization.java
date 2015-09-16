@@ -230,4 +230,5 @@ public class BusinessUniverseInitialization implements Dto {
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
     }
+
 }

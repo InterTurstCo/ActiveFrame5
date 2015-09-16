@@ -1495,6 +1495,7 @@
         </link>
     </navigation>
 
+
     <navigation name="panel_2" is-default="false" merge="true">
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
@@ -1641,6 +1642,41 @@
         </link>
     </navigation>
 
+    <navigation name="panel_8" is-default="false" application="calenda">
+
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png" >
+            <plugin>
+                <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                    <calendar-view>
+                        <collection-ref name="letters"/>
+                        <date-field-path value="actual_start_period"/>
+                        <date-field-filter name="byActualStartPeriod" type="datetime"/>
+                        <sort-criteria>
+                            <sort-criterion field="created_date" order="asc"/>
+                        </sort-criteria>
+                        <month-item type="link">
+                            <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                        </month-item>
+                        <day-items>
+                            <day-item type="link">
+                                <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                            </day-item>
+                            <day-item type="label">
+                                <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                            </day-item>
+                        </day-items>
+                        <image-field name="letter_image">
+                            <image-mappings imageWidth="10px" imageHeight="10px">
+                                <mapping value="" image="cancel.png"/>
+                            </image-mappings>
+                        </image-field>
+                    </calendar-view>
+                </calendar>
+            </plugin>
+
+        </link>
+    </navigation>
+
     <navigation-panel-mappings name="nav-panel-map1">
         <navigation-panel-mapping name="panel">
             <users>
@@ -1652,6 +1688,8 @@
                 <group-name value="test-group-1" priority="20"/>
             </groups-->
         </navigation-panel-mapping>
+
+
 
         <navigation-panel-mapping name="panel_1">
 
@@ -1672,5 +1710,7 @@
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
+
+
 
 </configuration>

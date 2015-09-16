@@ -248,6 +248,8 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
         return navConfig;
     }
 
+
+
     private NavigationConfig getLocalizedNavigationConfig(String navConfigName) {
         return configurationExplorer.getLocalizedConfig(NavigationConfig.class, navConfigName, GuiContext.getUserLocale());
     }
