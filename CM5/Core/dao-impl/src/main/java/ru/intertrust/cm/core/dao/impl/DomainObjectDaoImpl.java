@@ -2086,8 +2086,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     parameters.put(GenericDomainObject.STATUS_FIELD_NAME, statusId);
                     parameters.put(DomainObjectDao.STATUS_TYPE_COLUMN, statusTypeId);
 
-                    Long accessObjectId = domainObject.getValue(DomainObjectDao.ACCESS_OBJECT_ID) != null ?
-                            (Long) domainObject.getValue(DomainObjectDao.ACCESS_OBJECT_ID).get() : null;
+                    Long accessObjectId = domainObject.getReference(DomainObjectDao.ACCESS_OBJECT_ID) != null ?
+                            ((RdbmsId) domainObject.getReference(DomainObjectDao.ACCESS_OBJECT_ID)).getId() : null;
                     parameters.put(DomainObjectDao.ACCESS_OBJECT_ID, accessObjectId);
 
                     // TODO Получение имени компонента из AcceeToken

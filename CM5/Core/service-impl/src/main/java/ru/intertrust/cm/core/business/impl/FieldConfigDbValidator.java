@@ -13,6 +13,9 @@ public class FieldConfigDbValidator {
     @Autowired
     private SchemaCache schemaCache;
 
+    @Autowired
+    private ConfigurationExplorer configurationExplorer;
+
     /**
      * Проверяет соответствие конфигурации поля типа ДО соотв. колонке в базе
      */
@@ -55,7 +58,8 @@ public class FieldConfigDbValidator {
                     "' because required reference type column doesn't exist");
         }
 
-        if (fieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY)) {
+        if (fieldConfig.getType().equals(ConfigurationExplorer.REFERENCE_TYPE_ANY) ||
+                configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName())) {
             return;
         }
 
