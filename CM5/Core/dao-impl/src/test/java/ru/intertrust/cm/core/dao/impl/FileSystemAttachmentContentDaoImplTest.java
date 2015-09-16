@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -18,13 +20,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.test.context.ContextConfiguration;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
@@ -117,7 +122,7 @@ public class FileSystemAttachmentContentDaoImplTest {
     
     @Test
     public void deleteContent() throws IOException {
-        FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
+        //FileSystemAttachmentContentDaoImpl contentDao = new FileSystemAttachmentContentDaoImpl();
         contentDao.setAttachmentSaveLocation(TEST_OUT_DIR);
         byte[] expBytes = new byte[]{0, 1, 2, 3, 4, 5};
         String path = createAndCopyToFile(new ByteArrayInputStream(expBytes));
@@ -125,6 +130,14 @@ public class FileSystemAttachmentContentDaoImplTest {
         DomainObject domainObject = new GenericDomainObject();
         String relPath = Paths.get(path).subpath(Paths.get(TEST_OUT_DIR).getNameCount(), Paths.get(path).getNameCount()).toString();
         domainObject.setValue(PATH_NAME, new StringValue(relPath));
+        doAnswer(new Answer<Object>() {
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                ActionListener listener = (ActionListener) invocation.getArguments()[0];
+                listener.onAfterCommit();
+                return null;
+            }
+        }).when(userTransactionService).addListener(any(ActionListener.class));
         contentDao.deleteContent(domainObject);
         Assert.assertFalse(new File(path).exists());
     }
