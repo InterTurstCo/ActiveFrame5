@@ -25,6 +25,12 @@ public class ControlExpandableCell extends AbstractTextCell {
         CollectionRowItem item = (CollectionRowItem) context.getKey();
         boolean expanded = item.isExpanded();
         CollectionRowItem.RowType rowType = item.getRowType();
+        sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"all_wrapper\" >"));
+        if(rowType == CollectionRowItem.RowType.DATA || rowType == CollectionRowItem.RowType.FILTER ){
+            for(int index = 0; index < item.getNestingLevel(); index++){
+                sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"expand_offset\" ></div>"));
+            }
+        }
         switch (rowType){
             case DATA:
                 sb.append(SafeHtmlUtils.fromTrustedString("<div class=\"collectionCellWrapper\" >"));
@@ -32,18 +38,18 @@ public class ControlExpandableCell extends AbstractTextCell {
                     sb.append(SafeHtmlUtils.fromTrustedString("<div "));
                     addClassName(item, sb);
                     sb.append(SafeHtmlUtils.fromTrustedString(style));
-                    sb.append(SafeHtmlUtils.fromTrustedString("/><span ><span class=\"collapseSign"));
-                    sb.append(SafeHtmlUtils.fromTrustedString("\">-</span>"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("/><span class=\"collapseSign"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("\"></span><span class=\"expand_text\">"));
                     sb.append(SafeHtmlUtils.fromString(text));
-                    sb.append(SafeHtmlUtils.fromTrustedString("<span></div>"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("</span></div>"));
                 } else {
                     sb.append(SafeHtmlUtils.fromTrustedString("<div "));
                     addClassName(item, sb);
                     sb.append(SafeHtmlUtils.fromTrustedString(style));
-                    sb.append(SafeHtmlUtils.fromTrustedString("/><span ><span class=\"expandSign"));
-                    sb.append(SafeHtmlUtils.fromTrustedString("\">+</span>"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("/><span class=\"expandSign"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("\"></span><span class=\"expand_text\">"));
                     sb.append(SafeHtmlUtils.fromString(text));
-                    sb.append(SafeHtmlUtils.fromTrustedString("<span></div>"));
+                    sb.append(SafeHtmlUtils.fromTrustedString("</span></div>"));
                 }
                 break;
             case FILTER:
@@ -59,6 +65,7 @@ public class ControlExpandableCell extends AbstractTextCell {
         }
 
 
+        sb.append(SafeHtmlUtils.fromTrustedString("</div>"));
         sb.append(SafeHtmlUtils.fromTrustedString("</div>"));
     }
 

@@ -381,8 +381,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         for (IdentifiableObject identifiableObject : collection) {
             CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings);
             item.setParentId(parentId);
+            item.setNestingLevel(rowsRequest.getCurrentNestingLevel()+1);
             items.add(item);
-
         }
         if(notMoreItems){
         CollectionRowItem moreItems = new CollectionRowItem();

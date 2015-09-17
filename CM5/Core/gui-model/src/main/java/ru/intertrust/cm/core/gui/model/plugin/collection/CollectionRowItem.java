@@ -25,7 +25,17 @@ public class CollectionRowItem implements Dto{
 
     private Id parentId;
     private RowType rowType;
+    private int nestingLevel;
+
     public CollectionRowItem() {
+    }
+
+    public int getNestingLevel() {
+        return nestingLevel;
+    }
+
+    public void setNestingLevel(int nestingLevel) {
+        this.nestingLevel = nestingLevel;
     }
 
     public Id getId() {

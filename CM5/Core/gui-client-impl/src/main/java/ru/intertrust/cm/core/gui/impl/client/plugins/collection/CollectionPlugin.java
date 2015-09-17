@@ -272,6 +272,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         collectionRowsRequest.setLimit(rowState.getLimit());
         collectionRowsRequest.setOffset(rowState.getOffset());
         collectionRowsRequest.setFiltersMap(rowState.getFilters());
+        collectionRowsRequest.setCurrentNestingLevel(effectedItem.getNestingLevel());
         return collectionRowsRequest;
     }
 
