@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 
 /**
@@ -18,6 +19,10 @@ public class ChildCollectionConfig extends PluginConfig {
 
     @Element(name = "collection-extra-filters", required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
+    @Element(name = "expandable-objects", required = true)
+    private ExpandableObjectsConfig expandableObjectsConfig;
+
 
     @Override
     public String getComponentName() {
@@ -40,6 +45,14 @@ public class ChildCollectionConfig extends PluginConfig {
         this.name = name;
     }
 
+    public ExpandableObjectsConfig getExpandableObjectsConfig() {
+        return expandableObjectsConfig;
+    }
+
+    public void setExpandableObjectsConfig(ExpandableObjectsConfig expandableObjectsConfig) {
+        this.expandableObjectsConfig = expandableObjectsConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -54,6 +67,9 @@ public class ChildCollectionConfig extends PluginConfig {
         if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.collectionExtraFiltersConfig != null) {
             return false;
         }
+        if (expandableObjectsConfig != null ? !expandableObjectsConfig.equals(that.expandableObjectsConfig) : that.expandableObjectsConfig != null) {
+            return false;
+        }
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
@@ -65,6 +81,7 @@ public class ChildCollectionConfig extends PluginConfig {
     public int hashCode() {
         int result = collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (expandableObjectsConfig != null ? expandableObjectsConfig.hashCode() : 0);
         return result;
     }
 }

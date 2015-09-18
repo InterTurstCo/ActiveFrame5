@@ -1153,8 +1153,25 @@
         <xs:sequence>
             <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="expandable-objects" type="con:expandableObjectsType" maxOccurs="unbounded" minOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:element type="con:expandableObjectsType" name="expandable-objects"/>
+
+    <xs:complexType name="expandableObjectsType">
+        <xs:sequence>
+            <xs:element name="expandable-object" type="con:expandableObjectType" minOccurs="1" maxOccurs="unbounded"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element type="con:expandableObjectType" name="expandable-object"/>
+
+    <xs:complexType name="expandableObjectType">
+        <xs:attribute name="object-name" type="xs:string" use="required"/>
     </xs:complexType>
 
     <xs:complexType name="rowsSelectionType">
@@ -3358,6 +3375,7 @@
         <xs:attribute name="name" use="required" type="xs:string"/>
         <xs:attribute name="null-value-filter-name" type="xs:string" use="optional"/>
     </xs:complexType>
+
 
     <xs:complexType name="calendarItemType">
         <xs:sequence>

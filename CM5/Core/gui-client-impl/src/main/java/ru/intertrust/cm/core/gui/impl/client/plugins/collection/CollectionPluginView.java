@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -825,6 +826,18 @@ public class CollectionPluginView extends PluginView {
     private void collectionRowRequestCommand(final CollectionRowsRequest collectionRowsRequest) {
 
         clearScrollHandler();
+        //(CollectionViewerConfig) plugin.getConfig();
+
+        List<String> expandableTypes = new ArrayList<String>();
+        if(((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig()!=null){
+
+            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+        }
+        collectionRowsRequest.setExpandableTypes(expandableTypes);
+
         Command command = new Command("generateCollectionRowItems", "collection.plugin", collectionRowsRequest);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override

@@ -8,6 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionDefaultState;
@@ -31,6 +32,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,6 +96,16 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
         final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
         final Id selectedId = selectedIds == null ? null : selectedIds.get(0);
+        List<String> expandableTypes = new ArrayList<String>();
+        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
+
+            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+        }
+        rowsRequest.setExpandableTypes(expandableTypes);
+
         final Command command = new Command("refreshCollection", "collection.plugin",
                 new CollectionRefreshRequest(rowsRequest, selectedId));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -237,6 +249,16 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     private void fetchAndHandleItems(final int itemIndex, CollectionRowItem effectedItem, final ExpandedRowState rowState, final CommandCallBack commandCallBack){
         CollectionRowsRequest collectionRowsRequest = createRequest(effectedItem, rowState);
+        List<String> expandableTypes = new ArrayList<String>();
+
+        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
+
+            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+        }
+        collectionRowsRequest.setExpandableTypes(expandableTypes);
 
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig)getConfig();
         if(collectionViewerConfig.getChildCollectionConfig()!=null){
