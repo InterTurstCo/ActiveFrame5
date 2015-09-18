@@ -3158,6 +3158,7 @@ a:active .icon.back {
 .collectionCellWrapper {
     display: inline-block;
     position: relative;
+    height: 20px;
 }
 
 .collectionFilterCellWrapper {
@@ -3189,6 +3190,7 @@ a:active .icon.back {
     margin-left: 10px;
     position: relative;
     width: 220px;
+    height: 20px;
     padding: 6px 0 6px 10px;
 }
 
