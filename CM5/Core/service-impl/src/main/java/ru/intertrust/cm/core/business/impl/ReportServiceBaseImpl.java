@@ -73,6 +73,10 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
     @Autowired
     private ExtensionService extensionService;
+    
+    @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
+    private String defaultReportFormat;
+    
 
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters) {
@@ -320,27 +324,34 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
         return resultFolder;
     }
 
+    /**
+     * Получение формата отчета 
+     * @param reportMetadata
+     * @param params
+     * @return
+     */
     private String getFormat(ReportMetadataConfig reportMetadata, Map<String, Object> params) {
-        String formatParam = null;
-        if (params != null) {
-            formatParam = (String) params.get(FORMAP_PARAM);
-        }
+        
         String format = null;
-        if (formatParam == null && reportMetadata.getFormats().size() > 1) {
-            throw new ReportServiceException("FORMAT parameter is required");
-        }
-
-        if (formatParam != null) {
-            if (!reportMetadata.getFormats().contains(formatParam)) {
-                throw new ReportServiceException("FORMAT parameter is not admissible. Need "
+        //Если формат задан в шаблоне и он только один - то применяем его
+        if (reportMetadata.getFormats() != null && reportMetadata.getFormats().size() == 1){
+            format = reportMetadata.getFormats().get(0);
+        }else{
+            //Если задано несколько форматов то сначала применяем формат из параметра а если там не задан берем формат по умолчанию
+            if (params != null) {
+                format = (String) params.get(FORMAP_PARAM);
+            }
+            
+            //Берем формат по умолчанию
+            if (format == null){
+                format = defaultReportFormat;
+            }
+            
+            //Проверяем есть ли такой формат в списке поддерживаемых форматов
+            if (!reportMetadata.getFormats().contains(format)) {
+                throw new ReportServiceException("FORMAT parameter or default report format is not admissible. Need "
                         + reportMetadata.getFormats());
             }
-        }
-
-        if (formatParam != null) {
-            format = formatParam;
-        } else {
-            format = reportMetadata.getFormats().get(0);
         }
 
         return format;

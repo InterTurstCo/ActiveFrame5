@@ -3,5 +3,6 @@
 	description="Все сотрудники" mainTemplate="all-employee" keepDays="5">
 	<formats>
 		<format>DOCX</format>
+        <format>PDF</format>
 	</formats>
 </ReportMetadataConfig>
