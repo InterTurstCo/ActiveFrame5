@@ -148,6 +148,16 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
         StringValue value = domainObject.getValue(PATH_NAME);
         String relFilePath = value.get();
+        
+        logger.debug("Delete content " + relFilePath);
+        if (logger.isTraceEnabled()){
+            String message = "";
+            for(StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {                         
+                message += System.lineSeparator() + "\t" + stackTraceElement.toString();
+            }            
+            logger.trace(message);
+        }        
+        
         final File f = new File(toAbsFromRelativePathFile(relFilePath));
         if (f.exists()) {
             try {
