@@ -22,7 +22,7 @@ public class CollectionRowItem implements Dto{
     private Map<String, List<String>> filters;
     private boolean expanded;
     private boolean expandable;
-
+    private boolean haveChild = false;
     private Id parentId;
     private RowType rowType;
     private int nestingLevel;
@@ -157,4 +157,11 @@ public class CollectionRowItem implements Dto{
         return result;
     }
 
+    public boolean isHaveChild() {
+        return haveChild;
+    }
+
+    public void setHaveChild(boolean haveChild) {
+        this.haveChild = haveChild;
+    }
 }

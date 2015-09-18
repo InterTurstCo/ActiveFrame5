@@ -39,7 +39,8 @@ public class ControlExpandableCell extends AbstractTextCell {
                     addClassName(item, sb);
                     sb.append(SafeHtmlUtils.fromTrustedString(style));
                     sb.append(SafeHtmlUtils.fromTrustedString("/>"));
-                    sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"collapseSign\"></span>"));
+                    if(item.isHaveChild())
+                        sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"collapseSign\"></span>"));
                     sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"expand_text\">"));
                     sb.append(SafeHtmlUtils.fromString(text));
                     sb.append(SafeHtmlUtils.fromTrustedString("</span></div>"));
@@ -48,7 +49,8 @@ public class ControlExpandableCell extends AbstractTextCell {
                     addClassName(item, sb);
                     sb.append(SafeHtmlUtils.fromTrustedString(style));
                     sb.append(SafeHtmlUtils.fromTrustedString("/>"));
-                    sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"expandSign\"></span>"));
+                    if(item.isHaveChild())
+                        sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"expandSign\"></span>"));
                     sb.append(SafeHtmlUtils.fromTrustedString("<span class=\"expand_text\">"));
                     sb.append(SafeHtmlUtils.fromString(text));
                     sb.append(SafeHtmlUtils.fromTrustedString("</span></div>"));
