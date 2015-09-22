@@ -3191,7 +3191,7 @@ a:active .icon.back {
     border-radius: 30px 0 0 30px;
     margin-left: 10px;
     position: relative;
-    width: 220px;
+    width: 276px;
     height: 20px;
     padding: 6px 0 6px 10px;
 }
@@ -3351,13 +3351,14 @@ a:active .icon.back {
     position: absolute;
     top: 6px;
     width: 148px;
+    white-space: nowrap;
 }
 
 .childRow .expand_text {
     top: 9px;
 }
 
-.btn_expand_right,.btn_expand_left {
+.createGroup,.createElement {
     display: inline-block;
     width: 17px;
     height: 17px;
@@ -3371,32 +3372,42 @@ a:active .icon.back {
     transition: all .2s;
 }
 
-.btn_expand_left {
+.createGroup {
     right: 30px;
     top: 6px;
     background: url(css/icons/icon_classifier.png)no-repeat;
     background-size: cover;
 }
-.btn_expand_right {
+.createElement {
     right: 6px;
     top: 6px;
     background: url(css/icons/icon_group.png)no-repeat;
     background-size: cover;
 }
 
-.collectionCellWrapper:hover .btn_expand_right {
+.collectionCellWrapper:hover .createElement {
     opacity: 1;
 }
-.collectionCellWrapper:hover .btn_expand_left {
-    opacity: 1;
-}
-
-.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .btn_expand_right {
+.collectionCellWrapper:hover .createGroup {
     opacity: 1;
 }
 
-.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .btn_expand_left {
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .createElement {
     opacity: 1;
+}
+
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .createGroup {
+    opacity: 1;
+}
+
+.createGroup:hover {
+    -webkit-transform: scale(1.2,1.2);
+    transform: scale(1.2,1.2);
+}
+
+.createElement:hover {
+    -webkit-transform: scale(1.2,1.2);
+    transform: scale(1.2,1.2);
 }
 
 /* end Expandable Collection */
