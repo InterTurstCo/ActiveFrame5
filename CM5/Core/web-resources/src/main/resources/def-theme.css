@@ -3159,7 +3159,7 @@ a:active .icon.back {
     display: inline-block;
     position: relative;
     height: 28px;
-    width: 220px;
+    width: 82%;
 }
 
 .collectionFilterCellWrapper {
@@ -3191,7 +3191,6 @@ a:active .icon.back {
     border-radius: 30px 0 0 30px;
     margin-left: 10px;
     position: relative;
-    width: 276px;
     height: 20px;
     padding: 6px 0 6px 10px;
 }
@@ -3338,20 +3337,22 @@ a:active .icon.back {
 
 .expand_offset {
     display: inline-block;
-    width: 20px;
+    width: 6%;
     height: 20px;
 }
 
 .all_wrapper {
-    width: 400px;
+    width: 100%;
 }
 
 .collectionCellWrapper .expand_text {
     display: inline-block;
     position: absolute;
     top: 6px;
-    width: 148px;
+    width: 57%;
     white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .childRow .expand_text {
@@ -3377,12 +3378,14 @@ a:active .icon.back {
     top: 6px;
     background: url(css/icons/icon_classifier.png)no-repeat;
     background-size: cover;
+    z-index: 100;
 }
 .createElement {
     right: 6px;
     top: 6px;
     background: url(css/icons/icon_group.png)no-repeat;
     background-size: cover;
+    z-index: 100;
 }
 
 .collectionCellWrapper:hover .createElement {
