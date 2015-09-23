@@ -20,10 +20,10 @@
      http://www.springframework.org/schema/cache/spring-cache.xsd
      ">
 
-    <cache:annotation-driven />
+    <cache:annotation-driven cache-manager="platformCacheManager" />
 
     <!-- generic cache manager -->
-    <bean id="cacheManager" class="org.springframework.cache.support.SimpleCacheManager">
+    <bean id="platformCacheManager" class="org.springframework.cache.support.SimpleCacheManager">
         <property name="caches">
             <set>
                 <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean" p:name="default"/>
