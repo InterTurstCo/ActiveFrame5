@@ -17,6 +17,13 @@ public class ChildCollectionConfig extends PluginConfig {
     @Attribute(name = "name", required = true)
     private String name;
 
+    @Attribute(name = "group-object-type", required = false)
+    private String groupObjectType;
+
+    @Attribute(name = "element-object-type", required = false)
+    private String elementObjectType;
+
+
     @Element(name = "collection-extra-filters", required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
@@ -53,6 +60,22 @@ public class ChildCollectionConfig extends PluginConfig {
         this.expandableObjectsConfig = expandableObjectsConfig;
     }
 
+    public String getGroupObjectType() {
+        return groupObjectType;
+    }
+
+    public void setGroupObjectType(String groupObjectType) {
+        this.groupObjectType = groupObjectType;
+    }
+
+    public String getElementObjectType() {
+        return elementObjectType;
+    }
+
+    public void setElementObjectType(String elementObjectType) {
+        this.elementObjectType = elementObjectType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -73,6 +96,12 @@ public class ChildCollectionConfig extends PluginConfig {
         if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
+        if (groupObjectType != null ? !groupObjectType.equals(that.groupObjectType) : that.groupObjectType != null) {
+            return false;
+        }
+        if (elementObjectType != null ? !elementObjectType.equals(that.elementObjectType) : that.elementObjectType != null) {
+            return false;
+        }
 
         return true;
     }
@@ -81,6 +110,8 @@ public class ChildCollectionConfig extends PluginConfig {
     public int hashCode() {
         int result = collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (groupObjectType != null ? groupObjectType.hashCode() : 0);
+        result = 31 * result + (elementObjectType != null ? elementObjectType.hashCode() : 0);
         result = 31 * result + (expandableObjectsConfig != null ? expandableObjectsConfig.hashCode() : 0);
         return result;
     }

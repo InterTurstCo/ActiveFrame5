@@ -1157,6 +1157,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="group-object-type" use="optional"/>
+        <xs:attribute type="xs:string" name="element-object-type" use="optional"/>
     </xs:complexType>
 
     <xs:element type="con:expandableObjectsType" name="expandable-objects"/>
@@ -1173,6 +1175,8 @@
     <xs:complexType name="expandableObjectType">
         <xs:attribute name="object-name" type="xs:string" use="required"/>
     </xs:complexType>
+
+
 
     <xs:complexType name="rowsSelectionType">
         <xs:attribute name="default-state" use="optional" type="con:rowsSelectionDefaultStateType"/>

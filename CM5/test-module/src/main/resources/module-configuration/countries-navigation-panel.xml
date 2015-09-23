@@ -182,7 +182,7 @@
                                 <collection-ref name="Cities"/>
                                 <default-sort-criteria column-field="population" order="desc"/>
 
-                                <child-collection name="Cities">
+                                <child-collection name="Cities" group-object-type="city">
                                     <collection-extra-filters>
                                         <extra-filter name="byText">
                                             <param name="0" type="string" value="Москва"/>

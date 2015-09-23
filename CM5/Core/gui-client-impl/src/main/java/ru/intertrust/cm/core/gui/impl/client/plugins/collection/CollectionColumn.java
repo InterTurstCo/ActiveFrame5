@@ -5,7 +5,10 @@ import com.google.gwt.cell.client.Cell;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.client.Window;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionAddElementEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionAddGroupEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowFilteredEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionRowStateChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -120,7 +123,15 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem,true));
             }else if(element.getClassName().startsWith("collapseSign")){
                 eventBus.fireEvent(new CollectionRowStateChangedEvent(rowItem, false));
-            }else {
+            }
+            else if(element.getClassName().startsWith("createElement")){
+                eventBus.fireEvent(new CollectionAddElementEvent(rowItem, false));
+            }
+            else if(element.getClassName().startsWith("createGroup")){
+                eventBus.fireEvent(new CollectionAddGroupEvent(rowItem, false));
+            }
+
+            else {
                 super.onBrowserEvent(context, target, rowItem, event);
             }
         }else if(BrowserEvents.KEYDOWN.equalsIgnoreCase(type) && KeyCodes.KEY_ENTER == keyCode && element.getClassName()
