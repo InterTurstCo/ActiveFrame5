@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
@@ -1263,7 +1262,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("status", statusId);
             parameters.put("status_type", statusTypeId);
 
-            parameters.put("access_object_id", ((RdbmsId) getAccessObjectId(domainObject)).getId());
+            final RdbmsId accessObjectId = (RdbmsId) getAccessObjectId(domainObject);
+            parameters.put("access_object_id", accessObjectId.getId());
+            parameters.put("___access_object_id", accessObjectId);
 
         }
 
@@ -1905,23 +1906,26 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Id currentUser = getCurrentUser(accessToken);
 
         for (int i = 0; i < updatedObjects.length; i++) {
+            final GenericDomainObject updatedObject = updatedObjects[i];
             if (parentDOs != null) {
-                updatedObjects[i].setCreatedDate(parentDOs[i].getCreatedDate());
-                updatedObjects[i].setModifiedDate(parentDOs[i].getModifiedDate());
+                final DomainObject parentDO = parentDOs[i];
+                updatedObject.setCreatedDate(parentDO.getCreatedDate());
+                updatedObject.setModifiedDate(parentDO.getModifiedDate());
+                updatedObject.setValue("access_object_id", parentDO.getValue("access_object_id"));
             } else {
                 Date currentDate = new Date();
-                updatedObjects[i].setCreatedDate(currentDate);
-                updatedObjects[i].setModifiedDate(currentDate);
+                updatedObject.setCreatedDate(currentDate);
+                updatedObject.setModifiedDate(currentDate);
             }
 
-            setInitialStatus(initialStatus, updatedObjects[i]);
-            updatedObjects[i].setCreatedBy(currentUser);
-            updatedObjects[i].setModifiedBy(currentUser);
+            setInitialStatus(initialStatus, updatedObject);
+            updatedObject.setCreatedBy(currentUser);
+            updatedObject.setModifiedBy(currentUser);
         }
 
         Query query = generateCreateQuery(domainObjectTypeConfig);
 
-        List<Map<String, Object>> parameters = new ArrayList<>(updatedObjects.length);
+        ArrayList<Map<String, Object>> parameters = new ArrayList<>(updatedObjects.length);
 
         for (int i = 0; i < updatedObjects.length; i++) {
 
@@ -1946,6 +1950,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         BatchPreparedStatementSetter batchPreparedStatementSetter =
                 new BatchPreparedStatementSetter(query);
         masterJdbcOperations.batchUpdate(query.getQuery(), parameters, BATCH_SIZE, batchPreparedStatementSetter);
+
+        for (int i = 0; i < updatedObjects.length; i++) {
+            final Id accessObjectIdParam = (Id) parameters.get(i).get("___access_object_id");
+            if (accessObjectIdParam != null) { // it won't be null for the root element, if there's no null-check - it would overwrite child field with NULL-value - undesired
+                final GenericDomainObject updatedObject = updatedObjects[i];
+                updatedObject.setReference("access_object_id", accessObjectIdParam);
+                updatedObject.resetDirty();
+            }
+        }
 
         return updatedObjects;
     }
@@ -2252,6 +2265,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             query.append(", ").append(wrap(STATUS_FIELD_NAME));
             query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
+            query.append(", ").append(wrap(ACCESS_OBJECT_ID));
         }
     }
 
