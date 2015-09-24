@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.client.History;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
@@ -99,6 +101,7 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
                     getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().lastIndexOf("/")+1
             );
             initialization.setApplicationName(applicationNamePart);
+
         }
 
         addInformationToInitializationObject(initialization);
@@ -127,6 +130,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setGlobalLocalizedResources(messages);
         DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(false);
         initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
+        if(initialization.getApplicationName()==null){
+            initialization.setApplicationName(domainObject.getString(UserSettingsHelper.DO_INITIAL_APPLICATION_NAME));
+        }
         return initialization;
     }
 

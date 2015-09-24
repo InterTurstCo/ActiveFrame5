@@ -12,7 +12,6 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.event.shared.UmbrellaException;
-import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -47,8 +46,6 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
-
-import javax.ejb.EJB;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
 
@@ -151,6 +148,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         NavigationTreePluginConfig navigationTreePluginConfig = new NavigationTreePluginConfig();
         if(initializationInfo.getApplicationName()!=null){
             navigationTreePluginConfig.setApplicationName(initializationInfo.getApplicationName());
+            History.setApplication(initializationInfo.getApplicationName());
         }
         // todo мы должны просто класть туда панель - пустую, а nav tree plugin уже будет открывать в ней что нужно
 

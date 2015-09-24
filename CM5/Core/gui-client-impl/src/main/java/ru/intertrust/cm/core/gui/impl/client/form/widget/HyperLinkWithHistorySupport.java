@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget;
 
 import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.History;
+import ru.intertrust.cm.core.gui.api.client.History;
 import com.google.gwt.user.client.ui.Hyperlink;
 
 /**

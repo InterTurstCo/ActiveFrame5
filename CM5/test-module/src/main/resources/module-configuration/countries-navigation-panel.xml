@@ -1675,6 +1675,179 @@
             </plugin>
 
         </link>
+
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries" tooltip="Вкладка 'География'">
+            <child-links>
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран" counter-type="non-read"  auto-cut="true" >
+                    <plugin>
+                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
+                        <domain-object-surfer domain-object-type-to-create="country">
+                            <collection-viewer>
+                                <collection-ref name="Countries"/>
+                                <default-sort-criteria column-field="name" order="desc"/>
+                                <search-area-ref name="Countries-Search-Area"/>
+                                <search-collection-ref name="Countries"/>
+                                <filter-panel panel-state="open"/>
+                                <rows-selection default-state="empty"/>
+                            </collection-viewer>
+                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
+                            <form-viewer>
+                                <form-mapping domain-object-type="country" form="country_form"/>
+                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
+                            </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Cities" display-text="Города, текст этого линка может не поместиться на весь экран">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="city">
+                            <collection-viewer>
+                                <collection-ref name="Cities"/>
+                                <default-sort-criteria column-field="population" order="desc"/>
+                                <child-collection name="Cities">
+                                    <collection-extra-filters>
+                                        <extra-filter name="byText">
+                                            <param name="0" type="string" value="Москва"/>
+                                        </extra-filter>
+                                    </collection-extra-filters>
+                                </child-collection>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                </link>
+                <link name="CountryUnions" display-text="Союзы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="country_union">
+                            <collection-viewer>
+                                <collection-ref name="CountryUnions"/>
+                                <default-sort-criteria column-field="name" order="ask"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest1" display-text="Механизм форм 1">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a1">
+                            <collection-viewer>
+                                <collection-ref name="a1_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest2" display-text="Механизм форм 2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a2">
+                            <collection-viewer>
+                                <collection-ref name="a2_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest3" display-text="Механизм форм 3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a3">
+                            <collection-viewer>
+                                <collection-ref name="a3_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest4" display-text="Механизм форм 4">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a4">
+                            <collection-viewer>
+                                <collection-ref name="a4_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest4_1" display-text="Механизм форм 5">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="c4">
+                            <collection-viewer>
+                                <collection-ref name="c4_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest" display-text="Наследование форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest2" display-text="Наследование форм2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest3" display-text="Наследование форм3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTemplatesTest" display-text="Шаблоны форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form_with_templates"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="NoPermissionTest" display-text="Права для связанной таблицы" auto-cut="true">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="np1">
+                            <collection-viewer>
+                                <collection-ref name="np1_collection" />
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="np1" form="np1_form" />
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
     </navigation>
 
     <navigation-panel-mappings name="nav-panel-map1">

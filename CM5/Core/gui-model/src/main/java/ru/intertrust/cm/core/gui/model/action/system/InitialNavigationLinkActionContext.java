@@ -12,6 +12,8 @@ public class InitialNavigationLinkActionContext extends ActionContext {
     public static final String COMPONENT_NAME = "initial.navigation.link.action";
     private String initialNavigationLink;
 
+    private String application;
+
     public InitialNavigationLinkActionContext() {
     }
 
@@ -25,5 +27,13 @@ public class InitialNavigationLinkActionContext extends ActionContext {
 
     public void setInitialNavigationLink(String initialNavigationLink) {
         this.initialNavigationLink = initialNavigationLink;
+    }
+
+    public String getApplication() {
+        return application;
+    }
+
+    public void setApplication(String application) {
+        this.application = application;
     }
 }
