@@ -672,9 +672,9 @@ h1 {
     border: none !important;
     position: relative;
     float: left;
-    margin: 6px 4px 0 10px;
+    margin: 12px 7px 0 10px;
     cursor: pointer;
-    height: 25px;
+    height: 16px;;
 }
 
 .decorated-action-link {
@@ -3343,6 +3343,9 @@ a:active .icon.back {
 
 .all_wrapper {
     width: 100%;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
 }
 
 .collectionCellWrapper .expand_text {
