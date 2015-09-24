@@ -1,18 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,22 +11,12 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.AttachmentTypesConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -49,6 +26,13 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
+
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 /**
  * Юнит тест для DomainObjectDaoImpl
  *
@@ -257,7 +241,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select internal_employee.*, person.\"email\", person.\"login\", person.\"password\", " +
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
-                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\" from " +
+                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" from " +
                 "\"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where 1=1 and exists (select a.\"object_id\" from \"person_read\" a " +
                 "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join " +
@@ -271,7 +255,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select internal_employee.*, person.\"email\", person.\"login\", person.\"password\", " +
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
-                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\" " +
+                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where 1=1 and internal_employee.\"id_type\" = :result_type_id and " +
                 "exists (select a.\"object_id\" from \"person_read\" a inner join \"group_group\" gg " +
@@ -315,7 +299,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select internal_employee.*, person.\"email\", person.\"login\", person.\"password\", person.\"boss\", "
                 + "person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", \"created_by_type\", \"updated_by\", "
-                + "\"updated_by_type\", \"status\", \"status_type\" from \"internal_employee\" internal_employee "
+                + "\"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" from \"internal_employee\" internal_employee "
                 + "inner join \"person\" person on internal_employee.\"id\" = person.\"id\" "
                 + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
                 + "and exists (select r.\"object_id\" from \"person_read\" r  "
@@ -333,7 +317,7 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select internal_employee.*, person.\"email\", person.\"login\", person.\"password\", " +
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
-                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\" " +
+                "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id and " +
                 "\"boss_type\" = :domain_object_typeid and person.\"id_type\" = :result_type_id and " +
