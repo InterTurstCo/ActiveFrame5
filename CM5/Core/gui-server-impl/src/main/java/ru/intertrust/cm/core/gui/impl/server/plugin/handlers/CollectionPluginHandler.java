@@ -314,6 +314,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse refreshCollection(Dto dto) {
         final CollectionRowsRequest request = ((CollectionRefreshRequest) dto).getCollectionRowsRequest();
+        if(request.getExpandableTypes()==null){
+            request.setExpandableTypes(new ArrayList<String>());
+        }
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offsetFromRequest = request.getOffset();
         int limitFromRequest = request.getLimit();
