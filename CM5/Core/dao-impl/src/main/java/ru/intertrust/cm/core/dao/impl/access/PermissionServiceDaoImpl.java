@@ -18,6 +18,8 @@ import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -73,6 +75,7 @@ import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHa
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+import ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
@@ -85,6 +88,8 @@ import ru.intertrust.cm.core.model.PermissionException;
 public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implements PermissionServiceDao,
         ApplicationContextAware,
         OnLoadConfigurationExtensionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(PermissionServiceDaoImpl.class);
+    
     @Resource
     private TransactionSynchronizationRegistry txReg;
 
@@ -1159,7 +1164,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private class RecalcAclSynchronization implements Synchronization {
+        // Невалидные контексты в рамках одной итерации, после каждого beforeCompletion коллекция чистится
         private Set<Id> contextIds = new HashSet<>();
+        // Все невалидные контексты в рамках транзакции
+        private Set<Id> allContextIds = new HashSet<>();
         private Map<Id, AclData> aclDatas = new HashMap<Id, AclData>();
 
         public RecalcAclSynchronization() {
@@ -1167,6 +1175,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
+            addAllWithoutDuplicate(allContextIds, invalidContexts);
         }
 
         public void setAclData(Id id, AclData aclData) {
@@ -1194,6 +1203,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         @Override
         public void afterCompletion(int status) {
             if (status == Status.STATUS_COMMITTED) {
+                if (logger.isDebugEnabled()){
+                    logger.debug("Call afterCompletion. " + allContextIds);
+                }
+                
                 //Вызов обработчиков точки расширения изменения прав
                 TransactionStatus transactionStatus = null;
                 try {
