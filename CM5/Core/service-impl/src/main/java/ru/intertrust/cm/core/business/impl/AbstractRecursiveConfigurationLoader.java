@@ -107,11 +107,11 @@ abstract class AbstractRecursiveConfigurationLoader {
         for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
             if (fieldConfig instanceof ReferenceFieldConfig) {
                 // для id создается первичный ключ
-                if (SystemField.id.name().equals(fieldConfig.getName())) {
+                if (SystemField.id.name().equals(fieldConfig.getName()) ||
+                        SystemField.access_object_id.name().equals(fieldConfig.getName())) {
                     continue;
                 }
                 referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
-
             }
         }
         dataStructureDao.createForeignKeyAndUniqueConstraints(config, referenceFieldConfigs,

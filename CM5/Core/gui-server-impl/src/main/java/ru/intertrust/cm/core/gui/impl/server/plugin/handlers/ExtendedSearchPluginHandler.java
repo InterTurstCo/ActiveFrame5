@@ -337,7 +337,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         for (IdentifiableObject identifiableObject : collection) {
             final Map<String, Map<Value, ImagePathValue>> fieldMaps = defaultImageMapper.getImageMaps(columnPropertiesMap);
             searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(
-                    identifiableObject, columnPropertiesMap, fieldMaps));
+                    identifiableObject, columnPropertiesMap, fieldMaps, false));
         }
         final CollectionPluginData collectionPluginData = collectionPluginHandler
                 .getExtendedCollectionPluginData(targetCollectionName, "ext-search", searchResultRowItems);

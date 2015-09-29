@@ -89,14 +89,11 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     }
 
     /**
-     * Специализированный метод регистрации события фиксации или отката транзакции
-     * для работы с файлом. В случае "отката" файл будет удален из файловой системы,
-     * если он уже был там создан.
-     * @param filePath - полный путь к файлу.
+     * А.П. - Реализация перенесена в {@link FileSystemAttachmentContentDaoImpl}.
      */
     @Override
     public void addListenerForSaveFile(final String filePath) {
-        addListener(new ActionListener() {
+        /*addListener(new ActionListener() {
             @Override
             public void onBeforeCommit() {
             }
@@ -116,7 +113,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
             public void onAfterCommit() {
                 // Ничего не делаем                
             }
-        });
+        });*/
     }
 
     static private class ListenerBasedSynchronization implements Synchronization {

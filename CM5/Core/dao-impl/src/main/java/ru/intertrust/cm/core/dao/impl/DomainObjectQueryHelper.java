@@ -367,6 +367,8 @@ public class DomainObjectQueryHelper {
 
             query.append(", ").append(wrap(STATUS_FIELD_NAME));
             query.append(", ").append(wrap(STATUS_TYPE_COLUMN));
+
+            query.append(", ").append(wrap(ACCESS_OBJECT_ID));
         }
     }
 

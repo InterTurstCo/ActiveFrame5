@@ -672,9 +672,9 @@ h1 {
     border: none !important;
     position: relative;
     float: left;
-    margin: 6px 4px 0 10px;
+    margin: 12px 7px 0 10px;
     cursor: pointer;
-    height: 25px;
+    height: 16px;;
 }
 
 .decorated-action-link {
@@ -3156,14 +3156,18 @@ a:active .icon.back {
 
 /* Expandable Collection */
 .collectionCellWrapper {
-    /*padding: 0 5px 5px 0;*/
+    display: inline-block;
+    position: relative;
+    height: 28px;
+    width: 82%;
 }
 
 .collectionFilterCellWrapper {
     background: #ededed;
     border-radius: 30px 0 0 30px;
-    margin-left: 10px;
+    margin-left: 75px;
     padding: 5px 0 5px 25px;
+    display: none;
 }
 
 .collectionFilterCellWrapper .hierarchicalFilter {
@@ -3186,7 +3190,9 @@ a:active .icon.back {
     background: #ededed;
     border-radius: 30px 0 0 30px;
     margin-left: 10px;
-    padding: 5px 0 5px 5px;
+    position: relative;
+    height: 20px;
+    padding: 6px 0 6px 10px;
 }
 
 .collectionCellWrapper div:first-child {
@@ -3241,14 +3247,16 @@ a:active .icon.back {
 }
 
 .collapseSign {
-    background: #E9E9E9;
-    border-radius: 50%;
-    color: #171717;
+    background: #4688C9;
+    height: 13px;
+    width: 3px;
+    border-radius: 3px;
     display: inline-block;
     font-size: 15px;
-    font-weight: bold;
     margin: 0 5px 0 0;
     padding: 0 6px 2px;
+    position: relative;
+    top: 5px;
     -webkit-transition: all .3s;
     -moz-transition: all .3s;
     -ms-transition: all .3s;
@@ -3256,9 +3264,18 @@ a:active .icon.back {
     transition: all .3s;
 }
 
+.collapseSign:after {
+    content: '';
+    display: inline-block;
+    top: 5px;
+    left: 3px;
+    position: absolute;
+    border: 4px solid transparent;
+    border-top: 6px solid #FFFFFF;
+}
+
 .collapseSign:hover {
-    background: #e2e2e2;
-    color: #4D90FD;
+    background: #3D6CA5;
     cursor: pointer;
     -webkit-transition: all .3s;
     -moz-transition: all .3s;
@@ -3268,14 +3285,16 @@ a:active .icon.back {
 }
 
 .expandSign {
-    background: #E9E9E9;
-    border-radius: 50%;
-    color: #171717;
+    background: #4688C9;
+    height: 13px;
+    width: 7px;
+    border-radius: 3px;
     display: inline-block;
-    font-size: 15px;
     font-weight: bold;
     margin: 0 5px 0 0;
     padding: 1px 4px 1px;
+    position: relative;
+    top: 5px;
     -webkit-transition: all .3s;
     -moz-transition: all .3s;
     -ms-transition: all .3s;
@@ -3283,13 +3302,27 @@ a:active .icon.back {
     transition: all .3s;
 }
 
+.expandSign:after {
+    content: '';
+    display: inline-block;
+    top: 3px;
+    left: 5px;
+    border: 4px solid transparent;
+    border-left: 6px solid #FFFFFF;
+    position: absolute;
+}
+
 .childRow .expandSign {
-    background: #f5f5f5;
+    background: #4688C9;
+    top: 2px;
+}
+
+.childRow .collapseSign {
+    top: 2px;
 }
 
 .expandSign:hover {
-    background: #e2e2e2;
-    color: #4D90FD;
+    background: #3D6CA5;
     cursor: pointer;
     -webkit-transition: all .3s;
     -moz-transition: all .3s;
@@ -3301,7 +3334,90 @@ a:active .icon.back {
 .notExpandable .expandSign {
     background: none;
 }
+
+.expand_offset {
+    display: inline-block;
+    width: 6%;
+    height: 20px;
+}
+
+.all_wrapper {
+    width: 100%;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.collectionCellWrapper .expand_text {
+    display: inline-block;
+    position: absolute;
+    top: 6px;
+    width: 57%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.childRow .expand_text {
+    top: 9px;
+}
+
+.createGroup,.createElement {
+    display: inline-block;
+    width: 17px;
+    height: 17px;
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    -webkit-transition: all .2s;
+    -moz-transition: all .2s;
+    -ms-transition: all .2s;
+    -o-transition: all .2s;
+    transition: all .2s;
+}
+
+.createGroup {
+    right: 30px;
+    top: 6px;
+    background: url(css/icons/icon_classifier.png)no-repeat;
+    background-size: cover;
+    z-index: 100;
+}
+.createElement {
+    right: 6px;
+    top: 6px;
+    background: url(css/icons/icon_group.png)no-repeat;
+    background-size: cover;
+    z-index: 100;
+}
+
+.collectionCellWrapper:hover .createElement {
+    opacity: 1;
+}
+.collectionCellWrapper:hover .createGroup {
+    opacity: 1;
+}
+
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .createElement {
+    opacity: 1;
+}
+
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow .createGroup {
+    opacity: 1;
+}
+
+.createGroup:hover {
+    -webkit-transform: scale(1.2,1.2);
+    transform: scale(1.2,1.2);
+}
+
+.createElement:hover {
+    -webkit-transform: scale(1.2,1.2);
+    transform: scale(1.2,1.2);
+}
+
 /* end Expandable Collection */
+
 /*Styles for linked-domain-objects-table */
 
 .info {

@@ -181,11 +181,17 @@
                             <collection-viewer>
                                 <collection-ref name="Cities"/>
                                 <default-sort-criteria column-field="population" order="desc"/>
-                                <!--  <initial-filters>
-                                      <initial-filter name="byPopulation">
-                                          <param name="0" value="11500000" type="long"/>
-                                      </initial-filter>
-                                  </initial-filters>-->
+
+                                <child-collection name="Cities" group-object-type="city">
+                                    <collection-extra-filters>
+                                        <extra-filter name="byText">
+                                            <param name="0" type="string" value="Москва"/>
+                                        </extra-filter>
+                                    </collection-extra-filters>
+                                    <expandable-objects>
+                                        <expandable-object object-name="city"/>
+                                    </expandable-objects>
+                                </child-collection>
                             </collection-viewer>
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>

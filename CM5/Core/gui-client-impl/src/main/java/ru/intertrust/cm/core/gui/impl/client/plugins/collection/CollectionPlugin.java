@@ -3,18 +3,25 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.shared.GwtEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
+import ru.intertrust.cm.core.config.gui.navigation.ChildCollectionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionDefaultState;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.action.CreateNewObjectAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
@@ -22,6 +29,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.*;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
@@ -29,6 +37,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +49,7 @@ import java.util.Map;
  */
 @ComponentName("collection.plugin")
 public class CollectionPlugin extends Plugin implements SideBarResizeEventHandler, CollectionRowStateChangedEventHandler,
-        CollectionRowFilteredEventHandler, CollectionRowMoreItemsEventHandler {
+        CollectionRowFilteredEventHandler, CollectionRowMoreItemsEventHandler, CollectionAddGroupEventHandler, CollectionAddElementEventHandler {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
@@ -79,6 +88,8 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         eventBus.addHandler(CollectionRowStateChangedEvent.TYPE, this);
         eventBus.addHandler(CollectionRowFilteredEvent.TYPE, this);
         eventBus.addHandler(CollectionRowMoreItemsEvent.TYPE, this);
+        eventBus.addHandler(CollectionAddGroupEvent.TYPE, this);
+        eventBus.addHandler(CollectionAddElementEvent.TYPE, this);
         return new CollectionPluginView(this);
 
     }
@@ -92,6 +103,16 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
         final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
         final Id selectedId = selectedIds == null ? null : selectedIds.get(0);
+        List<String> expandableTypes = new ArrayList<String>();
+        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
+
+            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+        }
+        rowsRequest.setExpandableTypes(expandableTypes);
+
         final Command command = new Command("refreshCollection", "collection.plugin",
                 new CollectionRefreshRequest(rowsRequest, selectedId));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -235,21 +256,41 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     private void fetchAndHandleItems(final int itemIndex, CollectionRowItem effectedItem, final ExpandedRowState rowState, final CommandCallBack commandCallBack){
         CollectionRowsRequest collectionRowsRequest = createRequest(effectedItem, rowState);
-        Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
-        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
-            @Override
-            public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while obtaining updated row");
-                caught.printStackTrace();
-            }
+        List<String> expandableTypes = new ArrayList<String>();
 
-            @Override
-            public void onSuccess(Dto result) {
-                CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
-                handleItems(itemIndex, collectionRowsResponse, rowState, commandCallBack);
+        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
 
+            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
             }
-        });
+        }
+        collectionRowsRequest.setExpandableTypes(expandableTypes);
+
+        CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig)getConfig();
+        if(collectionViewerConfig.getChildCollectionConfig()!=null){
+            collectionRowsRequest.setCollectionName(collectionViewerConfig.getChildCollectionConfig().getName());
+            collectionRowsRequest.setHierarchicalFiltersConfig(collectionViewerConfig.getChildCollectionConfig().getCollectionExtraFiltersConfig());
+            Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining updated row");
+                    caught.printStackTrace();
+                }
+
+                @Override
+                public void onSuccess(Dto result) {
+                    CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                    handleItems(itemIndex, collectionRowsResponse, rowState, commandCallBack);
+
+                }
+            });
+        } else {
+            Window.alert("Дочерняя коллекция не задана в конфигурации.");
+        }
+
+
     }
     private CollectionRowsRequest createRequest(CollectionRowItem effectedItem, ExpandedRowState rowState){
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest();
@@ -260,6 +301,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         collectionRowsRequest.setLimit(rowState.getLimit());
         collectionRowsRequest.setOffset(rowState.getOffset());
         collectionRowsRequest.setFiltersMap(rowState.getFilters());
+        collectionRowsRequest.setCurrentNestingLevel(effectedItem.getNestingLevel());
         return collectionRowsRequest;
     }
 
@@ -281,6 +323,39 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             ApplicationWindow.infoAlert(LocalizeUtil.get(LocalizationKeys.NO_ITEMS_FETCHED));
         }
 
+    }
+
+    @Override
+    public void onCollectionAddGroup(CollectionAddGroupEvent event) {
+        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig)getConfig()).getChildCollectionConfig();
+        if(childCollectionConfig.getGroupObjectType() != null){
+            createObjectAction(childCollectionConfig.getGroupObjectType(),event.getEffectedRowItem().getId());
+        } else {
+            Window.alert("Не указан аттрибут group-object-type элемента child-collection");
+        }
+    }
+
+    @Override
+    public void onCollectionAddElement(CollectionAddElementEvent event) {
+        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig)getConfig()).getChildCollectionConfig();
+        if(childCollectionConfig.getElementObjectType() != null){
+            createObjectAction(childCollectionConfig.getElementObjectType(),event.getEffectedRowItem().getId());
+        } else {
+            Window.alert("Не указан аттрибут element-object-type элемента child-collection");
+        }
+    }
+
+    private void createObjectAction(String objectType, Id rootObjectId){
+        CreateNewObjectAction action = ComponentRegistry.instance.get("create.new.object.action");
+        ActionContext actionContext = new ActionContext();
+        actionContext.setRootObjectId(rootObjectId);
+        ActionConfig actionConfig = new ActionConfig();
+        actionConfig.getProperties().put("create.object.type",objectType);
+        actionConfig.setText("collection-row-button-action");
+        actionContext.setActionConfig(actionConfig);
+        action.setInitialContext(actionContext);
+        action.setPlugin(getContainingDomainObjectSurferPlugin());
+        action.perform();
     }
 
     private interface CommandCallBack {

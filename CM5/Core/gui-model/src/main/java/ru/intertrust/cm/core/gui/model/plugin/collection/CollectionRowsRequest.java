@@ -36,6 +36,8 @@ public class CollectionRowsRequest implements Dto {
     private TableBrowserParams tableBrowserParams;
     private CollectionExtraFiltersConfig hierarchicalFiltersConfig;
     private Id parentId;
+    private int currentNestingLevel;
+    private List<String> expandableTypes;
 
     public CollectionRowsRequest(int offset, int limit, String collectionName, LinkedHashMap<String, CollectionColumnProperties> properties,
                                   String simpleSearchQuery, String searchArea) {
@@ -64,6 +66,14 @@ public class CollectionRowsRequest implements Dto {
     }
 
     public CollectionRowsRequest() {
+    }
+
+    public int getCurrentNestingLevel() {
+        return currentNestingLevel;
+    }
+
+    public void setCurrentNestingLevel(int currentNestingLevel) {
+        this.currentNestingLevel = currentNestingLevel;
     }
 
     public int getOffset() {
@@ -202,4 +212,11 @@ public class CollectionRowsRequest implements Dto {
         this.parentId = parentId;
     }
 
+    public List<String> getExpandableTypes() {
+        return expandableTypes;
+    }
+
+    public void setExpandableTypes(List<String> expandableTypes) {
+        this.expandableTypes = expandableTypes;
+    }
 }

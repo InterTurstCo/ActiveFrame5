@@ -10,9 +10,9 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Date;
+import java.util.UUID;
 
 import org.apache.tika.Tika;
-import org.apache.tika.mime.MimeTypes;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -38,19 +38,19 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     private static final String DATE_PATTERN = "yyyy/MM/dd";
     final private static org.slf4j.Logger logger = LoggerFactory.getLogger(FileSystemAttachmentContentDaoImpl.class);
     final static private String PATH_NAME = "Path";
-    
+
     @org.springframework.beans.factory.annotation.Value("${attachment.storage}")
     private String attachmentSaveLocation;
-    
+
     @Autowired
     ConfigurationExplorer configurationExplorer;
-        
+
     @Autowired
     private UserTransactionService userTransactionService;
-    
+
     @Autowired
     private EventLogService eventLogService;
-    
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -63,13 +63,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         this.eventLogService = eventLogService;
     }
 
-    private void init() {
-        //Заменяем настройку путей на использование server.properties. значение устанавливает аннотация @Value("#{attachment.storage}")
-        /*GlobalSettingsConfig globalSettings = configurationExplorer.getGlobalSettings();
-        AttachmentStorageConfig storageConfig = globalSettings.getAttachmentStorageConfig();
-        attachmentSaveLocation = storageConfig.getPath();*/
-    }
-    
     @Override
     public AttachmentInfo saveContent(InputStream inputStream, String fileName) {
         AttachmentInfo attachmentInfo = new AttachmentInfo();
@@ -78,12 +71,20 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        String absFilePath = newAbsoluteFilePath(absDirPath);
-        String fileExtension = getFileExtension(fileName);
-        if (fileExtension != null) {
-            absFilePath += fileExtension;
-        }
-        userTransactionService.addListenerForSaveFile(absFilePath);
+        final String absFilePath = newAbsoluteFilePath(absDirPath, getFileExtension(fileName));
+        userTransactionService.addListener(new BaseActionListener() {
+            @Override
+            public void onRollback() {
+                File f = new File(absFilePath);
+                if (f.exists()) {
+                    try {
+                        f.delete();
+                    } catch (RuntimeException ex) {
+                        logger.error("Error deleting uncommitted content on transaction rollback", ex);
+                    }
+                }
+            }
+        });
         try {
             //не заменяет файл
             Files.copy(inputStream, Paths.get(absFilePath));
@@ -106,7 +107,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         Tika detector = new Tika();
         return detector.detect(path);
     }
-    
+
     private String getFileExtension(String fileName) {
         if (fileName == null) {
             return null;
@@ -119,7 +120,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
         return fileExtension;
     }
-    
+
     @Override
     public InputStream loadContent(DomainObject domainObject) {
         try {
@@ -145,12 +146,31 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         if (isPathEmptyInDo(domainObject)) {
             return;
         }
-        Value value = domainObject.getValue(PATH_NAME);
-        String relFilePath = ((StringValue) value).get();
-        File f = new File(toAbsFromRelativePathFile(relFilePath));
+        StringValue value = domainObject.getValue(PATH_NAME);
+        String relFilePath = value.get();
+        
+        logger.debug("Delete content " + relFilePath);
+        if (logger.isTraceEnabled()){
+            String message = "";
+            for(StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {                         
+                message += System.lineSeparator() + "\t" + stackTraceElement.toString();
+            }            
+            logger.trace(message);
+        }        
+        
+        final File f = new File(toAbsFromRelativePathFile(relFilePath));
         if (f.exists()) {
             try {
-                f.delete();
+                userTransactionService.addListener(new BaseActionListener() {
+                    @Override
+                    public void onAfterCommit() {
+                        try {
+                            f.delete();
+                        } catch (RuntimeException e) {
+                            logger.error("Error deleting attachment content", e);
+                        }
+                    }
+                });
             } catch (RuntimeException ex) {
                 logger.error(ex.getMessage(), ex);
             }
@@ -158,7 +178,7 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     }
 
     private boolean isPathEmptyInDo(DomainObject domainObject) {
-        Value value = domainObject.getValue(PATH_NAME);
+        Value<?> value = domainObject.getValue(PATH_NAME);
         return value == null || value.isEmpty() || !(value instanceof StringValue);
     }
 
@@ -166,10 +186,14 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return Paths.get(attachmentSaveLocation, ThreadSafeDateFormat.format(new Date(), DATE_PATTERN)).toAbsolutePath().toString();
     }
 
-    private String newAbsoluteFilePath(String absDirPath) {
+    private String newAbsoluteFilePath(String absDirPath, String extension) {
         Path fs;
         do {
-            fs = Paths.get(absDirPath, java.util.UUID.randomUUID().toString());
+            String nameCandidate = UUID.randomUUID().toString();
+            if (extension != null) {
+                nameCandidate += extension;
+            }
+            fs = Paths.get(absDirPath, nameCandidate);
         } while (Files.exists(fs, LinkOption.NOFOLLOW_LINKS));
         return fs.toAbsolutePath().toString();
     }

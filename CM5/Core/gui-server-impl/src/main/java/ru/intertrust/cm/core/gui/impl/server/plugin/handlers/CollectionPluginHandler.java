@@ -3,13 +3,17 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -68,7 +72,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     @Autowired
     private SortOrderHelper sortOrderHelper;
 
+    @Autowired
+    private CrudService crudService;
+
     private boolean expandable; //dummy for testing
+
+
 
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
@@ -125,7 +134,16 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             }
         }
 
-        ArrayList<CollectionRowItem> items = getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap);
+        List<String> expandableTypes = new ArrayList<String>();
+        if(collectionViewerConfig.getChildCollectionConfig()!=null){
+
+            for(ExpandableObjectConfig expandableObjectConfig :collectionViewerConfig.getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()){
+                expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+        }
+
+        ArrayList<CollectionRowItem> items = getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap, expandableTypes);
         pluginData.setItems(items);
         Collection<Id> selectedIds = tableBrowserParams == null ? new ArrayList<Id>() : tableBrowserParams.getIds();
         pluginData.setChosenIds(selectedIds);
@@ -216,7 +234,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowItem generateCollectionRowItem(final IdentifiableObject identifiableObject,
                                                        final Map<String, CollectionColumnProperties> columnPropertiesMap,
-                                                       final Map<String, Map<Value, ImagePathValue>> fieldMappings) {
+                                                       final Map<String, Map<Value, ImagePathValue>> fieldMappings,
+                                                       final Boolean typeIsExpandable) {
         CollectionRowItem item = new CollectionRowItem();
         item.setExpandable(expandable); //stub for poc
         expandable = !expandable;
@@ -224,19 +243,25 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         item.setId(identifiableObject.getId());
         item.setRow(row);
         item.setRowType(CollectionRowItem.RowType.DATA);
+        item.setHaveChild(typeIsExpandable);
         return item;
 
     }
 
     public ArrayList<CollectionRowItem> getRows(String collectionName, int offset, int count, List<Filter> filters,
-                                                SortOrder sortOrder, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap) {
+                                                SortOrder sortOrder, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
+                                                List<String> expandableTypes) {
 
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection = collectionsService.
                 findCollection(collectionName, sortOrder, filters, offset, count);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(columnPropertiesMap);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings));
+            Boolean typeIsExpandable = false;
+            if(expandableTypes.contains(crudService.find(identifiableObject.getId()).getTypeName())){
+                typeIsExpandable = true;
+            }
+            items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings,typeIsExpandable));
 
         }
         return items;
@@ -244,14 +269,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public ArrayList<CollectionRowItem> getSimpleSearchRows(String collectionName, int offset, int count,
                                                             List<Filter> filters, String simpleSearchQuery, String searchArea,
-                                                            LinkedHashMap<String, CollectionColumnProperties> properties) {
+                                                            LinkedHashMap<String, CollectionColumnProperties> properties,
+                                                            List<String> expandableTypes) {
 
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
         IdentifiableObjectCollection collection =
                 searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
         for (IdentifiableObject identifiableObject : collection) {
-            items.add(generateCollectionRowItem(identifiableObject, properties, fieldMappings));
+            Boolean typeIsExpandable = false;
+            if(expandableTypes.contains(crudService.find(identifiableObject.getId()).getTypeName())){
+                typeIsExpandable = true;
+            }
+            items.add(generateCollectionRowItem(identifiableObject, properties, fieldMappings,typeIsExpandable));
         }
         return items;
     }
@@ -275,7 +305,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
 
-        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit,request.getExpandableTypes());
 
         collectionRowsResponse.setCollectionRows(result);
 
@@ -284,6 +314,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse refreshCollection(Dto dto) {
         final CollectionRowsRequest request = ((CollectionRefreshRequest) dto).getCollectionRowsRequest();
+        if(request.getExpandableTypes()==null){
+            request.setExpandableTypes(new ArrayList<String>());
+        }
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
         int offsetFromRequest = request.getOffset();
         int limitFromRequest = request.getLimit();
@@ -299,11 +332,11 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         if (!includedIds.isEmpty()) {
             filterBuilder.prepareIncludedIdsFilter(includedIds, filters);
         }
-        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit);
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit,request.getExpandableTypes());
         final Id idToFindIfAbsent = ((CollectionRefreshRequest) dto).getIdToFindIfAbsent();
         if (idToFindIfAbsent != null && CollectionPluginHelper.doesNotContainSelectedId(idToFindIfAbsent, result)) {
             int additionalOffset = limit;
-            List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200);
+            List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200,request.getExpandableTypes());
             result.addAll(additionalItems);
         }
         CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
@@ -315,20 +348,20 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     private ArrayList<CollectionRowItem> generateRowItems(CollectionRowsRequest request,
                                                           LinkedHashMap<String, CollectionColumnProperties> properties,
-                                                          List<Filter> filters, int offset, int limit) {
+                                                          List<Filter> filters, int offset, int limit, List<String> expandableTypes) {
         ArrayList<CollectionRowItem> list;
         String collectionName = request.getCollectionName();
         if (request.isSortable()) {
             SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
-            list = getRows(collectionName, offset, limit, filters, sortOrder, properties);
+            list = getRows(collectionName, offset, limit, filters, sortOrder, properties,expandableTypes);
         } else {
             if (request.getSimpleSearchQuery().length() > 0) {
                 list = getSimpleSearchRows(collectionName, offset, limit, filters,
                         request.getSimpleSearchQuery(), request.getSearchArea(),
-                        properties);
+                        properties,request.getExpandableTypes());
             } else {
                 SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
-                list = getRows(collectionName, offset, limit, filters, sortOrder, properties);
+                list = getRows(collectionName, offset, limit, filters, sortOrder, properties,expandableTypes);
 
             }
 
@@ -351,13 +384,18 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse getChildrenForExpanding(Dto request){
         CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
+
         String collectionName = rowsRequest.getCollectionName();
         SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
         Id parentId = rowsRequest.getParentId();
         Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
-        List<Filter> filters = prepareFilters(rowsRequest.getParentId(), rowsRequest.getColumnProperties(), filtersMap);
+        List<Filter> filters = new ArrayList<Filter>();
+
+
+        filterBuilder.prepareExtraFilters(rowsRequest.getHierarchicalFiltersConfig(), new ComplexFiltersParams(rowsRequest.getParentId()), filters);
+
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(rowsRequest.getCollectionName(), sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
+                findCollection(collectionName, sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
         if(notMoreItems){
@@ -370,10 +408,14 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
-            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings);
+            Boolean typeIsExpandable = false;
+            if(((CollectionRowsRequest) request).getExpandableTypes().contains(crudService.find(identifiableObject.getId()).getTypeName())){
+                typeIsExpandable = true;
+            }
+            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings,typeIsExpandable);
             item.setParentId(parentId);
+            item.setNestingLevel(rowsRequest.getCurrentNestingLevel()+1);
             items.add(item);
-
         }
         if(notMoreItems){
         CollectionRowItem moreItems = new CollectionRowItem();

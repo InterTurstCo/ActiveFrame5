@@ -11,13 +11,11 @@ package ru.intertrust.cm.core.dao.api;
  */
 public interface UserTransactionService {
     /**
-     * Специализированный метод регистрации события фиксации или отката транзакции
-     * для работы с файлом. В случае "отката" файл будет удален из файловой системы,
-     * если он уже был там создан.
-     * @param filePath - полный путь к файлу.
+     * А.П. - метод {@link #addListener(ActionListener)} может и должен использоваться для любых обработчиков
      */
+    @Deprecated
     public void addListenerForSaveFile(final String filePath);
-    
+
     /**
      * Регистрируем событие для фиксации или отката "пользовательской" транзакции.
      * @param actionListener - событие, необходимо переопределить методы onCommit и onRollback.

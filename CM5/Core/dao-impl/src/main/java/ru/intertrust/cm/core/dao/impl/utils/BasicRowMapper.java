@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
@@ -99,6 +100,31 @@ public class BasicRowMapper extends ValueReader {
         } else if (UPDATED_DATE_COLUMN.equalsIgnoreCase(column.getName()) && value != null && value.get() != null) {
             valueModel.setModifiedDate(((DateTimeValue) value).get());
         }
+    }
+
+    @Override
+    protected ReferenceValue readReferenceValue(ResultSet rs, List<BasicRowMapper.Column> columns, int columnIndex)
+            throws SQLException {
+        BasicRowMapper.Column column = columns.get(columnIndex);
+
+        if (!DomainObjectDao.ACCESS_OBJECT_ID.equals(column.getName())) {
+            return super.readReferenceValue(rs, columns, columnIndex);
+        }
+
+        String accessObjectTypeName = configurationExplorer.getMatrixReferenceTypeName(domainObjectType);
+        if (accessObjectTypeName == null) {
+            accessObjectTypeName = domainObjectType;
+        }
+        accessObjectTypeName = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, accessObjectTypeName);
+
+        Integer accessObjectType = domainObjectTypeIdCache.getId(accessObjectTypeName);
+
+        Number longValue = (Number) rs.getObject(column.getIndex());
+        if (longValue == null) {
+            throw new FatalException("access_object_id is null for " + domainObjectType);
+        }
+
+        return new ReferenceValue(new RdbmsId(accessObjectType, longValue.longValue()));
     }
 
     /**

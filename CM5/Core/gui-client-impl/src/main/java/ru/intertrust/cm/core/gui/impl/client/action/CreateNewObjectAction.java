@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
@@ -48,6 +49,15 @@ public class CreateNewObjectAction extends Action {
         } else {
             formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
         }
+        //CMFIVE-4330
+        /**
+         * Это просто временное решение т.к. прямой возможности передать Id в DefailtValueSetter отсюда
+         * пока нет.
+         */
+        if (actionConfig.getText().equals("collection-row-button-action") && formPluginConfig.getParentId() == null) {
+            formPluginConfig.setParentId(getInitialContext().getRootObjectId());
+        }
+
         if (state.isToggleEdit()) {
             state.setEditable(true);
             final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
