@@ -193,7 +193,9 @@ public class HierarchyBrowserMainPopup implements HierarchyBrowserDisplay {
         dialogBox.setStyleName("popup-body");
         dialogBox.setModal(true);
         dialogBox.setWidget(initPopup());
-        dialogBox.getElement().getStyle().setZIndex(1000); // Должен быть выше,
+        //CMFIVE-4379 так со стилями работать нельзя!
+        //dialogBox.getElement().getStyle().setZIndex(1000);
+        // Должен быть выше,
                                                            // чем у
                                                            // ExtSearchDialogBox
         popupChosenContent.setTooltipClickHandler(new ClickHandler() {
