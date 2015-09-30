@@ -1155,6 +1155,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="expandable-objects" type="con:expandableObjectsType" maxOccurs="unbounded" minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element type="con:defaultSortCriteriaType" name="default-sort-criteria" maxOccurs="unbounded"
+                        minOccurs="0" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
         <xs:attribute type="xs:string" name="group-object-type" use="optional"/>

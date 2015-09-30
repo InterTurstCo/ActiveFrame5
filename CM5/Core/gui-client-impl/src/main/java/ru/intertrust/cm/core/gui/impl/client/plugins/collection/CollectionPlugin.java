@@ -10,10 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
-import ru.intertrust.cm.core.config.gui.navigation.ChildCollectionConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionConfig;
-import ru.intertrust.cm.core.config.gui.navigation.RowsSelectionDefaultState;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -263,6 +260,10 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
                     getExpandableObjectsConfig().getExpandableObjects()){
                 expandableTypes.add(expandableObjectConfig.getObjectName());
+            }
+            if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig().getDefaultSortCriteriaConfig()!=null){
+                collectionRowsRequest.setDefaultSortCriteriaConfig(((CollectionViewerConfig)getConfig()).
+                        getChildCollectionConfig().getDefaultSortCriteriaConfig());
             }
         }
         collectionRowsRequest.setExpandableTypes(expandableTypes);

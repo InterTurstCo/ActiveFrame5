@@ -386,11 +386,16 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
 
         String collectionName = rowsRequest.getCollectionName();
-        SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+        SortOrder sortOrder;
         Id parentId = rowsRequest.getParentId();
         Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
         List<Filter> filters = new ArrayList<Filter>();
 
+        if(rowsRequest.getDefaultSortCriteriaConfig()==null){
+            sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+        } else {
+            sortOrder = sortOrderHelper.buildSortOrder(collectionName,rowsRequest.getDefaultSortCriteriaConfig());
+        }
 
         filterBuilder.prepareExtraFilters(rowsRequest.getHierarchicalFiltersConfig(), new ComplexFiltersParams(rowsRequest.getParentId()), filters);
 

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.SortCriteriaConfig;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
@@ -30,6 +31,7 @@ public class CollectionRowsRequest implements Dto {
     private String simpleSearchQuery;
     private String searchArea;
     private SortCriteriaConfig sortCriteriaConfig;
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
     private Set<Id> includedIds;
     private LinkedHashMap<String, CollectionColumnProperties> columnProperties;
     private Map<String, List<String>> filtersMap;
@@ -218,5 +220,13 @@ public class CollectionRowsRequest implements Dto {
 
     public void setExpandableTypes(List<String> expandableTypes) {
         this.expandableTypes = expandableTypes;
+    }
+
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
+    }
+
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 }
