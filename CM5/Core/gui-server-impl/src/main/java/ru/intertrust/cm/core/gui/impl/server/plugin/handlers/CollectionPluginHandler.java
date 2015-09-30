@@ -399,12 +399,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
         if(notMoreItems){
-        CollectionRowItem filter = new CollectionRowItem();
-        filter.setParentId(parentId);
-        filter.setRowType(CollectionRowItem.RowType.FILTER);
-        filter.setRow(new HashMap<String, Value>(0));
-        filter.setFilters(filtersMap);
-        items.add(filter);
+            CollectionRowItem filter = new CollectionRowItem();
+            filter.setParentId(parentId);
+            filter.setRowType(CollectionRowItem.RowType.FILTER);
+            filter.setRow(new HashMap<String, Value>(0));
+            filter.setFilters(filtersMap);
+            items.add(filter);
         }
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
@@ -418,11 +418,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             items.add(item);
         }
         if(notMoreItems){
-        CollectionRowItem moreItems = new CollectionRowItem();
-        moreItems.setParentId(parentId);
-        moreItems.setRowType(CollectionRowItem.RowType.BUTTON);
-        moreItems.setRow(new HashMap<String, Value>(0));
-        items.add(moreItems);
+            CollectionRowItem moreItems = new CollectionRowItem();
+            moreItems.setParentId(parentId);
+            moreItems.setRowType(CollectionRowItem.RowType.BUTTON);
+            moreItems.setRow(new HashMap<String, Value>(0));
+            moreItems.setNestingLevel(rowsRequest.getCurrentNestingLevel());
+            items.add(moreItems);
         }
 
         CollectionRowsResponse response = new CollectionRowsResponse();
