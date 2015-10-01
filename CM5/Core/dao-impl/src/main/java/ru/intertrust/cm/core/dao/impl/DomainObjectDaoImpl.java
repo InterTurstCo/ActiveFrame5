@@ -1207,9 +1207,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             String name = uniqueKeyFieldConfig.getName().toLowerCase();
-
             Value value = uniqueKeyValues.get(name);
-            parameters.put(name, value.get());
+
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, name);
+            initializeDomainParameter(fieldConfig, value, parameters);
         }
 
         DomainObject result = switchableJdbcTemplate.query(query, parameters,
@@ -1703,24 +1704,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (domainObject != null) {
                 value = domainObject.getValue(fieldConfig.getName());
             }
-            String columnName = getSqlName(fieldConfig.getName());
-            String parameterName = generateParameter(columnName);
 
-            if (value == null || value.get() == null) {
-                parameters.put(parameterName, null);
-                if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    parameterName = generateParameter(getReferenceTypeColumnName(fieldConfig.getName()));
-                    parameters.put(parameterName, null);
-                } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
-                    parameterName =
-                            generateParameter(getTimeZoneIdColumnName(fieldConfig.getName()));
-                    parameters.put(parameterName, null);
-                }
-                continue;
-            }
-
-            // хэшируем Encrypted строки
-            if (fieldConfig instanceof StringFieldConfig){
+            if (value != null && value.get() != null && fieldConfig instanceof StringFieldConfig) {
                 StringFieldConfig stringFieldConfig = (StringFieldConfig) fieldConfig;
                 if (stringFieldConfig.getEncrypted() != null
                         && stringFieldConfig.getEncrypted()){
@@ -1731,8 +1716,28 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 }
             }
 
-            setParameter(parameterName, value, parameters);
+            initializeDomainParameter(fieldConfig, value, parameters);
         }
+    }
+
+    private void initializeDomainParameter(FieldConfig fieldConfig, Value value, Map<String, Object> parameters) {
+        String columnName = getSqlName(fieldConfig.getName());
+        String parameterName = generateParameter(columnName);
+
+        if (value == null || value.get() == null) {
+            parameters.put(parameterName, null);
+            if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
+                parameterName = generateParameter(getReferenceTypeColumnName(fieldConfig.getName()));
+                parameters.put(parameterName, null);
+            } else if (DateTimeWithTimeZoneFieldConfig.class.equals(fieldConfig.getClass())) {
+                parameterName =
+                        generateParameter(getTimeZoneIdColumnName(fieldConfig.getName()));
+                parameters.put(parameterName, null);
+            }
+            return;
+        }
+
+        setParameter(parameterName, value, parameters);
     }
 
     private boolean wasUpdated(DomainObject domainObject, StringFieldConfig stringFieldConfig, String str) {
