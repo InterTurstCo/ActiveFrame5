@@ -111,6 +111,21 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/dot.png")
     ImageResource dotIm();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/arrowMinus.bmp")
+    ImageResource arrowMinus();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/arrowPlus.png")
+    ImageResource arrowPlus();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/question.png")
+    ImageResource question();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/clock.png")
+    ImageResource clock();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/comment.png")
+    ImageResource comment();
+	
     @Source("common.css")
     public CommonCssResource commonCss();
 }
