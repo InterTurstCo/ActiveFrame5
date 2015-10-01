@@ -100,10 +100,10 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 } 
             }
             //Получаем версию документа из Метаданных отчета.
-            //Если версия отсутствует устанавливаем версию в 0.
+            //Если версия отсутствует устанавливаем версию в 1.
             Long newVersion = reportMetadata.getVersion();
             if (newVersion == null){
-                newVersion = 0L;
+                newVersion = 1L;
             }
             //Если не существует то создаем новый
             if (reportTemplateObject == null) {
