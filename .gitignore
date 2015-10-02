@@ -28,8 +28,8 @@ Thumbs.db
 .springBeans
 
 # Idea
-#**/*.iml
-#**/.idea
+**/*.iml
+**/.idea
 **/.idea/workspace.xml
 **/.idea/tasks.xml
 atlassian-ide-plugin.xml
