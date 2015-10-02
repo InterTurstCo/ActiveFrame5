@@ -31,11 +31,19 @@ public class PlatformCellTableBuilder extends DefaultCellTableBuilder<Collection
 
             String styleForCell = style.cell();
             cellBuilder.className(styleForCell);
-            DivBuilder divBuilder = cellBuilder.startDiv();
 
+            DivBuilder wrapBuilder = cellBuilder.startDiv();
+            wrapBuilder.className("wrap_btn");
+            for(int index = 0; index < rowValue.getNestingLevel()+1; index++){
+                DivBuilder divBuilder = cellBuilder.startDiv();
+                divBuilder.className("expand_offset");
+                cellBuilder.endDiv();
+            }
+            DivBuilder divBuilder = cellBuilder.startDiv();
             divBuilder.className("collectionButtonCellWrapper");
             divBuilder.title(LocalizeUtil.get(LocalizationKeys.MORE_ITEMS_KEY));
             divBuilder.text("...");
+            cellBuilder.endDiv();
             cellBuilder.endDiv();
 
             tr.endTD();

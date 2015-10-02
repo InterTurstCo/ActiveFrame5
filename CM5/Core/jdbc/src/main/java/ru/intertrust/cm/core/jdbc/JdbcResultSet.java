@@ -32,6 +32,7 @@ public class JdbcResultSet implements ResultSet {
     private int resultsetIndex = -1;
     private boolean closed = false;
     private JdbcStatement statement = null;
+    private boolean wasNull = false;
 
     public JdbcResultSet(Statement statement, IdentifiableObjectCollection collection) {
         this.collection = collection;
@@ -81,7 +82,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public boolean wasNull() throws SQLException {
-        return false;
+        return wasNull;
     }
 
     @Override
@@ -182,11 +183,14 @@ public class JdbcResultSet implements ResultSet {
         String result = null;
         Value value = collection.get(index).getValue(columnLabel);
         if (value != null && value.get() != null) {
-            if (value instanceof ReferenceValue){
-                result = ((ReferenceValue)value).get().toStringRepresentation();
-            }else{
+            if (value instanceof ReferenceValue) {
+                result = ((ReferenceValue) value).get().toStringRepresentation();
+            } else {
                 result = value.get().toString();
             }
+            wasNull = false;
+        }else{
+            wasNull = true;
         }
 
         return result;
@@ -196,14 +200,13 @@ public class JdbcResultSet implements ResultSet {
     public boolean getBoolean(String columnLabel) throws SQLException {
         boolean result = false;
         Value value = collection.get(index).getValue(columnLabel);
-        if (value != null && value.get() != null) {
-            if (value instanceof BooleanValue) {
-                result = ((BooleanValue) value).get();
-            }else {
-                throw new SQLException("Value of column " + columnLabel + " is not int type");
-            }
-        }else{
-            throw new SQLException("Method getBoolean can not execute on field with null value");
+        if (value == null || value.get() == null) {
+            wasNull = true;
+        } else if (value instanceof BooleanValue) {
+            result = ((BooleanValue) value).get();
+            wasNull = false;
+        } else {
+            throw new SQLException("Value of column " + columnLabel + " is not boolean type");
         }
 
         return result;
@@ -223,14 +226,15 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        Integer result = null;
+        int result = 0;
         Value value = collection.get(index).getValue(columnLabel);
-        if (value != null && value.get() != null) {
-            if (value instanceof LongValue) {
-                result = ((LongValue) value).get().intValue();
-            }else {
-                throw new SQLException("Value of column " + columnLabel + " is not int type");
-            }
+        if (value == null || value.get() == null) {
+            wasNull = true;
+        } else if (value instanceof LongValue) {
+            result = ((LongValue) value).get().intValue();
+            wasNull = false;
+        } else {
+            throw new SQLException("Value of column " + columnLabel + " is not int type");
         }
 
         return result;
@@ -240,8 +244,11 @@ public class JdbcResultSet implements ResultSet {
     public long getLong(String columnLabel) throws SQLException {
         Value value = collection.get(index).getValue(columnLabel);
         long result = 0;
-        if (value instanceof LongValue) {
+        if (value == null || value.get() == null) {
+            wasNull = true;
+        } else if (value instanceof LongValue) {
             result = ((LongValue) value).get();
+            wasNull = false;
         } else {
             throw new SQLException("Value of column " + columnLabel + " is not long type");
         }
@@ -262,7 +269,7 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel, int scale) throws SQLException {
-        return collection.get(index).getDecimal(columnLabel);
+        return getBigDecimal(columnLabel);
     }
 
     @Override
@@ -276,9 +283,12 @@ public class JdbcResultSet implements ResultSet {
         java.util.Date result = collection.get(index).getTimestamp(columnLabel);
 
         if (result != null) {
+            wasNull = false;
             return new Date(result.getTime());
-        } else
+        } else {
+            wasNull = true;
             return null;
+        }
     }
 
     @Override
@@ -290,13 +300,13 @@ public class JdbcResultSet implements ResultSet {
     @Override
     public Timestamp getTimestamp(String columnLabel) throws SQLException {
         Timestamp result = null;
-        
+
         Value value = collection.get(index).getValue(columnLabel);
         if (value != null && value.get() != null) {
-            if (value instanceof DateTimeValue){
+            if (value instanceof DateTimeValue) {
                 java.util.Date date = collection.get(index).getTimestamp(columnLabel);
                 result = new Timestamp(date.getTime());
-            }else if(value instanceof TimelessDateValue){
+            } else if (value instanceof TimelessDateValue) {
                 TimelessDate date = collection.get(index).getTimelessDate(columnLabel);
                 Calendar calendar = Calendar.getInstance();
                 calendar.clear();
@@ -304,7 +314,7 @@ public class JdbcResultSet implements ResultSet {
                 calendar.set(Calendar.MONTH, date.getMonth());
                 calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
                 result = new Timestamp(calendar.getTime().getTime());
-            }else if(value instanceof DateTimeWithTimeZoneValue){
+            } else if (value instanceof DateTimeWithTimeZoneValue) {
                 DateTimeWithTimeZone date = collection.get(index).getDateTimeWithTimeZone(columnLabel);
                 Calendar calendar = Calendar.getInstance();
                 calendar.clear();
@@ -317,9 +327,12 @@ public class JdbcResultSet implements ResultSet {
                 calendar.set(Calendar.MILLISECOND, date.getMilliseconds());
                 calendar.setTimeZone(TimeZone.getTimeZone(date.getTimeZoneContext().getTimeZoneId()));
                 result = new Timestamp(calendar.getTime().getTime());
-            }else{
+            } else {
                 throw new SQLException("GetTimestamp can not get value of type " + value.getClass().getName());
             }
+            wasNull = false;
+        }else{
+            wasNull = true;
         }
         return result;
     }
@@ -373,20 +386,23 @@ public class JdbcResultSet implements ResultSet {
     public Object getObject(String columnLabel) throws SQLException {
         Value value = collection.get(index).getValue(columnLabel);
         Object result = null;
-        if (value.get() != null) {
+        if (value != null && value.get() != null) {
             if (value instanceof LongValue) {
                 result = ((LongValue) value).get();
             } else if (value instanceof ReferenceValue) {
                 result = ((ReferenceValue) value).get();
             } else if (value instanceof BooleanValue) {
                 result = ((BooleanValue) value).get();
-            } else if (value instanceof DateTimeValue 
-                    || value instanceof TimelessDateValue 
+            } else if (value instanceof DateTimeValue
+                    || value instanceof TimelessDateValue
                     || value instanceof DateTimeWithTimeZoneValue) {
-                result = getTimestamp(columnLabel);            
-            }else{
+                result = getTimestamp(columnLabel);
+            } else {
                 result = value.toString();
             }
+            wasNull = false;
+        }else{
+            wasNull = true;
         }
         return result;
     }
@@ -417,7 +433,13 @@ public class JdbcResultSet implements ResultSet {
 
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        return collection.get(index).getDecimal(columnLabel);
+        BigDecimal result = collection.get(index).getDecimal(columnLabel);
+        if (result == null) {
+            wasNull = true;
+        } else {
+            wasNull = false;
+        }
+        return result;
     }
 
     @Override
