@@ -5,6 +5,7 @@
     <output-test url="file://$MODULE_DIR$/../../../CM5/Client/remote-client/target/test-classes" />
     <content url="file://$MODULE_DIR$/../../../CM5/Client/remote-client">
       <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Client/remote-client/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Client/remote-client/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../CM5/Client/remote-client/target" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -24,7 +25,6 @@
     <orderEntry type="library" name="Maven: org.jboss.as:jboss-as-build-config:7.2.0.Final" level="project" />
     <orderEntry type="module" module-name="service-api" />
     <orderEntry type="module" module-name="model" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-core:3.2.3.RELEASE" level="project" />
     <orderEntry type="module" module-name="dao-api" />
     <orderEntry type="module" module-name="configuration" />
     <orderEntry type="library" name="Maven: com.esotericsoftware:kryo:3.0.1" level="project" />
@@ -36,7 +36,6 @@
     <orderEntry type="library" name="Maven: commons-logging:commons-logging:1.0.4" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-context:3.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-aop:3.2.3.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:3.2.3.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: net.sf.jasperreports:jasperreports:5.5.1" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.0" level="project" />
@@ -50,6 +49,12 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.1.4" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.1.4" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.1.4" level="project" />
+    <orderEntry type="module" module-name="dao-impl" />
+    <orderEntry type="library" name="Maven: com.github.jsqlparser:jsqlparser:0.8.9" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-aspects:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.aspectj:aspectjweaver:1.7.2" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-context-support:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.tika:tika-core:1.4" level="project" />
     <orderEntry type="module" module-name="gui-model" />
     <orderEntry type="module" module-name="jdbc" />
     <orderEntry type="module" module-name="test-module" />
@@ -67,6 +72,11 @@
     <orderEntry type="library" name="Maven: commons-codec:commons-codec:1.9" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-jdbc:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-beans:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-core:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.springframework:spring-tx:3.2.3.RELEASE" level="project" />
+    <orderEntry type="library" name="Maven: org.postgresql:postgresql:9.3-1103-jdbc41" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:jcl-over-slf4j:1.7.2" level="project" />
   </component>
