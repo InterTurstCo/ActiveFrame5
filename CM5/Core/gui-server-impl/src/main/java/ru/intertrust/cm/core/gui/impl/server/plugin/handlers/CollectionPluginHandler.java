@@ -403,6 +403,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 findCollection(collectionName, sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
+
+        /* Фильтр в выпадающую коллекцию пока не нужен
         if(notMoreItems){
             CollectionRowItem filter = new CollectionRowItem();
             filter.setParentId(parentId);
@@ -410,7 +412,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             filter.setRow(new HashMap<String, Value>(0));
             filter.setFilters(filtersMap);
             items.add(filter);
-        }
+        } */
+
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
             Boolean typeIsExpandable = false;
