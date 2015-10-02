@@ -30,6 +30,7 @@
     <file url="file://$PROJECT_DIR$/../../../CM5/Performance" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Performance/dataset-generator" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Performance/dataset-generator-client" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../CM5/Performance/gwt-rpc-proxy" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Performance/jmeter-tools" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Workstation" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/bouncycastle-crypto-service" charset="UTF-8" />
