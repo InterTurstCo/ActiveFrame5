@@ -38,6 +38,7 @@
         <module name="gui-rpc" />
         <module name="gui-server-api" />
         <module name="gui-server-impl" />
+        <module name="gwt-rpc-proxy" />
         <module name="it-test" />
         <module name="jdbc" />
         <module name="model" />
@@ -79,6 +80,7 @@
       <module name="gui-rpc" target="1.7" />
       <module name="gui-server-api" target="1.7" />
       <module name="gui-server-impl" target="1.7" />
+      <module name="gwt-rpc-proxy" target="1.7" />
       <module name="it-test" target="1.7" />
       <module name="jdbc" target="1.7" />
       <module name="jmeter-tools" target="1.7" />
