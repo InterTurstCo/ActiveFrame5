@@ -30,6 +30,8 @@ public class ChildCollectionConfig extends PluginConfig {
     @Element(name = "expandable-objects", required = true)
     private ExpandableObjectsConfig expandableObjectsConfig;
 
+    @Element(name = "default-sort-criteria", required = false)
+    private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
     @Override
     public String getComponentName() {
@@ -76,6 +78,15 @@ public class ChildCollectionConfig extends PluginConfig {
         this.elementObjectType = elementObjectType;
     }
 
+
+    public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
+        return defaultSortCriteriaConfig;
+    }
+
+    public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
+        this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -87,6 +98,11 @@ public class ChildCollectionConfig extends PluginConfig {
 
         ChildCollectionConfig that = (ChildCollectionConfig) o;
 
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) : that.
+                defaultSortCriteriaConfig != null) {
+
+            return false;
+        }
         if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.collectionExtraFiltersConfig != null) {
             return false;
         }
@@ -111,6 +127,7 @@ public class ChildCollectionConfig extends PluginConfig {
         int result = collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (groupObjectType != null ? groupObjectType.hashCode() : 0);
+        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (elementObjectType != null ? elementObjectType.hashCode() : 0);
         result = 31 * result + (expandableObjectsConfig != null ? expandableObjectsConfig.hashCode() : 0);
         return result;

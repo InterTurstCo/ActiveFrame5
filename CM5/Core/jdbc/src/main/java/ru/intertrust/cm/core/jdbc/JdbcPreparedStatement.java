@@ -443,6 +443,9 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     private void addParameter(int parameterIndex, Object value) throws SQLException {
+        if (value == null){
+            throw new SQLException("Use setNull method to set Null parameter value");
+        }
         parameters.put(parameterIndex, value);
         resetPartition();
     }

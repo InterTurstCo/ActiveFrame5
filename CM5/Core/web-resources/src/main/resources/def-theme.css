@@ -1602,6 +1602,7 @@ a[href='#login']:hover {
 
 #sidebar a span {
     display: block;
+    font-family: Arial, sans-serif;
 }
 
 #sidebar a small {
@@ -3211,6 +3212,9 @@ a:active .icon.back {
     font-size: 20px;
     text-align: center;
     padding-bottom: 5px;
+    display: inline-block;
+    width: 100%;
+    margin-left: 11px;
 }
 .collectionButtonCellWrapper .moreItems {
     background: #4D90FD;
@@ -3337,12 +3341,21 @@ a:active .icon.back {
 
 .expand_offset {
     display: inline-block;
-    width: 6%;
+    width: 20px;
     height: 20px;
+    -webkit-flex-shrink: 0;
+    -ms-flex-negative: 0;
+    flex-shrink: 0;
 }
 
 .all_wrapper {
     width: 100%;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.wrap_btn {
     display: -webkit-flex;
     display: -ms-flexbox;
     display: flex;

@@ -31,7 +31,7 @@ public class TestJdbcMultythread extends ClientBase {
     public void execute(String[] args) throws Exception {
         super.execute(args);
 
-        /*crudService = (CrudService.Remote) getService(
+        crudService = (CrudService.Remote) getService(
                 "CrudServiceImpl", CrudService.Remote.class);
 
         collectionService = (CollectionsService.Remote) getService(
@@ -43,13 +43,11 @@ public class TestJdbcMultythread extends ClientBase {
         Collection<DomainObjectTypeConfig> configs = configService.getConfigs(DomainObjectTypeConfig.class);
 
         //Создаем тестовый доменный объект
-        final DomainObject outgoingDocument = greateOutgoingDocument();*/
+        final DomainObject outgoingDocument = greateOutgoingDocument();
 
-
-        
-        Thread t1 = new Thread(new TestJdbcRunable());
+        Thread t1 = new Thread(new TestJdbcRunable(outgoingDocument));
         t1.start();
-        Thread t2 = new Thread(new TestJdbcRunable());
+        Thread t2 = new Thread(new TestJdbcRunable(outgoingDocument));
         t2.start();
 
         t1.join();
@@ -57,90 +55,94 @@ public class TestJdbcMultythread extends ClientBase {
 
     }
 
-    private class TestJdbcRunable implements Runnable{
-        
-            @Override
-            public void run() {
-                Connection connection = null;
-                try {
-                    Class.forName(JdbcDriver.class.getName());
+    private class TestJdbcRunable implements Runnable {
+        private DomainObject outgoingDocument;
 
-                    connection =
-                            DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
-                    
-                    String query = "select t.name, t.created_date, t.author, t.long_field ";
-                    query += "from Outgoing_Document t ";
-                    //query += "where creation_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
+        private TestJdbcRunable(DomainObject outgoingDocument) {
+            this.outgoingDocument = outgoingDocument;
+        }
 
-                    PreparedStatement prepareStatement =
-                            connection.prepareStatement(query);
+        @Override
+        public void run() {
+            Connection connection = null;
+            try {
+                Class.forName(JdbcDriver.class.getName());
 
-                    Calendar fromDate = Calendar.getInstance();
-                    fromDate.set(2000, 1, 1);
-                    prepareStatement.setDate(0, new java.sql.Date(fromDate.getTime().getTime()));
-                    prepareStatement.setDate(1, new java.sql.Date(System.currentTimeMillis()));
-                    prepareStatement.setString(2, "Outgoing_Document");
-                    //prepareStatement.setLong(3, ((RdbmsId) outgoingDocument.getReference("Author")).getId());
-                    prepareStatement.setLong(4, 10);
-                    ResultSet resultset = prepareStatement.executeQuery();
+                connection =
+                        DriverManager.getConnection("jdbc:sochi:remoting://localhost:4447/cm-sochi/web-app", "admin", "admin");
 
-                    int rowCount = 0;
+                String query = "select t.name, t.created_date, t.author, t.long_field ";
+                query += "from Outgoing_Document t ";
+                String queryWhere = "where created_date between ? and ? and Name = ? and Author = ? and Long_Field = ?";
+
+                PreparedStatement prepareStatement =
+                        connection.prepareStatement(query + queryWhere);
+
+                Calendar fromDate = Calendar.getInstance();
+                fromDate.set(2000, 1, 1);
+                prepareStatement.setDate(1, new java.sql.Date(fromDate.getTime().getTime()));
+                prepareStatement.setDate(2, new java.sql.Date(System.currentTimeMillis()));
+                prepareStatement.setString(3, "Outgoing_Document");
+                prepareStatement.setObject(4, outgoingDocument.getReference("Author"));
+                prepareStatement.setLong(5, 10);
+                ResultSet resultset = prepareStatement.executeQuery();
+
+                int rowCount = 0;
+                while (resultset.next()) {
+                    System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
+                            + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                    rowCount++;
+                }
+                resultset.close();
+                prepareStatement.close();
+
+                Statement statement = connection.createStatement();
+                if (statement.execute(query)) {
+                    resultset = statement.getResultSet();
+
+                    rowCount = 0;
                     while (resultset.next()) {
                         System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
                                 + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
                         rowCount++;
                     }
                     resultset.close();
-                    prepareStatement.close();
+                    statement.close();
 
-                    Statement statement = connection.createStatement();
-                    if (statement.execute(query)) {
-                        resultset = statement.getResultSet();
+                }
 
-                        rowCount = 0;
-                        while (resultset.next()) {
-                            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
-                                    + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                            rowCount++;
-                        }
-                        resultset.close();
-                        statement.close();
+                statement = connection.createStatement();
+                if (statement.execute(query)) {
+                    resultset = statement.getResultSet();
 
+                    rowCount = 0;
+                    while (resultset.next()) {
+                        System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
+                                + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
+                        rowCount++;
                     }
+                    resultset.close();
+                    statement.close();
 
-                    statement = connection.createStatement();
-                    if (statement.execute(query)) {
-                        resultset = statement.getResultSet();
-
-                        rowCount = 0;
-                        while (resultset.next()) {
-                            System.out.println(rowCount + "\t" + resultset.getString(1) + "\t" + resultset.getDate(2)
-                                    + "\t" + resultset.getObject(3) + "\t" + resultset.getObject(4));
-                            rowCount++;
-                        }
-                        resultset.close();
-                        statement.close();
-
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }finally{
-                    if (connection != null){
-                        try{
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            } finally {
+                if (connection != null) {
+                    try {
                         connection.close();
-                        }catch(Exception ignoreEx){
-                        }
+                    } catch (Exception ignoreEx) {
                     }
                 }
             }
+        }
 
-        
     }
-    
+
     private DomainObject greateOutgoingDocument() {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
         document.setString("Name", "Outgoing_Document");
-        document.setReference("Author", findDomainObject("Employee", "Name", "Employee-1"));
+        document.setReference("Author", findDomainObject("Employee", "Name", "Сотрудник 1"));
         document.setLong("Long_Field", 10L);
 
         document = crudService.save(document);

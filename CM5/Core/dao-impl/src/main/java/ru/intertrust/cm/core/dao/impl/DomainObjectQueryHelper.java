@@ -100,9 +100,22 @@ public class DomainObjectQueryHelper {
             if (paramCounter > 0) {
                 whereClause.append(" and ");
             }
+
             String name = uniqueKeyFieldConfig.getName();
+
             whereClause.append(tableAlias).append(".").append(wrap(getSqlName(name))).append(" = :").
                     append(uniqueKeyFieldConfig.getName().toLowerCase());
+
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(typeName, name);
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                whereClause.append(" and ");
+                whereClause.append(tableAlias).append(".").append(wrap(getReferenceTypeColumnName(name))).append(" = :").
+                        append(getReferenceTypeColumnName(name));
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                whereClause.append(" and ");
+                whereClause.append(tableAlias).append(".").append(wrap(getTimeZoneIdColumnName(name))).append(" = :").
+                        append(getTimeZoneIdColumnName(name));
+            }
 
             paramCounter++;
         }

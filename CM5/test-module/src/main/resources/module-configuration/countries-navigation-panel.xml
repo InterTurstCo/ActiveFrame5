@@ -191,6 +191,7 @@
                                     <expandable-objects>
                                         <expandable-object object-name="city"/>
                                     </expandable-objects>
+                                    <default-sort-criteria column-field="name" order="asc"/>
                                 </child-collection>
                             </collection-viewer>
                             <toggle-edit>false</toggle-edit>

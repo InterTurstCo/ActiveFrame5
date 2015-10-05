@@ -40,7 +40,7 @@ public class TestJdbc extends ClientBase {
                 "CollectionsServiceImpl", CollectionsService.Remote.class);
 
         //Создаем тестовый доменный объект
-        DomainObject outgoingDocument = createOutgoingDocument();
+        DomainObject outgoingDocument = createOutgoingDocument(false);
 
         //Выполняем запрос с помощью JDBC
         Class.forName(JdbcDriver.class.getName());
@@ -67,10 +67,26 @@ public class TestJdbc extends ClientBase {
         ResultSet resultset = prepareStatement.executeQuery();
 
         printResultSet(query, resultset);
-        
+
         resultset.close();
         prepareStatement.close();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// Null long поля
+        createOutgoingDocument(true);
         
+        query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status ";
+        query += "from Outgoing_Document t ";
+
+        prepareStatement =
+                connection.prepareStatement(query);
+        resultset = prepareStatement.executeQuery();
+        printResultSet(query, resultset, Types.JAVA_OBJECT, Types.VARCHAR, Types.TIMESTAMP, Types.JAVA_OBJECT, Types.NUMERIC, Types.JAVA_OBJECT);
+        resultset.close();
+        prepareStatement.close();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
         query = "select t.id, t.name, t.created_date, t.author, t.long_field, t.status, t.description ";
         query += "from Outgoing_Document t ";
         query += "where (CAST(? AS VARCHAR) is null or t.description = ?)";
@@ -83,20 +99,19 @@ public class TestJdbc extends ClientBase {
         resultset = prepareStatement.executeQuery();
         printResultSet(query, resultset);
         resultset.close();
-        
+
         prepareStatement.setNull(1, Types.VARCHAR);
         prepareStatement.setNull(2, Types.VARCHAR);
         resultset = prepareStatement.executeQuery();
         printResultSet(query, resultset);
         resultset.close();
-        
+
         prepareStatement.close();
-        
 
         query = "select t.name, t.created_date, t.author, t.long_field, t.status, t.id ";
         query += "from Outgoing_Document t ";
         Statement statement = connection.createStatement();
-        if (statement.execute(query)){
+        if (statement.execute(query)) {
             resultset = statement.getResultSet();
 
             printResultSet(query, resultset);
@@ -106,15 +121,15 @@ public class TestJdbc extends ClientBase {
         }
 
         statement = connection.createStatement();
-        if (statement.execute(query)){
+        if (statement.execute(query)) {
             resultset = statement.getResultSet();
 
             printResultSet(query, resultset);
-            
+
             resultset.close();
             statement.close();
         }
-        
+
         ResultSet tablesRS = connection.getMetaData().getTableTypes();
         printResultSet(query, tablesRS);
         tablesRS.close();
@@ -123,15 +138,17 @@ public class TestJdbc extends ClientBase {
 
     }
 
-    private DomainObject createOutgoingDocument() {
+    private DomainObject createOutgoingDocument(boolean empty) {
         DomainObject document = crudService.createDomainObject("Outgoing_Document");
-        document.setString("Name", "Outgoing_Document");
-        document.setReference("Author", findDomainObject("person", "login", "person1"));
-        document.setLong("Long_Field", 10L);
-        
-        //Случайным образом заполняем или не заполняем description
-        if ((System.currentTimeMillis() % 2) == 0){
-            document.setString("Description", "xx");
+        if (!empty) {
+            document.setString("Name", "Outgoing_Document");
+            document.setReference("Author", findDomainObject("person", "login", "person1"));
+            document.setLong("Long_Field", 10L);
+
+            //Случайным образом заполняем или не заполняем description
+            if ((System.currentTimeMillis() % 2) == 0) {
+                document.setString("Description", "xx");
+            }
         }
 
         document = crudService.save(document);
@@ -150,10 +167,10 @@ public class TestJdbc extends ClientBase {
         return result;
     }
 
-    private void printResultSet(String query, ResultSet resultset) throws SQLException{
+    private void printResultSet(String query, ResultSet resultset, int ... types) throws SQLException {
         System.out.print(query + "\n");
         System.out.print("№\t");
-        for (int i=1; i<=resultset.getMetaData().getColumnCount(); i++ ){
+        for (int i = 1; i <= resultset.getMetaData().getColumnCount(); i++) {
             System.out.print(resultset.getMetaData().getColumnName(i) + "\t");
         }
         System.out.print("\n");
@@ -161,7 +178,19 @@ public class TestJdbc extends ClientBase {
         while (resultset.next()) {
             System.out.print(rowCount + "\t");
             for (int i = 1; i <= resultset.getMetaData().getColumnCount(); i++) {
-                System.out.print(resultset.getObject(i) + "\t");
+                if (types.length < i){
+                    System.out.print(resultset.getObject(i) + "\t");
+                }else{
+                    if (types[i-1] == Types.NUMERIC){
+                        Long result = resultset.getLong(i);
+                        if (resultset.wasNull()){
+                            result = null;
+                        }
+                        System.out.print(result + "\t");
+                    }else{
+                        System.out.print(resultset.getObject(i) + "\t");
+                    }
+                }
             }
             System.out.print("\n");
             rowCount++;
