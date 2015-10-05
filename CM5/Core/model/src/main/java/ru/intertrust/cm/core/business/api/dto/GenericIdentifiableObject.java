@@ -242,11 +242,82 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         dirty = false;
     }
 
+    public boolean containsFieldValues(Map<String, Value> fieldValues) {
+        return containsFieldValues(this, fieldValues);
+    }
+
+    static boolean containsFieldValues(IdentifiableObject object, Map<String, Value> fieldValues) {
+        final Set<String> fields = fieldValues.keySet();
+        for (String field : fields) {
+            final Value thisValue = object.getValue(field);
+            final Value valueToCheck = fieldValues.get(field);
+            boolean thisValueNull = thisValue == null || thisValue.get() == null;
+            boolean valueToCheckNull = valueToCheck == null || valueToCheck.get() == null;
+            if (thisValueNull && valueToCheckNull) {
+                continue;
+            }
+            if (thisValueNull && !valueToCheckNull || !thisValueNull && valueToCheckNull || !thisValue.equals(valueToCheck)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;
         if (key != null) {
             lowerCaseKey = key.toLowerCase();
         }
         return lowerCaseKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GenericIdentifiableObject that = (GenericIdentifiableObject) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        final boolean fieldValuesEmpty = fieldValues == null || fieldValues.isEmpty();
+        final boolean thatFieldValuesEmpty = that.fieldValues == null || that.fieldValues.isEmpty();
+        if (fieldValuesEmpty && thatFieldValuesEmpty) {
+            return true;
+        }
+        if (!fieldValuesEmpty && thatFieldValuesEmpty || fieldValuesEmpty && !thatFieldValuesEmpty) {
+            return false;
+        }
+        // we don't compare original keys, as presence of NULL-value in one object and its absense of this value
+        // in another means the same
+        final Set<String> fieldNames = fieldValues.keySet();
+        final Set<String> thatFieldNames = that.fieldValues.keySet();
+        HashSet<String> allFieldNames = new HashSet<>(2 * (fieldNames.size() + thatFieldNames.size()));
+        for (String fieldName : fieldNames) {
+            allFieldNames.add(fieldName.toLowerCase());
+        }
+        for (String thatFieldName : thatFieldNames) {
+            allFieldNames.add(thatFieldName.toLowerCase());
+        }
+        for (String fieldName : allFieldNames) {
+            Value value = getValue(fieldName);
+            Value thatValue = getValue(fieldName);
+            Object valueObj = value == null ? null : value.get();
+            Object thatValueObj = thatValue == null ? null : value.get();
+            if (!Objects.equals(valueObj, thatValueObj)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

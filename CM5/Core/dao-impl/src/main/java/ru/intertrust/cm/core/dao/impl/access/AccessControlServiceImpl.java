@@ -1,13 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -16,23 +9,14 @@ import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
-import ru.intertrust.cm.core.dao.access.CreateObjectAccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.access.Subject;
-import ru.intertrust.cm.core.dao.access.SystemSubject;
-import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.model.AccessException;
+
+import java.util.*;
 
 /**
  * Реализация службы контроля доступа.
@@ -119,9 +103,9 @@ public class AccessControlServiceImpl implements AccessControlService {
 
     private AccessToken createAccessToken(String login, Id objectId, AccessType type, boolean log) throws AccessException {
 
-        Id personId = getUserIdByLogin(login);
-        Integer personIdInt = (int) ((RdbmsId) personId).getId();
-        boolean isSuperUser = isPersonSuperUser(personId);
+        final Id personId = getUserIdByLogin(login);
+        final int personIdInt = (int) ((RdbmsId) personId).getId();
+        final boolean isSuperUser = isPersonSuperUser(personId);
 
         if (isSuperUser || isAdministratorWithAllPermissions(personId, objectId)) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));

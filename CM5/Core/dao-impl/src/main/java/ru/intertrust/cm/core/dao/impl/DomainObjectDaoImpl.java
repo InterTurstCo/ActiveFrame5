@@ -64,6 +64,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private DomainObjectCacheService domainObjectCacheService;
 
     @Autowired
+    private GlobalCacheClient globalCacheClient;
+
+    @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
@@ -169,8 +172,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         List<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
 
-        GenericDomainObject[] result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification);
-        domainObjectCacheService.putOnUpdate(result[0], accessToken);
+        GenericDomainObject result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification)[0];
+        domainObjectCacheService.putOnUpdate(result, accessToken);
+        globalCacheClient.notifyUpdate(result, accessToken);
 
         permissionService.notifyDomainObjectChangeStatus(domainObject);
         dynamicGroupService.notifyDomainObjectChanged(domainObject, fieldModification[0], beforeSaveInvalicContexts);
@@ -187,9 +191,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
         DomainObjectActionListener listener = getTransactionListener();
-        listener.addChangeStatusDomainObject(objectId);
+        listener.addChangeStatusDomainObject(result);
 
-        return result[0];
+        return result;
     }
 
     @Override
@@ -212,6 +216,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         for (DomainObject createdObject : createdObjects) {
             domainObjectCacheService.putOnUpdate(createdObject, accessToken);
+            globalCacheClient.notifyCreate(createdObject, accessToken);
             refreshDynamiGroupsAndAclForCreate(createdObject);
 
             // Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
@@ -237,6 +242,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (listener == null){
             listener = new DomainObjectActionListener(userTransactionService.getTransactionId());
             userTransactionService.addListener(listener);
+            userTransactionService.addListener(new CacheCommitNotifier(listener.domainObjectsModification));
         }
         return listener;
     }
@@ -416,6 +422,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         for (GenericDomainObject updatedObject : updatedObjects) {
             domainObjectCacheService.putOnUpdate(updatedObject, accessToken);
+            globalCacheClient.notifyUpdate(updatedObject, accessToken);
         }
 
         return updatedObjects;
@@ -621,6 +628,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         //Удалене из кэша
         for (Id id : ids) {
             domainObjectCacheService.evict(id);
+            globalCacheClient.notifyDelete(id);
         }
 
         // Пишем в аудит лог
@@ -834,11 +842,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         RdbmsId rdbmsId = (RdbmsId) id;
         validateIdType(id);
 
-        StringBuilder query = new StringBuilder();
-        query.append(generateExistsQuery(getDOTypeName(rdbmsId.getTypeId())));
-
         Map<String, Object> parameters = initializeExistsParameters(id);
-        long total = switchableJdbcTemplate.queryForObject(query.toString(), parameters,
+        long total = switchableJdbcTemplate.queryForObject(generateExistsQuery(getDOTypeName(rdbmsId.getTypeId())), parameters,
                 Long.class);
 
         return total > 0;
@@ -856,26 +861,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (domainObject != null) {
             return domainObject;
         }
-
-        RdbmsId rdbmsId = (RdbmsId) id;
-        String typeName = getDOTypeName(rdbmsId.getTypeId());
-
-        String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, false);
-        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
-
-        DomainObject result = switchableJdbcTemplate.query(query, parameters,
-                new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
-
-        if (result != null) {
-            domainObjectCacheService.putOnRead(result, accessToken);
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-        } else if (eventLogService.isAccessDomainObjectEventEnabled(id, EventLogService.ACCESS_OBJECT_READ, false)) {
-            if (exists(id)) {
-                eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
-            }
-        }
-
-        return result;
+        return findInStorage(id, accessToken, false);
     }
 
     @Override
@@ -885,25 +871,39 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         accessControlService.verifyAccessToken(accessToken, id, DomainObjectAccessType.WRITE);
+        return findInStorage(id, accessToken, true);
+    }
 
-        RdbmsId rdbmsId = (RdbmsId) id;
-        String typeName = getDOTypeName(rdbmsId.getTypeId());
-
-        String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, true);
-        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
-
-        DomainObject result = masterJdbcTemplate.query(query, parameters, new SingleObjectRowMapper(
-                typeName, configurationExplorer, domainObjectTypeIdCache));
-
+    private DomainObject findInStorage(Id id, AccessToken accessToken, boolean lock) {
+        DomainObject result = null;
+        if (!lock) {
+            result = globalCacheClient.getDomainObject(id, accessToken);
+            validateCachedById(id, accessToken, result);
+        }
+        if (result == null) {
+            result = findInDbById(id, accessToken, lock);
+        }
+        if (GenericDomainObject.isAbsent(result)) {
+            result = null;
+        }
         if (result != null) {
             domainObjectCacheService.putOnRead(result, accessToken);
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+            eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, true);
         } else if (eventLogService.isAccessDomainObjectEventEnabled(id, EventLogService.ACCESS_OBJECT_READ, false)) {
             if (exists(id)) {
                 eventLogService.logAccessDomainObjectEvent(id, EventLogService.ACCESS_OBJECT_READ, false);
             }
         }
+        return result;
+    }
 
+    private DomainObject findInDbById(Id id, AccessToken accessToken, boolean lock) {
+        RdbmsId rdbmsId = (RdbmsId) id;
+        String typeName = getDOTypeName(rdbmsId.getTypeId());
+        String query = domainObjectQueryHelper.generateFindQuery(typeName, accessToken, lock);
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(rdbmsId, accessToken);
+        DomainObject result = masterJdbcTemplate.query(query, parameters, new SingleObjectRowMapper(typeName, configurationExplorer, domainObjectTypeIdCache));
+        globalCacheClient.notifyRead(id, result, accessToken);
         return result;
     }
 
@@ -942,6 +942,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             return result;
         }
 
+        if (offset == 0 && limit == 0) {
+            result = globalCacheClient.getAllDomainObjects(domainObjectType, exactType, accessToken);
+            validateCachedAllObjects(domainObjectType, exactType, accessToken, result);
+        }
+        if (result == null) {
+            result = findAllObjectsInDB(domainObjectType, exactType, offset, limit, accessToken);
+
+            domainObjectCacheService.putAllOnRead(result, accessToken, cacheKey);
+            globalCacheClient.notifyReadAll(domainObjectType, exactType, result, accessToken);
+        }
+
+        eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
+
+        return result;
+    }
+
+    private List<DomainObject> findAllObjectsInDB(String domainObjectType, boolean exactType, int offset, int limit, AccessToken accessToken) {
         String query = generateFindAllQuery(domainObjectType, exactType, offset, limit, accessToken);
 
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
@@ -949,15 +966,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(domainObjectType));
         }
 
-        result = switchableJdbcTemplate.query(query, parameters,
+        return switchableJdbcTemplate.query(query, parameters,
                 new MultipleObjectRowMapper(domainObjectType,
                         configurationExplorer, domainObjectTypeIdCache));
-
-        domainObjectCacheService.putAllOnRead(result, accessToken, cacheKey);
-
-        eventLogService.logAccessDomainObjectEventByDo(result, EventLogService.ACCESS_OBJECT_READ, true);
-
-        return result;
     }
 
     private AccessToken createSystemAccessToken() {
@@ -1014,24 +1025,48 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 idsToRead.remove(domainObject.getId());
             }
         }
+        ArrayList<DomainObject> cachedRestOfObjects = globalCacheClient.getDomainObjects(idsToRead, accessToken);
+        validateCachedList(idsToRead, accessToken, cachedRestOfObjects);
+        if (cachedRestOfObjects != null) {
+            int nullObjects = 0;
+            if (cachedDomainObjects == null) {
+                cachedDomainObjects = new ArrayList<>(cachedRestOfObjects.size());
+            }
+            for (DomainObject obj : cachedRestOfObjects) {
+                if (GenericDomainObject.isAbsent(obj)) {
+                    ++nullObjects;
+                } else if (obj != null) {
+                    domainObjectCacheService.putOnRead(obj, accessToken);
+                    cachedDomainObjects.add(obj);
+                }
+            }
+            if (cachedDomainObjects.size() + nullObjects == ids.size()) {
+                return cachedDomainObjects;
+            }
+            for (DomainObject domainObject : cachedRestOfObjects) {
+                if (domainObject != null) {
+                    idsToRead.remove(domainObject.getId());
+                }
+            }
+        }
         List<DomainObject> readDomainObjects;
         if (!idsToRead.isEmpty()) {
             String tableAlias = getSqlAlias(typeName);
             String query = domainObjectQueryHelper.generateMultiObjectFindQuery(typeName, accessToken, false);
-            Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(new ArrayList<Id>(idsToRead), accessToken);
+            Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(new ArrayList<>(idsToRead), accessToken);
             readDomainObjects = switchableJdbcTemplate.query(query, parameters,
                     new MultipleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
             domainObjectCacheService.putAllOnRead(readDomainObjects, accessToken);
+            globalCacheClient.notifyRead(idsToRead, readDomainObjects, accessToken);
         } else {
-            readDomainObjects = new ArrayList<>(0);
+            readDomainObjects = Collections.emptyList();
         }
 
         if (cachedDomainObjects == null) {
             return readDomainObjects;
         } else {
-            List result = cachedDomainObjects;
-            result.addAll(readDomainObjects);
-            return result;
+            cachedDomainObjects.addAll(readDomainObjects);
+            return cachedDomainObjects;
         }
 
     }
@@ -1047,7 +1082,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId,
                                                       String linkedType, String linkedField, int offset, int limit,
                                                       AccessToken accessToken) {
-        return findLinkedDomainObjects(domainObjectId, linkedType,  linkedField, false, offset, limit, accessToken);
+        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false, offset, limit, accessToken);
     }
 
     @Override
@@ -1072,6 +1107,14 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (domainObjects != null) {
                 return domainObjects;
             }
+
+            domainObjects = globalCacheClient.getLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType, accessToken);
+            validateCachedLinkedObjects(domainObjectId, linkedType, linkedField, exactType, 0, 0, accessToken, domainObjects);
+            if (domainObjects != null) {
+                domainObjectCacheService.putAllOnRead(domainObjectId, domainObjects, accessToken, cacheKey);
+                eventLogService.logAccessDomainObjectEventByDo(domainObjects, EventLogService.ACCESS_OBJECT_READ, true);
+                return domainObjects;
+            }
         }
 
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
@@ -1082,26 +1125,45 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
-
-        List<DomainObject> domainObjects = switchableJdbcTemplate.query(query, parameters,
-                new MultipleObjectRowMapper(linkedType, configurationExplorer, domainObjectTypeIdCache));
-
-        if (domainObjects == null) {
-            domainObjects = new ArrayList<>();
-        }
-
-        for (DomainObject domainObject : domainObjects) {
-            domainObjectCacheService.putOnRead(domainObject, accessToken);
-        }
+        final Pair<List<DomainObject>, Long> queryResult = findLinkedDomainObjectsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken);
+        List<DomainObject> domainObjects = queryResult.getFirst();
 
         if (linkedDomainObjectCacheEnabled) {
             String[] cacheKey = new String[] {linkedType, linkedField};
             domainObjectCacheService.putAllOnRead(domainObjectId, domainObjects, accessToken, cacheKey);
+            globalCacheClient.notifyLinkedObjectsRead(domainObjectId, linkedType, linkedField, exactType, domainObjects, queryResult.getSecond(), accessToken);
+        } else { // putAllOnRead adds all objects to the cache
+            for (DomainObject domainObject : domainObjects) {
+                domainObjectCacheService.putOnRead(domainObject, accessToken);
+            }
+            globalCacheClient.notifyRead(domainObjects, accessToken);
         }
 
         eventLogService.logAccessDomainObjectEventByDo(domainObjects, EventLogService.ACCESS_OBJECT_READ, true);
 
         return domainObjects;
+    }
+
+    private Pair<List<DomainObject>, Long> findLinkedDomainObjectsInDB(Id domainObjectId,
+                                                      String linkedType, String linkedField, boolean exactType, int offset, int limit,
+                                                      AccessToken accessToken) {
+        Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
+        parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
+        parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
+        if (exactType) {
+            parameters.put(RESULT_TYPE_ID, domainObjectTypeIdCache.getId(linkedType));
+        }
+
+        String query = buildFindChildrenQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
+        long time = System.currentTimeMillis(); // time, sql request is sent to DB
+        List<DomainObject> domainObjects = switchableJdbcTemplate.query(query, parameters,
+                new MultipleObjectRowMapper(linkedType, configurationExplorer, domainObjectTypeIdCache));
+
+        if (domainObjects == null) {
+            domainObjects = new ArrayList<>(0);
+        }
+
+        return new Pair<>(domainObjects, time);
     }
 
     @Override
@@ -1136,8 +1198,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (domainObjects != null) {
                 return extractIds(domainObjects);
             }
+
+            final List<Id> ids = globalCacheClient.getLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType, accessToken);
+            validateCachedLinkedObjectsIds(domainObjectId, linkedType, linkedField, exactType, 0, 0, accessToken, ids);
+            if (ids != null) {
+                return ids;
+            }
         }
 
+        Pair<List<Id>, Long> queryResult = findLinkedDomainObjectsIdsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken);
+        final List<Id> result = queryResult.getFirst();
+        globalCacheClient.notifyLinkedObjectsIdsRead(domainObjectId, linkedType, linkedField, exactType, queryResult.getFirst(), queryResult.getSecond(), accessToken);
+        return result;
+    }
+
+    private Pair<List<Id>, Long> findLinkedDomainObjectsIdsInDB(Id domainObjectId, String linkedType, String linkedField, boolean exactType,
+                                                                int offset, int limit, AccessToken accessToken) {
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         parameters.put(PARAM_DOMAIN_OBJECT_ID, ((RdbmsId) domainObjectId).getId());
         parameters.put(PARAM_DOMAIN_OBJECT_TYPE_ID, ((RdbmsId) domainObjectId).getTypeId());
@@ -1147,51 +1223,147 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String query = buildFindChildrenIdsQuery(linkedType, linkedField, exactType, offset, limit, accessToken);
 
-        return switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType));
+        long time = System.currentTimeMillis();
+        return new Pair<>(switchableJdbcTemplate.query(query, parameters, new MultipleIdRowMapper(linkedType)), time);
     }
 
     @Override
     public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+        return findByUniqueKeyImpl(domainObjectType, uniqueKeyValuesByName, accessToken, true);
+    }
+
+    @Override
+    public DomainObject finAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
+        return findByUniqueKeyInStorage(domainObjectType, uniqueKeyValuesByName, accessToken, true, true);
+    }
+
+    private DomainObject findByUniqueKeyImpl(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken, boolean logAccess) {
         DomainObject result = domainObjectCacheService.get(domainObjectType, uniqueKeyValuesByName, accessToken);
         if (result != null) {
             return result;
         }
 
-        result = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken, false);
+        return findByUniqueKeyInStorage(domainObjectType, uniqueKeyValuesByName, accessToken, false, logAccess);
+    }
 
+    protected DomainObject findByUniqueKeyInStorage(String domainObjectType, Map<String, Value> uniqueKeyValuesByName,
+                                                    AccessToken accessToken, boolean lock, boolean logAccess) {
+        DomainObject result = null;
+        if (!lock) {
+            result = globalCacheClient.getDomainObject(domainObjectType, uniqueKeyValuesByName, accessToken);
+            validateCachedByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken, logAccess, result);
+        }
+        if (result == null) {
+            final Pair<DomainObject, Long> queryResult = findByUniqueKeyInDB(domainObjectType, uniqueKeyValuesByName, accessToken, lock, logAccess);
+            result = queryResult.getFirst();
+            globalCacheClient.notifyReadByUniqueKey(domainObjectType, uniqueKeyValuesByName, result, queryResult.getSecond(), accessToken);
+        }
+        if (GenericDomainObject.isAbsent(result)) {
+            result = null;
+        }
         if (result != null) {
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-        } else {
-            // Проверяем существование доменного объекта с уникальным ключом и логируем доступ
-            DomainObject domainObject = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName,
-                    createSystemAccessToken(), false);
-            if (domainObject != null && eventLogService.isAccessDomainObjectEventEnabled(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false)) {
-                eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false);
+            domainObjectCacheService.putOnRead(result, accessToken);
+        }
+        if (logAccess) {
+            if (result != null) {
+                eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
+            } else {
+                // Проверяем существование доменного объекта с уникальным ключом и логируем доступ
+                // todo: проверить сначала необходимость логгирования
+                final AccessToken systemAccessToken = createSystemAccessToken();
+                DomainObject domainObject = findByUniqueKeyImpl(domainObjectType, uniqueKeyValuesByName, systemAccessToken, false);
+                if (domainObject != null) {
+                    if (eventLogService.isAccessDomainObjectEventEnabled(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false)) {
+                        eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false);
+                    }
+                }
             }
         }
 
         return result;
     }
 
-    @Override
-    public DomainObject finAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken) {
-        DomainObject result = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken, true);
-
-        if (result != null) {
-            eventLogService.logAccessDomainObjectEvent(result.getId(), EventLogService.ACCESS_OBJECT_READ, true);
-        } else {
-            // Проверяем существование доменного объекта с уникальным ключом и логируем доступ
-            DomainObject domainObject = retrieveWithoutLoggingByUniqueKey(domainObjectType, uniqueKeyValuesByName, createSystemAccessToken(), false);
-            if (domainObject != null && eventLogService.isAccessDomainObjectEventEnabled(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false)) {
-                eventLogService.logAccessDomainObjectEvent(domainObject.getId(), EventLogService.ACCESS_OBJECT_READ, false);
-            }
+    private void validateCachedById(Id id, AccessToken accessToken, DomainObject cached) {
+        if (cached == null || !globalCacheClient.debugEnabled()) {
+            return;
         }
-
-        return result;
+        final DomainObject dbResult = findInDbById(id, accessToken, false);
+        if (!cacheResultValid(cached, dbResult)) {
+            logger.error("CACHE ERROR! Find by Id: " + id);
+        }
     }
 
-    protected DomainObject retrieveWithoutLoggingByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName,
-                                                             AccessToken accessToken, boolean lock) {
+    private void validateCachedList(Collection<Id> ids, AccessToken accessToken, List<DomainObject> cached) {
+        if (!globalCacheClient.debugEnabled()) {
+            return;
+        }
+        int i = -1;
+        for (Id id : ids) {
+            ++i;
+            final DomainObject cachedObject = cached.get(i);
+            if (cachedObject == null) {
+                continue;
+            }
+            final DomainObject dbResult = findInDbById(id, accessToken, false);
+            if (!cacheResultValid(cachedObject, dbResult)) {
+                logger.error("CACHE ERROR! Find by list: " + ids);
+            }
+        }
+    }
+
+    private void validateCachedAllObjects(String type, boolean exactType, AccessToken accessToken, List<DomainObject> cached) {
+        if (cached == null || !globalCacheClient.debugEnabled()) {
+            return;
+        }
+        final List<DomainObject> allDbObjects = findAllObjectsInDB(type, exactType, 0, 0, accessToken);
+        if (!new HashSet<>(allDbObjects).equals(new HashSet<>(cached))) {
+            logger.error("CACHE ERROR! Find all objects, type: " + type + ", exact type: " + exactType);
+        }
+    }
+
+    private void validateCachedLinkedObjects(Id domainObjectId,
+                                             String linkedType, String linkedField, boolean exactType, int offset, int limit,
+                                             AccessToken accessToken, List<DomainObject> cached) {
+        if (cached == null || !globalCacheClient.debugEnabled()) {
+            return;
+        }
+        List<DomainObject> linked = findLinkedDomainObjectsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken).getFirst();
+        if (!new HashSet<>(linked).equals(new HashSet<>(cached))) {
+            logger.error("CACHE ERROR! Find linked objects. TX ID: " + userTransactionService.getTransactionId());
+        }
+    }
+
+    private void validateCachedLinkedObjectsIds(Id domainObjectId,
+                                                String linkedType, String linkedField, boolean exactType, int offset, int limit,
+                                                AccessToken accessToken, List<Id> cached) {
+        if (cached == null || !globalCacheClient.debugEnabled()) {
+            return;
+        }
+        List<Id> linked = findLinkedDomainObjectsIdsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken).getFirst();
+        if (!new HashSet<>(linked).equals(new HashSet<>(cached))) {
+            logger.error("CACHE ERROR! Find linked objects IDs");
+        }
+    }
+
+    private void validateCachedByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken, boolean logAccess, DomainObject cached) {
+        if (cached == null || !globalCacheClient.debugEnabled()) {
+            return;
+        }
+        final DomainObject dbResult = findByUniqueKeyInDB(domainObjectType, uniqueKeyValuesByName, accessToken, false, logAccess).getFirst();
+        if (!cacheResultValid(cached, dbResult)) {
+            logger.error("CACHE ERROR! Find by unique key: " + uniqueKeyValuesByName);
+        }
+    }
+
+    private boolean cacheResultValid(DomainObject cached, DomainObject queried) {
+        if (cached == null) {
+            return true;
+        }
+        return cached.equals(queried);
+    }
+
+    protected Pair<DomainObject, Long> findByUniqueKeyInDB(String domainObjectType, Map<String, Value> uniqueKeyValuesByName,
+                                                    AccessToken accessToken, boolean lock, boolean logAccess) {
         CaseInsensitiveMap<Value> uniqueKeyValues = new CaseInsensitiveMap<>(uniqueKeyValuesByName);
 
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getDomainObjectTypeConfig(domainObjectType);
@@ -1207,20 +1379,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         Map<String, Object> parameters = domainObjectQueryHelper.initializeParameters(accessToken);
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             String name = uniqueKeyFieldConfig.getName().toLowerCase();
+
             Value value = uniqueKeyValues.get(name);
+            parameters.put(name, value.get());
 
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectType, name);
             initializeDomainParameter(fieldConfig, value, parameters);
         }
 
-        DomainObject result = switchableJdbcTemplate.query(query, parameters,
-                new SingleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache));
+        long time = System.currentTimeMillis();
+        return new Pair<>(switchableJdbcTemplate.query(query, parameters,
+                new SingleObjectRowMapper(domainObjectType, configurationExplorer, domainObjectTypeIdCache)), time);
+    }
 
-        if (result != null) {
-            domainObjectCacheService.putOnRead(result, accessToken);
-        }
-
-        return result;
+    @Override
+    public Id createId(String type, long id) {
+        return new RdbmsId(domainObjectTypeIdCache.getId(type), id);
     }
 
     /**
@@ -1899,7 +2073,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class,
                         domainObjects[0].getTypeName());
-
         GenericDomainObject[] updatedObjects = new GenericDomainObject[domainObjects.length];
         for (int i = 0; i < domainObjects.length; i++) {
             updatedObjects[i] = new GenericDomainObject(domainObjects[i]);
@@ -1946,7 +2119,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
             RdbmsId doId = new RdbmsId(type, (Long) id);
             updatedObjects[i].setId(doId);
-            updatedObjects[i].resetDirty();
 
             parameters.add(initializeCreateParameters(
                     updatedObjects[i], domainObjectTypeConfig, type, accessToken));
@@ -2421,15 +2593,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             afterCommitExtensionPointService.afterCommit(domainObjectsModification);
         }
 
-        public void addCreatedDomainObject(DomainObject domainObject){
+        public void addCreatedDomainObject(DomainObject domainObject) {
             if (isIgnoredOnCreateAndSave(domainObject)) {
                 return;
             }
             domainObjectsModification.addCreatedDomainObject(domainObject);
         }
 
-        public void addChangeStatusDomainObject(Id id){
-            domainObjectsModification.addChangeStatusDomainObject(id);
+        public void addChangeStatusDomainObject(DomainObject domainObject) {
+            domainObjectsModification.addChangeStatusDomainObject(domainObject);
         }
 
         public void addDeletedDomainObject(DomainObject domainObject){
@@ -2446,13 +2618,10 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         @Override
         public void onRollback() {
-            // Ничего не делаем            
         }
 
         @Override
         public void onBeforeCommit() {
-            // Ничего не делаем
-
         }
 
         private boolean isIgnoredOnCreateAndSave(DomainObject domainObject) {
@@ -2467,6 +2636,30 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
             return false;
+        }
+    }
+
+    class CacheCommitNotifier implements ActionListener {
+        private DomainObjectsModification domainObjectsModification;
+
+        private CacheCommitNotifier(DomainObjectsModification domainObjectsModification) {
+            this.domainObjectsModification = domainObjectsModification;
+        }
+
+        @Override
+        public void onBeforeCommit() {
+            //logger.warn("Before commit: " + userTransactionService.getTransactionId());
+        }
+
+        @Override
+        public void onAfterCommit() {
+            //logger.warn("After commit: " + userTransactionService.getTransactionId());
+            globalCacheClient.notifyCommit(domainObjectsModification);
+        }
+
+        @Override
+        public void onRollback() {
+            globalCacheClient.notifyRollback(domainObjectsModification.getTransactionId());
         }
     }
 }

@@ -25,6 +25,7 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.impl.utils.MultipleObjectRowMapper;
 
 import java.util.*;
@@ -61,6 +62,9 @@ public class DomainObjectDaoImplTest {
 
     @Mock
     private ApplicationContext context;
+
+    @Mock    
+    private GlobalCacheClient globalCacheClient;
 
     @Mock
     private EventLogService eventLogService;
@@ -560,6 +564,8 @@ public class DomainObjectDaoImplTest {
         ReflectionTestUtils.setField(domainObjectDaoImpl, "switchableJdbcTemplate", jdbcTemplate);
 
         AccessToken accessToken = createMockAccessToken();
+
+        when(globalCacheClient.getLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment", "Person",                false, accessToken)).thenReturn(null);
 
         List<DomainObject> l = domainObjectDaoImpl.findLinkedDomainObjects(new RdbmsId(1, 1), "Person1_Attachment",
                 "Person", accessToken);

@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.math.BigDecimal;
-import java.util.*;
-
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.FieldConfig;
+
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  * Коллекция объектов, наделённых идентификатором
@@ -176,6 +176,15 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
     public void resetDirty(int row) {
         ((FastIdentifiableObjectImpl) list.get(row)).resetDirty();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null || !obj.getClass().equals(this.getClass())) {
+            return false;
+        }
+        final GenericIdentifiableObjectCollection objCollection = (GenericIdentifiableObjectCollection) obj;
+        return new HashSet<>(list).equals(new HashSet<>(objCollection.list));
     }
 
     private FastIdentifiableObjectImpl createObjectByTemplate() {
@@ -463,8 +472,36 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             return dirty;
         }
 
+        @Override
+        public boolean containsFieldValues(Map<String, Value> fieldValues) {
+            return GenericIdentifiableObject.containsFieldValues(this, fieldValues);
+        }
+
         public void resetDirty() {
             dirty = false;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null || !obj.getClass().equals(this.getClass())) {
+                return false;
+            }
+            final FastIdentifiableObjectImpl fio = (FastIdentifiableObjectImpl) obj;
+            final ArrayList<String> fields = getFields();
+            if (!Objects.equals(id, fio.id) || !fields.equals(fio.getFields())) {
+                 return false;
+            }
+            for (int i = 0; i < fields.size(); i++) {
+                if (!Objects.equals(getValue(i), fio.getValue(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            return id != null ? id.hashCode() : fieldValues.hashCode();
         }
     }
 

@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>global-cache</artifactId>
+    <name>GlobalCache</name>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>ru.intertrust.cm-sochi</groupId>
+        <artifactId>cm-sochi</artifactId>
+        <version>0.5.15-37-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <root.basedir>${project.parent.basedir}</root.basedir>
+    </properties>
+
+    <modules>
+        <module>global-cache-api</module>
+        <module>global-cache-client</module>
+        <module>global-cache-impl</module>
+    </modules>
+
+</project>

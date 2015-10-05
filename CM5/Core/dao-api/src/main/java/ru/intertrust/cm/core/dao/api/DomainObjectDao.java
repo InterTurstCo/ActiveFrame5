@@ -329,4 +329,14 @@ public interface DomainObjectDao {
      * @throws ObjectNotFoundException,  если объект не найден
      */
     DomainObject finAndLockByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken);
+
+    /**
+     * Создаёт ID доменного объекта по его типу и числовому идентификатору. Не рекомендуется к использованию, за исключением
+     * экстренных случаев. Пример такого случая - создание Id по access_object_id, который в доменных объектах представлен в виде числа, а не Id.
+     * @param type тип доменного объекта
+     * @param id числовой идентификатор доменного объекта
+     * @return ID доменного объекта
+     */
+    @Deprecated
+    Id createId(String type, long id);
 }

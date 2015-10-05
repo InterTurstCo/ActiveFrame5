@@ -1,25 +1,5 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Status;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -32,53 +12,36 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.BaseOperationPermitConfig;
-import ru.intertrust.cm.core.config.BasePermit;
-import ru.intertrust.cm.core.config.CollectorConfig;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ContextRoleConfig;
-import ru.intertrust.cm.core.config.CreateChildConfig;
-import ru.intertrust.cm.core.config.DeleteConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.ExecuteActionConfig;
-import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
-import ru.intertrust.cm.core.config.PermitGroup;
-import ru.intertrust.cm.core.config.PermitRole;
-import ru.intertrust.cm.core.config.ReadConfig;
-import ru.intertrust.cm.core.config.StaticGroupCollectorConfig;
-import ru.intertrust.cm.core.config.TrackDomainObjectsConfig;
-import ru.intertrust.cm.core.config.WriteConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.AclData;
-import ru.intertrust.cm.core.dao.access.AclInfo;
-import ru.intertrust.cm.core.dao.access.ContextRoleAclInfo;
-import ru.intertrust.cm.core.dao.access.ContextRoleCollector;
-import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
-import ru.intertrust.cm.core.dao.impl.DomainObjectDaoImpl;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.TransactionSynchronizationRegistry;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 /**
  * Реализация сервиса обновления списков доступа.
@@ -88,10 +51,11 @@ import ru.intertrust.cm.core.model.PermissionException;
 public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implements PermissionServiceDao,
         ApplicationContextAware,
         OnLoadConfigurationExtensionHandler {
-    private static final Logger logger = LoggerFactory.getLogger(PermissionServiceDaoImpl.class);
-    
     @Resource
     private TransactionSynchronizationRegistry txReg;
+
+    @Autowired
+    private GlobalCacheClient globalCacheClient;
 
     private ApplicationContext applicationContext;
 
@@ -107,17 +71,20 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     @Autowired
     private PlatformTransactionManager transactionManager;
 
+    @Autowired
+    private UserTransactionService userTransactionService;
+
     public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
         this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
     }
 
     //Реестр коллекторов по отслеживаемому типу
     private Hashtable<String, List<ContextRoleRegisterItem>> collectors =
-            new Hashtable<String, List<ContextRoleRegisterItem>>();
+            new Hashtable<>();
 
     //Реестр коллекторов по имени контекстной роли
     private Hashtable<String, List<ContextRoleRegisterItem>> collectorsByContextRoleNames =
-            new Hashtable<String, List<ContextRoleRegisterItem>>();
+            new Hashtable<>();
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {
@@ -168,6 +135,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void refreshAclFor(Id invalidContextId) {
+        refreshAclFor(invalidContextId, false);
+    }
+
+    private void refreshAclFor(Id invalidContextId, boolean notifyCache) {
         RdbmsId rdbmsId = (RdbmsId) invalidContextId;
         String domainObjectType = domainObjectTypeIdCache.getName(rdbmsId.getTypeId());
         //Проверка, есть ли вообще матрицы доступа для данного типа доменного объекта. Необходима, что бы лишний раз не читать статус ДО.
@@ -224,10 +195,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         //Непосредственно удаление или добавление в базу
-        deleteAclRecords(invalidContextId, deleteAclInfo);
-
-        insertAclRecords(invalidContextId, addAclInfo);
+        deleteAclRecords(invalidContextId, deleteAclInfo, notifyCache);
+        insertAclRecords(invalidContextId, addAclInfo, notifyCache);
     }
+
+
 
     /**
      * Вызов точки расширения
@@ -258,9 +230,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         //Регистрация на вызов после окончания транзакции
-        RecalcAclSynchronization recalcGroupSynchronization =
-                (RecalcAclSynchronization) getTxReg().getResource(RecalcAclSynchronization.class);
-        if (recalcGroupSynchronization != null) {
+        RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
+        if (recalcGroupSynchronization != null){
             recalcGroupSynchronization.setAclData(domainObjectId, result);
         }
 
@@ -291,14 +262,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 append(DaoUtils.wrap(tableNameAcl)).append(" a where a.").append(DaoUtils.wrap("object_id"))
                 .append(" = :object_id ");
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("object_id", rdbmsObjectId.getId());
 
         return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<AclInfo>>() {
 
             @Override
             public List<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                List<AclInfo> result = new ArrayList<AclInfo>();
+                List<AclInfo> result = new ArrayList<>();
                 while (rs.next()) {
                     AccessType accessType = null;
                     String operstion = rs.getString("operation");
@@ -426,7 +397,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     private List<AclInfo> processAclForCollector(Id invalidContextId,
             ContextRoleCollector collector, AccessType accessType) {
-        List<AclInfo> result = new ArrayList<AclInfo>();
+        List<AclInfo> result = new ArrayList<>();
         for (Id groupId : collector.getMembers(invalidContextId)) {
             result.add(new AclInfo(accessType, groupId));
         }
@@ -443,7 +414,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return new AclInfo(accessType, dynamicGroupId);
     }
 
-    private void insertAclRecords(Id objectId, Set<AclInfo> addAclInfo) {
+    private void insertAclRecords(Id objectId, Set<AclInfo> addAclInfo, boolean notifyCache) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
 
         List<AclInfo> aclInfoRead = new ArrayList<>();
@@ -460,6 +431,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         insertAclRecordsInBatch(aclInfoRead, new RdbmsId[] { rdbmsObjectId }, true);
         insertAclRecordsInBatch(aclInfoNoRead, new RdbmsId[] { rdbmsObjectId }, false);
 
+        if (notifyCache) {
+            globalCacheClient.notifyAclCreated(objectId, aclInfoRead);
+        }
     }
 
     /**
@@ -509,7 +483,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         RdbmsId rdbmsDynamicGroupId = (RdbmsId) dynamicGroupId;
 
-        String query = null;
+        String query;
         if (accessType == DomainObjectAccessType.READ) {
             query = generateInsertAclReadRecordQuery(rdbmsObjectId);
         } else {
@@ -523,7 +497,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     }
 
-    private void deleteAclRecords(Id objectId, Set<AclInfo> addAclInfo) {
+    private void deleteAclRecords(Id objectId, Set<AclInfo> addAclInfo, boolean notifyCache) {
         RdbmsId rdbmsObjectId = (RdbmsId) objectId;
         List<AclInfo> aclInfoRead = new ArrayList<>();
         List<AclInfo> aclInfoNoRead = new ArrayList<>();
@@ -539,13 +513,16 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         deleteAclRecordsInBatch(aclInfoRead, rdbmsObjectId, true);
         deleteAclRecordsInBatch(aclInfoNoRead, rdbmsObjectId, false);
 
+        if (notifyCache) {
+            globalCacheClient.notifyAclDeleted(objectId, aclInfoRead);
+        }
     }
 
     private void deleteAclRecordsInBatch(List<AclInfo> addAclInfo, RdbmsId rdbmsObjectId, boolean isReadAcl) {
         if (addAclInfo == null || addAclInfo.isEmpty()) {
             return;
         }
-        String query = null;
+        String query;
         if (isReadAcl) {
             query = generateDeleteAclReadRecordQuery(rdbmsObjectId);
         } else {
@@ -566,7 +543,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private String generateDeleteAclReadRecordQuery(RdbmsId objectId) {
-        String tableName = null;
+        String tableName;
         tableName = AccessControlUtility.getAclReadTableName(configurationExplorer,
                 domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
@@ -580,7 +557,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private String generateInsertAclReadRecordQuery(RdbmsId objectId) {
-        String tableName = null;
+        String tableName;
 
         tableName = AccessControlUtility.getAclReadTableName(configurationExplorer,
                 domainObjectTypeIdCache.getName(objectId.getTypeId()));
@@ -613,7 +590,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private String generateDeleteAclRecordQuery(RdbmsId objectId) {
-        String tableName = null;
+        String tableName;
         tableName = AccessControlUtility.getAclTableName(domainObjectTypeIdCache.getName(objectId.getTypeId()));
 
         StringBuilder query = new StringBuilder();
@@ -629,7 +606,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private Map<String, Object> initializeDeleteAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         if (!(accessType == DomainObjectAccessType.READ)) {
             String accessTypeCode = PostgresDatabaseAccessAgent.makeAccessTypeCode(accessType);
             parameters.put("operation", accessTypeCode);
@@ -644,7 +621,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private Map<String, Object> initializeInsertAclRecordParameters(AccessType accessType, RdbmsId rdbmsObjectId,
             RdbmsId rdbmsDynamicGroupId) {
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         if (!(accessType == DomainObjectAccessType.READ)) {
             String accessTypeCode = PostgresDatabaseAccessAgent.makeAccessTypeCode(accessType);
             parameters.put("operation", accessTypeCode);
@@ -664,7 +641,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         //Получение всех вышестоящих типов
-        List<String> parentTypeList = new ArrayList<String>();
+        List<String> parentTypeList = new ArrayList<>();
         String parentType = domainObjectType;
         while (parentType != null) {
             parentTypeList.add(parentType.toLowerCase());
@@ -703,7 +680,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private String generateDeleteAclQuery(RdbmsId objectId, boolean isAclReadTable) {
-        String tableName = null;
+        String tableName;
         String typeName = domainObjectTypeIdCache.getName(objectId.getTypeId());
         if (isAclReadTable) {
             tableName = AccessControlUtility.getAclReadTableName(configurationExplorer, typeName);
@@ -720,7 +697,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     private Map<String, Object> initializeDeleteAclParameters(RdbmsId objectId) {
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("object_id", objectId.getId());
 
         return parameters;
@@ -818,7 +795,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     private void registerCollector(String type, ContextRoleCollector collector, ContextRoleConfig config) {
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(type.toLowerCase());
         if (typeCollectors == null) {
-            typeCollectors = new ArrayList<ContextRoleRegisterItem>();
+            typeCollectors = new ArrayList<>();
             collectors.put(type.toLowerCase(), typeCollectors);
         }
         typeCollectors.add(new ContextRoleRegisterItem(collector));
@@ -831,7 +808,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @return
      */
     private List<String> getSubTypes(String type, Configuration configuration) {
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         // Получение всех конфигураций доменных оьъектов
         for (TopLevelConfig topConfig : configuration.getConfigurationList()) {
             if (topConfig instanceof DomainObjectTypeConfig) {
@@ -859,7 +836,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             ContextRoleConfig config) {
         List<ContextRoleRegisterItem> groupCollectors = collectorsByContextRoleNames.get(roleName);
         if (groupCollectors == null) {
-            groupCollectors = new ArrayList<ContextRoleRegisterItem>();
+            groupCollectors = new ArrayList<>();
             collectorsByContextRoleNames.put(roleName, groupCollectors);
         }
         groupCollectors.add(new ContextRoleRegisterItem(collector));
@@ -953,7 +930,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");
         }
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("object_id", rdbmsObjectId.getId());
         if (personId != null) {
             parameters.put("person_id", ((RdbmsId) personId).getId());
@@ -963,7 +940,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
             @Override
             public List<DomainObjectPermission> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                Map<Id, DomainObjectPermission> personPermissions = new HashMap<Id, DomainObjectPermission>();
+                Map<Id, DomainObjectPermission> personPermissions = new HashMap<>();
                 while (rs.next()) {
                     long personIdLong = rs.getLong("person_id");
                     int personType = rs.getInt("person_id_type");
@@ -1011,7 +988,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         }
                     }
                 }
-                List<DomainObjectPermission> result = new ArrayList<DomainObjectPermission>();
+                List<DomainObjectPermission> result = new ArrayList<>();
 
                 result.addAll(personPermissions.values());
                 return result;
@@ -1119,7 +1096,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         String query =
                 "select p.id_type from " + rootForChildType + " c inner join " + rootForParentType + " p on (c.access_object_id = p.id) where c.id = :id";
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("id", id.getId());
 
         int typeId = switchableNamedParameterJdbcTemplate.query(query, parameters, new ResultSetExtractor<Integer>() {
@@ -1140,12 +1117,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         if (getTxReg().getTransactionKey() == null) {
             return;
         }
-        RecalcAclSynchronization recalcGroupSynchronization =
-                (RecalcAclSynchronization) getTxReg().getResource(RecalcAclSynchronization.class);
+        RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
         if (recalcGroupSynchronization == null) {
             recalcGroupSynchronization = new RecalcAclSynchronization();
-            getTxReg().putResource(RecalcAclSynchronization.class, recalcGroupSynchronization);
-            getTxReg().registerInterposedSynchronization(recalcGroupSynchronization);
+            userTransactionService.addListener(recalcGroupSynchronization);
         }
         recalcGroupSynchronization.addContext(invalidContext);
     }
@@ -1163,11 +1138,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return txReg;
     }
 
-    private class RecalcAclSynchronization implements Synchronization {
-        // Невалидные контексты в рамках одной итерации, после каждого beforeCompletion коллекция чистится
+    private class RecalcAclSynchronization  implements ActionListener {
         private Set<Id> contextIds = new HashSet<>();
-        // Все невалидные контексты в рамках транзакции
-        private Set<Id> allContextIds = new HashSet<>();
         private Map<Id, AclData> aclDatas = new HashMap<Id, AclData>();
 
         public RecalcAclSynchronization() {
@@ -1175,7 +1147,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
-            addAllWithoutDuplicate(allContextIds, invalidContexts);
         }
 
         public void setAclData(Id id, AclData aclData) {
@@ -1183,7 +1154,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         @Override
-        public void beforeCompletion() {
+        public void onBeforeCommit() {
             //Перекладываем в массив чтобы избежать ConcurrentModificationException
             Id[] ids = contextIds.toArray(new Id[contextIds.size()]);
             //Очищаем contextIds
@@ -1191,41 +1162,39 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             
             //Цикл по сформированному массиву
             for (Id contextId : ids) {
-                refreshAclFor(contextId);
+                refreshAclFor(contextId, true);
             }
             
             //Если в процессе назначения прав в методе refreshAclFor был изменен список contextIds то вызываем повторно
             if (contextIds.size() > 0){
-                beforeCompletion();
+                onBeforeCommit();
             }
         }
 
         @Override
-        public void afterCompletion(int status) {
-            if (status == Status.STATUS_COMMITTED) {
-                if (logger.isDebugEnabled()){
-                    logger.debug("Call afterCompletion. " + allContextIds);
-                }
-                
-                //Вызов обработчиков точки расширения изменения прав
-                TransactionStatus transactionStatus = null;
-                try {
-                    transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
+        public void onAfterCommit() {
+            //Вызов обработчиков точки расширения изменения прав
+            TransactionStatus transactionStatus = null;
+            try {
+                transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
 
-                    OnCalculateContextRoleExtensionHandler handler =
-                            extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
+                OnCalculateContextRoleExtensionHandler handler =
+                        extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
 
-                    for (Id id : aclDatas.keySet()) {
-                        handler.onCalculate(aclDatas.get(id), id);
-                    }
-                    transactionManager.commit(transactionStatus);
-                } catch (Exception ex) {
-                    if (transactionStatus != null) {
-                        transactionManager.rollback(transactionStatus);
-                    }
-                    throw ex;
+                for (Id id : aclDatas.keySet()) {
+                    handler.onCalculate(aclDatas.get(id), id);
                 }
+                transactionManager.commit(transactionStatus);
+            } catch (Exception ex) {
+                if (transactionStatus != null) {
+                    transactionManager.rollback(transactionStatus);
+                }
+                throw ex;
             }
+        }
+
+        @Override
+        public void onRollback() {
         }
 
         public Set<Id> getInvalidContexts() {
@@ -1238,7 +1207,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
 
-        List<Id> result = new ArrayList<Id>();
+        List<Id> result = new ArrayList<>();
         if (collectors != null) {
             for (ContextRoleRegisterItem collectorItem : collectors) {
                 List<Id> groups = collectorItem.getCollector().getMembers(contextId);
@@ -1258,7 +1227,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //Получаем все коллекторы
         List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
 
-        List<Id> result = new ArrayList<Id>();
+        List<Id> result = new ArrayList<>();
         //Цикл по коллекторам
         if (collectors != null) {
             for (ContextRoleRegisterItem collectorItem : collectors) {

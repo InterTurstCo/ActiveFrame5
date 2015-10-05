@@ -1,0 +1,375 @@
+package ru.intertrust.cm.globalcacheclient;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.AclInfo;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.globalcache.api.GlobalCache;
+import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
+import ru.intertrust.cm.globalcache.api.TransactionChanges;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+/**
+ * @author Denis Mitavskiy
+ *         Date: 03.07.2015
+ *         Time: 15:54
+ */
+public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
+    private static final Logger logger = LoggerFactory.getLogger(PerGroupGlobalCacheClient.class);
+
+    @Autowired
+    private ApplicationContext context;
+
+    @Autowired
+    protected UserTransactionService userTransactionService;
+
+    @Autowired
+    private ConfigurationExplorer explorer;
+
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    private CollectionsDao collectionsDao;
+
+    protected GlobalCache globalCache;
+    private ConcurrentHashMap<String, TransactionChanges> transactionChanges;
+
+    private void init() {
+        GlobalCacheSettings settings = (GlobalCacheSettings) context.getBean("globalCacheSettings");
+        if (settings.getMode().isBlocking()) {
+            globalCache = (GlobalCache) context.getBean("blockingGlobalCache");
+        } else {
+            globalCache = (GlobalCache) context.getBean("globalCache");
+        }
+        transactionChanges = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public void setCollectionsDao(CollectionsDao collectionsDao) {
+        this.collectionsDao = collectionsDao;
+    }
+
+    @Override
+    public void notifyCreate(DomainObject obj, AccessToken accessToken) {
+        addObjectChanged(obj.getId(), obj.getTypeName());
+    }
+
+    @Override
+    public void notifyUpdate(DomainObject obj, AccessToken accessToken) {
+        addObjectChanged(obj.getId(), obj.getTypeName());
+    }
+
+    @Override
+    public void notifyDelete(Id id) {
+        addObjectChanged(id, domainObjectTypeIdCache.getName(id));
+    }
+
+    @Override
+    public void notifyRead(Id id, DomainObject obj, AccessToken accessToken) {
+        if (obj == null || !isChangedInTransaction(obj.getId())) {
+            globalCache.notifyRead(null, id, obj, accessToken);
+        }
+    }
+
+    @Override
+    public void notifyReadByUniqueKey(String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
+        if (obj == null && !isTypeSaved(type) || obj != null && !isChangedInTransaction(obj.getId())) {
+            globalCache.notifyReadByUniqueKey(null, type, uniqueKey, obj, time, accessToken);
+        }
+    }
+
+    @Override
+    public void notifyRead(Collection<DomainObject> objects, AccessToken accessToken) {
+        globalCache.notifyRead(null, getObjectsUnmodifiedInTransaction(objects), accessToken);
+    }
+
+    @Override
+    public void notifyReadAll(String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
+        final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(objects);
+        if (unmodifiedObjects.size() != objects.size()) {
+            if (unmodifiedObjects.isEmpty()) {
+                return;
+            }
+            globalCache.notifyRead(null, unmodifiedObjects, accessToken);
+        } else {
+            globalCache.notifyReadAll(null, type, exactType, objects, accessToken);
+        }
+    }
+
+    @Override
+    public void notifyRead(Collection<Id> ids, Collection<DomainObject> objects, AccessToken accessToken) {
+        if (ids == null || ids.isEmpty()) {
+            return;
+        }
+        HashMap<Id, DomainObject> objectsById;
+        if (objects == null || objects.isEmpty()) {
+            objectsById = new HashMap<>(0);
+        } else {
+            objectsById = new HashMap<>((int) (objects.size() / 0.75) + 1);
+            for (DomainObject object : objects) {
+                objectsById.put(object.getId(), object);
+            }
+        }
+        ArrayList<Pair<Id, DomainObject>> trustedObjects = new ArrayList<>(ids.size());
+        for (Id id : ids) {
+            DomainObject obj = objectsById.get(id);
+            if (obj == null) {
+                trustedObjects.add(new Pair<Id, DomainObject>(id, null));
+            } else if (!isChangedInTransaction(id)) {
+                trustedObjects.add(new Pair<>(id, obj));
+            }
+        }
+
+        globalCache.notifyReadPossiblyNullObjects(null, trustedObjects, accessToken);
+    }
+
+    @Override
+    public void notifyLinkedObjectsRead(Id id, String linkedType, String linkedField, boolean exactType,
+                                        List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
+        final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(linkedObjects);
+        if (unmodifiedObjects.size() != linkedObjects.size()) {
+            globalCache.notifyRead(null, unmodifiedObjects, accessToken);
+        } else {
+            globalCache.notifyLinkedObjectsRead(null, id, linkedType, linkedField, exactType, linkedObjects, time, accessToken);
+        }
+    }
+
+    @Override
+    public void notifyLinkedObjectsIdsRead(Id id, String linkedType, String linkedField, boolean exactType,
+                                        List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
+        final Set<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
+        if (idsOfUnmodifiedObjects.size() != linkedObjectsIds.size()) {
+            return;
+        } else {
+            globalCache.notifyLinkedObjectsIdsRead(null, id, linkedType, linkedField, exactType, idsOfUnmodifiedObjects, time, accessToken);
+        }
+    }
+
+    @Override
+    public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
+                                     IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
+        Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
+        Set<String> filterNames = filterNamesWithTypes.getFirst();
+        Set<String> doTypes = filterNamesWithTypes.getSecond();
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return;
+        }
+        globalCache.notifyCollectionRead(null, name, doTypes, filterNames, filterValues, sortOrder, offset, limit, collection, time, accessToken);
+    }
+
+    @Override
+    public void notifyCollectionRead(String query, List<? extends Value> paramValues, int offset, int limit,
+                                     IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
+        Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return;
+        }
+        globalCache.notifyCollectionRead(null, query, doTypes, paramValues, offset, limit, collection, time, accessToken);
+    }
+
+    @Override
+    public void notifyCommit(DomainObjectsModification modification) {
+        String transactionId = modification.getTransactionId();
+        GroupAccessChanges accessChanges = createAccessChangesIfAbsent(transactionId);
+        clearTransactionChanges(transactionId);
+        globalCache.notifyCommit(modification, accessChanges);
+    }
+
+    public void notifyRollback(String transactionId) {
+        clearTransactionChanges(transactionId);
+    }
+
+    @Override
+    public void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
+        getAccessChanges().aclCreated(contextObj, recordsInserted);
+    }
+
+    @Override
+    public void notifyAclDeleted(Id contextObj, Collection<AclInfo> recordsDeleted) {
+        getAccessChanges().aclDeleted(contextObj, recordsDeleted);
+    }
+
+    @Override
+    public DomainObject getDomainObject(Id id, AccessToken accessToken) {
+        return globalCache.getDomainObject(null, id, accessToken);
+    }
+
+    @Override
+    public DomainObject getDomainObject(String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
+        return globalCache.getDomainObject(null, type, uniqueKey, accessToken);
+    }
+
+    @Override
+    public ArrayList<DomainObject> getDomainObjects(Collection<Id> ids, AccessToken accessToken) {
+        return globalCache.getDomainObjects(null, ids, accessToken);
+    }
+
+    @Override
+    public List<DomainObject> getLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        if (canUseCacheToRetrieveType(linkedType, exactType)) {
+            return globalCache.getLinkedDomainObjects(null, domainObjectId, linkedType, linkedField, exactType, accessToken);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<Id> getLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        if (canUseCacheToRetrieveType(linkedType, exactType)) {
+            return globalCache.getLinkedDomainObjectsIds(null, domainObjectId, linkedType, linkedField, exactType, accessToken);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
+        if (canUseCacheToRetrieveType(type, exactType)) {
+            return globalCache.getAllDomainObjects(null, type, exactType, accessToken);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        Set<String> doTypes = collectionsDao.getDOTypes(name, filterValues).getSecond();
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return null;
+        }
+        return globalCache.getCollection(null, name, filterValues, sortOrder, offset, limit, accessToken);
+    }
+
+    @Override
+    public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
+        Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return null;
+        }
+        return globalCache.getCollection(null, query, paramValues, offset, limit, accessToken);
+    }
+
+    private boolean canUseCacheToRetrieveType(String type, boolean exactType) {
+        final TransactionChanges transactionChanges = getTransactionChanges();
+        boolean useCache;
+        if (transactionChanges == null) {
+            useCache = true;
+        } else if (transactionChanges.isTypeSaved(type)) {
+            useCache = false;
+        } else if (!exactType){
+            useCache = true;
+            final Collection<DomainObjectTypeConfig> linkedTypeChildren = explorer.findChildDomainObjectTypes(type, true);
+            for (DomainObjectTypeConfig linkedTypeChild : linkedTypeChildren) {
+                if (transactionChanges.isTypeSaved(linkedTypeChild.getName())) {
+                    useCache = false;
+                    break;
+                }
+            }
+        } else {
+            useCache = true;
+        }
+        return useCache;
+    }
+
+    private Collection<DomainObject> getObjectsUnmodifiedInTransaction(Collection<DomainObject> objects) {
+        if (objects.isEmpty()) {
+            return objects;
+        }
+        ArrayList<DomainObject> trustedObjects = new ArrayList<>(objects.size());
+        for (DomainObject object : objects) {
+            if (!isChangedInTransaction(object.getId())) {
+                trustedObjects.add(object);
+            }
+        }
+        return trustedObjects;
+    }
+
+    private Set<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
+        if (ids.isEmpty()) {
+            return new HashSet<>();
+        }
+        LinkedHashSet<Id> trustedIds = new LinkedHashSet<>(ids.size());
+        for (Id id : ids) {
+            if (!isChangedInTransaction(id)) {
+                trustedIds.add(id);
+            }
+        }
+        return trustedIds;
+    }
+
+    private boolean isAtLeastOneTypeSaved(Set<String> doTypes) {
+        if (doTypes == null) { // this collection is definitely not in cache
+            return true;
+        }
+        final TransactionChanges transactionChanges = getTransactionChanges();
+        if (transactionChanges == null) {
+            return false;
+        }
+        if (transactionChanges.isAtLeastOneTypeSaved(doTypes)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isTypeSaved(String type) {
+        final TransactionChanges changes = getTransactionChanges();
+        return changes != null && changes.isTypeSaved(type);
+    }
+
+    private boolean isChangedInTransaction(Id id) {
+        final TransactionChanges changes = getTransactionChanges();
+        return changes != null && changes.isObjectChanged(id);
+    }
+
+    private TransactionChanges getTransactionChanges() {
+        final String transactionId = userTransactionService.getTransactionId();
+        return transactionId == null ? null : this.transactionChanges.get(transactionId);
+    }
+
+    protected void clearTransactionChanges(String transactionId) {
+        transactionChanges.remove(transactionId);
+    }
+
+    protected GroupAccessChanges getAccessChanges() {
+        final String transactionId = userTransactionService.getTransactionId();
+        return transactionId == null ? new GroupAccessChanges() : createAccessChangesIfAbsent(transactionId);
+    }
+
+    protected GroupAccessChanges createAccessChangesIfAbsent(String transactionId) {
+        TransactionChanges transactionChanges = createTransactionChangesIfAbsent(transactionId);
+        GroupAccessChanges accessChanges = transactionChanges.getGroupAccessChanges();
+        if (accessChanges == null) {
+            accessChanges = new GroupAccessChanges();
+            transactionChanges.setGroupAccessChanges(accessChanges);
+        }
+        return accessChanges;
+    }
+
+    private TransactionChanges createTransactionChangesIfAbsent(String transactionId) {
+        TransactionChanges transactionChanges = this.transactionChanges.get(transactionId);
+        if (transactionChanges == null) {
+            transactionChanges = new TransactionChanges();
+            this.transactionChanges.put(transactionId, transactionChanges);
+        }
+        return transactionChanges;
+    }
+
+    private void addObjectChanged(Id id, String type) {
+        final String transactionId = userTransactionService.getTransactionId();
+        if (transactionId == null) {
+            return;
+        }
+        TransactionChanges transactionChanges = createTransactionChangesIfAbsent(transactionId);
+        transactionChanges.addObjectChanged(id, type);
+    }
+}

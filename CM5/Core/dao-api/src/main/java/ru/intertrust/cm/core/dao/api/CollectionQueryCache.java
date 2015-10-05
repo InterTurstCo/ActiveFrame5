@@ -1,12 +1,12 @@
 package ru.intertrust.cm.core.dao.api;
 
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Глобальный кеш SQL запросов коллекций. Так как запросы для коллекций в системе не меняются, то имеет смысл их
@@ -85,6 +85,14 @@ public interface CollectionQueryCache {
      * @param queryEntry
      */
     void putCollectionCountQuery(String collectionName, List<? extends Filter> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry);
+
+    Set<String> getCollectionDomainObjectTypes(String collectionName, Set<String> filterNames);
+
+    void putCollectionDomainObjectTypes(String collectionName, Set<String> filterNames, Set<String> types);
+
+    Set<String> getCollectionDomainObjectTypes(String query);
+
+    void putCollectionDomainObjectTypes(String query, Set<String> types);
 
     /**
      * Очистка кеша запросов.

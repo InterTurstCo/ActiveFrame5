@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jee="http://www.springframework.org/schema/jee"
+       xsi:schemaLocation="
+     http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+     ">
+
+    <bean id="globalCacheClientFactory" class="ru.intertrust.cm.globalcacheclient.GlobalCacheClientFactoryImpl"/>
+    <bean id="perGroupGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerGroupGlobalCacheClient" init-method="init"/>
+    <bean id="perPersonGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerPersonGlobalCacheClient" init-method="init"/>
+    <bean id="globalCacheSettings" class="ru.intertrust.cm.globalcacheclient.GlobalCacheSettings"/>
+
+    <jee:local-slsb id="personAccessHelper" jndi-name="java:module/PersonAccessHelper!ru.intertrust.cm.globalcacheclient.PersonAccessHelper"
+            business-interface="ru.intertrust.cm.globalcacheclient.PersonAccessHelper"/>
+</beans>

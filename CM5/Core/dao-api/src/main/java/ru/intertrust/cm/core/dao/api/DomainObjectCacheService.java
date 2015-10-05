@@ -1,13 +1,13 @@
 package ru.intertrust.cm.core.dao.api;
 
-import java.util.List;
-import java.util.Map;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * Кэш уровня транзакции для DomainObject.
@@ -184,4 +184,6 @@ public interface DomainObjectCacheService {
      * Очищает кэш
      */
     void clear();
+
+    boolean isCacheEnabled();
 }

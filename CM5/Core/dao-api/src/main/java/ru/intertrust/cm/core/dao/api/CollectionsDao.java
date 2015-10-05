@@ -1,12 +1,10 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author vmatsukevich
@@ -60,4 +58,7 @@ public interface CollectionsDao {
      */
     int findCollectionCount(String collectionName, List<? extends Filter> filterValues, AccessToken accessToken);
 
+    Pair<Set<String>, Set<String>> getDOTypes(String collectionName, List<? extends Filter> filterValues);
+
+    Set<String> getQueryDOTypes(String collectionQuery);
 }

@@ -32,7 +32,7 @@ public class UserSubject implements Subject {
 
     @Override
     public int hashCode() {
-        return new Integer(userId).hashCode();
+        return userId;
     }
 
     @Override

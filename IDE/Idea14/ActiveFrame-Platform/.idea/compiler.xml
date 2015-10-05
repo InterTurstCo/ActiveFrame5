@@ -32,6 +32,9 @@
         <module name="dataset-generator-client" />
         <module name="ear" />
         <module name="filenet-adapter" />
+        <module name="global-cache-api" />
+        <module name="global-cache-client" />
+        <module name="global-cache-impl" />
         <module name="gui-client-api" />
         <module name="gui-client-impl" />
         <module name="gui-model" />
@@ -57,7 +60,6 @@
         <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="jmeter-tools" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -74,6 +76,11 @@
       <module name="dataset-generator-client" target="1.7" />
       <module name="ear" target="1.7" />
       <module name="filenet-adapter" target="1.7" />
+      <module name="global-cache" target="1.7" />
+      <module name="global-cache-api" target="1.7" />
+      <module name="global-cache-client" target="1.7" />
+      <module name="global-cache-impl" target="1.7" />
+      <module name="globalcache" target="1.7" />
       <module name="gui-client-api" target="1.7" />
       <module name="gui-client-impl" target="1.7" />
       <module name="gui-model" target="1.7" />

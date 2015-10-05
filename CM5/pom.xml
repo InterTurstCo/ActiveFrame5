@@ -15,6 +15,7 @@
         <module>Workstation</module>
         <module>Ear</module>
         <module>Client</module>
+        <module>GlobalCache</module>
         <module>test-module</module>
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>

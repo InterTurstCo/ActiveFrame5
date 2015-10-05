@@ -2,7 +2,10 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -781,7 +784,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         return objectCollectionMap;
     }
 
-    private boolean isCacheEnabled() {
+    public boolean isCacheEnabled() {
         return cacheEnabled;
     }
 }

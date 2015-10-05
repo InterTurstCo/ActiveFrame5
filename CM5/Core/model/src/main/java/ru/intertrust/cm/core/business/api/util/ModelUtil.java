@@ -1,14 +1,8 @@
 package ru.intertrust.cm.core.business.api.util;
 
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: Denis Mitavskiy
@@ -74,6 +68,17 @@ public final class ModelUtil {
 
     public static void sort(List<? extends IdentifiableObject> objects, SortOrder sortOrder) {
         Collections.sort(objects, new IdentifiableObjectComparator(sortOrder));
+    }
+
+    public static Set<String> getFilterNames(Collection<? extends Filter> filterValues) {
+        if (filterValues == null || filterValues.isEmpty()) {
+            return null;
+        }
+        Set<String> filterNames = new HashSet<>((int) (filterValues.size() / 0.75f) + 1);
+        for (Filter filter : filterValues) {
+            filterNames.add(filter.getFilter());
+        }
+        return filterNames;
     }
 
     private static class IdentifiableObjectComparator implements Comparator<IdentifiableObject> {

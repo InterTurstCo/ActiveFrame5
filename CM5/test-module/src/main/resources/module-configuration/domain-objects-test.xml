@@ -164,6 +164,18 @@
         </fields> 
     </domain-object-type>
 
+    <domain-object-type name="friend_city_test" initial-status="Active">
+        <fields>
+            <reference name="city" type="city_test" />
+            <string name="name" length="128" />
+            <long name="population" />
+            <long name="year_of_foundation" />
+            <decimal name="latitude" precision="9" scale="2" />
+            <decimal name="longitude" precision="9" scale="2" />
+            <decimal name="square" precision="9" scale="2" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="notification_test" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />

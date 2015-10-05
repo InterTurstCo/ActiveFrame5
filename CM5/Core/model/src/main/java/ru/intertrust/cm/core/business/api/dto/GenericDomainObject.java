@@ -137,6 +137,11 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
      return getReference(SystemField.status.name());
     }
 
+    @Override
+    public boolean isAbsent() {
+        return false;
+    }
+
     public void setStatus(Id status) {
         setReference(SystemField.status.name(), status);
     }
@@ -154,5 +159,26 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         result.append(ModelUtil.getDetailedDescription(this));
         result.append('}');
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GenericDomainObject that = (GenericDomainObject) o;
+        String typeLower = typeName == null ? null : typeName.toLowerCase();
+        String thatTypeLower = that.typeName == null ? null : that.typeName.toLowerCase();
+        if (typeLower != null ? !typeLower.equals(thatTypeLower) : thatTypeLower != null) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    public static boolean isAbsent(DomainObject object) {
+        return object != null && object.isAbsent();
     }
 }

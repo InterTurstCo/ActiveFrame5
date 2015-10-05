@@ -12,7 +12,7 @@ public class DomainObjectsModification implements Dto {
     private Map<Id, DomainObject> savedDomainObjects = new HashMap<>();
     private List<DomainObject> createdDomainObjects = new ArrayList<>();
     private Map<Id, DomainObject> deletedDomainObjects = new HashMap<>();
-    private List<Id> changeStatusDomainObjectIds = new ArrayList<>();
+    private Map<Id, DomainObject> changeStatusDomainObjects = new LinkedHashMap<>();
 
     public DomainObjectsModification(String transactionId) {
         this.transactionId = transactionId;
@@ -27,11 +27,22 @@ public class DomainObjectsModification implements Dto {
     }
 
     public List<Id> getChangeStatusDomainObjectIds() {
-        return changeStatusDomainObjectIds;
+        return new ArrayList<>(changeStatusDomainObjects.keySet());
+    }
+
+    public boolean wasSaved(Id id) {
+        return savedDomainObjects.containsKey(id);
     }
 
     public Collection<DomainObject> getSavedDomainObjects() {
         return savedDomainObjects.values();
+    }
+
+    public Collection<DomainObject> getSavedAndChangedStatusDomainObjects() {
+        HashSet<DomainObject> result = new HashSet<>((int) ((changeStatusDomainObjects.size() + savedDomainObjects.size()) / 0.75f) + 1);
+        result.addAll(savedDomainObjects.values());
+        result.addAll(changeStatusDomainObjects.values());
+        return result;
     }
 
     public Collection<DomainObject> getDeletedDomainObjects() {
@@ -42,9 +53,10 @@ public class DomainObjectsModification implements Dto {
         createdDomainObjects.add(domainObject);
     }
 
-    public void addChangeStatusDomainObject(Id id){
-        if (!changeStatusDomainObjectIds.contains(id)){
-            changeStatusDomainObjectIds.add(id);
+    public void addChangeStatusDomainObject(DomainObject domainObject){
+        final Id id = domainObject.getId();
+        if (!changeStatusDomainObjects.containsKey(id)){
+            changeStatusDomainObjects.put(id, domainObject);
         }
     }
 

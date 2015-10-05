@@ -234,7 +234,12 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     public DomainObject findByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName) {
         try {
             String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
+            AccessToken accessToken;
+            if (isReadPermittedToEverybody(domainObjectType)) {
+                accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
+            } else {
+                accessToken = accessControlService.createCollectionAccessToken(user);
+            }
             return domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
         } catch (AccessException | ObjectNotFoundException e) {
             throw e;

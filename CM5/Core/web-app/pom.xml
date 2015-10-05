@@ -48,6 +48,19 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- при подключении глобального кэша - раскомментировать -->
+        <!--<dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>global-cache-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>global-cache-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>

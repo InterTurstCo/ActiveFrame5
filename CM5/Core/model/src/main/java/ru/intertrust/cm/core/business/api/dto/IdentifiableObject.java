@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api.dto;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * Идентифицируемый (наделённый идентификатором) объект - основная именованная сущность системы.
@@ -194,4 +195,11 @@ public interface IdentifiableObject extends Dto {
      * @return true, если объект был изменён, но не сохранён
      */
     boolean isDirty();
+
+    /**
+     * Проверяет наличие полей с определёнными значениями в объекте
+     * @param fieldValues карта значений полей
+     * @return true, если объект содержит поля с заданными значениями
+     */
+    boolean containsFieldValues(Map<String, Value> fieldValues);
 }

@@ -86,7 +86,9 @@
 
     <bean id="initializationLockDao" factory-bean="daoFactory" factory-method="createInitializationLockDao"/>
 
-    <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao"/>
+    <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao">
+        <property name="globalCacheClient" ref="globalCacheClient"/>
+    </bean>
 
     <bean id="statusDao" factory-bean="daoFactory" factory-method="createStatusDao"/>
 
@@ -151,6 +153,14 @@
     <bean id="md5Service" class="ru.intertrust.cm.core.dao.impl.MD5ServiceImpl"/>
 
     <bean id="sqlLoggerEnforcer" class="ru.intertrust.cm.core.dao.impl.SqlLoggerEnforcerImpl"/>
+
+    <bean id="delegatingGlobalCacheClientFactory" class="ru.intertrust.cm.core.dao.impl.DelegatingGlobalCacheClientFactory"/>
+
+    <bean id="globalCacheManager" class="ru.intertrust.cm.core.dao.impl.GlobalCacheManagerImpl"/>
+
+    <bean id="globalCacheClient" factory-bean="delegatingGlobalCacheClientFactory" factory-method="getGlobalCacheClient">
+        <property name="collectionsDao" ref="collectionsDao"/>
+    </bean>
 
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
