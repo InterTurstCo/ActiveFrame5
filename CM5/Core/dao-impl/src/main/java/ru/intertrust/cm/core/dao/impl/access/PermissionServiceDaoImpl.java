@@ -74,6 +74,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     @Autowired
     private UserTransactionService userTransactionService;
 
+    @Autowired
+    private PermissionAfterCommit permissionAfterCommit;
+
     public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
         this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
     }
@@ -199,8 +202,6 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         insertAclRecords(invalidContextId, addAclInfo, notifyCache);
     }
 
-
-
     /**
      * Вызов точки расширения
      * @param aclDataList
@@ -231,7 +232,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         //Регистрация на вызов после окончания транзакции
         RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
-        if (recalcGroupSynchronization != null){
+        if (recalcGroupSynchronization != null) {
             recalcGroupSynchronization.setAclData(domainObjectId, result);
         }
 
@@ -1138,7 +1139,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         return txReg;
     }
 
-    private class RecalcAclSynchronization  implements ActionListener {
+    private class RecalcAclSynchronization implements ActionListener {
         private Set<Id> contextIds = new HashSet<>();
         private Map<Id, AclData> aclDatas = new HashMap<Id, AclData>();
 
@@ -1159,14 +1160,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             Id[] ids = contextIds.toArray(new Id[contextIds.size()]);
             //Очищаем contextIds
             contextIds.clear();
-            
+
             //Цикл по сформированному массиву
             for (Id contextId : ids) {
                 refreshAclFor(contextId, true);
             }
-            
+
             //Если в процессе назначения прав в методе refreshAclFor был изменен список contextIds то вызываем повторно
-            if (contextIds.size() > 0){
+            if (contextIds.size() > 0) {
                 onBeforeCommit();
             }
         }
@@ -1174,23 +1175,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         @Override
         public void onAfterCommit() {
             //Вызов обработчиков точки расширения изменения прав
-            TransactionStatus transactionStatus = null;
-            try {
-                transactionStatus = transactionManager.getTransaction(new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_REQUIRES_NEW));
-
-                OnCalculateContextRoleExtensionHandler handler =
-                        extensionService.getExtentionPoint(OnCalculateContextRoleExtensionHandler.class, null);
-
-                for (Id id : aclDatas.keySet()) {
-                    handler.onCalculate(aclDatas.get(id), id);
-                }
-                transactionManager.commit(transactionStatus);
-            } catch (Exception ex) {
-                if (transactionStatus != null) {
-                    transactionManager.rollback(transactionStatus);
-                }
-                throw ex;
-            }
+            permissionAfterCommit.onAfterCommit(aclDatas);
         }
 
         @Override
