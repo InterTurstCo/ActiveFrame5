@@ -21,7 +21,7 @@ public interface ReportServiceAdmin {
      * Установка отчета в систему
      * @param deployReportData
      */
-    void deploy(DeployReportData deployReportData);
+    void deploy(DeployReportData deployReportData,  boolean lockUpdate);
 
     /**
      * Удаление отчета из системы
