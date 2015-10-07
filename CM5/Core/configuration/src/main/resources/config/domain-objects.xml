@@ -318,8 +318,8 @@
         <fields>
             <string name="name" length="256" not-null="true" />
             <string name="description" length="512" not-null="true" />
-            <long name="version" not-null="false" />
             <boolean name="forceMaster"/>
+            <boolean name="lockUpdate"/>
         </fields>
         <uniqueKey>
             <field name="name" />
