@@ -26,7 +26,7 @@ public class NamedCollectionSubKey extends CollectionSubKey {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof NamedCollectionSubKey)) {
             return false;
         }
 

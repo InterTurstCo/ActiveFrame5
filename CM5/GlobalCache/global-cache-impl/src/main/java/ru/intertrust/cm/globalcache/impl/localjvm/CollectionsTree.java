@@ -1,10 +1,10 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Denis Mitavskiy
@@ -12,14 +12,14 @@ import java.util.concurrent.ConcurrentMap;
  *         Time: 18:27
  */
 public class CollectionsTree {
-    private ConcurrentMap<CollectionTypesKey, CollectionBaseNode> collections;
+    private SizeableConcurrentHashMap<CollectionTypesKey, CollectionBaseNode> collections;
 
-    public CollectionsTree(int initialCapacity, int concurrencyLevel) {
-        this(initialCapacity, 0.75f, concurrencyLevel);
+    public CollectionsTree(int initialCapacity, int concurrencyLevel, Size totalCacheSize) {
+        this(initialCapacity, 0.75f, concurrencyLevel, totalCacheSize);
     }
 
-    public CollectionsTree(int initialCapacity, float loadFactor, int concurrencyLevel) {
-        collections = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
+    public CollectionsTree(int initialCapacity, float loadFactor, int concurrencyLevel, Size totalCacheSize) {
+        collections = new SizeableConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel, totalCacheSize, true, true);
     }
 
     public Set<String> getDomainObjectTypesInvolved(CollectionTypesKey key) {

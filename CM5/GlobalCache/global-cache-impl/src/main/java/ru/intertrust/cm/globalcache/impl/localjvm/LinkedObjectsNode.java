@@ -1,9 +1,9 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.impl.util.Size;
-import ru.intertrust.cm.globalcache.impl.util.SizeEstimator;
-import ru.intertrust.cm.globalcache.impl.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 
 import java.util.*;
 
@@ -24,11 +24,7 @@ public class LinkedObjectsNode implements Sizeable {
             sortNeeded = true;
         }
         this.domainObjectsIds = Collections.synchronizedSet(domainObjectsIds);
-        size = new Size().set(SizeEstimator.estimateSize(domainObjectsIds) + SELF_SIZE);
-    }
-
-    public void setSizeTotal(Size total) {
-        this.size.setTotal(total);
+        size = new Size(SizeEstimator.estimateSize(domainObjectsIds) + SELF_SIZE);
     }
 
     @Override

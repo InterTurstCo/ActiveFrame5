@@ -6,18 +6,20 @@ package ru.intertrust.cm.core.dao.dto;
  *         Time: 16:03
  */
 public class QueryCollectionTypesKey implements CollectionTypesKey {
-    private String query;
+    protected String query;
 
     public QueryCollectionTypesKey(String query) {
         this.query = query;
     }
+
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof QueryCollectionTypesKey)) {
             return false;
         }
 

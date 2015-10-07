@@ -23,7 +23,7 @@ public class QueryCollectionSubKey extends CollectionSubKey {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof QueryCollectionSubKey)) {
             return false;
         }
 

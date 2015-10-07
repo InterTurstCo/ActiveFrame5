@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
 import ru.intertrust.cm.core.util.ObjectCloner;
 import ru.intertrust.cm.globalcache.api.*;
-import ru.intertrust.cm.globalcache.impl.util.Size;
+import ru.intertrust.cm.globalcache.api.util.Size;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
@@ -60,15 +60,15 @@ public class GlobalCacheImpl implements GlobalCache {
         logger.warn("===========================================================================================");*/
         size = new Size();
         objectsTree = new ObjectsTree(10000, 16, size);
-        uniqueKeyMapping = new TypeUniqueKeyMapping(16);
-        userObjectAccess = new UserObjectAccess(16);
+        uniqueKeyMapping = new TypeUniqueKeyMapping(16, size);
+        userObjectAccess = new UserObjectAccess(16, size);
         accessOrder = new AccessOrderedSynchronizedMap<>(10000);
-        objectAccessDelegation = new ObjectAccessDelegation(16);
+        objectAccessDelegation = new ObjectAccessDelegation(16, size);
         final int typesQty = explorer.getConfigs(DomainObjectTypeConfig.class).size();
         doTypeLastSaveTime = new DomainObjectTypeSaveTime(typesQty);
         domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty);
-        idsByType = new IdsByType(16, typesQty * 2);
-        collectionsTree = new CollectionsTree(10000, 16);
+        idsByType = new IdsByType(16, typesQty * 2, size);
+        collectionsTree = new CollectionsTree(10000, 16, size);
 
 
 
@@ -301,7 +301,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         if (personAccessChanges.clearFullAccessLog()) {
-            userObjectAccess = new UserObjectAccess(16);
+            userObjectAccess = new UserObjectAccess(16, size);
             return;
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
@@ -479,19 +479,21 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues,
                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
+        final CollectionTypesKey key = new SizeableNamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = new HashSet<>(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
+        sortOrder = ObjectCloner.getInstance().cloneObject(sortOrder);
+        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : ObjectCloner.getInstance().cloneObject(new HashSet<>(filterValues));
+        final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
         return getCollection(key, subKey);
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues,
                                                       int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
+        final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
-        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues, offset, limit);
+        paramValues = paramValues == null ? null : ObjectCloner.getInstance().cloneObject(paramValues); // todo: it's a quick fix, create a separate serializer
+        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit);
         return getCollection(key, subKey);
     }
 

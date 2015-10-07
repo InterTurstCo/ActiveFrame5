@@ -1,9 +1,9 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.impl.util.Size;
-import ru.intertrust.cm.globalcache.impl.util.SizeEstimator;
-import ru.intertrust.cm.globalcache.impl.util.SizeableConcurrentHashMap;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 /**
  * @author Denis Mitavskiy
@@ -23,7 +23,7 @@ public class ObjectsTree {
     public ObjectsTree(int initialCapacity, float loadFactor, int concurrencyLevel, Size cacheTotalSize) {
         this.cacheTotalSize = cacheTotalSize;
         this.cacheTotalSize.add(SELF_SIZE);
-        domainObjects = new SizeableConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel, cacheTotalSize);
+        domainObjects = new SizeableConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel, cacheTotalSize, true, true);
     }
 
     public ObjectNode addDomainObjectNode(Id id, ObjectNode node) {

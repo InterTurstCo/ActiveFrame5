@@ -1,8 +1,9 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -11,18 +12,18 @@ import java.util.concurrent.ConcurrentMap;
  *         Time: 19:56
  */
 public class IdsByType {
-    private ConcurrentMap<String, ConcurrentMap<Id, Id>> idByType;
+    private SizeableConcurrentHashMap<String, SizeableConcurrentHashMap<Id, Id>> idByType;
 
-    public IdsByType(int concurrencyLevel, int size) {
-        idByType = new ConcurrentHashMap<>(size, 0.75f, concurrencyLevel);
+    public IdsByType(int concurrencyLevel, int size, Size totalCacheSize) {
+        idByType = new SizeableConcurrentHashMap<>(size, 0.75f, concurrencyLevel, totalCacheSize, false, false);
     }
 
     public void setIdType(Id id, String type) {
         String lowercasedType = type.toLowerCase();
-        ConcurrentMap<Id, Id> mapping = idByType.get(lowercasedType);
+        SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
         if (mapping == null) {
-            mapping = new ConcurrentHashMap<>(100);
-            final ConcurrentMap<Id, Id> newMap = idByType.putIfAbsent(lowercasedType, mapping);
+            mapping = new SizeableConcurrentHashMap<>(100, 0.75f, 16, null, false, false);
+            final SizeableConcurrentHashMap<Id, Id> newMap = idByType.putIfAbsent(lowercasedType, mapping);
             mapping = newMap == null ? mapping : newMap;
         }
         mapping.put(id, id);

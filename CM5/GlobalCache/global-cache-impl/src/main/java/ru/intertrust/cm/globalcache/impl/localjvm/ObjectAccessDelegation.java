@@ -1,12 +1,11 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Карта делегирования прав доступа к объекту. Если в этой карте отсутствует Id какого-то объекта, это означает, что
@@ -16,23 +15,28 @@ import java.util.concurrent.ConcurrentMap;
  *         Time: 19:50
  */
 public class ObjectAccessDelegation {
-    private ConcurrentMap<Id, Id> delegateById;
-    private ConcurrentMap<Id, Set<Id>> objectsByDelegate; // key - object, which defines user access. value - objects delegating their checks to the key
+    private SizeableConcurrentHashMap<Id, Id> delegateById;
+    private SizeableConcurrentHashMap<Id, SizeableConcurrentHashMap<Id, Id>> objectsByDelegate; // key - object, which defines user access. value - objects delegating their checks to the key
 
-    public ObjectAccessDelegation(int concurrencyLevel) {
-        delegateById = new ConcurrentHashMap<>(concurrencyLevel);
-        objectsByDelegate = new ConcurrentHashMap<>(concurrencyLevel);
+    private Size cacheTotalSize;
+
+    public ObjectAccessDelegation(int concurrencyLevel, Size totalSize) {
+        cacheTotalSize = totalSize;
+        cacheTotalSize.add(2 * SizeEstimator.getReferenceSize());
+
+        delegateById = new SizeableConcurrentHashMap<>(16, 0.75f, concurrencyLevel, cacheTotalSize, true, true);
+        objectsByDelegate = new SizeableConcurrentHashMap<>(16, 0.75f, concurrencyLevel, cacheTotalSize, false, false);
     }
 
     public void setDelegation(Id objectId, Id accessCheckDelegateId) {
         if (!objectId.equals(accessCheckDelegateId)) {
             delegateById.put(objectId, accessCheckDelegateId);
-            findOrCreateObjectsByDelegate(accessCheckDelegateId).add(objectId);
+            findOrCreateObjectsByDelegate(accessCheckDelegateId).put(objectId, objectId);
         }
     }
 
     public void removeId(Id objectId) {
-        final Set<Id> dependentObjects = objectsByDelegate.remove(objectId);
+        final SizeableConcurrentHashMap<Id, Id> dependentObjects = objectsByDelegate.remove(objectId);
         if (dependentObjects != null) { // object is a delegate, so it's not a depending object, no entries in delegateById
             return;
         }
@@ -42,7 +46,7 @@ public class ObjectAccessDelegation {
             return;
         }
         // object has a delegate, so remove it from it's list
-        final Set<Id> objectsDelegateResponsibleFor = objectsByDelegate.get(delegate);
+        final SizeableConcurrentHashMap<Id, Id> objectsDelegateResponsibleFor = objectsByDelegate.get(delegate);
         if (objectsDelegateResponsibleFor != null) {
             objectsDelegateResponsibleFor.remove(objectId);
         }
@@ -53,14 +57,14 @@ public class ObjectAccessDelegation {
     }
 
     public Set<Id> getObjectsByDelegate(Id accessCheckDelegateId) {
-        return objectsByDelegate.get(accessCheckDelegateId);
+        return objectsByDelegate.get(accessCheckDelegateId).keySet();
     }
 
-    private Set<Id> findOrCreateObjectsByDelegate(Id accessCheckDelegateId) {
-        Set<Id> objectsForDelegate = objectsByDelegate.get(accessCheckDelegateId);
+    private SizeableConcurrentHashMap<Id, Id> findOrCreateObjectsByDelegate(Id accessCheckDelegateId) {
+        SizeableConcurrentHashMap<Id, Id> objectsForDelegate = objectsByDelegate.get(accessCheckDelegateId);
         if (objectsForDelegate == null) {
-            objectsForDelegate = Collections.synchronizedSet(new HashSet<Id>());
-            Set<Id> previous = objectsByDelegate.putIfAbsent(accessCheckDelegateId, objectsForDelegate);
+            objectsForDelegate = new SizeableConcurrentHashMap<>(16, 0.75f, 16, null, false, false);
+            SizeableConcurrentHashMap<Id, Id> previous = objectsByDelegate.putIfAbsent(accessCheckDelegateId, objectsForDelegate);
             if (previous != null) {
                 objectsForDelegate = previous;
             }

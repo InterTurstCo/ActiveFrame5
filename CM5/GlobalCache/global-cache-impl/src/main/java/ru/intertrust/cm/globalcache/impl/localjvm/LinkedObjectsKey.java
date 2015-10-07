@@ -1,8 +1,8 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
-import ru.intertrust.cm.globalcache.impl.util.Size;
-import ru.intertrust.cm.globalcache.impl.util.SizeEstimator;
-import ru.intertrust.cm.globalcache.impl.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 
 /**
  * @author Denis Mitavskiy
@@ -19,7 +19,7 @@ public class LinkedObjectsKey implements Sizeable {
         this.type = type.toLowerCase();
         this.field = field.toLowerCase();
         this.exactType = exactType;
-        this.size = new Size().set(SizeEstimator.estimateSize(this));
+        this.size = new Size(SizeEstimator.estimateSize(this));
     }
 
     @Override
@@ -52,11 +52,6 @@ public class LinkedObjectsKey implements Sizeable {
         result = 31 * result + field.hashCode();
         result = 31 * result + (exactType ? 1 : 0);
         return result;
-    }
-
-    @Override
-    public void setSizeTotal(Size total) {
-        size.setTotal(total);
     }
 
     @Override

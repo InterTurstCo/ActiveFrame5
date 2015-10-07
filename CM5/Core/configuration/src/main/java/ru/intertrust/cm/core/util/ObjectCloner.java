@@ -1,11 +1,15 @@
 package ru.intertrust.cm.core.util;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.esotericsoftware.kryo.serializers.DefaultArraySerializers;
 import org.objenesis.strategy.StdInstantiatorStrategy;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
@@ -23,6 +27,7 @@ public class ObjectCloner {
     private ObjectCloner() {
         kryo = new Kryo();
         ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy()).setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
+        kryo.register(Arrays.asList("").getClass(), new ArraysAsListSerializer(kryo));
     }
 
     public static ObjectCloner getInstance () {
@@ -96,5 +101,29 @@ public class ObjectCloner {
         output.close();
 
         return (T) kryo.readObject(new Input(stream.toByteArray()), source.getClass());
+    }
+
+    private static class ArraysAsListSerializer extends Serializer<List<?>> {
+        private final DefaultArraySerializers.ObjectArraySerializer arraySerializer;
+
+        public ArraysAsListSerializer(Kryo kryo) {
+            arraySerializer = new DefaultArraySerializers.ObjectArraySerializer(kryo, Object[].class);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output, List<?> object) {
+            arraySerializer.write(kryo, output, object.toArray());
+        }
+
+        @Override
+        public List<?> read(Kryo kryo, Input input, Class<List<?>> type) {
+            final Object[] array = arraySerializer.read(kryo, input, Object[].class);
+            return Arrays.asList(array);
+        }
+
+        @Override
+        public List<?> copy(Kryo kryo, List<?> original) {
+            return Arrays.asList(arraySerializer.copy(kryo, original.toArray()));
+        }
     }
 }
