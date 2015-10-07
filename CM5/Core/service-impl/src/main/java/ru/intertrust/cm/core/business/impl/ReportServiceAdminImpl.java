@@ -99,16 +99,14 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                 reportTemplateObject.setString("name", reportMetadata.getName());
                 updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
 
-            } else{
+            } else if ((!dopLockUpdate) || (lockUpdate)){
                 //Если существует то удаляем все вложения по нему
                 List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
                 for (DomainObject attachment : attachments) {
                     attachmentService.deleteAttachment(attachment.getId());
                 }
                 Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
-                if ((!dopLockUpdate) || (lockUpdate)){
-                	updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
-                }
+               	updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
             }
             
             tmpFolder.delete();
