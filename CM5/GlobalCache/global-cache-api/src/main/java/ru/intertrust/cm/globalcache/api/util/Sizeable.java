@@ -1,4 +1,4 @@
-package ru.intertrust.cm.globalcache.impl.util;
+package ru.intertrust.cm.globalcache.api.util;
 
 /**
  * @author Denis Mitavskiy
@@ -6,7 +6,6 @@ package ru.intertrust.cm.globalcache.impl.util;
  *         Time: 14:27
  */
 public interface Sizeable {
-    void setSizeTotal(Size total);
 
     Size getSize();
 }

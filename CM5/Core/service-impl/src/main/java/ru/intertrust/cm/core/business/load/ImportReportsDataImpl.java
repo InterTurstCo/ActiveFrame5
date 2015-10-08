@@ -118,7 +118,7 @@ public class ImportReportsDataImpl implements ImportReportsData, ImportReportsDa
                 item.setBody(readFile(fileURL));
                 deployData.getItems().add(item);
             }
-            reportServiceAdmin.deploy(deployData);
+            reportServiceAdmin.deploy(deployData, false);
         }
     }
 

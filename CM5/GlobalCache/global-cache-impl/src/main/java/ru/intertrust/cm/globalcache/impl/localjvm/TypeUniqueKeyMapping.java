@@ -1,20 +1,23 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 17.08.2015
  *         Time: 19:05
  */
-public class TypeUniqueKeyMapping {
-    private ConcurrentMap<String, UniqueKeyIdMapping> uniqueKeyMappingByType;
+public class TypeUniqueKeyMapping implements Sizeable {
+    private SizeableConcurrentHashMap<String, UniqueKeyIdMapping> uniqueKeyMappingByType;
     private int concurrencyLevel;
+    private Size cacheTotal;
 
-    public TypeUniqueKeyMapping(int concurrencyLevel) {
+    public TypeUniqueKeyMapping(int concurrencyLevel, Size cacheTotal) {
         this.concurrencyLevel = concurrencyLevel;
-        this.uniqueKeyMappingByType = new ConcurrentHashMap<>(100, 0.75f, concurrencyLevel);
+        this.cacheTotal = cacheTotal;
+        this.uniqueKeyMappingByType = new SizeableConcurrentHashMap<>(100, 0.75f, concurrencyLevel, cacheTotal, true, true);
     }
 
     public UniqueKeyIdMapping getUniqueKeyIdMapping(String type) {
@@ -30,5 +33,10 @@ public class TypeUniqueKeyMapping {
         final UniqueKeyIdMapping uniqueKeyIdMapping = new UniqueKeyIdMapping(1000, concurrencyLevel);
         final UniqueKeyIdMapping result = uniqueKeyMappingByType.putIfAbsent(lowercasedType, uniqueKeyIdMapping);
         return result == null ? uniqueKeyIdMapping : result;
+    }
+
+    @Override
+    public Size getSize() {
+        return null;
     }
 }

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.globalcache.impl.util;
+package ru.intertrust.cm.globalcache.api.util;
 
 import com.carrotsearch.sizeof.RamUsageEstimator;
 

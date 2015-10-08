@@ -1,4 +1,4 @@
-package ru.intertrust.cm.globalcache.impl.util;
+package ru.intertrust.cm.globalcache.api.util;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -19,13 +19,18 @@ public class Size {
 
     public Size(Size sizeTotal) {
         this.size = new AtomicLong();
-        set(SELF_SIZE);
+        set(0);
         setTotal(sizeTotal);
+    }
+
+    public Size(long size) {
+        this(null);
+        set(size);
     }
 
     public Size setTotal(Size total) {
         if (this.sizeTotal != null) {
-            throw new IllegalArgumentException("Totals already initialized");
+            throw new IllegalArgumentException("Total's already initialized");
         }
         this.sizeTotal = total;
         updateTotal(get());
@@ -34,7 +39,7 @@ public class Size {
 
     public Size set(long size) {
         final long previous = this.size.getAndSet(size);
-        updateTotal(size - previous);
+        updateTotal(size + SELF_SIZE - previous);
         return this;
     }
 

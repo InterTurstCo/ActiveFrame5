@@ -3,14 +3,14 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.globalcache.impl.util.Size;
-import ru.intertrust.cm.globalcache.impl.util.SizeEstimator;
-import ru.intertrust.cm.globalcache.impl.util.Sizeable;
-import ru.intertrust.cm.globalcache.impl.util.SizeableConcurrentHashMap;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.concurrent.ConcurrentMap;
 
-import static ru.intertrust.cm.globalcache.impl.util.SizeEstimator.estimateSize;
+import static ru.intertrust.cm.globalcache.api.util.SizeEstimator.estimateSize;
 
 /**
  * @author Denis Mitavskiy
@@ -46,12 +46,7 @@ public class ObjectNode implements Sizeable {
     public ObjectNode(Id id, DomainObject domainObject) {
         this.id = id;
         this.domainObject = domainObject;
-        this.size = new Size();
-        this.size.set(SELF_SIZE + estimateSize(id) + estimateSize(domainObject));
-    }
-
-    public void setSizeTotal(Size total) {
-        this.size.setTotal(total);
+        this.size = new Size(SELF_SIZE + estimateSize(id) + estimateSize(domainObject));
     }
 
     @Override

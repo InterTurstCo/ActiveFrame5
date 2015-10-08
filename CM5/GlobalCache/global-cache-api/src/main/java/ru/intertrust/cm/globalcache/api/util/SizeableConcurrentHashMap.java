@@ -1,4 +1,4 @@
-package ru.intertrust.cm.globalcache.impl.util;
+package ru.intertrust.cm.globalcache.api.util;
 
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 26.08.2015
  *         Time: 19:37
  */
-public class SizeableConcurrentHashMap<K, V extends Sizeable> extends ConcurrentHashMap<K, V> implements Sizeable {
+public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> implements Sizeable {
     private final static int SELF_SIZE = 4 * Integer.SIZE + Float.SIZE + (int) SizeEstimator.getReferenceSize();
     public static final long USER_SUBJECT_SIZE = SizeEstimator.estimateSize(new UserSubject(1));
 
@@ -20,25 +20,29 @@ public class SizeableConcurrentHashMap<K, V extends Sizeable> extends Concurrent
     private int concurrencyLevel;
     private int capacity;
     private float loadFactor;
+    private boolean includeKeySizes;
+    private boolean includeValueSizes;
 
     private Size size;
     private Size selfSize;
 
     public SizeableConcurrentHashMap() {
-        this(16, 0.75f, 16, null);
+        this(16, 0.75f, 16, null, true, true);
     }
 
     public SizeableConcurrentHashMap(Size totals) {
-        this(16, 0.75f, 16, totals);
+        this(16, 0.75f, 16, totals, true, true);
     }
 
-    public SizeableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel, Size total) {
+    public SizeableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel, Size total, boolean includeKeySizes, boolean includeValueSizes) {
         super(initialCapacity, loadFactor, concurrencyLevel);
         this.concurrencyLevel = concurrencyLevel;
         this.capacity = initialCapacity;
         this.loadFactor = loadFactor;
         this.size = new Size(total);
         this.selfSize = new Size();
+        this.includeKeySizes = includeKeySizes;
+        this.includeValueSizes = includeValueSizes;
         updateSelfSize();
     }
 
@@ -115,31 +119,61 @@ public class SizeableConcurrentHashMap<K, V extends Sizeable> extends Concurrent
     }
 
     private void updateSizeOnPut(K key, V prevValue, V newValue) {
-        if (key instanceof Sizeable) {
-            ((Sizeable) key).getSize().setTotal(this.size);
-        } else if (key instanceof UserSubject) {
-            this.size.add(USER_SUBJECT_SIZE);
-        } else {
-            this.size.add(SizeEstimator.estimateSize(key));
+        if (!includeKeySizes && !includeValueSizes) {
+            return;
         }
-        if (prevValue != null) {
-            prevValue.getSize().detachFromTotal();
+        if (includeKeySizes) {
+            if (key instanceof Sizeable) {
+                ((Sizeable) key).getSize().setTotal(this.size);
+            } else if (key instanceof UserSubject) {
+                this.size.add(USER_SUBJECT_SIZE);
+            } else {
+                this.size.add(SizeEstimator.estimateSize(key));
+            }
         }
-        newValue.getSize().setTotal(this.size);
+        if (includeValueSizes) {
+            final boolean addNewValueSize = newValue != null && (!includeKeySizes || key != newValue);
+            final boolean extractPrevValueSize = prevValue != null && (!includeKeySizes || key != prevValue);
+            if (prevValue instanceof Sizeable || newValue instanceof Sizeable) {
+                if (extractPrevValueSize) {
+                    ((Sizeable) prevValue).getSize().detachFromTotal();
+                }
+                if (addNewValueSize) {
+                    ((Sizeable) newValue).getSize().setTotal(this.size);
+                }
+            } else {
+                if (extractPrevValueSize) {
+                    this.size.add(-SizeEstimator.estimateSize(prevValue));
+                }
+                if (addNewValueSize) {
+                    this.size.add(SizeEstimator.estimateSize(newValue));
+                }
+            }
+        }
     }
 
     private void updateSizeOnRemove(K key, V value) {
-        if (value == null) { // nothing removed
+        if (!includeKeySizes && !includeValueSizes || value == null) { // nothing removed
             return;
         }
-        if (key instanceof Sizeable) {
-            ((Sizeable) key).getSize().detachFromTotal();
-        } else if (key instanceof UserSubject) {
-            this.size.add(-USER_SUBJECT_SIZE);
-        } else {
-            this.size.add(-SizeEstimator.estimateSize(key));
+        if (includeKeySizes) {
+            if (key instanceof Sizeable) {
+                ((Sizeable) key).getSize().detachFromTotal();
+            } else if (key instanceof UserSubject) {
+                this.size.add(-USER_SUBJECT_SIZE);
+            } else {
+                this.size.add(-SizeEstimator.estimateSize(key));
+            }
         }
-        value.getSize().detachFromTotal();
+        if (includeValueSizes) {
+            if (!includeValueSizes || value != key) {
+                if (value instanceof Sizeable) {
+                    ((Sizeable) value).getSize().detachFromTotal();
+                } else {
+                    this.size.add(-SizeEstimator.estimateSize(value));
+                }
+            }
+        }
     }
 
     private void updateSelfSize() {
@@ -183,12 +217,7 @@ public class SizeableConcurrentHashMap<K, V extends Sizeable> extends Concurrent
     }
 
     @Override
-    public void setSizeTotal(Size total) {
-        this.size.setTotal(total);
-    }
-
-    @Override
     public Size getSize() {
-        return this.size;
+        return includeKeySizes ? size : selfSize;
     }
 }

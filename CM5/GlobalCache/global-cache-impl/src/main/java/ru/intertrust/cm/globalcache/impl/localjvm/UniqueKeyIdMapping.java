@@ -2,15 +2,12 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.api.AbsentDomainObject;
 import ru.intertrust.cm.globalcache.api.UniqueKey;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author Denis Mitavskiy
@@ -18,16 +15,18 @@ import java.util.concurrent.ConcurrentMap;
  *         Time: 15:09
  */
 public class UniqueKeyIdMapping {
-    private final Object ABSENT_KEYS_LOCK = new Object();
+    private Size size; // total cache size will be set to this object when it's added to the parent map
 
-    private ConcurrentMap<UniqueKey, Id> idByUniqueKey;
-    private ConcurrentMap<UniqueKey, DomainObject> absentUniqueKeys;
-    private ConcurrentMap<Id, Set<UniqueKey>> uniqueKeyById;
+    private SizeableConcurrentHashMap<UniqueKey, Id> idByUniqueKey;
+    private SizeableConcurrentHashMap<UniqueKey, UniqueKey> absentUniqueKeys;
+    private SizeableConcurrentHashMap<Id, SizeableConcurrentHashMap<UniqueKey, UniqueKey>> uniqueKeyById;
 
     public UniqueKeyIdMapping(int initialCapacity, int concurrentcyLevel) {
-        idByUniqueKey = new ConcurrentHashMap<>(initialCapacity, 0.75f, concurrentcyLevel);
-        uniqueKeyById = new ConcurrentHashMap<>(initialCapacity, 0.75f, concurrentcyLevel);
-        absentUniqueKeys = new ConcurrentHashMap<>(100, 0.75f, concurrentcyLevel);
+        size = new Size(4 * SizeEstimator.getReferenceSize());
+        // all sizes will be calculated manually
+        idByUniqueKey = new SizeableConcurrentHashMap<>(initialCapacity, 0.75f, concurrentcyLevel, size, true, true);
+        absentUniqueKeys = new SizeableConcurrentHashMap<>(100, 0.75f, concurrentcyLevel, size, true, true);
+        uniqueKeyById = new SizeableConcurrentHashMap<>(initialCapacity, 0.75f, concurrentcyLevel, size, false, false);
     }
 
     public void updateMappings(DomainObject obj, Collection<UniqueKey> allUniqueKeys) {
@@ -35,11 +34,11 @@ public class UniqueKeyIdMapping {
         for (UniqueKey key : allUniqueKeys) {
             absentUniqueKeys.remove(key);
         }
-        Set<UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
+        SizeableConcurrentHashMap<UniqueKey, UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
         if (existingUniqueKeys == null) {
             return;
         } else {
-            for (UniqueKey existingUniqueKey : existingUniqueKeys) {
+            for (UniqueKey existingUniqueKey : existingUniqueKeys.keySet()) {
                 if (!obj.containsFieldValues(existingUniqueKey.getValues())) {
                     this.idByUniqueKey.remove(existingUniqueKey);
                 }
@@ -49,24 +48,24 @@ public class UniqueKeyIdMapping {
 
     public void setMapping(DomainObject obj, UniqueKey uniqueKey) {
         if (obj == null) {
-            absentUniqueKeys.put(uniqueKey, AbsentDomainObject.INSTANCE);
+            absentUniqueKeys.put(uniqueKey, uniqueKey);
             return;
         }
 
         final Id id = obj.getId();
-        Set<UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
+        SizeableConcurrentHashMap<UniqueKey, UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
         if (existingUniqueKeys == null) {
-            existingUniqueKeys = Collections.synchronizedSet(new HashSet<UniqueKey>());
+            existingUniqueKeys = new SizeableConcurrentHashMap<>(16, 0.75f, 16, null, false, false);
             this.uniqueKeyById.put(id, existingUniqueKeys);
         }
-        existingUniqueKeys.add(uniqueKey);
+        existingUniqueKeys.put(uniqueKey, uniqueKey);
         idByUniqueKey.put(uniqueKey, id);
     }
 
     public void clear(Id id) {
-        Set<UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
+        SizeableConcurrentHashMap<UniqueKey, UniqueKey> existingUniqueKeys = this.uniqueKeyById.get(id);
         if (existingUniqueKeys != null) {
-            for (UniqueKey existingUniqueKey : existingUniqueKeys) {
+            for (UniqueKey existingUniqueKey : existingUniqueKeys.keySet()) {
                 this.idByUniqueKey.remove(existingUniqueKey);
             }
             this.uniqueKeyById.remove(id);

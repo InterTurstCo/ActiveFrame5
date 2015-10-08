@@ -8,8 +8,8 @@ import java.util.Set;
  *         Time: 16:49
  */
 public class NamedCollectionTypesKey implements CollectionTypesKey {
-    private String name;
-    private Set<String> filterNames;
+    protected String name;
+    protected Set<String> filterNames;
 
     public NamedCollectionTypesKey(String name, Set<String> filterNames) {
         this.name = name;
@@ -21,7 +21,7 @@ public class NamedCollectionTypesKey implements CollectionTypesKey {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (o == null || !(o instanceof NamedCollectionTypesKey)) {
             return false;
         }
 

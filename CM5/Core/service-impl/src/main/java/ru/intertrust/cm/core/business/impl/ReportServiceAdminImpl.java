@@ -63,7 +63,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
      * Установка отчета в систему
      */
     @Override
-    public void deploy(DeployReportData deployReportData) {
+    public void deploy(DeployReportData deployReportData, boolean lockUpdate) {
         try {
 
             //Получаем все новые вложения и ищем файл с метаинформацией
@@ -87,66 +87,61 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                         + " in report template deploy data");
             }
 
-            //TODO переделать на админ токен
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            //Получаем все вложения из временной директории и сохраняем их как вложения
+            File[] filelist = tmpFolder.listFiles();
+            
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
-            
-            //Получаем текущую версию документа из ДОПа отчета.
-            //Если версия отсутствует устанавливаем версию в 0.
-            Long currentVersion = 0L;
-            if (reportTemplateObject != null) {
-                currentVersion = reportTemplateObject.getLong("version");
-                if (currentVersion == null){
-                    currentVersion = 0L;
-                } 
-            }
-            //Получаем версию документа из Метаданных отчета.
-            //Если версия отсутствует устанавливаем версию в 0.
-            Long newVersion = reportMetadata.getVersion();
-            if (newVersion == null){
-                newVersion = 0L;
-            }
+           
             //Если не существует то создаем новый
             if (reportTemplateObject == null) {
                 reportTemplateObject = createDomainObject("report_template");
                 reportTemplateObject.setString("name", reportMetadata.getName());
+                updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
 
-            } else if (newVersion >= currentVersion){
-                //Если существует то удаляем все вложения по нему
-                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
-                for (DomainObject attachment : attachments) {
-                    attachmentService.deleteAttachment(attachment.getId());
-                }
+            } else {
+            	Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
+            	if ((!dopLockUpdate) || (lockUpdate)){
+	                //Если существует то удаляем все вложения по нему
+	                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
+	                for (DomainObject attachment : attachments) {
+	                    attachmentService.deleteAttachment(attachment.getId());
+	                }
+	               	updateReportTemplate(reportTemplateObject, reportMetadata, filelist, lockUpdate);
+            	}
             }
-            if (newVersion >= currentVersion){
-                reportTemplateObject.setString("description", reportMetadata.getDescription());
-                reportTemplateObject.setLong("version", newVersion);
-                reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
-    
-                //Получаем все вложения из временной директории и сохраняем их как вложения
-                File[] filelist = tmpFolder.listFiles();
-                for (File file : filelist) {
-                    DomainObject attachment =
-                            attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(),
-                                    "report_template_attach");
-                    attachment.setString("Name", file.getName());
-                    ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
-                    DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
-    
-                    attachmentService.saveAttachment(directRemoteInputStream, attachment);
-    
-                    //Удаляем, больше нам не нужен
-                    file.delete();
-                }
-            }
-
+            
             tmpFolder.delete();
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in deploy", ex);
             throw new ReportServiceException("Error deploy process", ex);
         }
+        
+    }
+    
+    private void updateReportTemplate(DomainObject reportTemplateObject,ReportMetadataConfig reportMetadata,File[] filelist, boolean lockUpdate) throws IOException{
+    	//TODO переделать на админ токен
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+    	reportTemplateObject.setString("description", reportMetadata.getDescription());
+    	reportTemplateObject.setBoolean("lockUpdate", lockUpdate);
+        reportTemplateObject = domainObjectDao.save(reportTemplateObject, accessToken);
 
+
+        for (File file : filelist) {
+            DomainObject attachment =
+                    attachmentService.createAttachmentDomainObjectFor(reportTemplateObject.getId(),
+                            "report_template_attach");
+            attachment.setString("Name", file.getName());
+            ByteArrayInputStream bis = new ByteArrayInputStream(readFile(file));
+            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+
+            attachmentService.saveAttachment(directRemoteInputStream, attachment);
+
+            //Удаляем, больше нам не нужен
+            file.delete();
+        }
+
+        
     }
 
     private void saveFile(DeployReportItem item, File tmpFolder) throws IOException {

@@ -2,8 +2,14 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
-import java.util.*;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -11,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 10.07.2015
  *         Time: 13:51
  */
-public class UserObjectAccess {
+public class UserObjectAccess implements Sizeable {
     private static final int INITAL_ACCESS_BY_USER_CAPACITY = 100;
     private static final int INITAL_ACCESS_BY_OBJECT_ID_CAPACITY = 1000;
     private static final int INITIAL_ACCESS_CAPACITY = 10000;
@@ -19,14 +25,24 @@ public class UserObjectAccess {
     private static final int INITIAL_USERS_CAPACITY_PER_OBJECT = 10;
     public static final float DEFAULT_LOAD_FACTOR = 0.75f;
 
-    private ConcurrentHashMap<Record, Boolean> access;
-    private ConcurrentHashMap<UserSubject, Set<Record>> accessByUser;
-    private ConcurrentHashMap<Id, Set<Record>> accessByObjectId;
+    private Size size;
 
-    public UserObjectAccess(int concurrencyLevel) {
-        access = new ConcurrentHashMap<>(INITIAL_ACCESS_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel);
-        accessByUser = new ConcurrentHashMap<>(INITAL_ACCESS_BY_USER_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel);
-        accessByObjectId = new ConcurrentHashMap<>(INITAL_ACCESS_BY_OBJECT_ID_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel);
+    private SizeableConcurrentHashMap<Record, Boolean> access;
+    private SizeableConcurrentHashMap<UserSubject, SizeableConcurrentHashMap<Record, Record>> accessByUser;
+    private SizeableConcurrentHashMap<Id, SizeableConcurrentHashMap<Record, Record>> accessByObjectId;
+
+    public UserObjectAccess(int concurrencyLevel, Size sizeTotal) {
+        size = new Size(sizeTotal);
+        size.add(4 * SizeEstimator.getReferenceSize());
+
+        // only duplicates and constants in this map - only self-size of map is calculated
+        access = new SizeableConcurrentHashMap<>(INITIAL_ACCESS_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel, size, false, false);
+
+        // this map with submaps automatically takes nested objects into account
+        accessByUser = new SizeableConcurrentHashMap<>(INITAL_ACCESS_BY_USER_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel, size, true, true);
+
+        // Ids are handled separately in this map
+        accessByObjectId = new SizeableConcurrentHashMap<>(INITAL_ACCESS_BY_OBJECT_ID_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel, size, true, false);
     }
 
     public void clear() {
@@ -54,21 +70,19 @@ public class UserObjectAccess {
     }
 
     public void clearAccess(Id objectId) {
-        final Set<Record> records = accessByObjectId.get(objectId);
+        final SizeableConcurrentHashMap<Record, Record> records = accessByObjectId.get(objectId);
         if (records == null) {
             return;
         }
-        synchronized (records) { // just in case of 2 simultaneous removals
-            if (accessByObjectId.get(objectId) != null) {
-                for (Record record : records) {
-                    access.remove(record);
-                    final Set<Record> recordsByUser = accessByUser.get(record.subject);
-                    if (recordsByUser != null) {
-                        recordsByUser.remove(record);
-                    }
+        if (accessByObjectId.get(objectId) != null) {
+            for (Record record : records.keySet()) {
+                access.remove(record);
+                final SizeableConcurrentHashMap<Record, Record> recordsByUser = accessByUser.get(record.subject);
+                if (recordsByUser != null) {
+                    recordsByUser.remove(record);
                 }
-                accessByObjectId.remove(objectId);
             }
+            accessByObjectId.remove(objectId);
         }
     }
 
@@ -77,12 +91,12 @@ public class UserObjectAccess {
     }
 
     private void addRecord(Record record, Boolean accessGranted) {
-        Set<Record> userAccess = getUserAccess(record.subject);
-        Set<Record> objectUsers = getObjectUsers(record.objectId);
+        SizeableConcurrentHashMap<Record, Record> userAccess = getUserAccess(record.subject);
+        SizeableConcurrentHashMap<Record, Record> objectUsers = getObjectUsers(record.objectId);
 
         access.put(record, accessGranted);
-        userAccess.add(record);
-        objectUsers.add(record);
+        userAccess.put(record, record);
+        objectUsers.put(record, record);
     }
 
     private void updateRecordAccess(Record record, Boolean accessGranted) {
@@ -90,21 +104,21 @@ public class UserObjectAccess {
     }
 
     private void deleteRecord(Record record) {
-        Set<Record> userAccess = getUserAccess(record.subject);
-        Set<Record> objectUsers = getObjectUsers(record.objectId);
+        SizeableConcurrentHashMap<Record, Record> userAccess = getUserAccess(record.subject);
+        SizeableConcurrentHashMap<Record, Record> objectUsers = getObjectUsers(record.objectId);
 
         access.remove(record);
         userAccess.remove(record);
         objectUsers.remove(record);
     }
 
-    private Set<Record> getObjectUsers(Id objectId) {
-        Set<Record> objectUsers = accessByObjectId.get(objectId);
+    private SizeableConcurrentHashMap<Record, Record> getObjectUsers(Id objectId) {
+        SizeableConcurrentHashMap<Record, Record> objectUsers = accessByObjectId.get(objectId);
         if (objectUsers == null) {
             synchronized (objectId.toStringRepresentation().intern()) {
                 objectUsers = accessByObjectId.get(objectId);
                 if (objectUsers == null) {
-                    objectUsers = Collections.synchronizedSet(new HashSet<Record>(INITIAL_USERS_CAPACITY_PER_OBJECT));
+                    objectUsers = new SizeableConcurrentHashMap<>(INITIAL_USERS_CAPACITY_PER_OBJECT, DEFAULT_LOAD_FACTOR, 16, null, false, false);
                     accessByObjectId.put(objectId, objectUsers);
                 }
             }
@@ -112,18 +126,23 @@ public class UserObjectAccess {
         return objectUsers;
     }
 
-    private Set<Record> getUserAccess(UserSubject user) {
-        Set<Record> userAccess = accessByUser.get(user);
+    private SizeableConcurrentHashMap<Record, Record> getUserAccess(UserSubject user) {
+        SizeableConcurrentHashMap<Record, Record> userAccess = accessByUser.get(user);
         if (userAccess == null) {
             synchronized (user.getName().intern()) {
                 userAccess = accessByUser.get(user);
                 if (userAccess == null) {
-                    userAccess = Collections.synchronizedSet(new HashSet<Record>(INITIAL_OBJECTS_CAPACITY_PER_USER));
+                    userAccess = new SizeableConcurrentHashMap<>(INITIAL_OBJECTS_CAPACITY_PER_USER, DEFAULT_LOAD_FACTOR, 16, null, true, true);
                     accessByUser.put(user, userAccess);
                 }
             }
         }
         return userAccess;
+    }
+
+    @Override
+    public Size getSize() {
+        return size;
     }
 
     private static final class Record {

@@ -1,6 +1,9 @@
 package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +13,10 @@ import java.util.Map;
  *         Date: 21.08.2015
  *         Time: 14:25
  */
-public class UniqueKey {
+public class UniqueKey implements Sizeable {
     private HashMap<String, Value> map;
     private int hash;
+    private Size size;
 
     public UniqueKey() {
     }
@@ -22,6 +26,7 @@ public class UniqueKey {
         for (String key : map.keySet()) {
             this.map.put(key.toLowerCase(), map.get(key));
         }
+        this.size = new Size(SizeEstimator.estimateSize(this.map) + Integer.SIZE + SizeEstimator.getReferenceSize());
     }
 
     public Map<String, Value> getValues() {
@@ -51,5 +56,10 @@ public class UniqueKey {
     @Override
     public String toString() {
         return map.toString();
+    }
+
+    @Override
+    public Size getSize() {
+        return size;
     }
 }
