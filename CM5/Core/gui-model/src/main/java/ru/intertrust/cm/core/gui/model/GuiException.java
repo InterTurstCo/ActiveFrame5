@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.model.RollingBackException;
 import ru.intertrust.cm.core.model.SystemException;
 
 /**
@@ -8,7 +9,8 @@ import ru.intertrust.cm.core.model.SystemException;
  *         Date: 23.08.13
  *         Time: 14:41
  */
-public class GuiException extends SystemException implements Dto {
+public class GuiException extends RollingBackException implements Dto {
+
     public GuiException() {
         super();
     }

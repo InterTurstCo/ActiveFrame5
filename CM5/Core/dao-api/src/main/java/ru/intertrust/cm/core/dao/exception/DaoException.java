@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.exception;
 
+import ru.intertrust.cm.core.model.NonRollingBackException;
 import ru.intertrust.cm.core.model.SystemException;
 
 /**
@@ -7,7 +8,7 @@ import ru.intertrust.cm.core.model.SystemException;
  * @author skashanski
  *
  */
-public class DaoException extends SystemException {
+public class DaoException extends NonRollingBackException {
 
     private static final long serialVersionUID = -3516700063113406396L;
 

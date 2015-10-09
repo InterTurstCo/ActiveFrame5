@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         this.currentUserAccessor = currentUserAccessor;
     }
 
+    @Override
     public DomainObject createAttachmentDomainObjectFor(Id objectId, String attachmentType) {
         try {
             GenericDomainObject attachmentDomainObject = (GenericDomainObject) crudService.createDomainObject(attachmentType);
@@ -65,6 +67,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             attachmentDomainObject.setReference(attchmentLinkedField, objectId);
             return attachmentDomainObject;
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in createAttachmentDomainObjectFor", ex);
             throw new UnexpectedException("AttachmentService", "createAttachmentDomainObjectFor",
@@ -80,6 +84,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         this.domainObjectTypeIdCache = domainObjectTypeIdCache;
     }
 
+    @Override
     public DomainObject saveAttachment(RemoteInputStream inputStream, DomainObject attachmentDomainObject) {
         InputStream contentStream = null;
         StringValue newFilePathValue = null;
@@ -119,6 +124,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             logger.error("Unexpected exception caught in saveAttachment", ex);
             throw new UnexpectedException("AttachmentService", "saveAttachment",
                     "attachmentDomainObject:" + attachmentDomainObject.getId(), ex);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in saveAttachment", ex);
             throw new UnexpectedException("AttachmentService", "saveAttachment",
@@ -139,6 +146,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         return accessControlService.createSystemAccessToken("AttachmentService");
     }
 
+    @Override
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
         InputStream inFile = null;
         SimpleRemoteInputStream remoteInputStream = null;
@@ -147,8 +155,13 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             InputStream inputStream = attachmentContentDao.loadContent(attachmentDomainObject);
             RemoteInputStream export = wrapStream(inputStream);
             return export;
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in loadAttachment", ex);
+            throw new UnexpectedException("AttachmentService", "loadAttachment",
+                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
+        } finally {
             if (inFile != null) {
                 try {
                     inFile.close();
@@ -159,13 +172,12 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             if (remoteInputStream != null) {
                 remoteInputStream.close();
             }
-            throw new UnexpectedException("AttachmentService", "loadAttachment",
-                    "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
     }
 
     abstract RemoteInputStream wrapStream(InputStream inputStream) throws java.rmi.RemoteException;
 
+    @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
             AccessToken accessToken = createSystemAccessToken();
@@ -176,9 +188,11 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             attachmentContentDao.deleteContent(attachmentDomainObject);
             //файл может быть и не удален
             domainObjectDao.delete(attachmentDomainObjectId, accessToken);
-        } catch (DaoException ex) {
-            logger.error("Unexpected exception caught in deleteAttachment", ex);
-            throw new UnexpectedException("AttachmentService", "deleteAttachment",
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in loadAttachment", ex);
+            throw new UnexpectedException("AttachmentService", "loadAttachment",
                     "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
         }
     }
@@ -187,6 +201,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
      * Поиск вложений доменного объекта. Выполняет поиск всех вложеннний, указанных в цепочке наследования доменного
      * объекта.
      */
+    @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId) {
         try {
             String domainObjectTypeName = domainObjectTypeIdCache.getName(domainObjectId);
@@ -194,6 +209,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
             collectAttachmentsForDOAndParentDO(domainObjectId, domainObjectTypeName, foundAttachments);
             return foundAttachments;
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",
@@ -234,6 +251,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         }
     }
 
+    @Override
     public List<DomainObject> findAttachmentDomainObjectsFor(Id domainObjectId, String attachmentType) {
         try {
             String user = currentUserAccessor.getCurrentUser();
@@ -243,6 +261,8 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
             String attchmentLinkedField = getAttachmentOwnerObject(attachmentType, domainObjectType);
 
             return domainObjectDao.findLinkedDomainObjects(domainObjectId, attachmentType, attchmentLinkedField, accessToken);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAttachmentDomainObjectsFor", ex);
             throw new UnexpectedException("AttachmentService", "findAttachmentDomainObjectsFor",

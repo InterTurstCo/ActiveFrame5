@@ -1,6 +1,18 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.PermissionService;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.access.DynamicGroupService;
+import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.annotation.Resource;
 import javax.ejb.Local;
@@ -8,21 +20,7 @@ import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
-import ru.intertrust.cm.core.business.api.PermissionService;
-import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.dao.access.DynamicGroupService;
-import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
-import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
-import ru.intertrust.cm.core.dao.api.PersonServiceDao;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import java.util.List;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -60,6 +58,8 @@ public class PermissionServiceImpl implements PermissionService {
             Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
 
             return permissionServiceDao.getObjectPermission(domainObjectId, personId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getObjectPermission", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermission",
@@ -71,6 +71,8 @@ public class PermissionServiceImpl implements PermissionService {
     public DomainObjectPermission getObjectPermission(Id domainObjectId, Id userId) {
         try {
             return permissionServiceDao.getObjectPermission(domainObjectId, userId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getObjectPermission", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermission",
@@ -82,6 +84,8 @@ public class PermissionServiceImpl implements PermissionService {
     public List<DomainObjectPermission> getObjectPermissions(Id domainObjectId) {
         try {
             return permissionServiceDao.getObjectPermissions(domainObjectId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getObjectPermissions", ex);
             throw new UnexpectedException("PermissionService", "getObjectPermissions",
@@ -93,6 +97,8 @@ public class PermissionServiceImpl implements PermissionService {
     public boolean isReadPermittedToEverybody(String domainObjectType) {
         try {
             return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in isReadPermittedToEverybody", ex);
             throw new UnexpectedException("PermissionService", "isReadPermittedToEverybody",
@@ -102,16 +108,39 @@ public class PermissionServiceImpl implements PermissionService {
 
     @Override
     public void refreshAcls() {
-        permissionServiceDao.refreshAcls();        
+        try {
+            permissionServiceDao.refreshAcls();
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in refreshAcls", ex);
+            throw new UnexpectedException("PermissionService refreshAcls", ex);
+        }
     }
 
     @Override
     public void refreshAclFor(Id domainObjectId) {
-        permissionServiceDao.refreshAclFor(domainObjectId);        
+        try {
+            permissionServiceDao.refreshAclFor(domainObjectId);
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in refreshAclFor", ex);
+            throw new UnexpectedException("PermissionService", "refreshAclFor",
+                    "domainObjectId:" + domainObjectId, ex);
+        }
     }
 
     @Override
     public void recalcGroup(Id groupId) {
-        dynamicGroupService.recalcGroup(groupId);        
+        try {
+            dynamicGroupService.recalcGroup(groupId);
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in recalcGroup", ex);
+            throw new UnexpectedException("PermissionService", "recalcGroup",
+                    "groupId:" + groupId, ex);
+        }
     }    
 }

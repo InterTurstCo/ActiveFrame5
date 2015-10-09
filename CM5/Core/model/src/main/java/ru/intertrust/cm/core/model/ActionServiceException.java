@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class ActionServiceException extends SystemException {
+public class ActionServiceException extends NonRollingBackException {
     private static final long serialVersionUID = 3814955429458773118L;
 
     public ActionServiceException() {

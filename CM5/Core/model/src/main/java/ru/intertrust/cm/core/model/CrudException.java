@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class CrudException extends SystemException{
+public class CrudException extends NonRollingBackException {
 
     public CrudException(String message) {
         super(message);

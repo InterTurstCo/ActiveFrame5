@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import java.util.Arrays;
@@ -56,7 +56,7 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
 
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
-        } catch (AccessException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findCollection", ex);
@@ -85,7 +85,7 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionCount(collectionName, filterValues, accessToken);
-        } catch (AccessException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findCollectionCount", ex);
@@ -100,7 +100,7 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionByQuery(query, offset, limit, accessToken);
-        } catch (AccessException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findCollectionByQuery", ex);
@@ -121,7 +121,7 @@ public class CollectionsServiceBaseImpl implements CollectionsServiceDelegate {
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return collectionsDao.findCollectionByQuery(query, params, offset, limit, accessToken);
-        } catch (AccessException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findCollectionByQuery", ex);

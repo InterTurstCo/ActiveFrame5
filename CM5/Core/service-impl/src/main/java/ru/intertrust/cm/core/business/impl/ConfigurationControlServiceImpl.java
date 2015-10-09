@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.ObjectCloner;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -56,27 +57,34 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     @Autowired private ProcessService processService;
     @Autowired private ImportDataService importDataService;
-    @Autowired
-    private CollectionQueryCache collectionQueryCache;    
+    @Autowired private CollectionQueryCache collectionQueryCache;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void updateConfiguration(String updateContent, String fileName) throws ConfigurationException {
-        UpdateType updateType = resolveUpdateType(updateContent, fileName);
+        try {
+            UpdateType updateType = resolveUpdateType(updateContent, fileName);
 
-        switch (updateType) {
-            case CONFIGURATION: {
-                processConfigurationUpdate(updateContent);
-                break;
-            } case WORKFLOW:{
-                processWorkflowUpdate(updateContent, fileName);
-                break;
-            } case DATA_IMPORT: {
-                processDataImport(updateContent); // Импорт данных происходит в режиме rewrite.
-                break;
+            switch (updateType) {
+                case CONFIGURATION: {
+                    processConfigurationUpdate(updateContent);
+                    break;
+                } case WORKFLOW:{
+                    processWorkflowUpdate(updateContent, fileName);
+                    break;
+                } case DATA_IMPORT: {
+                    processDataImport(updateContent); // Импорт данных происходит в режиме rewrite.
+                    break;
+                }
             }
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in updateConfiguration", ex);
+            throw new UnexpectedException("ConfigurationControlService", "updateConfiguration", "updateContent:" +
+                    updateContent + ", fileName:" + fileName, ex);
         }
     }
 
@@ -86,19 +94,27 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Deprecated // marked for removal
     @Override
     public boolean restartRequiredForFullUpdate(String configurationString) {
-        Configuration configuration = deserializeConfiguration(configurationString);
+        try {
+            Configuration configuration = deserializeConfiguration(configurationString);
 
-        for (TopLevelConfig config : configuration.getConfigurationList()) {
-            if (DomainObjectTypeConfig.class.equals(config.getClass())) {
-                DomainObjectTypeConfig newConfig = (DomainObjectTypeConfig) config;
-                DomainObjectTypeConfig currentConfig = configurationExplorer.getDomainObjectTypeConfig(newConfig.getName());
-                if (!newConfig.equals(currentConfig)) {
-                    return true;
+            for (TopLevelConfig config : configuration.getConfigurationList()) {
+                if (DomainObjectTypeConfig.class.equals(config.getClass())) {
+                    DomainObjectTypeConfig newConfig = (DomainObjectTypeConfig) config;
+                    DomainObjectTypeConfig currentConfig = configurationExplorer.getDomainObjectTypeConfig(newConfig.getName());
+                    if (!newConfig.equals(currentConfig)) {
+                        return true;
+                    }
                 }
             }
-        }
 
-        return false;
+            return false;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in restartRequiredForFullUpdate", ex);
+            throw new UnexpectedException("ConfigurationControlService", "restartRequiredForFullUpdate",
+                    "configurationString:" + configurationString, ex);
+        }
     }
 
     private void processConfigurationUpdate(String configurationString) {

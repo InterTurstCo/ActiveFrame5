@@ -39,6 +39,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.model.SearchException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "SearchService")
@@ -102,7 +103,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SearchException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             log.error("Unexpected exception caught in search", ex);
@@ -156,7 +157,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SearchException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             log.error("Unexpected exception caught in search", ex);

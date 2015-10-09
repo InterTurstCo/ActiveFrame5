@@ -7,6 +7,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.annotation.Resource;
@@ -34,6 +35,8 @@ public class PersonServiceImpl implements PersonService {
     public DomainObject findPersonByLogin(String login) {
         try {
             return personServiceDao.findPersonByLogin(login);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findPersonByLogin", ex);
             throw new UnexpectedException("PersonService", "findPersonByLogin",

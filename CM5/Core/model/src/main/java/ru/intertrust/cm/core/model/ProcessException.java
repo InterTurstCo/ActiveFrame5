@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.model;
  * @author larin
  *
  */
-public class ProcessException extends SystemException{
+public class ProcessException extends NonRollingBackException {
 
 	private static final long serialVersionUID = 3814955429458773118L;
 

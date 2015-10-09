@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class PermissionException extends SystemException{
+public class PermissionException extends NonRollingBackException {
     
     private static final long serialVersionUID = -2230300132285018962L;
 

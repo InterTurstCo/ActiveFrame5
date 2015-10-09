@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class SearchException extends SystemException {
+public class SearchException extends NonRollingBackException {
 
     public SearchException() {
         super();

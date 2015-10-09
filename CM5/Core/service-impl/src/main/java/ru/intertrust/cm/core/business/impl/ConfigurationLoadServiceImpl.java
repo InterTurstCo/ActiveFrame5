@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -58,7 +59,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
-        } catch (ConfigurationException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected exception caught in loadConfiguration", e);
@@ -111,7 +112,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             if (schemaUpdatedByScriptMigration || schemaUpdatedByAutoMigration) {
                 dataStructureDao.gatherStatistics();
             }
-        } catch (ConfigurationException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected exception caught in updateConfiguration", e);

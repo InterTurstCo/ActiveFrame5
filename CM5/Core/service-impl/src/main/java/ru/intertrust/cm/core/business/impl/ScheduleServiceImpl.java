@@ -1,16 +1,5 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
@@ -18,13 +7,8 @@ import org.simpleframework.xml.strategy.Strategy;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.ScheduleService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
@@ -35,9 +19,19 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ScheduleException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Реализация сервиса выполнения периодических заданий
@@ -79,7 +73,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 result.add(task);
             }
             return result;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getTaskList", ex);
@@ -96,6 +90,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 result.add(sheduleTaskReestrItem.getScheduleTask().getClass().toString());
             }
             return result;
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getTaskClasses", ex);
             throw new UnexpectedException("ScheduleService", "getTaskClasses", "", ex);
@@ -115,7 +111,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             result.setMonth(task.getString(SCHEDULE_MONTH));
             result.setYear(task.getString(SCHEDULE_YEAR));
             return result;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getTaskSchedule", ex);
@@ -135,7 +131,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             task.setString(SCHEDULE_MONTH, schedule.getMonth());
             task.setString(SCHEDULE_YEAR, schedule.getYear());
             domainObjectDao.save(task, accessToken);
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in setTaskSchedule", ex);
@@ -159,6 +155,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 result = ((ScheduleTaskConfig) serializer.read(ScheduleTaskConfig.class, inputStream)).getParameters();
             }
             return result;
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new ScheduleException("Error on get schedule task parameters", ex);
         } finally {
@@ -173,10 +171,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public void setTaskParams(Id taskId, ScheduleTaskParameters parameters) {
-
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             DomainObject task = domainObjectDao.find(taskId, accessToken);
 
@@ -190,10 +186,10 @@ public class ScheduleServiceImpl implements ScheduleService {
 
             task.setString(SCHEDULE_PARAMETERS, out.toString("utf8"));
             domainObjectDao.save(task, accessToken);
-
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
-            throw new ScheduleException(
-                    "Error on set schedule task parameters", ex);
+            throw new ScheduleException("Error on set schedule task parameters", ex);
         } finally {
             try {
                 out.close();
@@ -211,7 +207,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setBoolean(SCHEDULE_ACTIVE, true);
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in enableTask", ex);
@@ -228,7 +224,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setBoolean(SCHEDULE_ACTIVE, false);
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in disableTask", ex);
@@ -243,7 +239,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
             task.setTimestamp(SCHEDULE_LAST_REDY, new Date());
             domainObjectDao.save(task, accessToken);
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in run", ex);
@@ -260,7 +256,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setLong(SCHEDULE_PRIORITY, new Long(priority));
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in setPriority", ex);
@@ -278,7 +274,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 task.setLong(SCHEDULE_TIMEOUT, new Long(timeout));
                 domainObjectDao.save(task, accessToken);
             }
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in setTimeout", ex);
@@ -291,7 +287,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public DomainObject createScheduleTask(String className, String name) {
         try {
             return scheduleTaskLoader.createTaskDomainObject(scheduleTaskLoader.getSheduleTaskReestrItem(className), name);
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in createScheduleTask", ex);

@@ -17,10 +17,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.CrudException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.*;
 
 import java.util.*;
 
@@ -79,7 +76,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     public boolean exists(Id id) {
         try {
             return domainObjectDao.exists(id);
-        } catch (NullPointerException e) {
+        } catch (SystemException | NullPointerException e) {
             throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in exists", ex);
@@ -105,7 +102,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             }
 
             return result;
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+        } catch (SystemException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in find", ex);
@@ -126,7 +123,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
                     accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.READ, false);
 
             return domainObjectDao.find(ids, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+        } catch (SystemException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in find", ex);
@@ -136,7 +133,14 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
 
 
     public List<DomainObject> findAll(String domainObjectType) {
-        return findAll(domainObjectType, false);
+        try {
+            return findAll(domainObjectType, false);
+        } catch (SystemException | NullPointerException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in findAll", ex);
+            throw new UnexpectedException("CrudService", "findAll", "domainObjectType:" + domainObjectType, ex);
+        }
     }
 
 
@@ -156,7 +160,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             }
 
             return domainObjectDao.findAll(domainObjectType, exactType, accessToken);
-        } catch (AccessException | ObjectNotFoundException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAll", ex);
@@ -165,7 +169,15 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     }
 
     public List<DomainObject> findLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField) {
-        return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false);
+        try {
+            return findLinkedDomainObjects(domainObjectId, linkedType, linkedField, false);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in findLinkedDomainObjects", ex);
+            throw new UnexpectedException("CrudService", "findLinkedDomainObjects",
+                    "domainObjectId:" + domainObjectId + ", linkedType:" + linkedType + ", " + linkedField, ex);
+        }
     }
 
 
@@ -174,7 +186,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
             return domainObjectDao.findLinkedDomainObjects(domainObjectId, linkedType, linkedField, exactType,
                     accessToken);
-        } catch (AccessException  ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findLinkedDomainObjects", ex);
@@ -186,7 +198,15 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
 
 
     public List<Id> findLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField) {
-        return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false);
+        try {
+            return findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, false);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in findLinkedDomainObjectsIds", ex);
+            throw new UnexpectedException("CrudService", "findLinkedDomainObjectsIds",
+                    "domainObjectId:" + domainObjectId + ", linkedType:" + linkedType + ", " + linkedField, ex);
+        }
     }
 
 
@@ -196,7 +216,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             AccessToken accessToken = createAccessTokenForFindLinkedDomainObjects(linkedType);
             return domainObjectDao.findLinkedDomainObjectsIds(domainObjectId, linkedType, linkedField, exactType,
                     accessToken);
-        } catch (AccessException  ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findLinkedDomainObjectsIds", ex);
@@ -206,24 +226,11 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
         }
     }
 
-    private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
-        AccessToken accessToken = null;
-        Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
-
-        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
-            accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
-        } else {
-            String user = currentUserAccessor.getCurrentUser();
-            accessToken = accessControlService.createCollectionAccessToken(user);
-        }
-        return accessToken;
-    }
-
-
     public String getDomainObjectType(Id id) {
         try {
             return domainObjectTypeIdCache.getName(id);
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getDomainObjectType", ex);
             throw new UnexpectedException("CrudService", "getDomainObjectType", "id:" + id, ex);
@@ -241,7 +248,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
                 accessToken = accessControlService.createCollectionAccessToken(user);
             }
             return domainObjectDao.findByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-        } catch (AccessException | ObjectNotFoundException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findByUniqueKey", ex);
@@ -286,31 +293,12 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             }
 
             return domainObject;
-        } catch (IllegalArgumentException | NullPointerException ex) {
+        } catch (SystemException | NullPointerException | IllegalArgumentException ex) {
             throw ex;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             logger.error("Unexpected exception caught in createDomainObject", ex);
             throw new UnexpectedException("CrudService", "createDomainObject", "name:" + name, ex);
         }
-    }
-
-    /**
-     * Получение всей цепочки родительских типов начиная от переданноготв параметре
-     * @param name
-     * @return
-     */
-    private List<String> getAllParentTypes(String name) {
-        List<String> result = new ArrayList<String>();
-        result.add(name);
-
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, name);
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
-        }
-
-        return result;
     }
 
     public DomainObject save(DomainObject domainObject) {
@@ -332,7 +320,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             }
 
             return result;
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
+        } catch (SystemException | IllegalArgumentException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in save", ex);
@@ -341,7 +329,6 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     }
 
     public List<DomainObject> save(List<DomainObject> domainObjects) {
-
         try {
             for (DomainObject domainObject : domainObjects) {
                 checkForAttachment(domainObject.getTypeName());
@@ -349,7 +336,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
 
             AccessToken accessToken = createSystemAccessToken();
             return domainObjectDao.save(domainObjects, accessToken);
-        } catch (AccessException | ObjectNotFoundException | IllegalArgumentException | NullPointerException | CrudException ex) {
+        } catch (SystemException | IllegalArgumentException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in save", ex);
@@ -368,7 +355,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             }
 
             return result;
-        } catch (AccessException | ObjectNotFoundException | NullPointerException ex) {
+        } catch (SystemException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAndLock", ex);
@@ -384,7 +371,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             AccessToken accessToken = null;
             accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.DELETE);
             domainObjectDao.delete(id, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
+        } catch (SystemException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in delete", ex);
@@ -406,7 +393,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createAccessToken(user, idsArray, DomainObjectAccessType.DELETE, false);
             return domainObjectDao.delete(ids, accessToken);
-        } catch (AccessException | ObjectNotFoundException | NullPointerException | CrudException ex) {
+        } catch (SystemException | NullPointerException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in delete", ex);
@@ -419,13 +406,45 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             String user = currentUserAccessor.getCurrentUser();
             AccessToken accessToken = accessControlService.createCollectionAccessToken(user);
             return domainObjectDao.finAndLockByUniqueKey(domainObjectType, uniqueKeyValuesByName, accessToken);
-        } catch (AccessException | ObjectNotFoundException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception ex){
             logger.error("Unexpected exception caught in findAndLockByUniqueKey", ex);
             throw new UnexpectedException("CrudService", "findAndLockByUniqueKey",
                     "domainObjectType:" + domainObjectType, ex);
         }
+    }
+
+    private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
+        AccessToken accessToken = null;
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
+
+        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
+            accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
+        } else {
+            String user = currentUserAccessor.getCurrentUser();
+            accessToken = accessControlService.createCollectionAccessToken(user);
+        }
+        return accessToken;
+    }
+
+    /**
+     * Получение всей цепочки родительских типов начиная от переданноготв параметре
+     * @param name
+     * @return
+     */
+    private List<String> getAllParentTypes(String name) {
+        List<String> result = new ArrayList<String>();
+        result.add(name);
+
+        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+                .getConfig(DomainObjectTypeConfig.class, name);
+        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
+        }
+
+        return result;
     }
 
     private void checkForAttachment(String objectType) {

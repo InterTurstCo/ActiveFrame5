@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.validation;
 
+import ru.intertrust.cm.core.model.NonRollingBackException;
 import ru.intertrust.cm.core.model.SystemException;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
  *         Date: 05.03.14
  *         Time: 14:39
  */
-public class ValidationException extends SystemException {
+public class ValidationException extends NonRollingBackException {
 
     private List<String> validationErrors;
 

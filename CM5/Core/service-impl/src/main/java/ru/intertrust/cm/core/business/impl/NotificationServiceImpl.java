@@ -39,6 +39,7 @@ import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.NotificationException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 
@@ -79,6 +80,8 @@ public class NotificationServiceImpl implements NotificationService {
                     new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
             userTransactionService.addListener(listener);
             logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
             throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
@@ -245,6 +248,8 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
 
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in sendNow", ex);
             throw new UnexpectedException("NotificationService", "sendNow",
@@ -262,6 +267,8 @@ public class NotificationServiceImpl implements NotificationService {
                     new SendNotificationActionListener(notificationType, senderName, addresseeList, priority, context);
             userTransactionService.addListener(listener);
             logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in sendOnTransactionSuccess", ex);
             throw new UnexpectedException("NotificationService", "sendOnTransactionSuccess",
@@ -302,6 +309,8 @@ public class NotificationServiceImpl implements NotificationService {
                 }
             }
 
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in sendNow", ex);
             throw new UnexpectedException("NotificationService", "sendNow",

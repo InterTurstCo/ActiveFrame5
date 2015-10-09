@@ -39,10 +39,7 @@ import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.ReportServiceException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.*;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
 
@@ -112,6 +109,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             }
             
             tmpFolder.delete();
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in deploy", ex);
             throw new ReportServiceException("Error deploy process", ex);
@@ -167,7 +166,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(name);
             domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
-        } catch (AccessException | ObjectNotFoundException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in undeploy", ex);

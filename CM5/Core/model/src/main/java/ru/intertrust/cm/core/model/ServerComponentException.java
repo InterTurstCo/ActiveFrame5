@@ -4,7 +4,7 @@ package ru.intertrust.cm.core.model;
  * Клас исключения, формирующегося в подсистеме серверных компонентов.
  * @author atsvetkov
  */
-public class ServerComponentException extends SystemException {
+public class ServerComponentException extends NonRollingBackException {
 
     private static final long serialVersionUID = 1L;
 
