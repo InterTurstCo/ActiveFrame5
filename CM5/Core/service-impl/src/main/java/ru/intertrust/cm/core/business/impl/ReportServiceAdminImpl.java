@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
+
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -24,15 +25,13 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
 
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
@@ -42,6 +41,8 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.model.*;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
+
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 /**
  * Имплементация сервися администрирования подсистемы отчетов
@@ -98,6 +99,10 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
 
             } else {
             	Boolean dopLockUpdate = reportTemplateObject.getBoolean("lockUpdate");
+            	//Для существующих отчётов
+            	if (dopLockUpdate == null){
+            		dopLockUpdate = false;
+            	}
             	if ((!dopLockUpdate) || (lockUpdate)){
 	                //Если существует то удаляем все вложения по нему
 	                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
