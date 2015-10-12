@@ -33,13 +33,14 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
 
     public PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges) {
         try {
+            final HashSet<String> objectTypesAccessChanged = groupAccessChanges.getObjectTypesAccessChanged();
             if (groupAccessChanges.clearFullAccessLog()) {
-                return new PersonAccessChanges(true);
+                return new PersonAccessChanges(true, objectTypesAccessChanged);
             }
             if (!groupAccessChanges.accessChangesExist()) {
-                return new PersonAccessChanges(0);
+                return new PersonAccessChanges(0, objectTypesAccessChanged);
             }
-            PersonAccessChanges personAccessChanges = new PersonAccessChanges(groupAccessChanges.getObjectsQty());
+            PersonAccessChanges personAccessChanges = new PersonAccessChanges(groupAccessChanges.getObjectsQty(), objectTypesAccessChanged);
             HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
             for (Id objectId : groupAccessByObject.keySet()) {
                 personAccessChanges.addObjectPersonAccess(objectId, toPersonAccess(groupAccessByObject.get(objectId)));

@@ -2,6 +2,7 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Set;
@@ -11,7 +12,7 @@ import java.util.Set;
  *         Date: 13.08.2015
  *         Time: 18:27
  */
-public class CollectionsTree {
+public class CollectionsTree implements Sizeable {
     private SizeableConcurrentHashMap<CollectionTypesKey, CollectionBaseNode> collections;
 
     public CollectionsTree(int initialCapacity, int concurrencyLevel, Size totalCacheSize) {
@@ -41,5 +42,10 @@ public class CollectionsTree {
 
     public void removeBaseNode(CollectionTypesKey key) {
         collections.remove(key);
+    }
+
+    @Override
+    public Size getSize() {
+        return collections.getSize();
     }
 }

@@ -57,7 +57,8 @@ public class ObjectAccessDelegation {
     }
 
     public Set<Id> getObjectsByDelegate(Id accessCheckDelegateId) {
-        return objectsByDelegate.get(accessCheckDelegateId).keySet();
+        final SizeableConcurrentHashMap<Id, Id> delegatesMap = objectsByDelegate.get(accessCheckDelegateId);
+        return delegatesMap == null ? null : delegatesMap.keySet();
     }
 
     private SizeableConcurrentHashMap<Id, Id> findOrCreateObjectsByDelegate(Id accessCheckDelegateId) {

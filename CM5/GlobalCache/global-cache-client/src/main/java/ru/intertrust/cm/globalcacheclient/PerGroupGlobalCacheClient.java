@@ -191,12 +191,12 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyAclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
-        getAccessChanges().aclCreated(contextObj, recordsInserted);
+        getAccessChanges().aclCreated(contextObj, domainObjectTypeIdCache.getName(contextObj), recordsInserted);
     }
 
     @Override
     public void notifyAclDeleted(Id contextObj, Collection<AclInfo> recordsDeleted) {
-        getAccessChanges().aclDeleted(contextObj, recordsDeleted);
+        getAccessChanges().aclDeleted(contextObj, domainObjectTypeIdCache.getName(contextObj), recordsDeleted);
     }
 
     @Override

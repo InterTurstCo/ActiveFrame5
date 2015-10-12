@@ -77,6 +77,19 @@ public class DomainObjectTypeFullRetrieval {
         userTypeFullRetrieval.remove(key);
     }
 
+    /**
+     * Clear status
+     * @param type exact type
+     */
+    public void clearUsersTypeStatus(String type, Boolean exact) {
+        if (exact == null) {
+            userTypeFullRetrieval.remove(new Key(type, true));
+            userTypeFullRetrieval.remove(new Key(type, false));
+        } else {
+            userTypeFullRetrieval.remove(new Key(type, exact));
+        }
+    }
+
     public void clearTypeStatus(String type) {
         clearTypeStatus(type, true);
         clearTypeStatus(type, false);

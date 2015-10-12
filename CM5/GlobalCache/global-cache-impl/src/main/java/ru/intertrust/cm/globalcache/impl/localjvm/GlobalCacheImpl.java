@@ -48,7 +48,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private TypeUniqueKeyMapping uniqueKeyMapping;
     private UserObjectAccess userObjectAccess;
     private ObjectAccessDelegation objectAccessDelegation;
-    private DomainObjectTypeSaveTime doTypeLastSaveTime;
+    private DomainObjectTypeChangeTime doTypeLastChangeTime;
     private DomainObjectTypeFullRetrieval domainObjectTypeFullRetrieval;
     private IdsByType idsByType;
     private CollectionsTree collectionsTree;
@@ -65,7 +65,7 @@ public class GlobalCacheImpl implements GlobalCache {
         accessOrder = new AccessOrderedSynchronizedMap<>(10000);
         objectAccessDelegation = new ObjectAccessDelegation(16, size);
         final int typesQty = explorer.getConfigs(DomainObjectTypeConfig.class).size();
-        doTypeLastSaveTime = new DomainObjectTypeSaveTime(typesQty);
+        doTypeLastChangeTime = new DomainObjectTypeChangeTime(typesQty);
         domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty);
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
@@ -270,12 +270,12 @@ public class GlobalCacheImpl implements GlobalCache {
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // for new objects there's a chance that they may not get to linked objects list
             for (DomainObject created : modification.getCreatedDomainObjects()) {
-                doTypeLastSaveTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
+                doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
             }
         }
 
         for (DomainObject created : modification.getCreatedDomainObjects()) {
-            doTypeLastSaveTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
+            doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
             final Id id = created.getId();
             if (modification.wasSaved(id)) {
                 continue; // will be processed later (during saved objects processing)
@@ -285,13 +285,13 @@ public class GlobalCacheImpl implements GlobalCache {
             updateLinkedObjectsOfParents(null, created);
         }
         for (DomainObject updated : modification.getSavedAndChangedStatusDomainObjects()) {
-            doTypeLastSaveTime.setLastModificationTime(updated.getTypeName(), System.currentTimeMillis(), updated.getModifiedDate().getTime());
+            doTypeLastChangeTime.setLastModificationTime(updated.getTypeName(), System.currentTimeMillis(), updated.getModifiedDate().getTime());
             final Action updateAction = createOrUpdateDomainObjectEntries(updated.getId(), updated, null);
             updateUniqueKeys(updated);
             updateLinkedObjectsOfParents(updateAction.getDomainObjectBefore(), updated);
         }
         for (DomainObject deleted : modification.getDeletedDomainObjects()) {
-            doTypeLastSaveTime.setLastModificationTime(deleted.getTypeName(), System.currentTimeMillis(), 0);
+            doTypeLastChangeTime.setLastModificationTime(deleted.getTypeName(), System.currentTimeMillis(), 0);
             deleteEntries(deleted);
             clearUniqueKeys(deleted);
             updateLinkedObjectsOfParents(deleted, null);
@@ -300,7 +300,18 @@ public class GlobalCacheImpl implements GlobalCache {
         if (personAccessChanges.getObjectsQty() == 0) {
             return;
         }
+        final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
+        final HashSet<String> allTypesAffected = new HashSet<>(objectTypesAccessChanged);
+        for (String type : objectTypesAccessChanged) {
+            // todo: find types possibly dependent on this type when rights are calculated
+            Collection<String> typesAffected = Arrays.asList(type);
+            for (String typeAffected : typesAffected) {
+                doTypeLastChangeTime.setLastRightsChangeTime(typeAffected, System.currentTimeMillis());
+                clearUsersFullRetrieval(typeAffected);
+            }
+        }
         if (personAccessChanges.clearFullAccessLog()) {
+            userObjectAccess.getSize().detachFromTotal();
             userObjectAccess = new UserObjectAccess(16, size);
             return;
         }
@@ -513,8 +524,17 @@ public class GlobalCacheImpl implements GlobalCache {
         return true;
     }
 
-    private void clearFullRetrieval(Id id, UserSubject userSubject) {
-        final String type = domainObjectTypeIdCache.getName(id);
+    private void clearUsersFullRetrieval(String type) {
+        domainObjectTypeFullRetrieval.clearUsersTypeStatus(type, null);
+        final String[] typeParents = explorer.getDomainObjectTypesHierarchy(type);
+        if (typeParents != null) {
+            for (String parent : typeParents) {
+                domainObjectTypeFullRetrieval.clearUsersTypeStatus(type, false);
+            }
+        }
+    }
+
+    private void clearFullRetrieval(String type, UserSubject userSubject) {
         if (userSubject == null) {
             domainObjectTypeFullRetrieval.clearTypeStatus(type);
         } else {
@@ -740,7 +760,7 @@ public class GlobalCacheImpl implements GlobalCache {
 
     private void clearDomainObjectNode(Id id, ObjectNode cachedNode) {
         clearParentsLinkedObjects(Collections.singletonList(id), ObjectNode.LinkedObjects.All);
-        clearFullRetrieval(id, null);
+        clearFullRetrieval(domainObjectTypeIdCache.getName(id), null);
         cachedNode.setDomainObject(null);
     }
 
@@ -791,7 +811,7 @@ public class GlobalCacheImpl implements GlobalCache {
         if (accessObjectId != null) {
             userObjectAccess.clearAccess(subject, accessObjectId);
         }
-        clearFullRetrieval(id, subject);
+        clearFullRetrieval(domainObjectTypeIdCache.getName(id), subject);
     }
 
     private void deleteEntries(DomainObject domainObject) {
@@ -859,7 +879,9 @@ public class GlobalCacheImpl implements GlobalCache {
         final Set<String> collectionTypes = baseNode.getCollectionTypes();
         if (collectionTypes != null) {
             for (String type : collectionTypes) {
-                if (typeSavedAfterOrSameTime(type, timeRetrieved)) {
+                // in case of user access, rights changes should be taken into account
+                final boolean invalidNode = subKey.subject == null ? typeSavedAfterOrSameTime(type, timeRetrieved) : typeChangedAfterOrSameTime(type, timeRetrieved);
+                if (invalidNode) {
                     collectionsTree.removeBaseNode(key);
                     return null;
                 }
@@ -869,8 +891,13 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private boolean typeSavedAfterOrSameTime(String type, long time) {
-        final ModificationTime lastModificationTime = doTypeLastSaveTime.getLastModificationTime(type);
-        return lastModificationTime != null && lastModificationTime.afterOrSame(time) ? true : false;
+        final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
+        return lastModificationTime != null && lastModificationTime.afterOrEqualLastSave(time);
+    }
+
+    private boolean typeChangedAfterOrSameTime(String type, long time) {
+        final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
+        return lastModificationTime != null && lastModificationTime.afterOrEqual(time);
     }
 
     private static abstract class Action {

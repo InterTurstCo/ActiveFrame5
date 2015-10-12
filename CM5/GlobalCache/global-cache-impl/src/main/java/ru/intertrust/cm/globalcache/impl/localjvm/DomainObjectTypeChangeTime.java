@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 28.07.2015
  *         Time: 18:02
  */
-public class DomainObjectTypeSaveTime {
+public class DomainObjectTypeChangeTime {
     private ConcurrentHashMap<String, ModificationTime> doTypeLastSaveTime;
 
-    public DomainObjectTypeSaveTime(int objectsQty) {
+    public DomainObjectTypeChangeTime(int objectsQty) {
         this.doTypeLastSaveTime = new ConcurrentHashMap<>((int) (objectsQty / 0.75 + 1));
     }
 
@@ -18,13 +18,26 @@ public class DomainObjectTypeSaveTime {
         type = type.toLowerCase();
         ModificationTime previousTime = doTypeLastSaveTime.get(type);
         if (previousTime == null) {
-            final ModificationTime putResult = doTypeLastSaveTime.putIfAbsent(type, new ModificationTime(saveTime, objectModifiedDate));
+            final ModificationTime putResult = doTypeLastSaveTime.putIfAbsent(type, new ModificationTime(saveTime, objectModifiedDate, -1));
             if (putResult == null) {
                 return;
             }
             previousTime = putResult;
         }
-        previousTime.update(saveTime, objectModifiedDate);
+        previousTime.updateSaveTime(saveTime, objectModifiedDate);
+    }
+
+    public void setLastRightsChangeTime(String type, long rightsChangeTime) {
+        type = type.toLowerCase();
+        ModificationTime previousTime = doTypeLastSaveTime.get(type);
+        if (previousTime == null) {
+            final ModificationTime putResult = doTypeLastSaveTime.putIfAbsent(type, new ModificationTime(-1, -1, rightsChangeTime));
+            if (putResult == null) {
+                return;
+            }
+            previousTime = putResult;
+        }
+        previousTime.updateRightsChangeTime(rightsChangeTime);
     }
 
     public ModificationTime getLastModificationTime(String type) {

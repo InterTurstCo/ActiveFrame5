@@ -3,6 +3,7 @@ package ru.intertrust.cm.globalcache.api;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author Denis Mitavskiy
@@ -15,19 +16,22 @@ public class PersonAccessChanges implements AccessChanges {
     private int totalRecordsThreashold = 1000000;
 
     private HashMap<Id, HashMap<Id, Boolean>> personAccessByObject;
+    private HashSet<String> objectTypesAccessChanged = new HashSet<>();
 
     public PersonAccessChanges() {
         personAccessByObject = new HashMap<>();
     }
 
-    public PersonAccessChanges(int initialObjectsQty) {
+    public PersonAccessChanges(int initialObjectsQty, HashSet<String> objectTypesAccessChanged) {
         personAccessByObject = new HashMap<>((int) (initialObjectsQty / 0.75));
+        this.objectTypesAccessChanged = objectTypesAccessChanged;
     }
 
-    public PersonAccessChanges(boolean clearFullAccessLog) {
+    public PersonAccessChanges(boolean clearFullAccessLog, HashSet<String> objectTypesAccessChanged) {
         if (!clearFullAccessLog) {
             personAccessByObject = new HashMap<>();
         }
+        this.objectTypesAccessChanged = objectTypesAccessChanged;
     }
 
     @Override
@@ -38,6 +42,11 @@ public class PersonAccessChanges implements AccessChanges {
     @Override
     public int getObjectsQty() {
         return personAccessByObject == null ? -1 : personAccessByObject.size();
+    }
+
+    @Override
+    public HashSet<String> getObjectTypesAccessChanged() {
+        return objectTypesAccessChanged;
     }
 
     public void addObjectPersonAccess(Id id, HashMap<Id, Boolean> personAccess) {

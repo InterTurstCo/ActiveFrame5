@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.dao.access.AclInfo;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * Потоко-безопасный класс, так как все действия выполняются в пределах одной транзакции
@@ -19,13 +20,16 @@ public class GroupAccessChanges implements AccessChanges {
 
     // key is Domain Object ID, key of inner map - ID of a group
     private HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = new HashMap<>();
+    private HashSet<String> objectTypesAccessChanged = new HashSet<>();
 
-    public void aclCreated(Id contextObj, Collection<AclInfo> recordsInserted) {
+    public void aclCreated(Id contextObj, String type, Collection<AclInfo> recordsInserted) {
         aclInsertedOrDeleted(contextObj, recordsInserted, Boolean.TRUE);
+        objectTypesAccessChanged.add(type);
     }
 
-    public void aclDeleted(Id contextObj, Collection<AclInfo> recordsInserted) {
+    public void aclDeleted(Id contextObj, String type, Collection<AclInfo> recordsInserted) {
         aclInsertedOrDeleted(contextObj, recordsInserted, Boolean.FALSE);
+        objectTypesAccessChanged.add(type);
     }
 
     public boolean clearFullAccessLog() {
@@ -42,6 +46,10 @@ public class GroupAccessChanges implements AccessChanges {
 
     public HashMap<Id, HashMap<Id, Boolean>> getGroupAccessByObject() {
         return groupAccessByObject;
+    }
+
+    public HashSet<String> getObjectTypesAccessChanged() {
+        return objectTypesAccessChanged;
     }
 
     private void aclInsertedOrDeleted(Id contextObj, Collection<AclInfo> records, Boolean accessGranted) {

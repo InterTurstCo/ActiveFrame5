@@ -35,6 +35,7 @@ public class GlobalCacheClientFactoryImpl implements GlobalCacheClientFactory {
         boolean perPerson = true;
         String beanName = perPerson ? "perPersonGlobalCacheClient" : "perGroupGlobalCacheClient";
         localJvmCacheClient = (LocalJvmCacheClient) context.getBean(beanName);
+        localJvmCacheClient.setDebugEnabled(settings.isDebugEnabled());
         return localJvmCacheClient;
     }
 }

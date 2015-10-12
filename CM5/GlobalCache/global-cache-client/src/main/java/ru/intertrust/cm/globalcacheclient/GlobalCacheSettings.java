@@ -31,11 +31,18 @@ public class GlobalCacheSettings {
     @Value("${global.cache.mode}")
     private String defaultMode;
 
+    @Value("${global.cache.debug.enabled}")
+    private Boolean debugEnabled;
+
     public boolean isEnabled() {
         return enabledByDefault == Boolean.TRUE;
     }
 
+    public boolean isDebugEnabled() {
+        return debugEnabled == Boolean.TRUE;
+    }
+
     public Mode getMode() {
-        return defaultMode != null && defaultMode.equalsIgnoreCase("blocking") ? Mode.Blocking : Mode.NonBlocking;
+        return defaultMode != null && defaultMode.equalsIgnoreCase("non-blocking") ? Mode.NonBlocking : Mode.Blocking;
     }
 }
