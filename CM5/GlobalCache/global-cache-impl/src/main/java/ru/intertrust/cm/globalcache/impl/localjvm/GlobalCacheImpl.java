@@ -66,7 +66,7 @@ public class GlobalCacheImpl implements GlobalCache {
         objectAccessDelegation = new ObjectAccessDelegation(16, size);
         final int typesQty = explorer.getConfigs(DomainObjectTypeConfig.class).size();
         doTypeLastChangeTime = new DomainObjectTypeChangeTime(typesQty);
-        domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty);
+        domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty, size);
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
 
@@ -292,7 +292,7 @@ public class GlobalCacheImpl implements GlobalCache {
         }
         for (DomainObject deleted : modification.getDeletedDomainObjects()) {
             doTypeLastChangeTime.setLastModificationTime(deleted.getTypeName(), System.currentTimeMillis(), 0);
-            deleteEntries(deleted);
+            deleteObjectAndItsAccessEntires(deleted);
             clearUniqueKeys(deleted);
             updateLinkedObjectsOfParents(deleted, null);
         }
@@ -814,10 +814,11 @@ public class GlobalCacheImpl implements GlobalCache {
         clearFullRetrieval(domainObjectTypeIdCache.getName(id), subject);
     }
 
-    private void deleteEntries(DomainObject domainObject) {
+    private void deleteObjectAndItsAccessEntires(DomainObject domainObject) {
         final Id id = domainObject.getId();
         final Id accessObjectId = domainObject.getAccessObjectId();
         final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
+        // access is cleared for object itself, NOT for access object, as access object clearing would remove access for all objects referencing it
         userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
         objectAccessDelegation.removeId(id);
     }

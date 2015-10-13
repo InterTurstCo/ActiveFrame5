@@ -1,8 +1,11 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
+import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
@@ -10,13 +13,17 @@ import java.util.concurrent.ConcurrentMap;
  *         Date: 20.08.2015
  *         Time: 15:09
  */
-public class DomainObjectTypeFullRetrieval {
-    private ConcurrentMap<Key, Boolean> systemTypeFullRetrieval;
-    private ConcurrentMap<Key, ConcurrentMap<UserSubject, Boolean>> userTypeFullRetrieval;
+public class DomainObjectTypeFullRetrieval implements Sizeable {
+    private SizeableConcurrentHashMap<Key, Boolean> systemTypeFullRetrieval;
+    private SizeableConcurrentHashMap<Key, SizeableConcurrentHashMap<UserSubject, Boolean>> userTypeFullRetrieval;
 
-    public DomainObjectTypeFullRetrieval(int objectsQty) {
-        this.systemTypeFullRetrieval = new ConcurrentHashMap<>((int) (objectsQty / 0.75f + 1));
-        this.userTypeFullRetrieval = new ConcurrentHashMap<>((int) (objectsQty / 0.75f + 1));
+    private Size size;
+
+    public DomainObjectTypeFullRetrieval(int objectsQty, Size cacheSizeTotal) {
+        this.size = new Size(cacheSizeTotal);
+        this.size.set(2 * SizeEstimator.getReferenceSize());
+        this.systemTypeFullRetrieval = new SizeableConcurrentHashMap<>((int) (objectsQty / 0.75f + 1), 0.75f, 16, size, true, false);
+        this.userTypeFullRetrieval = new SizeableConcurrentHashMap<>((int) (objectsQty / 0.75f + 1), 0.75f, 16, size, true, true);
     }
 
     public void setTypeFullyRetrieved(String type, boolean exact, UserSubject subject, boolean value) {
@@ -33,12 +40,12 @@ public class DomainObjectTypeFullRetrieval {
 
     private void setTypeFullyRetrievedByUser(String type, boolean exact, UserSubject subject, boolean value) {
         final Key key = new Key(type, exact);
-        ConcurrentMap<UserSubject, Boolean> byUser = userTypeFullRetrieval.get(key);
+        SizeableConcurrentHashMap<UserSubject, Boolean> byUser = userTypeFullRetrieval.get(key);
         if (byUser == null) {
             if (!value) {
                 return;
             }
-            final ConcurrentHashMap<UserSubject, Boolean> newMap = new ConcurrentHashMap<>();
+            final SizeableConcurrentHashMap<UserSubject, Boolean> newMap = new SizeableConcurrentHashMap<>(128, 0.75f, 16, true, false);
             byUser = userTypeFullRetrieval.putIfAbsent(key, newMap);
             byUser = byUser == null ? newMap : byUser;
         }
@@ -106,6 +113,11 @@ public class DomainObjectTypeFullRetrieval {
     public void clearTypeStatusForUser(UserSubject subject, String type) {
         clearTypeStatusForUser(subject, type, true);
         clearTypeStatusForUser(subject, type, false);
+    }
+
+    @Override
+    public Size getSize() {
+        return size;
     }
 
     private static final class Key {

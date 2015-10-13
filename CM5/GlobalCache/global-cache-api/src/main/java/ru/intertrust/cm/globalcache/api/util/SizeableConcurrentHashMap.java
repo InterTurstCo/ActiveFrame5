@@ -34,16 +34,29 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
         this(16, 0.75f, 16, totals, true, true);
     }
 
-    public SizeableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel, Size total, boolean includeKeySizes, boolean includeValueSizes) {
+    public SizeableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel, boolean includeKeySizes, boolean includeValueSizes) {
         super(initialCapacity, loadFactor, concurrencyLevel);
         this.concurrencyLevel = concurrencyLevel;
         this.capacity = initialCapacity;
         this.loadFactor = loadFactor;
-        this.size = new Size(total);
+        this.size = new Size();
         this.selfSize = new Size();
         this.includeKeySizes = includeKeySizes;
         this.includeValueSizes = includeValueSizes;
         updateSelfSize();
+    }
+
+    public SizeableConcurrentHashMap(int initialCapacity, float loadFactor, int concurrencyLevel, Size total, boolean includeKeySizes, boolean includeValueSizes) {
+        this(initialCapacity, loadFactor, concurrencyLevel, includeKeySizes, includeValueSizes);
+        this.size.setTotal(total);
+    }
+
+    public void setIncludeKeySizes(boolean includeKeySizes) {
+        this.includeKeySizes = includeKeySizes;
+    }
+
+    public void setIncludeValueSizes(boolean includeValueSizes) {
+        this.includeValueSizes = includeValueSizes;
     }
 
     @Override
