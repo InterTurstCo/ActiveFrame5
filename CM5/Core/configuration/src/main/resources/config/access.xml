@@ -306,6 +306,14 @@
                     <doel>Person^profile</doel>
                 </get-group>
             </track-domain-objects>
+            <track-domain-objects type="Person">
+                <bind-context>
+                    <doel>profile</doel>
+                </bind-context>
+                <get-group name="Person">
+                    <doel>Person^profile</doel>
+                </get-group>
+            </track-domain-objects>
         </groups>
     </context-role>
     
