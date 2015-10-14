@@ -26,7 +26,7 @@ public class UniqueKey implements Sizeable {
         for (String key : map.keySet()) {
             this.map.put(key.toLowerCase(), map.get(key));
         }
-        this.size = new Size(SizeEstimator.estimateSize(this.map) + Integer.SIZE + SizeEstimator.getReferenceSize());
+        this.size = new Size(SizeEstimator.estimateSize(this.map) + Integer.SIZE + SizeEstimator.REFERENCE_SIZE);
     }
 
     public Map<String, Value> getValues() {

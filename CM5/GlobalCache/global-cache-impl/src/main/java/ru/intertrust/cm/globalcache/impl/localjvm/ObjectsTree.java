@@ -11,7 +11,7 @@ import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
  *         Time: 18:02
  */
 public class ObjectsTree {
-    private static final long SELF_SIZE = 2 * SizeEstimator.getReferenceSize();
+    private static final long SELF_SIZE = 2 * SizeEstimator.REFERENCE_SIZE;
 
     private Size cacheTotalSize;
     private SizeableConcurrentHashMap<Id, ObjectNode> domainObjects;

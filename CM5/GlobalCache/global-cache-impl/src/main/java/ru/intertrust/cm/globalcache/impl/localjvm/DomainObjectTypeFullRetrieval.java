@@ -21,7 +21,7 @@ public class DomainObjectTypeFullRetrieval implements Sizeable {
 
     public DomainObjectTypeFullRetrieval(int objectsQty, Size cacheSizeTotal) {
         this.size = new Size(cacheSizeTotal);
-        this.size.set(2 * SizeEstimator.getReferenceSize());
+        this.size.set(2 * SizeEstimator.REFERENCE_SIZE);
         this.systemTypeFullRetrieval = new SizeableConcurrentHashMap<>((int) (objectsQty / 0.75f + 1), 0.75f, 16, size, true, false);
         this.userTypeFullRetrieval = new SizeableConcurrentHashMap<>((int) (objectsQty / 0.75f + 1), 0.75f, 16, size, true, true);
     }

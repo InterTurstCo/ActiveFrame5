@@ -22,7 +22,7 @@ public class UniqueKeyIdMapping {
     private SizeableConcurrentHashMap<Id, SizeableConcurrentHashMap<UniqueKey, UniqueKey>> uniqueKeyById;
 
     public UniqueKeyIdMapping(int initialCapacity, int concurrentcyLevel) {
-        size = new Size(4 * SizeEstimator.getReferenceSize());
+        size = new Size(4 * SizeEstimator.REFERENCE_SIZE);
         // all sizes will be calculated manually
         idByUniqueKey = new SizeableConcurrentHashMap<>(initialCapacity, 0.75f, concurrentcyLevel, size, true, true);
         absentUniqueKeys = new SizeableConcurrentHashMap<>(100, 0.75f, concurrentcyLevel, size, true, true);
@@ -74,6 +74,14 @@ public class UniqueKeyIdMapping {
 
     public boolean isNullValue(UniqueKey uniqueKey) {
         return absentUniqueKeys.containsKey(uniqueKey);
+    }
+
+    public void clear(UniqueKey uniqueKey) {
+        final Id removedId = idByUniqueKey.remove(uniqueKey);
+        if (removedId != null) {
+            uniqueKeyById.get(removedId).remove(uniqueKey);
+        }
+        clearNullValue(uniqueKey);
     }
 
     public void clearNullValue(UniqueKey uniqueKey) {

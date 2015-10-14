@@ -21,7 +21,7 @@ public class CollectionBaseNode implements Sizeable {
 
     public CollectionBaseNode(Set<String> collectionTypes) {
         this.collectionTypes = collectionTypes;
-        size = new Size(2 * SizeEstimator.getReferenceSize() + SizeEstimator.estimateSize(collectionTypes));
+        size = new Size(2 * SizeEstimator.REFERENCE_SIZE + SizeEstimator.estimateSize(collectionTypes));
 
         collections = new SizeableConcurrentHashMap<>(16, 0.75f, 16, size, true, true);
     }
@@ -41,6 +41,10 @@ public class CollectionBaseNode implements Sizeable {
 
     public CollectionNode getCollectionNode(CollectionSubKey key) {
         return collections.get(key);
+    }
+
+    public CollectionNode removeCollectionNode(CollectionSubKey key) {
+        return collections.remove(key);
     }
 
     public Set<String> getCollectionTypes() {

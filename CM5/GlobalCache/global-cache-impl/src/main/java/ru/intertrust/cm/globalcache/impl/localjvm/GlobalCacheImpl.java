@@ -39,9 +39,9 @@ public class GlobalCacheImpl implements GlobalCache {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    // todo: access object Ids should be here as well, otherwise access table will grow indefinitely
-    // todo: so - objects are removed separately, access objects - separately
-    private AccessOrderedSynchronizedMap<Object, Object> accessOrder;
+    private long sizeLimit = 100000000;
+    private CacheEntriesAccessSorter accessSorter;
+    private Cleaner cleaner;
 
     private Size size;
     private ObjectsTree objectsTree;
@@ -62,7 +62,7 @@ public class GlobalCacheImpl implements GlobalCache {
         objectsTree = new ObjectsTree(10000, 16, size);
         uniqueKeyMapping = new TypeUniqueKeyMapping(16, size);
         userObjectAccess = new UserObjectAccess(16, size);
-        accessOrder = new AccessOrderedSynchronizedMap<>(10000);
+        accessSorter = new CacheEntriesAccessSorter(10000, size);
         objectAccessDelegation = new ObjectAccessDelegation(16, size);
         final int typesQty = explorer.getConfigs(DomainObjectTypeConfig.class).size();
         doTypeLastChangeTime = new DomainObjectTypeChangeTime(typesQty);
@@ -70,7 +70,7 @@ public class GlobalCacheImpl implements GlobalCache {
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
 
-
+        cleaner = new Cleaner();
 
     }
 
@@ -84,7 +84,6 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Override
     public void notifyDelete(String transactionId, Id id) {
-        System.out.println("notify delete");
     }
 
     @Override
@@ -104,6 +103,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final UserSubject subject = getUserSubject(accessToken);
         final UniqueKey key = new UniqueKey(uniqueKey);
         final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getOrCreateUniqueKeyIdMapping(type);
+        accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // this lock doesn't allow to process 2 keys simultaneously
             if (obj == null) {
                 if (!retrievedAfterLastCommitOfMatchingTypes(type, true, time)) {
@@ -127,6 +127,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         uniqueKeyIdMapping.setMapping(obj, key);
+        cleaner.clean();
     }
 
     private void processNullUniqueKeyRetrieval(UniqueKey key, UniqueKeyIdMapping uniqueKeyIdMapping, UserSubject subject) {
@@ -144,6 +145,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 userObjectAccess.setAccess(subject, cachedId, false);
             }
         }
+        cleaner.clean();
     }
 
     @Override
@@ -224,6 +226,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 node.setUserLinkedObjectsNode(key, linkedObjectsNode, userSubject);
             }
         }
+        cleaner.clean();
     }
 
     @Override
@@ -245,6 +248,15 @@ public class GlobalCacheImpl implements GlobalCache {
             LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(linkedObjectsIds);
             node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         }
+        cleaner.clean();
+    }
+
+    private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
+        final HashSet<Filter> result = new HashSet<>(filters.size() * 2);
+        for (Filter filter : filters) {
+            result.add(new Filter(filter));
+        }
+        return ObjectCloner.getInstance().cloneObject(result);
     }
 
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
@@ -252,7 +264,7 @@ public class GlobalCacheImpl implements GlobalCache {
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
         final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames); // todo clone names
         final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = new HashSet<>(filterValues); //todo clone filter values
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
         notifyCollectionRead(key, subKey, domainObjectTypes, collection, time);
     }
@@ -286,15 +298,15 @@ public class GlobalCacheImpl implements GlobalCache {
         }
         for (DomainObject updated : modification.getSavedAndChangedStatusDomainObjects()) {
             doTypeLastChangeTime.setLastModificationTime(updated.getTypeName(), System.currentTimeMillis(), updated.getModifiedDate().getTime());
-            final Action updateAction = createOrUpdateDomainObjectEntries(updated.getId(), updated, null);
+            final Id id = updated.getId();
+            final Action updateAction = createOrUpdateDomainObjectEntries(id, updated, null);
             updateUniqueKeys(updated);
             updateLinkedObjectsOfParents(updateAction.getDomainObjectBefore(), updated);
         }
         for (DomainObject deleted : modification.getDeletedDomainObjects()) {
-            doTypeLastChangeTime.setLastModificationTime(deleted.getTypeName(), System.currentTimeMillis(), 0);
-            deleteObjectAndItsAccessEntires(deleted);
-            clearUniqueKeys(deleted);
-            updateLinkedObjectsOfParents(deleted, null);
+            final String typeName = deleted.getTypeName();
+            doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
+            cleaner.deleteObjectAndItsAccessEntires(deleted.getId(), typeName, deleted, false);
         }
         final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
         if (personAccessChanges.getObjectsQty() == 0) {
@@ -316,6 +328,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
+        int count = 0;
         for (Map.Entry<Id, HashMap<Id, Boolean>> accessByObject : personAccessByObject.entrySet()) {
             final Id objectId = accessByObject.getKey();
             boolean atLeastOnePersonAccessGranted = false;
@@ -323,6 +336,9 @@ public class GlobalCacheImpl implements GlobalCache {
                 final Boolean accessGranted = personAccess.getValue();
                 // todo: update only if access already set!
                 userObjectAccess.setAccess(new UserSubject((int) ((RdbmsId) personAccess.getKey()).getId()), objectId, accessGranted);
+                if (++count % 100 == 0) {
+                    cleaner.clean();
+                }
                 if (!atLeastOnePersonAccessGranted && accessGranted == Boolean.TRUE) {
                     atLeastOnePersonAccessGranted = true;
                 }
@@ -358,29 +374,32 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private DomainObject getNotClonedDomainObject(Id id, UserSubject userSubject) {
+        DomainObject result;
         final ObjectNode cachedNode = objectsTree.getDomainObjectNode(id);
         if (cachedNode == null) {
-            return null;
+            result = null;
+        } else if (userSubject == null) {
+            result = cachedNode.getDomainObject();
+        } else {
+            result = cachedNode.getDomainObject();
+            if (GenericDomainObject.isAbsent(result)) {
+                result = AbsentDomainObject.INSTANCE;
+            } else if (result != null) {
+                final Id accessObjectId = result.getAccessObjectId();
+                accessSorter.logAccess(accessObjectId);
+
+                final Boolean accessGranted = userObjectAccess.isAccessGranted(userSubject, accessObjectId);
+                if (accessGranted == Boolean.FALSE) {
+                    result = AbsentDomainObject.INSTANCE;
+                } else if (accessGranted == null) {
+                    result = null; // it can be null if not retrieved yet
+                }
+            }
         }
-        if (userSubject == null) {
-            return cachedNode.getDomainObject();
+        if (result != null) {
+            accessSorter.logAccess(id);
         }
-        DomainObject result = cachedNode.getDomainObject();
-        if (GenericDomainObject.isAbsent(result)) {
-            return AbsentDomainObject.INSTANCE;
-        }
-        if (result == null) {
-            return null;
-        }
-        final Id accessObjectId = result.getAccessObjectId();
-        final Boolean accessGranted = userObjectAccess.isAccessGranted(userSubject, accessObjectId);
-        if (accessGranted == Boolean.FALSE) {
-            return AbsentDomainObject.INSTANCE;
-        }
-        if (accessGranted == Boolean.TRUE) {
-            return result; // it can be null if not retrieved yet
-        }
-        return null;
+        return result;
     }
 
     @Override
@@ -392,8 +411,14 @@ public class GlobalCacheImpl implements GlobalCache {
         final UniqueKey key = new UniqueKey(uniqueKey);
         final Id id = uniqueKeyIdMapping.getId(key);
         if (id == null) {
-            return uniqueKeyIdMapping.isNullValue(key) ? AbsentDomainObject.INSTANCE : null;
+            if (uniqueKeyIdMapping.isNullValue(key)) {
+                accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
+                return AbsentDomainObject.INSTANCE;
+            } else {
+                return null;
+            }
         } else {
+            accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
             return getDomainObject(transactionId, id, accessToken);
         }
     }
@@ -493,7 +518,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final CollectionTypesKey key = new SizeableNamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
         sortOrder = ObjectCloner.getInstance().cloneObject(sortOrder);
-        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : ObjectCloner.getInstance().cloneObject(new HashSet<>(filterValues));
+        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
         return getCollection(key, subKey);
     }
@@ -503,7 +528,7 @@ public class GlobalCacheImpl implements GlobalCache {
                                                       int offset, int limit, AccessToken accessToken) {
         final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
-        paramValues = paramValues == null ? null : ObjectCloner.getInstance().cloneObject(paramValues); // todo: it's a quick fix, create a separate serializer
+        paramValues = paramValues == null ? null : ObjectCloner.getInstance().cloneObject(paramValues);
         final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit);
         return getCollection(key, subKey);
     }
@@ -611,12 +636,14 @@ public class GlobalCacheImpl implements GlobalCache {
                 final Id parentObjectId = object.getReference(fieldName);
                 addLinkedObject(parentObjectId, object.getId(), objectType, fieldName, typeParents);
             }
+            cleaner.clean();
         } else if (object == null) { // has been deleted
             for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
                 final String fieldName = referenceFieldConfig.getName();
                 final Id previousParentObjectId = previousState.getReference(fieldName);
                 removeLinkedObject(previousParentObjectId, previousState.getId(), objectType, fieldName, typeParents);
             }
+            // ATTENTION! don't clean here - it's not necessary and moreover will cause infinite recursion
         } else {
             final Id id = object.getId();
             for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
@@ -630,6 +657,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 removeLinkedObject(previousParentObjectId, id, objectType, fieldName, typeParents);
                 addLinkedObject(parentObjectId, id, objectType, fieldName, typeParents);
             }
+            cleaner.clean();
         }
     }
 
@@ -710,20 +738,25 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private Action createOrUpdateDomainObjectEntries(Id id, DomainObject obj, UserSubject subject) {
-        synchronized (id.toStringRepresentation().intern()) { // todo fix
-
-            // todo: ugly code - rework
+        synchronized (id) { // todo fix
+            accessSorter.logAccess(id);
             final ObjectNode cachedNode = objectsTree.getDomainObjectNode(id);
             final Action action = Action.getAction(cachedNode, obj, subject);
+
+            // todo: ugly code - rework
             if (action.isNodeInitializedWithRealObject()) {
                 final Id accessObjectId = getAccessObjectId(id, action.domainObject);
-                objectAccessDelegation.setDelegation(obj.getId(), accessObjectId);
+                objectAccessDelegation.setDelegation(id, accessObjectId);
+                if (accessObjectId != id) {
+                    accessSorter.logAccess(accessObjectId);
+                }
             }
             if (action instanceof CreateEntry) {
                 final ObjectNode node = objectsTree.addDomainObjectNode(id, createDomainObjectNode(id, action.domainObject));
                 if (action.rights() == CreateEntry.Rights.Set) {
                     setAccess(id, action.getObjectToFindAccessObjectBy(), subject, action.userRights);
                 }
+                cleaner.clean();
                 return action;
             }
 
@@ -739,6 +772,7 @@ public class GlobalCacheImpl implements GlobalCache {
             } else if (rightsAction == UpdateEntry.Rights.Clear) {
                 clearAccess(id, action.getObjectToFindAccessObjectBy(), subject);
             }
+            cleaner.clean();
             return action;
         }
     }
@@ -771,14 +805,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         uniqueKeyIdMapping.updateMappings(object, getUniqueKeys(object));
-    }
-
-    private void clearUniqueKeys(DomainObject object) {
-        final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getUniqueKeyIdMapping(object.getTypeName());
-        if (uniqueKeyIdMapping == null) {
-            return;
-        }
-        uniqueKeyIdMapping.clear(object.getId());
+        cleaner.clean();
     }
 
     private List<UniqueKey> getUniqueKeys(DomainObject object) {
@@ -812,15 +839,6 @@ public class GlobalCacheImpl implements GlobalCache {
             userObjectAccess.clearAccess(subject, accessObjectId);
         }
         clearFullRetrieval(domainObjectTypeIdCache.getName(id), subject);
-    }
-
-    private void deleteObjectAndItsAccessEntires(DomainObject domainObject) {
-        final Id id = domainObject.getId();
-        final Id accessObjectId = domainObject.getAccessObjectId();
-        final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
-        // access is cleared for object itself, NOT for access object, as access object clearing would remove access for all objects referencing it
-        userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
-        objectAccessDelegation.removeId(id);
     }
 
     private UserSubject getUserSubject(AccessToken accessToken) {
@@ -864,6 +882,8 @@ public class GlobalCacheImpl implements GlobalCache {
             CollectionNode collectionNode = new CollectionNode(ObjectCloner.getInstance().cloneObject(collection), time);
             baseNode.setCollectionNode(subKey, collectionNode);
         }
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
+        cleaner.clean();
     }
 
     private IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
@@ -888,6 +908,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 }
             }
         }
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         return ObjectCloner.getInstance().cloneObject(collection);
     }
 
@@ -899,6 +920,169 @@ public class GlobalCacheImpl implements GlobalCache {
     private boolean typeChangedAfterOrSameTime(String type, long time) {
         final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
         return lastModificationTime != null && lastModificationTime.afterOrEqual(time);
+    }
+
+    private class Cleaner {
+        private static final int CLEAN_ATTEMPTS = 100;
+
+        public void checkSize() {
+            logger.warn("Cache size: " + size.get());
+            if (size.get() > sizeLimit) {
+                logger.warn("OVER LIMIT: " + size.get());
+            }
+        }
+
+        public void clean() {
+            if (size.get() < sizeLimit) {
+                return;
+            }
+            for (int i = 0; i < CLEAN_ATTEMPTS; ++i) {
+                deleteEldest();
+                if (size.get() < sizeLimit) {
+                    return;
+                }
+            }
+            logger.warn("After " + CLEAN_ATTEMPTS + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB");
+        }
+
+        private void deleteEldest() {
+            final Object eldest = accessSorter.getEldest();
+            if (eldest == null) {
+                logger.warn("Access log is empty...");
+                return;
+            }
+            if (eldest instanceof Id) {
+                deleteDomainObject((Id) eldest);
+            } else if (eldest instanceof CollectionAccessKey) {
+                deleteCollection((CollectionAccessKey) eldest);
+            } else {
+                deleteUniqueKey(((UniqueKeyAccessKey) eldest));
+            }
+        }
+
+        private void deleteDomainObject(Id id) {
+            deleteObjectAndItsAccessEntires(id, null, null, true);
+        }
+
+        private void deleteCollection(CollectionAccessKey collectionAccessKey) {
+            final CollectionBaseNode baseNode = collectionsTree.getBaseNode(collectionAccessKey.key);
+            if (baseNode != null) {
+                baseNode.removeCollectionNode(collectionAccessKey.subKey);
+            }
+            accessSorter.remove(collectionAccessKey);
+        }
+
+        /**
+         * Deletes cache entries related to specific object
+         * @param id ID of the object to remove
+         * @param typeName Object Type Name, optional; if empty - resolved automatically
+         * @param domainObject optional parameter, it's possible that domain object is absent (unknown)
+         */
+        private void deleteObjectAndItsAccessEntires(Id id, String typeName, DomainObject domainObject, boolean isCacheCleaning) {
+            final ObjectNode cachedNode = objectsTree.deleteDomainObjectNode(id);
+            if (typeName == null || domainObject == null) {
+                if (cachedNode != null) {
+                    domainObject = cachedNode.getRealDomainObjectOrNothing();
+                }
+                if (typeName == null) {
+                    typeName = domainObject != null ? domainObject.getTypeName() : domainObjectTypeIdCache.getName(id);
+                }
+            }
+            // if object is a delegate access rights for all dependent objects are cleared
+            userObjectAccess.clearAccess(objectAccessDelegation.getObjectsByDelegate(id));
+            // access is cleared for object itself, NOT for access object, as access object clearing would remove access for all objects referencing it
+            userObjectAccess.clearAccess(id); // todo: this can be done in a separate thread
+            objectAccessDelegation.removeId(id);
+            deleteUniqueKeys(typeName, id);
+            if (domainObject != null) {
+                if (isCacheCleaning) {
+                    clearParentsLinkedObjects(id, ObjectNode.LinkedObjects.All);
+                } else {
+                    updateLinkedObjectsOfParents(domainObject, null);
+                }
+            }
+            if (isCacheCleaning) {
+                clearFullRetrieval(typeName, null);
+            }
+            idsByType.removeId(id, typeName);
+            accessSorter.remove(id);
+        }
+
+        private void deleteUniqueKey(UniqueKeyAccessKey uniqueKeyAccessKey) {
+            final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getUniqueKeyIdMapping(uniqueKeyAccessKey.typeName);
+            if (uniqueKeyIdMapping != null) {
+                uniqueKeyIdMapping.clear(uniqueKeyAccessKey.uniqueKey);
+            }
+            accessSorter.remove(uniqueKeyAccessKey);
+        }
+
+        private void deleteUniqueKeys(String typeName, Id id) {
+            final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getUniqueKeyIdMapping(typeName);
+            if (uniqueKeyIdMapping == null) {
+                return;
+            }
+            uniqueKeyIdMapping.clear(id);
+        }
+    }
+
+    private static class CollectionAccessKey {
+        public final CollectionTypesKey key;
+        public final CollectionSubKey subKey;
+
+        public CollectionAccessKey(CollectionTypesKey key, CollectionSubKey subKey) {
+            this.key = key;
+            this.subKey = subKey;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            CollectionAccessKey that = (CollectionAccessKey) o;
+
+            if (!key.equals(that.key)) return false;
+            if (!subKey.equals(that.subKey)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = key.hashCode();
+            result = 31 * result + subKey.hashCode();
+            return result;
+        }
+    }
+
+    private static class UniqueKeyAccessKey {
+        public final String typeName;
+        public final UniqueKey uniqueKey;
+
+        public UniqueKeyAccessKey(String typeName, UniqueKey uniqueKey) {
+            this.typeName = typeName;
+            this.uniqueKey = uniqueKey;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UniqueKeyAccessKey that = (UniqueKeyAccessKey) o;
+
+            if (!typeName.equalsIgnoreCase(that.typeName)) return false;
+            if (!uniqueKey.equals(that.uniqueKey)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = typeName.toLowerCase().hashCode();
+            result = 31 * result + uniqueKey.hashCode();
+            return result;
+        }
     }
 
     private static abstract class Action {

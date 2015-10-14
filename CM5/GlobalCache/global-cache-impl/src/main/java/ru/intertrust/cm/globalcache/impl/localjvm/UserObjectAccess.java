@@ -33,7 +33,7 @@ public class UserObjectAccess implements Sizeable {
 
     public UserObjectAccess(int concurrencyLevel, Size sizeTotal) {
         size = new Size(sizeTotal);
-        size.add(4 * SizeEstimator.getReferenceSize());
+        size.add(4 * SizeEstimator.REFERENCE_SIZE);
 
         // only duplicates and constants in this map - only self-size of map is calculated
         access = new SizeableConcurrentHashMap<>(INITIAL_ACCESS_CAPACITY, DEFAULT_LOAD_FACTOR, concurrencyLevel, size, false, false);
@@ -83,6 +83,15 @@ public class UserObjectAccess implements Sizeable {
                 }
             }
             accessByObjectId.remove(objectId);
+        }
+    }
+
+    public void clearAccess(Collection<Id> objectIds) {
+        if (objectIds == null) {
+            return;
+        }
+        for (Id objectId : objectIds) {
+            clearAccess(objectId);
         }
     }
 

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Time: 19:37
  */
 public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> implements Sizeable {
-    private final static int SELF_SIZE = 4 * Integer.SIZE + Float.SIZE + (int) SizeEstimator.getReferenceSize();
+    private final static int SELF_SIZE = 4 * Integer.SIZE + Float.SIZE + (int) SizeEstimator.REFERENCE_SIZE;
     public static final long USER_SUBJECT_SIZE = SizeEstimator.estimateSize(new UserSubject(1));
 
     private int modifications; // переменная нарочно не volatile, и доступ к ней не синхронизирован - это не важно
@@ -212,7 +212,7 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
         if (size > maxPossibleCapacity) {
             maxPossibleCapacity = size;
         }
-        final int ref = (int) SizeEstimator.getReferenceSize();
+        final int ref = (int) SizeEstimator.REFERENCE_SIZE;
         final int a = (4 * ref + 8) * size + (9 * ref + 40) * concurrencyLevel + 6 * ref + 36;
         if (maxPossibleCapacity <= 1) {
             return a;
@@ -222,7 +222,7 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
         return approx;
     }
 
-    private static int intLog2(int x) {
+    public static int intLog2(int x) {
         if (x == 0) {
             return 0;
         }

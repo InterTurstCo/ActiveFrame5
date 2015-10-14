@@ -8,6 +8,8 @@ import java.util.concurrent.atomic.AtomicLong;
  *         Time: 13:09
  */
 public class Size {
+    public static final long BYTES_IN_MEGABYTE = 1024 * 1024;
+
     private static final long SELF_SIZE = SizeEstimator.estimateSize(new Size(new Size()));
 
     private volatile Size sizeTotal;
@@ -53,6 +55,10 @@ public class Size {
         return size.get();
     }
 
+    public long getMB() {
+        return size.get() / BYTES_IN_MEGABYTE;
+    }
+
     public void detachFromTotal() {
         Size total = sizeTotal;
         sizeTotal = null;
@@ -60,6 +66,10 @@ public class Size {
         if (total != null) {
             total.add(-previous);
         }
+    }
+
+    public String toString() {
+        return get() / BYTES_IN_MEGABYTE + " MB";
     }
 
     private void updateTotal(long delta) {

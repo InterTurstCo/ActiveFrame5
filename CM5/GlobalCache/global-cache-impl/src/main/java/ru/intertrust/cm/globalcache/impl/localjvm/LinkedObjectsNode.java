@@ -13,7 +13,7 @@ import java.util.*;
  *         Time: 19:54
  */
 public class LinkedObjectsNode implements Sizeable {
-    public static final long SELF_SIZE = 2 * SizeEstimator.getReferenceSize() + 1;
+    public static final long SELF_SIZE = 2 * SizeEstimator.REFERENCE_SIZE + 1;
 
     private final Set<Id> domainObjectsIds;
     private Size size;

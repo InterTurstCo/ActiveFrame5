@@ -29,6 +29,15 @@ public class IdsByType {
         mapping.put(id, id);
     }
 
+    public void removeId(Id id, String type) {
+        String lowercasedType = type.toLowerCase();
+        SizeableConcurrentHashMap<Id, Id> mapping = idByType.get(lowercasedType);
+        if (mapping == null) {
+            return;
+        }
+        mapping.remove(id);
+    }
+
     public ConcurrentMap<Id, Id> getIds(String type) {
         return idByType.get(type.toLowerCase());
     }

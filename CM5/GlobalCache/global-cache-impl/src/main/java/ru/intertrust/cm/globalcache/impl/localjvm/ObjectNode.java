@@ -18,7 +18,7 @@ import static ru.intertrust.cm.globalcache.api.util.SizeEstimator.estimateSize;
  *         Time: 18:19
  */
 public class ObjectNode implements Sizeable {
-    public static final long SELF_SIZE = 5 * SizeEstimator.getReferenceSize();
+    public static final long SELF_SIZE = 5 * SizeEstimator.REFERENCE_SIZE + Long.SIZE;
     public static final long USER_SUBJECT_SIZE = SizeEstimator.estimateSize(new UserSubject(1));
 
     public enum LinkedObjects {
@@ -35,6 +35,7 @@ public class ObjectNode implements Sizeable {
     // or by someone who has right to read it.
     // If domainObject == DomainObject.NULL it means it doesn't exist
     private volatile DomainObject domainObject;
+    private volatile long domainObjectSize;
     private volatile SizeableConcurrentHashMap<LinkedObjectsKey, LinkedObjectsNode> systemLinkedObjects;
     private volatile SizeableConcurrentHashMap<LinkedObjectsKey, SizeableConcurrentHashMap<UserSubject, LinkedObjectsNode>> userLinkedObjects;
 
@@ -46,7 +47,8 @@ public class ObjectNode implements Sizeable {
     public ObjectNode(Id id, DomainObject domainObject) {
         this.id = id;
         this.domainObject = domainObject;
-        this.size = new Size(SELF_SIZE + estimateSize(id) + estimateSize(domainObject));
+        this.domainObjectSize = estimateSize(domainObject);
+        this.size = new Size(SELF_SIZE + estimateSize(id) + domainObjectSize);
     }
 
     @Override
@@ -59,11 +61,18 @@ public class ObjectNode implements Sizeable {
     }
 
     public void setDomainObject(DomainObject domainObject) {
+        long prevSize = this.domainObjectSize;
+        this.domainObjectSize = estimateSize(domainObject);
         this.domainObject = domainObject;
+        this.size.add(this.domainObjectSize - prevSize);
     }
 
     public DomainObject getDomainObject() {
         return domainObject;
+    }
+
+    public DomainObject getRealDomainObjectOrNothing() {
+        return domainObject == null ? null : domainObject.isAbsent() ? null : domainObject;
     }
 
     public void setSystemLinkedObjectsNode(LinkedObjectsKey key, LinkedObjectsNode node) {

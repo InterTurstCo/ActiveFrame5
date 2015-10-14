@@ -22,7 +22,7 @@ public class ObjectAccessDelegation {
 
     public ObjectAccessDelegation(int concurrencyLevel, Size totalSize) {
         cacheTotalSize = totalSize;
-        cacheTotalSize.add(2 * SizeEstimator.getReferenceSize());
+        cacheTotalSize.add(2 * SizeEstimator.REFERENCE_SIZE);
 
         delegateById = new SizeableConcurrentHashMap<>(16, 0.75f, concurrencyLevel, cacheTotalSize, true, true);
         objectsByDelegate = new SizeableConcurrentHashMap<>(16, 0.75f, concurrencyLevel, cacheTotalSize, false, false);
