@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import ru.intertrust.cm.core.business.api.dto.UserCredentials;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import java.io.IOException;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -14,28 +12,41 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.gui.api.server.LoginService;
+import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
- * @author Denis Mitavskiy
- *         Date: 09.07.13
- *         Time: 18:30
+ * @author Denis Mitavskiy Date: 09.07.13 Time: 18:30
  */
 public class AuthenticationFilter implements Filter {
     private static Logger log = LoggerFactory.getLogger(AuthenticationFilter.class);
 
     private static final String AUTHENTICATION_SERVICE_ENDPOINT = "BusinessUniverseAuthenticationService";
     private static final String REMOTE = "/remote";
+    
+    private ExtensionService extensionService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        ApplicationContext ctx = WebApplicationContextUtils
+                .getRequiredWebApplicationContext(filterConfig.getServletContext());
+        this.extensionService = ctx.getBean(ExtensionService.class);        
     }
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
-        throws IOException, ServletException {
+            throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
         String requestURI = request.getRequestURI();
         if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
@@ -43,13 +54,24 @@ public class AuthenticationFilter implements Filter {
             return;
         }
 
+        //Вызов точки расширения до аутентификации. Точка расширения может проставить атрибут LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE
+        //И вызов диалога аутентификации не произойдет
+        AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
+        authExtHandler.onBeforeAuthentication(request, response);        
+        
         UserCredentials credentials = (UserCredentials) session.getAttribute(
-                LoginServiceImpl.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+                LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
+
         if (credentials == null) {
             forwardToLogin(servletRequest, servletResponse);
             return;
         }
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
+        
+        //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
+        //Например для использования в SSO 
+        authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
+
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
             try {
                 request.login(userUidWithPassword.getUserUid(), userUidWithPassword.getPassword());
