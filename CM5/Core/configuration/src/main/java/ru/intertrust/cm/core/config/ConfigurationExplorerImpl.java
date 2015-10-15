@@ -526,6 +526,56 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     }
 
     /**
+     * Получение всех типов, делегирующих проверку прав на объекты данного типа. Включает в результат также
+     * типы-наследники, так как проверка прав по ним возлагается на него, и самого себя. Если делегирующих типов нет,
+     * нет наследников, и при этом тип сам делегирует проверку собственных прав другому типу, возвращается пустой Set.
+     *
+     * @param typeName имя типа, для которого необходимо вычислить типы объектов, делегирующих проверку прав на объекты данного типа
+     * @return всех типы, делегирующие проверку прав на объекты данного типа
+     */
+    @Override
+    public Set<String> getAllTypesDelegatingAccessCheckTo(String typeName) {
+        readLock.lock();
+        try {
+            Set<String> result = configStorage.typesDelegatingAccessCheckTo.get(typeName);
+
+            if (result == null) {
+                configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
+                result = configStorage.typesDelegatingAccessCheckTo.get(typeName);
+            }
+
+            return getReturnObject(result, Set.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
+     * Получение всех типов, делегирующих проверку прав на объекты данного типа, в нижнем регистре. Включает в результат также
+     * типы-наследники, так как проверка прав по ним возлагается на него, и самого себя. Если делегирующих типов нет,
+     * нет наследников, и при этом тип сам делегирует проверку собственных прав другому типу, возвращается пустой Set.
+     *
+     * @param typeName имя типа, для которого необходимо вычислить типы объектов, делегирующих проверку прав на объекты данного типа
+     * @return всех типы, делегирующие проверку прав на объекты данного типа, в нижнем регистре
+     */
+    @Override
+    public Set<String> getAllTypesDelegatingAccessCheckToInLowerCase(String typeName) {
+        readLock.lock();
+        try {
+            Set<String> result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
+
+            if (result == null) {
+                configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
+                result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
+            }
+
+            return getReturnObject(result, Set.class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    /**
      * @inheritDoc
      */
     @Override

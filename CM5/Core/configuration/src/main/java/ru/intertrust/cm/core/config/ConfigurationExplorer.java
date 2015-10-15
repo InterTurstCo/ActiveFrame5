@@ -199,7 +199,11 @@ public interface ConfigurationExplorer {
      * @return имя типа у которого заимствуются права или null в случае если заимствования нет
      */
     String getMatrixReferenceTypeName(String childTypeName);
-    
+
+    Set getAllTypesDelegatingAccessCheckTo(String typeName);
+
+    Set<String> getAllTypesDelegatingAccessCheckToInLowerCase(String typeName);
+
     /**
      * Returns default toolbar for plugin.
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.

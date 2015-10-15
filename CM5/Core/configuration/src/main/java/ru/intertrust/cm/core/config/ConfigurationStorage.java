@@ -42,6 +42,10 @@ public class ConfigurationStorage {
 
     public CaseInsensitiveMap<String> matrixReferenceTypeNameMap = new CaseInsensitiveMap<>();
 
+    public CaseInsensitiveMap<Set<String>> typesDelegatingAccessCheckTo = new CaseInsensitiveMap<>();
+
+    public CaseInsensitiveMap<Set<String>> typesDelegatingAccessCheckToInLowerCase = new CaseInsensitiveMap<>();
+
     public CaseInsensitiveMap<Boolean> readPermittedToEverybodyMap = new CaseInsensitiveMap<>();
 
     public GlobalSettingsConfig globalSettings;

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -288,6 +289,70 @@ public class ConfigurationStorageBuilder {
 
         configurationStorage.matrixReferenceTypeNameMap.put(childTypeName, result);
         return result;
+    }
+
+    public void fillTypesDelegatingAccessCheckTo(String typeName) {
+        DomainObjectTypeConfig typeConfig = configurationExplorer.getDomainObjectTypeConfig(typeName);
+        if (typeConfig == null) {
+            throw new IllegalArgumentException("Domain Object Type " + typeName + " doesn't exist");
+        }
+
+        TypesDelegatingAccessCheckToBuilderData builderData = new TypesDelegatingAccessCheckToBuilderData();
+
+        fillTypesDelegatingAccessCheckTo(typeConfig.getName(), builderData);
+
+        Set<String> result = new HashSet<>();
+        Set<String> resultInLowerCase = new HashSet<>();
+
+        String delegatedTo = configurationExplorer.getMatrixReferenceTypeName(typeConfig.getName());
+        if (delegatedTo == null) {
+            result.add(typeConfig.getName());
+            resultInLowerCase.add(typeConfig.getName().toLowerCase());
+        }
+
+        result.addAll(builderData.getHierarchicalDelegates());
+        resultInLowerCase.addAll(builderData.getHierarchicalDelegatesInLowerCase());
+
+        result.addAll(builderData.getMatrixDelegates());
+        resultInLowerCase.addAll(builderData.getMatrixDelegatesInLowerCase());
+
+        configurationStorage.typesDelegatingAccessCheckTo.put(typeConfig.getName(), result);
+        configurationStorage.typesDelegatingAccessCheckToInLowerCase.put(typeConfig.getName(), resultInLowerCase);
+    }
+
+
+    private void fillTypesDelegatingAccessCheckTo(String typeName, TypesDelegatingAccessCheckToBuilderData builderData) {
+        Set<String> newDelegatingTypes = new HashSet<>();
+
+        Collection<DomainObjectTypeConfig> childTypes = configurationExplorer.findChildDomainObjectTypes(typeName, true);
+        for (DomainObjectTypeConfig childType : childTypes) {
+            if (builderData.getHierarchicalDelegates().contains(childType.getName())) {
+                log.warn("Cycle detected in Domain Object Type hierarchy for " + childType.getName());
+            } else {
+                builderData.getHierarchicalDelegates().add(childType.getName());
+                builderData.getHierarchicalDelegatesInLowerCase().add(childType.getName().toLowerCase());
+                newDelegatingTypes.add(childType.getName());
+            }
+        }
+
+        Collection<AccessMatrixConfig> matrices = configurationExplorer.getConfigs(AccessMatrixConfig.class);
+        for (AccessMatrixConfig matrixConfig : matrices) {
+            if (matrixConfig.getMatrixReference() == null || !matrixConfig.getMatrixReference().equalsIgnoreCase(typeName)) {
+                continue;
+            }
+
+            if (builderData.getMatrixDelegates().contains(matrixConfig.getType())) {
+                log.warn("Cycle detected in access rights delegation for " + matrixConfig.getType());
+            } else {
+                builderData.getMatrixDelegates().add(matrixConfig.getType());
+                builderData.getMatrixDelegatesInLowerCase().add(matrixConfig.getType().toLowerCase());
+                newDelegatingTypes.add(matrixConfig.getType());
+            }
+        }
+
+        for (String referencingType : newDelegatingTypes) {
+            fillTypesDelegatingAccessCheckTo(referencingType, builderData);
+        }
     }
 
     public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
@@ -760,6 +825,29 @@ public class ConfigurationStorageBuilder {
                     }
                 }
             configurationStorage.readPermittedToEverybodyMap.put(accessMatrixConfig.getType(), false);
+        }
+    }
+
+    private class TypesDelegatingAccessCheckToBuilderData {
+        private Set<String> hierarchicalDelegates = new HashSet<>();
+        private Set<String> hierarchicalDelegatesInLowerCase = new HashSet<>();
+        private Set<String> matrixDelegates = new HashSet<>();
+        private Set<String> matrixDelegatesInLowerCase = new HashSet<>();
+
+        public Set<String> getHierarchicalDelegates() {
+            return hierarchicalDelegates;
+        }
+
+        public Set<String> getHierarchicalDelegatesInLowerCase() {
+            return hierarchicalDelegatesInLowerCase;
+        }
+
+        public Set<String> getMatrixDelegates() {
+            return matrixDelegates;
+        }
+
+        public Set<String> getMatrixDelegatesInLowerCase() {
+            return matrixDelegatesInLowerCase;
         }
     }
 

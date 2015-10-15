@@ -133,6 +133,102 @@
       <fields/>
       <indices/>
    </domain-object-type>
+   <domain-object-type name="Test_DO_1" initial-status="Active">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_DO_2" initial-status="Active" extends="Test_DO_1">
+      <fields>
+         <string name="name2" not-null="false" immutable="false" length="128"/>
+         <reference name="Ref_DO_1" not-null="false" immutable="false" type="Ref_DO_1"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_DO_3" initial-status="Active" extends="Test_DO_2">
+      <fields>
+         <string name="name3" not-null="false" immutable="false" length="128"/>
+         <reference name="Ref_DO_3_1" not-null="false" immutable="false" type="Ref_DO_1"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_DO_4" initial-status="Active" extends="Test_DO_3">
+      <fields>
+         <string name="name4" not-null="false" immutable="false" length="128"/>
+         <reference name="Ref_DO_4_1" not-null="false" immutable="false" type="Ref_DO_1"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_DO_5" initial-status="Active" extends="Test_DO_4">
+      <fields>
+         <string name="name5" not-null="false" immutable="false" length="128"/>
+         <reference name="Ref_DO_5_1" not-null="false" immutable="false" type="Ref_DO_1"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Ref_DO_3_1" initial-status="Active">
+      <fields>
+         <reference name="Ref_DO_3_2" not-null="false" immutable="false" type="Ref_DO_3_2"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Ref_DO_3_2" initial-status="Active">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Ref_DO_1" initial-status="Active">
+      <fields>
+         <reference name="Ref_DO_2" not-null="false" immutable="false" type="Ref_DO_2"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Ref_DO_2" initial-status="Active">
+      <fields>
+         <reference name="Ref_DO_3" not-null="false" immutable="false" type="Ref_DO_3"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Ref_DO_3" initial-status="Active">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_type_1" initial-status="Active">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_type_2" initial-status="Active">
+      <fields>
+         <reference name="Test_type_1" not-null="false" immutable="false" type="Test_type_1"/>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_type_3">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_type_4" initial-status="Active" extends="Test_type_3">
+      <fields>
+         <reference name="employee" not-null="false" immutable="false" type="employee"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
+   <domain-object-type name="Test_type_5">
+      <fields>
+         <string name="name" not-null="false" immutable="false" length="128"/>
+         <reference name="employee" not-null="false" immutable="false" type="employee"/>
+      </fields>
+      <indices/>
+   </domain-object-type>
    <collection name="Employees" idField="id" useClone="false">
       <prototype><![CDATA[
             

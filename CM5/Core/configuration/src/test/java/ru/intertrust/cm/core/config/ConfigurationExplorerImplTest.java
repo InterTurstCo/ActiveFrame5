@@ -14,12 +14,11 @@ import ru.intertrust.cm.core.config.module.ModuleService;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.*;
 import static ru.intertrust.cm.core.config.Constants.*;
 
@@ -243,6 +242,7 @@ public class ConfigurationExplorerImplTest {
 
         configExplorer = new ConfigurationExplorerImpl(config);
     }
+
     @Test
     public void testGetParentFormConfigs() {
         FormConfig formConfig = configExplorer.getConfig(FormConfig.class, "city_form");
@@ -250,6 +250,32 @@ public class ConfigurationExplorerImplTest {
 
         assertTrue(formConfigs.size() == 2);
         assertEquals("parent_parent_city_form", formConfigs.get(0).getName());
+    }
+
+    @Test
+    public void testGetAllTypesDelegatingAccessCheckTo() {
+        Set<String> result1 = configExplorer.getAllTypesDelegatingAccessCheckTo("test_type_2");
+        assertEquals(0, result1.size());
+
+        Set<String> result2 = configExplorer.getAllTypesDelegatingAccessCheckTo("test_type_4");
+        assertEquals(1, result2.size());
+        assertEquals("Test_type_4", result2.iterator().next());
+
+        Set<String> result3 = configExplorer.getAllTypesDelegatingAccessCheckTo("ref_DO_3_2");
+        assertEquals(5, result3.size());
+        assertTrue(result3.contains("Test_DO_3"));
+        assertTrue(result3.contains("Ref_DO_3_1"));
+        assertTrue(result3.contains("Test_DO_4"));
+        assertTrue(result3.contains("Test_DO_5"));
+        assertTrue(result3.contains("Ref_DO_3_2"));
+
+        Set<String> result4 = configExplorer.getAllTypesDelegatingAccessCheckToInLowerCase("ref_DO_3_2");
+        assertEquals(5, result4.size());
+        assertTrue(result4.contains("test_do_3"));
+        assertTrue(result4.contains("ref_do_3_1"));
+        assertTrue(result4.contains("test_do_4"));
+        assertTrue(result4.contains("test_do_5"));
+        assertTrue(result4.contains("ref_do_3_2"));
     }
 
     private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
