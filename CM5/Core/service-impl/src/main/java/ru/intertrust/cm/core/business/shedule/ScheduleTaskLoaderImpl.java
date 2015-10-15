@@ -178,7 +178,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         DomainObject result = null;
         String query = "select t.id from schedule t where t.task_class = '" + taskClass + "'";
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
         if (collection.size() > 0) {
             result = domainObjectDao.find(collection.get(0).getId(), accessToken);
         }

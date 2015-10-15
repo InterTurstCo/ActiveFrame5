@@ -594,7 +594,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         String query =
                 "select t.id from group_member t where t.person_id = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             domainObjectDao.delete(identifiableObject.getId(), accessToken);
             deleteRowCount++;

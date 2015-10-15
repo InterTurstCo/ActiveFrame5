@@ -67,7 +67,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             List<DomainObject> result = new ArrayList<DomainObject>();
             String query = "select t.id from schedule t";
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
             for (IdentifiableObject identifiableObject : collection) {
                 DomainObject task = domainObjectDao.find(identifiableObject.getId(), accessToken);
                 result.add(task);

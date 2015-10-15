@@ -47,7 +47,7 @@ public class Session implements Serializable {
     public List<Id>  find(String collectionName) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
 
-        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, null, null, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, null, null, 0, 0, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
@@ -75,7 +75,7 @@ public class Session implements Serializable {
         //Создаем массив фильтров
         List<Filter> filters = new ArrayList<>();
         filters.add(filter);
-        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters, null, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters, null, 0, 0, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
@@ -89,7 +89,7 @@ public class Session implements Serializable {
      */
     public List<Id> find(String collectionName,ScriptTaskFilter filters) {
         AccessToken accessToken = getAccessControlService().createSystemAccessToken("Session");
-        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters.getFiltersList(), null, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = getCollectionService().findCollection(collectionName, filters.getFiltersList(), null, 0, 0, accessToken);
         // TODO перобразовать коллекцию в коллекцию DomainObjectAccessor, но там
         // неи должно быть save, тоесть нужно создать другой класс для результата коллекции
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();

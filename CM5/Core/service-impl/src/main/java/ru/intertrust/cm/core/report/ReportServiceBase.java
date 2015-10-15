@@ -176,7 +176,7 @@ public class ReportServiceBase {
         
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         List<DomainObject> result = new ArrayList<DomainObject>();
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
         }
