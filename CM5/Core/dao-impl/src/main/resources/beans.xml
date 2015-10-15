@@ -65,7 +65,7 @@
           c:dataSource-ref="dataSource"/>
 
     <bean id="switchableNamedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
-          c:dataSource-ref="switchableDataSource"/>
+          c:dataSource-ref="dataSource"/>
 
     <bean id="daoFactoryProducer" class="ru.intertrust.cm.core.dao.impl.DaoFactoryProducer"/>
 
@@ -129,7 +129,7 @@
 
     <bean id="collectionQueryCache"
           class="ru.intertrust.cm.core.dao.impl.CollectionQueryCacheImpl" init-method="init"/>
-          
+
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />
 
@@ -176,7 +176,7 @@
 
     <beans profile="default">
         <bean id="attachmentContentDao"
-            class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
+              class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
     </beans>
 
 </beans>
