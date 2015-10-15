@@ -327,8 +327,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
         final HashSet<String> allTypesAffected = new HashSet<>(objectTypesAccessChanged);
         for (String type : objectTypesAccessChanged) {
-            // todo: find types possibly dependent on this type when rights are calculated
-            Collection<String> typesAffected = Arrays.asList(type);
+            Collection<String> typesAffected = explorer.getAllTypesDelegatingAccessCheckToInLowerCase(type);
             for (String typeAffected : typesAffected) {
                 doTypeLastChangeTime.setLastRightsChangeTime(typeAffected, System.currentTimeMillis());
                 clearUsersFullRetrieval(typeAffected);
