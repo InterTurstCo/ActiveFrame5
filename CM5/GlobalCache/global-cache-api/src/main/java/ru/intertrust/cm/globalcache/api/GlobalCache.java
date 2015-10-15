@@ -61,4 +61,7 @@ public interface GlobalCache {
 
     IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
 
+    void setSizeLimitBytes(long bytes);
+
+    long getSizeLimitBytes();
 }

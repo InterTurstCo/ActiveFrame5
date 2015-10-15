@@ -103,6 +103,16 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
+    public synchronized void setSizeLimitBytes(long bytes) {
+        super.setSizeLimitBytes(bytes);
+    }
+
+    @Override
+    public synchronized long getSizeLimitBytes() {
+        return super.getSizeLimitBytes();
+    }
+
+    @Override
     public synchronized void notifyReadAll(String transactionId, String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
         super.notifyReadAll(transactionId, type, exactType, objects, accessToken);
     }

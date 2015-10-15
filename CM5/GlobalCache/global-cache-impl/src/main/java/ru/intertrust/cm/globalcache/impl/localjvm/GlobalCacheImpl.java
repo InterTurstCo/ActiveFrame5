@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.util.ObjectCloner;
 import ru.intertrust.cm.globalcache.api.*;
 import ru.intertrust.cm.globalcache.api.util.Size;
 
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,7 +40,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-    private long sizeLimit = 100000000;
+    private volatile long sizeLimit = 10 * 1024 * 1024;
     private CacheEntriesAccessSorter accessSorter;
     private Cleaner cleaner;
 
@@ -72,6 +73,17 @@ public class GlobalCacheImpl implements GlobalCache {
 
         cleaner = new Cleaner();
 
+    }
+
+    @Override
+    public void setSizeLimitBytes(long bytes) {
+        sizeLimit = bytes;
+        logger.info("Cache size limit is set to: " + bytes + " bytes");
+    }
+
+    @Override
+    public long getSizeLimitBytes() {
+        return sizeLimit;
     }
 
     @Override
@@ -363,8 +375,8 @@ public class GlobalCacheImpl implements GlobalCache {
     private static int __count;
     @Override
     public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
-        if (__count++ % 100 == 0) {
-            System.out.println("------------------------------------------------- Cache size: " + size.get());
+        if (++__count % 1000 == 0) {
+            logger.warn("------------------------------------------------- Cache size: " + new DecimalFormat("###########################.00").format(((double) size.get()) / 1024 / 1024) + " MB");
         }
         return getClonedDomainObject(id, getUserSubject(accessToken));
     }

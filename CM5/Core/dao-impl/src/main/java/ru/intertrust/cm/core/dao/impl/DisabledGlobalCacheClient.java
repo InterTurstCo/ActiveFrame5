@@ -137,4 +137,13 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     @Override
     public void setCollectionsDao(CollectionsDao collectionsDao) {
     }
+
+    @Override
+    public void setSizeLimitBytes(long bytes) {
+    }
+
+    @Override
+    public long getSizeLimitBytes() {
+        return 0;
+    }
 }

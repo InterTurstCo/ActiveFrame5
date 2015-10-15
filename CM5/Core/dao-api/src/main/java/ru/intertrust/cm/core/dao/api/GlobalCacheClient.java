@@ -72,4 +72,8 @@ public interface GlobalCacheClient {
     IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
 
     void setCollectionsDao(CollectionsDao collectionsDao);
+
+    void setSizeLimitBytes(long bytes);
+
+    long getSizeLimitBytes();
 }
