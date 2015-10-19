@@ -9,8 +9,8 @@
      ">
 
     <bean id="globalCacheClientFactory" class="ru.intertrust.cm.globalcacheclient.GlobalCacheClientFactoryImpl"/>
-    <bean id="perGroupGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerGroupGlobalCacheClient" init-method="init"/>
-    <bean id="perPersonGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerPersonGlobalCacheClient" init-method="init"/>
+    <bean id="perGroupGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerGroupGlobalCacheClient"/>
+    <bean id="perPersonGlobalCacheClient" class="ru.intertrust.cm.globalcacheclient.PerPersonGlobalCacheClient"/>
     <bean id="globalCacheSettings" class="ru.intertrust.cm.globalcacheclient.GlobalCacheSettings"/>
 
     <jee:local-slsb id="personAccessHelper" jndi-name="java:module/PersonAccessHelper!ru.intertrust.cm.globalcacheclient.PersonAccessHelper"

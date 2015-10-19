@@ -19,4 +19,6 @@ public abstract class LocalJvmCacheClient implements GlobalCacheClient {
     public void setDebugEnabled(boolean enabled) {
         this.debugEnabled = enabled;
     }
+
+    public abstract void init();
 }

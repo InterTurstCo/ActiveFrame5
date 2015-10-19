@@ -44,13 +44,14 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     protected GlobalCache globalCache;
     private ConcurrentHashMap<String, TransactionChanges> transactionChanges;
 
-    private void init() {
+    public void init() {
         GlobalCacheSettings settings = (GlobalCacheSettings) context.getBean("globalCacheSettings");
         if (settings.getMode().isBlocking()) {
             globalCache = (GlobalCache) context.getBean("blockingGlobalCache");
         } else {
             globalCache = (GlobalCache) context.getBean("globalCache");
         }
+        globalCache.init();
         transactionChanges = new ConcurrentHashMap<>();
         setSizeLimitBytes(settings.getSizeLimitBytes());
     }

@@ -30,19 +30,19 @@ public class GlobalCacheSettings {
         abstract boolean isBlocking();
     }
 
-    @Value("${global.cache.enabled}")
+    @Value("${global.cache.enabled:true}")
     private Boolean enabled;
 
-    @Value("${global.cache.mode}")
+    @Value("${global.cache.mode:blocking}")
     private String defaultMode;
 
-    @Value("${global.cache.debug.enabled}")
+    @Value("${global.cache.debug.enabled:false}")
     private Boolean debugEnabled;
 
-    @Value("${global.cache.max.size}")
+    @Value("${global.cache.max.size:#{null}}")
     private String sizeLimit;
 
-    private Long sizeLimitBytes = -1L;
+    private Long sizeLimitBytes = null;
 
     public boolean isEnabled() {
         return enabled == Boolean.TRUE;
@@ -57,11 +57,11 @@ public class GlobalCacheSettings {
     }
 
     public Long getSizeLimitBytes() {
-        if (sizeLimitBytes != -1L) {
+        if (sizeLimitBytes != null) {
             return sizeLimitBytes;
         }
         if (sizeLimit == null || sizeLimit.trim().isEmpty()) {
-            sizeLimitBytes = null;
+            sizeLimitBytes = DEFAULT_SIZE_LIMIT;
             return sizeLimitBytes;
         }
         final String limitStr = sizeLimit.trim();

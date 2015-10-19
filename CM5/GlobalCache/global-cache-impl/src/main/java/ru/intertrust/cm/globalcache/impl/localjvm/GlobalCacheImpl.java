@@ -54,7 +54,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private IdsByType idsByType;
     private CollectionsTree collectionsTree;
 
-    private void init() {
+    public void init() {
         logger.warn("========================= INITIALIZING GLOBAL CACHE =======================================");
         logger.warn("===========================================================================================");
         /*Thread.dumpStack();
