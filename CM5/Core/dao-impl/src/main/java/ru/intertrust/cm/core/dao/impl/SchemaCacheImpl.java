@@ -10,10 +10,12 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
+import java.util.List;
 import java.util.Map;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getUniqueKeyFields;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.SchemaCache}
@@ -161,19 +163,20 @@ public class SchemaCacheImpl implements SchemaCache {
     @Override
     public String getUniqueKeyName(DomainObjectTypeConfig config, UniqueKeyConfig keyConfig) {
         Map<String, UniqueKeyInfo> domainObjectTypeKeys = uniqueKeys.get(getSqlName(config.getName()));
-        if (domainObjectTypeKeys == null) {
+        if (domainObjectTypeKeys == null || keyConfig.getUniqueKeyFieldConfigs() == null) {
             return null;
         }
 
+        List<String> uniqueKeyFields = getUniqueKeyFields(config, keyConfig);
+
         for (UniqueKeyInfo uniqueKeyInfo : domainObjectTypeKeys.values()) {
-            if (uniqueKeyInfo.getColumnNames() == null || keyConfig.getUniqueKeyFieldConfigs() == null ||
-                    uniqueKeyInfo.getColumnNames().size() != keyConfig.getUniqueKeyFieldConfigs().size()) {
+            if (uniqueKeyInfo.getColumnNames() == null || uniqueKeyInfo.getColumnNames().size() != uniqueKeyFields.size()) {
                 continue;
             }
 
             boolean fieldsMatch = true;
-            for (UniqueKeyFieldConfig fieldConfig : keyConfig.getUniqueKeyFieldConfigs()) {
-                if (!uniqueKeyInfo.getColumnNames().contains(getSqlName(fieldConfig.getName()))) {
+            for (String fieldName : uniqueKeyFields) {
+                if (!uniqueKeyInfo.getColumnNames().contains(fieldName)) {
                     fieldsMatch = false;
                     break;
                 }

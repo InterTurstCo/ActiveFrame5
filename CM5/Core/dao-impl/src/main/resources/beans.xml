@@ -162,6 +162,10 @@
         <property name="collectionsDao" ref="collectionsDao"/>
     </bean>
 
+    <bean id="fieldConfigDbValidator" class="ru.intertrust.cm.core.dao.impl.FieldConfigDbValidatorImpl" />
+
+    <bean id="configurationDbValidator" class="ru.intertrust.cm.core.dao.impl.ConfigurationDbValidatorImpl" />
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>

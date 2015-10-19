@@ -1,14 +1,15 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.FieldConfigDbValidator;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 /**
  * Проверяет соответствие конфигурации поля типа ДО соотв. колонке в базе
  */
-public class FieldConfigDbValidator {
+public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
 
     @Autowired
     private SchemaCache schemaCache;
@@ -19,6 +20,7 @@ public class FieldConfigDbValidator {
     /**
      * Проверяет соответствие конфигурации поля типа ДО соотв. колонке в базе
      */
+    @Override
     public void validate(FieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, ColumnInfo columnInfo) {
         validateBasicAttributes(fieldConfig, domainObjectTypeConfig, columnInfo);
 

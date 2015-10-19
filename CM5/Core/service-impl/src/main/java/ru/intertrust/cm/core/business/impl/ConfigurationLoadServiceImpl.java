@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -90,20 +91,21 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         "configuration. This may mean that configuration structure has changed since last configuration load", e);
             }
 
-            if (configurationExplorer.getConfiguration().equals(oldConfiguration)) {
-                return;
-            }
+            boolean executeAutoMigration = !configurationExplorer.getConfiguration().equals(oldConfiguration);
 
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
-            boolean schemaUpdatedByAutoMigration =
-                    createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+            boolean schemaUpdatedByAutoMigration = false;
 
-            saveConfiguration();
+            if (executeAutoMigration) {
+                schemaUpdatedByAutoMigration =
+                        createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+                saveConfiguration();
+            }
 
-            schemaUpdatedByScriptMigration = schemaUpdatedByScriptMigration ||
-                    migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
+            schemaUpdatedByScriptMigration = migrationService.executeAfterAutoMigration(oldConfigurationExplorer) ||
+                    schemaUpdatedByScriptMigration;
 
             if (schemaUpdatedByScriptMigration) {
                 configurationDbValidator.validate();

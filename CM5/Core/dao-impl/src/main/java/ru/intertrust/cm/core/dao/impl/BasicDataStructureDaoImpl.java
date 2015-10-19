@@ -185,7 +185,16 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             }
         }
 
-        index = countUniqueKeys(config.getName());
+        createUniqueConstraints(config, uniqueKeyConfigList);
+    }
+
+    @Override
+    public void createUniqueConstraints(DomainObjectTypeConfig config, List<UniqueKeyConfig> uniqueKeyConfigList) {
+        if (config == null|| uniqueKeyConfigList == null) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+
+        int index = countUniqueKeys(config.getName());
         for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigList) {
             String query = getQueryHelper().generateCreateUniqueConstraintQuery(config, uniqueKeyConfig, index);
             if (query != null){

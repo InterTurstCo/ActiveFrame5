@@ -40,6 +40,8 @@ public class ConfigurationLoadServiceImplTest {
     @Mock
     private AuthenticationService authenticationService;
     @Mock
+    private MigrationService migrationService;
+    @Mock
     private ConfigurationSerializer configurationSerializer;
     @Mock
     private EJBContext ejbContext;

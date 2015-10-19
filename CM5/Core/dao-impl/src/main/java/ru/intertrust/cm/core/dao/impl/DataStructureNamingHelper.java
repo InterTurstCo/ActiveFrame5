@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -165,6 +161,32 @@ public class DataStructureNamingHelper {
 
     public static String getFilterParameterPrefix(String filterName) {
         return CollectionsDaoImpl.PARAM_NAME_PREFIX + filterName;
+    }
+
+    public static List<String> getUniqueKeyFields(DomainObjectTypeConfig config, UniqueKeyConfig uniqueKeyConfig) {
+        List<String> uniqueKeyFields = new ArrayList<>(uniqueKeyConfig.getUniqueKeyFieldConfigs().size());
+        for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
+            FieldConfig fieldConfig = getFieldConfig(uniqueKeyFieldConfig.getName(), config);
+            uniqueKeyFields.add(getSqlName(fieldConfig.getName()));
+
+            if (fieldConfig instanceof ReferenceFieldConfig) {
+                uniqueKeyFields.add(getReferenceTypeColumnName(fieldConfig.getName()));
+            } else if (fieldConfig instanceof DateTimeWithTimeZoneFieldConfig) {
+                uniqueKeyFields.add(getTimeZoneIdColumnName(fieldConfig.getName()));
+            }
+        }
+
+        return uniqueKeyFields;
+    }
+
+    private static FieldConfig getFieldConfig(String name, DomainObjectTypeConfig domainObjectTypeConfig) {
+        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
+            if (fieldConfig.getName().equalsIgnoreCase(name)) {
+                return fieldConfig;
+            }
+        }
+
+        return  null;
     }
 
     private static String convertToSqlFormat(String name) {

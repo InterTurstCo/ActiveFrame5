@@ -74,6 +74,14 @@ public interface DataStructureDao {
     void createSequence(DomainObjectTypeConfig config);
 
     /**
+     * Создает уникальные констрэйнты
+     * @param config конфигурация доменного объекта, таблицу которого необходимо обновить
+     * @param uniqueKeyConfigList список уникальных ключей для добавления
+     */
+    void createUniqueConstraints(DomainObjectTypeConfig config,
+                                 List<UniqueKeyConfig> uniqueKeyConfigList);
+
+    /**
      * Создает сервисные таблицы, которые не задаются конфигурацией доменных объектов
      */
     void createServiceTables();

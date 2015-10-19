@@ -1,9 +1,9 @@
-package ru.intertrust.cm.core.business.impl;
+package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 import java.util.Collection;
@@ -11,18 +11,19 @@ import java.util.Collection;
 /**
  * Проверяет соответсвие базы данных конфигурации
  */
-public class ConfigurationDbValidator {
+public class ConfigurationDbValidatorImpl implements ConfigurationDbValidator {
 
     @Autowired
     private ConfigurationExplorer configExplorer;
     @Autowired
     private SchemaCache schemaCache;
     @Autowired
-    private FieldConfigDbValidator fieldConfigDbValidator;
+    private FieldConfigDbValidatorImpl fieldConfigDbValidator;
 
     /**
      * Проверяет соответсвие базы данных конфигурации
      */
+    @Override
     public void validate() {
         Collection<DomainObjectTypeConfig> domainObjectTypeConfigs = configExplorer.getConfigs(DomainObjectTypeConfig.class);
         if (domainObjectTypeConfigs == null) {
