@@ -51,9 +51,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         } else {
             globalCache = (GlobalCache) context.getBean("globalCache");
         }
-        globalCache.init();
-        transactionChanges = new ConcurrentHashMap<>();
         setSizeLimitBytes(settings.getSizeLimitBytes());
+        transactionChanges = new ConcurrentHashMap<>();
+        globalCache.init();
     }
 
     public long getSizeLimitBytes() {

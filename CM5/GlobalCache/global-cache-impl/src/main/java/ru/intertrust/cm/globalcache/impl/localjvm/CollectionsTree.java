@@ -5,6 +5,7 @@ import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,6 +39,10 @@ public class CollectionsTree implements Sizeable {
 
     public CollectionBaseNode getBaseNode(CollectionTypesKey key) {
         return collections.get(key);
+    }
+
+    public Set<Map.Entry<CollectionTypesKey, CollectionBaseNode>> getEntries() {
+        return collections.entrySet();
     }
 
     public void removeBaseNode(CollectionTypesKey key) {

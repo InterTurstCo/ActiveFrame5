@@ -34,11 +34,19 @@ public class ModificationTime {
         return saveTime < time && objectModifiedTime < time;
     }
 
-    public synchronized boolean afterOrEqualLastSave(long time) {
+    public synchronized boolean lastSaveAfterOrEqual(long time) {
         return saveTime >= time || objectModifiedTime >= time;
     }
 
-    public synchronized boolean afterOrEqual(long time) {
-        return afterOrEqualLastSave(time) || rightsChangedTime >= time;
+    public synchronized boolean lastChangeAfterOrEqual(long time) {
+        return lastSaveAfterOrEqual(time) || rightsChangedTime >= time;
+    }
+
+    public long getSaveTime() {
+        return Math.max(saveTime, objectModifiedTime);
+    }
+
+    public long getModificationTime() {
+        return Math.max(saveTime, Math.max(objectModifiedTime, rightsChangedTime));
     }
 }

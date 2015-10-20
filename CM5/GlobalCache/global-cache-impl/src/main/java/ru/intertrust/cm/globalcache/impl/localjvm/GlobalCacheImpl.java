@@ -20,7 +20,7 @@ import ru.intertrust.cm.globalcache.api.util.Size;
 
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.*;
 
 /**
  * @author Denis Mitavskiy
@@ -43,6 +43,11 @@ public class GlobalCacheImpl implements GlobalCache {
     private volatile long sizeLimit = 10 * 1024 * 1024;
     private CacheEntriesAccessSorter accessSorter;
     private Cleaner cleaner;
+    private ScheduledExecutorService backgroundCleaner;
+    private int backgroundCleanerDelaySeconds = 30;
+    private long maxBackgroundCleanerRunTimeMillies = 100;
+    private float oldRecordsRemovalFreeSpaceThreshold = 0.02f; // background cleaner will start removing old records when cache size exceeds 98% (1-0.02)
+    private float spaceToFreeThreshold = 0.1f; // background cleaner will clean records until 10% of cache is free
 
     private Size size;
     private ObjectsTree objectsTree;
@@ -57,8 +62,7 @@ public class GlobalCacheImpl implements GlobalCache {
     public void init() {
         logger.warn("========================= INITIALIZING GLOBAL CACHE =======================================");
         logger.warn("===========================================================================================");
-        /*Thread.dumpStack();
-        logger.warn("===========================================================================================");*/
+
         size = new Size();
         objectsTree = new ObjectsTree(10000, 16, size);
         uniqueKeyMapping = new TypeUniqueKeyMapping(16, size);
@@ -72,7 +76,21 @@ public class GlobalCacheImpl implements GlobalCache {
         collectionsTree = new CollectionsTree(10000, 16, size);
 
         cleaner = new Cleaner();
+        backgroundCleaner = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r) {
+                    {setDaemon(true);}
+                };
+            }
+        });
 
+        backgroundCleaner.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                cleanInvalidEntriesAndFreeSpace();
+            }
+        }, backgroundCleanerDelaySeconds, backgroundCleanerDelaySeconds, TimeUnit.SECONDS);
     }
 
     @Override
@@ -139,7 +157,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         uniqueKeyIdMapping.setMapping(obj, key);
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     private void processNullUniqueKeyRetrieval(UniqueKey key, UniqueKeyIdMapping uniqueKeyIdMapping, UserSubject subject) {
@@ -157,7 +175,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 userObjectAccess.setAccess(subject, cachedId, false);
             }
         }
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     @Override
@@ -238,7 +256,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 node.setUserLinkedObjectsNode(key, linkedObjectsNode, userSubject);
             }
         }
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     @Override
@@ -260,7 +278,7 @@ public class GlobalCacheImpl implements GlobalCache {
             LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(linkedObjectsIds);
             node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         }
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
@@ -348,7 +366,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 // todo: update only if access already set!
                 userObjectAccess.setAccess(new UserSubject((int) ((RdbmsId) personAccess.getKey()).getId()), objectId, accessGranted);
                 if (++count % 100 == 0) {
-                    cleaner.clean();
+                    assureCacheSizeLimit();
                 }
                 if (!atLeastOnePersonAccessGranted && accessGranted == Boolean.TRUE) {
                     atLeastOnePersonAccessGranted = true;
@@ -544,6 +562,78 @@ public class GlobalCacheImpl implements GlobalCache {
         return getCollection(key, subKey);
     }
 
+    public float getFreeSpacePercentage() {
+        final long size = this.size.get();
+        final long limit = sizeLimit;
+        if (size >= limit) {
+            return 0.0f;
+        }
+        return 1.0f - size / (float) limit;
+    }
+
+    protected void assureCacheSizeLimit() {
+        cleaner.clean();
+    }
+
+    public void cleanInvalidEntriesAndFreeSpace() {
+        final long startTime = System.currentTimeMillis();
+        try {
+            freeSpace(startTime);
+            cleanInvalidEntries(startTime);
+        } catch (Throwable e) {
+            logger.error("Exception cleaning invalid entries", e);
+        }
+    }
+
+    protected void freeSpace(final long startTime) {
+        if (getFreeSpacePercentage() > oldRecordsRemovalFreeSpaceThreshold) {
+            return;
+        }
+        for (int i = 0; ; ++i) {
+            if (i % 10 == 0) {
+                if (System.currentTimeMillis() - startTime > maxBackgroundCleanerRunTimeMillies || getFreeSpacePercentage() > spaceToFreeThreshold) {
+                    return;
+                }
+            }
+            deleteEldestEntry();
+        }
+    }
+
+    protected void cleanInvalidEntries(final long startTime) {
+        int counter = 0;
+        final Set<Map.Entry<CollectionTypesKey, CollectionBaseNode>> entries = collectionsTree.getEntries();
+        for (Map.Entry<CollectionTypesKey, CollectionBaseNode> entry : entries) {
+            final CollectionBaseNode baseNode = entry.getValue();
+            final Set<String> collectionTypes = baseNode.getCollectionTypes();
+            if (collectionTypes == null) {
+                continue;
+            }
+            long minSystemValidTime = getMaxSavedTimeOfTypes(collectionTypes);
+            long minUserValidTime = getMaxModifiedTimeOfTypes(collectionTypes);
+            final Set<Map.Entry<CollectionSubKey, CollectionNode>> allCollectionNodes = baseNode.getAllCollectionNodes();
+            for (Map.Entry<CollectionSubKey, CollectionNode> node : allCollectionNodes) {
+                if (++counter % 100 == 0 && System.currentTimeMillis() - startTime > maxBackgroundCleanerRunTimeMillies) {
+                    return;
+                }
+                final CollectionSubKey subKey = node.getKey();
+                final CollectionNode collectionNode = node.getValue();
+                final long timeRetrieved = collectionNode.getTimeRetrieved();
+                final boolean invalid = subKey.subject == null ? timeRetrieved < minSystemValidTime : timeRetrieved < minUserValidTime;
+                if (invalid) {
+                    baseNode.removeCollectionNode(subKey);
+                }
+            }
+        }
+    }
+
+    /**
+     * Only this operation is dangerous during cache cleaning. It's moved to a separate method on purpose - in order to be able to
+     * synchronize this operation only, without locking the whole cache for the time of cleaning operation
+     */
+    protected void deleteEldestEntry() {
+        cleaner.deleteEldest();
+    }
+
     private boolean retrievedAfterLastCommitOfMatchingTypes(String type, boolean exactType, long retrieveTime) {
         if (typeSavedAfterOrSameTime(type, retrieveTime)) {
             return false;
@@ -647,7 +737,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 final Id parentObjectId = object.getReference(fieldName);
                 addLinkedObject(parentObjectId, object.getId(), objectType, fieldName, typeParents);
             }
-            cleaner.clean();
+            assureCacheSizeLimit();
         } else if (object == null) { // has been deleted
             for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
                 final String fieldName = referenceFieldConfig.getName();
@@ -668,7 +758,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 removeLinkedObject(previousParentObjectId, id, objectType, fieldName, typeParents);
                 addLinkedObject(parentObjectId, id, objectType, fieldName, typeParents);
             }
-            cleaner.clean();
+            assureCacheSizeLimit();
         }
     }
 
@@ -767,7 +857,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 if (action.rights() == CreateEntry.Rights.Set) {
                     setAccess(id, action.getObjectToFindAccessObjectBy(), subject, action.userRights);
                 }
-                cleaner.clean();
+                assureCacheSizeLimit();
                 return action;
             }
 
@@ -783,7 +873,7 @@ public class GlobalCacheImpl implements GlobalCache {
             } else if (rightsAction == UpdateEntry.Rights.Clear) {
                 clearAccess(id, action.getObjectToFindAccessObjectBy(), subject);
             }
-            cleaner.clean();
+            assureCacheSizeLimit();
             return action;
         }
     }
@@ -816,7 +906,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         uniqueKeyIdMapping.updateMappings(object, getUniqueKeys(object));
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     private List<UniqueKey> getUniqueKeys(DomainObject object) {
@@ -894,7 +984,7 @@ public class GlobalCacheImpl implements GlobalCache {
             baseNode.setCollectionNode(subKey, collectionNode);
         }
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
-        cleaner.clean();
+        assureCacheSizeLimit();
     }
 
     private IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
@@ -906,7 +996,6 @@ public class GlobalCacheImpl implements GlobalCache {
         if (collectionNode == null) {
             return null;
         }
-        final IdentifiableObjectCollection collection = collectionNode.getCollection();
         final long timeRetrieved = collectionNode.getTimeRetrieved();
         final Set<String> collectionTypes = baseNode.getCollectionTypes();
         if (collectionTypes != null) {
@@ -914,23 +1003,54 @@ public class GlobalCacheImpl implements GlobalCache {
                 // in case of user access, rights changes should be taken into account
                 final boolean invalidNode = subKey.subject == null ? typeSavedAfterOrSameTime(type, timeRetrieved) : typeChangedAfterOrSameTime(type, timeRetrieved);
                 if (invalidNode) {
-                    collectionsTree.removeBaseNode(key);
+                    baseNode.removeCollectionNode(subKey);
                     return null;
                 }
             }
         }
+        final IdentifiableObjectCollection collection = collectionNode.getCollection();
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         return ObjectCloner.getInstance().cloneObject(collection);
     }
 
     private boolean typeSavedAfterOrSameTime(String type, long time) {
         final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
-        return lastModificationTime != null && lastModificationTime.afterOrEqualLastSave(time);
+        return lastModificationTime != null && lastModificationTime.lastSaveAfterOrEqual(time);
     }
 
     private boolean typeChangedAfterOrSameTime(String type, long time) {
         final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
-        return lastModificationTime != null && lastModificationTime.afterOrEqual(time);
+        return lastModificationTime != null && lastModificationTime.lastChangeAfterOrEqual(time);
+    }
+
+    private long getMaxSavedTimeOfTypes(Set<String> types) {
+        long maxSaveTime = 0;
+        for (String type : types) {
+            final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
+            if (lastModificationTime == null) {
+                continue;
+            }
+            final long saveTime = lastModificationTime.getSaveTime();
+            if (saveTime > maxSaveTime) {
+                maxSaveTime = saveTime;
+            }
+        }
+        return maxSaveTime;
+    }
+
+    private long getMaxModifiedTimeOfTypes(Set<String> types) {
+        long maxChangedTime = 0;
+        for (String type : types) {
+            final ModificationTime lastModificationTime = doTypeLastChangeTime.getLastModificationTime(type);
+            if (lastModificationTime == null) {
+                continue;
+            }
+            final long changeTime = lastModificationTime.getModificationTime();
+            if (changeTime > maxChangedTime) {
+                maxChangedTime = changeTime;
+            }
+        }
+        return maxChangedTime;
     }
 
     private class Cleaner {
@@ -956,7 +1076,7 @@ public class GlobalCacheImpl implements GlobalCache {
             logger.warn("After " + CLEAN_ATTEMPTS + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB");
         }
 
-        private void deleteEldest() {
+        public void deleteEldest() {
             final Object eldest = accessSorter.getEldest();
             if (eldest == null) {
                 logger.warn("Access log is empty...");

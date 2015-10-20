@@ -121,4 +121,39 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     public synchronized List<DomainObject> getAllDomainObjects(String transactionId, String type, boolean exactType, AccessToken accessToken) {
         return super.getAllDomainObjects(transactionId, type, exactType, accessToken);
     }
+
+    @Override
+    public synchronized List<Id> getLinkedDomainObjectsIds(String transactionId, Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        return super.getLinkedDomainObjectsIds(transactionId, domainObjectId, linkedType, linkedField, exactType, accessToken);
+    }
+
+    @Override
+    public float getFreeSpacePercentage() { // not synchronized as completely safe
+        return super.getFreeSpacePercentage();
+    }
+
+    @Override
+    protected synchronized void assureCacheSizeLimit() {
+        super.assureCacheSizeLimit();
+    }
+
+    @Override
+    public void cleanInvalidEntriesAndFreeSpace() { // do NOT synchronize
+        super.cleanInvalidEntriesAndFreeSpace();
+    }
+
+    @Override
+    protected void freeSpace(long startTime) { // do NOT synchronize
+        super.freeSpace(startTime);
+    }
+
+    @Override
+    protected void cleanInvalidEntries(long startTime) { // do NOT synchronize
+        super.cleanInvalidEntries(startTime);
+    }
+
+    @Override
+    protected synchronized void deleteEldestEntry() {
+        super.deleteEldestEntry();
+    }
 }
