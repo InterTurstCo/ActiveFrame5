@@ -13,17 +13,17 @@ import java.util.*;
  */
 public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
-    public synchronized void notifyCreate(String transactionId, DomainObject obj, AccessToken accessToken) {
+    public void notifyCreate(String transactionId, DomainObject obj, AccessToken accessToken) { // NOT synchronized as empty
         super.notifyCreate(transactionId, obj, accessToken);
     }
 
     @Override
-    public synchronized void notifyUpdate(String transactionId, DomainObject obj, AccessToken accessToken) {
+    public void notifyUpdate(String transactionId, DomainObject obj, AccessToken accessToken) { // NOT synchronized as empty
         super.notifyUpdate(transactionId, obj, accessToken);
     }
 
     @Override
-    public synchronized void notifyDelete(String transactionId, Id id) {
+    public void notifyDelete(String transactionId, Id id) { // NOT synchronized as empty
         super.notifyDelete(transactionId, id);
     }
 
