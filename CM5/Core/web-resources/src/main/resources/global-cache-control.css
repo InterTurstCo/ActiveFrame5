@@ -1,0 +1,31 @@
+.topMenuButtonsWrapper {
+    box-sizing: border-box;
+    display: inline-block;
+    float: right;
+    padding: 10px 0 10px 5px;
+}
+
+.topMenuButtonsWrapper tbody tr td:first-of-type div {
+    border-left: none;
+}
+
+.topMenuButtonText {
+    display: inline-block;
+    padding: 0 5px;
+}
+
+.buttonSaveTemplate>.topMenuButton:hover>.topMenuButtonText {
+    text-decoration: underline !important;
+}
+
+.topMenuButton {
+    background: transparent;
+    padding: 5px 10px;
+    border: 1px solid;
+    cursor: pointer;
+    border-color: transparent transparent transparent #f1f1f1;
+    -webkit-transition: all 0.4s ease-out;
+    transition: all 0.4s ease-out;
+}
+
+

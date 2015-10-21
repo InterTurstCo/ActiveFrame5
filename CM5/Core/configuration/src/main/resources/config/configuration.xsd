@@ -1270,6 +1270,16 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:globalCacheControlPluginType" name="global-cache-control" substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="globalCacheControlPluginType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:attribute type="xs:boolean" name="statistics-only" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+
     <xs:complexType name="collectionRefType">
         <xs:simpleContent>
             <xs:extension base="xs:string">

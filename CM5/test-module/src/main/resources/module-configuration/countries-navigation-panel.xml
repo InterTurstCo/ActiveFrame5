@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
-    <navigation name="panel" level2-panel-width="220px"  level2-default-state="unpinned"  margin-size="default" text-auto-cut="false"
-                                                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+    <navigation name="panel" level2-panel-width="220px" level2-default-state="unpinned" margin-size="default"
+                text-auto-cut="false"
+                is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
                 <link name="Calendar1" display-text="Календарь1">
                     <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                        <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                             <calendar-view>
                                 <collection-ref name="letters"/>
                                 <date-field-path value="actual_start_period"/>
@@ -16,14 +17,17 @@
                                     <sort-criterion field="created_date" order="asc"/>
                                 </sort-criteria>
                                 <month-item type="link">
-                                    <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                                    <pattern
+                                            value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
                                 </month-item>
                                 <day-items>
                                     <day-item type="link">
-                                        <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                                        <pattern
+                                                value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
                                     </day-item>
                                     <day-item type="label">
-                                        <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                                        <pattern
+                                                value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
                                     </day-item>
                                 </day-items>
                                 <image-field name="letter_image">
@@ -115,47 +119,49 @@
             </child-links>
         </link>-->
         <!--<link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">-->
-            <!--<child-links>-->
-                <!--<link name="Calendar1" display-text="Календар 1">-->
-                    <!--<plugin>-->
-                        <!--<calendar  show-detail-panel="true" show-weekend="true" start-mode="month">-->
-                            <!--<calendar-view>-->
-                                <!--<collection-ref name="Countries"/>-->
-                                <!--<date-field-path value="independence_day"/>-->
-                                <!--<date-field-filter name="byIndependenceDay" type="datetime"/>-->
-                                <!--<sort-criteria>-->
-                                    <!--<sort-criterion field="population" order="asc"/>-->
-                                <!--</sort-criteria>-->
-                                <!--<month-item type="link">-->
-                                    <!--<pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>-->
-                                <!--</month-item>-->
-                                <!--<day-items>-->
-                                    <!--<day-item type="link">-->
-                                        <!--<pattern value="&lt;span style='color:red'&gt;{name}&lt;/span&gt; Население:{population}"/>-->
-                                    <!--</day-item>-->
-                                    <!--<day-item type="label">-->
-                                        <!--<pattern value="Столица: {capital.name}"/>-->
-                                    <!--</day-item>-->
-                                <!--</day-items>-->
-                                <!--<image-field name="population">-->
-                                    <!--<image-mappings imageWidth="30px" imageHeight="30px">-->
-                                        <!--<mapping value="" image="cancel.png"/>-->
-                                        <!--<mapping value="0" image="addButton.png"/>-->
-                                        <!--<mapping value="45469800" image="addButton.png"/>-->
-                                        <!--<mapping value="143548980" image="CMJSpinner.gif"/>-->
-                                    <!--</image-mappings>-->
-                                <!--</image-field>-->
-                            <!--</calendar-view>-->
-                        <!--</calendar>-->
-                    <!--</plugin>-->
-                <!--</link>-->
-            <!--</child-links>-->
+        <!--<child-links>-->
+        <!--<link name="Calendar1" display-text="Календар 1">-->
+        <!--<plugin>-->
+        <!--<calendar  show-detail-panel="true" show-weekend="true" start-mode="month">-->
+        <!--<calendar-view>-->
+        <!--<collection-ref name="Countries"/>-->
+        <!--<date-field-path value="independence_day"/>-->
+        <!--<date-field-filter name="byIndependenceDay" type="datetime"/>-->
+        <!--<sort-criteria>-->
+        <!--<sort-criterion field="population" order="asc"/>-->
+        <!--</sort-criteria>-->
+        <!--<month-item type="link">-->
+        <!--<pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>-->
+        <!--</month-item>-->
+        <!--<day-items>-->
+        <!--<day-item type="link">-->
+        <!--<pattern value="&lt;span style='color:red'&gt;{name}&lt;/span&gt; Население:{population}"/>-->
+        <!--</day-item>-->
+        <!--<day-item type="label">-->
+        <!--<pattern value="Столица: {capital.name}"/>-->
+        <!--</day-item>-->
+        <!--</day-items>-->
+        <!--<image-field name="population">-->
+        <!--<image-mappings imageWidth="30px" imageHeight="30px">-->
+        <!--<mapping value="" image="cancel.png"/>-->
+        <!--<mapping value="0" image="addButton.png"/>-->
+        <!--<mapping value="45469800" image="addButton.png"/>-->
+        <!--<mapping value="143548980" image="CMJSpinner.gif"/>-->
+        <!--</image-mappings>-->
+        <!--</image-field>-->
+        <!--</calendar-view>-->
+        <!--</calendar>-->
+        <!--</plugin>-->
+        <!--</link>-->
+        <!--</child-links>-->
         <!--</link>-->
 
         <!-- Пример на основе "Руководства разработчика"-->
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries" tooltip="Вкладка 'География'">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries"
+              tooltip="Вкладка 'География'">
             <child-links>
-                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран" counter-type="non-read"  auto-cut="true" >
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран"
+                      counter-type="non-read" auto-cut="true">
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
@@ -318,10 +324,10 @@
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="np1">
                             <collection-viewer>
-                                <collection-ref name="np1_collection" />
+                                <collection-ref name="np1_collection"/>
                             </collection-viewer>
                             <form-viewer>
-                                <form-mapping domain-object-type="np1" form="np1_form" />
+                                <form-mapping domain-object-type="np1" form="np1_form"/>
                             </form-viewer>
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
@@ -333,6 +339,8 @@
         <link name="Administration" display-text="Состав" image="images/cases.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
+
+
                 <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="true"
                       counter-type="non-read">
                     <plugin>
@@ -501,7 +509,8 @@
                                 <collection-ref name="allSchedule" use-default="false"/>
                                 <default-sort-criteria column-field="name" order="asc"/>
                                 <act:tool-bar useDefault="true">
-                                    <act:simple-action componentName="simple.action" action-handler="schedule-task-execute"
+                                    <act:simple-action componentName="simple.action"
+                                                       action-handler="schedule-task-execute"
                                                        text="Запустить сейчас" permissions="Write">
                                         <act:after-execution>
                                             <act:on-success-message text="Задача будет запущена в течение минуты"/>
@@ -597,7 +606,8 @@
             </child-links>
         </link>
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
-            <child-links group-name="Группа....................                  1" tooltip="Группа №1" auto-cut="false">
+            <child-links group-name="Группа....................                  1" tooltip="Группа №1"
+                         auto-cut="false">
                 <link name="TasksTest" display-text="Задачи">
 
                     <plugin>
@@ -681,7 +691,8 @@
 
             </child-links>
         </link>
-        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png" child-to-open="ModuleOrganizations">
+        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png"
+              child-to-open="ModuleOrganizations">
             <child-links>
                 <link name="ModuleOrganizations" display-text="Модуль и Организация">
                     <plugin>
@@ -1422,7 +1433,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="link_authentication"  display-text="Данные аутентификации">
+                <link name="link_authentication" display-text="Данные аутентификации">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Authentication_Info">
                             <collection-viewer>
@@ -1439,10 +1450,20 @@
                 </link>
             </child-links>
         </link>
+
+        <link name="Dashboard" display-text="Панель управления" image="images/settings.png" child-to-open="CacheControl">
+            <child-links>
+                <link name="CacheControl" display-text="Управление кэшем">
+                    <plugin>
+                        <global-cache-control statistics-only="false"/>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
     </navigation>
 
     <navigation name="panel_1" is-default="true">
-        <link name="Geography" display-text="География" image="images/analitika.png" >
+        <link name="Geography" display-text="География" image="images/analitika.png">
             <plugin>
                 <!--domain-object-type-to-create="country" - temp solution - remove later-->
                 <domain-object-surfer domain-object-type-to-create="country">
@@ -1467,9 +1488,9 @@
             </plugin>
 
         </link>
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" >
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png">
             <plugin>
-                <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                     <calendar-view>
                         <collection-ref name="letters"/>
                         <date-field-path value="actual_start_period"/>
@@ -1478,14 +1499,17 @@
                             <sort-criterion field="created_date" order="asc"/>
                         </sort-criteria>
                         <month-item type="link">
-                            <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                            <pattern
+                                    value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
                         </month-item>
                         <day-items>
                             <day-item type="link">
-                                <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                                <pattern
+                                        value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
                             </day-item>
                             <day-item type="label">
-                                <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                                <pattern
+                                        value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
                             </day-item>
                         </day-items>
                         <image-field name="letter_image">
@@ -1660,9 +1684,9 @@
 
         <navigation-panel-mapping name="panel_1">
 
-           <!-- <groups>
-                <group-name value="test-group-1" priority="10"/>
-            </groups>-->
+            <!-- <groups>
+                 <group-name value="test-group-1" priority="10"/>
+             </groups>-->
         </navigation-panel-mapping>
     </navigation-panel-mappings>
 

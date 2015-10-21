@@ -5,6 +5,7 @@ import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 
 /**
@@ -19,7 +20,9 @@ public class LinkPluginDefinition implements Dto {
             @Element(name = "custom", type = CustomPluginConfig.class),
             @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class),
             @Element(name = "calendar", type = CalendarConfig.class),
-            @Element(name = "report-plugin", type = ReportPluginConfig.class)})
+            @Element(name = "report-plugin", type = ReportPluginConfig.class),
+            @Element(name = "global-cache-control", type = GlobalCacheControlConfig.class)
+    })
     private PluginConfig pluginConfig;
 
     public PluginConfig getPluginConfig() {
