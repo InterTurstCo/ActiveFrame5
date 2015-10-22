@@ -13,6 +13,21 @@ import java.util.*;
  */
 public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
+    public synchronized void activate() {
+        super.activate();
+    }
+
+    @Override
+    public synchronized void deactivate() {
+        super.deactivate();
+    }
+
+    @Override
+    public synchronized void clear() {
+        super.clear();
+    }
+
+    @Override
     public void notifyCreate(String transactionId, DomainObject obj, AccessToken accessToken) { // NOT synchronized as empty
         super.notifyCreate(transactionId, obj, accessToken);
     }

@@ -59,10 +59,53 @@ public class GlobalCacheImpl implements GlobalCache {
     private IdsByType idsByType;
     private CollectionsTree collectionsTree;
 
-    public void init() {
+    public void activate() {
         logger.warn("========================= INITIALIZING GLOBAL CACHE =======================================");
         logger.warn("===========================================================================================");
 
+        init();
+
+        cleaner = new Cleaner();
+
+        backgroundCleaner = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r) {
+                    {setDaemon(true);}
+                };
+            }
+        });
+        backgroundCleaner.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                cleanInvalidEntriesAndFreeSpace();
+            }
+        }, backgroundCleanerDelaySeconds, backgroundCleanerDelaySeconds, TimeUnit.SECONDS);
+    }
+
+    @Override
+    public void deactivate() {
+        backgroundCleaner.shutdownNow();
+        size = null;
+        objectsTree = null;
+        uniqueKeyMapping = null;
+        userObjectAccess = null;
+        accessSorter = null;
+        objectAccessDelegation = null;
+        doTypeLastChangeTime = null;
+        domainObjectTypeFullRetrieval = null;
+        idsByType = null;
+        collectionsTree = null;
+        backgroundCleaner = null;
+        cleaner = null;
+    }
+
+    @Override
+    public void clear() {
+        init();
+    }
+
+    private void init() {
         size = new Size();
         objectsTree = new ObjectsTree(10000, 16, size);
         uniqueKeyMapping = new TypeUniqueKeyMapping(16, size);
@@ -74,23 +117,6 @@ public class GlobalCacheImpl implements GlobalCache {
         domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty, size);
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
-
-        cleaner = new Cleaner();
-        backgroundCleaner = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r) {
-                    {setDaemon(true);}
-                };
-            }
-        });
-
-        backgroundCleaner.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                cleanInvalidEntriesAndFreeSpace();
-            }
-        }, backgroundCleanerDelaySeconds, backgroundCleanerDelaySeconds, TimeUnit.SECONDS);
     }
 
     @Override
@@ -393,7 +419,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
         if (++__count % 1000 == 0) {
-            logger.warn("------------------------------------------------- Cache size: " + new DecimalFormat("###########################.00").format(((double) size.get()) / 1024 / 1024) + " MB");
+            logger.warn("------------------------------------------------- Cache size: " + new DecimalFormat("##########################0.00").format(((double) size.get()) / 1024 / 1024) + " MB");
         }
         return getClonedDomainObject(id, getUserSubject(accessToken));
     }

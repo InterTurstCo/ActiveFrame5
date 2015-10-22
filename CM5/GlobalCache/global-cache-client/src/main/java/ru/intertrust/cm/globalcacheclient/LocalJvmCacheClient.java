@@ -8,17 +8,4 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
  *         Time: 14:17
  */
 public abstract class LocalJvmCacheClient implements GlobalCacheClient {
-    private boolean debugEnabled = false;
-
-    @Override
-    public boolean debugEnabled() {
-        return debugEnabled;
-    }
-
-    @Override
-    public void setDebugEnabled(boolean enabled) {
-        this.debugEnabled = enabled;
-    }
-
-    public abstract void init();
 }

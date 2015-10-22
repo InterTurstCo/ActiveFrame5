@@ -11,7 +11,11 @@ import java.util.*;
  *         Time: 14:44
  */
 public interface GlobalCache {
-    void init();
+    void activate();
+
+    void deactivate();
+
+    void clear();
 
     void notifyCreate(String transactionId, DomainObject obj, AccessToken accessToken);
 

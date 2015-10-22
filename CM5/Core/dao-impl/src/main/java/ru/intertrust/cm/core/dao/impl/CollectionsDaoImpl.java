@@ -82,6 +82,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private GlobalCacheClient globalCacheClient;
+    
+    @Autowired
+    private GlobalCacheManager globalCacheManager;
 
     @Autowired
     private CollectionsCacheServiceImpl collectionsCacheService;
@@ -235,7 +238,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private IdentifiableObjectCollection validateCache(String collectionName, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
-        if (globalCacheClient.debugEnabled()) {
+        if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
                 logger.error("CACHE ERROR! Named collection: " + collectionName);
@@ -522,7 +525,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private IdentifiableObjectCollection validateCache(String query, int offset, int limit,
                                                        AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
-        if (globalCacheClient.debugEnabled()) {
+        if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
                 logger.error("CACHE ERROR! Query: " + query);
@@ -533,7 +536,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private IdentifiableObjectCollection validateCache(String query, List<? extends Value> params, int offset, int limit,
                                                        AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
-        if (globalCacheClient.debugEnabled()) {
+        if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, params, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
                 logger.error("CACHE ERROR! Query: " + query);

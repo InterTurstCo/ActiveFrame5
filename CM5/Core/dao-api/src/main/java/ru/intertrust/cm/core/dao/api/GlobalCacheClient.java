@@ -4,10 +4,8 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -15,9 +13,13 @@ import java.util.Map;
  *         Time: 15:10
  */
 public interface GlobalCacheClient {
-    boolean debugEnabled();
+    void activate();
 
-    void setDebugEnabled(boolean enabled);
+    void deactivate();
+
+    void applySettings(HashMap<String, Serializable> settings);
+
+    void clear();
 
     void notifyCreate(DomainObject obj, AccessToken accessToken);
 
@@ -72,8 +74,4 @@ public interface GlobalCacheClient {
     IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
 
     void setCollectionsDao(CollectionsDao collectionsDao);
-
-    void setSizeLimitBytes(long bytes);
-
-    long getSizeLimitBytes();
 }

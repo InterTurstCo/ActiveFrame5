@@ -22,11 +22,6 @@ public class GlobalCacheClientFactoryImpl implements GlobalCacheClientFactory {
         if (localJvmCacheClient != null) {
             return localJvmCacheClient;
         }
-        GlobalCacheSettings settings = (GlobalCacheSettings) context.getBean("globalCacheSettings");
-        if (!settings.isEnabled()) {
-            return null;
-        }
-
         DomainObjectCacheService transactionLevelCache = (DomainObjectCacheService) context.getBean("domainObjectCacheService");
         if (!transactionLevelCache.isCacheEnabled()) {
             return null;
@@ -35,8 +30,6 @@ public class GlobalCacheClientFactoryImpl implements GlobalCacheClientFactory {
         boolean perPerson = true;
         String beanName = perPerson ? "perPersonGlobalCacheClient" : "perGroupGlobalCacheClient";
         localJvmCacheClient = (LocalJvmCacheClient) context.getBean(beanName);
-        localJvmCacheClient.setDebugEnabled(settings.isDebugEnabled());
-        localJvmCacheClient.init();
         return localJvmCacheClient;
     }
 }

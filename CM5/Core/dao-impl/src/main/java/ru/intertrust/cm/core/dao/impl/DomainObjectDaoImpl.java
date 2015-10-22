@@ -67,6 +67,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private GlobalCacheClient globalCacheClient;
 
     @Autowired
+    private GlobalCacheManager globalCacheManager;
+
+    @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Autowired
@@ -1284,7 +1287,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void validateCachedById(Id id, AccessToken accessToken, DomainObject cached) {
-        if (cached == null || !globalCacheClient.debugEnabled()) {
+        if (cached == null || !globalCacheManager.isDebugEnabled()) {
             return;
         }
         final DomainObject dbResult = findInDbById(id, accessToken, false);
@@ -1294,7 +1297,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void validateCachedList(Collection<Id> ids, AccessToken accessToken, List<DomainObject> cached) {
-        if (!globalCacheClient.debugEnabled()) {
+        if (!globalCacheManager.isDebugEnabled()) {
             return;
         }
         int i = -1;
@@ -1312,7 +1315,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void validateCachedAllObjects(String type, boolean exactType, AccessToken accessToken, List<DomainObject> cached) {
-        if (cached == null || !globalCacheClient.debugEnabled()) {
+        if (cached == null || !globalCacheManager.isDebugEnabled()) {
             return;
         }
         final List<DomainObject> allDbObjects = findAllObjectsInDB(type, exactType, 0, 0, accessToken);
@@ -1324,7 +1327,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void validateCachedLinkedObjects(Id domainObjectId,
                                              String linkedType, String linkedField, boolean exactType, int offset, int limit,
                                              AccessToken accessToken, List<DomainObject> cached) {
-        if (cached == null || !globalCacheClient.debugEnabled()) {
+        if (cached == null || !globalCacheManager.isDebugEnabled()) {
             return;
         }
         List<DomainObject> linked = findLinkedDomainObjectsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken).getFirst();
@@ -1336,7 +1339,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private void validateCachedLinkedObjectsIds(Id domainObjectId,
                                                 String linkedType, String linkedField, boolean exactType, int offset, int limit,
                                                 AccessToken accessToken, List<Id> cached) {
-        if (cached == null || !globalCacheClient.debugEnabled()) {
+        if (cached == null || !globalCacheManager.isDebugEnabled()) {
             return;
         }
         List<Id> linked = findLinkedDomainObjectsIdsInDB(domainObjectId, linkedType, linkedField, exactType, offset, limit, accessToken).getFirst();
@@ -1346,7 +1349,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void validateCachedByUniqueKey(String domainObjectType, Map<String, Value> uniqueKeyValuesByName, AccessToken accessToken, boolean logAccess, DomainObject cached) {
-        if (cached == null || !globalCacheClient.debugEnabled()) {
+        if (cached == null || !globalCacheManager.isDebugEnabled()) {
             return;
         }
         final DomainObject dbResult = findByUniqueKeyInDB(domainObjectType, uniqueKeyValuesByName, accessToken, false, logAccess).getFirst();

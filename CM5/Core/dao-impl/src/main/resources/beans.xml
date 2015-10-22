@@ -156,8 +156,6 @@
 
     <bean id="delegatingGlobalCacheClientFactory" class="ru.intertrust.cm.core.dao.impl.DelegatingGlobalCacheClientFactory"/>
 
-    <bean id="globalCacheManager" class="ru.intertrust.cm.core.dao.impl.GlobalCacheManagerImpl"/>
-
     <bean id="globalCacheClient" factory-bean="delegatingGlobalCacheClientFactory" factory-method="getGlobalCacheClient">
         <property name="collectionsDao" ref="collectionsDao"/>
     </bean>

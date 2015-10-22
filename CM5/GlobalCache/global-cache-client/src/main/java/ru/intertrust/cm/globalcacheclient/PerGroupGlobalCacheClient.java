@@ -16,6 +16,7 @@ import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.TransactionChanges;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,6 +32,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     private ApplicationContext context;
 
     @Autowired
+    private volatile GlobalCacheSettings globalCacheSettings;
+
+    @Autowired
     protected UserTransactionService userTransactionService;
 
     @Autowired
@@ -41,27 +45,45 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     private CollectionsDao collectionsDao;
 
-    protected GlobalCache globalCache;
+    protected volatile GlobalCache globalCache;
     private ConcurrentHashMap<String, TransactionChanges> transactionChanges;
 
-    public void init() {
-        GlobalCacheSettings settings = (GlobalCacheSettings) context.getBean("globalCacheSettings");
-        if (settings.getMode().isBlocking()) {
+    public void activate() {
+        GlobalCache globalCache;
+        if (globalCacheSettings.getMode().isBlocking()) {
             globalCache = (GlobalCache) context.getBean("blockingGlobalCache");
         } else {
             globalCache = (GlobalCache) context.getBean("globalCache");
         }
-        setSizeLimitBytes(settings.getSizeLimitBytes());
-        transactionChanges = new ConcurrentHashMap<>();
-        globalCache.init();
+        globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+        globalCache.activate();
+
+        this.globalCache = globalCache;
+        this.transactionChanges = new ConcurrentHashMap<>();
     }
 
-    public long getSizeLimitBytes() {
-        return globalCache.getSizeLimitBytes();
+    public void deactivate() {
+        this.globalCache.deactivate();
     }
 
-    public void setSizeLimitBytes(long sizeLimit) {
-        globalCache.setSizeLimitBytes(sizeLimit);
+    public void applySettings(HashMap<String, Serializable> newSettings) {
+        final String newModeStr = (String) newSettings.get("global.cache.mode");
+        final Long maxSizeStr = (Long) newSettings.get("global.cache.max.size");
+        final GlobalCacheSettings.Mode prevMode = globalCacheSettings.getMode();
+        final GlobalCacheSettings.Mode newMode = GlobalCacheSettings.Mode.getMode(newModeStr);
+        globalCacheSettings.setSizeLimitBytes(maxSizeStr);
+        if (prevMode != newMode) {
+            globalCacheSettings.setMode(newMode);
+            final GlobalCache prevCache = this.globalCache;
+            activate();
+            prevCache.deactivate();
+        } else {
+            this.globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
+        }
+    }
+
+    public void clear() {
+        globalCache.clear();
     }
 
     @Override

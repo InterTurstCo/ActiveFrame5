@@ -3,57 +3,66 @@ package ru.intertrust.cm.globalcacheclient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
  * @author Denis Mitavskiy
  *         Date: 21.08.2015
  *         Time: 18:15
  */
-public class GlobalCacheSettings {
+public class GlobalCacheSettings implements Dto {
     private static final Logger logger = LoggerFactory.getLogger(GlobalCacheSettings.class);
     public static final long DEFAULT_SIZE_LIMIT = 10L * 1024 * 1024;
 
     public enum Mode {
         NonBlocking {
             @Override
-            boolean isBlocking() {
+            public boolean isBlocking() {
                 return false;
+            }
+
+            @Override
+            public String toString() {
+                return "non-blocking";
             }
         },
         Blocking {
             @Override
-            boolean isBlocking() {
+            public boolean isBlocking() {
                 return true;
+            }
+
+            @Override
+            public String toString() {
+                return "blocking";
             }
         };
 
-        abstract boolean isBlocking();
-    }
+        public abstract boolean isBlocking();
 
-    @Value("${global.cache.enabled:true}")
-    private Boolean enabled;
+        public static Mode getMode(String mode) {
+            return mode != null && mode.equalsIgnoreCase("non-blocking") ? Mode.NonBlocking : Mode.Blocking;
+        }
+    }
 
     @Value("${global.cache.mode:blocking}")
-    private String defaultMode;
-
-    @Value("${global.cache.debug.enabled:false}")
-    private Boolean debugEnabled;
+    private volatile String mode;
 
     @Value("${global.cache.max.size:#{null}}")
-    private String sizeLimit;
+    private volatile String sizeLimit;
 
-    private Long sizeLimitBytes = null;
-
-    public boolean isEnabled() {
-        return enabled == Boolean.TRUE;
-    }
-
-    public boolean isDebugEnabled() {
-        return debugEnabled == Boolean.TRUE;
-    }
+    private volatile Long sizeLimitBytes = null;
 
     public Mode getMode() {
-        return defaultMode != null && defaultMode.equalsIgnoreCase("non-blocking") ? Mode.NonBlocking : Mode.Blocking;
+        return mode != null && mode.equalsIgnoreCase(Mode.NonBlocking.toString()) ? Mode.NonBlocking : Mode.Blocking;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode.toString();
+    }
+
+    public void setSizeLimitBytes(long bytes) {
+        sizeLimitBytes = bytes;
     }
 
     public Long getSizeLimitBytes() {
