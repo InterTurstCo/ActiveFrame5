@@ -2105,6 +2105,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         ArrayList<Map<String, Object>> parameters = new ArrayList<>(updatedObjects.length);
 
+        int doTypeId = domainObjectTypeIdCache.getId(domainObjectTypeConfig.getName());
+        List ids = parentDOs == null ? idGenerator.generateIds(doTypeId, updatedObjects.length) : null;
+
         for (int i = 0; i < updatedObjects.length; i++) {
 
             GenericDomainObject domainObject = updatedObjects[i];
@@ -2114,7 +2117,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             if (parentDOs != null) {
                 id = ((RdbmsId) parentDOs[i].getId()).getId();
             } else {
-                id = idGenerator.generateId(domainObjectTypeIdCache.getId(domainObjectTypeConfig.getName()));
+                id = ids.get(i);
             }
 
             RdbmsId doId = new RdbmsId(type, (Long) id);
