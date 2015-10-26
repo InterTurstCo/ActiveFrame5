@@ -28,6 +28,8 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskDefaultParameters;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
+import ru.intertrust.cm.core.business.api.schedule.SheduleTaskReestrItem;
 import ru.intertrust.cm.core.business.api.schedule.SheduleType;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
@@ -76,6 +78,10 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     //Флаг готовности сервиса к работе
     private boolean isLoaded = false;
 
+    //Флаг активности сервиса. Прикладное приложение должно само активизировать сервис после старта 
+    private boolean isEnable = false;
+
+    
     /**
      * Установка spring контекста
      */
@@ -274,6 +280,16 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     @Override
     public boolean isLoaded() {
         return isLoaded;
+    }
+
+    @Override
+    public boolean isEnable() {
+        return isEnable;
+    }
+
+    @Override
+    public void setEnable(boolean isEnable) {
+        this.isEnable = isEnable;
     }
 
 }

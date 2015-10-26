@@ -1,7 +1,8 @@
-package ru.intertrust.cm.core.business.shedule;
+package ru.intertrust.cm.core.business.api.schedule;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
+
 
 import java.util.List;
 
@@ -31,4 +32,15 @@ public interface ScheduleTaskLoader {
 
     ScheduleTaskHandle getSheduleTaskHandle(String className);
 
+    /**
+     * Получает статус сервиса
+     * @return
+     */
+    boolean isEnable();
+
+    /**
+     * Устанавливает статус сервиса
+     * @param isEnable
+     */
+    void setEnable(boolean isEnable);
 }

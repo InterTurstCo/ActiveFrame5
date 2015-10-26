@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.business.shedule;
+package ru.intertrust.cm.core.business.api.schedule;
 
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;

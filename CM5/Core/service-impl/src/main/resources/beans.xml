@@ -42,8 +42,8 @@
                     business-interface="ru.intertrust.cm.core.business.load.ImportReportsData"/>
 
     <jee:local-slsb id="sheduleTaskLoader"
-                    jndi-name="java:module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader"
-                    business-interface="ru.intertrust.cm.core.business.shedule.ScheduleTaskLoader"/>
+                    jndi-name="java:module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader"
+                    business-interface="ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader"/>
 
     <jee:local-slsb id="globallyLockableInitializer"
                     jndi-name="java:module/GloballyLockableInitializerImpl!ru.intertrust.cm.core.business.impl.GloballyLockableInitializer"

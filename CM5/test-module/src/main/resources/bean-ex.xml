@@ -30,4 +30,6 @@
           
     <bean id="test-bean" class="ru.intertrust.testmodule.spring.TestSpringBeanInSecondContext" />
 
+    <bean id="scheduleServiceActivator" class="ru.intertrust.cm.core.business.api.schedule.ScheduleServiceActivator" />
+
 </beans>
