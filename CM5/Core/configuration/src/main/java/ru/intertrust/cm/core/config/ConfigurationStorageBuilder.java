@@ -760,9 +760,19 @@ public class ConfigurationStorageBuilder {
                 List<String> childTypes = getChildTypes(domainObjectType);
                 for (String childType : childTypes) {
                     AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
-                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null) {
-                        result = childMatrixConfig.isReadEverybody();
-                        break;
+                    if (childMatrixConfig != null) {
+                        if (childMatrixConfig.isReadEverybody() != null) {
+                            result = childMatrixConfig.isReadEverybody();
+                            break;
+                        } else if (childMatrixConfig.getMatrixReference() != null) {
+                            DomainObjectTypeConfig childDomainObjectTypeConfig =
+                                    configurationExplorer.getDomainObjectTypeConfig(childType);
+                            String referencedTypeName =
+                                    getParentTypeNameFromMatrixReference(childMatrixConfig.getMatrixReference(),
+                                            childDomainObjectTypeConfig);
+                            result = isReadEverybodyForType(referencedTypeName);
+                            break;
+                        }
                     }
                 }
             }
