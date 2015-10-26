@@ -1,7 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+
 import java.io.IOException;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -36,6 +45,8 @@ public class AuthenticationFilter implements Filter {
     
     private ExtensionService extensionService;
 
+
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ApplicationContext ctx = WebApplicationContextUtils
@@ -49,6 +60,8 @@ public class AuthenticationFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpSession session = request.getSession();
         String requestURI = request.getRequestURI();
+
+
         if (isLoginPageRequest(requestURI)) { // происходит авторизация. разрешить этот запрос
             filterChain.doFilter(servletRequest, servletResponse);
             return;

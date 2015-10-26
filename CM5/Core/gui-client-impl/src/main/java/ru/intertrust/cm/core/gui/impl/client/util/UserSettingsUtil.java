@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
-import com.google.gwt.user.client.History;
+import ru.intertrust.cm.core.gui.api.client.History;
 import com.google.gwt.user.client.Timer;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -31,6 +31,7 @@ public class UserSettingsUtil {
             public void run() {
                 InitialNavigationLinkActionContext context = new InitialNavigationLinkActionContext(UserSettingsUtil.createActionConfig());
                 context.setInitialNavigationLink(History.getToken());
+                context.setApplication(History.getApplication());
                 InitialNavigationLinkAction action = ComponentRegistry.instance.get(InitialNavigationLinkActionContext.COMPONENT_NAME);
                 action.setInitialContext(context);
                 action.perform();

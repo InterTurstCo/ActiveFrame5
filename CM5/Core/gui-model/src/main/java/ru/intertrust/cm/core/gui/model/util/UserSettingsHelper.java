@@ -20,6 +20,7 @@ public class UserSettingsHelper {
     public static final String DO_SPLITTER_ORIENTATION_FIELD_KEY = "splitter_orientation";
     public static final String DO_SPLITTER_POSITION_FIELD_KEY = "splitter_position";
     public static final String DO_INITIAL_NAVIGATION_LINK_KEY = "nav_link";
+    public static final String DO_INITIAL_APPLICATION_NAME = "application";
     public static final String DO_NAVIGATION_PANEL_SECOND_LEVEL_PINNED_KEY = "nav_panel_level2_pinned";
     /* calendar */
     public static final String CALENDAR_SELECTED_DATE = "selectedDate";

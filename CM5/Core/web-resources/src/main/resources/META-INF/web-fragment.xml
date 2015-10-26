@@ -14,6 +14,8 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
+
+
     <servlet-mapping>
         <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
@@ -24,7 +26,7 @@
         <url-pattern>/image-preview</url-pattern>
     </servlet-mapping>
 
-    <security-constraint>
+   <security-constraint>
         <display-name>Constraint</display-name>
         <auth-constraint>
             <description>

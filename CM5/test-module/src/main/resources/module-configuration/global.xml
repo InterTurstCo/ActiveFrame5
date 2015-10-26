@@ -45,6 +45,7 @@
         </crypto-settings>
        <collection-query-cache max-size="1000" />
     </global-settings>
+
     <business-universe>
         <extended-search-popup>
             <dialog-window height="600px" width="650px" resizable="true"/>
@@ -58,6 +59,7 @@
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>
+        <!--base-url value="/baseurl"/-->
         <settings-popup>
             <themes>
                 <theme display-name="Основная тема" component-name="default-theme" default-theme="true"
