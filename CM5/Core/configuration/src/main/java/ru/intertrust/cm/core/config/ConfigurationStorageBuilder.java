@@ -419,7 +419,7 @@ public class ConfigurationStorageBuilder {
         }
         fillAuditLogConfigMap(newConfig);
     }
-    
+
     /**
      * Получение всех дочерних типов с учетом иерархии наследования
      * @param typeName
@@ -509,7 +509,7 @@ public class ConfigurationStorageBuilder {
      * @return
      */
     private String getParentTypeNameFromMatrixReference(String matrixReferenceFieldName,
-            DomainObjectTypeConfig domainObjectTypeConfig) {
+                                                        DomainObjectTypeConfig domainObjectTypeConfig) {
 
         String result = null;
         if (matrixReferenceFieldName.indexOf(".") > 0) {
@@ -573,7 +573,7 @@ public class ConfigurationStorageBuilder {
     }
 
     private void initConfigurationMapOfChildDomainObjectTypes(String typeName, ArrayList<DomainObjectTypeConfig> directChildTypes,
-            ArrayList<DomainObjectTypeConfig> indirectChildTypes, boolean fillDirect) {
+                                                              ArrayList<DomainObjectTypeConfig> indirectChildTypes, boolean fillDirect) {
         Collection<DomainObjectTypeConfig> allTypes = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig type : allTypes) {
             if (typeName.equals(type.getExtendsAttribute())) {
@@ -603,8 +603,8 @@ public class ConfigurationStorageBuilder {
     }
 
     private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
-        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);                
-        
+        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
+
         for (FieldConfig fieldConfig : allFieldsConfig) {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
@@ -628,11 +628,11 @@ public class ConfigurationStorageBuilder {
 
     private DomainObjectTypeConfig createAuditLogConfig(DomainObjectTypeConfig domainObjectTypeConfig) {
         DomainObjectTypeConfig auditLogDomainObjectConfig = new DomainObjectTypeConfig();
-        
+
         auditLogDomainObjectConfig.setTemplate(false);
         String auditLogTableName = getALTableName(domainObjectTypeConfig.getName());
         auditLogDomainObjectConfig.setName(auditLogTableName);
-        
+
         if (domainObjectTypeConfig.getExtendsAttribute() == null) {
             FieldConfig operationField = new LongFieldConfig();
             operationField.setName(Configuration.OPERATION_COLUMN);
@@ -660,21 +660,21 @@ public class ConfigurationStorageBuilder {
         }else{
             auditLogDomainObjectConfig.setExtendsAttribute(getALTableName(domainObjectTypeConfig.getExtendsAttribute()));
         }
-        
+
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
             final FieldConfig clonedConfig = ObjectCloner.getInstance().cloneObject(fieldConfig, fieldConfig.getClass());
             clonedConfig.setNotNull(false);
             auditLogDomainObjectConfig.getFieldConfigs().add(clonedConfig);
 
         }
-        
+
         return auditLogDomainObjectConfig;
     }
 
     public static String getALTableName(String name) {
         return name + Configuration.AUDIT_LOG_SUFFIX;
     }
-    
+
     private void fillConfigurationMapsOfAttachmentDomainObjectType(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (domainObjectTypeConfig == null || domainObjectTypeConfig.getAttachmentTypesConfig() == null) {
             return;
@@ -682,7 +682,7 @@ public class ConfigurationStorageBuilder {
         try {
             AttachmentPrototypeHelper attachmentPrototypeHelper = new AttachmentPrototypeHelper();
             for (AttachmentTypeConfig attachmentTypeConfig :
-                    domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {  
+                    domainObjectTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                 DomainObjectTypeConfig attachmentDomainObjectTypeConfig =
                         attachmentPrototypeHelper.makeAttachmentConfig(attachmentTypeConfig.getTemplate(), attachmentTypeConfig.getName(),
                                 domainObjectTypeConfig.getName());
@@ -719,7 +719,7 @@ public class ConfigurationStorageBuilder {
         for (DomainObjectTypeConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             String domainObjectType = config.getName();
             Boolean readEverybody = isReadEverybodyForType(domainObjectType);
-            
+
             if (readEverybody == null) {
                 readEverybody = false;
             }
@@ -760,19 +760,9 @@ public class ConfigurationStorageBuilder {
                 List<String> childTypes = getChildTypes(domainObjectType);
                 for (String childType : childTypes) {
                     AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
-                    if (childMatrixConfig != null) {
-                        if (childMatrixConfig.isReadEverybody() != null) {
-                            result = childMatrixConfig.isReadEverybody();
-                            break;
-                        } else if (childMatrixConfig.getMatrixReference() != null) {
-                            DomainObjectTypeConfig childDomainObjectTypeConfig =
-                                    configurationExplorer.getDomainObjectTypeConfig(childType);
-                            String referencedTypeName =
-                                    getParentTypeNameFromMatrixReference(childMatrixConfig.getMatrixReference(),
-                                            childDomainObjectTypeConfig);
-                            result = isReadEverybodyForType(referencedTypeName);
-                            break;
-                        }
+                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null) {
+                        result = childMatrixConfig.isReadEverybody();
+                        break;
                     }
                 }
             }
