@@ -7,7 +7,10 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -40,8 +43,13 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void applySettings(HashMap<String, Serializable> settings) {
+    public void applySettings(Map<String, Serializable> settings) {
         impl.applySettings(settings);
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return impl.getSettings();
     }
 
     @Override

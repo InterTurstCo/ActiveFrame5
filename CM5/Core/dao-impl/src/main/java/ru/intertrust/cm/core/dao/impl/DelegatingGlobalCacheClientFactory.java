@@ -11,7 +11,7 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheClientFactory;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -71,8 +71,14 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
         return impl;
     }
 
-    public void applySettings(HashMap<String, Serializable> cacheSettings) {
+    @Override
+    public void applySettings(Map<String, Serializable> cacheSettings) {
         switchableClient.applySettings(cacheSettings);
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return switchableClient.getSettings();
     }
 
     @Override

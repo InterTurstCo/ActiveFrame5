@@ -75,12 +75,12 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         this.globalCache.deactivate();
     }
 
-    public void applySettings(HashMap<String, Serializable> newSettings) {
+    public void applySettings(Map<String, Serializable> newSettings) {
         final String newModeStr = (String) newSettings.get("global.cache.mode");
-        final Long maxSizeStr = (Long) newSettings.get("global.cache.max.size");
+        final Long maxSize = (Long) newSettings.get("global.cache.max.size");
         final GlobalCacheSettings.Mode prevMode = globalCacheSettings.getMode();
         final GlobalCacheSettings.Mode newMode = GlobalCacheSettings.Mode.getMode(newModeStr);
-        globalCacheSettings.setSizeLimitBytes(maxSizeStr);
+        globalCacheSettings.setSizeLimitBytes(maxSize);
         if (prevMode != newMode) {
             globalCacheSettings.setMode(newMode);
             final GlobalCache prevCache = this.globalCache;
@@ -89,6 +89,14 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         } else {
             this.globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
         }
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        final HashMap<String, Serializable> settings = new HashMap<>();
+        settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
+        settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
+        return settings;
     }
 
     public void clear() {
