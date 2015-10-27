@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
+import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
+
 import java.io.Serializable;
 import java.util.Map;
 
@@ -68,4 +70,16 @@ public interface GlobalCacheManager {
      * @return true, если глобальный кэш доступен, и его можно включить (или выключить)
      */
     boolean isCacheAvailable();
+
+    /**
+     * Возвращает статистику использования глобального кэша
+     * @return статистику использования глобального кэша
+     */
+    GlobalCacheStatistics getStatistics();
+
+    /**
+     * Очищает статистику использования глобального кэша
+     * @param hourlyOnly если true, очищает только почасовую статистику, в противном случае - всю
+     */
+    void clearStatistics(boolean hourlyOnly);
 }

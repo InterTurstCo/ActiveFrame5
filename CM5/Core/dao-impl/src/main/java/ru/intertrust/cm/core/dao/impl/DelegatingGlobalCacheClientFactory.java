@@ -56,6 +56,16 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
         return ((GlobalCacheClientFactory) context.getBean("globalCacheClientFactory")).isCacheAvailable();
     }
 
+    @Override
+    public GlobalCacheStatistics getStatistics() {
+        return switchableClient.getStatistics();
+    }
+
+    @Override
+    public void clearStatistics(boolean hourlyOnly) {
+        switchableClient.clearStatistics(hourlyOnly);
+    }
+
     protected GlobalCacheClient getImpl() {
         GlobalCacheClient impl;
         if (!isEnabled() || !context.containsBean("globalCacheClientFactory")) {

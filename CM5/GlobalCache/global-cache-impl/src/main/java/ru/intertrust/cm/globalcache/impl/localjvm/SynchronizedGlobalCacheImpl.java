@@ -135,6 +135,11 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
+    public void clearCacheCleanStatistics() { // NOT sync
+        super.clearCacheCleanStatistics();
+    }
+
+    @Override
     public synchronized void notifyReadAll(String transactionId, String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
         super.notifyReadAll(transactionId, type, exactType, objects, accessToken);
     }

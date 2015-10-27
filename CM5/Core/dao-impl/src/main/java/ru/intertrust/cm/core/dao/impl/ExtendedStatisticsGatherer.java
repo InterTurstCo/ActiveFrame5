@@ -350,7 +350,10 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
 
     @Override
     public void clearStatistics(boolean hourlyOnly) {
-        // todo
+        for (MethodStatistics methodStatistics : allMethodsStatistics) {
+            methodStatistics.reset(hourlyOnly);
+        }
+        delegate.clearStatistics(hourlyOnly);
     }
 
     @Override

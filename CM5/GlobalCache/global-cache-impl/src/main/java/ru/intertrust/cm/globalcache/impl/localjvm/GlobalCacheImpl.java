@@ -140,6 +140,12 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
+    public void clearCacheCleanStatistics() {
+        cacheCleanTimeCounter = new LongCounter();
+        cacheCleanFreedSpaceCounter = new DecimalCounter();
+    }
+
+    @Override
     public void notifyCreate(String transactionId, DomainObject obj, AccessToken accessToken) {
     }
 

@@ -341,6 +341,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (!hourlyOnly) {
             totalReads = 0;
             totalHits = 0;
+            globalCache.clearCacheCleanStatistics();
         }
     }
 
