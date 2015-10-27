@@ -63,5 +63,9 @@ public interface GlobalCacheManager {
      */
     boolean isExtendedStatisticsEnabled();
 
+    /**
+     * Возвращает true, если глобальный кэш доступен, и его можно включить (или выключить)
+     * @return true, если глобальный кэш доступен, и его можно включить (или выключить)
+     */
     boolean isCacheAvailable();
 }
