@@ -22,6 +22,13 @@ public class GlobalCacheControlUtils {
     public static final String BTN_IMG_CLEAR = "images/global-cache-control/iconClear.png";
     public static final String LBL_PANEL_STAT = "Статистика";
     public static final String LBL_PANEL_CONTROL = "Управление";
+    public static final String LBL_CONTROL_PANEL_CACHE_ACTIVE = "Включить кэш: ";
+    public static final String LBL_CONTROL_PANEL_EXPANDED_STAT = "Расширенная статистика: ";
+    public static final String LBL_CONTROL_PANEL_DEBUG_MODE = "Режим дебага: ";
+    public static final String LBL_CONTROL_PANEL_MODE = "Режим работы: ";
+    public static final String LBL_CONTROL_PANEL_MAX_SIZE = "Максимальный размер: ";
+
+
 
     /**
      * Создать кнопку с задаными названием и стилем

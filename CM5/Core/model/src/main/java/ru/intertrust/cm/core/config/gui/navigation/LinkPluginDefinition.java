@@ -5,7 +5,7 @@ import org.simpleframework.xml.ElementUnion;
 import org.simpleframework.xml.Root;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.config.gui.GlobalCacheControlConfig;
+import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 
 /**

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.globalcache;
 
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlPanel;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 
@@ -14,6 +15,7 @@ public class GlobalCacheControlView extends PluginView {
 
 
     private Boolean statisticsOnly;
+    private GlobalCacheControlPanel controlPanelModel;
 
     /**
      * Основной конструктор
@@ -23,6 +25,7 @@ public class GlobalCacheControlView extends PluginView {
     protected GlobalCacheControlView(Plugin plugin, Boolean statisticsOnly) {
         super(plugin);
         this.statisticsOnly = statisticsOnly;
+        this.controlPanelModel = new GlobalCacheControlPanel();
     }
 
     @Override
@@ -52,8 +55,48 @@ public class GlobalCacheControlView extends PluginView {
     private Widget buildStatisticsPanel(){
         return new Label("Панель статистики");
     }
+
     private Widget buildControlPanel(){
-        return new Label("Панель управления");
+        Grid controlGrid = new Grid(3,4);
+
+        controlGrid.setWidget(0,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_CACHE_ACTIVE));
+        controlGrid.setWidget(1,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_EXPANDED_STAT));
+        controlGrid.setWidget(2,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_DEBUG_MODE));
+
+        // чекбокс Включить кэш
+        CheckBox cacheActiveCB = new CheckBox();
+        cacheActiveCB.setValue(controlPanelModel.isCacheActive());
+        controlGrid.setWidget(0,1,cacheActiveCB);
+        // чекбокс Расширенная статистика
+        CheckBox expandedStatisticsCB = new CheckBox();
+        expandedStatisticsCB.setValue(controlPanelModel.isExpandedStatistics());
+        controlGrid.setWidget(1,1,expandedStatisticsCB);
+
+        // чекбокс Режим отладки
+        CheckBox debugModeCB = new CheckBox();
+        debugModeCB.setValue(controlPanelModel.isDebugMode());
+        controlGrid.setWidget(2,1,debugModeCB);
+
+        controlGrid.setWidget(0,2,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MODE));
+        controlGrid.setWidget(1,2,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MAX_SIZE));
+
+        ListBox modeListBox = new ListBox();
+        for(String key :controlPanelModel.getModes().keySet()){
+            modeListBox.addItem(controlPanelModel.getModes().get(key),key);
+        }
+        controlGrid.setWidget(0,3,modeListBox);
+
+        Panel maxSizePanel = new HorizontalPanel();
+        IntegerBox maxSizeTB = new IntegerBox();
+        maxSizeTB.setValue(controlPanelModel.getMaxSize().intValue());
+        maxSizePanel.add(maxSizeTB);
+        ListBox uomListBox = new ListBox();
+        for(String key :controlPanelModel.getUoms().keySet()){
+            uomListBox.addItem(controlPanelModel.getUoms().get(key),key);
+        }
+        maxSizePanel.add(uomListBox);
+        controlGrid.setWidget(1,3,maxSizePanel);
+        return controlGrid;
     }
 
 

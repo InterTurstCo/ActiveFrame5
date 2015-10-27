@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui;
+package ru.intertrust.cm.core.config.gui.globalcachecontrol;
 
 import org.simpleframework.xml.Attribute;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;

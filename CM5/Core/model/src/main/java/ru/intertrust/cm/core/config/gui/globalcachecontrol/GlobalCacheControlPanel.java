@@ -1,0 +1,127 @@
+package ru.intertrust.cm.core.config.gui.globalcachecontrol;
+
+import ru.intertrust.cm.core.business.api.dto.Dto;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author Ravil Abdulkhairov
+ * @version 1.0
+ * @since 27.10.2015
+ */
+public class GlobalCacheControlPanel implements Dto {
+    public static final String VALUE_MODES_SYNC = "Синхронный";
+    public static final String VALUE_MODES_ASYNC = "Асинхронный";
+    public static final String VALUE_UOM_MB = "Мб";
+    public static final String VALUE_UOM_GB = "Гб";
+
+    /**
+     * Кэш включен
+     */
+    private Boolean cacheActive;
+    /**
+     * Расширенная статистика
+     */
+    private Boolean expandedStatistics;
+    /**
+     * Режим отладки
+     */
+    private Boolean debugMode;
+    /**
+     * Режим работы (синхронный/асинхронный)
+     */
+    private String mode;
+    /**
+     * Максимальный размер
+     */
+    private Long maxSize;
+    /**
+     * Единицы измерения размера (Мб/Гб)
+     */
+    private String sizeUom;
+    /**
+     * Режимы работы кэша
+     */
+    private Map<String, String> modes;
+    /**
+     * Единицы измерения максимального размера
+     */
+    private Map<String, String> uoms;
+
+    public String getSizeUom() {
+        return sizeUom;
+    }
+
+    public void setSizeUom(String sizeUom) {
+        this.sizeUom = sizeUom;
+    }
+
+    public Long getMaxSize() {
+        if (maxSize == null)
+            return new Long(0);
+        else
+            return maxSize;
+    }
+
+    public void setMaxSize(Long maxSize) {
+        this.maxSize = maxSize;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public Boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(Boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
+    public Boolean isExpandedStatistics() {
+        return expandedStatistics;
+    }
+
+    public void setExpandedStatistics(Boolean expandedStatistics) {
+        this.expandedStatistics = expandedStatistics;
+    }
+
+    public Boolean isCacheActive() {
+        return cacheActive;
+    }
+
+    public void setCacheActive(Boolean cacheActive) {
+        this.cacheActive = cacheActive;
+    }
+
+    public Map<String, String> getModes() {
+        return modes;
+    }
+
+    public void setModes(Map<String, String> modes) {
+        this.modes = modes;
+    }
+
+    public Map<String, String> getUoms() {
+        return uoms;
+    }
+
+    public void setUoms(Map<String, String> uoms) {
+        this.uoms = uoms;
+    }
+
+    public GlobalCacheControlPanel() {
+        modes = new HashMap<>();
+        modes.put("1", VALUE_MODES_SYNC);
+        modes.put("2", VALUE_MODES_ASYNC);
+        uoms = new HashMap<>();
+        uoms.put("1", VALUE_UOM_MB);
+        uoms.put("2", VALUE_UOM_GB);
+    }
+}

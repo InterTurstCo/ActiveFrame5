@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.globalcache;
 
 import com.google.gwt.event.shared.EventBus;
-import ru.intertrust.cm.core.config.gui.GlobalCacheControlConfig;
+import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
