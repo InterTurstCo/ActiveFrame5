@@ -46,9 +46,15 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     private CollectionsDao collectionsDao;
 
     protected volatile GlobalCache globalCache;
+
+    private volatile long totalReads;
+    private volatile long totalHits;
+
     private ConcurrentHashMap<String, TransactionChanges> transactionChanges;
 
-    public void activate() {
+    private volatile long reActivationTime = 0; // cache won't be used for 1 minute after reactivation
+
+    public void activate(boolean isInitialActivation) {
         GlobalCache globalCache;
         if (globalCacheSettings.getMode().isBlocking()) {
             globalCache = (GlobalCache) context.getBean("blockingGlobalCache");
@@ -60,6 +66,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
         this.globalCache = globalCache;
         this.transactionChanges = new ConcurrentHashMap<>();
+        if (!isInitialActivation) {
+            reActivationTime = System.currentTimeMillis();
+        }
     }
 
     public void deactivate() {
@@ -75,7 +84,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (prevMode != newMode) {
             globalCacheSettings.setMode(newMode);
             final GlobalCache prevCache = this.globalCache;
-            activate();
+            activate(false);
             prevCache.deactivate();
         } else {
             this.globalCache.setSizeLimitBytes(globalCacheSettings.getSizeLimitBytes());
@@ -122,12 +131,19 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyRead(Collection<DomainObject> objects, AccessToken accessToken) {
-        globalCache.notifyRead(null, getObjectsUnmodifiedInTransaction(objects), accessToken);
+        final Collection<DomainObject> unmodifiedInTransaction = getObjectsUnmodifiedInTransaction(objects);
+        if (unmodifiedInTransaction.isEmpty()) {
+            return;
+        }
+        globalCache.notifyRead(null, unmodifiedInTransaction, accessToken);
     }
 
     @Override
     public void notifyReadAll(String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(objects);
+        if (unmodifiedObjects.isEmpty()) {
+            return;
+        }
         if (unmodifiedObjects.size() != objects.size()) {
             if (unmodifiedObjects.isEmpty()) {
                 return;
@@ -169,6 +185,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     public void notifyLinkedObjectsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(linkedObjects);
+        if (unmodifiedObjects.isEmpty()) {
+            return;
+        }
         if (unmodifiedObjects.size() != linkedObjects.size()) {
             globalCache.notifyRead(null, unmodifiedObjects, accessToken);
         } else {
@@ -180,7 +199,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     public void notifyLinkedObjectsIdsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
         final Set<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
-        if (idsOfUnmodifiedObjects.size() != linkedObjectsIds.size()) {
+        if (idsOfUnmodifiedObjects.size() != linkedObjectsIds.size() || idsOfUnmodifiedObjects.isEmpty()) {
             return;
         } else {
             globalCache.notifyLinkedObjectsIdsRead(null, id, linkedType, linkedField, exactType, idsOfUnmodifiedObjects, time, accessToken);
@@ -233,23 +252,27 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public DomainObject getDomainObject(Id id, AccessToken accessToken) {
-        return globalCache.getDomainObject(null, id, accessToken);
+        ++totalReads;
+        return logHit(globalCache.getDomainObject(null, id, accessToken));
     }
 
     @Override
     public DomainObject getDomainObject(String type, Map<String, Value> uniqueKey, AccessToken accessToken) {
-        return globalCache.getDomainObject(null, type, uniqueKey, accessToken);
+        ++totalReads;
+        return logHit(globalCache.getDomainObject(null, type, uniqueKey, accessToken));
     }
 
     @Override
     public ArrayList<DomainObject> getDomainObjects(Collection<Id> ids, AccessToken accessToken) {
-        return globalCache.getDomainObjects(null, ids, accessToken);
+        ++totalReads;
+        return logHit(globalCache.getDomainObjects(null, ids, accessToken));
     }
 
     @Override
     public List<DomainObject> getLinkedDomainObjects(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        ++totalReads;
         if (canUseCacheToRetrieveType(linkedType, exactType)) {
-            return globalCache.getLinkedDomainObjects(null, domainObjectId, linkedType, linkedField, exactType, accessToken);
+            return logHit(globalCache.getLinkedDomainObjects(null, domainObjectId, linkedType, linkedField, exactType, accessToken));
         } else {
             return null;
         }
@@ -257,8 +280,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public List<Id> getLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken) {
+        ++totalReads;
         if (canUseCacheToRetrieveType(linkedType, exactType)) {
-            return globalCache.getLinkedDomainObjectsIds(null, domainObjectId, linkedType, linkedField, exactType, accessToken);
+            return logHit(globalCache.getLinkedDomainObjectsIds(null, domainObjectId, linkedType, linkedField, exactType, accessToken));
         } else {
             return null;
         }
@@ -266,8 +290,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
+        ++totalReads;
         if (canUseCacheToRetrieveType(type, exactType)) {
-            return globalCache.getAllDomainObjects(null, type, exactType, accessToken);
+            return logHit(globalCache.getAllDomainObjects(null, type, exactType, accessToken));
         } else {
             return null;
         }
@@ -275,30 +300,60 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        ++totalReads;
         Set<String> doTypes = collectionsDao.getDOTypes(name, filterValues).getSecond();
         if (isAtLeastOneTypeSaved(doTypes)) {
             return null;
         }
-        return globalCache.getCollection(null, name, filterValues, sortOrder, offset, limit, accessToken);
+        return logHit(globalCache.getCollection(null, name, filterValues, sortOrder, offset, limit, accessToken));
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
+        ++totalReads;
         Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
         if (isAtLeastOneTypeSaved(doTypes)) {
             return null;
         }
-        return globalCache.getCollection(null, query, paramValues, offset, limit, accessToken);
+        return logHit(globalCache.getCollection(null, query, paramValues, offset, limit, accessToken));
+    }
+
+    @Override
+    public GlobalCacheStatistics getStatistics() {
+        final GlobalCacheStatistics result = new GlobalCacheStatistics();
+        result.setHitCount(totalReads == 0 ? 0 : totalHits / (float) totalReads);
+        result.setFreeSpacePercentage(globalCache.getFreeSpacePercentage());
+        result.setSize(globalCache.getSizeBytes());
+        result.setCacheCleaningRecord(new GlobalCacheStatistics.CacheCleaningRecord(globalCache.getCacheCleanTimeCounter(), globalCache.getCacheCleanFreedSpaceCounter()));
+        return result;
+    }
+
+    @Override
+    public void clearStatistics(boolean hourlyOnly) {
+        if (!hourlyOnly) {
+            totalReads = 0;
+            totalHits = 0;
+        }
+    }
+
+    private <T> T logHit(T result) {
+        if (result != null) {
+            ++totalHits;
+        }
+        return result;
     }
 
     private boolean canUseCacheToRetrieveType(String type, boolean exactType) {
+        if (isReactivationUndergoing()) {
+            return false;
+        }
         final TransactionChanges transactionChanges = getTransactionChanges();
         boolean useCache;
         if (transactionChanges == null) {
             useCache = true;
         } else if (transactionChanges.isTypeSaved(type)) {
             useCache = false;
-        } else if (!exactType){
+        } else if (!exactType) {
             useCache = true;
             final Collection<DomainObjectTypeConfig> linkedTypeChildren = explorer.findChildDomainObjectTypes(type, true);
             for (DomainObjectTypeConfig linkedTypeChild : linkedTypeChildren) {
@@ -317,6 +372,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (objects.isEmpty()) {
             return objects;
         }
+        if (isReactivationUndergoing()) {
+            return Collections.emptyList();
+        }
         ArrayList<DomainObject> trustedObjects = new ArrayList<>(objects.size());
         for (DomainObject object : objects) {
             if (!isChangedInTransaction(object.getId())) {
@@ -327,8 +385,8 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     private Set<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
-        if (ids.isEmpty()) {
-            return new HashSet<>();
+        if (isReactivationUndergoing() || ids.isEmpty()) {
+            return Collections.emptySet();
         }
         LinkedHashSet<Id> trustedIds = new LinkedHashSet<>(ids.size());
         for (Id id : ids) {
@@ -343,6 +401,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (doTypes == null) { // this collection is definitely not in cache
             return true;
         }
+        if (isReactivationUndergoing()) {
+            return true;
+        }
         final TransactionChanges transactionChanges = getTransactionChanges();
         if (transactionChanges == null) {
             return false;
@@ -354,13 +415,30 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     private boolean isTypeSaved(String type) {
+        if (isReactivationUndergoing()) {
+            return true;
+        }
         final TransactionChanges changes = getTransactionChanges();
         return changes != null && changes.isTypeSaved(type);
     }
 
     private boolean isChangedInTransaction(Id id) {
+        if (isReactivationUndergoing()) {
+            return true;
+        }
         final TransactionChanges changes = getTransactionChanges();
         return changes != null && changes.isObjectChanged(id);
+    }
+
+    private boolean isReactivationUndergoing() {
+        if (reActivationTime == 0) {
+            return false;
+        }
+        if (System.currentTimeMillis() - reActivationTime < 60000) {
+            return true;
+        }
+        reActivationTime = 0;
+        return false;
     }
 
     private TransactionChanges getTransactionChanges() {

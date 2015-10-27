@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.util.DecimalCounter;
+import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -48,6 +50,9 @@ public class GlobalCacheImpl implements GlobalCache {
     private long maxBackgroundCleanerRunTimeMillies = 100;
     private float oldRecordsRemovalFreeSpaceThreshold = 0.02f; // background cleaner will start removing old records when cache size exceeds 98% (1-0.02)
     private float spaceToFreeThreshold = 0.1f; // background cleaner will clean records until 10% of cache is free
+
+    private LongCounter cacheCleanTimeCounter;
+    private DecimalCounter cacheCleanFreedSpaceCounter;
 
     private Size size;
     private ObjectsTree objectsTree;
@@ -98,6 +103,8 @@ public class GlobalCacheImpl implements GlobalCache {
         collectionsTree = null;
         backgroundCleaner = null;
         cleaner = null;
+        cacheCleanTimeCounter = null;
+        cacheCleanFreedSpaceCounter = null;
     }
 
     @Override
@@ -117,6 +124,8 @@ public class GlobalCacheImpl implements GlobalCache {
         domainObjectTypeFullRetrieval = new DomainObjectTypeFullRetrieval(typesQty, size);
         idsByType = new IdsByType(16, typesQty * 2, size);
         collectionsTree = new CollectionsTree(10000, 16, size);
+        cacheCleanTimeCounter = new LongCounter();
+        cacheCleanFreedSpaceCounter = new DecimalCounter();
     }
 
     @Override
@@ -588,6 +597,11 @@ public class GlobalCacheImpl implements GlobalCache {
         return getCollection(key, subKey);
     }
 
+    @Override
+    public long getSizeBytes() {
+        return this.size.get();
+    }
+
     public float getFreeSpacePercentage() {
         final long size = this.size.get();
         final long limit = sizeLimit;
@@ -603,12 +617,28 @@ public class GlobalCacheImpl implements GlobalCache {
 
     public void cleanInvalidEntriesAndFreeSpace() {
         final long startTime = System.currentTimeMillis();
+        final long sizeBefore = size.get();
         try {
             freeSpace(startTime);
             cleanInvalidEntries(startTime);
+            final long timeTotal = System.currentTimeMillis() - startTime;
+            final long spaceFreed = sizeBefore - size.get();
+            final double spaceFreedPercentage = spaceFreed < 0 ? 0 : spaceFreed / (float) sizeLimit;
+            cacheCleanFreedSpaceCounter.log(spaceFreedPercentage);
+            cacheCleanTimeCounter.log(timeTotal);
         } catch (Throwable e) {
             logger.error("Exception cleaning invalid entries", e);
         }
+    }
+
+    @Override
+    public LongCounter getCacheCleanTimeCounter() {
+        return ObjectCloner.getInstance().cloneObject(cacheCleanTimeCounter);
+    }
+
+    @Override
+    public DecimalCounter getCacheCleanFreedSpaceCounter() {
+        return ObjectCloner.getInstance().cloneObject(cacheCleanFreedSpaceCounter);
     }
 
     protected void freeSpace(final long startTime) {

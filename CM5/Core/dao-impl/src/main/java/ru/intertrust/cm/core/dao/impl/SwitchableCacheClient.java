@@ -21,17 +21,17 @@ public class SwitchableCacheClient implements GlobalCacheClient {
         this.impl = impl;
     }
 
-    public GlobalCacheClient getGlobalCacheClientImpl() {
+    public synchronized GlobalCacheClient getGlobalCacheClientImpl() {
         return impl;
     }
 
-    public void setGlobalCacheClientImpl(GlobalCacheClient impl) {
+    public synchronized void setGlobalCacheClientImpl(GlobalCacheClient impl) {
         this.impl = impl;
     }
 
     @Override
-    public void activate() {
-        this.impl.activate();
+    public void activate(boolean isAtStartActivation) {
+        this.impl.activate(isAtStartActivation);
     }
 
     @Override
@@ -167,6 +167,16 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     @Override
     public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
         return impl.getCollection(query, paramValues, offset, limit, accessToken);
+    }
+
+    @Override
+    public GlobalCacheStatistics getStatistics() {
+        return impl.getStatistics();
+    }
+
+    @Override
+    public void clearStatistics(boolean hourlyOnly) {
+        impl.clearStatistics(hourlyOnly);
     }
 
     @Override

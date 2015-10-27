@@ -13,7 +13,7 @@ import java.util.*;
  *         Time: 15:10
  */
 public interface GlobalCacheClient {
-    void activate();
+    void activate(boolean isInitialActivation);
 
     void deactivate();
 
@@ -72,6 +72,10 @@ public interface GlobalCacheClient {
     IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
 
     IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
+
+    GlobalCacheStatistics getStatistics();
+
+    void clearStatistics(boolean hourlyOnly);
 
     void setCollectionsDao(CollectionsDao collectionsDao);
 }

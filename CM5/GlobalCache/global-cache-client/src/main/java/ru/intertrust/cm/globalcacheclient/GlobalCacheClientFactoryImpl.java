@@ -32,4 +32,9 @@ public class GlobalCacheClientFactoryImpl implements GlobalCacheClientFactory {
         localJvmCacheClient = (LocalJvmCacheClient) context.getBean(beanName);
         return localJvmCacheClient;
     }
+
+    public boolean isCacheAvailable() {
+        DomainObjectCacheService transactionLevelCache = (DomainObjectCacheService) context.getBean("domainObjectCacheService");
+        return transactionLevelCache.isCacheEnabled();
+    }
 }
