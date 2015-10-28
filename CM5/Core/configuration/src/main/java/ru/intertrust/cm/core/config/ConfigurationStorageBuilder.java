@@ -718,7 +718,7 @@ public class ConfigurationStorageBuilder {
     private void fillReadPermittedToEverybodyMap() {
         for (DomainObjectTypeConfig config : configurationExplorer.getConfigs(DomainObjectTypeConfig.class)) {
             String domainObjectType = config.getName();
-            Boolean readEverybody = isReadEverybodyForType(domainObjectType);
+            Boolean readEverybody = isReadEverybodyForType(domainObjectType, new HashSet<String>());
 
             if (readEverybody == null) {
                 readEverybody = false;
@@ -732,8 +732,10 @@ public class ConfigurationStorageBuilder {
      * @param domainObjectType
      * @return
      */
-    private Boolean isReadEverybodyForType(String domainObjectType) {
+    private Boolean isReadEverybodyForType(String domainObjectType, Set<String> visitedTypes) {
         Boolean result = null;
+
+        visitedTypes.add(domainObjectType);
 
         AccessMatrixConfig accessMatrixConfig =
                 configurationExplorer.getAccessMatrixByObjectType(domainObjectType);
@@ -748,9 +750,10 @@ public class ConfigurationStorageBuilder {
                 return false;
             }
             // проход по иерархии родительских типов для доменного объекта. Проверка флага read-everybody в матрицах доступа для родительских типов.
-            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
+            if (domainObjectTypeConfig.getExtendsAttribute() != null &&
+                    !visitedTypes.contains(domainObjectTypeConfig.getExtendsAttribute())) {
                 String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
-                result = isReadEverybodyForType(parentDOType);
+                result = isReadEverybodyForType(parentDOType, visitedTypes);
             } else {
                 // domainObjectType является ДО верхнего уровня, и флаг read-everybody не определен.
                 // Получаем все дочерние типы и смотрим флаг у них. Возвращаем true если найден хотя бы один тип с
@@ -760,9 +763,21 @@ public class ConfigurationStorageBuilder {
                 List<String> childTypes = getChildTypes(domainObjectType);
                 for (String childType : childTypes) {
                     AccessMatrixConfig childMatrixConfig = configurationExplorer.getAccessMatrixByObjectType(childType);
-                    if (childMatrixConfig != null && childMatrixConfig.isReadEverybody() != null) {
-                        result = childMatrixConfig.isReadEverybody();
-                        break;
+                    if (childMatrixConfig != null) {
+                        if (childMatrixConfig.isReadEverybody() != null) {
+                            result = childMatrixConfig.isReadEverybody();
+                            break;
+                        } else if (childMatrixConfig.getMatrixReference() != null) {
+                            DomainObjectTypeConfig childDomainObjectTypeConfig =
+                                    configurationExplorer.getDomainObjectTypeConfig(childType);
+                            String referencedTypeName =
+                                    getParentTypeNameFromMatrixReference(childMatrixConfig.getMatrixReference(),
+                                            childDomainObjectTypeConfig);
+                            if (!visitedTypes.contains(referencedTypeName)) {
+                                result = isReadEverybodyForType(referencedTypeName, visitedTypes);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -772,8 +787,8 @@ public class ConfigurationStorageBuilder {
                 // объекта
                 if (accessMatrixConfig != null && accessMatrixConfig.getMatrixReference() != null) {
                     String matrixReferenceTypeName = getParentTypeNameFromMatrixReference(accessMatrixConfig.getMatrixReference(), domainObjectTypeConfig);
-                    if (matrixReferenceTypeName != null) {
-                        result = isReadEverybodyForType(matrixReferenceTypeName);
+                    if (matrixReferenceTypeName != null && !visitedTypes.contains(matrixReferenceTypeName)) {
+                        result = isReadEverybodyForType(matrixReferenceTypeName, visitedTypes);
                     }
                 }
             }
