@@ -5,7 +5,10 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -13,11 +16,13 @@ import java.util.*;
  *         Time: 15:10
  */
 public interface GlobalCacheClient {
-    void activate();
+    void activate(boolean isInitialActivation);
 
     void deactivate();
 
-    void applySettings(HashMap<String, Serializable> settings);
+    void applySettings(Map<String, Serializable> settings);
+
+    Map<String, Serializable> getSettings();
 
     void clear();
 
@@ -72,6 +77,10 @@ public interface GlobalCacheClient {
     IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
 
     IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
+
+    GlobalCacheStatistics getStatistics();
+
+    void clearStatistics(boolean hourlyOnly);
 
     void setCollectionsDao(CollectionsDao collectionsDao);
 }

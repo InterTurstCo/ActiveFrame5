@@ -1,6 +1,8 @@
 package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.DecimalCounter;
+import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 
 import java.util.*;
@@ -67,7 +69,17 @@ public interface GlobalCache {
 
     IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken);
 
+    long getSizeBytes();
+
+    float getFreeSpacePercentage();
+
     void setSizeLimitBytes(long bytes);
 
     long getSizeLimitBytes();
+
+    void clearCacheCleanStatistics();
+
+    LongCounter getCacheCleanTimeCounter();
+
+    DecimalCounter getCacheCleanFreedSpaceCounter();
 }

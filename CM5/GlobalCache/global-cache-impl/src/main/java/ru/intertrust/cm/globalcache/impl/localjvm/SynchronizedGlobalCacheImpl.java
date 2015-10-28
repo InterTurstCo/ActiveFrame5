@@ -1,6 +1,8 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.DecimalCounter;
+import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.globalcache.api.AccessChanges;
 
@@ -118,6 +120,11 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
+    public long getSizeBytes() {
+        return super.getSizeBytes();
+    }
+
+    @Override
     public synchronized void setSizeLimitBytes(long bytes) {
         super.setSizeLimitBytes(bytes);
     }
@@ -125,6 +132,11 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
     public synchronized long getSizeLimitBytes() {
         return super.getSizeLimitBytes();
+    }
+
+    @Override
+    public void clearCacheCleanStatistics() { // NOT sync
+        super.clearCacheCleanStatistics();
     }
 
     @Override
@@ -170,5 +182,15 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
     protected synchronized void deleteEldestEntry() {
         super.deleteEldestEntry();
+    }
+
+    @Override
+    public LongCounter getCacheCleanTimeCounter() { // do NOT sync
+        return super.getCacheCleanTimeCounter();
+    }
+
+    @Override
+    public DecimalCounter getCacheCleanFreedSpaceCounter() { // do NOT sync
+        return super.getCacheCleanFreedSpaceCounter();
     }
 }

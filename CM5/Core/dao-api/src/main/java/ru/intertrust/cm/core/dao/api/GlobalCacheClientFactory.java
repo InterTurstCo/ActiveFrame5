@@ -7,4 +7,6 @@ package ru.intertrust.cm.core.dao.api;
  */
 public interface GlobalCacheClientFactory {
     GlobalCacheClient getGlobalCacheClient();
+
+    boolean isCacheAvailable();
 }

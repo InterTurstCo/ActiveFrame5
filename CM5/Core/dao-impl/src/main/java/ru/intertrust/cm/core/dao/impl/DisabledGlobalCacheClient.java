@@ -18,7 +18,7 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     public static final DisabledGlobalCacheClient INSTANCE = new DisabledGlobalCacheClient();
 
     @Override
-    public void activate() {
+    public void activate(boolean isAtStartActivation) {
     }
 
     @Override
@@ -26,7 +26,12 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void applySettings(HashMap<String, Serializable> settings) {
+    public void applySettings(Map<String, Serializable> settings) {
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return Collections.emptyMap();
     }
 
     @Override
@@ -140,6 +145,15 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     @Override
     public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
         return null;
+    }
+
+    @Override
+    public GlobalCacheStatistics getStatistics() {
+        return null;
+    }
+
+    @Override
+    public void clearStatistics(boolean hourlyOnly) {
     }
 
     @Override

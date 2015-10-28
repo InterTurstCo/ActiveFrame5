@@ -7,7 +7,10 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -21,17 +24,17 @@ public class SwitchableCacheClient implements GlobalCacheClient {
         this.impl = impl;
     }
 
-    public GlobalCacheClient getGlobalCacheClientImpl() {
+    public synchronized GlobalCacheClient getGlobalCacheClientImpl() {
         return impl;
     }
 
-    public void setGlobalCacheClientImpl(GlobalCacheClient impl) {
+    public synchronized void setGlobalCacheClientImpl(GlobalCacheClient impl) {
         this.impl = impl;
     }
 
     @Override
-    public void activate() {
-        this.impl.activate();
+    public void activate(boolean isAtStartActivation) {
+        this.impl.activate(isAtStartActivation);
     }
 
     @Override
@@ -40,8 +43,13 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void applySettings(HashMap<String, Serializable> settings) {
+    public void applySettings(Map<String, Serializable> settings) {
         impl.applySettings(settings);
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return impl.getSettings();
     }
 
     @Override
@@ -167,6 +175,16 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     @Override
     public IdentifiableObjectCollection getCollection(String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
         return impl.getCollection(query, paramValues, offset, limit, accessToken);
+    }
+
+    @Override
+    public GlobalCacheStatistics getStatistics() {
+        return impl.getStatistics();
+    }
+
+    @Override
+    public void clearStatistics(boolean hourlyOnly) {
+        impl.clearStatistics(hourlyOnly);
     }
 
     @Override

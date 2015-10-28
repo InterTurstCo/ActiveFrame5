@@ -3132,6 +3132,51 @@ a:active .icon.back {
 
 .infoDialogBox {
     z-index: 20;
+    box-shadow: 0px 1px 12px 0px;
+    border-radius: 7px;
+    padding-top: 5px;
+    background: #fff;
+}
+
+.infoDialogBox .Caption {
+    background: #336599 !important;
+    padding: 10px !important;
+    border: none !important;
+}
+
+.infoDialogBox .gwt-Button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none !important;
+    background: none !important;
+    color: #fff;
+}
+
+.infoDialogBox .gwt-Button:hover {
+    color: #f00;
+}
+.infoDialogBox .dialogContent {
+    background: #F5F6F8;
+    padding: 5px;
+}
+
+.infoDialogBox .gwt-Label {
+    padding: 10px;
+    border-radius: 5px 0 0 0;
+    font-size: 100%;
+    color: #8d91a2;
+    text-decoration: none;
+}
+
+.infoDialogBox .dialogTopLeft,
+.infoDialogBox .dialogTopRight,
+.infoDialogBox .dialogMiddleLeft,
+.infoDialogBox .dialogMiddleRight,
+.infoDialogBox .dialogBottomLeft,
+.infoDialogBox .dialogBottomCenter,
+.infoDialogBox .dialogBottomRight {
+   background: none !important;
 }
 
 .linkedTableActionLabel{
