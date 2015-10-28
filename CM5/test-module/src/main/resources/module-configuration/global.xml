@@ -59,7 +59,7 @@
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>
-        <base-url value="/baseurl"/>
+        <!--base-url value="/baseurl"/-->
         <settings-popup>
             <themes>
                 <theme display-name="Основная тема" component-name="default-theme" default-theme="true"
