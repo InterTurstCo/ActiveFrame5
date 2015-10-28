@@ -77,6 +77,8 @@ public interface GlobalCache {
 
     long getSizeLimitBytes();
 
+    void clearCacheCleanStatistics();
+
     LongCounter getCacheCleanTimeCounter();
 
     DecimalCounter getCacheCleanFreedSpaceCounter();

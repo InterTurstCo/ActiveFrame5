@@ -25,8 +25,7 @@ class MethodStatistics {
     public MethodStatistics(String methodDescription, boolean isGetter) {
         this.methodDescription = methodDescription;
         this.isGetter = isGetter;
-        hourlyCounter = new LongCounter(MILLIES_IN_HOUR);
-        totalCounter = new LongCounter();
+        reset(false);
     }
 
     public String getMethodDescription() {
@@ -52,6 +51,14 @@ class MethodStatistics {
     public void log(long timeNanos, boolean cacheHit) {
         hourlyCounter.log(timeNanos, cacheHit);
         totalCounter.log(timeNanos, cacheHit);
+    }
+
+    public void reset(boolean hourlyOnly) {
+        hourlyCounter = new LongCounter(MILLIES_IN_HOUR);
+        if (hourlyOnly) {
+            return;
+        }
+        totalCounter = new LongCounter();
     }
 
     public static MethodStatistics summarize(Collection<MethodStatistics> methodsStatistics) {

@@ -26,7 +26,12 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void applySettings(HashMap<String, Serializable> settings) {
+    public void applySettings(Map<String, Serializable> settings) {
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return Collections.emptyMap();
     }
 
     @Override

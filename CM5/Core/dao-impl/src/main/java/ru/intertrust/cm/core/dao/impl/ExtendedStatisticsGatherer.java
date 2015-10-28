@@ -10,7 +10,10 @@ import ru.intertrust.cm.core.util.ObjectCloner;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Statistics gathering should be accurate, thus no dynamic proxies used
@@ -89,8 +92,13 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
-    public void applySettings(HashMap<String, Serializable> settings) {
+    public void applySettings(Map<String, Serializable> settings) {
         delegate.applySettings(settings);
+    }
+
+    @Override
+    public Map<String, Serializable> getSettings() {
+        return delegate.getSettings();
     }
 
     @Override
@@ -342,7 +350,10 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
 
     @Override
     public void clearStatistics(boolean hourlyOnly) {
-        // todo
+        for (MethodStatistics methodStatistics : allMethodsStatistics) {
+            methodStatistics.reset(hourlyOnly);
+        }
+        delegate.clearStatistics(hourlyOnly);
     }
 
     @Override

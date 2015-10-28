@@ -5,7 +5,10 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Denis Mitavskiy
@@ -17,7 +20,9 @@ public interface GlobalCacheClient {
 
     void deactivate();
 
-    void applySettings(HashMap<String, Serializable> settings);
+    void applySettings(Map<String, Serializable> settings);
+
+    Map<String, Serializable> getSettings();
 
     void clear();
 
