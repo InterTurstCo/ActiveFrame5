@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.globalcache;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlPanel;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 
 /**
  * @author Ravil Abdulkhairov
@@ -16,16 +18,18 @@ public class GlobalCacheControlView extends PluginView {
 
     private Boolean statisticsOnly;
     private GlobalCacheControlPanel controlPanelModel;
+    private EventBus eventBus;
 
     /**
      * Основной конструктор
      *
      * @param plugin плагин, являющийся по сути, контроллером (или представителем) в паттерне MVC
      */
-    protected GlobalCacheControlView(Plugin plugin, Boolean statisticsOnly) {
+    protected GlobalCacheControlView(Plugin plugin, Boolean statisticsOnly, EventBus eventBus) {
         super(plugin);
         this.statisticsOnly = statisticsOnly;
         this.controlPanelModel = new GlobalCacheControlPanel();
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -53,7 +57,8 @@ public class GlobalCacheControlView extends PluginView {
     }
 
     private Widget buildStatisticsPanel(){
-        return new Label("Панель статистики");
+        GlobalCachePluginData globalCachePluginData = plugin.getInitialData();
+        return new Label(globalCachePluginData.getCacheData());
     }
 
     private Widget buildControlPanel(){

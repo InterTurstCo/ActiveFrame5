@@ -2,7 +2,9 @@
     <listener>
         <listener-class>ru.intertrust.cm.core.gui.impl.server.LogOutListener</listener-class>
     </listener>
-
+    <listener>
+        <listener-class>ru.intertrust.cm.core.gui.impl.server.CustomContextListener</listener-class>
+    </listener>
     <!--Export to CSV-->
     <!-- Uploader and Downloader part -->
     <servlet>

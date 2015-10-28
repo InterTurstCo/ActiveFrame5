@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 /**
@@ -14,6 +15,8 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 public class GlobalCacheControlPluginHandler extends PluginHandler {
 
     public PluginData initialize(Dto config) {
-        return new PluginData();
+        GlobalCachePluginData globalCachePluginData = new GlobalCachePluginData();
+        globalCachePluginData.setCacheData("Cache data");
+        return globalCachePluginData;
     }
 }
