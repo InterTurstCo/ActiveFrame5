@@ -59,6 +59,8 @@ public class GlobalCacheControlView extends PluginView {
     private Widget buildControlPanel(){
         Grid controlGrid = new Grid(3,4);
 
+        controlGrid.setStyleName("bildControlPanel");
+
         controlGrid.setWidget(0,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_CACHE_ACTIVE));
         controlGrid.setWidget(1,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_EXPANDED_STAT));
         controlGrid.setWidget(2,0,new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_DEBUG_MODE));

@@ -18,8 +18,8 @@ public class GlobalCacheControlUtils {
     public static final String STAT_CLEAR_CACHE = "Очистить кэш";
     public static final String BTN_IMG_REFRESH = "images/global-cache-control/iconRefresh.png";
     public static final String BTN_IMG_APPLY = "images/global-cache-control/iconApply.png";
-    public static final String BTN_IMG_RESET = "images/global-cache-control/iconReset.png";
-    public static final String BTN_IMG_CLEAR = "images/global-cache-control/iconClear.png";
+    public static final String BTN_IMG_RESET = "images/global-cache-control/iconUndo.png";
+    public static final String BTN_IMG_CLEAR = "images/global-cache-control/iconTrash.png";
     public static final String LBL_PANEL_STAT = "Статистика";
     public static final String LBL_PANEL_CONTROL = "Управление";
     public static final String LBL_CONTROL_PANEL_CACHE_ACTIVE = "Включить кэш: ";
