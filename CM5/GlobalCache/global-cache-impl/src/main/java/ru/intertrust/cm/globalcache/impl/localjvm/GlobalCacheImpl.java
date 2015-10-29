@@ -759,7 +759,7 @@ public class GlobalCacheImpl implements GlobalCache {
         }
 
         final String objectType = object.getTypeName();
-        final ArrayList<ReferenceFieldConfig> referenceFieldConfigs = getReferenceFieldConfigs(objectType); // todo change to explorer.getDomainObjectReferenceFields after implementation
+        final Set<ReferenceFieldConfig> referenceFieldConfigs = explorer.getReferenceFieldConfigs(objectType);
         for (ReferenceFieldConfig referenceFieldConfig : referenceFieldConfigs) {
             final String fieldName = referenceFieldConfig.getName();
             final Id parentObjectId = object.getReference(fieldName);
@@ -790,7 +790,7 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         final String objectType = object == null ? previousState.getTypeName() : object.getTypeName();
-        final ArrayList<ReferenceFieldConfig> referenceFieldConfigs = getReferenceFieldConfigs(objectType); // todo change to explorer.getDomainObjectReferenceFields after implementation
+        final Set<ReferenceFieldConfig> referenceFieldConfigs = explorer.getReferenceFieldConfigs(objectType);
         final String[] typeParents = explorer.getDomainObjectTypesHierarchy(objectType);
 
         if (previousState == null) { // just created object
@@ -882,18 +882,6 @@ public class GlobalCacheImpl implements GlobalCache {
             linkedObjectsNode.remove(id);
         }
         node.clearLinkedObjects(linkedObjectsKey, ObjectNode.LinkedObjects.User);
-    }
-
-    private ArrayList<ReferenceFieldConfig> getReferenceFieldConfigs(String objectType) {
-        final DomainObjectTypeConfig config = explorer.getDomainObjectTypeConfig(objectType);
-        final List<FieldConfig> fieldConfigs = config.getFieldConfigs();
-        final ArrayList<ReferenceFieldConfig> referenceFieldConfigs = new ArrayList<>();
-        for (FieldConfig fieldConfig : fieldConfigs) {
-            if (fieldConfig.getClass() == ReferenceFieldConfig.class) {
-                referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
-            }
-        }
-        return referenceFieldConfigs;
     }
 
     protected DomainObject getClone(DomainObject object) {

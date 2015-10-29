@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.globalcache;
 
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
@@ -15,7 +16,7 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 @ComponentName("GlobalCacheControl.plugin")
 public class GlobalCacheControlPlugin extends Plugin {
 
-    private EventBus eventBus;
+    private EventBus eventBus = new SimpleEventBus();
 
     public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -24,7 +25,7 @@ public class GlobalCacheControlPlugin extends Plugin {
     @Override
     public PluginView createView() {
         GlobalCacheControlConfig config = (GlobalCacheControlConfig)getConfig();
-        return new GlobalCacheControlView(this,config.getStatisticsOnly());
+        return new GlobalCacheControlView(this,config.getStatisticsOnly(), eventBus);
     }
 
     @Override

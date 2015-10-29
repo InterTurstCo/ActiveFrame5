@@ -32,10 +32,10 @@ public class CustomContextListener implements ServletContextListener {
         if (businessUniverseConfig.getBaseUrlConfig() != null && businessUniverseConfig.getBaseUrlConfig().getValue() != null) {
             ServletContext context = servletContextEvent.getServletContext();
             FilterRegistration filterRegistration = context.getFilterRegistration(LOGIN_FILTER);
-            filterRegistration.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, businessUniverseConfig.getBaseUrlConfig().getValue() + URL_WILDCARD);
+            filterRegistration.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/"+businessUniverseConfig.getBaseUrlConfig().getValue() + URL_WILDCARD);
             ServletRegistration.Dynamic dynContext = context.addServlet(BASE_URL_SERVLET, BaseUrlDispatcherServlet.class);
             dynContext.setLoadOnStartup(1);
-            dynContext.addMapping(businessUniverseConfig.getBaseUrlConfig().getValue() + URL_WILDCARD);
+            dynContext.addMapping("/"+businessUniverseConfig.getBaseUrlConfig().getValue() + URL_WILDCARD);
         }
 
 

@@ -5,7 +5,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 /**
  * Created by andrey on 03.03.14.
  */
-interface DialogBoxAction {
-    void execute(FormPlugin formPlugin);
+public interface DialogBoxAction {
+    public void execute(FormPlugin formPlugin);
 
 }
