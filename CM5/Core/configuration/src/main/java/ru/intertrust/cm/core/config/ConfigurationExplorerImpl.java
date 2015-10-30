@@ -630,11 +630,26 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public String[] getDomainObjectTypesHierarchy(String typeName) {
         readLock.lock();
         try {
-            if (this.configStorage.domainObjectTypesHierarchy.containsKey(typeName)) {
-                return getReturnObject(this.configStorage.domainObjectTypesHierarchy.get(typeName), String[].class);
-            } else {
-                return getReturnObject(configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName), String[].class);
+            String[] result = this.configStorage.domainObjectTypesHierarchy.get(typeName);
+            if (result == null) {
+                result = configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
             }
+            return getReturnObject(result, String[].class);
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String[] getDomainObjectTypesHierarchyBeginningFromType(String typeName) {
+        readLock.lock();
+        try {
+            String[] result = this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
+            if (result == null) {
+                configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
+                result = this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
+            }
+            return getReturnObject(result, String[].class);
         } finally {
             readLock.unlock();
         }

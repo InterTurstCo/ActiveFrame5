@@ -156,28 +156,38 @@ public class EventLogServiceImpl implements EventLogService {
 
     @Override
     public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
-        List<DomainObject> objectAccessLogs = new ArrayList<>();
+        List<DomainObject> objectAccessLogs = null;
 
         for (Id objectId : objectIds) {
             DomainObject objectAccessLog = createObjectAccessLogObject(objectId, accessType, success);
             if (objectAccessLog != null) {
+                if (objectAccessLogs == null) {
+                    objectAccessLogs = new ArrayList<>();
+                }
                 objectAccessLogs.add(objectAccessLog);
             }
         }
-        newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        if (objectAccessLogs != null && objectAccessLogs.size() > 0) {
+            newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        }
     }
 
     @Override
     public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
-        List<DomainObject> objectAccessLogs = new ArrayList<>();
+        List<DomainObject> objectAccessLogs = null;
 
         for (DomainObject object : objects) {
             DomainObject objectAccessLog = createObjectAccessLogObject(object.getId(), accessType, success);
             if (objectAccessLog != null) {
+                if (objectAccessLogs == null) {
+                    objectAccessLogs = new ArrayList<>();
+                }
                 objectAccessLogs.add(objectAccessLog);
             }
         }
-        newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        if (objectAccessLogs != null && objectAccessLogs.size() > 0) {
+            newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        }
     }
 
     @Override

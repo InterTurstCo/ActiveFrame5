@@ -13,4 +13,6 @@ public interface AfterCommitExtensionPointService {
      * @param domainObjectsModification
      */
     void afterCommit(DomainObjectsModification domainObjectsModification);
+
+    void performAfterCommit(DomainObjectsModification domainObjectsModification);
 }

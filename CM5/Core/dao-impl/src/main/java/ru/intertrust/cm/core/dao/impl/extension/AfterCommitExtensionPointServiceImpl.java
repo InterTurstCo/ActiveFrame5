@@ -4,8 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -17,14 +18,13 @@ import ru.intertrust.cm.core.dao.api.extension.AfterSaveAfterCommitExtensionHand
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Stateless(name = "AfterCommitExtensionPointService")
 @Local(AfterCommitExtensionPointService.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.CONTAINER)
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensionPointService {
     @Autowired
     private AccessControlService accessControlService;
@@ -34,38 +34,46 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
     private DomainObjectDao domainObjectDao;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+    @EJB
+    private AfterCommitExtensionPointService newTransactionService;
 
     @Override
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
     public void afterCommit(DomainObjectsModification domainObjectsModification) {
-        AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
+        List<DomainObject> createdDomainObjects = domainObjectsModification.getCreatedDomainObjects();
+        List<Id> changeStatusDomainObjectIds = domainObjectsModification.getChangeStatusDomainObjectIds();
+        Collection<DomainObject> savedDomainObjects = domainObjectsModification.getSavedDomainObjects();
+        Collection<DomainObject> deletedDomainObjects = domainObjectsModification.getDeletedDomainObjects();
+        if (createdDomainObjects.isEmpty() && changeStatusDomainObjectIds.isEmpty() && savedDomainObjects.isEmpty() && deletedDomainObjects.isEmpty()) {
+            return;
+        }
+        newTransactionService.performAfterCommit(domainObjectsModification);
+    }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void performAfterCommit(DomainObjectsModification domainObjectsModification) {
+        AccessToken sysAccessTocken = accessControlService.createSystemAccessToken(getClass().getName());
         for (DomainObject domainObject : domainObjectsModification.getCreatedDomainObjects()) {
             if (domainObject != null) {
                 // Вызов точки расширения после создания после коммита
-                List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                parentTypes.add("");
-                for (String typeName : parentTypes) {
-                    AfterCreateAfterCommitExtentionHandler extension = extensionService
-                            .getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, typeName);
-                    extension.onAfterCreate(domainObject);
+                String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
+                for (String parentType : parentTypes) {
+                    extensionService.getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, parentType).onAfterCreate(domainObject);
                 }
+                extensionService.getExtentionPoint(AfterCreateAfterCommitExtentionHandler.class, "").onAfterCreate(domainObject);
             }
         }
 
-        List<DomainObject> changeStatusDomainObjects =
-                domainObjectDao.find(domainObjectsModification.getChangeStatusDomainObjectIds(), sysAccessTocken);
+        List<DomainObject> changeStatusDomainObjects = domainObjectDao.find(domainObjectsModification.getChangeStatusDomainObjectIds(), sysAccessTocken);
         for (DomainObject domainObject : changeStatusDomainObjects) {
             if (domainObject != null) {
                 // Вызов точки расширения после смены статуса после коммита
-                List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                parentTypes.add("");
-                for (String typeName : parentTypes) {
-                    AfterChangeStatusAfterCommitExtentionHandler extension = extensionService
-                            .getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, typeName);
-                    extension.onAfterChangeStatus(domainObject);
+                String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
+                for (String parentType : parentTypes) {
+                    extensionService.getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, parentType).onAfterChangeStatus(domainObject);
                 }
+                extensionService.getExtentionPoint(AfterChangeStatusAfterCommitExtentionHandler.class, "").onAfterChangeStatus(domainObject);
             }
         }
 
@@ -73,47 +81,22 @@ public class AfterCommitExtensionPointServiceImpl implements AfterCommitExtensio
             if (domainObject != null) {
 
                 // Вызов точки расширения после сохранения после коммита
-                List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-                //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-                parentTypes.add("");
+                String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
+                final List<FieldModification> fieldModificationList = domainObjectsModification.getFieldModificationList(domainObject.getId());
                 for (String typeName : parentTypes) {
-                    AfterSaveAfterCommitExtensionHandler extension = extensionService
-                            .getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName);
-                    extension.onAfterSave(domainObject,
-                            domainObjectsModification.getFieldModificationList(domainObject.getId()));
+                    extensionService.getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, typeName).onAfterSave(domainObject, fieldModificationList);
                 }
+                extensionService.getExtentionPoint(AfterSaveAfterCommitExtensionHandler.class, "").onAfterSave(domainObject, fieldModificationList);
             }
         }
 
         for (DomainObject deletedDomainObject : domainObjectsModification.getDeletedDomainObjects()) {
             // Вызов точки расширения после удаления после коммита
-            List<String> parentTypes = getAllParentTypes(deletedDomainObject.getTypeName());
-            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-            parentTypes.add("");
+            String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(deletedDomainObject.getTypeName());
             for (String typeName : parentTypes) {
-                AfterDeleteAfterCommitExtensionHandler extension = extensionService
-                        .getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName);
-                extension.onAfterDelete(deletedDomainObject);
+                extensionService.getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, typeName).onAfterDelete(deletedDomainObject);
             }
+            extensionService.getExtentionPoint(AfterDeleteAfterCommitExtensionHandler.class, "").onAfterDelete(deletedDomainObject);
         }
-    }
-
-    /**
-     * Получение всей цепочки родительских типов начиная от переданноготв
-     * параметре
-     * @param name
-     * @return
-     */
-    private List<String> getAllParentTypes(String name) {
-        List<String> result = new ArrayList<String>();
-        result.add(name);
-
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, name);
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
-        }
-
-        return result;
     }
 }
