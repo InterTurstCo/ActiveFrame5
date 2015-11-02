@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProfileException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -27,6 +26,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Stateless(name = "ProfileService")
@@ -283,7 +283,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             // save only overridden attributes
             ArrayList<String> attributeNames = profile.getFields();
-            ArrayList<String> parentProfileAttributeNames = parentProfile.getFields();
+            HashSet<String> parentProfileAttributeNames = new HashSet<>(parentProfile.getFields());
             if (attributeNames != null) {
                 for (String attributeName : attributeNames) {
                     ProfileValue profileValue = (ProfileValue) profile.getValue(attributeName);
@@ -408,7 +408,7 @@ public class ProfileServiceImpl implements ProfileService {
         parentProfileObject.setId(parentProfileDo.getId());
         fillProfileAttributes(parentProfileObject, getProfileValues(parentProfileDo.getId()));
 
-        ArrayList<String> personFields = result.getFields();
+        HashSet<String> personFields = new HashSet<>(result.getFields());
         ArrayList<String> parentFields = parentProfileObject.getFields();
 
         if (parentFields != null) {

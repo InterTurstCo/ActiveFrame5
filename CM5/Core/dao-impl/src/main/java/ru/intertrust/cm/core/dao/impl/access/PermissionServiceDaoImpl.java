@@ -9,9 +9,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
@@ -27,7 +24,6 @@ import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
-import ru.intertrust.cm.core.dao.api.extension.OnCalculateContextRoleExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
@@ -1192,7 +1188,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
 
-        List<Id> result = new ArrayList<>();
+        LinkedHashSet<Id> result = new LinkedHashSet<>();
         if (collectors != null) {
             for (ContextRoleRegisterItem collectorItem : collectors) {
                 List<Id> groups = collectorItem.getCollector().getMembers(contextId);
@@ -1203,7 +1199,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             }
         }
 
-        return result;
+        return new ArrayList<>(result);
     }
 
     @Override
@@ -1212,7 +1208,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //Получаем все коллекторы
         List<ContextRoleRegisterItem> collectors = collectorsByContextRoleNames.get(roleName);
 
-        List<Id> result = new ArrayList<>();
+        LinkedHashSet<Id> result = new LinkedHashSet<>();
         //Цикл по коллекторам
         if (collectors != null) {
             for (ContextRoleRegisterItem collectorItem : collectors) {
@@ -1220,14 +1216,12 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 List<Id> groups = collectorItem.getCollector().getMembers(contextId);
                 for (Id group : groups) {
                     //Формируем результат с уникальными значениями
-                    if (!result.contains(group)) {
-                        result.add(group);
-                    }
+                    result.add(group);
                 }
             }
         }
 
-        return result;
+        return new ArrayList<>(result);
     }
 
     /**
@@ -1235,11 +1229,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param result
      * @param persons
      */
-    private void addUniquePerson(List<Id> result, List<DomainObject> persons) {
+    private void addUniquePerson(LinkedHashSet<Id> result, List<DomainObject> persons) {
         for (DomainObject domainObject : persons) {
-            if (!result.contains(domainObject.getId())) {
-                result.add(domainObject.getId());
-            }
+            result.add(domainObject.getId());
         }
     }
 
