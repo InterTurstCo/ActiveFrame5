@@ -447,7 +447,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         private String createCriteriaValue(String value) {
             String condition = DEFAULT_CRITERIA_CONDITION;
-            return EMPTY_STRING + condition + EMPTY_STRING + value;
+            return EMPTY_STRING + condition + EMPTY_STRING + "(" + value + ")";
         }
 
         public String getPlaceholderValue(String placeholder) {

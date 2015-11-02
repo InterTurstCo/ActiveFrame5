@@ -88,7 +88,7 @@ public class CollectionsDaoImplTest {
                     "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
                     "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
                     "r.\"object_id\" = department.\"access_object_id\")) d ON e.\"department\" = d.\"id\" " +
-                    "WHERE 1 = 1 AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
+                    "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
