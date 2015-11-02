@@ -262,6 +262,15 @@ public class CollectionPluginView extends PluginView {
         handlerRegistrations.add(eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
+                /**
+                 * Для иерархических коллекций, при добавлении дочерних строк и обновлении
+                 * родительских, обновляется вся коллекция. До того как будет разработан
+                 * иеррахический плагин коллекций это временный фикс. Для обычных коллекций это
+                 * не происходит.
+                 */
+                if(((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig()!=null){
+                    getPlugin().refresh();
+                }
                 if (event.getId() == null) {
                     refreshCollection(event.getIdentifiableObject());
                 } else {
