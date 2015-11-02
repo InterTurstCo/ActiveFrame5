@@ -236,6 +236,13 @@ public interface ConfigurationExplorer {
      */
     String[] getDomainObjectTypesHierarchy(String typeName);
 
+    /**
+     * Нахождение иерархии наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     * @param typeName имя типа доменного объекта
+     * @return иерархию наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     */
+    String[] getDomainObjectTypesHierarchyBeginningFromType(String typeName);
+
     void updateConfig(TopLevelConfig config);
     
     /**

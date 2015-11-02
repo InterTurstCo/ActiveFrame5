@@ -21,7 +21,6 @@ import java.util.*;
  */
 @Stateless(name = "PersonAccessHelper")
 @TransactionManagement(TransactionManagementType.CONTAINER)
-@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 @Local(PersonAccessHelper.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class PersonAccessHelperImpl implements PersonAccessHelper {
@@ -31,17 +30,28 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
     @Autowired
     private PersonManagementServiceDao personManagementDao;
 
+    @EJB
+    private PersonAccessHelper newTransantionService;
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
     public PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges) {
+        final HashSet<String> objectTypesAccessChanged = groupAccessChanges.getObjectTypesAccessChanged();
+        if (groupAccessChanges.clearFullAccessLog()) {
+            return new PersonAccessChanges(true, objectTypesAccessChanged);
+        }
+        if (!groupAccessChanges.accessChangesExist()) {
+            return new PersonAccessChanges(0, objectTypesAccessChanged);
+        }
+        return newTransantionService.getPersonAccessChanges(groupAccessChanges, objectTypesAccessChanged);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public PersonAccessChanges getPersonAccessChanges(GroupAccessChanges groupAccessChanges, HashSet<String> objectTypesAccessChanged) {
+        HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
+        PersonAccessChanges personAccessChanges = new PersonAccessChanges(groupAccessChanges.getObjectsQty(), objectTypesAccessChanged);
         try {
-            final HashSet<String> objectTypesAccessChanged = groupAccessChanges.getObjectTypesAccessChanged();
-            if (groupAccessChanges.clearFullAccessLog()) {
-                return new PersonAccessChanges(true, objectTypesAccessChanged);
-            }
-            if (!groupAccessChanges.accessChangesExist()) {
-                return new PersonAccessChanges(0, objectTypesAccessChanged);
-            }
-            PersonAccessChanges personAccessChanges = new PersonAccessChanges(groupAccessChanges.getObjectsQty(), objectTypesAccessChanged);
-            HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
             for (Id objectId : groupAccessByObject.keySet()) {
                 personAccessChanges.addObjectPersonAccess(objectId, toPersonAccess(groupAccessByObject.get(objectId)));
                 if (personAccessChanges.clearFullAccessLog()) {

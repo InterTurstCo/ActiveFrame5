@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -358,6 +357,12 @@ public class ConfigurationStorageBuilder {
     public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
         List<String> typesHierarchy = new ArrayList<>();
         buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+
+        List<String> typesInAscendingOrder = new ArrayList<>(typesHierarchy.size() + 1);
+        typesInAscendingOrder.add(typeName);
+        typesInAscendingOrder.addAll(typesHierarchy);
+        configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[typesInAscendingOrder.size()]));
+
         Collections.reverse(typesHierarchy);
         String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
         configurationStorage.domainObjectTypesHierarchy.put(typeName, types);

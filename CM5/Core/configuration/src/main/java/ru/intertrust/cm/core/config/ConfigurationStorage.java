@@ -56,6 +56,8 @@ public class ConfigurationStorage {
 
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
 
+    public CaseInsensitiveMap<String[]> domainObjectTypesHierarchyBeginningFromType = new CaseInsensitiveMap<>();
+
     public CaseInsensitiveMap<LogDomainObjectAccessConfig> eventLogDomainObjectAccessConfig = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<FormConfig> collectedFormConfigMap = new CaseInsensitiveMap<>();
