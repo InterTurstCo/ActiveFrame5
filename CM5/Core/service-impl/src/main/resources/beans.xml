@@ -223,6 +223,9 @@
 
     <bean id="notificationChannelSelector"
           class="ru.intertrust.cm.core.business.impl.NotificationChannelSelectorImpl"/>
+          
+    <bean id="notificationServiceController"
+          class="ru.intertrust.cm.core.business.impl.notification.NotificationServiceController"/>          
 
     <bean id="eventTrigger" class="ru.intertrust.cm.core.business.impl.EventTriggerImpl"/>
 

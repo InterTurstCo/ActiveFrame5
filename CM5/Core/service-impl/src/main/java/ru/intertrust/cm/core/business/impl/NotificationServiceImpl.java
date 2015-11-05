@@ -34,6 +34,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
+import ru.intertrust.cm.core.business.impl.notification.NotificationServiceController;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
@@ -69,6 +70,9 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private PermissionServiceDao permissionService;
 
+    @Autowired
+    private NotificationServiceController notificationServiceController;
+
     @Resource
     private SessionContext sessionContext;
 
@@ -76,10 +80,14 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendOnTransactionSuccess(String notificationType, Id sender, List<NotificationAddressee> addresseeList,
             NotificationPriority priority, NotificationContext context) {
         try {
-            SendNotificationActionListener listener =
-                    new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
-            userTransactionService.addListener(listener);
-            logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+            if (notificationServiceController.isEnable()) {
+                SendNotificationActionListener listener =
+                        new SendNotificationActionListener(notificationType, sender, addresseeList, priority, context);
+                userTransactionService.addListener(listener);
+                logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+            } else {
+                logger.warn("Notification service is disabled");
+            }
         } catch (SystemException e) {
             throw e;
         } catch (Exception ex) {
@@ -227,25 +235,29 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendSync(String notificationType, Id sender, List<NotificationAddressee> addresseeList, NotificationPriority priority,
             NotificationContext context) {
         try {
-            logger.debug("Send notification " + notificationType + " " + addresseeList);
-            //Получаем список адресатов
-            List<Id> persons = getAddressee(addresseeList);
+            if (notificationServiceController.isEnable()) {
+                logger.debug("Send notification " + notificationType + " " + addresseeList);
+                //Получаем список адресатов
+                List<Id> persons = getAddressee(addresseeList);
 
-            for (Id personId : persons) {
-                context.addContextObject("addressee", new DomainObjectAccessor(personId));
-                //Получаем список каналов для персоны
-                List<String> channelNames =
-                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
-                for (String channelName : channelNames) {
-                    try {
-                        NotificationChannelHandle notificationChannelHandle =
-                                notificationChannelLoader.getNotificationChannel(channelName);
-                        notificationChannelHandle.send(notificationType, sender, personId, priority, context);
-                    } catch (NotificationException ex) {
-                        //skip exception, allow other channels to be executed.
-                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                for (Id personId : persons) {
+                    context.addContextObject("addressee", new DomainObjectAccessor(personId));
+                    //Получаем список каналов для персоны
+                    List<String> channelNames =
+                            notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                    for (String channelName : channelNames) {
+                        try {
+                            NotificationChannelHandle notificationChannelHandle =
+                                    notificationChannelLoader.getNotificationChannel(channelName);
+                            notificationChannelHandle.send(notificationType, sender, personId, priority, context);
+                        } catch (NotificationException ex) {
+                            //skip exception, allow other channels to be executed.
+                            logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                        }
                     }
                 }
+            } else {
+                logger.warn("Notification service is disabled");
             }
 
         } catch (SystemException e) {
@@ -263,10 +275,14 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendOnTransactionSuccess(String notificationType, String senderName, List<NotificationAddressee> addresseeList, NotificationPriority priority,
             NotificationContext context) {
         try {
-            SendNotificationActionListener listener =
-                    new SendNotificationActionListener(notificationType, senderName, addresseeList, priority, context);
-            userTransactionService.addListener(listener);
-            logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+            if (notificationServiceController.isEnable()) {
+                SendNotificationActionListener listener =
+                        new SendNotificationActionListener(notificationType, senderName, addresseeList, priority, context);
+                userTransactionService.addListener(listener);
+                logger.debug("Register to send notification " + notificationType + " " + addresseeList);
+            } else {
+                logger.warn("Notification service is disabled");
+            }
         } catch (SystemException e) {
             throw e;
         } catch (Exception ex) {
@@ -288,25 +304,29 @@ public class NotificationServiceImpl implements NotificationService {
     public void sendSync(String notificationType, String senderName, List<NotificationAddressee> addresseeList, NotificationPriority priority,
             NotificationContext context) {
         try {
-            logger.debug("Send notification " + notificationType + " " + addresseeList);
-            //Получаем список адресатов
-            List<Id> persons = getAddressee(addresseeList);
+            if (notificationServiceController.isEnable()) {
+                logger.debug("Send notification " + notificationType + " " + addresseeList);
+                //Получаем список адресатов
+                List<Id> persons = getAddressee(addresseeList);
 
-            for (Id personId : persons) {
-                context.addContextObject("addressee", new DomainObjectAccessor(personId));
-                //Получаем список каналов для персоны
-                List<String> channelNames =
-                        notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
-                for (String channelName : channelNames) {
-                    try {
-                        NotificationChannelHandle notificationChannelHandle =
-                                notificationChannelLoader.getNotificationChannel(channelName);
-                        notificationChannelHandle.send(notificationType, senderName, personId, priority, context);
-                    } catch (NotificationException ex) {
-                        //skip exception, allow other channels to be executed.
-                        logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                for (Id personId : persons) {
+                    context.addContextObject("addressee", new DomainObjectAccessor(personId));
+                    //Получаем список каналов для персоны
+                    List<String> channelNames =
+                            notificationChannelSelector.getNotificationChannels(notificationType, personId, priority);
+                    for (String channelName : channelNames) {
+                        try {
+                            NotificationChannelHandle notificationChannelHandle =
+                                    notificationChannelLoader.getNotificationChannel(channelName);
+                            notificationChannelHandle.send(notificationType, senderName, personId, priority, context);
+                        } catch (NotificationException ex) {
+                            //skip exception, allow other channels to be executed.
+                            logger.error("Error sending message on " + channelName + ", notificationType " + notificationType, ex);
+                        }
                     }
                 }
+            } else {
+                logger.warn("Notification service is disabled");
             }
 
         } catch (SystemException e) {
