@@ -81,6 +81,17 @@ public class DateTimeWithTimeZone implements Dto {
         this.milliseconds = milliseconds;
     }
 
+    public DateTimeWithTimeZone(TimeZoneContext timeZoneContext, int year, int month, int dayOfMonth, int hours, int minutes, int seconds, int milliseconds) {
+        this.timeZoneContext = timeZoneContext;
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
+        this.milliseconds = milliseconds;
+    }
+
     @GwtIncompatible
     public DateTimeWithTimeZone(Date date, TimeZone timeZone) {
         if (date == null) {
@@ -103,6 +114,7 @@ public class DateTimeWithTimeZone implements Dto {
         return year;
     }
 
+    @Deprecated
     public void setYear(int year) {
         this.year = year;
     }
@@ -111,6 +123,7 @@ public class DateTimeWithTimeZone implements Dto {
         return month;
     }
 
+    @Deprecated
     public void setMonth(int month) {
         this.month = month;
     }
@@ -119,6 +132,7 @@ public class DateTimeWithTimeZone implements Dto {
         return dayOfMonth;
     }
 
+    @Deprecated
     public void setDayOfMonth(int dayOfMonth) {
         this.dayOfMonth = dayOfMonth;
     }
@@ -127,6 +141,7 @@ public class DateTimeWithTimeZone implements Dto {
         return hours;
     }
 
+    @Deprecated
     public void setHours(int hours) {
         this.hours = hours;
     }
@@ -135,6 +150,7 @@ public class DateTimeWithTimeZone implements Dto {
         return minutes;
     }
 
+    @Deprecated
     public void setMinutes(int minutes) {
         this.minutes = minutes;
     }
@@ -143,6 +159,7 @@ public class DateTimeWithTimeZone implements Dto {
         return seconds;
     }
 
+    @Deprecated
     public void setSeconds(int seconds) {
         this.seconds = seconds;
     }
@@ -151,6 +168,7 @@ public class DateTimeWithTimeZone implements Dto {
         return milliseconds;
     }
 
+    @Deprecated
     public void setMilliseconds(int milliseconds) {
         this.milliseconds = milliseconds;
     }
@@ -159,6 +177,7 @@ public class DateTimeWithTimeZone implements Dto {
         return timeZoneContext;
     }
 
+    @Deprecated
     public void setTimeZoneContext(TimeZoneContext timeZoneContext) {
         this.timeZoneContext = timeZoneContext;
     }

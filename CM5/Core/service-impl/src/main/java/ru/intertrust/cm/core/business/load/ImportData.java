@@ -382,13 +382,13 @@ public class ImportData {
                 newValue = new ReferenceValue(getReference(fieldName, fieldValue));
             } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
                 if (fieldValue.length() != 0) {
-                    TimelessDate date = new TimelessDate();
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(ThreadSafeDateFormat.parse(fieldValue, TIMELESS_DATE_PATTERN));
-                    date.setYear(calendar.get(Calendar.YEAR));
-                    date.setMonth(calendar.get(Calendar.MONTH));
-                    date.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                    newValue = new TimelessDateValue(date);
+                    newValue = new TimelessDateValue(new TimelessDate(
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ));
                 }
             } else {
                 //В остальных случаях считаем строкой

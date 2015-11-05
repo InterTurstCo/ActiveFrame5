@@ -6,6 +6,8 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.serializers.DefaultArraySerializers;
 import org.objenesis.strategy.StdInstantiatorStrategy;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -15,6 +17,10 @@ import java.util.List;
  * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
  */
 public class ObjectCloner {
+    private static final Class<Value>[] IMMUTABLE_VALUE_CLASSES = new Class[] {
+            BooleanValue.class, DecimalValue.class, ImagePathValue.class,
+            LongValue.class, ReferenceValue.class, StringValue.class
+    };
 
     private static final ThreadLocal<ObjectCloner> objectCloner = new ThreadLocal<ObjectCloner>() {
         protected ObjectCloner initialValue() {
@@ -28,6 +34,11 @@ public class ObjectCloner {
         kryo = new Kryo();
         ((Kryo.DefaultInstantiatorStrategy) kryo.getInstantiatorStrategy()).setFallbackInstantiatorStrategy(new StdInstantiatorStrategy());
         kryo.register(Arrays.asList("").getClass(), new ArraysAsListSerializer(kryo));
+        kryo.register(RdbmsId.class, new RdbmsIdSerializer());
+        ImmutableValueSerializer immutableValueSerializer = new ImmutableValueSerializer();
+        for (Class<Value> valueClass : IMMUTABLE_VALUE_CLASSES) {
+            kryo.register(valueClass, immutableValueSerializer);
+        }
     }
 
     public static ObjectCloner getInstance () {
@@ -61,8 +72,8 @@ public class ObjectCloner {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Output output = new Output(stream);
-        output.close();
         kryo.writeObject(output, source);
+        output.close();
         return stream.toByteArray();
     }
 
@@ -71,8 +82,8 @@ public class ObjectCloner {
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Output output = new Output(stream);
-        output.close();
         kryo.writeClassAndObject(output, source);
+        output.close();
         return stream.toByteArray();
     }
 
@@ -124,6 +135,38 @@ public class ObjectCloner {
         @Override
         public List<?> copy(Kryo kryo, List<?> original) {
             return Arrays.asList(arraySerializer.copy(kryo, original.toArray()));
+        }
+    }
+
+    private static class ImmutableValueSerializer extends Serializer<Value<?>> {
+        public ImmutableValueSerializer() {
+            super(true, true);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output, Value<?> object) {
+            kryo.getDefaultSerializer(object.getClass()).write(kryo, output, object);
+        }
+
+        @Override
+        public Value<?> read(Kryo kryo, Input input, Class<Value<?>> type) {
+            return (Value<?>) kryo.getDefaultSerializer(type).read(kryo, input, type);
+        }
+    }
+
+    private static class RdbmsIdSerializer extends Serializer<RdbmsId> {
+        public RdbmsIdSerializer() {
+            super(true, true);
+        }
+
+        @Override
+        public void write(Kryo kryo, Output output, RdbmsId object) {
+            kryo.getDefaultSerializer(object.getClass()).write(kryo, output, object);
+        }
+
+        @Override
+        public RdbmsId read(Kryo kryo, Input input, Class<RdbmsId> type) {
+            return (RdbmsId) kryo.getDefaultSerializer(type).read(kryo, input, type);
         }
     }
 }

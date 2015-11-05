@@ -1,5 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -7,11 +12,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.util.ModelUtil;
-import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -36,19 +36,18 @@ public class DateTimeValueConverter extends AbstractDateValueConverter<DateTimeV
 
     @Override
     public DateTimeValue contextToValue(final DateTimeContext context) {
-        final DateTimeValue result = new DateTimeValue();
         if (context.getDateTime() != null) {
             final String timeZoneId = getTimeZoneId(context.getTimeZoneId());
             final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
             dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             try {
                 final Date date = dateFormat.parse(context.getDateTime());
-                result.setValue(date);
+                return new DateTimeValue(date);
             } catch (ParseException ignored) {
                 ignored.printStackTrace(); // for developers only
             }
         }
-        return result;
+        return new DateTimeValue();
     }
 
     @Override
@@ -64,11 +63,7 @@ public class DateTimeValueConverter extends AbstractDateValueConverter<DateTimeV
 
     @Override
     public DateTimeValue dateToValue(Date date, String timeZoneId) {
-        final DateTimeValue result = new DateTimeValue();
-        if (date != null) {
-            result.setValue(date);
-        }
-        return result;
+        return date != null ? new DateTimeValue(date) : new DateTimeValue();
     }
 }
 

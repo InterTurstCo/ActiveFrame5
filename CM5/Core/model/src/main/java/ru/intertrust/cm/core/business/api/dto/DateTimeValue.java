@@ -25,6 +25,7 @@ public class DateTimeValue extends Value<DateTimeValue> {
         this.value = value;
     }
 
+    @Deprecated
     public void setValue(Date value) {
         this.value = value;
     }
