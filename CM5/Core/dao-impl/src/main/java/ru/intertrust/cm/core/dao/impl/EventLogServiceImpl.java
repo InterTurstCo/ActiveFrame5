@@ -139,10 +139,6 @@ public class EventLogServiceImpl implements EventLogService {
 
     @Override
     public void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success) {
-        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
-            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
-        }
-
         if (objectId == null) {
             return;
         }
@@ -151,11 +147,18 @@ public class EventLogServiceImpl implements EventLogService {
             return;
         }
 
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
+        }
         newTransactionService.doLogDomainObjectAccess(objectId, accessType, success);
     }
 
     @Override
     public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
+        if (!isDomainObjectAccessLogEnabled()) {
+            return;
+        }
+
         List<DomainObject> objectAccessLogs = null;
 
         for (Id objectId : objectIds) {
@@ -174,6 +177,10 @@ public class EventLogServiceImpl implements EventLogService {
 
     @Override
     public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
+        if (!isDomainObjectAccessLogEnabled()) {
+            return;
+        }
+
         List<DomainObject> objectAccessLogs = null;
 
         for (DomainObject object : objects) {
@@ -214,17 +221,16 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     private DomainObject createObjectAccessLogObject(Id objectId, String accessType, boolean success) {
-        DomainObject objectAccessLog = null;
-        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
-            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
-        }
-
         if (objectId == null) {
-            return objectAccessLog;
+            return null;
         }
 
         if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) {
-            return objectAccessLog;
+            return null;
+        }
+
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
         }
 
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
@@ -236,8 +242,7 @@ public class EventLogServiceImpl implements EventLogService {
         accessLogBuilder.setEventType(EventLogType.ACCESS_OBJECT.name());
         accessLogBuilder.setObjectId(objectId).setAccessType(accessType).setDate(new Date()).setSuccess(success);
 
-        objectAccessLog = createObjectAccessLogDO(accessLogBuilder);
-        return objectAccessLog;
+        return createObjectAccessLogDO(accessLogBuilder);
     }
     
     private DomainObject saveObjectAccessLog(ObjectAccessLogBuilder objectAccessLogBuilder) {
@@ -281,6 +286,14 @@ public class EventLogServiceImpl implements EventLogService {
             return eventLogsConfiguration.getDownloadAttachment().isEnable();
         }
         return false;
+    }
+
+    private boolean isDomainObjectAccessLogEnabled() {
+        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
+        if (eventLogsConfiguration == null || eventLogsConfiguration.getDomainObjectAccess() == null) {
+            return false;
+        }
+        return eventLogsConfiguration.getDomainObjectAccess().isEnable();
     }
 
     public boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {

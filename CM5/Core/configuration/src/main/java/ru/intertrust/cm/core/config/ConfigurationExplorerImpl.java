@@ -693,7 +693,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     @Override
     public EventLogsConfig getEventLogsConfiguration() {
-        return getGlobalSettings() != null ? getGlobalSettings().getEventLogsConfig() : null;
+        GlobalSettingsConfig globalSettings = getGlobalSettings();
+        return globalSettings != null ? globalSettings.getEventLogsConfig() : null;
     }
 
     @Override
