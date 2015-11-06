@@ -34,7 +34,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelHandle;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelLoader;
 import ru.intertrust.cm.core.business.api.notification.NotificationChannelSelector;
-import ru.intertrust.cm.core.business.impl.notification.NotificationServiceController;
+import ru.intertrust.cm.core.business.api.notification.NotificationServiceController;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
 import ru.intertrust.cm.core.dao.api.ActionListener;
