@@ -261,4 +261,7 @@
     <bean id="currentAttachmentSignatureDataService" class="ru.intertrust.cm.core.business.impl.crypto.CurrentAttachmentSignatureDataService"/>
 
     <bean id="domainObjectStoreSignatureService" class="ru.intertrust.cm.core.business.impl.crypto.DomainObjectStoreSignatureService"/>
+
+    <bean id="threadContext" class="ru.intertrust.cm.core.business.impl.ThreadContextImpl" />
+   
 </beans>
