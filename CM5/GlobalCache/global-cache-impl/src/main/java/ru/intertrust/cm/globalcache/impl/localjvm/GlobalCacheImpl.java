@@ -263,7 +263,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyLinkedObjectsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        String lock = linkedType.toLowerCase().intern(); // todo:
+        //String lock = linkedType.toLowerCase().intern(); // todo:
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // todo: this lock doesn't allow to process 2 retrievals simultaneously.
             if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
                 return; // don't put anything as list has been retrieved before the last commit occured
@@ -301,8 +301,8 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
-    public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, Set<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        String lock = linkedType.toLowerCase().intern(); // todo:
+    public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
+        //String lock = linkedType.toLowerCase().intern(); // todo:
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) {
             final UserSubject userSubject = getUserSubject(accessToken);
             if (userSubject != null) { // cache only System Access
@@ -316,7 +316,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 node = objectsTree.addDomainObjectNode(id, new ObjectNode(id, null));
             }
             final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
-            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(linkedObjectsIds);
+            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(new LinkedHashSet<>(linkedObjectsIds));
             node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         }
         assureCacheSizeLimit();
