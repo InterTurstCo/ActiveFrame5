@@ -100,6 +100,13 @@ public interface ConfigurationExplorer {
     Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName);
 
     /**
+     * Возвращает все неизменяемые ссылочные поля типа ДО, включая поля из групп полей и родительских типов ДО
+     * @param domainObjectConfigName
+     * @return
+     */
+    Set<ReferenceFieldConfig> getImmutableReferenceFieldConfigs(String domainObjectConfigName);
+
+    /**
      * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля ()
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
      * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения

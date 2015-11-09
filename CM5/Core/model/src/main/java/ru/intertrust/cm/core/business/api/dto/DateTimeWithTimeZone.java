@@ -93,14 +93,25 @@ public class DateTimeWithTimeZone implements Dto {
     }
 
     @GwtIncompatible
+    public DateTimeWithTimeZone(Date date, int timeZoneUtcOffset) {
+        this(date, new UTCOffsetTimeZoneContext(timeZoneUtcOffset));
+    }
+
+    @GwtIncompatible
     public DateTimeWithTimeZone(Date date, TimeZone timeZone) {
+        this(date, new OlsonTimeZoneContext(timeZone == null ? null : timeZone.getID()));
+    }
+
+    @GwtIncompatible
+    public DateTimeWithTimeZone(Date date, TimeZoneContext timeZoneContext) {
         if (date == null) {
             return;
         }
+        final TimeZone timeZone = TimeZone.getTimeZone(timeZoneContext.getTimeZoneId());
         final Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(date);
 
-        this.timeZoneContext = new OlsonTimeZoneContext(timeZone.getID());
+        this.timeZoneContext = timeZoneContext;
         this.year = cal.get(Calendar.YEAR);
         this.month = cal.get(Calendar.MONTH);
         this.dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);

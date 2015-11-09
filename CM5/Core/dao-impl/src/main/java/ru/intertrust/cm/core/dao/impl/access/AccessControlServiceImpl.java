@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -16,7 +15,10 @@ import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.model.AccessException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Реализация службы контроля доступа.
@@ -190,8 +192,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         if (isAllowedToCreateByStaticGroups(personId, objectType)) {
-            List<String> parentTypes = new ArrayList<>();
-            collectParentTypes(objectType, parentTypes);
+            List<String> parentTypes = Arrays.asList(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(objectType));
 
             AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
             return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
@@ -199,15 +200,6 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
    }
-
-    private void collectParentTypes(String domainObjectType, List<String> parentTypes) {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
-        parentTypes.add(domainObjectType);
-
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            collectParentTypes(domainObjectTypeConfig.getExtendsAttribute(), parentTypes);
-        }
-    }
 
     /**
      * Проверяет права на создание ДО, данные контексным динамическим группам (ролям) и безконтекстным группам.
@@ -230,7 +222,8 @@ public class AccessControlServiceImpl implements AccessControlService {
     public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
 
-        Id[] parentObjects = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        List<Id> immutableParentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        Id[] parentObjects = immutableParentIds.toArray(new Id[immutableParentIds.size()]);
         String objectType = domainObject.getTypeName();
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
@@ -247,8 +240,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         if (isAllowedToCreateByStaticGroups(personId, domainObject)) {
-            List<String> parentTypes = new ArrayList<>();
-            collectParentTypes(objectType, parentTypes);
+            List<String> parentTypes = Arrays.asList(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(objectType));
 
             AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
             return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
@@ -276,19 +268,16 @@ public class AccessControlServiceImpl implements AccessControlService {
     
     @Override
     public AccessToken createCollectionAccessToken(String login) throws AccessException {
-        boolean deferred = true;
 
-        Id personId = getUserIdByLogin(login);
-        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        final Id personId = getUserIdByLogin(login);
+        final Integer personIdInt = (int) ((RdbmsId) personId).getId();
 
-        boolean isSuperUser = isPersonSuperUser(personId);
+        final boolean isSuperUser = isPersonSuperUser(personId);
         if (isSuperUser) {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
-      
-        AccessToken token =
-                new SimpleAccessToken(new UserSubject(personIdInt), null, DomainObjectAccessType.READ, deferred);
-        return token;
+
+        return new SimpleAccessToken(new UserSubject(personIdInt), null, DomainObjectAccessType.READ, true);
     }
 
     @Override
@@ -302,9 +291,9 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        Id[] ids = null;
+        Id[] ids;
         boolean deferred = false;
-        AccessToken token = null;
+        AccessToken token;
         
         if (DomainObjectAccessType.READ.equals(type)) {
             deferred = true;
@@ -555,7 +544,7 @@ public class AccessControlServiceImpl implements AccessControlService {
 
         MultiObjectAccessToken(UserSubject subject, Id[] objectIds, AccessType type, boolean deferred) {
             this.subject = subject;
-            this.objectIds = new HashSet<>(objectIds.length);
+            this.objectIds = new HashSet<>((int) (objectIds.length / 0.75 + 1));
             this.objectIds.addAll(Arrays.asList(objectIds));
             this.type = type;
             this.deferred = deferred;

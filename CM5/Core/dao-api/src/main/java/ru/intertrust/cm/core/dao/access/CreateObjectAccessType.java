@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.dao.access;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -75,12 +74,7 @@ public class CreateObjectAccessType implements AccessType {
                 if (parentTypes.size() != other.parentTypes.size()) {
                     return false;
                 }
-
-                List<String> tempList = new ArrayList<>(parentTypes);
-                tempList.removeAll(other.parentTypes);
-                if (!tempList.isEmpty()) {
-                    return false;
-                }
+                return parentTypes.equals(other.parentTypes);
             }
         }
 

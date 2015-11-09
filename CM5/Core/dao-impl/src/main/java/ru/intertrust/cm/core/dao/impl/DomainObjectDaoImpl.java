@@ -183,14 +183,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         dynamicGroupService.notifyDomainObjectChanged(domainObject, fieldModification[0], beforeSaveInvalicContexts);
 
         // Вызов точки расширения после смены статуса
-        List<String> parentTypes = getAllParentTypes(domainObject.getTypeName());
-        //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-        parentTypes.add("");
+        String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
         for (String typeName : parentTypes) {
-            AfterChangeStatusExtentionHandler extension = extensionService
-                    .getExtentionPoint(AfterChangeStatusExtentionHandler.class, typeName);
-            extension.onAfterChangeStatus(domainObject);
+            extensionService.getExtentionPoint(AfterChangeStatusExtentionHandler.class, typeName).onAfterChangeStatus(domainObject);
         }
+        //вызываем обработчики с неуказанным фильтром
+        extensionService.getExtentionPoint(AfterChangeStatusExtentionHandler.class, "").onAfterChangeStatus(domainObject);
 
         //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
         DomainObjectActionListener listener = getTransactionListener();
@@ -318,15 +316,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
 
         // Вызов точки расширения до сохранения
-        List<String> parentTypes = getAllParentTypes(domainObjects[0].getTypeName());
-        //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-        parentTypes.add("");
+        String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjects[0].getTypeName());
         for (int i = 0; i < domainObjects.length; i++) {
+            DomainObject domainObject = domainObjects[i];
+            List<FieldModification> fieldsModification = changedFields[i];
             for (String typeName : parentTypes) {
-                BeforeSaveExtensionHandler beforeSaveExtension = extensionService
-                        .getExtentionPoint(BeforeSaveExtensionHandler.class, typeName);
-                beforeSaveExtension.onBeforeSave(domainObjects[i], changedFields[i]);
+                extensionService.getExtentionPoint(BeforeSaveExtensionHandler.class, typeName).onBeforeSave(domainObject, fieldsModification);
             }
+            //вызываем обработчики с неуказанным фильтром
+            extensionService.getExtentionPoint(BeforeSaveExtensionHandler.class, "").onBeforeSave(domainObject, fieldsModification);
         }
 
         DomainObjectVersion.AuditLogOperation operation = null;
@@ -585,22 +583,22 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
 
-        RdbmsId firstRdbmsId = (RdbmsId) ids[0];
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
+        final RdbmsId firstRdbmsId = (RdbmsId) ids[0];
+        final DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
                 .getConfig(DomainObjectTypeConfig.class, getDOTypeName(firstRdbmsId.getTypeId()));
+        final String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectTypeConfig.getName());
 
         // Получаем удаляемый доменный объект для вызова точек расширения и пересчета динамических групп. Чтение объекта
         // идет от имени системы, т.к. прав на чтение может не быть у пользователя.
-        AccessToken systemAccessToken = createSystemAccessToken();
+        final AccessToken systemAccessToken = createSystemAccessToken();
 
         DomainObject[] deletedObjects = new DomainObject[ids.length];
-        Map<Id, List<String>> objectsParentTypes = new HashMap<Id, List<String>>();
         int i = 0;
         for (Id id : ids) {
             DomainObject deletedObject = find(id, systemAccessToken);
             deletedObjects[i++] = deletedObject;
             //Прверка наличия доменного объекта
-            if (deletedObject == null){        
+            if (deletedObject == null){
                 //Если взведен флаг игнорировать отсутствие ДО то пропускаем идентификатор, иначе бросаем исключение
                 if (ignoreObjectNotFound){
                     continue;
@@ -611,15 +609,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
             // Точка расширения до удаления
-            List<String> parentTypes = getAllParentTypes(domainObjectTypeConfig.getName());
-            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-            parentTypes.add("");
             for (String typeName : parentTypes) {
-                BeforeDeleteExtensionHandler beforeDeleteEH = extensionService
-                        .getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName);
-                beforeDeleteEH.onBeforeDelete(deletedObject);
+                extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, typeName).onBeforeDelete(deletedObject);
             }
-            objectsParentTypes.put(id, parentTypes);
+            //вызваем обработчики с неуказанным фильтром
+            extensionService.getExtentionPoint(BeforeDeleteExtensionHandler.class, "").onBeforeDelete(deletedObject);
 
             //Пересчет прав непосредственно перед удалением объекта из базы, чтобы не нарушать целостность данных
             refreshDynamiGroupsAndAclForDelete(deletedObject, beforeChangeInvalidGroups);
@@ -651,7 +645,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
-            for (String typeName : objectsParentTypes.get(deletedObject.getId())) {
+            for (String typeName : parentTypes) {
                 AfterDeleteExtensionHandler afterDeleteEH = extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
 
                 afterDeleteEH.onAfterDelete(deletedObject);
@@ -678,25 +672,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
         }
     }
-
-    /**
-     * Получение всей цепочки родительских типов начиная от переданноготв параметре
-     * @param name
-     * @return
-     */
-    private List<String> getAllParentTypes(String name) {
-        List<String> result = new ArrayList<String>();
-        result.add(name);
-
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, name);
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
-        }
-
-        return result;
-    }
-
 
     /**
      * Удаление объекта из базяы
@@ -1938,7 +1913,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         String tableAlias = getSqlAlias(linkedType);
         String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
 
-        StringBuilder query = new StringBuilder("select ");
+        StringBuilder query = new StringBuilder(200);
+        query.append("select ");
         appendColumnsQueryPart(query, linkedType);
         if (!exactType) {
             appendChildColumns(query, linkedType);
@@ -2148,12 +2124,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void verifyAccessTokenOnCreate(AccessToken accessToken, GenericDomainObject domainObject) {
         String domainObjectType = domainObject.getTypeName();
-        Id[] parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        List<Id> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
 
-        if (parentIds != null && parentIds.length > 0) {
+        if (parentIds != null && parentIds.size() > 0) {
             AccessType accessType = new CreateChildAccessType(domainObjectType);
+            String currentUser = currentUserAccessor.getCurrentUser();
             for (Id parentId : parentIds) {
-                AccessToken linkAccessToken = accessControlService.createAccessToken(currentUserAccessor.getCurrentUser(), parentId, new CreateChildAccessType(domainObjectType));
+                AccessToken linkAccessToken = accessControlService.createAccessToken(currentUser, parentId, accessType);
                 accessControlService.verifyAccessToken(linkAccessToken, parentId, accessType);
             }
         } else {

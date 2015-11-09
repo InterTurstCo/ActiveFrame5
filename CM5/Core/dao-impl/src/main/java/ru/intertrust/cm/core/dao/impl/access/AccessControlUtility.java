@@ -5,15 +5,13 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.impl.PostgreSqlQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
@@ -62,23 +60,15 @@ public class AccessControlUtility {
      * @param domainObject
      * @return
      */
-    public static Id[] getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
+    public static List<Id> getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
         String domainObjectType = domainObject.getTypeName();
-        DomainObjectTypeConfig domainObjectTypeConfig =
-                configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
-
-        List<Id> parentIds = new ArrayList<>();
-
-        for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
-            if (fieldConfig instanceof ReferenceFieldConfig) {
-
-                if (((ReferenceFieldConfig) fieldConfig).isImmutable()) {
-                    Id parentObject = domainObject.getReference(fieldConfig.getName());
-                    parentIds.add(parentObject);
-                }
-            }
+        Set<ReferenceFieldConfig> refFields = configurationExplorer.getImmutableReferenceFieldConfigs(domainObjectType);
+        List<Id> parentIds = new ArrayList<>(refFields.size());
+        for (ReferenceFieldConfig fieldConfig : refFields) {
+            Id parentObject = domainObject.getReference(fieldConfig.getName());
+            parentIds.add(parentObject);
         }
-        return parentIds.toArray(new Id[parentIds.size()]);
+        return parentIds;
     }
 
     public static String getRelevantType(String typeName, ConfigurationExplorer configurationExplorer) {
@@ -96,4 +86,42 @@ public class AccessControlUtility {
         return userGroupCache.isAdministrator(personId) && configurationExplorer.getAccessMatrixByObjectType(domainObjectType) == null;
     }
 
+    /**
+     * Получение всех дочерних типов переданного типа
+     *
+     * @param type
+     * @return
+     */
+    public static List<String> getSubTypes(String type, ConfigurationExplorer configurationExplorer) {
+        // Получение всех конфигураций доменных оьъектов
+        Collection<DomainObjectTypeConfig> configs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        HashMap<String, HashSet<String>> directInheritors = new HashMap<>(configs.size() / 5);
+        for (DomainObjectTypeConfig config : configs) {
+            String typeExtended = config.getExtendsAttribute();
+            if (typeExtended == null) {
+                continue;
+            }
+            HashSet<String> inheritors = directInheritors.get(typeExtended);
+            if (inheritors == null) {
+                inheritors = new HashSet<>();
+                directInheritors.put(typeExtended, inheritors);
+            }
+            inheritors.add(config.getName());
+        }
+        return getSubTypes(type, directInheritors);
+    }
+
+    private static List<String> getSubTypes(String type, HashMap<String, HashSet<String>> directInheritors) {
+        // Получение всех конфигураций доменных оьъектов
+        HashSet<String> typeInheritors = directInheritors.get(type);
+        if (typeInheritors == null) {
+            return Collections.emptyList();
+        }
+        List<String> result = new ArrayList<>();
+        for (String inheritor : typeInheritors) {
+            result.add(inheritor);
+            result.addAll(getSubTypes(inheritor, directInheritors));
+        }
+        return result;
+    }
 }

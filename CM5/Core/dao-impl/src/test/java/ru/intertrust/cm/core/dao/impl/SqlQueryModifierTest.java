@@ -1,26 +1,12 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
-import java.util.Arrays;
-
 import net.sf.jsqlparser.statement.select.SelectBody;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -31,6 +17,12 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
+
+import java.util.Arrays;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
@@ -44,13 +36,13 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED =
             "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r " +
+                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
                     "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
                     "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" " +
-                    "FROM \"department_read\" r INNER JOIN \"group_group\" gg ON " +
+                    "FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
                     "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
                     "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
                     "r.\"object_id\" = rt.\"access_object_id\")) d";
@@ -76,12 +68,12 @@ public class SqlQueryModifierTest {
 
     private static final String PLAIN_SELECT_QUERY_WITH_ACL =
             "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r " +
+                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
                     "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
@@ -89,23 +81,23 @@ public class SqlQueryModifierTest {
 
     private static final String UNION_QUERY_WITH_ACL =
             "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r " +
+                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
                     "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
                     "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM " +
-                    "\"department_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
+                    "\"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 1) UNION " +
                     "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r " +
+                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
                     "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
+                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
