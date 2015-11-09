@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -155,6 +156,19 @@ public class SchemaCacheImpl implements SchemaCache {
         }
 
         return null;
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getUniqueKeys(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public Collection<UniqueKeyInfo> getUniqueKeys(DomainObjectTypeConfig config) {
+        Map<String, UniqueKeyInfo> domainObjectTypeKeys = uniqueKeys.get(getSqlName(config.getName()));
+        if (domainObjectTypeKeys == null) {
+            return null;
+        }
+
+        return domainObjectTypeKeys.values();
     }
 
     /**
