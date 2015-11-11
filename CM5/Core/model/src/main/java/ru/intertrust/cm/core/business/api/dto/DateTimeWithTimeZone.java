@@ -125,72 +125,32 @@ public class DateTimeWithTimeZone implements Dto {
         return year;
     }
 
-    @Deprecated
-    public void setYear(int year) {
-        this.year = year;
-    }
-
     public int getMonth() {
         return month;
-    }
-
-    @Deprecated
-    public void setMonth(int month) {
-        this.month = month;
     }
 
     public int getDayOfMonth() {
         return dayOfMonth;
     }
 
-    @Deprecated
-    public void setDayOfMonth(int dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
-    }
-
     public int getHours() {
         return hours;
-    }
-
-    @Deprecated
-    public void setHours(int hours) {
-        this.hours = hours;
     }
 
     public int getMinutes() {
         return minutes;
     }
 
-    @Deprecated
-    public void setMinutes(int minutes) {
-        this.minutes = minutes;
-    }
-
     public int getSeconds() {
         return seconds;
-    }
-
-    @Deprecated
-    public void setSeconds(int seconds) {
-        this.seconds = seconds;
     }
 
     public int getMilliseconds() {
         return milliseconds;
     }
 
-    @Deprecated
-    public void setMilliseconds(int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
     public TimeZoneContext getTimeZoneContext() {
         return timeZoneContext;
-    }
-
-    @Deprecated
-    public void setTimeZoneContext(TimeZoneContext timeZoneContext) {
-        this.timeZoneContext = timeZoneContext;
     }
 
     @Override

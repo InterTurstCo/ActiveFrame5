@@ -53,9 +53,4 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
     public TimelessDate getValue() {
         return value;
     }
-
-    @Deprecated
-    public void setValue(TimelessDate value) {
-        this.value = value;
-    }
 }

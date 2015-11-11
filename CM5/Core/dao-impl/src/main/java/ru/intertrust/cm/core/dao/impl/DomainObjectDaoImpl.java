@@ -346,20 +346,20 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             String auditLogTableName = DataStructureNamingHelper.getALTableSqlName(domainObjects[i].getTypeName());
             Integer auditLogType = domainObjectTypeIdCache.getId(auditLogTableName);
 
+            DomainObject domainObject = result[i];
             // Запись в auditLog
-            createAuditLog(result[i], result[i].getTypeName(),
-                    auditLogType, accessToken, operation);
+            createAuditLog(domainObject, domainObject.getTypeName(), auditLogType, accessToken, operation);
 
             // Вызов точки расширения после сохранения
+            List<FieldModification> doChangedFields = changedFields[i];
             for (String typeName : parentTypes) {
-                AfterSaveExtensionHandler afterSaveExtension = extensionService
-                        .getExtentionPoint(AfterSaveExtensionHandler.class, typeName);
-                afterSaveExtension.onAfterSave(result[i], changedFields[i]);
+                extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, typeName).onAfterSave(domainObject, doChangedFields);
             }
+            extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, "").onAfterSave(domainObject, doChangedFields);
 
             //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
             DomainObjectActionListener listener = getTransactionListener();
-            listener.addSavedDomainObject(result[i], changedFields[i]);
+            listener.addSavedDomainObject(domainObject, doChangedFields);
 
         }
 
@@ -646,14 +646,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             }
 
             for (String typeName : parentTypes) {
-                AfterDeleteExtensionHandler afterDeleteEH = extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName);
-
-                afterDeleteEH.onAfterDelete(deletedObject);
+                extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
 
                 //Добавляем слушателя коммита транзакции, чтобы вызвать точки расширения после транзакции
                 DomainObjectActionListener listener = getTransactionListener();
                 listener.addDeletedDomainObject(deletedObject);
             }
+            extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
         }
 
         return deleted;
