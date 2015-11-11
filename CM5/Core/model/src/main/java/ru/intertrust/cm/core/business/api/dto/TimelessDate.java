@@ -44,27 +44,12 @@ public class TimelessDate implements Dto, Comparable<TimelessDate> {
         return year;
     }
 
-    @Deprecated
-    public void setYear(int year) {
-        this.year = year;
-    }
-
     public int getMonth() {
         return month;
     }
 
-    @Deprecated
-    public void setMonth(int month) {
-        this.month = month;
-    }
-
     public int getDayOfMonth() {
         return dayOfMonth;
-    }
-
-    @Deprecated
-    public void setDayOfMonth(int dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
     }
 
     /**

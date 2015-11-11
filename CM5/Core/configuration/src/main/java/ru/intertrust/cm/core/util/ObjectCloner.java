@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class ObjectCloner {
     private static final Class<Value>[] IMMUTABLE_VALUE_CLASSES = new Class[] {
-            BooleanValue.class, DecimalValue.class, ImagePathValue.class,
-            LongValue.class, ReferenceValue.class, StringValue.class
+            BooleanValue.class, DateTimeValue.class, DateTimeWithTimeZoneValue.class, DecimalValue.class, ImagePathValue.class,
+            LongValue.class, ReferenceValue.class, StringValue.class, TimelessDateValue.class
     };
 
     private static final ThreadLocal<ObjectCloner> objectCloner = new ThreadLocal<ObjectCloner>() {

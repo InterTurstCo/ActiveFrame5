@@ -44,11 +44,6 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
         return value;
     }
 
-    @Deprecated
-    public void setValue(DateTimeWithTimeZone value) {
-        this.value = value;
-    }
-
     @GwtIncompatible
     @Override
     public int compareTo(DateTimeWithTimeZoneValue o) {
