@@ -53,6 +53,7 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                         "join pg_attribute attr on attr.attrelid = table_class.oid " +
                         "join pg_tables tables on table_class.relname = tables.tablename " +
                     "where attr.attnum = ANY(pg_index.indkey) and table_class.relkind = 'r' and " +
+                        "index_class.relname like 'i_%' and " +
                         "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
                     "order by table_class.relname, index_class.relname;";
 

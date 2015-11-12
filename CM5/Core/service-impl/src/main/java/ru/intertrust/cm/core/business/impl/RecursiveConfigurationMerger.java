@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.getSourceDomainObjectType;
+import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.isParentObject;
+
 /**
 * Recursively merges configurations
 * Designed as prototype, not thread-safe, instances are not reusable!!!
@@ -130,7 +133,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             }
 
             if (!newFieldConfigs.isEmpty()) {
-                boolean isParent = isParentObject(domainObjectTypeConfig);
+                boolean isParent = isParentObject(domainObjectTypeConfig, configurationExplorer);
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false, isParent);
                 setSchemaUpdateDone();
             }
@@ -152,13 +155,13 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                           DomainObjectTypeConfig oldDomainObjectTypeConfig) {
         boolean isAl = configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName());
-        boolean isParent = isParentObject(domainObjectTypeConfig);
+        boolean isParent = isParentObject(domainObjectTypeConfig, configurationExplorer);
         DomainObjectTypeConfig sourceDomainObjectTypeConfig = null;
 
         Integer usedId;
 
         if (isAl) {
-            sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig);
+            sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig, configurationExplorer);
             usedId = domainObjectTypeIdDao.findIdByName(sourceDomainObjectTypeConfig.getName());
         } else {
             usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
