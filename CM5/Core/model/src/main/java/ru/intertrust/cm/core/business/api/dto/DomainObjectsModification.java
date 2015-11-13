@@ -91,7 +91,7 @@ public class DomainObjectsModification implements Dto {
 
     public List<FieldModification> getFieldModificationList(Id id) {
         Map<String, FieldModification> map = savedDomainObjectsModificationMap.get(id);
-        List<FieldModification> result = new ArrayList<>();
+        List<FieldModification> result = new ArrayList<>(map.size());
         for (FieldModification field : map.values()) {
             result.add(field);
         }

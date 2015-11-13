@@ -224,7 +224,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (isReactivationUndergoing()) {
             return;
         }
-        final Set<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
+        final List<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
         if (idsOfUnmodifiedObjects.size() != linkedObjectsIds.size()) {
             return;
         } else {
@@ -438,11 +438,11 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         return trustedObjects;
     }
 
-    private Set<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
+    private List<Id> getIdsOfObjectsUnmodifiedInTransaction(Collection<Id> ids) {
         if (ids.isEmpty()) {
-            return Collections.emptySet();
+            return Collections.emptyList();
         }
-        LinkedHashSet<Id> trustedIds = new LinkedHashSet<>(ids.size());
+        ArrayList<Id> trustedIds = new ArrayList<>(ids.size());
         for (Id id : ids) {
             if (!isChangedInTransaction(id)) {
                 trustedIds.add(id);

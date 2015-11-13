@@ -28,6 +28,7 @@ public class ConfigurationStorage {
     public Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
 
     public CaseInsensitiveMap<Set<ReferenceFieldConfig>> referenceFieldsMap = new CaseInsensitiveMap<>();
+    public CaseInsensitiveMap<Set<ReferenceFieldConfig>> immutableReferenceFieldsMap = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> directChildDomainObjectTypesMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveMap<Collection<DomainObjectTypeConfig>> indirectChildDomainObjectTypesMap = new CaseInsensitiveMap<>();
@@ -55,6 +56,8 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<String> auditLogTypes = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<String[]> domainObjectTypesHierarchy = new CaseInsensitiveMap<>();
+
+    public CaseInsensitiveMap<String[]> domainObjectTypesHierarchyBeginningFromType = new CaseInsensitiveMap<>();
 
     public CaseInsensitiveMap<LogDomainObjectAccessConfig> eventLogDomainObjectAccessConfig = new CaseInsensitiveMap<>();
 

@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -170,7 +169,7 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        configurationStorage.dynamicGroupConfigByContextMap.put(domainObjectType, dynamicGroups);
+        configurationStorage.dynamicGroupConfigByContextMap.put(domainObjectType, Collections.unmodifiableList(dynamicGroups));
         return dynamicGroups;
     }
 
@@ -194,7 +193,7 @@ public class ConfigurationStorageBuilder {
             }
         }
 
-        configurationStorage.dynamicGroupConfigsByTrackDOMap.put(new FieldConfigKey(trackDOTypeName, status), resultList);
+        configurationStorage.dynamicGroupConfigsByTrackDOMap.put(new FieldConfigKey(trackDOTypeName, status), Collections.unmodifiableList(resultList));
         return resultList;
     }
 
@@ -358,6 +357,12 @@ public class ConfigurationStorageBuilder {
     public String[] fillDomainObjectTypesHierarchyMap(String typeName) {
         List<String> typesHierarchy = new ArrayList<>();
         buildDomainObjectTypesHierarchy(typesHierarchy, typeName);
+
+        List<String> typesInAscendingOrder = new ArrayList<>(typesHierarchy.size() + 1);
+        typesInAscendingOrder.add(typeName);
+        typesInAscendingOrder.addAll(typesHierarchy);
+        configurationStorage.domainObjectTypesHierarchyBeginningFromType.put(typeName, typesInAscendingOrder.toArray(new String[typesInAscendingOrder.size()]));
+
         Collections.reverse(typesHierarchy);
         String[] types = typesHierarchy.toArray(new String[typesHierarchy.size()]);
         configurationStorage.domainObjectTypesHierarchy.put(typeName, types);
@@ -479,16 +484,22 @@ public class ConfigurationStorageBuilder {
         }
 
         Set<ReferenceFieldConfig> referenceFieldConfigs = new HashSet<>();
+        Set<ReferenceFieldConfig> immutableReferenceFieldConfigs = new HashSet<>();
         for (String typeName : allTypeNames) {
             DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(typeName);
             for (FieldConfig fieldConfig : config.getFieldConfigs()) {
                 if (ReferenceFieldConfig.class.equals(fieldConfig.getClass())) {
-                    referenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                    ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
+                    referenceFieldConfigs.add(referenceFieldConfig);
+                    if (fieldConfig.isImmutable()) {
+                        immutableReferenceFieldConfigs.add(referenceFieldConfig);
+                    }
                 }
             }
         }
 
-        configurationStorage.referenceFieldsMap.put(domainObjectTypeConfigName, referenceFieldConfigs);
+        configurationStorage.referenceFieldsMap.put(domainObjectTypeConfigName, Collections.unmodifiableSet(referenceFieldConfigs));
+        configurationStorage.immutableReferenceFieldsMap.put(domainObjectTypeConfigName, Collections.unmodifiableSet(immutableReferenceFieldConfigs));
         return referenceFieldConfigs;
     }
 
@@ -498,8 +509,8 @@ public class ConfigurationStorageBuilder {
         String typeName = type.getName();
 
         initConfigurationMapOfChildDomainObjectTypes(typeName, directChildTypes, indirectChildTypes, true);
-        configurationStorage.directChildDomainObjectTypesMap.put(typeName, directChildTypes);
-        configurationStorage.indirectChildDomainObjectTypesMap.put(typeName, indirectChildTypes);
+        configurationStorage.directChildDomainObjectTypesMap.put(typeName, Collections.unmodifiableList(directChildTypes));
+        configurationStorage.indirectChildDomainObjectTypesMap.put(typeName, Collections.unmodifiableList(indirectChildTypes));
     }
 
     /**

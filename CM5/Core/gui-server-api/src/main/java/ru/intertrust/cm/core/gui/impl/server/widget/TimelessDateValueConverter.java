@@ -1,17 +1,17 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
 import ru.intertrust.cm.core.business.api.dto.FieldType;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -40,7 +40,6 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
     @Override
     public TimelessDateValue contextToValue(DateTimeContext dateTimeContext) {
         if (dateTimeContext.getDateTime() != null) {
-            final TimelessDate result = new TimelessDate();
             final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
 //            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
 //            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
@@ -49,10 +48,11 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
                 final Date date = dateFormat.parse(dateTimeContext.getDateTime());
                 final Calendar calendar = Calendar.getInstance(GuiServerHelper.GMT_TIME_ZONE);
                 calendar.setTime(date);
-                result.setYear(calendar.get(Calendar.YEAR));
-                result.setMonth(calendar.get(Calendar.MONTH));
-                result.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                return new TimelessDateValue(result);
+                return new TimelessDateValue(new TimelessDate(
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH)
+                ));
             } catch (ParseException ignored) {
                 ignored.printStackTrace();  // for developers only
             }
@@ -73,16 +73,15 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
 
     @Override
     public TimelessDateValue dateToValue(Date date, String timeZoneId) {
-        final TimelessDateValue result = new TimelessDateValue();
         if (date != null) {
-            final TimelessDate timelessDate = new TimelessDate();
             final Calendar calendar = Calendar.getInstance(GuiServerHelper.GMT_TIME_ZONE);
             calendar.setTime(date);
-            timelessDate.setYear(calendar.get(Calendar.YEAR));
-            timelessDate.setMonth(calendar.get(Calendar.MONTH));
-            timelessDate.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-            result.setValue(timelessDate);
+            return new TimelessDateValue(new TimelessDate(
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ));
         }
-        return result;
+        return new TimelessDateValue();
     }
 }

@@ -292,6 +292,8 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="domain-object-type"/>
         <xs:attribute type="xs:string" name="form"/>
+        <xs:attribute type="xs:string" name="modal-width" use="optional"/>
+        <xs:attribute type="xs:string" name="modal-height" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="usersType">

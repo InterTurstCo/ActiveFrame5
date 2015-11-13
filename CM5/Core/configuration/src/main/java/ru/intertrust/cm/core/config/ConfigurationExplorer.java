@@ -100,6 +100,13 @@ public interface ConfigurationExplorer {
     Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName);
 
     /**
+     * Возвращает все неизменяемые ссылочные поля типа ДО, включая поля из групп полей и родительских типов ДО
+     * @param domainObjectConfigName
+     * @return
+     */
+    Set<ReferenceFieldConfig> getImmutableReferenceFieldConfigs(String domainObjectConfigName);
+
+    /**
      * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля ()
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
      * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
@@ -235,6 +242,13 @@ public interface ConfigurationExplorer {
      * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
      */
     String[] getDomainObjectTypesHierarchy(String typeName);
+
+    /**
+     * Нахождение иерархии наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     * @param typeName имя типа доменного объекта
+     * @return иерархию наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     */
+    String[] getDomainObjectTypesHierarchyBeginningFromType(String typeName);
 
     void updateConfig(TopLevelConfig config);
     

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 
 /**
  * Утилитные методы работы с конфигурацией.
@@ -18,13 +17,7 @@ public class ConfigurationExplorerUtils {
      * @return
      */
     public static String getTopLevelParentType(ConfigurationExplorer configurationExplorer, String objectType) {
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, objectType);        
-        if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
-            String parentType = domainObjectTypeConfig.getExtendsAttribute();
-            return getTopLevelParentType(configurationExplorer, parentType);
-        }else{
-            return objectType;
-        }
-        
+        return configurationExplorer.getDomainObjectRootType(objectType);
+
     }
 }

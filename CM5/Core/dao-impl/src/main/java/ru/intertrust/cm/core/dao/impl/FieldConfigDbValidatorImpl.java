@@ -118,28 +118,6 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
                 throw new ConfigurationValidationException(message.toString());
             }
         }
-
-        for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
-            for (BaseIndexExpressionConfig baseIndexExpressionConfig : indexConfig.getIndexFieldConfigs()) {
-                if (!(baseIndexExpressionConfig instanceof IndexFieldConfig)) {
-                    continue;
-                }
-
-                IndexFieldConfig indexFieldConfig = (IndexFieldConfig) baseIndexExpressionConfig;
-
-                if (!indexFieldConfig.getName().equalsIgnoreCase(fieldConfig.getName())) {
-                    continue;
-                }
-
-                String indexName = schemaCache.getIndexName(domainObjectTypeConfig, indexConfig);
-                if (indexName != null) {
-                    continue;
-                }
-
-                StringBuilder message = generateIndexNotFoundExceptionMessage(fieldConfig, domainObjectTypeConfig, indexConfig);
-                throw new ConfigurationValidationException(message.toString());
-            }
-        }
     }
 
     private StringBuilder generateUniqueKeyNotFoundExceptionMessage(FieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, UniqueKeyConfig uniqueKeyConfig) {
@@ -150,26 +128,6 @@ public class FieldConfigDbValidatorImpl implements FieldConfigDbValidator {
 
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig2 : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             message.append(uniqueKeyFieldConfig2.getName()).append(", ");
-        }
-
-        message.delete(message.length() - 2, message.length() - 1);
-        return message;
-    }
-
-    private StringBuilder generateIndexNotFoundExceptionMessage(FieldConfig fieldConfig, DomainObjectTypeConfig domainObjectTypeConfig, IndexConfig indexConfig) {
-        StringBuilder message = new StringBuilder();
-
-        message.append("Validation against DB failed for field '").
-                append(domainObjectTypeConfig.getName()).append(".").append(fieldConfig.getName()).
-                append("' because required index doesn't exist. The required index fields: ");
-
-        for (BaseIndexExpressionConfig baseIndexExpressionConfig : indexConfig.getIndexFieldConfigs()) {
-            if (!(baseIndexExpressionConfig instanceof IndexFieldConfig)) {
-                continue;
-            }
-
-            IndexFieldConfig indexFieldConfig = (IndexFieldConfig) baseIndexExpressionConfig;
-            message.append(indexFieldConfig.getName()).append(", ");
         }
 
         message.delete(message.length() - 2, message.length() - 1);

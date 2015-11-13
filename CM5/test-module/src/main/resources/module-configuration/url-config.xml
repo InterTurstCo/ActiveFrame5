@@ -4,6 +4,6 @@
         <![CDATA[test]]>
     </url-config>
     <url-config name="CLIENT2">
-        <![CDATA[http://${environment.getProperty("url.server.host.name")}:8080/sochi-server?document=${domainObject.getIdAsString()}]]>
+        <![CDATA[http://${environment.getProperty("url.server.host.name")}:8080/sochi-server?document=${domainObject.getIdAsString()}&hash=${hash.getHash()}]]>
     </url-config>
 </configuration>

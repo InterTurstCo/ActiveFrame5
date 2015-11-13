@@ -17,9 +17,15 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateExtentionHandler;
-import ru.intertrust.cm.core.model.*;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Реализация сервиса для работы c базовы CRUD-операциями. Смотри link @CrudService
@@ -87,12 +93,12 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
 
     public DomainObject find(Id id) {
         try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = null;
+            final AccessToken accessToken;
 
             if (isReadPermittedToEverybody(id)) {
                 accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
             } else {
+                String user = currentUserAccessor.getCurrentUser();
                 accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.READ);
             }
 
@@ -150,7 +156,7 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
         }
 
         try {
-            AccessToken accessToken = null;
+            AccessToken accessToken;
 
             if (isReadPermittedToEverybody(domainObjectType)) {
                 accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
@@ -284,13 +290,12 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
             domainObject.setModifiedDate(currentDate);
 
             //Точка расширения после создания
-            List<String> parentTypes = getAllParentTypes(name);
-            //Добавляем в список типов пустую строку, чтобы вызвались обработчики с неуказанным фильтром
-            parentTypes.add("");
+            String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(name);
             for (String typeName : parentTypes) {
-                AfterCreateExtentionHandler extension = extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName);
-                extension.onAfterCreate(domainObject);
+                extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, typeName).onAfterCreate(domainObject);
             }
+            //вызываем обработчики с неуказанным фильтром
+            extensionService.getExtentionPoint(AfterCreateExtentionHandler.class, "").onAfterCreate(domainObject);
 
             return domainObject;
         } catch (SystemException | NullPointerException | IllegalArgumentException ex) {
@@ -346,8 +351,8 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
 
     public DomainObject findAndLock(Id id) {
         try {
-            String user = currentUserAccessor.getCurrentUser();
-            AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
+            final String user = currentUserAccessor.getCurrentUser();
+            final AccessToken accessToken = accessControlService.createAccessToken(user, id, DomainObjectAccessType.WRITE);
 
             DomainObject result = domainObjectDao.findAndLock(id, accessToken);
             if (result == null) {
@@ -416,35 +421,16 @@ public class CrudServiceBaseImpl implements CrudServiceDelegate, CrudServiceDele
     }
 
     private AccessToken createAccessTokenForFindLinkedDomainObjects(String linkedType) {
-        AccessToken accessToken = null;
+        AccessToken accessToken;
         Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
 
-        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions) {
+        if (isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions(personId, linkedType)) {
             accessToken = accessControlService.createSystemAccessToken("TransactionalCrudServiceImpl");
         } else {
             String user = currentUserAccessor.getCurrentUser();
             accessToken = accessControlService.createCollectionAccessToken(user);
         }
         return accessToken;
-    }
-
-    /**
-     * Получение всей цепочки родительских типов начиная от переданноготв параметре
-     * @param name
-     * @return
-     */
-    private List<String> getAllParentTypes(String name) {
-        List<String> result = new ArrayList<String>();
-        result.add(name);
-
-        DomainObjectTypeConfig domainObjectTypeConfig = configurationExplorer
-                .getConfig(DomainObjectTypeConfig.class, name);
-        if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-            result.addAll(getAllParentTypes(domainObjectTypeConfig.getExtendsAttribute()));
-        }
-
-        return result;
     }
 
     private void checkForAttachment(String objectType) {

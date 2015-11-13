@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.config.base.Configuration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +12,8 @@ import java.util.List;
  */
 public class DomainObjectTypeUtility {
 
-    public static List<FieldConfig> getAllFieldConfigs(DomainObjectFieldsConfig objectFieldsConfig, ConfigurationExplorer configurationExplorer) {
+    public static List<FieldConfig> getAllFieldConfigs(DomainObjectFieldsConfig objectFieldsConfig,
+                                                       ConfigurationExplorer configurationExplorer) {
         List<FieldConfig> totalFieldConfigs = new ArrayList<>();
         if (objectFieldsConfig == null || objectFieldsConfig.getFieldConfigs() == null) {
             return totalFieldConfigs;
@@ -26,6 +29,31 @@ public class DomainObjectTypeUtility {
         }
 
         return totalFieldConfigs;
+    }
+
+    public static boolean isParentObject(DomainObjectTypeConfig config, ConfigurationExplorer configurationExplorer) {
+        boolean isParent = false;
+        if (configurationExplorer.isAuditLogType(config.getName())) {
+            DomainObjectTypeConfig parentObjectConfig = getSourceDomainObjectType(config, configurationExplorer);
+            if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null && (!parentObjectConfig.isTemplate())) {
+                isParent = false;
+            } else {
+                isParent = true;
+            }
+
+        } else {
+            isParent = config.getExtendsAttribute() == null;
+        }
+        return isParent;
+    }
+
+    public static DomainObjectTypeConfig getSourceDomainObjectType(DomainObjectTypeConfig config, ConfigurationExplorer configurationExplorer) {
+        if (!configurationExplorer.isAuditLogType(config.getName())) {
+            return null;
+        }
+
+        String name = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        return configurationExplorer.getDomainObjectTypeConfig(name);
     }
     
 }

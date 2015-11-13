@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.dao.impl.utils.UniqueKeysRowMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
@@ -78,6 +79,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         
         jdbcTemplate.update(getQueryHelper().generateCreateTableQuery(config, isParentType));
 
+        createTableIndices(config, isParentType);
+    }
+
+    @Override
+    public void createTableIndices(DomainObjectTypeConfig config, boolean isParentType) {
         createAutoIndices(config, isParentType);
         createExplicitIndexes(config, config.getIndicesConfig().getIndices());
     }
@@ -133,14 +139,14 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     }
 
     @Override    
-    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){        
+    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){
         if (domainObjectTypeConfig.getName() == null || ((indexConfigsToDelete == null || indexConfigsToDelete.isEmpty()))) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
         getQueryHelper().skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
 
         List<String> indexNamesToDelete = new ArrayList<>(indexConfigsToDelete.size());
-        
+
         for (IndexConfig indexConfigToDelete : indexConfigsToDelete) {
             List<String> indexFields = new ArrayList<>();
             List<String> indexExpressions = new ArrayList<>();
@@ -161,8 +167,20 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             indexName = getQueryHelper().generateExplicitIndexName(domainObjectTypeConfig, indexFields, indexExpressions);
             indexNamesToDelete.add(indexName);
         }
-        
+
         String deleteIndexesQuery = getQueryHelper().generateDeleteExplicitIndexesQuery(indexNamesToDelete);
+        if (deleteIndexesQuery != null) {
+            jdbcTemplate.update(deleteIndexesQuery);
+        }
+    }
+
+    @Override
+    public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, Set<String> indicesToDelete){
+        if (domainObjectTypeConfig.getName() == null || ((indicesToDelete == null || indicesToDelete.isEmpty()))) {
+            throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }
+
+        String deleteIndexesQuery = getQueryHelper().generateDeleteExplicitIndexesQuery(indicesToDelete);
         if (deleteIndexesQuery != null) {
             jdbcTemplate.update(deleteIndexesQuery);
         }
@@ -404,16 +422,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                 }
             }
 
-            createIndexForAccessObjectId(config, index, isAl);
-
         }
-    }
-
-    private void createIndexForAccessObjectId(DomainObjectTypeConfig config, int index, boolean isAl) {
-        ReferenceFieldConfig accessObjectIdConfig = new ReferenceFieldConfig();
-        accessObjectIdConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);            
-        //тип ссылочного поля не должен быть типа *, т.к. нет поля access_object_id_type и оно не будет указвано в DDL для индекса.
-        jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, accessObjectIdConfig, index, isAl));
     }
 
     protected abstract String generateSelectTableIndexes();

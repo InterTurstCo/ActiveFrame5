@@ -64,7 +64,7 @@ public class DomainObjectQueryHelper {
      * @return SQL запрос для нахождения доменного объекта
      */
     public String generateFindQuery(String typeName, AccessToken accessToken, boolean lock) {
-        StringBuilder whereClause = new StringBuilder();
+        StringBuilder whereClause = new StringBuilder(50);
         whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append("=:id");
 
         return generateFindQuery(typeName, accessToken, lock, null, whereClause, null, true);
@@ -78,7 +78,7 @@ public class DomainObjectQueryHelper {
      * @return SQL запрос для нахождения доменного объекта
      */
     public String generateMultiObjectFindQuery(String typeName, AccessToken accessToken, boolean lock) {
-        StringBuilder whereClause = new StringBuilder();
+        StringBuilder whereClause = new StringBuilder(50);
         whereClause.append(getSqlAlias(typeName)).append(".").append(wrap(ID_COLUMN)).append(" in (:ids)");
 
         return generateFindQuery(typeName, accessToken, lock, null, whereClause, null, false);
@@ -91,7 +91,7 @@ public class DomainObjectQueryHelper {
      * @return SQL запрос для нахождения доменного объекта
      */
     public String generateFindQuery(String typeName, UniqueKeyConfig uniqueKeyConfig, AccessToken accessToken, boolean lock) {
-        StringBuilder whereClause = new StringBuilder();
+        StringBuilder whereClause = new StringBuilder(50);
 
         String tableAlias = getSqlAlias(typeName);
         int paramCounter = 0;
@@ -212,7 +212,7 @@ public class DomainObjectQueryHelper {
                                      StringBuilder whereClause, StringBuilder orderClause, boolean isSingleDomainObject) {
         String tableAlias = getSqlAlias(typeName);
 
-        StringBuilder query = new StringBuilder();
+        StringBuilder query = new StringBuilder(200);
         query.append("select ");
         appendColumnsQueryPart(query, typeName);
 
@@ -274,7 +274,6 @@ public class DomainObjectQueryHelper {
             boolean isAdministratorWithAllPermissions = AccessControlUtility.isAdministratorWithAllPermissions(personId, typeName, userGroupCache, configurationExplorer);
 
             //Получаем матрицу для permissionType
-            AccessMatrixConfig accessMatrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(permissionType);
             //В полученной матрице получаем флаг read-evrybody и если его нет то добавляем подзапрос с правами
             if (!isReadEveryBody(permissionType) && !isAdministratorWithAllPermissions) {
 

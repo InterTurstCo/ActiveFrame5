@@ -1,19 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.personmanager;
 
-import java.rmi.ServerException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -24,6 +12,9 @@ import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.model.ExtensionPointException;
+
+import java.rmi.ServerException;
+import java.util.*;
 
 /**
  * Обработчик точки расширения сохранения конфигурации вхождения группы в
@@ -86,9 +77,9 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
     
     private void refreshRoleRoles(Id parent) {
         // Получаем состав группы из конфигурации
-        List<Id> childGroups = getAllChildGroupsIdByConfig(parent);
+        Set<Id> childGroups = getAllChildGroupsIdByConfig(parent);
         // Получаем состав роли из базы
-        List<Id> childGroupsBase = getIdList(personManagementService.getAllChildGroups(parent));
+        Set<Id> childGroupsBase = getIds(personManagementService.getAllChildGroups(parent));
         // Сравниваем две коллекции
         // Получаем список на добавление
         List<Id> addList = new ArrayList<Id>();
@@ -128,18 +119,14 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
      * @return
      * @throws ServerException
      */
-    private List<Id> getAllChildGroupsIdByConfig(Id parent) {
-        List<Id> allGroups = new ArrayList<Id>();
-        List<Id> childGroups = getIdList(personManagementService.getChildGroups(parent));
+    private Set<Id> getAllChildGroupsIdByConfig(Id parent) {
+        HashSet<Id> allGroups = new HashSet<>();
+        Set<Id> childGroups = getIds(personManagementService.getChildGroups(parent));
         for (Id group : childGroups) {
-            if (!allGroups.contains(group)) {
-                allGroups.add(group);
-            }
-            List<Id> childGroupsHierarchy = getAllChildGroupsIdByConfig(group);
+            allGroups.add(group);
+            Set<Id> childGroupsHierarchy = getAllChildGroupsIdByConfig(group);
             for (Id childGroup : childGroupsHierarchy) {
-                if (!allGroups.contains(childGroup)) {
-                    allGroups.add(childGroup);
-                }
+                allGroups.add(childGroup);
             }
         }
         return allGroups;
@@ -150,8 +137,8 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
      * @param domainObjects
      * @return
      */
-    private List<Id> getIdList(List<DomainObject> domainObjects) {
-        List<Id> result = new ArrayList<Id>();
+    private Set<Id> getIds(List<DomainObject> domainObjects) {
+        Set<Id> result = new HashSet<>();
         if (domainObjects != null) {
             for (DomainObject domainObject : domainObjects) {
                 result.add(domainObject.getId());

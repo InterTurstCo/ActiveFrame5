@@ -2,8 +2,10 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
+import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 import java.util.Collection;
@@ -19,6 +21,8 @@ public class ConfigurationDbValidatorImpl implements ConfigurationDbValidator {
     private SchemaCache schemaCache;
     @Autowired
     private FieldConfigDbValidatorImpl fieldConfigDbValidator;
+    @Autowired
+    private DataStructureDao dataStructureDao;
 
     /**
      * Проверяет соответсвие базы данных конфигурации
@@ -51,6 +55,36 @@ public class ConfigurationDbValidatorImpl implements ConfigurationDbValidator {
 
                 fieldConfigDbValidator.validate(fieldConfig, domainObjectTypeConfig, columnInfo);
             }
+
+            if (isIndexErrorsFound(domainObjectTypeConfig)) { // Recreate indexes if there are errors
+                dataStructureDao.deleteIndices(domainObjectTypeConfig, schemaCache.getIndexNames(domainObjectTypeConfig));
+
+                boolean isParentType = DomainObjectTypeUtility.isParentObject(domainObjectTypeConfig, configExplorer);
+                dataStructureDao.createTableIndices(domainObjectTypeConfig, isParentType);
+            }
         }
+    }
+
+    private boolean isIndexErrorsFound(DomainObjectTypeConfig domainObjectTypeConfig) {
+        // Check missing indexes
+        for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
+            String indexName = schemaCache.getIndexName(domainObjectTypeConfig, indexConfig);
+            if (indexName == null) {
+                return true;
+            }
+        }
+
+        // Check duplicated indexes
+        Collection<IndexInfo> indices = schemaCache.getIndices(domainObjectTypeConfig);
+        for (IndexInfo indexInfo :indices) {
+            for (IndexInfo indexInfo2 :indices) {
+                if (!indexInfo.getName().equals(indexInfo2.getName()) &&
+                        indexInfo.getColumnNames().equals(indexInfo2.getColumnNames())) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

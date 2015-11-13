@@ -248,7 +248,12 @@ public class TestProcess extends ClientBase {
 
             //Строка должна еще раз изменится
             attachment = crudService.find(attachment.getId());
-            assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));            
+            assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));     
+            
+            //Спим больее минуты, должен сработать таймер
+            Thread.currentThread().sleep(65000);
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check timer", attachment.getString("test_text").endsWith("Сработал таймер."));     
             
             crudService.delete(attachmentNotInProcess.getId());
 

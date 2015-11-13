@@ -39,7 +39,7 @@ public interface GlobalCache {
                                  List<DomainObject> linkedObjects, long time, AccessToken accessToken);
 
     void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType,
-                                 Set<Id> linkedObjectsIds, long time, AccessToken accessToken);
+                                 List<Id> linkedObjectsIds, long time, AccessToken accessToken);
 
     void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                               SortOrder sortOrder, int offset, int limit,

@@ -172,7 +172,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyReadByUniqueKey(String transactionId, String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
         final UserSubject subject = getUserSubject(accessToken);
-        final UniqueKey key = new UniqueKey(uniqueKey);
+        final UniqueKey key = new SizeableUniqueKey(uniqueKey);
         final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getOrCreateUniqueKeyIdMapping(type);
         accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // this lock doesn't allow to process 2 keys simultaneously
@@ -263,7 +263,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyLinkedObjectsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        String lock = linkedType.toLowerCase().intern(); // todo:
+        //String lock = linkedType.toLowerCase().intern(); // todo:
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // todo: this lock doesn't allow to process 2 retrievals simultaneously.
             if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
                 return; // don't put anything as list has been retrieved before the last commit occured
@@ -301,8 +301,8 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
-    public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, Set<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        String lock = linkedType.toLowerCase().intern(); // todo:
+    public void notifyLinkedObjectsIdsRead(String transactionId, Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
+        //String lock = linkedType.toLowerCase().intern(); // todo:
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) {
             final UserSubject userSubject = getUserSubject(accessToken);
             if (userSubject != null) { // cache only System Access
@@ -316,7 +316,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 node = objectsTree.addDomainObjectNode(id, new ObjectNode(id, null));
             }
             final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
-            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(linkedObjectsIds);
+            LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(new LinkedHashSet<>(linkedObjectsIds));
             node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         }
         assureCacheSizeLimit();
@@ -333,19 +333,19 @@ public class GlobalCacheImpl implements GlobalCache {
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                      SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames); // todo clone names
+        final CollectionTypesKey key = new SizeableNamedCollectionTypesKey(name, filterNames);
         final UserSubject subject = getUserSubject(accessToken);
         final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
+        final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
         notifyCollectionRead(key, subKey, domainObjectTypes, collection, time);
     }
 
     @Override
     public void notifyCollectionRead(String transactionId, String query, Set<String> domainObjectTypes, List<? extends Value> paramValues,
                                      int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
+        final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
-        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues, offset, limit); // todo clone key
+        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit); // todo clone key
         notifyCollectionRead(key, subKey, domainObjectTypes, collection, time);
     }
 
@@ -585,21 +585,21 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues,
                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new SizeableNamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
+        final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
         sortOrder = ObjectCloner.getInstance().cloneObject(sortOrder);
         final Set<? extends Filter> filterValuesSet = filterValues == null ? null : cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
+        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
         return getCollection(key, subKey);
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues,
                                                       int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
+        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
         paramValues = paramValues == null ? null : ObjectCloner.getInstance().cloneObject(paramValues);
-        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit);
+        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues, offset, limit);
         return getCollection(key, subKey);
     }
 

@@ -2,10 +2,11 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 
 import java.util.*;
+
+import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.isParentObject;
 
 /**
 * Abstract class that contains common logic for recursive configuration processing
@@ -129,36 +130,11 @@ abstract class AbstractRecursiveConfigurationLoader {
 
     private void createDbStructures(DomainObjectTypeConfig domainObjectTypeConfig) {
         if (!domainObjectTypeConfig.isTemplate()) {
-            boolean isParentType = isParentObject(domainObjectTypeConfig);
+            boolean isParentType = isParentObject(domainObjectTypeConfig, configurationExplorer);
             dataStructureDao.createTable(domainObjectTypeConfig, isParentType);
             dataStructureDao.createSequence(domainObjectTypeConfig);
             setSchemaUpdateDone();
         }
-    }
-
-    protected boolean isParentObject(DomainObjectTypeConfig config) {
-        boolean isParent = false;
-        if (configurationExplorer.isAuditLogType(config.getName())) {
-            DomainObjectTypeConfig parentObjectConfig = getSourceDomainObjectType(config);
-            if (parentObjectConfig != null && parentObjectConfig.getExtendsAttribute() != null && (!parentObjectConfig.isTemplate())) {
-                isParent = false;
-            } else {
-                isParent = true;
-            }
-
-        } else {
-            isParent = config.getExtendsAttribute() == null;
-        }
-        return isParent;
-    }
-
-    protected DomainObjectTypeConfig getSourceDomainObjectType(DomainObjectTypeConfig config) {
-        if (!configurationExplorer.isAuditLogType(config.getName())) {
-            return null;
-        }
-
-        String name = config.getName().replace(Configuration.AUDIT_LOG_SUFFIX, "");
-        return configurationExplorer.getDomainObjectTypeConfig(name);
     }
 
     private boolean isProcessed(DomainObjectTypeConfig domainObjectTypeConfig) {

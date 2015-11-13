@@ -1,18 +1,17 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import javax.ejb.EJBContext;
-import javax.ejb.SessionContext;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 /**
  * Реализация доступа к текущему пользователю, вошедшему в систему.
@@ -51,14 +50,18 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             // TODO разобратся почему не устанавливается роль
 
             // Workaround for JBoss7 bug in @RunAs
-            if (Boolean.TRUE.equals(getEjbContext().getContextData().get(INITIAL_DATA_LOADING))) {
+            EJBContext ejbContext = getEjbContext();
+            if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
-            } else if (getEjbContext().isCallerInRole("system")
-                    || getEjbContext().getCallerPrincipal().getName().equals("anonymous")) {
-                // TODO возможно стоит подумать над иным пользователем, например system
-                result = "admin";
+            } else if (ejbContext.isCallerInRole("system")) {
+                result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
             } else {
-                result = getEjbContext().getCallerPrincipal().getName();
+                String principalName = ejbContext.getCallerPrincipal().getName();
+                if (principalName.equals("anonymous")) {
+                    result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
+                } else {
+                    result = principalName;
+                }
             }
         } catch (Exception e) {
             result = null;

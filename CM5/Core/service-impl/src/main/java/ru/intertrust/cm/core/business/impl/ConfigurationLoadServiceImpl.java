@@ -47,6 +47,9 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Autowired
     private DataStructureDao dataStructureDao;
 
+    @org.springframework.beans.factory.annotation.Value("${force.db.consistency.check:false}")
+    private boolean forceDbCheck;
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -107,7 +110,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             schemaUpdatedByScriptMigration = migrationService.executeAfterAutoMigration(oldConfigurationExplorer) ||
                     schemaUpdatedByScriptMigration;
 
-            if (schemaUpdatedByScriptMigration) {
+            if (schemaUpdatedByScriptMigration || forceDbCheck) {
                 configurationDbValidator.validate();
             }
 

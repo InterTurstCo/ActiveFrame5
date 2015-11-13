@@ -24,6 +24,7 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.unwrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -469,7 +470,7 @@ public abstract class BasicQueryHelper {
         return indexFields.toString();
     }
     
-    public String generateDeleteExplicitIndexesQuery(List<String> indexNames) {
+    public String generateDeleteExplicitIndexesQuery(Collection<String> indexNames) {
         StringBuilder query = new StringBuilder();
         for (String indexName : indexNames) {
             appendDeleteIndexQueryPart(query, indexName);
@@ -483,8 +484,8 @@ public abstract class BasicQueryHelper {
     }
     
     public String generateComplexIndexQuery(DomainObjectTypeConfig config, IndexConfig indexConfig) {
-        List<String> indexFields = new ArrayList<String>();
-        List<String> indexExpressions = new ArrayList<String>();
+        List<String> indexFields = new ArrayList<>();
+        List<String> indexExpressions = new ArrayList<>();
 
         for (BaseIndexExpressionConfig indexExpression : indexConfig.getIndexFieldConfigs()) {
             if (indexExpression instanceof IndexFieldConfig) {

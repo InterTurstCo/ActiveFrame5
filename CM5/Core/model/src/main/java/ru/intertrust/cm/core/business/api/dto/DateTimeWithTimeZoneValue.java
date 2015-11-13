@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.business.api.dto;
 import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -43,10 +42,6 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
 
     public DateTimeWithTimeZone getValue() {
         return value;
-    }
-
-    public void setValue(DateTimeWithTimeZone value) {
-        this.value = value;
     }
 
     @GwtIncompatible

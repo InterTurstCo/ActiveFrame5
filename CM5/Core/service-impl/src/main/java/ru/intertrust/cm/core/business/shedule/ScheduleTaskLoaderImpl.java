@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
@@ -78,8 +79,9 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     //Флаг готовности сервиса к работе
     private boolean isLoaded = false;
 
-    //Флаг активности сервиса. Прикладное приложение должно само активизировать сервис после старта 
-    private boolean isEnable = false;
+    //Флаг активности сервиса. Прикладное приложение должно само активизировать сервис после старта
+    @Value("${schedule.service.enableOnStart:true}")
+    private boolean enable;
 
     
     /**
@@ -284,12 +286,12 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
 
     @Override
     public boolean isEnable() {
-        return isEnable;
+        return enable;
     }
 
     @Override
-    public void setEnable(boolean isEnable) {
-        this.isEnable = isEnable;
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 
 }

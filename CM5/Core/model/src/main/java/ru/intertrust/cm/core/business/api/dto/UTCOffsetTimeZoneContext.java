@@ -17,10 +17,6 @@ public class UTCOffsetTimeZoneContext extends TimeZoneContext {
         this.offset = offset;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
-    }
-
     public long getOffset() {
         return offset;
     }

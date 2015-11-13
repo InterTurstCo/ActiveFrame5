@@ -1,45 +1,18 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.MatrixReferenceMappingConfig;
-import ru.intertrust.cm.core.config.MatrixReferenceMappingPermissionConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
-import ru.intertrust.cm.core.dao.access.AccessControlService;
-import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.AccessType;
-import ru.intertrust.cm.core.dao.access.CreateChildAccessType;
-import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
-import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
+import ru.intertrust.cm.core.dao.access.*;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
@@ -47,6 +20,13 @@ import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
+
+import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Реализация агента БД по запросам прав доступа для PostgreSQL.
@@ -70,6 +50,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Autowired
     private DomainObjectDao domainObjectDao;
+
+    @Autowired
+    private CollectionsDao collectionsDao;
 
     @Autowired
     private AccessControlService accessControlService;
@@ -748,31 +731,16 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
             return true;
         }
 
-        String query = "select gm." + wrap("person_id") + ", gm." + wrap("person_id_type") + " " +
-                "from " + wrap("group_member") + " gm " +
-                "inner join " + wrap("group_group") + " gg on gg." + wrap("child_group_id") + " = gm." + wrap("usergroup") + " " +
-                "inner join " + wrap("user_group") + " ug on gg." + wrap("parent_group_id") + "= ug." + wrap("id") + " " +
-                "where ug." + wrap("group_name") + " in (:groups)";
+        Filter filter = new Filter();
+        filter.setFilter("byGroupsAndPerson");
+        filter.addMultiStringCriterion(0, userGroups);
+        filter.addReferenceCriterion(1, userId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("groups", userGroups);
+        AccessToken systemAccessToken = accessControlService.createSystemAccessToken(getClass().getName());
+        IdentifiableObjectCollection persons = collectionsDao.findCollection("IsPersonInGroups",
+                Collections.singletonList(filter), null, 0, 1, systemAccessToken);
 
-        List<Id> groupMembers = jdbcTemplate.query(query, params, new RowMapper<Id>() {
-
-            @Override
-            public Id mapRow(ResultSet rs, int rowNum) throws SQLException {
-                Long personId = rs.getLong("person_id");
-                int personObjectType = rs.getInt("person_id_type");
-                RdbmsId id = new RdbmsId(personObjectType, personId);
-                return id;
-            }
-
-        });
-
-        if (groupMembers.contains(userId)) {
-            return true;
-        }
-        return false;
+        return persons != null && persons.size() > 0;
     }
 
 }

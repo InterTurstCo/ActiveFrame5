@@ -153,13 +153,18 @@ public abstract class Action extends BaseComponent {
                 if (beforeExecutionConfig != null && beforeExecutionConfig.getLinkedDomainObjectConfig() != null) {
                     final LinkedDomainObjectConfig doToCreateConfig =
                             beforeExecutionConfig.getLinkedDomainObjectConfig();
-                    final FormDialogBox formDialogBox = new FormDialogBox(doToCreateConfig.getTitle());
+                    final FormDialogBox formDialogBox = new FormDialogBox(doToCreateConfig.getTitle(),
+                            actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
+                            .getFormMappingConfig().getModalWidth(),
+                            actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
+                            .getFormMappingConfig().getModalHeight(),true);
                     final FormPluginConfig config = new FormPluginConfig();
                     config.setFormViewerConfig(new FormViewerConfig()
                             .addFormMappingConfig(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
                                     .getFormMappingConfig()));
                     config.setDomainObjectTypeToCreate(actionConfig.getBeforeConfig().getLinkedDomainObjectConfig()
                             .getFormMappingConfig().getDomainObjectType());
+
                     final FormPlugin formPlugin = formDialogBox.createFormPlugin(config, new SimpleEventBus());
                     String continueButtonText = LocalizeUtil.get(LocalizationKeys.CONTINUE_BUTTON_KEY, BusinessUniverseConstants.CONTINUE_BUTTON);
                     formDialogBox.initButton(continueButtonText, new ClickHandler() {

@@ -10,8 +10,7 @@ import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
@@ -158,6 +157,19 @@ public class SchemaCacheImpl implements SchemaCache {
     }
 
     /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getUniqueKeys(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public Collection<UniqueKeyInfo> getUniqueKeys(DomainObjectTypeConfig config) {
+        Map<String, UniqueKeyInfo> domainObjectTypeKeys = uniqueKeys.get(getSqlName(config.getName()));
+        if (domainObjectTypeKeys == null) {
+            return null;
+        }
+
+        return domainObjectTypeKeys.values();
+    }
+
+    /**
      * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getUniqueKeyName(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.UniqueKeyConfig)}
      */
     @Override
@@ -226,6 +238,24 @@ public class SchemaCacheImpl implements SchemaCache {
         }
 
         return null;
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getIndices(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public Collection<IndexInfo> getIndices(DomainObjectTypeConfig config) {
+        Map<String, IndexInfo> domainObjectTypeIndexes = indexes.get(getSqlName(config.getName()));
+        return domainObjectTypeIndexes == null ? new ArrayList<IndexInfo>() : domainObjectTypeIndexes.values();
+    }
+
+    /**
+     * {@link ru.intertrust.cm.core.dao.api.SchemaCache#getIndices(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public Set<String> getIndexNames(DomainObjectTypeConfig config) {
+        Map<String, IndexInfo> domainObjectTypeIndexes = indexes.get(getSqlName(config.getName()));
+        return domainObjectTypeIndexes == null ? new HashSet<String>() : domainObjectTypeIndexes.keySet();
     }
 
     private int getIndexFieldsNumber(IndexConfig indexConfig) {

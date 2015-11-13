@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.UniqueKeyConfig;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * DAO для работы со структурой базы данных (создание таблиц, колонок, индексов и т.п.)
@@ -29,6 +30,12 @@ public interface DataStructureDao {
      * @param config конфигурация доменного объекта
      */
     void createTable(DomainObjectTypeConfig config, boolean isParentType);
+
+    /**
+     * Создает индексы по конфигурации доменного объекта
+     * @param config конфигурация доменного объекта
+     */
+    void createTableIndices(DomainObjectTypeConfig config, boolean isParentType);
 
     /**
      * Создает таблицы прав доступа для доменного объекта (таблицы _ACL и _READ)
@@ -57,6 +64,13 @@ public interface DataStructureDao {
      * @param indexConfigList список конфигураций индексов для удаления.
      */
     public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigList);
+
+    /**
+     * Удаляет индексы доменного объекта по имени, в том= числе и автоиндексы.
+     * @param domainObjectTypeConfig конфигурация доменного объекта
+     * @param indicesToDelete список имен индексов для удаления.
+     */
+    void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, Set<String> indicesToDelete);
 
     /**
      * Создает форен-ки и уникальные констрэйнты

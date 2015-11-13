@@ -26,7 +26,7 @@ public class LongCounter extends AbstractCounter {
     }
 
     protected void trackValue(Number value) {
-        long val = (long) value;
+        long val = value.longValue();
         total += val;
         if (empty) {
             empty = false;

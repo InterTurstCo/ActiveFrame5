@@ -211,19 +211,19 @@ public class GlobalCacheStatistics implements Dto {
         public String toString() {
             return methodDescription + "{" +
                     "invocationsPerHour=" + getInvocationsPerHour() +
+                    ", timeAvgPerHour=" + format(getTimeAvgPerHour() / 1000) +
                     ", timeMinPerHour=" + getTimeMinPerHour() / 1000 +
                     ", timeMaxPerHour=" + getTimeMaxPerHour() / 1000 +
-                    ", timeAvgPerHour=" + format(getTimeAvgPerHour() / 1000) +
                     ", timeTotalPerHour=" + getTimeTotalPerHour() / 1000 +
-                    ", cacheHitPercentagePerHour=" + format(getCacheHitPercentagePerHour() * 100) +
-                    ", frequencyPerHour=" + format(getHourlyFrequency() * 100) +
+                    ", cacheHitPerHour=" + format(getCacheHitPercentagePerHour() * 100) + "% " +
+                    ", frequencyPerHour=" + format(getHourlyFrequency() * 100) + "% " +
                     ", invocationsTotal=" + getInvocationsTotal() +
+                    ", timeAvgTotal=" + format(getTimeAvgTotal() / 1000) +
                     ", timeMinTotal=" + getTimeMinTotal() / 1000 +
                     ", timeMaxTotal=" + getTimeMaxTotal() / 1000 +
-                    ", timeAvgTotal=" + format(getTimeAvgTotal() / 1000) +
                     ", timeTotal=" + getTimeTotal() +
-                    ", cacheHitPercentageTotal=" + format(getCacheHitPercentageTotal() * 100) +
-                    ", frequencyTotal=" + format(getTotalFrequency() * 100) +
+                    ", cacheHitTotal=" + format(getCacheHitPercentageTotal() * 100) + "% " +
+                    ", frequencyTotal=" + format(getTotalFrequency() * 100) + "% " +
                     '}';
         }
     }
@@ -272,12 +272,12 @@ public class GlobalCacheStatistics implements Dto {
         public String toString() {
             return "CacheClean {" +
                     "invocations=" + getInvocations() +
+                    ", timeAvg=" + format(getTimeAvg()) +
                     ", timeMin=" + getTimeMin() +
                     ", timeMax=" + getTimeMax() +
-                    ", timeAvg=" + format(getTimeAvg()) +
-                    ", freedSpaceMin=" + format(getFreedSpaceMin() * 100) +
-                    ", freedSpaceMax=" + format(getFreedSpaceMax() * 100) +
-                    ", freedSpaceAvg=" + format(getFreedSpaceAvg() * 100) +
+                    ", freedSpaceAvg=" + format(getFreedSpaceAvg() * 100) + "% " +
+                    ", freedSpaceMin=" + format(getFreedSpaceMin() * 100) + "% " +
+                    ", freedSpaceMax=" + format(getFreedSpaceMax() * 100) + "% " +
                     '}';
         }
     }
