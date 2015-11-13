@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.config.gui.globalcachecontrol;
+package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
