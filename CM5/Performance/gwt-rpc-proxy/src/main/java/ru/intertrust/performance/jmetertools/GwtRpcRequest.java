@@ -98,7 +98,10 @@ public class GwtRpcRequest {
         if (rpcRequest != null) {
             RequestViewer requestViewer = new RequestViewer(getServiceClass(), getMethod(), getParameters());
             String json = JsonWriter.objectToJson(requestViewer);
-            json = JsonWriter.formatJson(json);
+            try {
+                json = JsonWriter.formatJson(json);
+            } catch (Exception ex) {
+            }
             return json;
         } else {
             return null;
