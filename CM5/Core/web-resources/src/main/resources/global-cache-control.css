@@ -63,6 +63,7 @@
 
 .bildControlPanel  .gwt-Label {
     white-space: nowrap;
+    text-decoration: none;
 }
 
 .bildControlPanel input[type=text] {

@@ -692,7 +692,7 @@ h1 {
     width: 100%;
     display: block;
     /*height: auto;*/
-    /*position: absolute !important;*/
+    position: static !important;
     /*top: 0;*/
     /*left: 0;*/
     /*bottom: 0;*/
@@ -912,10 +912,9 @@ a[href='#login']:hover {
 .tested {
     position: absolute !important;
     width: 100% !important;
-    height: 100% !important;
     display: block;
-    height: auto;
-    top: 0;
+    height: 95.7% !important;
+    top: 41px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -925,7 +924,7 @@ a[href='#login']:hover {
     display: block;
     height: 100%;
     /*height: auto;*/
-    /*position: absolute !important;*/
+    position: static !important;
     /*top: 0;*/
     /*left: 0;*/
     /*right: 0;*/
