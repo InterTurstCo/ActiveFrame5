@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+
 /**
  * Класс содержит модель данных для плагина статистики
  * @author Ravil Abdulkhairov

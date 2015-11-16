@@ -16,6 +16,7 @@ public class GlobalCacheControlUtils {
     public static final String STAT_REFRESH = "Обновить статистику";
     public static final String STAT_APPLY = "Применить";
     public static final String STAT_RESET = "Сбросить статистику";
+    public static final String STAT_HOURLY_RESET = "Сбросить часовую статистику";
     public static final String STAT_CLEAR_CACHE = "Очистить кэш";
     public static final String BTN_IMG_REFRESH = "images/global-cache-control/iconRefresh.png";
     public static final String BTN_IMG_APPLY = "images/global-cache-control/iconApply.png";

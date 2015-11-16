@@ -44,6 +44,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 
 /**
@@ -97,6 +98,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
         ComponentHandler componentHandler = obtainHandler(command.getComponentName());
+
         if (componentHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
