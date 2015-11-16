@@ -66,6 +66,11 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
         switchableClient.clearStatistics(hourlyOnly);
     }
 
+    @Override
+    public void clear() {
+        switchableClient.clear();
+    }
+
     protected GlobalCacheClient getImpl() {
         GlobalCacheClient impl;
         if (!isEnabled() || !context.containsBean("globalCacheClientFactory")) {

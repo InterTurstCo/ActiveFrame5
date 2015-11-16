@@ -82,4 +82,6 @@ public interface GlobalCacheManager {
      * @param hourlyOnly если true, очищает только почасовую статистику, в противном случае - всю
      */
     void clearStatistics(boolean hourlyOnly);
+
+    void clear();
 }

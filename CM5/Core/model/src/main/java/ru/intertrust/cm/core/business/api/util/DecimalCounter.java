@@ -44,7 +44,7 @@ public class DecimalCounter extends AbstractCounter {
     }
 
     public BigDecimal getMin() {
-        return min;
+        return min == null ? BigDecimal.ZERO : min;
     }
 
     public BigDecimal getMax() {
