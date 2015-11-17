@@ -36,6 +36,7 @@ public class GlobalCacheControlView extends PluginView {
     private Grid shortStatGrid;
     private Grid controlGrid;
     private FlexTable cacheCleaningTable;
+    private Panel buttons;
 
     private CheckBox cacheActiveCB;
     private CheckBox expandedStatisticsCB;
@@ -43,6 +44,7 @@ public class GlobalCacheControlView extends PluginView {
     private ListBox modeListBox;
     private IntegerBox maxSizeTB;
     private ListBox uomListBox;
+
     /**
      * Основной конструктор
      *
@@ -68,32 +70,28 @@ public class GlobalCacheControlView extends PluginView {
 
     private Widget buildRootPanel() {
         Panel rootPanel = new AbsolutePanel();
-        Panel buttons = new HorizontalPanel();
+        buttons = new HorizontalPanel();
         buttons.addStyleName(GlobalCacheControlUtils.STYLE_TOP_MENU_BUTTONS);
-        rootPanel.add(buttons);
-        buttons.add(buildRefreshButton());
-        buttons.add(buildApplyButton());
-        buttons.add(buildResetHourlyButton());
-        buttons.add(buildResetButton());
-        buttons.add(buildClearCacheButton());
+        rootPanel.add(buildButtons());
+
         TabPanel tabPanel = new TabPanel();
         if (globalCachePluginData.getErrorMsg() != null) {
             Window.alert(globalCachePluginData.getErrorMsg());
         }
-            /**
-             * Таблица общей статистики
-             */
-            buildShortStatisticsPanel();
-            shortStatPanel.add(shortStatGrid);
-            statPanelRoot.add(shortStatPanel);
-            /**
-             * Статистика очистки кэша
-             */
-            buildCacheCleaningTable();
-            cacheCleaningPanel.add(cacheCleaningTable);
-            statPanelRoot.add(cacheCleaningPanel);
+        /**
+         * Таблица общей статистики
+         */
+        buildShortStatisticsPanel();
+        shortStatPanel.add(shortStatGrid);
+        statPanelRoot.add(shortStatPanel);
+        /**
+         * Статистика очистки кэша
+         */
+        buildCacheCleaningTable();
+        cacheCleaningPanel.add(cacheCleaningTable);
+        statPanelRoot.add(cacheCleaningPanel);
 
-            tabPanel.add(statPanelRoot, GlobalCacheControlUtils.LBL_PANEL_STAT);
+        tabPanel.add(statPanelRoot, GlobalCacheControlUtils.LBL_PANEL_STAT);
 
         tabPanel.add(buildControlPanel(), GlobalCacheControlUtils.LBL_PANEL_CONTROL);
         tabPanel.selectTab(0);
@@ -101,6 +99,18 @@ public class GlobalCacheControlView extends PluginView {
                 .addClassName("gwt-TabLayoutPanel-wrapper");
         rootPanel.add(tabPanel);
         return rootPanel;
+    }
+
+    private Widget buildButtons() {
+        buttons.clear();
+        buttons.add(buildRefreshButton());
+        buttons.add(buildApplyButton());
+        if (globalCachePluginData.getControlPanelModel().isExpandedStatistics()) {
+            buttons.add(buildResetHourlyButton());
+        }
+        buttons.add(buildResetButton());
+        buttons.add(buildClearCacheButton());
+        return buttons;
     }
 
     private Widget buildRefreshButton() {
@@ -184,20 +194,20 @@ public class GlobalCacheControlView extends PluginView {
         cacheCleaningTable.setWidget(1, 0, new InlineHTML("<span>Мин.</span>"));
         cacheCleaningTable.setWidget(1, 1, new InlineHTML("<span>Макс.</span>"));
         cacheCleaningTable.setWidget(1, 2, new InlineHTML("<span>Среднее.</span>"));
-        cacheCleaningTable.setWidget(2, 1, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTimeMin()+"</span>"));
-        cacheCleaningTable.setWidget(2, 2, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTimeMax()+"</span>"));
+        cacheCleaningTable.setWidget(2, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeMin() + "</span>"));
+        cacheCleaningTable.setWidget(2, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeMax() + "</span>"));
         cacheCleaningTable.setWidget(2, 3, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeAvg() + "</span>"));
         cacheCleaningTable.getFlexCellFormatter().setColSpan(0, 2, 3);
         cacheCleaningTable.setWidget(0, 2, new InlineHTML("<span>Очистка, %</span>"));
         cacheCleaningTable.setWidget(1, 3, new InlineHTML("<span>Мин.</span>"));
         cacheCleaningTable.setWidget(1, 4, new InlineHTML("<span>Макс.</span>"));
         cacheCleaningTable.setWidget(1, 5, new InlineHTML("<span>Среднее.</span>"));
-        cacheCleaningTable.setWidget(2, 4, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getFreedSpaceMin()+"</span>"));
-        cacheCleaningTable.setWidget(2, 5, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getFreedSpaceMax() + "</span>"));
-        cacheCleaningTable.setWidget(2, 6, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin()+"</span>"));
+        cacheCleaningTable.setWidget(2, 4, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin() + "</span>"));
+        cacheCleaningTable.setWidget(2, 5, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMax() + "</span>"));
+        cacheCleaningTable.setWidget(2, 6, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin() + "</span>"));
         cacheCleaningTable.getFlexCellFormatter().setRowSpan(0, 3, 2);
         cacheCleaningTable.setWidget(0, 3, new InlineHTML("<span>Кол-во</span>"));
-        cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTotalInvocations()+"</span>"));
+        cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTotalInvocations() + "</span>"));
     }
 
     private Widget buildControlPanel() {
@@ -261,8 +271,8 @@ public class GlobalCacheControlView extends PluginView {
                 if (globalCachePluginData.getErrorMsg() != null) {
                     Window.alert(globalCachePluginData.getErrorMsg());
                 }
-                    buildShortStatisticsPanel();
-                    buildCacheCleaningTable();
+                buildShortStatisticsPanel();
+                buildCacheCleaningTable();
 
             }
         });
@@ -317,6 +327,7 @@ public class GlobalCacheControlView extends PluginView {
             public void onSuccess(Dto result) {
                 globalCachePluginData = (GlobalCachePluginData) result;
                 buildControlPanel();
+                buildButtons();
                 refreshStatisticsModel();
             }
         });
@@ -333,14 +344,14 @@ public class GlobalCacheControlView extends PluginView {
     /**
      * Опросить состояние контролов перед отправкой новых настроек на сервер
      */
-    private void getControlPanelState(){
+    private void getControlPanelState() {
 
-        if(expandedStatisticsCB.getValue() != globalCachePluginData.getControlPanelModel().isExpandedStatistics() &&
-                expandedStatisticsCB.getValue().equals(Boolean.TRUE)){
+        if (expandedStatisticsCB.getValue() != globalCachePluginData.getControlPanelModel().isExpandedStatistics() &&
+                expandedStatisticsCB.getValue().equals(Boolean.TRUE)) {
             Window.alert("Внимание, сбор расширенной статистики приведёт к снижению производительности глобального кэша");
         }
-        if(debugModeCB.getValue() != globalCachePluginData.getControlPanelModel().isDebugMode() &&
-                debugModeCB.getValue().equals(Boolean.TRUE)){
+        if (debugModeCB.getValue() != globalCachePluginData.getControlPanelModel().isDebugMode() &&
+                debugModeCB.getValue().equals(Boolean.TRUE)) {
             Window.alert("Внимание, режим отладки приведёт к снижению производительности приложения.");
         }
         globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
