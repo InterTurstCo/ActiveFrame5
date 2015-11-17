@@ -9,6 +9,7 @@ package ru.intertrust.cm.core.gui.model.plugin;
  */
 public class GlobalCachePluginData extends PluginData {
 
+    private GlobalCacheControlPanel controlPanelModel;
     private GlobalCacheStatPanel statPanel;
 
     private String errorMsg;
@@ -28,6 +29,16 @@ public class GlobalCachePluginData extends PluginData {
 
     public void setErrorMsg(String errorMsg) {
         this.errorMsg = errorMsg;
+    }
+
+    public GlobalCacheControlPanel getControlPanelModel() {
+        if(controlPanelModel==null)
+            controlPanelModel = new GlobalCacheControlPanel();
+        return controlPanelModel;
+    }
+
+    public void setControlPanelModel(GlobalCacheControlPanel controlPanelModel) {
+        this.controlPanelModel = controlPanelModel;
     }
 
     public GlobalCachePluginData(){}

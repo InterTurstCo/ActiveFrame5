@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
+import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.gui.model.util.StringUtil;
 
 /**
  * Модель данных панели статистики
+ *
  * @author Ravil Abdulkhairov
  * @version 1.0
  * @since 13.11.2015
@@ -46,7 +49,18 @@ public class GlobalCacheStatPanel implements Dto {
         this.hitCount = hitCount;
     }
 
-    public GlobalCacheStatPanel(){}
+    public GlobalCacheStatPanel() {
+        this.size = "";
+        this.freeSpacePercentage = "";
+        this.hitCount = "";
+        this.timeAvg = "";
+        this.timeMax = "";
+        this.timeMin = "";
+        this.freedSpaceAvg = "";
+        this.freedSpaceMin = "";
+        this.freedSpaceMax = "";
+        this.totalInvocations = "";
+    }
 
     public String getTimeAvg() {
         return timeAvg;
@@ -103,4 +117,5 @@ public class GlobalCacheStatPanel implements Dto {
     public void setTotalInvocations(String totalInvocations) {
         this.totalInvocations = totalInvocations;
     }
+
 }

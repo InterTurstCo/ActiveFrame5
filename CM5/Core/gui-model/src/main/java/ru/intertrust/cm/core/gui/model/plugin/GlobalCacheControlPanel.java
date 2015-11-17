@@ -19,7 +19,7 @@ public class GlobalCacheControlPanel implements Dto {
     /**
      * Кэш включен
      */
-    private Boolean cacheActive;
+    private Boolean cacheEnabled;
     /**
      * Расширенная статистика
      */
@@ -92,12 +92,12 @@ public class GlobalCacheControlPanel implements Dto {
         this.expandedStatistics = expandedStatistics;
     }
 
-    public Boolean isCacheActive() {
-        return cacheActive;
+    public Boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 
-    public void setCacheActive(Boolean cacheActive) {
-        this.cacheActive = cacheActive;
+    public void setCacheEnabled(Boolean cacheEnabled) {
+        this.cacheEnabled = cacheEnabled;
     }
 
     public Map<String, String> getModes() {

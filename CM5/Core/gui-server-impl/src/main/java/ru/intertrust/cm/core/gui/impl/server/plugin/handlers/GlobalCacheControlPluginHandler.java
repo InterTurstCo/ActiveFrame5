@@ -24,11 +24,13 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
 
     @Autowired
     private GlobalCacheManager globalCacheManager;
+    private GlobalCachePluginData globalCachePluginData;
 
     private GlobalCacheStatistics globalCacheStatistics;
 
     public PluginData initialize(Dto config) {
-        GlobalCachePluginData globalCachePluginData = new GlobalCachePluginData();
+        globalCachePluginData = new GlobalCachePluginData();
+        getSettings();
         extractStatistics(globalCachePluginData);
         return globalCachePluginData;
     }
@@ -56,6 +58,12 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
 
     }
 
+    private void getSettings(){
+        globalCachePluginData.getControlPanelModel().setCacheEnabled(globalCacheManager.isEnabled());
+        globalCachePluginData.getControlPanelModel().setExpandedStatistics(globalCacheManager.isExtendedStatisticsEnabled());
+        globalCachePluginData.getControlPanelModel().setDebugMode(globalCacheManager.isDebugEnabled());
+    }
+
     private static String format(double v) {
         return String.format(Locale.ENGLISH, "%1$.2f", v);
     }
@@ -75,4 +83,22 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         globalCacheManager.clearStatistics(false);
         return request;
     }
+
+    public Dto clearCache(Dto request){
+        globalCacheManager.clear();
+        return request;
+    }
+
+    public Dto applySettings(Dto request){
+        GlobalCachePluginData globalCachePluginData = (GlobalCachePluginData)request;
+        globalCacheManager.setEnabled(globalCachePluginData.getControlPanelModel().isCacheEnabled());
+        globalCacheManager.setDebugEnabled(globalCachePluginData.getControlPanelModel().isDebugMode());
+        globalCacheManager.setExtendedStatisticsEnabled(globalCachePluginData.getControlPanelModel().isExpandedStatistics());
+
+        globalCachePluginData.getControlPanelModel().setCacheEnabled(globalCacheManager.isEnabled());
+        globalCachePluginData.getControlPanelModel().setDebugMode(globalCacheManager.isDebugEnabled());
+        globalCachePluginData.getControlPanelModel().setExpandedStatistics(globalCacheManager.isExtendedStatisticsEnabled());
+        return request;
+    }
+
 }

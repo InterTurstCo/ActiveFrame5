@@ -30,13 +30,19 @@ public class GlobalCacheControlView extends PluginView {
     private Boolean statisticsOnly;
     private EventBus eventBus;
     private GlobalCachePluginData globalCachePluginData;
-    private GlobalCacheControlPanel controlPanelModel;
     private AbsolutePanel statPanelRoot;
     private AbsolutePanel shortStatPanel;
     private AbsolutePanel cacheCleaningPanel;
     private Grid shortStatGrid;
+    private Grid controlGrid;
     private FlexTable cacheCleaningTable;
 
+    private CheckBox cacheActiveCB;
+    private CheckBox expandedStatisticsCB;
+    private CheckBox debugModeCB;
+    private ListBox modeListBox;
+    private IntegerBox maxSizeTB;
+    private ListBox uomListBox;
     /**
      * Основной конструктор
      *
@@ -46,7 +52,7 @@ public class GlobalCacheControlView extends PluginView {
         super(plugin);
         this.statisticsOnly = statisticsOnly;
         this.eventBus = eventBus;
-        controlPanelModel = new GlobalCacheControlPanel();
+        controlGrid = new Grid(3, 4);
         statPanelRoot = new AbsolutePanel();
         shortStatPanel = new AbsolutePanel();
         cacheCleaningPanel = new AbsolutePanel();
@@ -66,14 +72,14 @@ public class GlobalCacheControlView extends PluginView {
         buttons.addStyleName(GlobalCacheControlUtils.STYLE_TOP_MENU_BUTTONS);
         rootPanel.add(buttons);
         buttons.add(buildRefreshButton());
-        buttons.add(GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_APPLY, GlobalCacheControlUtils.BTN_IMG_APPLY));
+        buttons.add(buildApplyButton());
         buttons.add(buildResetHourlyButton());
         buttons.add(buildResetButton());
-        buttons.add(GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_CLEAR_CACHE, GlobalCacheControlUtils.BTN_IMG_CLEAR));
+        buttons.add(buildClearCacheButton());
         TabPanel tabPanel = new TabPanel();
         if (globalCachePluginData.getErrorMsg() != null) {
             Window.alert(globalCachePluginData.getErrorMsg());
-        } else {
+        }
             /**
              * Таблица общей статистики
              */
@@ -88,7 +94,7 @@ public class GlobalCacheControlView extends PluginView {
             statPanelRoot.add(cacheCleaningPanel);
 
             tabPanel.add(statPanelRoot, GlobalCacheControlUtils.LBL_PANEL_STAT);
-        }
+
         tabPanel.add(buildControlPanel(), GlobalCacheControlUtils.LBL_PANEL_CONTROL);
         tabPanel.selectTab(0);
         tabPanel.getWidget(0).getParent().getElement().getParentElement()
@@ -132,6 +138,29 @@ public class GlobalCacheControlView extends PluginView {
         return resetHourlyButton;
     }
 
+    private Widget buildClearCacheButton() {
+        ConfiguredButton clearCacheButton = GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_CLEAR_CACHE, GlobalCacheControlUtils.BTN_IMG_CLEAR);
+        clearCacheButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                clearCache();
+            }
+        });
+        return clearCacheButton;
+    }
+
+    private Widget buildApplyButton() {
+        ConfiguredButton applyButton = GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_APPLY, GlobalCacheControlUtils.BTN_IMG_APPLY);
+        applyButton.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                getControlPanelState();
+                applySettings();
+            }
+        });
+        return applyButton;
+    }
+
 
     private void buildShortStatisticsPanel() {
         //TODO: Прикрутить нормальные стили
@@ -171,7 +200,7 @@ public class GlobalCacheControlView extends PluginView {
     }
 
     private Widget buildControlPanel() {
-        Grid controlGrid = new Grid(3, 4);
+        controlGrid.clear();
 
         controlGrid.setStyleName(GlobalCacheControlUtils.STYLE_CONTROL_PANEL);
 
@@ -180,35 +209,35 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid.setWidget(2, 0, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_DEBUG_MODE));
 
         // чекбокс Включить кэш
-        CheckBox cacheActiveCB = new CheckBox();
-        cacheActiveCB.setValue(controlPanelModel.isCacheActive());
+        cacheActiveCB = new CheckBox();
+        cacheActiveCB.setValue(globalCachePluginData.getControlPanelModel().isCacheEnabled());
         controlGrid.setWidget(0, 1, cacheActiveCB);
         // чекбокс Расширенная статистика
-        CheckBox expandedStatisticsCB = new CheckBox();
-        expandedStatisticsCB.setValue(controlPanelModel.isExpandedStatistics());
+        expandedStatisticsCB = new CheckBox();
+        expandedStatisticsCB.setValue(globalCachePluginData.getControlPanelModel().isExpandedStatistics());
         controlGrid.setWidget(1, 1, expandedStatisticsCB);
 
         // чекбокс Режим отладки
-        CheckBox debugModeCB = new CheckBox();
-        debugModeCB.setValue(controlPanelModel.isDebugMode());
+        debugModeCB = new CheckBox();
+        debugModeCB.setValue(globalCachePluginData.getControlPanelModel().isDebugMode());
         controlGrid.setWidget(2, 1, debugModeCB);
 
         controlGrid.setWidget(0, 2, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MODE));
         controlGrid.setWidget(1, 2, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MAX_SIZE));
 
-        ListBox modeListBox = new ListBox();
-        for (String key : controlPanelModel.getModes().keySet()) {
-            modeListBox.addItem(controlPanelModel.getModes().get(key), key);
+        modeListBox = new ListBox();
+        for (String key : globalCachePluginData.getControlPanelModel().getModes().keySet()) {
+            modeListBox.addItem(globalCachePluginData.getControlPanelModel().getModes().get(key), key);
         }
         controlGrid.setWidget(0, 3, modeListBox);
 
         Panel maxSizePanel = new HorizontalPanel();
-        IntegerBox maxSizeTB = new IntegerBox();
-        maxSizeTB.setValue(controlPanelModel.getMaxSize().intValue());
+        maxSizeTB = new IntegerBox();
+        maxSizeTB.setValue(globalCachePluginData.getControlPanelModel().getMaxSize().intValue());
         maxSizePanel.add(maxSizeTB);
-        ListBox uomListBox = new ListBox();
-        for (String key : controlPanelModel.getUoms().keySet()) {
-            uomListBox.addItem(controlPanelModel.getUoms().get(key), key);
+        uomListBox = new ListBox();
+        for (String key : globalCachePluginData.getControlPanelModel().getUoms().keySet()) {
+            uomListBox.addItem(globalCachePluginData.getControlPanelModel().getUoms().get(key), key);
         }
         maxSizePanel.add(uomListBox);
         controlGrid.setWidget(1, 3, maxSizePanel);
@@ -258,10 +287,54 @@ public class GlobalCacheControlView extends PluginView {
         });
     }
 
+    private void clearCache() {
+        Command command = new Command("clearCache", "GlobalCacheControl.plugin", getGlobalCachePluginData());
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while clear cache");
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                refreshStatisticsModel();
+            }
+        });
+    }
+
+    private void applySettings() {
+        Command command = new Command("applySettings", "GlobalCacheControl.plugin", getGlobalCachePluginData());
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while apply settings");
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                globalCachePluginData = (GlobalCachePluginData) result;
+                buildControlPanel();
+                refreshStatisticsModel();
+            }
+        });
+    }
+
+
     private GlobalCachePluginData getGlobalCachePluginData() {
         if (globalCachePluginData == null) {
             globalCachePluginData = new GlobalCachePluginData();
         }
         return globalCachePluginData;
+    }
+
+    /**
+     * Опросить состояние контролов перед отправкой новых настроек на сервер
+     */
+    private void getControlPanelState(){
+        globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
+        globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
+        globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());
     }
 }
