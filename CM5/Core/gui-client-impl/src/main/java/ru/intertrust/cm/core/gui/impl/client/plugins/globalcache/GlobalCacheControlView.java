@@ -260,10 +260,10 @@ public class GlobalCacheControlView extends PluginView {
                 globalCachePluginData = (GlobalCachePluginData) result;
                 if (globalCachePluginData.getErrorMsg() != null) {
                     Window.alert(globalCachePluginData.getErrorMsg());
-                } else {
+                }
                     buildShortStatisticsPanel();
                     buildCacheCleaningTable();
-                }
+
             }
         });
     }
