@@ -167,11 +167,11 @@ public class GlobalCacheControlView extends PluginView {
         shortStatGrid.clear();
         shortStatGrid.getElement().setAttribute("style", "border: 1px solid #000000");
         shortStatGrid.setWidget(0, 0, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_SIZE));
-        shortStatGrid.setWidget(0, 1, new Label(String.valueOf(globalCachePluginData.getStatPanel().getSize()) + MEGABYTES));
+        shortStatGrid.setWidget(0, 1, new Label(globalCachePluginData.getStatPanel().getSize() + MEGABYTES));
         shortStatGrid.setWidget(0, 2, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_FREE));
-        shortStatGrid.setWidget(0, 3, new Label(String.valueOf(globalCachePluginData.getStatPanel().getFreeSpacePercentage()) + PERCENT));
+        shortStatGrid.setWidget(0, 3, new Label(globalCachePluginData.getStatPanel().getFreeSpacePercentage() + PERCENT));
         shortStatGrid.setWidget(0, 4, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_HITS));
-        shortStatGrid.setWidget(0, 5, new Label(String.valueOf(globalCachePluginData.getStatPanel().getHitCount()) + PERCENT));
+        shortStatGrid.setWidget(0, 5, new Label(globalCachePluginData.getStatPanel().getHitCount() + PERCENT));
     }
 
     private void buildCacheCleaningTable() {
@@ -333,6 +333,15 @@ public class GlobalCacheControlView extends PluginView {
      * Опросить состояние контролов перед отправкой новых настроек на сервер
      */
     private void getControlPanelState(){
+
+        if(expandedStatisticsCB.getValue() != globalCachePluginData.getControlPanelModel().isExpandedStatistics() &&
+                expandedStatisticsCB.getValue().equals(Boolean.TRUE)){
+            Window.alert("Внимание, сбор расширенной статистики приведёт к снижению производительности глобального кэша");
+        }
+        if(debugModeCB.getValue() != globalCachePluginData.getControlPanelModel().isDebugMode() &&
+                debugModeCB.getValue().equals(Boolean.TRUE)){
+            Window.alert("Внимание, режим отладки приведёт к снижению производительности приложения.");
+        }
         globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
         globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
         globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());

@@ -37,10 +37,10 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
 
     private void extractStatistics(GlobalCachePluginData globalCachePluginData){
         globalCacheStatistics = globalCacheManager.getStatistics();
+        globalCachePluginData.setStatPanel(new GlobalCacheStatPanel());
         if(globalCacheStatistics==null){
             globalCachePluginData.setErrorMsg(GLOBAL_CACHE_OFFLINE);
         } else {
-            globalCachePluginData.setStatPanel(new GlobalCacheStatPanel());
             globalCachePluginData.getStatPanel().setSize(format(globalCacheStatistics.getSize() / MEGABYTE));
             globalCachePluginData.getStatPanel().setFreeSpacePercentage(format(globalCacheStatistics.getFreeSpacePercentage() * 100));
             globalCachePluginData.getStatPanel().setHitCount(format(globalCacheStatistics.getHitCount() * 100));
