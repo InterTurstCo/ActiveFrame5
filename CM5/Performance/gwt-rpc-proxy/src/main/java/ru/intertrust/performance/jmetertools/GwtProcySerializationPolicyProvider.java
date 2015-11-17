@@ -1,8 +1,11 @@
 package ru.intertrust.performance.jmetertools;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Hashtable;
@@ -99,6 +102,33 @@ public class GwtProcySerializationPolicyProvider implements SerializationPolicyP
 
         };
         byte[] responseBody = httpclient.execute(httpget, responseHandler);
-        return new ByteArrayInputStream(responseBody);
+                
+        return new ByteArrayInputStream(createPolicyFile(responseBody));
+    }
+
+    
+    private byte[] createPolicyFile(byte[] responseBody) throws IOException {
+        //Подменяем политики сериализации на true
+        InputStreamReader isr = new InputStreamReader(new ByteArrayInputStream(responseBody), "UTF-8");
+        BufferedReader br = new BufferedReader(isr);
+        String line = br.readLine();
+        StringBuilder newPolicyFile = new StringBuilder();
+        while (line != null) {
+            line = line.trim();
+            if (!line.startsWith("@")){
+                String[] components = line.split(",");
+                newPolicyFile.append(components[0]);
+                newPolicyFile.append(",true");
+                newPolicyFile.append(",true");
+                newPolicyFile.append(",").append(components[3]);
+                newPolicyFile.append(",").append(components[4]);
+                newPolicyFile.append(",").append(components[5]);
+                newPolicyFile.append(",").append(components[6]);
+                newPolicyFile.append('\n');
+            }
+            newPolicyFile.append(line).append('\n');
+            line = br.readLine();
+        }
+        return newPolicyFile.toString().getBytes("UTF-8");
     }
 }

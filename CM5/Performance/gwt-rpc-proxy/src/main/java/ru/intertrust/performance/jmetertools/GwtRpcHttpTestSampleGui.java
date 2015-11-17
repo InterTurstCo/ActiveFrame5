@@ -3,7 +3,6 @@ package ru.intertrust.performance.jmetertools;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dialog;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Window;
@@ -11,12 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
-import org.apache.jmeter.gui.util.ButtonPanel;
-import org.apache.jmeter.gui.util.HorizontalPanel;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.protocol.http.config.gui.MultipartUrlConfigGui;
 import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
@@ -29,7 +24,6 @@ import org.apache.log.Logger;
 public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
     private static final long serialVersionUID = -6917992030933433477L;
     private static final Logger log = LoggingManager.getLoggerForClass();
-    private JTextArea postBodyJson;
     private String requestJson;
     private String responceJson;
 
@@ -59,10 +53,10 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
                 showJsonViewer(requestJson);
             }
         });
-        
+
         JButton showResponceJsonButton = new JButton("Show responce as JSON");
         showResponceJsonButton.addActionListener(new ActionListener() {
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 showJsonViewer(responceJson);
@@ -76,13 +70,13 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
         ((JPanel) paramPanel.getComponents()[4]).add(jsonButtonPanel, BorderLayout.EAST);
     }
 
-    private void showJsonViewer(String json){
-        JsonViewer jsonViewer = new JsonViewer(getWindowForComponent(GwtRpcHttpTestSampleGui.this), json);                
+    private void showJsonViewer(String json) {
+        JsonViewer jsonViewer = new JsonViewer(getWindowForComponent(GwtRpcHttpTestSampleGui.this), json);
         jsonViewer.setVisible(true);
     }
-    
+
     private Window getWindowForComponent(Component parentComponent)
-            throws HeadlessException {        
+            throws HeadlessException {
         if (parentComponent instanceof Frame || parentComponent instanceof Dialog)
             return (Window) parentComponent;
         return getWindowForComponent(parentComponent.getParent());

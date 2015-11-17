@@ -1,10 +1,14 @@
 package ru.intertrust.performance.jmetertools;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 import com.google.gwt.user.server.rpc.RPC;
 import com.google.gwt.user.server.rpc.RPCRequest;
 import com.google.gwt.user.server.rpc.SerializationPolicy;
+import com.google.gwt.user.server.rpc.impl.ServerSerializationStreamWriter;
 
 public class GwtRpcRequest {
     private String request;
@@ -51,11 +55,12 @@ public class GwtRpcRequest {
             writer.writeString(rpcRequest.getMethod().getDeclaringClass().getName());
             writer.writeString(rpcRequest.getMethod().getName());
             writer.writeInt(rpcRequest.getParameters().length);
-            for (Object parameter : rpcRequest.getParameters()) {
-                writer.writeString(parameter.getClass().getName());
-                writer.writeObject(parameter);
+            for (int i=0; i<rpcRequest.getMethod().getParameterTypes().length; i++) {
+                writer.writeString(rpcRequest.getMethod().getParameterTypes()[i].getName());
+                writer.writeObject(rpcRequest.getParameters()[i]);
             }
-            return writer.toString();
+            String result = writer.toString(); 
+            return result;
         } else {
             return null;
         }
@@ -97,8 +102,9 @@ public class GwtRpcRequest {
     public String asString() {
         if (rpcRequest != null) {
             RequestViewer requestViewer = new RequestViewer(getServiceClass(), getMethod(), getParameters());
-            String json = JsonWriter.objectToJson(requestViewer);
-            json = JsonWriter.formatJson(json);
+            Map args = new HashMap();
+            args.put(JsonWriter.PRETTY_PRINT, true);
+            String json = JsonWriter.objectToJson(requestViewer, args);            
             return json;
         } else {
             return null;

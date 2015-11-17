@@ -7,6 +7,7 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
@@ -35,6 +36,7 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.jmeter.control.GenericController;
 import org.apache.jmeter.control.gui.LogicControllerGui;
 import org.apache.jmeter.extractor.BeanShellPostProcessor;
+import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.gui.HeaderPanel;
@@ -190,7 +192,7 @@ public class GwtRpcProxy {
                         headerManager.setEnabled(true);
                         headerManager.add(new Header("Content-Type", "text/x-gwt-rpc;charset=UTF-8"));
                         // TODO вынести из кода
-                        headerManager.add(new Header("X-GWT-Permutation", "A3EF20039C3580B544F259C1A09C834B"));                        
+                        headerManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));                        
 
                         genericControllerTree.add(headerManager);
                         
@@ -215,7 +217,7 @@ public class GwtRpcProxy {
                                 uploadHeaderManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
                                 uploadHeaderManager.setEnabled(true);
                                 // TODO вынести из кода
-                                uploadHeaderManager.add(new Header("X-GWT-Permutation", "A3EF20039C3580B544F259C1A09C834B"));
+                                uploadHeaderManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));
                                 
                                 uploadGenericControllerTree.add(uploadHeaderManager);                                
                             }
@@ -239,14 +241,50 @@ public class GwtRpcProxy {
                                 FileInfo fileInfo = requestResponce.getRequest().getFile();
                                 HTTPFileArg fileArg = new HTTPFileArg("${BASE_DIR}" + fileInfo.getFileName(), fileInfo.getParamName(), fileInfo.getFileContentType());                                
                                 sampler.setHTTPFiles(new HTTPFileArg[]{fileArg});
+                                sampler.setProperty("GwtRpcResponceJson", requestResponce.getResponce().getBody());
                             }else{
                                 sampler.getArguments().addArgument(new HTTPArgument("", requestResponce.getRequest().getBody()));
-                                sampler.setProperty("GwtRpcRequestJson", requestResponce.getRequest().getJson());
+                                if (requestResponce.getRequest().getJson() != null){
+                                    sampler.setProperty("GwtRpcRequestJson", Base64.encodeBase64String(requestResponce.getRequest().getJson().getBytes("UTF-8")));
+                                }
+                                if (requestResponce.getResponce().getJson() != null){
+                                    sampler.setProperty("GwtRpcResponceJson", Base64.encodeBase64String(requestResponce.getResponce().getJson().getBytes("UTF-8")));
+                                }
                             }
-                            sampler.setProperty("GwtRpcResponceJson", requestResponce.getResponce().getJson());
                             
                             HashTree samplerTree = new ListedHashTree();
 
+                            //Формирование препроцессора
+                            BeanShellPreProcessor preProcessor = new BeanShellPreProcessor();
+                            preProcessor.setName("Формирование запроса");
+                            preProcessor.setProperty(TestElement.GUI_CLASS, TestBeanGUI.class.getName());
+                            preProcessor.setProperty(TestElement.TEST_CLASS, BeanShellPreProcessor.class.getName());
+                            preProcessor.setEnabled(true);
+
+                            preProcessor.setProperty("resetInterpreter", false);
+                            preProcessor.setProperty("parameters", "");
+                            preProcessor.setProperty("filename", "");
+
+                            String scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
+                            
+                            scriptText += "try{\n";
+                            if (uploadGenericController == null){
+                                //Обновление доменных объектов и идентификаторов в запросе
+                                scriptText += "\t//Змена ID и доменных объектов\n";
+                                scriptText += "\tGwtUtil.preRequestProcessing(ctx);\n";
+                            }
+                            scriptText += "}catch(Exception ex){\n";
+                            scriptText += "\tlog.error(\"Pre request error in sampler \" + sampler.getName(), ex);\n";
+                            scriptText += "\tvars.put(\"PRE_REQUEST_ERROR\", \"true\");\n";
+                            scriptText += "}\n";
+
+                            preProcessor.setProperty("script", scriptText);
+                            
+                            HashTree preProcessorTree = new ListedHashTree();
+                            samplerTree.add(preProcessor, preProcessorTree);                            
+                            
+                            
+                            //Формирование пост обработчика
                             BeanShellPostProcessor postProcessor = new BeanShellPostProcessor();
                             postProcessor.setName("Анализ результата");
                             postProcessor.setProperty(TestElement.GUI_CLASS, TestBeanGUI.class.getName());
@@ -257,26 +295,37 @@ public class GwtRpcProxy {
                             postProcessor.setProperty("parameters", "");
                             postProcessor.setProperty("filename", "");
 
-                            String scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
-                            scriptText += "//Проверка на ошибки\n";
-                            scriptText += "if (GwtUtil.isError(prev)){\n";
-                            scriptText += "\tlog.error(GwtUtil.decodeResponce(prev).toString());\n";
-                            scriptText += "\tprev.setSuccessful(false);\n";
-                            scriptText += "}\n";
+                            scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
+                            scriptText += "try{\n";
+                            scriptText += "\tString preRequestError = vars.get(\"PRE_REQUEST_ERROR\");\n";
+                            scriptText += "\t//Проверка на ошибки\n";
+                            scriptText += "\tif (preRequestError != null){\n";
+                            scriptText += "\t\tprev.setSuccessful(false);\n";
+                            scriptText += "\t}else if (GwtUtil.isError(prev)){\n";
+                            scriptText += "\t\tlog.error(GwtUtil.decodeResponce(prev).toString());\n";
+                            scriptText += "\t\tprev.setSuccessful(false);\n";
+                            scriptText += "\t}else{\n";
                             
                             //Для вложения добавляем сохранялку имени временного контента
                             if (uploadGenericController != null){
-                                scriptText += "//Получение имени вложения \n";
-                                scriptText += "String tempAttacheName = prev.getResponseDataAsString().substring(0, prev.getResponseDataAsString().length() - 1);\n";
-                                scriptText += "log.info(\"Temp attachment name - \" + tempAttacheName);\n";
-                                scriptText += "vars.put(\"ATTACHMENT_TEMP_NAME\", tempAttacheName);\n";
+                                scriptText += "\t\t//Сохранение имени вложения\n";
+                                scriptText += "\t\tGwtUtil.storeUploadResult(ctx);\n";
+                            }else{                            
+                                //Сохранение пришедших доменных объектов и идентификаторов в контексте
+                                scriptText += "\t\t//Сохранение ID и доменных объектов\n";
+                                scriptText += "\t\tGwtUtil.postResponseProcessing(ctx);\n";
                             }
+                            scriptText += "\t}\n";
+                            scriptText += "}catch(Exception ex){\n";
+                            scriptText += "\tprev.setSuccessful(false);\n";
+                            scriptText += "\tlog.error(\"Post request error in sampler \" + ctx.getCurrentSampler().getName(), ex);\n";
+                            scriptText += "}\n";
 
                             postProcessor.setProperty("script", scriptText);
 
                             HashTree postProcessorTree = new ListedHashTree();
                             samplerTree.add(postProcessor, postProcessorTree);
-
+                                                        
                             if (uploadGenericController != null){
                                 uploadGenericControllerTree.add(sampler, samplerTree);
                                 recordScript.add(uploadGenericController, uploadGenericControllerTree);

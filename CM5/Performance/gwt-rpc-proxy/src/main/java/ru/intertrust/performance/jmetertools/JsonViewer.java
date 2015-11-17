@@ -2,13 +2,16 @@ package ru.intertrust.performance.jmetertools;
 
 import java.awt.BorderLayout;
 import java.awt.Window;
+import java.io.UnsupportedEncodingException;
 
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class JsonViewer extends JDialog{
+import org.apache.commons.codec.binary.Base64;
+
+public class JsonViewer extends JDialog {
 
     public JsonViewer(Window owner, String text) {
         super(owner);
@@ -16,19 +19,21 @@ public class JsonViewer extends JDialog{
     }
 
     private void init(String text) {
-        setModal(true);
-        setSize(800, 600);
-        setResizable(true);
-        setLocationRelativeTo(getParent());
-        setTitle("JSON Viewer");
-        JTextArea textArea = new JTextArea();
-        textArea.setText(text);
-        
-        JScrollPane panel = new JScrollPane(textArea);
-        
-        add(panel, BorderLayout.CENTER);        
+        try {
+            setModal(true);
+            setSize(800, 600);
+            setResizable(true);
+            setLocationRelativeTo(getParent());
+            setTitle("JSON Viewer");
+            JTextArea textArea = new JTextArea();
+            textArea.setText(new String(Base64.decodeBase64(text), "UTF-8"));
+
+            JScrollPane panel = new JScrollPane(textArea);
+
+            add(panel, BorderLayout.CENTER);
+        } catch (UnsupportedEncodingException e) {
+            new RuntimeException("Error init JSON View dialogs", e);
+        }
     }
-    
-    
 
 }
