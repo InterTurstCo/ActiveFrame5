@@ -50,7 +50,7 @@ public class GlobalCacheControlView extends PluginView {
         statPanelRoot = new AbsolutePanel();
         shortStatPanel = new AbsolutePanel();
         cacheCleaningPanel = new AbsolutePanel();
-        shortStatGrid = new Grid(1,6);
+        shortStatGrid = new Grid(1, 6);
         cacheCleaningTable = new FlexTable();
     }
 
@@ -97,7 +97,7 @@ public class GlobalCacheControlView extends PluginView {
         return rootPanel;
     }
 
-    private Widget buildRefreshButton(){
+    private Widget buildRefreshButton() {
         ConfiguredButton refreshButton = GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_REFRESH, GlobalCacheControlUtils.BTN_IMG_REFRESH);
         refreshButton.addClickHandler(new ClickHandler() {
             @Override
@@ -110,7 +110,7 @@ public class GlobalCacheControlView extends PluginView {
         return refreshButton;
     }
 
-    private Widget buildResetButton(){
+    private Widget buildResetButton() {
         ConfiguredButton resetButton = GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_RESET, GlobalCacheControlUtils.BTN_IMG_RESET);
         resetButton.addClickHandler(new ClickHandler() {
             @Override
@@ -121,7 +121,7 @@ public class GlobalCacheControlView extends PluginView {
         return resetButton;
     }
 
-    private Widget buildResetHourlyButton(){
+    private Widget buildResetHourlyButton() {
         ConfiguredButton resetHourlyButton = GlobalCacheControlUtils.createButton(GlobalCacheControlUtils.STAT_HOURLY_RESET, GlobalCacheControlUtils.BTN_IMG_RESET);
         resetHourlyButton.addClickHandler(new ClickHandler() {
             @Override
@@ -133,17 +133,16 @@ public class GlobalCacheControlView extends PluginView {
     }
 
 
-
     private void buildShortStatisticsPanel() {
         //TODO: Прикрутить нормальные стили
         shortStatGrid.clear();
         shortStatGrid.setStyleName("shortStatGrid");
         shortStatGrid.setWidget(0, 0, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_SIZE));
-        shortStatGrid.setWidget(0,1,new Label(String.valueOf(globalCachePluginData.getStatPanel().getSize())+MEGABYTES));
+        shortStatGrid.setWidget(0, 1, new Label(String.valueOf(globalCachePluginData.getStatPanel().getSize()) + MEGABYTES));
         shortStatGrid.setWidget(0, 2, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_FREE));
-        shortStatGrid.setWidget(0,3,new Label(String.valueOf(globalCachePluginData.getStatPanel().getFreeSpacePercentage())+PERCENT));
+        shortStatGrid.setWidget(0, 3, new Label(String.valueOf(globalCachePluginData.getStatPanel().getFreeSpacePercentage()) + PERCENT));
         shortStatGrid.setWidget(0, 4, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_HITS));
-        shortStatGrid.setWidget(0,5,new Label(String.valueOf(globalCachePluginData.getStatPanel().getHitCount())+PERCENT));
+        shortStatGrid.setWidget(0, 5, new Label(String.valueOf(globalCachePluginData.getStatPanel().getHitCount()) + PERCENT));
     }
 
     private void buildCacheCleaningTable() {
@@ -218,7 +217,7 @@ public class GlobalCacheControlView extends PluginView {
     }
 
 
-    private void refreshStatisticsModel(){
+    private void refreshStatisticsModel() {
         Command command = new Command("refreshStatistics", "GlobalCacheControl.plugin", getGlobalCachePluginData());
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
@@ -230,16 +229,20 @@ public class GlobalCacheControlView extends PluginView {
             @Override
             public void onSuccess(Dto result) {
                 globalCachePluginData = (GlobalCachePluginData) result;
-                buildShortStatisticsPanel();
-                buildCacheCleaningTable();
+                if (globalCachePluginData.getErrorMsg() != null) {
+                    Window.alert(globalCachePluginData.getErrorMsg());
+                } else {
+                    buildShortStatisticsPanel();
+                    buildCacheCleaningTable();
+                }
             }
         });
     }
 
 
-    private void resetStatistics(Boolean hourly){
+    private void resetStatistics(Boolean hourly) {
 
-        String methodName = (hourly)?"resetHourlyStatistics":"resetAllStatistics";
+        String methodName = (hourly) ? "resetHourlyStatistics" : "resetAllStatistics";
 
         Command command = new Command(methodName, "GlobalCacheControl.plugin", getGlobalCachePluginData());
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
@@ -256,8 +259,8 @@ public class GlobalCacheControlView extends PluginView {
         });
     }
 
-    private GlobalCachePluginData getGlobalCachePluginData(){
-        if(globalCachePluginData==null){
+    private GlobalCachePluginData getGlobalCachePluginData() {
+        if (globalCachePluginData == null) {
             globalCachePluginData = new GlobalCachePluginData();
         }
         return globalCachePluginData;
