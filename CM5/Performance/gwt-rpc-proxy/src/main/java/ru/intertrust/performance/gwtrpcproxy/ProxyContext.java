@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -121,11 +122,9 @@ public class ProxyContext {
             return null;
         }
         Object responceObj = GwtUtil.decodeResponce(request, responce, targetUri);
-        String json = JsonWriter.objectToJson(responceObj);
-        try {
-            json = JsonWriter.formatJson(json);
-        } catch (Exception ex) {
-        }
+        Map args = new HashMap();
+        args.put(JsonWriter.PRETTY_PRINT, true);        
+        String json = JsonWriter.objectToJson(responceObj, args);
         return json;
     }    
     
