@@ -73,5 +73,44 @@
     text-indent: 10px;
     border: 1px solid #ccc;
 }
+.cacheCleaningTable {
+    text-align: center;
+    margin: 0 0 13px 13px;
+}
 
+.cacheCleaningTable td {
+    padding: 10px !important;
+    border: 1px solid #000;
+}
 
+.cacheCleaningTable tr:nth-child(3)>td:nth-child(1) {
+    padding: 10px 69px 10px 10px !important;
+}
+
+.cacheCleaningTable tr:nth-child(2) {
+    font-weight: bold;
+}
+
+.cacheCleaningTable tr:nth-child(1) {
+    font-weight: bold;
+}
+
+.shortStatGrid .gwt-Label {
+    text-decoration: none;
+}
+
+.shortStatGrid tr>td:nth-child(2) {
+    width: 27%;
+}
+
+.shortStatGrid tr>td:nth-child(4) {
+    width: 27%;
+}
+
+.shortStatGrid {
+    margin: 15px 0 22px 13px;
+}
+
+.shortStatGrid td {
+    border: 1px solid #000;
+}

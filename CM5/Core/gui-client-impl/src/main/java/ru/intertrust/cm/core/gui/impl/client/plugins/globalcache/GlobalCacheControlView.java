@@ -165,7 +165,7 @@ public class GlobalCacheControlView extends PluginView {
     private void buildShortStatisticsPanel() {
         //TODO: Прикрутить нормальные стили
         shortStatGrid.clear();
-        shortStatGrid.getElement().setAttribute("style", "border: 1px solid #000000");
+        shortStatGrid.setStyleName("shortStatGrid");
         shortStatGrid.setWidget(0, 0, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_SIZE));
         shortStatGrid.setWidget(0, 1, new Label(globalCachePluginData.getStatPanel().getSize() + MEGABYTES));
         shortStatGrid.setWidget(0, 2, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_FREE));
@@ -176,27 +176,28 @@ public class GlobalCacheControlView extends PluginView {
 
     private void buildCacheCleaningTable() {
         cacheCleaningTable.clear();
-        cacheCleaningTable.getFlexCellFormatter().setRowSpan(0, 0, 3);
-        cacheCleaningTable.setWidget(0, 0, new InlineHTML("<span>Фоновая очистка кэша</span>"));
+        cacheCleaningTable.setStyleName("cacheCleaningTable");
+        cacheCleaningTable.getFlexCellFormatter().setRowSpan(0, 0, 2);
+        cacheCleaningTable.setWidget(2, 0, new InlineHTML("<span>Фоновая очистка кэша</span>"));
         cacheCleaningTable.getFlexCellFormatter().setColSpan(0, 1, 3);
         cacheCleaningTable.setWidget(0, 1, new InlineHTML("<span>Время, мс.</span>"));
-        cacheCleaningTable.setWidget(1, 1, new InlineHTML("<span>Мин.</span>"));
-        cacheCleaningTable.setWidget(1, 2, new InlineHTML("<span>Макс.</span>"));
-        cacheCleaningTable.setWidget(1, 3, new InlineHTML("<span>Среднее.</span>"));
-        cacheCleaningTable.setWidget(2, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeMin() + "</span>"));
-        cacheCleaningTable.setWidget(2, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeMax() + "</span>"));
+        cacheCleaningTable.setWidget(1, 0, new InlineHTML("<span>Мин.</span>"));
+        cacheCleaningTable.setWidget(1, 1, new InlineHTML("<span>Макс.</span>"));
+        cacheCleaningTable.setWidget(1, 2, new InlineHTML("<span>Среднее.</span>"));
+        cacheCleaningTable.setWidget(2, 1, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTimeMin()+"</span>"));
+        cacheCleaningTable.setWidget(2, 2, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTimeMax()+"</span>"));
         cacheCleaningTable.setWidget(2, 3, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTimeAvg() + "</span>"));
-        cacheCleaningTable.getFlexCellFormatter().setColSpan(0, 4, 3);
-        cacheCleaningTable.setWidget(0, 4, new InlineHTML("<span>Очистка, %</span>"));
-        cacheCleaningTable.setWidget(1, 4, new InlineHTML("<span>Мин.</span>"));
-        cacheCleaningTable.setWidget(1, 5, new InlineHTML("<span>Макс.</span>"));
-        cacheCleaningTable.setWidget(1, 6, new InlineHTML("<span>Среднее.</span>"));
-        cacheCleaningTable.setWidget(2, 4, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin() + "</span>"));
-        cacheCleaningTable.setWidget(2, 5, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMax() + "</span>"));
-        cacheCleaningTable.setWidget(2, 6, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin() + "</span>"));
-        cacheCleaningTable.getFlexCellFormatter().setRowSpan(0, 7, 2);
-        cacheCleaningTable.setWidget(0, 7, new InlineHTML("<span>Кол-во</span>"));
-        cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTotalInvocations() + "</span>"));
+        cacheCleaningTable.getFlexCellFormatter().setColSpan(0, 2, 3);
+        cacheCleaningTable.setWidget(0, 2, new InlineHTML("<span>Очистка, %</span>"));
+        cacheCleaningTable.setWidget(1, 3, new InlineHTML("<span>Мин.</span>"));
+        cacheCleaningTable.setWidget(1, 4, new InlineHTML("<span>Макс.</span>"));
+        cacheCleaningTable.setWidget(1, 5, new InlineHTML("<span>Среднее.</span>"));
+        cacheCleaningTable.setWidget(2, 4, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getFreedSpaceMin()+"</span>"));
+        cacheCleaningTable.setWidget(2, 5, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getFreedSpaceMax() + "</span>"));
+        cacheCleaningTable.setWidget(2, 6, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getFreedSpaceMin()+"</span>"));
+        cacheCleaningTable.getFlexCellFormatter().setRowSpan(0, 3, 2);
+        cacheCleaningTable.setWidget(0, 3, new InlineHTML("<span>Кол-во</span>"));
+        cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>"+globalCachePluginData.getStatPanel().getTotalInvocations()+"</span>"));
     }
 
     private Widget buildControlPanel() {
