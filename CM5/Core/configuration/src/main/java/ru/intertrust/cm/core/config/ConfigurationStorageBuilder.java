@@ -425,6 +425,35 @@ public class ConfigurationStorageBuilder {
         fillAuditLogConfigMap(newConfig);
     }
 
+    public AccessMatrixConfig fillAccessMatrixByObjectTypeUsingExtension(String domainObjectType) {
+        if (configurationExplorer.isAuditLogType(domainObjectType)) {
+            domainObjectType = getParentTypeOfAuditLog(domainObjectType);
+        }
+
+        AccessMatrixConfig accessMatrixConfig = configurationExplorer.getConfig(AccessMatrixConfig.class, domainObjectType);
+
+        if (accessMatrixConfig == null) {
+            DomainObjectTypeConfig domainObjectTypeConfig =
+                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectType);
+            if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
+                String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
+                accessMatrixConfig = fillAccessMatrixByObjectTypeUsingExtension(parentDOType);
+            }
+        }
+
+        if (accessMatrixConfig == null) {
+            accessMatrixConfig = NullValues.ACCESS_MATRIX_CONFIG;
+        }
+
+        configurationStorage.accessMatrixByObjectTypeUsingExtensionMap.put(domainObjectType, accessMatrixConfig);
+        return accessMatrixConfig;
+    }
+
+    private String getParentTypeOfAuditLog(String domainObjectType) {
+        domainObjectType = domainObjectType.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        return domainObjectType;
+    }
+
     /**
      * Получение всех дочерних типов с учетом иерархии наследования
      * @param typeName

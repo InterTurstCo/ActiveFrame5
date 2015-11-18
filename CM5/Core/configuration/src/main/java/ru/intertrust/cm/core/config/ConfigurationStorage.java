@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -26,6 +27,7 @@ public class ConfigurationStorage {
 
     public Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
     public Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
+    public Map<FieldConfigKey, String> typeInHierarchyHavingFieldMap = new HashMap<>();
 
     public CaseInsensitiveMap<Set<ReferenceFieldConfig>> referenceFieldsMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveMap<Set<ReferenceFieldConfig>> immutableReferenceFieldsMap = new CaseInsensitiveMap<>();
@@ -64,5 +66,9 @@ public class ConfigurationStorage {
     public CaseInsensitiveMap<FormConfig> collectedFormConfigMap = new CaseInsensitiveMap<>();
 
     public Map<String, CaseInsensitiveMap<FormConfig>> localizedCollectedFormConfigMap = new HashMap<>(); //<Locale, Map<form name, formConfig>>
+
+    public CaseInsensitiveHashMap<AccessMatrixConfig> accessMatrixByObjectTypeUsingExtensionMap = new CaseInsensitiveHashMap<>();
+
+    public CaseInsensitiveHashMap<List<String>> allowedToCreateUserGroupsMap = new CaseInsensitiveHashMap<>();
 
 }

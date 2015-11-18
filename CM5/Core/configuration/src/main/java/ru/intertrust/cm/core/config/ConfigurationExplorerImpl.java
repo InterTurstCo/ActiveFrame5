@@ -237,19 +237,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * {@inheritDoc}
      */
     @Override
-    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
-        readLock.lock();
-        try {
-            return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName) {
         readLock.lock();
         try {
@@ -287,35 +274,128 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      * {@inheritDoc}
      */
     @Override
-    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
         readLock.lock();
         try {
-            if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
-                throw new IllegalArgumentException("'*' is not a valid Domain Object type");
-            }
-            if (domainObjectConfigName == null || fieldConfigName == null) {
-                return null;
-            }
+            return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
+        } finally {
+            readLock.unlock();
+        }
+    }
 
-            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
+        if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
+            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+        }
+
+        if (domainObjectConfigName == null || fieldConfigName == null) {
+            return null;
+        }
+
+        readLock.lock();
+        try {
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
             FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 
             if (result != null) {
-                return getReturnObject(result);
+                if (NullValues.isNull(result)) {
+                    return null;
+                } else {
+                    return getReturnObject(result);
+                }
             }
 
             if (returnInheritedConfig) {
+                FieldConfigKey fieldConfigKeyWithoutInheritance =
+                        new FieldConfigKey(domainObjectConfigName, fieldConfigName, false);
+                result = configStorage.fieldConfigMap.get(fieldConfigKeyWithoutInheritance);
+
+                if (result != null) {
+                    if (NullValues.isNull(result)) {
+                        configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
+                        return null;
+                    } else {
+                        configStorage.fieldConfigMap.put(fieldConfigKey, result);
+                        return getReturnObject(result);
+                    }
+                }
+
                 DomainObjectTypeConfig domainObjectTypeConfig =
                         getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
-                if (domainObjectTypeConfig == null) {
+
+                if (domainObjectTypeConfig == null || domainObjectTypeConfig.getExtendsAttribute() == null) {
+                    configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
                     return null;
                 }
-                if (domainObjectTypeConfig.getExtendsAttribute() != null) {
-                    return getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
+
+                result = getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
+                if (NullValues.isNull(result)) {
+                    configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
+                    return null;
+                } else {
+                    configStorage.fieldConfigMap.put(fieldConfigKey, result);
+                    return result;
+                }
+            } else {
+                configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
+                return null;
+            }
+        } finally {
+            readLock.unlock();
+        }
+    }
+
+    @Override
+    public String getFromHierarchyDomainObjectTypeHavingField(String doType, String fieldName) {
+        if (REFERENCE_TYPE_ANY.equals(doType)) {
+            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+        }
+
+        if (doType == null) {
+            throw new IllegalArgumentException("doType cannot be null");
+        }
+
+        if (fieldName == null) {
+            throw new IllegalArgumentException("fieldName cannot be null");
+        }
+
+        readLock.lock();
+        try {
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(doType, fieldName);
+            String result = configStorage.typeInHierarchyHavingFieldMap.get(fieldConfigKey);
+
+            if (result != null) {
+                if (NullValues.isNull(result)) {
+                    return null;
+                } else {
+                    return getReturnObject(result);
                 }
             }
 
-            return null;
+            FieldConfig fieldConfig = getFieldConfig(doType, fieldName, false);
+            if (fieldConfig != null) {
+                configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, doType);
+                return getReturnObject(doType);
+            } else {
+                DomainObjectTypeConfig doTypeConfig = getConfig(DomainObjectTypeConfig.class, doType);
+                if (doTypeConfig != null && doTypeConfig.getExtendsAttribute() != null) {
+                    result = getFromHierarchyDomainObjectTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
+                    if (NullValues.isNull(result)) {
+                        configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, NullValues.STRING);
+                        return null;
+                    } else {
+                        configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, result);
+                        return result;
+                    }
+                } else {
+                    throw new ConfigurationException("Field '" + fieldName +
+                            "' is not found in hierarchy of domain object type '" + doType + "'");
+                }
+            }
         } finally {
             readLock.unlock();
         }
@@ -434,27 +514,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtension(String domainObjectType) {
         readLock.lock();
         try {
-            if (isAuditLogType(domainObjectType)) {
-                domainObjectType = getParentTypeOfAuditLog(domainObjectType);
+            AccessMatrixConfig accessMatrixConfig =
+                    configStorage.accessMatrixByObjectTypeUsingExtensionMap.get(domainObjectType);
+
+            if (accessMatrixConfig == null) {
+                accessMatrixConfig = configurationStorageBuilder.
+                        fillAccessMatrixByObjectTypeUsingExtension(domainObjectType);
             }
 
-            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-
-            if (accessMatrixConfig != null) {
-                return getReturnObject(accessMatrixConfig);
-            } else {
-                DomainObjectTypeConfig domainObjectTypeConfig =
-                        getConfig(DomainObjectTypeConfig.class, domainObjectType);
-                if (domainObjectTypeConfig != null && domainObjectTypeConfig.getExtendsAttribute() != null) {
-                    String parentDOType = domainObjectTypeConfig.getExtendsAttribute();
-                    return getAccessMatrixByObjectTypeUsingExtension(parentDOType);
-                }
+            if (NullValues.isNull(accessMatrixConfig)) {
+                return null;
             }
+
+            return getReturnObject(accessMatrixConfig);
         } finally {
             readLock.unlock();
         }
-
-        return null;
     }
 
     /**
@@ -685,16 +760,33 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     @Override
     public List<String> getAllowedToCreateUserGroups(String objectType) {
-        List<String> userGroups = new ArrayList<>();
-
-        AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtension(objectType);
-
-        if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
-            for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
-                userGroups.add(permitGroup.getName());
+        readLock.lock();
+        try {
+            List<String> userGroups = configStorage.allowedToCreateUserGroupsMap.get(objectType);
+            if (userGroups != null) {
+                if (NullValues.isNull(userGroups)) {
+                    return null;
+                } else {
+                    return userGroups;
+                }
             }
+
+            userGroups = new ArrayList<>();
+
+            AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtension(objectType);
+
+            if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
+                for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
+                    userGroups.add(permitGroup.getName());
+                }
+            }
+
+            userGroups = Collections.unmodifiableList(userGroups);
+            configStorage.allowedToCreateUserGroupsMap.put(objectType, userGroups);
+            return userGroups;
+        } finally {
+            readLock.unlock();
         }
-        return userGroups;
     }
 
     @Override
@@ -862,7 +954,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         } finally {
             readLock.unlock();
         }
-
     }
 
     private FormConfig getParent(FormConfig formConfig) {

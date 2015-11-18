@@ -1910,7 +1910,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     protected String buildFindChildrenQuery(String linkedType, String linkedField, boolean exactType,
                                             int offset, int limit, AccessToken accessToken) {
         String tableAlias = getSqlAlias(linkedType);
-        String tableHavingLinkedFieldAlias = getSqlAlias(findInHierarchyDOTypeHavingField(linkedType, linkedField));
+        String tableHavingLinkedFieldAlias =
+                getSqlAlias(configurationExplorer.getFromHierarchyDomainObjectTypeHavingField(linkedType, linkedField));
 
         StringBuilder query = new StringBuilder(200);
         query.append("select ");
@@ -1949,7 +1950,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     protected String buildFindChildrenIdsQuery(String linkedType, String linkedField, boolean exactType,
                                                int offset, int limit, AccessToken accessToken) {
-        String doTypeHavingLinkedField = findInHierarchyDOTypeHavingField(linkedType, linkedField);
+        String doTypeHavingLinkedField = configurationExplorer.getFromHierarchyDomainObjectTypeHavingField(linkedType, linkedField);
         String tableName = getSqlName(doTypeHavingLinkedField);
         String tableAlias = getSqlAlias(tableName);
 
@@ -2387,21 +2388,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     append(childTableAlias).append(".").append(wrap(ID_COLUMN)).append(" and ").
                     append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = ").
                     append(childTableAlias).append(".").append(wrap(TYPE_COLUMN)).append(")");
-        }
-    }
-
-    private String findInHierarchyDOTypeHavingField(String doType, String fieldName) {
-        FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doType, fieldName, false);
-        if (fieldConfig != null) {
-            return doType;
-        } else {
-            DomainObjectTypeConfig doTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, doType);
-            if (doTypeConfig != null && doTypeConfig.getExtendsAttribute() != null) {
-                return findInHierarchyDOTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
-            } else {
-                throw new ConfigurationException("Field '" + fieldName +
-                        "' is not found in hierarchy of domain object type '" + doType + "'");
-            }
         }
     }
 

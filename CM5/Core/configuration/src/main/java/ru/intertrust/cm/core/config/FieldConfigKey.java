@@ -7,39 +7,37 @@ public class FieldConfigKey {
 
     private String domainObjectName;
     private String fieldConfigName;
+    private boolean searchInHierarchy;
 
     FieldConfigKey(String domainObjectName, String fieldConfigName) {
         this.domainObjectName = domainObjectName.toLowerCase();
         this.fieldConfigName = fieldConfigName.toLowerCase();
     }
 
+    public FieldConfigKey(String domainObjectName, String fieldConfigName, boolean searchInHierarchy) {
+        this(domainObjectName, fieldConfigName);
+        this.searchInHierarchy = searchInHierarchy;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         FieldConfigKey that = (FieldConfigKey) o;
 
-        if (domainObjectName != null ? !domainObjectName.equals(that.domainObjectName) :
-                that.domainObjectName != null) {
-            return false;
-        }
-        if (fieldConfigName != null ? !fieldConfigName.equals(that.fieldConfigName) :
-                that.fieldConfigName != null) {
-            return false;
-        }
+        if (searchInHierarchy != that.searchInHierarchy) return false;
+        if (!domainObjectName.equals(that.domainObjectName)) return false;
+        if (!fieldConfigName.equals(that.fieldConfigName)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = domainObjectName != null ? domainObjectName.hashCode() : 0;
-        result = 31 * result + (fieldConfigName != null ? fieldConfigName.hashCode() : 0);
+        int result = domainObjectName.hashCode();
+        result = 31 * result + fieldConfigName.hashCode();
+        result = 31 * result + (searchInHierarchy ? 1 : 0);
         return result;
     }
 }

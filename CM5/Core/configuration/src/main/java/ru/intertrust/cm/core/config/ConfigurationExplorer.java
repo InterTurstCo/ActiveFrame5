@@ -120,6 +120,14 @@ public interface ConfigurationExplorer {
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
 
     /**
+     * Находит в иерархии типов ДО тип, содержащий заданное поле
+     * @param doType имя типа ДО
+     * @param fieldName имя поля
+     * @return тип, содержащий заданное поле
+     */
+    String getFromHierarchyDomainObjectTypeHavingField(String doType, String fieldName);
+
+    /**
      * Находит конфигурацию отображаемого поля коллекции по имени представления коллекции (view) и имени поля в представлении коллекции
      * (collection-views.xml).
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.

@@ -65,6 +65,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     private NamedParameterJdbcTemplate jdbcTemplate;
 
+    private CaseInsensitiveMap<AccessMatrixConfig> accessMatrixConfigMap = new CaseInsensitiveMap<>();
+    private CaseInsensitiveMap<DomainObjectTypeConfig> childDomainObjectTypeMap = new CaseInsensitiveMap<>();
+
     public void setDomainObjetcTypeIdCache(DomainObjectTypeIdCache domainObjetcTypeIdCache) {
         this.domainObjectTypeIdCache = domainObjetcTypeIdCache;
     }
@@ -671,28 +674,26 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
      * @return
      */
     public String getMatrixReferenceActualFieldType(DomainObject domainObject) {
-        String childTypeName = domainObject.getTypeName();
-        // Получаем матрицу и смотрим атрибут matrix_reference_field
-        AccessMatrixConfig matrixConfig = null;
-        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
+        DomainObjectTypeConfig childDomainObjectTypeConfig = childDomainObjectTypeMap.get(domainObject.getTypeName());
         if (childDomainObjectTypeConfig == null) {
+            childDomainObjectTypeConfig = findChildDomainObjectTypeConfig(domainObject.getTypeName());
+        }
+
+        if (NullValues.isNull(childDomainObjectTypeConfig)) {
             return null;
         }
 
-        String result = null;
+        AccessMatrixConfig matrixConfig = accessMatrixConfigMap.get(domainObject.getTypeName());
 
-        // Ищим матрицу для типа с учетом иерархии типов
-        while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
-                && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
-            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
-        }
+        String result = null;
 
         if (matrixConfig != null && matrixConfig.getMatrixReference() != null) {
             // Получаем имя типа на которого ссылается martix-reference-field
             String matrixReferenceField = matrixConfig.getMatrixReference();
             Id parentId = domainObject.getReference(matrixReferenceField);
             if (parentId == null) {
-                throw new RuntimeException("Matrix referenece field: " + matrixReferenceField + " is not a reference field in " + childTypeName);
+                throw new RuntimeException("Matrix referenece field: " + matrixReferenceField +
+                        " is not a reference field in " + childDomainObjectTypeConfig.getName());
             }
 
             // Вызываем рекурсивно метод для родительского типа, на случай если в родительской матрице так же заполнено
@@ -714,6 +715,33 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         }
         return result;
+    }
+
+    private DomainObjectTypeConfig findChildDomainObjectTypeConfig(String domainObjectTypeName) {
+        String childTypeName = domainObjectTypeName;
+        // Получаем матрицу и смотрим атрибут matrix_reference_field
+        DomainObjectTypeConfig childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childTypeName);
+        if (childDomainObjectTypeConfig == null) {
+            childDomainObjectTypeMap.put(domainObjectTypeName, NullValues.DOMAIN_OBJECT_TYPE_CONFIG);
+            return NullValues.DOMAIN_OBJECT_TYPE_CONFIG;
+        }
+
+        AccessMatrixConfig matrixConfig = null;
+
+        // Ищим матрицу для типа с учетом иерархии типов
+        while ((matrixConfig = configurationExplorer.getAccessMatrixByObjectType(childDomainObjectTypeConfig.getName())) == null
+                && childDomainObjectTypeConfig.getExtendsAttribute() != null) {
+            childDomainObjectTypeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, childDomainObjectTypeConfig.getExtendsAttribute());
+        }
+
+        if (childDomainObjectTypeConfig == null) {
+            childDomainObjectTypeConfig = NullValues.DOMAIN_OBJECT_TYPE_CONFIG;
+        }
+
+        childDomainObjectTypeMap.put(domainObjectTypeName, childDomainObjectTypeConfig);
+        accessMatrixConfigMap.put(domainObjectTypeName, matrixConfig);
+
+        return childDomainObjectTypeConfig;
     }
 
     private boolean isAllowedToCreateObjectType(Id userId, String checkType) {
