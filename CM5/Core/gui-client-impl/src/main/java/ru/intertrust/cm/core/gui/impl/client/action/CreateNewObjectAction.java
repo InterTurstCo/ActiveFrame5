@@ -38,6 +38,7 @@ public class CreateNewObjectAction extends Action {
         formPluginConfig.setDomainObjectTypeToCreate(domainObjectTypeToCreate);
         final FormPluginState state = editor.getFormPluginState().createClone();
         formPluginConfig.setPluginState(state);
+
         if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null) {
             final FormViewerConfig viewerConfig = new FormViewerConfig();
             final FormMappingConfig formMappingConfig = new FormMappingConfig();
@@ -48,6 +49,17 @@ public class CreateNewObjectAction extends Action {
             formPluginConfig.setFormViewerConfig(viewerConfig);
         } else {
             formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
+        }
+
+        if (actionConfig.getProperty(OBJECT_TYPE_PROP) != null && actionConfig.getProperty(OBJECT_FORM_PROP)!=null){
+            final FormViewerConfig viewerConfig = new FormViewerConfig();
+            final FormMappingConfig formMappingConfig = new FormMappingConfig();
+            formMappingConfig.setDomainObjectType(domainObjectTypeToCreate);
+            formMappingConfig.setForm(actionConfig.getProperty(OBJECT_FORM_PROP));
+            final List<FormMappingConfig> formMappingConfigList = new ArrayList<>();
+            formMappingConfigList.add(formMappingConfig);
+            viewerConfig.setFormMappingConfigList(formMappingConfigList);
+            formPluginConfig.setFormViewerConfig(viewerConfig);
         }
         //CMFIVE-4330
         /**

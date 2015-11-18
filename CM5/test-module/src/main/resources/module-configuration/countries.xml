@@ -201,8 +201,11 @@
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
-            <act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
+            <!--act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
                 <act:action-group-ref name-ref="testGroup"/>
+            </act:action-group-->
+            <act:action-group name="testGroup2" text="Вторая группа действий" merged="false" imageClass="actionBar-create">
+                <act:action-group-ref name-ref="create.visual.parameters.objects"/>
             </act:action-group>
         </act:tool-bar>
         <markup>

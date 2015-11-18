@@ -1124,9 +1124,12 @@
                         <td width="100px" h-align="right">
                             <widget id="Name-Label"/>
                         </td>
-                        <td width="100%" h-align="left">
+                        <td width="50%" h-align="left">
                             <widget id="Name"/>
                         </td>
+                        <td width="50%" h-align="left">
+                            <widget id="Organization"/>
+                        </td>     
                         <!-- text-box (Название) -->
                     </tr>
                 </table>
