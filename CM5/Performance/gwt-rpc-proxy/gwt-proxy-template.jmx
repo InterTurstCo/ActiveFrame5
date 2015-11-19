@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13 r1665067">
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13.20151117">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -30,13 +30,13 @@
           <collectionProp name="Arguments.arguments">
             <elementProp name="THREAD_COUNT" elementType="Argument">
               <stringProp name="Argument.name">THREAD_COUNT</stringProp>
-              <stringProp name="Argument.value">10</stringProp>
+              <stringProp name="Argument.value">1</stringProp>
               <stringProp name="Argument.desc">Количество потоков</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="RUMP_UP_PERIOD" elementType="Argument">
               <stringProp name="Argument.name">RUMP_UP_PERIOD</stringProp>
-              <stringProp name="Argument.value">10</stringProp>
+              <stringProp name="Argument.value">1</stringProp>
               <stringProp name="Argument.desc">Время запуска потоков</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
