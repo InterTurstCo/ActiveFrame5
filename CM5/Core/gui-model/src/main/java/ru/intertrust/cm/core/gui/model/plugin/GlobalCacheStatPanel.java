@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
-import org.springframework.util.StringUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.gui.model.util.StringUtil;
+import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Модель данных панели статистики
@@ -23,6 +25,7 @@ public class GlobalCacheStatPanel implements Dto {
     private String freedSpaceMin;
     private String freedSpaceMax;
     private String totalInvocations;
+    private List<GlobalCacheStatistics.Record> notifierRecords;
 
 
     public String getSize() {
@@ -118,4 +121,11 @@ public class GlobalCacheStatPanel implements Dto {
         this.totalInvocations = totalInvocations;
     }
 
+    public List<GlobalCacheStatistics.Record> getNotifierRecords() {
+        return notifierRecords;
+    }
+
+    public void setNotifierRecords(List<GlobalCacheStatistics.Record> notifierRecords) {
+        this.notifierRecords = notifierRecords;
+    }
 }

@@ -8,6 +8,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
@@ -189,28 +190,53 @@ public class GlobalCacheControlView extends PluginView {
         shortStatGrid.setWidget(0, 5, new Label(globalCachePluginData.getStatPanel().getHitCount() + PERCENT));
     }
 
-    private void buildExtendedStatisticsPanel(){
+    private void buildExtendedStatisticsPanel() {
         extendedStatPanel.clear();
-        if(globalCachePluginData.getControlPanelModel().isExpandedStatistics()){
+        if (globalCachePluginData.getControlPanelModel().isExpandedStatistics()) {
             FlexTable extendedStatTable = new FlexTable();
             extendedStatTable.setStyleName("cacheCleaningTable");
             extendedStatTable.getFlexCellFormatter().setRowSpan(0, 0, 3);
             extendedStatTable.setWidget(0, 0, new InlineHTML("<span>Операция</span>"));
-            extendedStatTable.getFlexCellFormatter().setColSpan(0,1,6);
-            extendedStatTable.setWidget(0,1,new InlineHTML("<span>Час</span>"));
-            extendedStatTable.getFlexCellFormatter().setColSpan(1,1,3);
-            extendedStatTable.setWidget(1,1,new InlineHTML("<span>Время, мкс</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(0, 1, 6);
+            extendedStatTable.setWidget(0, 1, new InlineHTML("<span>Час</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(0, 2, 6);
+            extendedStatTable.setWidget(0, 2, new InlineHTML("<span>Всего</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(1, 0, 3);
+            extendedStatTable.setWidget(1, 0, new InlineHTML("<span>Время, мкс</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 1, 2);
+            extendedStatTable.setWidget(1, 1, new InlineHTML("<span>Кол-во</span>"));
             extendedStatTable.getFlexCellFormatter().setRowSpan(1, 2, 2);
-            extendedStatTable.setWidget(1,2,new InlineHTML("<span>Кол-во</span>"));
+            extendedStatTable.setWidget(1, 2, new InlineHTML("<span>Частота, %</span>"));
             extendedStatTable.getFlexCellFormatter().setRowSpan(1, 3, 2);
-            extendedStatTable.setWidget(1,3,new InlineHTML("<span>Частота, %</span>"));
-            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 4, 2);
-            extendedStatTable.setWidget(1,4,new InlineHTML("<span>Попаданий, %</span>"));
-            extendedStatTable.setWidget(2,1,new InlineHTML("<span>Мин.</span>"));
-            extendedStatTable.setWidget(2,2,new InlineHTML("<span>Макс.</span>"));
-            extendedStatTable.setWidget(2,3,new InlineHTML("<span>Среднее</span>"));
+            extendedStatTable.setWidget(1, 3, new InlineHTML("<span>Попаданий, %</span>"));
+            extendedStatTable.setWidget(2, 0, new InlineHTML("<span>Мин.</span>"));
+            extendedStatTable.setWidget(2, 1, new InlineHTML("<span>Макс.</span>"));
+            extendedStatTable.setWidget(2, 2, new InlineHTML("<span>Среднее</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(1, 4, 3);
+            extendedStatTable.setWidget(1, 4, new InlineHTML("<span>Время, мкс</span>"));
+            extendedStatTable.setWidget(2, 3, new InlineHTML("<span>Мин.</span>"));
+            extendedStatTable.setWidget(2, 4, new InlineHTML("<span>Макс.</span>"));
+            extendedStatTable.setWidget(2, 5, new InlineHTML("<span>Среднее</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 5, 2);
+            extendedStatTable.setWidget(1, 5, new InlineHTML("<span>Кол-во</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 6, 2);
+            extendedStatTable.setWidget(1, 6, new InlineHTML("<span>Частота, %</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 7, 2);
+            extendedStatTable.setWidget(1, 7, new InlineHTML("<span>Попаданий, %</span>"));
 
+            extendedStatTable.getFlexCellFormatter().setColSpan(3, 0, 13);
+            extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ</span>"));
+            Integer rowCounter = 4;
+            if (globalCachePluginData.getStatPanel().getNotifierRecords()!=null){
+                for(GlobalCacheStatistics.Record record : globalCachePluginData.getStatPanel().getNotifierRecords()){
+                    extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>"+record.getMethodDescription()+"</span>"));
 
+                    rowCounter++;
+                }
+            }
+            else {
+                extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ: Данные не доступны</span>"));
+            }
             extendedStatPanel.add(extendedStatTable);
         }
 
@@ -242,7 +268,6 @@ public class GlobalCacheControlView extends PluginView {
         cacheCleaningTable.setWidget(0, 3, new InlineHTML("<span>Кол-во</span>"));
         cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTotalInvocations() + "</span>"));
     }
-
 
 
     private Widget buildControlPanel() {
