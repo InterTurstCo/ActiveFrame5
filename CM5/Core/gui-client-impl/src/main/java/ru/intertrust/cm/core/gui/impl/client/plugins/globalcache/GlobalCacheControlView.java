@@ -226,6 +226,7 @@ public class GlobalCacheControlView extends PluginView {
 
             extendedStatTable.getFlexCellFormatter().setColSpan(3, 0, 13);
             extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ</span>"));
+
             Integer rowCounter = 4;
             if (globalCachePluginData.getStatPanel().getNotifierRecords()!=null){
                 for(GlobalCacheStatistics.Record record : globalCachePluginData.getStatPanel().getNotifierRecords()){
@@ -237,6 +238,7 @@ public class GlobalCacheControlView extends PluginView {
             else {
                 extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ: Данные не доступны</span>"));
             }
+
             extendedStatPanel.add(extendedStatTable);
         }
 

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.List;
 import java.util.Locale;
@@ -96,7 +97,9 @@ public class GlobalCacheStatistics implements Dto {
 
     private final static String NEW_LINE = "\r\n";
     private final static double MEGABYTE = 1024 * 1024;
+
     @Override
+    @GwtIncompatible
     public String toString() {
         final StringBuilder sb = new StringBuilder(10000);
         sb.append(NEW_LINE);
@@ -115,6 +118,7 @@ public class GlobalCacheStatistics implements Dto {
         return sb.toString();
     }
 
+    @GwtIncompatible
     private StringBuilder appendRecords(StringBuilder sb, List<Record> records, Record summary) {
         for (Record record : records) {
             sb.append(record).append(NEW_LINE);
@@ -125,6 +129,7 @@ public class GlobalCacheStatistics implements Dto {
         return sb;
     }
 
+    @GwtIncompatible
     private static String format(double v) {
         return String.format(Locale.ENGLISH, "%1$.2f", v);
     }
@@ -208,6 +213,7 @@ public class GlobalCacheStatistics implements Dto {
         }
 
         @Override
+        @GwtIncompatible
         public String toString() {
             return methodDescription + "{" +
                     "invocationsPerHour=" + getInvocationsPerHour() +
@@ -269,6 +275,7 @@ public class GlobalCacheStatistics implements Dto {
         }
 
         @Override
+        @GwtIncompatible
         public String toString() {
             return "CacheClean {" +
                     "invocations=" + getInvocations() +
