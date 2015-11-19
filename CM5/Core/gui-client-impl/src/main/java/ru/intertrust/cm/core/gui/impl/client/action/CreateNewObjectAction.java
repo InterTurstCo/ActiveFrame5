@@ -39,19 +39,23 @@ public class CreateNewObjectAction extends Action {
         final FormPluginState state = editor.getFormPluginState().createClone();
         formPluginConfig.setPluginState(state);
 
-        if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null) {
+        if (actionConfig.getProperty(OBJECT_TYPE_PROP) == null || actionConfig.getProperty(OBJECT_FORM_PROP) != null) {
             final FormViewerConfig viewerConfig = new FormViewerConfig();
             final FormMappingConfig formMappingConfig = new FormMappingConfig();
             formMappingConfig.setDomainObjectType(domainObjectTypeToCreate);
             formMappingConfig.setForm(actionConfig.getProperty(OBJECT_FORM_PROP));
             final List<FormMappingConfig> formMappingConfigList = new ArrayList<>();
+            if (actionConfig.getProperty(OBJECT_TYPE_PROP) != null) {
+                formMappingConfigList.add(formMappingConfig);
+            }
             viewerConfig.setFormMappingConfigList(formMappingConfigList);
             formPluginConfig.setFormViewerConfig(viewerConfig);
         } else {
             formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
         }
 
-        if (actionConfig.getProperty(OBJECT_TYPE_PROP) != null && actionConfig.getProperty(OBJECT_FORM_PROP)!=null){
+        /*
+        if (actionConfig.getProperty(OBJECT_TYPE_PROP) != null && actionConfig.getProperty(OBJECT_FORM_PROP) != null) {
             final FormViewerConfig viewerConfig = new FormViewerConfig();
             final FormMappingConfig formMappingConfig = new FormMappingConfig();
             formMappingConfig.setDomainObjectType(domainObjectTypeToCreate);
@@ -60,7 +64,7 @@ public class CreateNewObjectAction extends Action {
             formMappingConfigList.add(formMappingConfig);
             viewerConfig.setFormMappingConfigList(formMappingConfigList);
             formPluginConfig.setFormViewerConfig(viewerConfig);
-        }
+        } */
         //CMFIVE-4330
         /**
          * Это просто временное решение т.к. прямой возможности передать Id в DefailtValueSetter отсюда
