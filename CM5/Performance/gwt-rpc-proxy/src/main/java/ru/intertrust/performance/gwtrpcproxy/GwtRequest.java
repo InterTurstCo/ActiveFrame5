@@ -13,11 +13,27 @@ public class GwtRequest {
     private String body;
     @Attribute(name="content-type", required=false)
     private String contentType;
+    @Attribute(name="service-class", required=false)
+    private String serviceClass;
+    @Attribute(name="service-method", required=false)
+    private String serviceMethod;
     @Element(name="file", required=false)
     private FileInfo file;
     @Element(name="json", required=false)
     private String json;
-    
+
+    public String getServiceMethod() {
+        return serviceMethod;
+    }
+    public void setServiceMethod(String serviceMethod) {
+        this.serviceMethod = serviceMethod;
+    }
+    public String getServiceClass() {
+        return serviceClass;
+    }
+    public void setServiceClass(String serviceClass) {
+        this.serviceClass = serviceClass;
+    }
     public String getMethod() {
         return method;
     }
