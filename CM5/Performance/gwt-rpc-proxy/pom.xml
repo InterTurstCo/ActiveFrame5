@@ -140,9 +140,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
