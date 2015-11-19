@@ -10,7 +10,10 @@ import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.GlobalCacheStatPanel;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
+import java.io.Serializable;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author Ravil Abdulkhairov
@@ -41,6 +44,9 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         if(globalCacheStatistics==null){
             globalCachePluginData.setErrorMsg(GLOBAL_CACHE_OFFLINE);
         } else {
+            /**
+             * Краткая статистика
+             */
             globalCachePluginData.getStatPanel().setSize(format(globalCacheStatistics.getSize() / MEGABYTE));
             globalCachePluginData.getStatPanel().setFreeSpacePercentage(format(globalCacheStatistics.getFreeSpacePercentage() * 100));
             globalCachePluginData.getStatPanel().setHitCount(format(globalCacheStatistics.getHitCount() * 100));
@@ -53,6 +59,14 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
             globalCachePluginData.getStatPanel().setTimeMin(format(globalCacheStatistics.getCacheCleaningRecord().getTimeMin() / 1000));
             globalCachePluginData.getStatPanel().setTimeMax(format(globalCacheStatistics.getCacheCleaningRecord().getTimeMax() / 1000));
             globalCachePluginData.getStatPanel().setTotalInvocations(String.valueOf(globalCacheStatistics.getCacheCleaningRecord().getInvocations()));
+
+            /**
+             * Развернутая статистика
+             */
+            List<GlobalCacheStatistics.Record> notifierRecords = globalCacheStatistics.getNotifiersRecords();
+            if(notifierRecords!=null){
+                ;
+            }
 
         }
 

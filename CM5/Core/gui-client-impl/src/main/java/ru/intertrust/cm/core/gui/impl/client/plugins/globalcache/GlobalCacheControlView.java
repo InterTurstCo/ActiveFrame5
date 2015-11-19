@@ -32,6 +32,7 @@ public class GlobalCacheControlView extends PluginView {
     private GlobalCachePluginData globalCachePluginData;
     private AbsolutePanel statPanelRoot;
     private AbsolutePanel shortStatPanel;
+    private AbsolutePanel extendedStatPanel;
     private AbsolutePanel cacheCleaningPanel;
     private Grid shortStatGrid;
     private Grid controlGrid;
@@ -57,6 +58,7 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid = new Grid(3, 4);
         statPanelRoot = new AbsolutePanel();
         shortStatPanel = new AbsolutePanel();
+        extendedStatPanel = new AbsolutePanel();
         cacheCleaningPanel = new AbsolutePanel();
         shortStatGrid = new Grid(1, 6);
         cacheCleaningTable = new FlexTable();
@@ -84,6 +86,9 @@ public class GlobalCacheControlView extends PluginView {
         buildShortStatisticsPanel();
         shortStatPanel.add(shortStatGrid);
         statPanelRoot.add(shortStatPanel);
+
+        buildExtendedStatisticsPanel();
+        statPanelRoot.add(extendedStatPanel);
         /**
          * Статистика очистки кэша
          */
@@ -184,6 +189,34 @@ public class GlobalCacheControlView extends PluginView {
         shortStatGrid.setWidget(0, 5, new Label(globalCachePluginData.getStatPanel().getHitCount() + PERCENT));
     }
 
+    private void buildExtendedStatisticsPanel(){
+        extendedStatPanel.clear();
+        if(globalCachePluginData.getControlPanelModel().isExpandedStatistics()){
+            FlexTable extendedStatTable = new FlexTable();
+            extendedStatTable.setStyleName("cacheCleaningTable");
+            extendedStatTable.getFlexCellFormatter().setRowSpan(0, 0, 3);
+            extendedStatTable.setWidget(0, 0, new InlineHTML("<span>Операция</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(0,1,6);
+            extendedStatTable.setWidget(0,1,new InlineHTML("<span>Час</span>"));
+            extendedStatTable.getFlexCellFormatter().setColSpan(1,1,3);
+            extendedStatTable.setWidget(1,1,new InlineHTML("<span>Время, мкс</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 2, 2);
+            extendedStatTable.setWidget(1,2,new InlineHTML("<span>Кол-во</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 3, 2);
+            extendedStatTable.setWidget(1,3,new InlineHTML("<span>Частота, %</span>"));
+            extendedStatTable.getFlexCellFormatter().setRowSpan(1, 4, 2);
+            extendedStatTable.setWidget(1,4,new InlineHTML("<span>Попаданий, %</span>"));
+            extendedStatTable.setWidget(2,1,new InlineHTML("<span>Мин.</span>"));
+            extendedStatTable.setWidget(2,2,new InlineHTML("<span>Макс.</span>"));
+            extendedStatTable.setWidget(2,3,new InlineHTML("<span>Среднее</span>"));
+
+
+            extendedStatPanel.add(extendedStatTable);
+        }
+
+    }
+
+
     private void buildCacheCleaningTable() {
         cacheCleaningTable.clear();
         cacheCleaningTable.setStyleName("cacheCleaningTable");
@@ -209,6 +242,8 @@ public class GlobalCacheControlView extends PluginView {
         cacheCleaningTable.setWidget(0, 3, new InlineHTML("<span>Кол-во</span>"));
         cacheCleaningTable.setWidget(2, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getTotalInvocations() + "</span>"));
     }
+
+
 
     private Widget buildControlPanel() {
         controlGrid.clear();
@@ -272,6 +307,7 @@ public class GlobalCacheControlView extends PluginView {
                     Window.alert(globalCachePluginData.getErrorMsg());
                 }
                 buildShortStatisticsPanel();
+                buildExtendedStatisticsPanel();
                 buildCacheCleaningTable();
 
             }
@@ -357,5 +393,6 @@ public class GlobalCacheControlView extends PluginView {
         globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
         globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
         globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());
+
     }
 }

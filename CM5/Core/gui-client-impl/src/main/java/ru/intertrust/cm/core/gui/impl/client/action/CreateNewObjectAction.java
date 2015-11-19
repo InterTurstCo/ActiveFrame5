@@ -54,7 +54,7 @@ public class CreateNewObjectAction extends Action {
             formPluginConfig.setFormViewerConfig(editor.getFormViewerConfig());
         }
 
-       
+
         //CMFIVE-4330
         /**
          * Это просто временное решение т.к. прямой возможности передать Id в DefailtValueSetter отсюда
