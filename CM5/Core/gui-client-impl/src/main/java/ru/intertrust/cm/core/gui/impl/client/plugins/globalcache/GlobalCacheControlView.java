@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.model.Command;
-import ru.intertrust.cm.core.gui.model.plugin.GlobalCacheControlPanel;
 import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -36,16 +35,18 @@ public class GlobalCacheControlView extends PluginView {
     private AbsolutePanel shortStatPanel;
     private AbsolutePanel extendedStatPanel;
     private AbsolutePanel cacheCleaningPanel;
+    private AbsolutePanel controlPanel;
     private Grid shortStatGrid;
     private Grid controlGrid;
     private FlexTable cacheCleaningTable;
     private Panel buttons;
+    private FlexTable controlAlert;
 
     private CheckBox cacheActiveCB;
     private CheckBox expandedStatisticsCB;
     private CheckBox debugModeCB;
     private ListBox modeListBox;
-    private IntegerBox maxSizeTB;
+    private LongBox maxSizeTB;
     private ListBox uomListBox;
 
     /**
@@ -62,8 +63,10 @@ public class GlobalCacheControlView extends PluginView {
         shortStatPanel = new AbsolutePanel();
         extendedStatPanel = new AbsolutePanel();
         cacheCleaningPanel = new AbsolutePanel();
+        controlPanel = new AbsolutePanel();
         shortStatGrid = new Grid(1, 6);
         cacheCleaningTable = new FlexTable();
+        controlAlert = new FlexTable();
     }
 
     @Override
@@ -100,6 +103,8 @@ public class GlobalCacheControlView extends PluginView {
         statPanelRoot.add(cacheCleaningPanel);
 
         tabPanel.add(statPanelRoot, GlobalCacheControlUtils.LBL_PANEL_STAT);
+        controlAlert.setStyleName("cacheCleaningTable");
+        controlAlert.setWidget(0, 0, new Label(GlobalCacheControlUtils.MSG_CONTROL_WARNING));
 
         tabPanel.add(buildControlPanel(), GlobalCacheControlUtils.LBL_PANEL_CONTROL);
         tabPanel.selectTab(0);
@@ -360,6 +365,7 @@ public class GlobalCacheControlView extends PluginView {
 
 
     private Widget buildControlPanel() {
+
         controlGrid.clear();
 
         controlGrid.setStyleName(GlobalCacheControlUtils.STYLE_CONTROL_PANEL);
@@ -394,8 +400,8 @@ public class GlobalCacheControlView extends PluginView {
         controlGrid.setWidget(0, 3, modeListBox);
 
         Panel maxSizePanel = new HorizontalPanel();
-        maxSizeTB = new IntegerBox();
-        maxSizeTB.setValue(globalCachePluginData.getControlPanelModel().getMaxSize().intValue());
+        maxSizeTB = new LongBox();
+        maxSizeTB.setValue(globalCachePluginData.getControlPanelModel().getMaxSize());
         maxSizePanel.add(maxSizeTB);
         uomListBox = new ListBox();
         for (String key : globalCachePluginData.getControlPanelModel().getUoms().keySet()) {
@@ -414,7 +420,9 @@ public class GlobalCacheControlView extends PluginView {
             maxSizeTB.setEnabled(false);
             uomListBox.setEnabled(false);
         }
-        return controlGrid;
+        controlPanel.add(controlAlert);
+        controlPanel.add(controlGrid);
+        return controlPanel;
     }
 
 
@@ -488,6 +496,7 @@ public class GlobalCacheControlView extends PluginView {
 
             @Override
             public void onSuccess(Dto result) {
+                Window.alert(GlobalCacheControlUtils.MSG_SETTINGS_APPLYED);
                 globalCachePluginData = (GlobalCachePluginData) result;
                 buildControlPanel();
                 buildButtons();
@@ -520,6 +529,6 @@ public class GlobalCacheControlView extends PluginView {
         globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
         globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
         globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());
-
+        globalCachePluginData.getControlPanelModel().setMaxSize(maxSizeTB.getValue());
     }
 }
