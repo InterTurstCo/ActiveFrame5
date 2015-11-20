@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.PersonManagementService;
+import ru.intertrust.cm.core.business.api.PersonService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.GlobalCacheStatistics;
 import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
@@ -24,9 +27,21 @@ import java.util.Map;
 public class GlobalCacheControlPluginHandler extends PluginHandler {
     private static final String GLOBAL_CACHE_OFFLINE = "Глобальный кэш недоступен";
     private final static double MEGABYTE = 1024 * 1024;
+    private final static String FIELD_GROUP_NAME = "group_name";
+    private final static String SUPERUSERS_GROUP = "Superusers";
+    private final static String ADMINISTRATORS_GROUP = "Administrators";
+
 
     @Autowired
     private GlobalCacheManager globalCacheManager;
+
+    @Autowired
+    PersonService personService;
+
+    @Autowired
+    PersonManagementService personMamagementService;
+
+
     private GlobalCachePluginData globalCachePluginData;
 
     private GlobalCacheStatistics globalCacheStatistics;
@@ -35,6 +50,12 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         globalCachePluginData = new GlobalCachePluginData();
         getSettings();
         extractStatistics(globalCachePluginData);
+        for(DomainObject group : personMamagementService.getPersonGroups(personService.getCurrentPerson().getId())){
+             if(group.getString(FIELD_GROUP_NAME).toLowerCase().equals(SUPERUSERS_GROUP.toLowerCase()) ||
+                     group.getString(FIELD_GROUP_NAME).toLowerCase().equals(ADMINISTRATORS_GROUP.toLowerCase())){
+                 globalCachePluginData.setSuperUser(true);
+             }
+        }
         return globalCachePluginData;
     }
 
@@ -67,6 +88,7 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
             globalCachePluginData.getStatPanel().setNotifierSummary(globalCacheStatistics.getNotifiersSummary());
             globalCachePluginData.getStatPanel().setReadersRecords(globalCacheStatistics.getReadersRecords());
             globalCachePluginData.getStatPanel().setReaderSummary(globalCacheStatistics.getReadersSummary());
+            globalCachePluginData.getStatPanel().setGlobalSummary(globalCacheStatistics.getAllMethodsSummary());
         }
 
     }

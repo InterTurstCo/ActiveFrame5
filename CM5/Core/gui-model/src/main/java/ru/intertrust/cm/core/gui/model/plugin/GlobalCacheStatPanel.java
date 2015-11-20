@@ -29,6 +29,7 @@ public class GlobalCacheStatPanel implements Dto {
     private GlobalCacheStatistics.Record notifierSummary;
     private List<GlobalCacheStatistics.Record> readersRecords;
     private GlobalCacheStatistics.Record readerSummary;
+    private GlobalCacheStatistics.Record globalSummary;
 
 
     public String getSize() {
@@ -154,5 +155,13 @@ public class GlobalCacheStatPanel implements Dto {
 
     public void setReaderSummary(GlobalCacheStatistics.Record readerSummary) {
         this.readerSummary = readerSummary;
+    }
+
+    public GlobalCacheStatistics.Record getGlobalSummary() {
+        return globalSummary;
+    }
+
+    public void setGlobalSummary(GlobalCacheStatistics.Record globalSummary) {
+        this.globalSummary = globalSummary;
     }
 }

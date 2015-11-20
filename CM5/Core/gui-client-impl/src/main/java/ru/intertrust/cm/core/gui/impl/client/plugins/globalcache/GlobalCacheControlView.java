@@ -112,12 +112,14 @@ public class GlobalCacheControlView extends PluginView {
     private Widget buildButtons() {
         buttons.clear();
         buttons.add(buildRefreshButton());
-        buttons.add(buildApplyButton());
-        if (globalCachePluginData.getControlPanelModel().isExpandedStatistics()) {
-            buttons.add(buildResetHourlyButton());
+        if (globalCachePluginData.isSuperUser()) {
+            buttons.add(buildApplyButton());
+            if (globalCachePluginData.getControlPanelModel().isExpandedStatistics()) {
+                buttons.add(buildResetHourlyButton());
+            }
+            buttons.add(buildResetButton());
+            buttons.add(buildClearCacheButton());
         }
-        buttons.add(buildResetButton());
-        buttons.add(buildClearCacheButton());
         return buttons;
     }
 
@@ -247,7 +249,7 @@ public class GlobalCacheControlView extends PluginView {
                     extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getCacheHitPercentageTotal() * 100) + "%</span>"));
                     rowCounter++;
                 }
-                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО ЗАПИСЬ:</span>"));
                 extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMinPerHour() / 1000 + "</span>"));
                 extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMaxPerHour() / 1000 + "</span>"));
                 extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getTimeAvgPerHour() / 1000) + "</span>"));
@@ -270,7 +272,7 @@ public class GlobalCacheControlView extends PluginView {
             extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ЧТЕНИЕ</span>"));
             rowCounter++;
 
-            if (globalCachePluginData.getStatPanel().getReadersRecords() != null){
+            if (globalCachePluginData.getStatPanel().getReadersRecords() != null) {
                 for (GlobalCacheStatistics.Record readRecord : globalCachePluginData.getStatPanel().getReadersRecords()) {
                     extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>" + readRecord.getMethodDescription() + "</span>"));
                     extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + readRecord.getTimeMinPerHour() / 1000 + "</span>"));
@@ -287,7 +289,7 @@ public class GlobalCacheControlView extends PluginView {
                     extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getCacheHitPercentageTotal() * 100) + "%</span>"));
                     rowCounter++;
                 }
-                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО ЧТЕНИЕ:</span>"));
                 extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMinPerHour() / 1000 + "</span>"));
                 extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMaxPerHour() / 1000 + "</span>"));
                 extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getTimeAvgPerHour() / 1000) + "</span>"));
@@ -302,7 +304,27 @@ public class GlobalCacheControlView extends PluginView {
                 extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getCacheHitPercentageTotal() * 100) + "%</span>"));
                 rowCounter++;
             } else {
-                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ЧТЕНИ: Данные не доступны</span>"));
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ЧТЕНИЕ: Данные не доступны</span>"));
+            }
+            extendedStatTable.getFlexCellFormatter().setColSpan(rowCounter, 0, 13);
+            extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span></span>"));
+            rowCounter++;
+
+            if (globalCachePluginData.getStatPanel().getGlobalSummary() != null) {
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
+                extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getTimeMinPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getTimeMaxPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getGlobalSummary().getTimeAvgPerHour() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 4, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getInvocationsPerHour() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 5, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getGlobalSummary().getHourlyFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 6, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getGlobalSummary().getCacheHitPercentagePerHour() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getTimeMinTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 8, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getTimeMaxTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 9, new InlineHTML("<span>" + NumberFormat.getFormat("##0.0").format(globalCachePluginData.getStatPanel().getGlobalSummary().getTimeAvgTotal() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 10, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getGlobalSummary().getInvocationsTotal() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getGlobalSummary().getTotalFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getGlobalSummary().getCacheHitPercentageTotal() * 100) + "%</span>"));
+
             }
             extendedStatPanel.add(extendedStatTable);
         }
@@ -350,6 +372,8 @@ public class GlobalCacheControlView extends PluginView {
         cacheActiveCB = new CheckBox();
         cacheActiveCB.setValue(globalCachePluginData.getControlPanelModel().isCacheEnabled());
         controlGrid.setWidget(0, 1, cacheActiveCB);
+
+
         // чекбокс Расширенная статистика
         expandedStatisticsCB = new CheckBox();
         expandedStatisticsCB.setValue(globalCachePluginData.getControlPanelModel().isExpandedStatistics());
@@ -379,6 +403,17 @@ public class GlobalCacheControlView extends PluginView {
         }
         maxSizePanel.add(uomListBox);
         controlGrid.setWidget(1, 3, maxSizePanel);
+        /**
+         * Если не админ то только просмотр
+         */
+        if(!globalCachePluginData.isSuperUser()){
+            cacheActiveCB.setEnabled(false);
+            expandedStatisticsCB.setEnabled(false);
+            debugModeCB.setEnabled(false);
+            modeListBox.setEnabled(false);
+            maxSizeTB.setEnabled(false);
+            uomListBox.setEnabled(false);
+        }
         return controlGrid;
     }
 
