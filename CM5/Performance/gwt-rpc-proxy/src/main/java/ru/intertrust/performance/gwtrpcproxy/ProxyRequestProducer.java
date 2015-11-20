@@ -17,9 +17,12 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class ProxyRequestProducer implements HttpAsyncRequestProducer {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRequestProducer.class);
 
     private final ProxyHttpExchange httpExchange;
 
@@ -42,7 +45,7 @@ public class ProxyRequestProducer implements HttpAsyncRequestProducer {
 
             synchronized (this.httpExchange) {
                 HttpRequest request = this.httpExchange.getRequest();
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getRequestLine());
+                logger.info("[proxy->origin] " + this.httpExchange.getId() + " " + request.getRequestLine());
                 // Rewrite request!!!!
                 HttpRequest result = null;
                 if (request instanceof HttpEntityEnclosingRequest) {
@@ -68,8 +71,8 @@ public class ProxyRequestProducer implements HttpAsyncRequestProducer {
                         }
                     }
                 }
-                System.out.println("[proxy->origin] origin " + request);
-                System.out.println("[proxy->origin] proxy " + result);
+                logger.info("[proxy->origin] origin " + request);
+                logger.info("[proxy->origin] proxy " + result);
                 return result;
             }
         } catch (URISyntaxException e) {
@@ -87,24 +90,24 @@ public class ProxyRequestProducer implements HttpAsyncRequestProducer {
             buf.flip();
             int n = encoder.write(buf);
             buf.compact();
-            System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + n + " bytes written");
+            logger.info("[proxy->origin] " + this.httpExchange.getId() + " " + n + " bytes written");
             // If there is space in the buffer and the message has not been
             // transferred, make sure the client is sending more data
             if (buf.hasRemaining() && !this.httpExchange.isRequestReceived()) {
                 if (this.httpExchange.getClientIOControl() != null) {
                     this.httpExchange.getClientIOControl().requestInput();
-                    System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request client input");
+                    logger.info("[proxy->origin] " + this.httpExchange.getId() + " request client input");
                 }
             }
             if (buf.position() == 0) {
                 if (this.httpExchange.isRequestReceived()) {
                     encoder.complete();
-                    System.out.println("[proxy->origin] " + this.httpExchange.getId() + " content fully written");
+                    logger.info("[proxy->origin] " + this.httpExchange.getId() + " content fully written");
                 } else {
                     // Input buffer is empty. Wait until the client fills up
                     // the buffer
                     ioctrl.suspendOutput();
-                    System.out.println("[proxy->origin] " + this.httpExchange.getId() + " suspend origin output");
+                    logger.info("[proxy->origin] " + this.httpExchange.getId() + " suspend origin output");
                 }
             }
         }
@@ -129,7 +132,7 @@ public class ProxyRequestProducer implements HttpAsyncRequestProducer {
     
     public void requestCompleted(final HttpContext context) {
         synchronized (this.httpExchange) {
-            System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request completed");
+            logger.info("[proxy->origin] " + this.httpExchange.getId() + " request completed");
         }
     }
 
@@ -141,7 +144,7 @@ public class ProxyRequestProducer implements HttpAsyncRequestProducer {
     }
 
     public void failed(final Exception ex) {
-        System.out.println("[proxy->origin] " + ex.toString());
+        logger.error("[proxy->origin] Error", ex);
     }
 
 }

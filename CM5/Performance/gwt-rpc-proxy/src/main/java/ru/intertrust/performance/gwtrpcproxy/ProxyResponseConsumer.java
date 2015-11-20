@@ -10,7 +10,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -19,8 +18,11 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHttpExchange> {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyResponseConsumer.class);
 
     private final ProxyHttpExchange httpExchange;
 
@@ -37,11 +39,11 @@ public class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHtt
     public void responseReceived(final HttpResponse response) throws IOException {
         try {
             synchronized (this.httpExchange) {
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
+                logger.info("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 this.httpExchange.setResponse(response);
                 HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
+                    logger.info("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
                     responseTrigger.submitResponse(new ProxyResponseProducer(this.httpExchange));
                 }
             }
@@ -57,28 +59,28 @@ public class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHtt
             // Receive data from the origin
             ByteBuffer buf = this.httpExchange.getOutBuffer();
             int startPosition = buf.position();
-            
+
             int n = decoder.read(buf);
-            
+
             //Сохранение контента
             saveContent(buf, startPosition, n);
-            
-            System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + n + " bytes read");
+
+            logger.info("[proxy<-origin] " + this.httpExchange.getId() + " " + n + " bytes read");
             if (decoder.isCompleted()) {
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " content fully read");
+                logger.info("[proxy<-origin] " + this.httpExchange.getId() + " content fully read");
             }
             // If the buffer is full, suspend origin input until there is free
             // space in the buffer
             if (!buf.hasRemaining()) {
                 ioctrl.suspendInput();
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " suspend origin input");
+                logger.info("[proxy<-origin] " + this.httpExchange.getId() + " suspend origin input");
             }
             // If there is some content in the input buffer make sure client
             // output is active
             if (buf.position() > 0) {
                 if (this.httpExchange.getClientIOControl() != null) {
                     this.httpExchange.getClientIOControl().requestOutput();
-                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
+                    logger.info("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
                 }
             }
         }
@@ -90,25 +92,25 @@ public class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHtt
      * @throws IOException
      */
     private void saveContent(ByteBuffer buf, int startPosition, int length) throws IOException {
-            System.out.println("[my proxy<-origin] buf.position() " + buf.position() + " buf.limit() " + buf.limit());
-            buf.position(startPosition);
-            byte[] buffer = new byte[length];            
-            buf.get(buffer);
-            httpExchange.getOutStream().write(buffer);
-            System.out.println("[my proxy<-origin] write " + length + " bytes to buffer. new size=" + httpExchange.getInStream().size());
-    }    
-    
+        logger.info("[my proxy<-origin] buf.position() " + buf.position() + " buf.limit() " + buf.limit());
+        buf.position(startPosition);
+        byte[] buffer = new byte[length];
+        buf.get(buffer);
+        httpExchange.getOutStream().write(buffer);
+        logger.info("[my proxy<-origin] write " + length + " bytes to buffer. new size=" + httpExchange.getInStream().size());
+    }
+
     public void responseCompleted(final HttpContext context) {
         synchronized (this.httpExchange) {
             if (this.completed) {
                 return;
             }
             this.completed = true;
-            System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " response completed");
+            logger.info("[proxy<-origin] " + this.httpExchange.getId() + " response completed");
             this.httpExchange.setResponseReceived();
             if (this.httpExchange.getClientIOControl() != null) {
                 this.httpExchange.getClientIOControl().requestOutput();
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
+                logger.info("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
             }
         }
     }
@@ -122,7 +124,7 @@ public class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHtt
             this.httpExchange.setException(ex);
             HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
             if (responseTrigger != null && !responseTrigger.isCompleted()) {
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
+                logger.error("[client<-proxy] Error " + this.httpExchange.getId(), ex);
                 int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
                 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
                         EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));

@@ -337,7 +337,7 @@ public class GwtUtil {
         if (store){
             HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
             GwtRpcRequest request = decodeRequest(sampleProxy);
-            try(FileWriter writer = new FileWriter(new File("jmerer.log"), true)){
+            try(FileWriter writer = new FileWriter(new File("jmeter-gwt-rpc.log"), true)){
                 writer.write("==============================================\n");
                 writer.write(sampleProxy.getName() + "\n");
                 writer.write(request.asString());

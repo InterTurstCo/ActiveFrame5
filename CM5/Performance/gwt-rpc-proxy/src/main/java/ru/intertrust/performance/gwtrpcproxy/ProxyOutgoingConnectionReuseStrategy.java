@@ -5,8 +5,11 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyOutgoingConnectionReuseStrategy.class);
 
     @Override
     public boolean keepAlive(final HttpResponse response, final HttpContext context) {
@@ -14,7 +17,7 @@ public class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuse
                 HttpCoreContext.HTTP_CONNECTION);
         boolean keepAlive = super.keepAlive(response, context);
         if (keepAlive) {
-            System.out.println("[proxy->origin] connection kept alive " + conn);
+            logger.info("[proxy->origin] connection kept alive " + conn);
         }
         return keepAlive;
     }

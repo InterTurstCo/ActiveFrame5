@@ -7,6 +7,12 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
@@ -50,18 +56,19 @@ import org.apache.jmeter.sampler.gui.TestActionGui;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testbeans.gui.TestBeanGUI;
 import org.apache.jmeter.testelement.TestElement;
-import org.apache.jmeter.timers.ConstantTimer;
-import org.apache.jmeter.timers.gui.ConstantTimerGui;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui;
 
-public class GwtRpcProxy implements Runnable{
-    
+public class GwtRpcProxy implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(GwtRpcProxy.class);
+
     private String targetUri;
     private int localPort;
     private String outFile;
@@ -71,61 +78,90 @@ public class GwtRpcProxy implements Runnable{
     private ProxyContext context = new ProxyContext();;
     private ConnectingIOReactor connectingIOReactor;
     private Integer betweenGroupPause;
-    
-    public enum GroupStrategy{
+
+    public enum GroupStrategy {
         AUTOMATIC,
         MANUAL
     }
-    
+
     public static void main(String[] args) {
+        Options options = new Options();
         try {
+            //Парсим командную строку
+            CommandLine commandLine;
+            CommandLineParser parser = new GnuParser();
 
-            if (args.length < 1) {
-                System.out.println("Usage: ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy <targetUri> [localPort] [output_file] [group_pause in sec]");
-                System.out.println("Default port is 8080");
-                System.out.println("Default file name is gwtProxyOut.xml");
-                System.out.println("Default group pause is 1 sec");
-                System.out.println("Example: ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy http://cm45.inttrust.ru:8080 8090 my_gwtProxyOut.xml 2");
-                System.exit(1);
-            }
-            
-            int localPort = 8080;
-            if (args.length > 1) {
-                localPort = Integer.parseInt(args[1]);
-            }
-            
-            String outFile = null;
-            if (args.length > 2) {
-                outFile = args[2];
-            }
+            options.addOption("t", "target-uri", true, "Server URI. Required.");
+            options.addOption("p", "local-port", true, "Local port. Optional. Default value: 8090.");
+            options.addOption("f", "output-file", true, "Output script file. Optional. Default value: Result.jmx.");
+            options.addOption("d", "group-detect-interval", true, "Time interval, after that start new group. Optional. Default value: 1 sec.");
+            options.addOption("s", "group-pause", true, "Between group pauthes. Optional. Default value: 1 sec.");
+            options.addOption("h", "help", false, "Show help");
 
+            commandLine = parser.parse(options, args, true);
+
+            String targetUri;
+            int localPort = 8090;
+            String outFile = "Result.jmx";
             int automaticGroupDetectInterval = 1;
-            if (args.length > 3) {
-                automaticGroupDetectInterval = Integer.parseInt(args[3]);
+            int betweenGroupPause = 1;
+
+            if (commandLine.hasOption("target-uri")) {
+                targetUri = commandLine.getOptionValue("target-uri");
+            } else {
+                throw new ParseException("target-uri parameter is required");
             }
-            
-            final GwtRpcProxy gwtRpcProxy = new GwtRpcProxy(args[0], localPort, outFile, GroupStrategy.AUTOMATIC, automaticGroupDetectInterval, 10);
+            if (commandLine.hasOption("local-port")) {
+                localPort = Integer.parseInt(commandLine.getOptionValue("local-port"));
+            }
+            if (commandLine.hasOption("output-file")) {
+                outFile = commandLine.getOptionValue("output-file");
+            }
+            if (commandLine.hasOption("group-detect-interval")) {
+                automaticGroupDetectInterval = Integer.parseInt(commandLine.getOptionValue("group-detect-interval"));
+            }
+            if (commandLine.hasOption("group-pause")) {
+                betweenGroupPause = Integer.parseInt(commandLine.getOptionValue("group-pause"));
+            }
+            if (commandLine.hasOption("help")) {
+                showHelp(options);
+                System.exit(0);
+            }
+
+            final GwtRpcProxy gwtRpcProxy =
+                    new GwtRpcProxy(targetUri, localPort, outFile, GroupStrategy.AUTOMATIC, automaticGroupDetectInterval, betweenGroupPause);
 
             System.out.println("Press CTRL+C for terminate");
+
             //Shutdown hook
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 public void run() {
-                    System.out.println("Running Shutdown Hook");
+                    logger.info("Running Shutdown Hook");
                     try {
                         gwtRpcProxy.stop();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }});
-            
-            
+                }
+            });
+
             gwtRpcProxy.start();
+        } catch (ParseException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println("");
+            showHelp(options);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
 
-    public GwtRpcProxy(String targetUri, int localPort, String outFile, GroupStrategy groupStrategy, Integer automaticGroupDetectInterval, Integer betweenGroupPause){
+    private static void showHelp(Options options){
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("java -cp gwt-rpc-proxy.jar;lib/* ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy <options>", options);
+    }
+    
+    public GwtRpcProxy(String targetUri, int localPort, String outFile, GroupStrategy groupStrategy, Integer automaticGroupDetectInterval,
+            Integer betweenGroupPause) {
         this.targetUri = targetUri;
         this.localPort = localPort;
         this.outFile = outFile;
@@ -133,7 +169,7 @@ public class GwtRpcProxy implements Runnable{
         this.automaticGroupDetectInterval = automaticGroupDetectInterval;
         this.betweenGroupPause = betweenGroupPause;
     }
-    
+
     public void start() throws Exception {
         URI uri = new URI(targetUri);
 
@@ -151,8 +187,7 @@ public class GwtRpcProxy implements Runnable{
                 uri.getPort() > 0 ? uri.getPort() : 80,
                 uri.getScheme() != null ? uri.getScheme() : "http");
 
-        System.out.println("Reverse proxy to " + targetHost);
-        
+        logger.info("Start reverse proxy to " + targetHost + " on local port " + localPort);
 
         IOReactorConfig config = IOReactorConfig.custom()
                 .setIoThreadCount(1)
@@ -226,7 +261,7 @@ public class GwtRpcProxy implements Runnable{
         try {
             listeningIOReactor.listen(new InetSocketAddress(localPort));
             listeningIOReactor.execute(listeningEventDispatch);
-            System.out.println("End work server.");
+            logger.info("End work server.");
         } catch (InterruptedIOException ex) {
             System.err.println("Interrupted");
         } catch (IOException ex) {
@@ -242,17 +277,17 @@ public class GwtRpcProxy implements Runnable{
 
     @Override
     public void run() {
-        try{
+        try {
             start();
-        }catch(Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
-    public void saveResult(){
+
+    public void saveResult() {
         try {
             //Сохранение простого xml для отладки
-            System.out.println("Save out file");
+            logger.info("Save out file");
             Serializer serializer = new Persister();
             File result = new File(context.getOutFile() + ".xml");
             serializer.write(context.getJournal(), result);
@@ -275,9 +310,9 @@ public class GwtRpcProxy implements Runnable{
                 genericController.setIncludeTimers(false);
                 genericController.setParent(false);
                 genericController.setEnabled(true);
-                
+
                 HashTree genericControllerTree = new ListedHashTree();
-                
+
                 //Добавляем HeaderManager
                 HeaderManager headerManager = new HeaderManager();
                 headerManager.setName(group.getName() + " HTTP Header Manager");
@@ -286,15 +321,15 @@ public class GwtRpcProxy implements Runnable{
                 headerManager.setEnabled(true);
                 headerManager.add(new Header("Content-Type", "text/x-gwt-rpc;charset=UTF-8"));
                 // TODO вынести из кода
-                headerManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));                        
+                headerManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));
 
                 genericControllerTree.add(headerManager);
-                
+
                 for (GwtInteraction requestResponce : group.getRequestResponceList()) {
-                    
+
                     GenericController uploadGenericController = null;
                     HashTree uploadGenericControllerTree = null;
-                    if (requestResponce.getRequest().getFile() != null){
+                    if (requestResponce.getRequest().getFile() != null) {
                         //Создаем индивидуальную группу для upload вложений
                         uploadGenericController = new GenericController();
                         uploadGenericController.setName("Upload attachment group");
@@ -303,7 +338,7 @@ public class GwtRpcProxy implements Runnable{
                         uploadGenericController.setEnabled(true);
 
                         uploadGenericControllerTree = new ListedHashTree();
-                        
+
                         //Добавляем HeaderManager
                         HeaderManager uploadHeaderManager = new HeaderManager();
                         uploadHeaderManager.setName("Upload attachment HTTP Header Manager");
@@ -312,16 +347,17 @@ public class GwtRpcProxy implements Runnable{
                         uploadHeaderManager.setEnabled(true);
                         // TODO вынести из кода
                         uploadHeaderManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));
-                        
-                        uploadGenericControllerTree.add(uploadHeaderManager);                                
+
+                        uploadGenericControllerTree.add(uploadHeaderManager);
                     }
-                    
+
                     HTTPSamplerProxy sampler = new HTTPSamplerProxy();
-                    if (requestResponce.getRequest().getServiceClass() != null){
-                        sampler.setName(samplerNo + "-" + requestResponce.getRequest().getServiceClass() + "." + requestResponce.getRequest().getServiceMethod());
-                    }else if(requestResponce.getRequest().getFile() != null){
+                    if (requestResponce.getRequest().getServiceClass() != null) {
+                        sampler.setName(samplerNo + "-" + requestResponce.getRequest().getServiceClass() + "."
+                                + requestResponce.getRequest().getServiceMethod());
+                    } else if (requestResponce.getRequest().getFile() != null) {
                         sampler.setName(samplerNo + "-Upload file: " + requestResponce.getRequest().getFile().getFileName());
-                    }else{                    
+                    } else {
                         sampler.setName(samplerNo + "-" + requestResponce.getRequest().getUrl());
                     }
                     sampler.setEnabled(true);
@@ -335,23 +371,23 @@ public class GwtRpcProxy implements Runnable{
                     sampler.setProperty(TestElement.GUI_CLASS, GwtRpcHttpTestSampleGui.class.getName());
                     sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
                     sampler.setPostBodyRaw(true);
-                    
-                    if (requestResponce.getRequest().getFile() != null){
+
+                    if (requestResponce.getRequest().getFile() != null) {
                         sampler.setDoMultipartPost(true);
                         FileInfo fileInfo = requestResponce.getRequest().getFile();
-                        HTTPFileArg fileArg = new HTTPFileArg("${BASE_DIR}" + fileInfo.getFileName(), fileInfo.getParamName(), fileInfo.getFileContentType());                                
-                        sampler.setHTTPFiles(new HTTPFileArg[]{fileArg});
+                        HTTPFileArg fileArg = new HTTPFileArg("${BASE_DIR}" + fileInfo.getFileName(), fileInfo.getParamName(), fileInfo.getFileContentType());
+                        sampler.setHTTPFiles(new HTTPFileArg[] { fileArg });
                         sampler.setProperty("GwtRpcResponceJson", requestResponce.getResponce().getBody());
-                    }else{
+                    } else {
                         sampler.getArguments().addArgument(new HTTPArgument("", requestResponce.getRequest().getBody()));
-                        if (requestResponce.getRequest().getJson() != null){
+                        if (requestResponce.getRequest().getJson() != null) {
                             sampler.setProperty("GwtRpcRequestJson", Base64.encodeBase64String(requestResponce.getRequest().getJson().getBytes("UTF-8")));
                         }
-                        if (requestResponce.getResponce().getJson() != null){
+                        if (requestResponce.getResponce().getJson() != null) {
                             sampler.setProperty("GwtRpcResponceJson", Base64.encodeBase64String(requestResponce.getResponce().getJson().getBytes("UTF-8")));
                         }
                     }
-                    
+
                     HashTree samplerTree = new ListedHashTree();
 
                     //Формирование препроцессора
@@ -366,9 +402,9 @@ public class GwtRpcProxy implements Runnable{
                     preProcessor.setProperty("filename", "");
 
                     String scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
-                    
+
                     scriptText += "try{\n";
-                    if (uploadGenericController == null){
+                    if (uploadGenericController == null) {
                         //Обновление доменных объектов и идентификаторов в запросе
                         scriptText += "\t//Змена ID и доменных объектов\n";
                         scriptText += "\tGwtUtil.preRequestProcessing(ctx);\n";
@@ -379,11 +415,10 @@ public class GwtRpcProxy implements Runnable{
                     scriptText += "}\n";
 
                     preProcessor.setProperty("script", scriptText);
-                    
+
                     HashTree preProcessorTree = new ListedHashTree();
-                    samplerTree.add(preProcessor, preProcessorTree);                            
-                    
-                    
+                    samplerTree.add(preProcessor, preProcessorTree);
+
                     //Формирование пост обработчика
                     BeanShellPostProcessor postProcessor = new BeanShellPostProcessor();
                     postProcessor.setName("Анализ результата");
@@ -405,12 +440,12 @@ public class GwtRpcProxy implements Runnable{
                     scriptText += "\t\tlog.error(GwtUtil.decodeResponce(prev).toString());\n";
                     scriptText += "\t\tprev.setSuccessful(false);\n";
                     scriptText += "\t}else{\n";
-                    
+
                     //Для вложения добавляем сохранялку имени временного контента
-                    if (uploadGenericController != null){
+                    if (uploadGenericController != null) {
                         scriptText += "\t\t//Сохранение имени вложения\n";
                         scriptText += "\t\tGwtUtil.storeUploadResult(ctx);\n";
-                    }else{                            
+                    } else {
                         //Сохранение пришедших доменных объектов и идентификаторов в контексте
                         scriptText += "\t\t//Сохранение ID и доменных объектов\n";
                         scriptText += "\t\tGwtUtil.postResponseProcessing(ctx);\n";
@@ -425,17 +460,17 @@ public class GwtRpcProxy implements Runnable{
 
                     HashTree postProcessorTree = new ListedHashTree();
                     samplerTree.add(postProcessor, postProcessorTree);
-                                                
-                    if (uploadGenericController != null){
+
+                    if (uploadGenericController != null) {
                         uploadGenericControllerTree.add(sampler, samplerTree);
                         recordScript.add(uploadGenericController, uploadGenericControllerTree);
-                    }else{
+                    } else {
                         genericControllerTree.add(sampler, samplerTree);
                     }
                     samplerNo++;
                 }
-                if (genericControllerTree.size() > 0){
-                    if (groupNo > 0){
+                if (genericControllerTree.size() > 0) {
+                    if (groupNo > 0) {
                         TestAction timer = new TestAction();
                         timer.setEnabled(true);
                         timer.setName("Sleep " + groupNo);
@@ -444,10 +479,10 @@ public class GwtRpcProxy implements Runnable{
                         timer.setAction(TestAction.PAUSE);
                         timer.setProperty(TestElement.GUI_CLASS, TestActionGui.class.getName());
                         timer.setProperty(TestElement.TEST_CLASS, TestAction.class.getName());
-                        
+
                         recordScript.add(timer);
                     }
-                    
+
                     recordScript.add(genericController, genericControllerTree);
                 }
                 groupNo++;
@@ -478,22 +513,22 @@ public class GwtRpcProxy implements Runnable{
         }
         return result;
     }
-    
-    public void stop() throws IOException{
+
+    public void stop() throws IOException {
         connectingIOReactor.shutdown();
         saveResult();
     }
-    
-    public void addGroup(String name, int beforeGroupPause){
+
+    public void addGroup(String name, int beforeGroupPause) {
         context.setManualStategyGroupName(name);
         context.setBetweenGroupPause(beforeGroupPause);
     }
-    
-    public void addListener(ProxyContextListener listener){
+
+    public void addListener(ProxyContextListener listener) {
         context.addListener(listener);
     }
 
-    public void clearListeners(){
+    public void clearListeners() {
         context.clearListeners();
     }
 }
