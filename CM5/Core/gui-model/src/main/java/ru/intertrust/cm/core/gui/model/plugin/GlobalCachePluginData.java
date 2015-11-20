@@ -11,6 +11,7 @@ public class GlobalCachePluginData extends PluginData {
 
     private GlobalCacheControlPanel controlPanelModel;
     private GlobalCacheStatPanel statPanel;
+    private Boolean superUser = false;
 
     private String errorMsg;
 
@@ -42,4 +43,12 @@ public class GlobalCachePluginData extends PluginData {
     }
 
     public GlobalCachePluginData(){}
+
+    public Boolean isSuperUser() {
+        return superUser;
+    }
+
+    public void setSuperUser(Boolean superUser) {
+        this.superUser = superUser;
+    }
 }
