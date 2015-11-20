@@ -103,7 +103,7 @@ public class GlobalCacheControlView extends PluginView {
         statPanelRoot.add(cacheCleaningPanel);
 
         tabPanel.add(statPanelRoot, GlobalCacheControlUtils.LBL_PANEL_STAT);
-        controlAlert.setStyleName("cacheCleaningTable");
+        controlAlert.setStyleName("controlAlert");
         controlAlert.setWidget(0, 0, new Label(GlobalCacheControlUtils.MSG_CONTROL_WARNING));
 
         tabPanel.add(buildControlPanel(), GlobalCacheControlUtils.LBL_PANEL_CONTROL);

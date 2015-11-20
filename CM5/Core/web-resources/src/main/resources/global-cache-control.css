@@ -120,3 +120,15 @@
     height: 83vh !important;
     margin-bottom: 17vh;
 }
+
+.controlAlert {
+    border: 1px solid #DDD;
+    margin: 10px;
+    width: 44%;
+}
+
+.controlAlert .gwt-Label {
+    text-decoration: none;
+    line-height: 17px;
+    margin: 10px;
+}
