@@ -3440,14 +3440,14 @@ a:active .icon.back {
     top: 6px;
     background: url(css/icons/icon_classifier.png)no-repeat;
     background-size: cover;
-    z-index: 100;
+    z-index: 10;
 }
 .createElement {
     right: 6px;
     top: 6px;
     background: url(css/icons/icon_group.png)no-repeat;
     background-size: cover;
-    z-index: 100;
+    z-index: 10;
 }
 
 .collectionCellWrapper:hover .createElement {
