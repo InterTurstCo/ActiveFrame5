@@ -5,8 +5,11 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.protocol.HttpProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyServiceHandler extends HttpAsyncService {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyServiceHandler.class);
 
     public ProxyServiceHandler(
             final HttpProcessor httpProcessor,
@@ -22,13 +25,13 @@ public class ProxyServiceHandler extends HttpAsyncService {
 
     @Override
     public void connected(final NHttpServerConnection conn) {
-        System.out.println("[client->proxy] connection open " + conn);
+        logger.info("[client->proxy] connection open " + conn);
         super.connected(conn);
     }
 
     @Override
     public void closed(final NHttpServerConnection conn) {
-        System.out.println("[client->proxy] connection closed " + conn);
+        logger.info("[client->proxy] connection closed " + conn);
         super.closed(conn);
     }
 

@@ -5,8 +5,11 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyClientProtocolHandler extends HttpAsyncRequestExecutor {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyClientProtocolHandler.class);
 
     public ProxyClientProtocolHandler() {
         super();
@@ -20,13 +23,13 @@ public class ProxyClientProtocolHandler extends HttpAsyncRequestExecutor {
     @Override
     public void connected(final NHttpClientConnection conn,
             final Object attachment) throws IOException, HttpException {
-        System.out.println("[proxy->origin] connection open " + conn);
+        logger.info("[proxy->origin] connection open " + conn);
         super.connected(conn, attachment);
     }
 
     @Override
     public void closed(final NHttpClientConnection conn) {
-        System.out.println("[proxy->origin] connection closed " + conn);
+        logger.info("[proxy->origin] connection closed " + conn);
         super.closed(conn);
     }
 

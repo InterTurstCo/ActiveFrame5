@@ -100,7 +100,7 @@ public class DomainObjectMapper {
                 } else if (Dto.class.isAssignableFrom(field.getType())) {
                     Dto savedObj = (Dto) field.get(parameter);
                     if (savedObj != null && !savedObj.getClass().isEnum() && !Modifier.isStatic(field.getModifiers())) {
-                        //System.out.println(parameter + " " + savedObj + " " + field.getName());
+                        //log.info(parameter + " " + savedObj + " " + field.getName());
                         replaceIdInParam(savedObj);
                     }
                 }
