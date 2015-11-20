@@ -88,6 +88,7 @@ public class GlobalCacheControlView extends PluginView {
         buildShortStatisticsPanel();
         shortStatPanel.add(shortStatGrid);
         statPanelRoot.add(shortStatPanel);
+        statPanelRoot.setStyleName("statPanelRoot");
 
         buildExtendedStatisticsPanel();
         statPanelRoot.add(extendedStatPanel);

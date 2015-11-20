@@ -114,3 +114,9 @@
 .shortStatGrid td {
     border: 1px solid #000;
 }
+
+.statPanelRoot {
+    overflow: auto !important;
+    height: 83vh !important;
+    margin-bottom: 17vh;
+}
