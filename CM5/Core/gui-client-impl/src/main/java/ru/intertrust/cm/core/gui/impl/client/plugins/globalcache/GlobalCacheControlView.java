@@ -246,10 +246,6 @@ public class GlobalCacheControlView extends PluginView {
                     extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getCacheHitPercentageTotal() * 100) + "%</span>"));
                     rowCounter++;
                 }
-            } else {
-                extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ: Данные не доступны</span>"));
-            }
-            if (globalCachePluginData.getStatPanel().getNotifierSummary() != null) {
                 extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
                 extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMinPerHour() / 1000 + "</span>"));
                 extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMaxPerHour() / 1000 + "</span>"));
@@ -264,9 +260,49 @@ public class GlobalCacheControlView extends PluginView {
                 extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getTotalFrequency() * 100) + "%</span>"));
                 extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getCacheHitPercentageTotal() * 100) + "%</span>"));
                 rowCounter++;
+            } else {
+                extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ: Данные не доступны</span>"));
             }
 
 
+            extendedStatTable.getFlexCellFormatter().setColSpan(rowCounter, 0, 13);
+            extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ЧТЕНИЕ</span>"));
+            rowCounter++;
+
+            if (globalCachePluginData.getStatPanel().getReadersRecords() != null){
+                for (GlobalCacheStatistics.Record readRecord : globalCachePluginData.getStatPanel().getReadersRecords()) {
+                    extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>" + readRecord.getMethodDescription() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + readRecord.getTimeMinPerHour() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + readRecord.getTimeMaxPerHour() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getTimeAvgPerHour() / 1000) + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 4, new InlineHTML("<span>" + readRecord.getInvocationsPerHour() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 5, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getHourlyFrequency() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 6, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getCacheHitPercentagePerHour() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 7, new InlineHTML("<span>" + readRecord.getTimeMinTotal() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 8, new InlineHTML("<span>" + readRecord.getTimeMaxTotal() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 9, new InlineHTML("<span>" + NumberFormat.getFormat("##0.0").format(readRecord.getTimeAvgTotal() / 1000) + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 10, new InlineHTML("<span>" + readRecord.getInvocationsTotal() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getTotalFrequency() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(readRecord.getCacheHitPercentageTotal() * 100) + "%</span>"));
+                    rowCounter++;
+                }
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
+                extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMinPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMaxPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getTimeAvgPerHour() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 4, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getInvocationsPerHour() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 5, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getHourlyFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 6, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getCacheHitPercentagePerHour() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMinTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 8, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getTimeMaxTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 9, new InlineHTML("<span>" + NumberFormat.getFormat("##0.0").format(globalCachePluginData.getStatPanel().getReaderSummary().getTimeAvgTotal() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 10, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getReaderSummary().getInvocationsTotal() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getTotalFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getReaderSummary().getCacheHitPercentageTotal() * 100) + "%</span>"));
+                rowCounter++;
+            } else {
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ЧТЕНИ: Данные не доступны</span>"));
+            }
             extendedStatPanel.add(extendedStatTable);
         }
 
