@@ -26,6 +26,7 @@ public class GlobalCacheStatPanel implements Dto {
     private String freedSpaceMax;
     private String totalInvocations;
     private List<GlobalCacheStatistics.Record> notifierRecords;
+    private GlobalCacheStatistics.Record notifierSummary;
 
 
     public String getSize() {
@@ -127,5 +128,13 @@ public class GlobalCacheStatPanel implements Dto {
 
     public void setNotifierRecords(List<GlobalCacheStatistics.Record> notifierRecords) {
         this.notifierRecords = notifierRecords;
+    }
+
+    public GlobalCacheStatistics.Record getNotifierSummary() {
+        return notifierSummary;
+    }
+
+    public void setNotifierSummary(GlobalCacheStatistics.Record notifierSummary) {
+        this.notifierSummary = notifierSummary;
     }
 }

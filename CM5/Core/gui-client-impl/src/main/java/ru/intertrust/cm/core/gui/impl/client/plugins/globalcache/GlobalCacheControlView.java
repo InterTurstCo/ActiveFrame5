@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -229,16 +230,43 @@ public class GlobalCacheControlView extends PluginView {
             extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ</span>"));
 
             Integer rowCounter = 4;
-            if (globalCachePluginData.getStatPanel().getNotifierRecords()!=null){
-                for(GlobalCacheStatistics.Record record : globalCachePluginData.getStatPanel().getNotifierRecords()){
-                    extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>"+record.getMethodDescription()+"</span>"));
-
+            if (globalCachePluginData.getStatPanel().getNotifierRecords() != null) {
+                for (GlobalCacheStatistics.Record record : globalCachePluginData.getStatPanel().getNotifierRecords()) {
+                    extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>" + record.getMethodDescription() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + record.getTimeMinPerHour() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + record.getTimeMaxPerHour() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getTimeAvgPerHour() / 1000) + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 4, new InlineHTML("<span>" + record.getInvocationsPerHour() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 5, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getHourlyFrequency() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 6, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getCacheHitPercentagePerHour() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 7, new InlineHTML("<span>" + record.getTimeMinTotal() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 8, new InlineHTML("<span>" + record.getTimeMaxTotal() / 1000 + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 9, new InlineHTML("<span>" + NumberFormat.getFormat("##0.0").format(record.getTimeAvgTotal() / 1000) + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 10, new InlineHTML("<span>" + record.getInvocationsTotal() + "</span>"));
+                    extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getTotalFrequency() * 100) + "%</span>"));
+                    extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(record.getCacheHitPercentageTotal() * 100) + "%</span>"));
                     rowCounter++;
                 }
-            }
-            else {
+            } else {
                 extendedStatTable.setWidget(3, 0, new InlineHTML("<span>ЗАПИСЬ: Данные не доступны</span>"));
             }
+            if (globalCachePluginData.getStatPanel().getNotifierSummary() != null) {
+                extendedStatTable.setWidget(rowCounter, 0, new InlineHTML("<span>ИТОГО:</span>"));
+                extendedStatTable.setWidget(rowCounter, 1, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMinPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 2, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMaxPerHour() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 3, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getTimeAvgPerHour() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 4, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getInvocationsPerHour() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 5, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getHourlyFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 6, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getCacheHitPercentagePerHour() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 7, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMinTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 8, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getTimeMaxTotal() / 1000 + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 9, new InlineHTML("<span>" + NumberFormat.getFormat("##0.0").format(globalCachePluginData.getStatPanel().getNotifierSummary().getTimeAvgTotal() / 1000) + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 10, new InlineHTML("<span>" + globalCachePluginData.getStatPanel().getNotifierSummary().getInvocationsTotal() + "</span>"));
+                extendedStatTable.setWidget(rowCounter, 11, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getTotalFrequency() * 100) + "%</span>"));
+                extendedStatTable.setWidget(rowCounter, 12, new InlineHTML("<span>" + NumberFormat.getFormat("##0.00").format(globalCachePluginData.getStatPanel().getNotifierSummary().getCacheHitPercentageTotal() * 100) + "%</span>"));
+                rowCounter++;
+            }
+
 
             extendedStatPanel.add(extendedStatTable);
         }

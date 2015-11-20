@@ -1,5 +1,8 @@
 package ru.intertrust.performance.jmetertools;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.util.Collection;
@@ -317,7 +320,7 @@ public class GwtUtil {
      */
     public static void postResponseProcessing(JMeterContext context)throws Throwable{
         extractDomainObjects(context);
-        updateIdMap(context);
+        updateIdMap(context);        
     }
     
     /**
@@ -329,6 +332,17 @@ public class GwtUtil {
         replaceDomainObjects(context);
         applyIdMap(context);
         replaceUploadResult(context);
+        
+        boolean store = Boolean.parseBoolean(context.getVariables().get("STORE_REAL_REQUEST"));
+        if (store){
+            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
+            GwtRpcRequest request = decodeRequest(sampleProxy);
+            try(FileWriter writer = new FileWriter(new File("jmerer.log"), true)){
+                writer.write("==============================================\n");
+                writer.write(sampleProxy.getName() + "\n");
+                writer.write(request.asString());
+            }
+        }
     }
     
     public static void storeUploadResult(JMeterContext context) throws Throwable{

@@ -64,7 +64,7 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
              * Развернутая статистика
              */
             globalCachePluginData.getStatPanel().setNotifierRecords(globalCacheStatistics.getNotifiersRecords());
-
+            globalCachePluginData.getStatPanel().setNotifierSummary(globalCacheStatistics.getNotifiersSummary());
 
         }
 
