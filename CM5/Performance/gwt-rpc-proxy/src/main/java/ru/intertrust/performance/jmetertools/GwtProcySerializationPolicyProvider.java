@@ -5,7 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Hashtable;
@@ -19,12 +18,15 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.apache.jorphan.logging.LoggingManager;
+import org.apache.log.Logger;
 
 import com.google.gwt.user.server.rpc.SerializationPolicy;
 import com.google.gwt.user.server.rpc.SerializationPolicyLoader;
 import com.google.gwt.user.server.rpc.SerializationPolicyProvider;
 
 public class GwtProcySerializationPolicyProvider implements SerializationPolicyProvider {
+    private static final Logger log = LoggingManager.getLoggerForClass();
 
     private String moduleBaseURL;
     private String serializationPolicyStrongName;
@@ -83,7 +85,7 @@ public class GwtProcySerializationPolicyProvider implements SerializationPolicyP
         
         
         HttpGet httpget = new HttpGet(newUri.toString() + SerializationPolicyLoader.getSerializationPolicyFileName(serializationPolicyStrongName));
-        System.out.println("Executing request " + httpget.getRequestLine());
+        log.info("Executing request " + httpget.getRequestLine());
 
         // Create a custom response handler
         ResponseHandler<byte[]> responseHandler = new ResponseHandler<byte[]>() {

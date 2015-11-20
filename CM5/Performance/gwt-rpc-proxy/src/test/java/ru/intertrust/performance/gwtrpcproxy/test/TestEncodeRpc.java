@@ -1,4 +1,4 @@
-package ru.intertrust.performance.test;
+package ru.intertrust.performance.gwtrpcproxy.test;
 
 import ru.intertrust.performance.jmetertools.GwtRpcRequest;
 import ru.intertrust.performance.jmetertools.GwtUtil;

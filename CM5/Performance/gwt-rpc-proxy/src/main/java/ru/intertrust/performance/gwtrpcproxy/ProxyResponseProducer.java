@@ -15,8 +15,11 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public  class ProxyResponseProducer implements HttpAsyncResponseProducer {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyResponseProducer.class);
 
     private final ProxyHttpExchange httpExchange;
 
@@ -33,7 +36,7 @@ public  class ProxyResponseProducer implements HttpAsyncResponseProducer {
         try {
             synchronized (this.httpExchange) {
                 HttpResponse response = this.httpExchange.getResponse();
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getStatusLine());
+                logger.info("[client<-proxy] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 // Rewrite response!!!!
                 BasicHttpResponse r = new BasicHttpResponse(response.getStatusLine());
                 r.setEntity(response.getEntity());
@@ -50,8 +53,8 @@ public  class ProxyResponseProducer implements HttpAsyncResponseProducer {
                         }
                     }
                 }
-                System.out.println("[client<-proxy] origin " + response.toString());
-                System.out.println("[client<-proxy] proxy " + r.toString());
+                logger.info("[client<-proxy] origin " + response.toString());
+                logger.info("[client<-proxy] proxy " + r.toString());
                 return r;
             }
         } catch (URISyntaxException e) {
@@ -68,24 +71,24 @@ public  class ProxyResponseProducer implements HttpAsyncResponseProducer {
             buf.flip();
             int n = encoder.write(buf);
             buf.compact();
-            System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + n + " bytes written");
+            logger.info("[client<-proxy] " + this.httpExchange.getId() + " " + n + " bytes written");
             // If there is space in the buffer and the message has not been
             // transferred, make sure the origin is sending more data
             if (buf.hasRemaining() && !this.httpExchange.isResponseReceived()) {
                 if (this.httpExchange.getOriginIOControl() != null) {
                     this.httpExchange.getOriginIOControl().requestInput();
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " request origin input");
+                    logger.info("[client<-proxy] " + this.httpExchange.getId() + " request origin input");
                 }
             }
             if (buf.position() == 0) {
                 if (this.httpExchange.isResponseReceived()) {
                     encoder.complete();
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " content fully written");
+                    logger.info("[client<-proxy] " + this.httpExchange.getId() + " content fully written");
                 } else {
                     // Input buffer is empty. Wait until the origin fills up
                     // the buffer
                     ioctrl.suspendOutput();
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " suspend client output");
+                    logger.info("[client<-proxy] " + this.httpExchange.getId() + " suspend client output");
                 }
             }
         }
@@ -93,13 +96,13 @@ public  class ProxyResponseProducer implements HttpAsyncResponseProducer {
 
     public void responseCompleted(final HttpContext context) {
         synchronized (this.httpExchange) {
-            System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response completed");
+            logger.info("[client<-proxy] " + this.httpExchange.getId() + " response completed");
             httpExchange.getProxyContext().addResponce(httpExchange);
         }
     }
 
     public void failed(final Exception ex) {
-        System.out.println("[client<-proxy] " + ex.toString());
+        logger.error("[client<-proxy] Error", ex);
     }
 
 }
