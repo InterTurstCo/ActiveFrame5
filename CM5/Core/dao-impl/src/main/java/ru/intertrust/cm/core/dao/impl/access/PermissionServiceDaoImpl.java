@@ -9,6 +9,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.PlatformTransactionManager;
+
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
@@ -20,6 +21,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
@@ -35,6 +37,7 @@ import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -72,7 +75,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Autowired
     private PermissionAfterCommit permissionAfterCommit;
-
+    
     public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
         this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
     }
@@ -1222,6 +1225,17 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         Id currentPersonId = currentUserAccessor.getCurrentUserId();
 
         if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
+            //Исключаем из списка доменные объекты с заимствованными правами и с правами на чтение всем
+            List<Id> effectiveDomainObjectIds = new ArrayList<Id>(domainObjectIds.size());
+            for (Id id : domainObjectIds) {
+                String typeName = domainObjectTypeIdCache.getName(id);
+                AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);                
+                if (matrixConfig != null                         
+                        && (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) 
+                        && matrixConfig.getMatrixReference() == null){
+                    effectiveDomainObjectIds.add(id);
+                }
+            }
             // Получение динамической группы текущего пользователя.
             Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
 
@@ -1232,7 +1246,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.WRITE, currentPersonGroup));
             aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
 
-            RdbmsId[] idsArray = domainObjectIds.toArray(new RdbmsId[domainObjectIds.size()]);
+            RdbmsId[] idsArray = effectiveDomainObjectIds.toArray(new RdbmsId[effectiveDomainObjectIds.size()]);
 
             insertAclRecordsInBatch(aclInfoRead, idsArray, true);
             insertAclRecordsInBatch(aclInfoNoRead, idsArray, false);
@@ -1250,13 +1264,20 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         //Проверка наличия контекста пользователя и проверка что пользователь не суперпользователь
         if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
-            //Получение динамической группы текущего пользователя.
-            Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
-
-            //Добавляем права группе
-            insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
-            insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
-            insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
+            //Исключаем доменные объекты с заимствованными правами и с правами на чтение всем        
+            String typeName = domainObjectTypeIdCache.getName(domainObject);
+            AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);
+            if (matrixConfig != null
+                    && (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) 
+                    && matrixConfig.getMatrixReference() == null){
+                //Получение динамической группы текущего пользователя.
+                Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
+    
+                //Добавляем права группе
+                insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
+                insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
+                insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
+            }
         }
     }
 

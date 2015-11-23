@@ -62,13 +62,15 @@ public class UploadMapper {
                         boolean changed = false;
                         for (int i=0; i< listAsArray.length; i++) {
                             Object value = listAsArray[i];
-                            if (String.class.isAssignableFrom(value.getClass())){
-                                if (uploadMap.containsKey(value)){
-                                    listAsArray[i] = uploadMap.get(value);
-                                    changed = true;
+                            if (value != null){
+                                if (String.class.isAssignableFrom(value.getClass())){
+                                    if (uploadMap.containsKey(value)){
+                                        listAsArray[i] = uploadMap.get(value);
+                                        changed = true;
+                                    }
+                                }else{
+                                    replaceIdInParam(value);
                                 }
-                            }else{
-                                replaceIdInParam(value);
                             }
                         }
                         if (changed){
