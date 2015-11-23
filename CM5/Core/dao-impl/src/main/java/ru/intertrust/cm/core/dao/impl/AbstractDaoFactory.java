@@ -56,4 +56,9 @@ public abstract class AbstractDaoFactory implements DaoFactory {
     public SchedulerDao createSchedulerDao() {
         return new SchedulerDaoImpl();
     }
+
+    @Override
+    public DomainObjectQueryHelper createQueryHelper() {
+        return new DomainObjectQueryHelper();
+    }
 }

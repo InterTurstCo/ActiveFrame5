@@ -1469,36 +1469,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             query.append(" and ").append(tableAlias).append(".").append(wrap(TYPE_COLUMN)).append(" = :").append(RESULT_TYPE_ID);
         }
 
-        Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, typeName);
-
-        if (accessToken.isDeferred() && !(configurationExplorer.isReadPermittedToEverybody(typeName) || isAdministratorWithAllPermissions)) {
-
-            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            typeName = domainObjectQueryHelper.getRelevantType(typeName);
-            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
-            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(typeName);
-            String aclReadTable = null;
-            if (matrixReferenceTypeName != null){
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
-            }else{
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, typeName);
-            }
-
-            String rootType = configurationExplorer.getDomainObjectRootType(typeName).toLowerCase();
-
-            query.append(" and ");
-
-            query.append("exists (select a.").append(wrap("object_id")).append(" from ").append(wrap(aclReadTable)).append(" a");
-            query.append(" inner join ").append(wrap("group_group")).append(" gg on a.").append(wrap("group_id"))
-                    .append(" = gg.").append(wrap("parent_group_id"));
-            query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
-                    .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
-            query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on a.")
-                    .append(DaoUtils.wrap("object_id"))
-                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
-            query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and ").
-                    append(rootType).append(".").append(wrap("id")).append(" = ").append(tableAlias).append(".").append(wrap("id")).append(")");
+        if (accessToken.isDeferred()) {
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(query, typeName);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1940,7 +1912,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(linkedType)) != null;
 
         if (accessToken.isDeferred() && isDomainObject) {
-            appendAccessControlLogicToQuery(query, linkedType);
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
@@ -1983,65 +1955,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         if (accessToken.isDeferred()) {
-            appendAccessControlLogicToQuery(query, linkedType);
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(query, linkedType);
         }
 
         applyOffsetAndLimitWithDefaultOrdering(query, tableAlias, offset, limit);
 
         return query.toString();
-    }
-
-    private void appendAccessControlLogicToQuery(StringBuilder query,
-                                                 String linkedType) {
-        boolean isAuditLog = configurationExplorer.isAuditLogType(linkedType);
-        String originalLinkedType = DataStructureNamingHelper.getSqlName(linkedType);
-
-        // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.        
-        linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
-
-        Id personId = currentUserAccessor.getCurrentUserId();
-        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
-
-        //Добавляем учет ReadPermittedToEverybody
-        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions)) {
-            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            linkedType = domainObjectQueryHelper.getRelevantType(linkedType);
-            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
-            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(linkedType);
-            String childAclReadTable = null;
-            if (matrixReferenceTypeName != null){
-                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
-            }else{
-                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, linkedType);
-            }
-            String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, linkedType);
-            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
-
-            String rootType = configurationExplorer.getDomainObjectRootType(linkedType).toLowerCase();
-
-            query.append(" and exists (select r." + wrap("object_id") + " from ").append(wrap(childAclReadTable)).append(" r ");
-
-            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
-                    .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
-            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
-            query.append("inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
-                    .append(DaoUtils.wrap("object_id"))
-                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
-            if (isAuditLog) {
-                query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalLinkedType).append(".")
-                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
-            }
-
-            query.append("where gm.").append(wrap("person_id")).append(" = :user_id and rt.").append(wrap("id")).append(" = ");
-            if (!isAuditLog) {
-                query.append(originalLinkedType).append(".").append(DaoUtils.wrap(ID_COLUMN));
-
-            } else {
-                query.append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
-            }
-            query.append(")");
-        }
     }
 
     private boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {

@@ -1,9 +1,6 @@
 
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -80,9 +77,10 @@ import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DatabaseInfo;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -100,11 +98,14 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
-    public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
+    public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+                         CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     @Override
@@ -201,73 +202,23 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
      * @return
      */
     private SubSelect createAclSubQuery(String domainObjectType) {
-        domainObjectType = DaoUtils.unwrap(domainObjectType);        
-
-        boolean isAuditLog = configurationExplorer.isAuditLogType(domainObjectType);
-        String originalDomainObjectType = domainObjectType;
+        domainObjectType = DaoUtils.unwrap(domainObjectType);
 
         String aclQueryString = null;
-        if (aclSubQueryCache.get(originalDomainObjectType) != null) {
-            aclQueryString = aclSubQueryCache.get(originalDomainObjectType);
+
+        if (aclSubQueryCache.get(domainObjectType) != null) {
+            aclQueryString = aclSubQueryCache.get(domainObjectType);
         } else {
-            
-            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            domainObjectType = AccessControlUtility.getRelevantType(domainObjectType, configurationExplorer);
-            
-            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
-            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(domainObjectType);
-            String aclReadTable = null;
-            if (matrixReferenceTypeName != null){
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
-            }else{
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
-            }
-                        
-            String topLevelParentType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
-            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
-           
             StringBuilder aclQuery = new StringBuilder();
             
-            aclQuery.append("Select ").append(originalDomainObjectType).append(".* from ").
-                    append(DaoUtils.wrap(originalDomainObjectType)).append(" ").append(originalDomainObjectType);
+            aclQuery.append("select ").append(domainObjectType).append(".* from ").
+                    append(DaoUtils.wrap(domainObjectType)).append(" ").append(domainObjectType).
+                    append(" where 1=1");
 
-            if (isAuditLog) {
-                aclQuery.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalDomainObjectType).append(".")
-                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
-            }
-
-            if (!topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
-                aclQuery.append(" inner join ").append(DaoUtils.wrap(topLevelParentType)).append(" rt on rt.").
-                        append(wrap(Configuration.ID_COLUMN)).append(" = ");
-                if (isAuditLog) {
-                    aclQuery.append("pal.").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
-                } else {
-                    aclQuery.append(originalDomainObjectType).append(".").append(wrap(Configuration.ID_COLUMN));
-                }
-            }
-
-            aclQuery.append(" where exists (select r.").append(DaoUtils.wrap("object_id"))
-                    .append(" from ")
-                    .append(DaoUtils.wrap(aclReadTable)).append(" r ");
-            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
-                    .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
-            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id"))
-                    .append(" = gm.").append(DaoUtils.wrap("usergroup"));
-
-            aclQuery.append(" where gm.\"person_id\" = ").append(SqlQueryModifier.USER_ID_PARAM).
-                     append(" and r.").append(wrap("object_id")).append(" = ");
-
-            if (topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
-                aclQuery.append(originalDomainObjectType).append(".").append(wrap("access_object_id"));
-            } else {
-                aclQuery.append("rt.").append(wrap("access_object_id"));
-            }
-
-            aclQuery.append(")");
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(aclQuery, domainObjectType);
 
             aclQueryString = aclQuery.toString();
-            aclSubQueryCache.put(originalDomainObjectType, aclQueryString);
+            aclSubQueryCache.put(domainObjectType, aclQueryString);
         }
 
         SubSelect subSelectWithAcl = new SubSelect();

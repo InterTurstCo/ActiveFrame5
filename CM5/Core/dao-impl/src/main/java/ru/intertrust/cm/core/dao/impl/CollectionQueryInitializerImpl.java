@@ -55,12 +55,14 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     private ConfigurationExplorer configurationExplorer;
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     public CollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
-            CurrentUserAccessor currentUserAccessor) {
+            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -260,7 +262,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs,

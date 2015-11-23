@@ -69,6 +69,9 @@ public class DomainObjectDaoImplTest {
     @Mock
     private EventLogService eventLogService;
 
+    @Mock
+    private DomainObjectQueryHelper domainObjectQueryHelper;
+
     private DomainObjectTypeConfig domainObjectTypeConfig;
 
     private DomainObjectQueryHelper queryHelper;
@@ -90,6 +93,8 @@ public class DomainObjectDaoImplTest {
 
         queryHelper = new DomainObjectQueryHelper();
         queryHelper.setConfigurationExplorer(configurationExplorer);
+        queryHelper.setCurrentUserAccessor(currentUserAccessor);
+        queryHelper.setUserGroupCache(userGroupCache);
         domainObjectDaoImpl.setDomainObjectQueryHelper(queryHelper);
         
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
@@ -196,11 +201,11 @@ public class DomainObjectDaoImplTest {
     public void testGenerateFindAllQuery() {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.* from \"assignment\" assignment where 1=1 and exists " +
-                "(select a.\"object_id\" from \"assignment_read\" a inner join " +
-                "\"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm " +
-                "on gg.\"child_group_id\" = gm.\"usergroup\"inner join \"assignment\" rt on " +
-                "a.\"object_id\" = rt.\"access_object_id\" " +
-                "where gm.\"person_id\" = :user_id and assignment.\"id\" = assignment.\"id\")";
+                "(select r.\"object_id\" from \"assignment_read\" r inner join " +
+                "\"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm " +
+                "on gg.\"child_group_id\" = gm.\"usergroup\" inner join \"assignment\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" " +
+                "where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("assignment", false, 0, 0, accessToken));
     }
 
@@ -208,11 +213,11 @@ public class DomainObjectDaoImplTest {
     public void testGenerateFindAllQueryExactType() {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.* from \"assignment\" assignment where 1=1 and assignment.\"id_type\" = " +
-                ":result_type_id and exists (select a.\"object_id\" from \"assignment_read\" a " +
-                "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" " +
-                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
-                "inner join \"assignment\" rt on a.\"object_id\" = rt.\"access_object_id\" " +
-                "where gm.\"person_id\" = :user_id and assignment.\"id\" = assignment.\"id\")";
+                ":result_type_id and exists (select r.\"object_id\" from \"assignment_read\" r " +
+                "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" " +
+                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" " +
+                "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\" " +
+                "where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("assignment", true, 0, 0, accessToken));
     }
 
@@ -222,10 +227,10 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select person.* from \"person\" person left outer join \"internal_employee\" " +
                 "internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
                 "person.\"id_type\" = internal_employee.\"id_type\") where 1=1 and exists " +
-                "(select a.\"object_id\" from \"person_read\" a inner join \"group_group\" gg on " +
-                "a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
-                "a.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and person.\"id\" = person.\"id\")";
+                "(select r.\"object_id\" from \"person_read\" r inner join \"group_group\" gg on " +
+                "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = person.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("person", false, 0, 0, accessToken));
     }
 
@@ -233,10 +238,10 @@ public class DomainObjectDaoImplTest {
     public void testGenerateFindAllQueryForInheritedFieldsExactType() {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select person.* from \"person\" person where 1=1 and person.\"id_type\" = :result_type_id and " +
-                "exists (select a.\"object_id\" from \"person_read\" a inner join \"group_group\" gg on " +
-                "a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
-                "a.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and person.\"id\" = person.\"id\")";
+                "exists (select r.\"object_id\" from \"person_read\" r inner join \"group_group\" gg on " +
+                "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = person.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("person", true, 0, 0, accessToken));
     }
 
@@ -247,10 +252,10 @@ public class DomainObjectDaoImplTest {
                 "person.\"boss\", person.\"boss_type\", \"created_date\", \"updated_date\", \"created_by\", " +
                 "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" from " +
                 "\"internal_employee\" internal_employee inner join \"person\" person on " +
-                "internal_employee.\"id\" = person.\"id\" where 1=1 and exists (select a.\"object_id\" from \"person_read\" a " +
-                "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" inner join " +
-                "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
-                "a.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and person.\"id\" = internal_employee.\"id\")";
+                "internal_employee.\"id\" = person.\"id\" where 1=1 and exists (select r.\"object_id\" from \"person_read\" r " +
+                "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" inner join " +
+                "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = internal_employee.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("internal_employee", false, 0, 0, accessToken));
     }
 
@@ -262,10 +267,10 @@ public class DomainObjectDaoImplTest {
                 "\"created_by_type\", \"updated_by\", \"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" " +
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where 1=1 and internal_employee.\"id_type\" = :result_type_id and " +
-                "exists (select a.\"object_id\" from \"person_read\" a inner join \"group_group\" gg " +
-                "on a.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt " +
-                "on a.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and person.\"id\" = internal_employee.\"id\")";
+                "exists (select r.\"object_id\" from \"person_read\" r inner join \"group_group\" gg " +
+                "on r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt " +
+                "on r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = internal_employee.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.generateFindAllQuery("internal_employee", true, 0, 0, accessToken));
     }
 
@@ -274,9 +279,9 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.* from \"assignment\" assignment where assignment.\"author\" = :domain_object_id "
                 + "and \"author_type\" = :domain_object_typeid and exists "
-                + "(select r.\"object_id\" from \"assignment_read\" r  inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
-                + "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\""
+                + "(select r.\"object_id\" from \"assignment_read\" r inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
+                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+                + "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\" "
                 + "where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", false,
                 0, 0, accessToken));
@@ -288,10 +293,10 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.* from \"assignment\" assignment " +
                 "where assignment.\"author\" = :domain_object_id and \"author_type\" = :domain_object_typeid and " +
-                "assignment.\"id_type\" = :result_type_id and exists (select r.\"object_id\" from \"assignment_read\" r  " +
+                "assignment.\"id_type\" = :result_type_id and exists (select r.\"object_id\" from \"assignment_read\" r " +
                 "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" " +
-                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
-                "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\"" +
+                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" " +
+                "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\" " +
                 "where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("assignment", "author", true,
                 0, 0, accessToken));
@@ -306,10 +311,10 @@ public class DomainObjectDaoImplTest {
                 + "\"updated_by_type\", \"status\", \"status_type\", \"access_object_id\" from \"internal_employee\" internal_employee "
                 + "inner join \"person\" person on internal_employee.\"id\" = person.\"id\" "
                 + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
-                + "and exists (select r.\"object_id\" from \"person_read\" r  "
+                + "and exists (select r.\"object_id\" from \"person_read\" r "
                 + "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
-                + "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\""
+                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+                + "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\" "
                 + "where gm.\"person_id\" = :user_id and rt.\"id\" = internal_employee.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("Internal_Employee", "Boss",
                 false, 0, 0, accessToken));
@@ -325,10 +330,10 @@ public class DomainObjectDaoImplTest {
                 "from \"internal_employee\" internal_employee inner join \"person\" person on " +
                 "internal_employee.\"id\" = person.\"id\" where person.\"boss\" = :domain_object_id and " +
                 "\"boss_type\" = :domain_object_typeid and person.\"id_type\" = :result_type_id and " +
-                "exists (select r.\"object_id\" from \"person_read\" r  inner join \"group_group\" gg on " +
+                "exists (select r.\"object_id\" from \"person_read\" r inner join \"group_group\" gg on " +
                 "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
-                "r.\"object_id\" = rt.\"access_object_id\"where gm.\"person_id\" = :user_id and " +
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and " +
                 "rt.\"id\" = internal_employee.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("Internal_Employee", "Boss",
                 true, 0, 0, accessToken));
@@ -340,10 +345,10 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select person.* from \"person\" person left outer join " +
                 "\"internal_employee\" internal_employee on (person.\"id\" = internal_employee.\"id\" and " +
                 "person.\"id_type\" = internal_employee.\"id_type\") where person.\"boss\" = :domain_object_id and " +
-                "\"boss_type\" = :domain_object_typeid and exists (select r.\"object_id\" from \"person_read\" r  " +
+                "\"boss_type\" = :domain_object_typeid and exists (select r.\"object_id\" from \"person_read\" r " +
                 "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" inner join " +
-                "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"inner join " +
-                "\"person\" rt on r.\"object_id\" = rt.\"access_object_id\"" +
+                "\"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" inner join " +
+                "\"person\" rt on r.\"object_id\" = rt.\"access_object_id\" " +
                 "where gm.\"person_id\" = :user_id and rt.\"id\" = person.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("person", "Boss", false,
                 0, 0, accessToken));
@@ -354,10 +359,10 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select person.* from \"person\" person where person.\"boss\" = :domain_object_id and " +
                 "\"boss_type\" = :domain_object_typeid and person.\"id_type\" = :result_type_id and " +
-                "exists (select r.\"object_id\" from \"person_read\" r  inner join \"group_group\" gg on " +
+                "exists (select r.\"object_id\" from \"person_read\" r inner join \"group_group\" gg on " +
                 "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"person\" rt on " +
-                "r.\"object_id\" = rt.\"access_object_id\"where gm.\"person_id\" = :user_id and rt.\"id\" = person.\"id\")";
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"person\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = person.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenQuery("person", "Boss", true,
                 0, 0, accessToken));
 
@@ -368,10 +373,10 @@ public class DomainObjectDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
         String expectedQuery = "select assignment.\"id\", assignment.\"id_type\" from \"assignment\" assignment "
                 + "where assignment.\"author\" = :domain_object_id and \"author_type\" = :domain_object_typeid "
-                + "and exists (select r.\"object_id\" from \"assignment_read\" r  "
+                + "and exists (select r.\"object_id\" from \"assignment_read\" r "
                 + "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
-                + "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\""
+                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+                + "inner join \"assignment\" rt on r.\"object_id\" = rt.\"access_object_id\" "
                 + "where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", false,
                 0, 0, accessToken));
@@ -383,10 +388,10 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select assignment.\"id\", assignment.\"id_type\" from \"assignment\" assignment where " +
                 "assignment.\"author\" = :domain_object_id and \"author_type\" = :domain_object_typeid and " +
                 "assignment.\"id_type\" = :result_type_id and " +
-                "exists (select r.\"object_id\" from \"assignment_read\" r  inner join \"group_group\" gg on " +
+                "exists (select r.\"object_id\" from \"assignment_read\" r inner join \"group_group\" gg on " +
                 "r.\"group_id\" = gg.\"parent_group_id\" inner join \"group_member\" gm on " +
-                "gg.\"child_group_id\" = gm.\"usergroup\"inner join \"assignment\" rt on " +
-                "r.\"object_id\" = rt.\"access_object_id\"where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
+                "gg.\"child_group_id\" = gm.\"usergroup\" inner join \"assignment\" rt on " +
+                "r.\"object_id\" = rt.\"access_object_id\" where gm.\"person_id\" = :user_id and rt.\"id\" = assignment.\"id\")";
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("assignment", "author", true,
                 0, 0, accessToken));
 
@@ -400,10 +405,10 @@ public class DomainObjectDaoImplTest {
                 + "from \"person\" person "
                 + "inner join \"internal_employee\" internal_employee on person.\"id\" = internal_employee.\"id\" "
                 + "where person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid "
-                + "and exists (select r.\"object_id\" from \"person_read\" r  "
+                + "and exists (select r.\"object_id\" from \"person_read\" r "
                 + "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" "
-                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\""
-                + "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\""
+                + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
+                + "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\" "
                 + "where gm.\"person_id\" = :user_id and rt.\"id\" = internal_employee.\"id\")";
 
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("Internal_Employee", "Boss",
@@ -417,10 +422,10 @@ public class DomainObjectDaoImplTest {
         String expectedQuery = "select person.\"id\", person.\"id_type\" from \"person\" person " +
         		"inner join \"internal_employee\" internal_employee on person.\"id\" = internal_employee.\"id\" where " +
                 "person.\"boss\" = :domain_object_id and \"boss_type\" = :domain_object_typeid and " +
-                "person.\"id_type\" = :result_type_id and exists (select r.\"object_id\" from \"person_read\" r  " +
+                "person.\"id_type\" = :result_type_id and exists (select r.\"object_id\" from \"person_read\" r " +
                 "inner join \"group_group\" gg on r.\"group_id\" = gg.\"parent_group_id\" " +
-                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\"" +
-                "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\"" +
+                "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" " +
+                "inner join \"person\" rt on r.\"object_id\" = rt.\"access_object_id\" " +
                 "where gm.\"person_id\" = :user_id and rt.\"id\" = internal_employee.\"id\")";
 
         Assert.assertEquals(expectedQuery, domainObjectDaoImpl.buildFindChildrenIdsQuery("Internal_Employee", "Boss",

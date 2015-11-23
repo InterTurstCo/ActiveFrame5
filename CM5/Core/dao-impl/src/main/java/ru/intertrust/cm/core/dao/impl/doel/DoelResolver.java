@@ -53,6 +53,7 @@ import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
 import ru.intertrust.cm.core.dao.impl.utils.BasicRowMapper;
@@ -84,6 +85,8 @@ public class DoelResolver implements DoelEvaluator {
     private CurrentUserAccessor currentUserAccessor;
     @Autowired
     private UserGroupGlobalCache userGroupCache;
+    @Autowired
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     public void setDataSource(DataSource dataSource) {
         this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -430,7 +433,7 @@ public class DoelResolver implements DoelEvaluator {
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {

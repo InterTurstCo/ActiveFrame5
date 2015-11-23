@@ -17,4 +17,9 @@ public class PostgreSqlDaoFactoryImpl extends AbstractDaoFactory {
     public IdGenerator createIdGenerator() {
         return new PostgreSqlSequenceIdGenerator();
     }
+
+    @Override
+    public DomainObjectQueryHelper createQueryHelper() {
+        return new PostgreSqlDomainObjectQueryHelper();
+    }
 }

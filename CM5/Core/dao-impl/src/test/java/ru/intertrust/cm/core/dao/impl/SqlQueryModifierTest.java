@@ -30,22 +30,25 @@ public class SqlQueryModifierTest {
     private static final String UNION_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 1 " +
             "union SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 2";
 
-    private static final String PLAIN_SELECT_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1 = 1 and e.\"id\" = 1";
+    private static final String PLAIN_SELECT_QUERY = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d where 1=1 and e.\"id\" = 1";
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE = "SELECT * FROM \"EMPLOYEE\" e, \"Department\" d";
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL_APPLIED =
-            "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+            "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE WHERE 1 = 1 AND " +
+                    "EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
-                    "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = employee.\"id\")) e, " +
+                    "(SELECT Department.* FROM \"Department\" Department WHERE 1 = 1 AND " +
+                    "EXISTS (SELECT r.\"object_id\" " +
                     "FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
                     "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-                    "r.\"object_id\" = rt.\"access_object_id\")) d";
+                    "gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND " +
+                    "rt.\"id\" = department.\"id\")) d";
 
     private static final String PLAIN_SELECT_QUERY_WITH_TYPE = "SELECT * FROM " +
             "\"EMPLOYEE\" e, " +
@@ -67,40 +70,46 @@ public class SqlQueryModifierTest {
             "AND e.\"id\" = 2)";
 
     private static final String PLAIN_SELECT_QUERY_WITH_ACL =
-            "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+            "SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
-                    "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = employee.\"id\")) e, " +
+                    "(SELECT Department.* FROM \"Department\" Department " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String UNION_QUERY_WITH_ACL =
-            "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+            "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
-                    "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = employee.\"id\")) e, " +
+                    "(SELECT Department.* FROM \"Department\" Department " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM " +
                     "\"person_read\" r INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 1) UNION " +
-                    "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = EMPLOYEE.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+                    "(SELECT * FROM (SELECT EMPLOYEE.* FROM \"EMPLOYEE\" EMPLOYEE " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) e, " +
-                    "(SELECT Department.* FROM \"Department\" Department INNER JOIN \"person\" rt ON " +
-                    "rt.\"id\" = Department.\"id\" WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = employee.\"id\")) e, " +
+                    "(SELECT Department.* FROM \"Department\" Department WHERE 1 = 1 AND " +
+                    "EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r " +
                     "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
                     "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = rt.\"access_object_id\")) d " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 2)";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
@@ -126,13 +135,19 @@ public class SqlQueryModifierTest {
     @Mock
     private UserGroupGlobalCache userGroupCache;
 
+    private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
+
     @Before
     public void setUp(){
         when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);    
         when(configurationExplorer.getDomainObjectRootType(anyString())).thenReturn("person");
         when(configurationExplorer.getConfig(eq(DomainObjectTypeConfig.class), anyString())).thenReturn(new DomainObjectTypeConfig());
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
-        
+        when(currentUserAccessor.getCurrentUserId()).thenReturn(new RdbmsId(1, 1));
+
+        domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
+        domainObjectQueryHelper.setUserGroupCache(userGroupCache);
     }
     
     @Test
@@ -141,7 +156,8 @@ public class SqlQueryModifierTest {
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
         configuration.getConfigurationList().add(globalSettings);
         ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
-        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        SqlQueryModifier collectionQueryModifier = new SqlQueryModifier(configurationExplorer, userGroupCache,
+                currentUserAccessor, domainObjectQueryHelper);
         SqlQueryParser sqlQueryParser = new SqlQueryParser(PLAIN_SELECT_QUERY);
 
         collectionQueryModifier.addServiceColumns(sqlQueryParser.getSelectStatement());
@@ -173,7 +189,7 @@ public class SqlQueryModifierTest {
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     @Test

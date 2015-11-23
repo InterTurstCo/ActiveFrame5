@@ -98,6 +98,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private ServerComponentService serverComponentService;
 
+    @Autowired
+    protected DomainObjectQueryHelper domainObjectQueryHelper;
+
     
     public CurrentUserAccessor getCurrentUserAccessor() {
         return currentUserAccessor;
@@ -125,6 +128,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     public void setCollectionQueryCache(CollectionQueryCache collectionQueryCache) {
         this.collectionQueryCache = collectionQueryCache;
+    }
+
+    public void setDomainObjectQueryHelper(DomainObjectQueryHelper domainObjectQueryHelper) {
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -556,7 +563,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     private void addReferenceParameters(Map<String, Object> parameters, List<? extends Value> params) {
@@ -691,7 +698,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
-        return new CollectionQueryInitializerImpl(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new CollectionQueryInitializerImpl(configurationExplorer, userGroupCache,
+                currentUserAccessor, domainObjectQueryHelper);
     }
 
     /**

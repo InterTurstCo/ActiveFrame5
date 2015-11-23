@@ -100,7 +100,7 @@
 
     <bean id="personManagement" factory-bean="daoFactory" factory-method="createPersonManagementServiceDao"/>
 
-    <bean id="domainObjectQueryHelper" class="ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper"/>
+    <bean id="domainObjectQueryHelper" factory-bean="daoFactory" factory-method="createQueryHelper"/>
 
     <bean id="identifiableObjectConverter" class="ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter"/>
 

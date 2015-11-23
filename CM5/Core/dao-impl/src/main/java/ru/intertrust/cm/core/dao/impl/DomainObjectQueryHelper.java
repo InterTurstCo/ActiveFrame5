@@ -29,13 +29,13 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 public class DomainObjectQueryHelper {
 
     @Autowired
-    private ConfigurationExplorer configurationExplorer;
+    protected ConfigurationExplorer configurationExplorer;
 
     @Autowired
-    private CurrentUserAccessor currentUserAccessor;
+    protected CurrentUserAccessor currentUserAccessor;
     
     @Autowired
-    private UserGroupGlobalCache userGroupCache;
+    protected UserGroupGlobalCache userGroupCache;
 
     public void setCurrentUserAccessor(CurrentUserAccessor currentUserAccessor) {
         this.currentUserAccessor = currentUserAccessor;
@@ -208,6 +208,61 @@ public class DomainObjectQueryHelper {
         return typeName;
     }
 
+    public void appendAccessControlLogicToQuery(StringBuilder query, String linkedType) {
+        boolean isAuditLog = configurationExplorer.isAuditLogType(linkedType);
+        String originalLinkedType = DataStructureNamingHelper.getSqlName(linkedType);
+
+        // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+        linkedType = getRelevantType(linkedType);
+
+        Id personId = currentUserAccessor.getCurrentUserId();
+        boolean isAdministratorWithAllPermissions = isAdministratorWithAllPermissions(personId, linkedType);
+
+        //Добавляем учет ReadPermittedToEverybody
+        if (!(configurationExplorer.isReadPermittedToEverybody(linkedType) || isAdministratorWithAllPermissions)) {
+            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
+            linkedType = getRelevantType(linkedType);
+            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
+            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(linkedType);
+            String childAclReadTable = null;
+            if (matrixReferenceTypeName != null){
+                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
+            }else{
+                childAclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, linkedType);
+            }
+            String topLevelParentType = ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, linkedType);
+            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
+
+            String rootType = configurationExplorer.getDomainObjectRootType(linkedType).toLowerCase();
+
+            query.append(" and exists (select r." + wrap("object_id") + " from ").append(wrap(childAclReadTable)).append(" r");
+
+            query.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.").append(DaoUtils.wrap("group_id"))
+                    .append(" = gg.").append(DaoUtils.wrap("parent_group_id"));
+            query.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
+                    .append(DaoUtils.wrap("child_group_id")).append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            query.append(" inner join ").append(DaoUtils.wrap(rootType)).append(" rt on r.")
+                    .append(DaoUtils.wrap("object_id"))
+                    .append(" = rt.").append(DaoUtils.wrap("access_object_id"));
+            if (isAuditLog) {
+                query.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalLinkedType).append(".")
+                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
+            }
+
+            query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and rt.").append(wrap("id")).append(" = ");
+            if (!isAuditLog) {
+                query.append(originalLinkedType).append(".").append(DaoUtils.wrap(ID_COLUMN));
+            } else {
+                query.append(topLevelAuditTable).append(".").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
+            }
+            query.append(")");
+        }
+    }
+
+    protected boolean isAdministratorWithAllPermissions(Id personId, String domainObjectType) {
+        return AccessControlUtility.isAdministratorWithAllPermissions(personId, domainObjectType, userGroupCache, configurationExplorer);
+    }
+
     protected String generateFindQuery(String typeName, AccessToken accessToken, boolean lock, StringBuilder joinClause,
                                      StringBuilder whereClause, StringBuilder orderClause, boolean isSingleDomainObject) {
         String tableAlias = getSqlAlias(typeName);
@@ -236,7 +291,7 @@ public class DomainObjectQueryHelper {
         return query.toString();
     }
 
-    private void appendAccessRightsPart(String typeName, AccessToken accessToken, String tableAlias, StringBuilder query, boolean isSingleDomainObject) {
+    protected void appendAccessRightsPart(String typeName, AccessToken accessToken, String tableAlias, StringBuilder query, boolean isSingleDomainObject) {
         /* IN CASE OF SINGLE DOMAIN OBJECT
          * and exists (
          *      select a."object_id" from "country_read" a
@@ -317,7 +372,7 @@ public class DomainObjectQueryHelper {
         }
     }
 
-    private boolean isReadEveryBody(String domainObjectType) {
+    protected boolean isReadEveryBody(String domainObjectType) {
         return configurationExplorer.isReadPermittedToEverybody(domainObjectType);
     }
 

@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.ObjectCloner;
@@ -68,13 +69,16 @@ public class SqlQueryModifier {
 
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     Map<String, Map<String, List<SelectItem>>> withItemColumnReplacementMap;
 
-    public SqlQueryModifier(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
+    public SqlQueryModifier(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+                            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -289,7 +293,8 @@ public class SqlQueryModifier {
         SqlQueryParser sqlParser = new SqlQueryParser(query);
         SelectBody selectBody = sqlParser.getSelectBody();
         
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache,
+                currentUserAccessor, domainObjectQueryHelper);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
@@ -298,7 +303,8 @@ public class SqlQueryModifier {
     }
 
     public SelectBody addAclQuery(SelectBody selectBody) {
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
+        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache,
+                currentUserAccessor, domainObjectQueryHelper);
         selectBody.accept(aclVistor);
         String modifiedQuery = selectBody.toString();
         modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);

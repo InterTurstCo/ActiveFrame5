@@ -13,6 +13,7 @@ public class OracleCollectionsDaoImpl extends CollectionsDaoImpl {
 
     @Override
     protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
-        return new OracleCollectionQueryInitializerImpl(configurationExplorer, getUserGroupCache(), getCurrentUserAccessor());
+        return new OracleCollectionQueryInitializerImpl(configurationExplorer, getUserGroupCache(),
+                getCurrentUserAccessor(), domainObjectQueryHelper);
     }
 }

@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.CollectionQueryInitializerImpl;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 
 /**
  * Oracle-специфичная имплементация {@link ru.intertrust.cm.core.dao.impl.CollectionQueryInitializer }
@@ -13,8 +14,8 @@ import ru.intertrust.cm.core.dao.impl.CollectionQueryInitializerImpl;
 public class OracleCollectionQueryInitializerImpl extends CollectionQueryInitializerImpl {
 
     public OracleCollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
-            CurrentUserAccessor currentUserAccessor) {
-        super(configurationExplorer, userGroupCache, currentUserAccessor);
+            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
+        super(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     @Override

@@ -23,6 +23,4 @@ public class OracleDaoFactoryImpl extends AbstractDaoFactory {
     public IdGenerator createIdGenerator() {
         return new OracleSequenceIdGenerator();
     }
-
-
 }
