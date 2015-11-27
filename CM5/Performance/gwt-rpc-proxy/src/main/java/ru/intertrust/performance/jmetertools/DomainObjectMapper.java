@@ -118,4 +118,9 @@ public class DomainObjectMapper {
             }
         }
     }
+    
+    public void clear(){
+        doMap.clear();
+    }
+    
 }

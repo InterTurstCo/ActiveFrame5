@@ -135,4 +135,8 @@ public class IdsMapper {
             log.info("In field " + field + " replace " + savedId + " to " + idsMap.get(savedId));
         }
     }
+    
+    public void clear(){
+        idsMap.clear();
+    }
 }

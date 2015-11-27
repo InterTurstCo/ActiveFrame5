@@ -1,7 +1,6 @@
 package ru.intertrust.performance.jmetertools;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -12,17 +11,18 @@ import java.util.Random;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
-import org.apache.jmeter.testelement.property.JMeterProperty;
 import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
@@ -204,12 +204,61 @@ public class GwtUtil {
      * @param responce
      * @return
      */
-    public static Id getRndCollectionsRow(Dto responce) {
-        CollectionPluginData collectionPluginData = (CollectionPluginData) responce;
-        CollectionRowItem item = collectionPluginData.getItems().get(rnd.nextInt(collectionPluginData.getItems().size()));
-        return item.getId();
+    public static CollectionRowItem getRndCollectionsRow(Dto responce) {
+        CollectionPluginData collectionPluginData = null;
+        if (responce instanceof CollectionPluginData){
+            collectionPluginData = (CollectionPluginData) responce;
+        }else if(responce instanceof DomainObjectSurferPluginData){
+            DomainObjectSurferPluginData data = (DomainObjectSurferPluginData)responce;
+            collectionPluginData = data.getCollectionPluginData();
+        }
+        CollectionRowItem row = null;
+        if (collectionPluginData.getItems().size() > 0){
+            row = collectionPluginData.getItems().get(rnd.nextInt(collectionPluginData.getItems().size()));
+        }
+        return row;
     }
 
+    /**
+     * Поиск строки в коллекции по условию
+     * @param responce
+     * @param fieldName
+     * @param value
+     * @return
+     */
+    public static CollectionRowItem findCollectionsRow(Dto responce, String fieldName, Value value) {
+        CollectionPluginData collectionPluginData = null;
+        if (responce instanceof CollectionPluginData){
+            collectionPluginData = (CollectionPluginData) responce;
+        }else if(responce instanceof DomainObjectSurferPluginData){
+            DomainObjectSurferPluginData data = (DomainObjectSurferPluginData)responce;
+            collectionPluginData = data.getCollectionPluginData();
+        }
+        CollectionRowItem row = null;
+        for (CollectionRowItem item : collectionPluginData.getItems()) {                    
+            if (item.getRowValue(fieldName).equals(value)){
+                row = item;
+                break;
+            }
+        }
+        return row;
+    }
+    
+    /**
+     * Очистка соответствия идентификаторов и доменных объектов
+     */
+    public static void clearDomainObjectMaps(JMeterContext context){
+        IdsMapper mapper = (IdsMapper) context.getVariables().getObject("IdsMapper");
+        if (mapper != null) {
+            mapper.clear();
+        }
+        DomainObjectMapper doMapper = (DomainObjectMapper) context.getVariables().getObject("DomainObjectMapper");
+        if (doMapper != null) {
+            doMapper.clear();
+        }
+    }
+
+    
     /**
      * Создание таблицы соответствия идентификаторов Id в записанном скрипте и в реально принятых данных. Должен вызываться после каждого получения Gwt ответа 
      * @param context
