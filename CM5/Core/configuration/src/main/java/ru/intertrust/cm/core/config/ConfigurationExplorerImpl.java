@@ -314,14 +314,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                         new FieldConfigKey(domainObjectConfigName, fieldConfigName, false);
                 result = configStorage.fieldConfigMap.get(fieldConfigKeyWithoutInheritance);
 
-                if (result != null) {
-                    if (NullValues.isNull(result)) {
-                        configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                        return null;
-                    } else {
-                        configStorage.fieldConfigMap.put(fieldConfigKey, result);
-                        return getReturnObject(result);
-                    }
+                if (!NullValues.isNull(result)) {
+                    configStorage.fieldConfigMap.put(fieldConfigKey, result);
+                    return getReturnObject(result);
                 }
 
                 DomainObjectTypeConfig domainObjectTypeConfig =
