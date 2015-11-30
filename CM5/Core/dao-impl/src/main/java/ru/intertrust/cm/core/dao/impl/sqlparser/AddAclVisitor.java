@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
-    private static Map<String, SubSelect> aclSubQueryCache = new HashMap<>();
+    private static Map<String, SelectBody> aclSelectBodyCache = new HashMap<>();
     private static WithItem aclWithItem = null;
 
     private ConfigurationExplorer configurationExplorer;
@@ -96,15 +96,7 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
                     Table table = (Table) joinItem;
                     //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
                     if (needToAddAclSubQuery(table)) {
-                        SubSelect replace = createAclSubSelect(table.getName());
-
-                        if (table.getAlias() == null) {
-                            replace.setAlias(new Alias(table.getName(), false));
-                        } else {
-                            replace.setAlias(table.getAlias());
-                        }
-
-                        join.setRightItem(replace);
+                        join.setRightItem(createAclSubSelect(table));
                     }
                 } else {
                     join.getRightItem().accept(this);
@@ -134,38 +126,25 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
             Table table = (Table) from;
             //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
             if (needToAddAclSubQuery(table)) {
-                SubSelect replace = createAclSubSelect(table.getName());
-
-                if (table.getAlias() == null) {
-                    replace.setAlias(new Alias(table.getName(), false));
-                } else {
-                    replace.setAlias(table.getAlias());
-                }
-
-                plainSelect.setFromItem(replace);
+                plainSelect.setFromItem(createAclSubSelect(table));
             }
         } else {
             plainSelect.getFromItem().accept(this);
         }
     }
 
-    private SubSelect createAclSubSelect(String domainObjectType) {
-        domainObjectType = DaoUtils.unwrap(domainObjectType);
+    private SelectBody getAclSelectBody(Table table) {
+        String tableName = DaoUtils.unwrap(table.getName());
 
-        if (aclSubQueryCache.get(domainObjectType) != null) {
-            if (!aclWithItemAdded) {
-                select.getWithItemsList().add(aclWithItem);
-                aclWithItemAdded = true;
-            }
-
-            return aclSubQueryCache.get(domainObjectType);
+        if (aclSelectBodyCache.get(tableName) != null) {
+            return aclSelectBodyCache.get(tableName);
         } else {
             StringBuilder aclQuery = new StringBuilder();
-            aclQuery.append("select ").append(domainObjectType).append(".* from ").
-                    append(DaoUtils.wrap(domainObjectType)).append(" ").append(domainObjectType).
+            aclQuery.append("select ").append(tableName).append(".* from ").
+                    append(DaoUtils.wrap(tableName)).append(" ").append(tableName).
                     append(" where 1=1");
 
-            domainObjectQueryHelper.appendAccessControlLogicToQuery(aclQuery, domainObjectType);
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(aclQuery, tableName);
 
             SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
             Select aclSelect = aclSqlParser.getSelectStatement();
@@ -174,17 +153,28 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
                 aclWithItem = aclSelect.getWithItemsList().get(0);
             }
 
-            if (!aclWithItemAdded) {
-                select.getWithItemsList().add(aclWithItem);
-                aclWithItemAdded = true;
-            }
+            aclSelectBodyCache.put(tableName, aclSelect.getSelectBody());
 
-            SubSelect aclSubSelect = new SubSelect();
-            aclSubSelect.setSelectBody(aclSelect.getSelectBody());
-            aclSubQueryCache.put(domainObjectType, aclSubSelect);
-
-            return aclSubSelect;
+            return aclSelect.getSelectBody();
         }
+    }
+
+    private SubSelect createAclSubSelect(Table table) {
+        SubSelect aclSubSelect = new SubSelect();
+        aclSubSelect.setSelectBody(getAclSelectBody(table));
+
+        if (table.getAlias() == null) {
+            aclSubSelect.setAlias(new Alias(table.getName(), false));
+        } else {
+            aclSubSelect.setAlias(table.getAlias());
+        }
+
+        if (!aclWithItemAdded) {
+            select.getWithItemsList().add(aclWithItem);
+            aclWithItemAdded = true;
+        }
+
+        return aclSubSelect;
     }
 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
