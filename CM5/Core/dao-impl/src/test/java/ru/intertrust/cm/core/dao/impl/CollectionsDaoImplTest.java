@@ -64,48 +64,48 @@ public class CollectionsDaoImplTest {
                     "FROM person e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
-           "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                   "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                   "WHERE gm.\"person_id\" = :user_id) " +
+                   "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
                    "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
-                   "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
-                   "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                   "gg.\"child_group_id\" = gm.\"usergroup\" " +
+                   "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                   "WHERE gm.\"person_id\" = :user_id AND " +
+                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
                    "rt.\"id\" = person.\"id\")) e INNER JOIN (SELECT department.* " +
-                   "FROM \"department\" department WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-                   "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-                   "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                   "FROM \"department\" department WHERE 1 = 1 AND " +
+                   "EXISTS (SELECT 1 FROM \"department_read\" r " +
                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                   "WHERE gm.\"person_id\" = :user_id AND rt.\"id\" = department.\"id\")) AS d " +
+                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                   "rt.\"id\" = department.\"id\")) AS d " +
                    "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
                     "'employee' \"test_constant\" FROM (SELECT employee.* FROM \"employee\" employee " +
-                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
                     "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
                     "rt.\"id\" = employee.\"id\")) e " +
                     "INNER JOIN (SELECT department.* FROM \"department\" department " +
-                    "WHERE 1 = 1 AND EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
                     "rt.\"id\" = department.\"id\")) d ON e.\"department\" = d.\"id\" " +
                     "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
                     "p.\"created_date\", p.\"updated_date\", 'person' \"test_constant\" FROM " +
-                    "(SELECT person.* FROM \"person\" person WHERE 1 = 1 AND EXISTS " +
-                    "(SELECT r.\"object_id\" FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "(SELECT person.* FROM \"person\" person WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
                     "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE gm.\"person_id\" = :user_id AND " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
                     "rt.\"id\" = person.\"id\")) p WHERE 1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =

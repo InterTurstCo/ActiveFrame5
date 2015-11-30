@@ -283,33 +283,9 @@ public class SqlQueryModifier {
 
         return modifiedQuery;
     }
-    
-    /**
-     * Добавляет ACL фильтр в SQL получения данных для коллекции.
-     * @param query первоначальный запрос
-     * @return запрос с добавленным ACL фильтром
-     */
-    public String addAclQuery(String query) {
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
-        
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache,
-                currentUserAccessor, domainObjectQueryHelper);
-        selectBody.accept(aclVistor);
-        String modifiedQuery = selectBody.toString();
-        modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
-        return modifiedQuery;
 
-    }
-
-    public SelectBody addAclQuery(SelectBody selectBody) {
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache,
-                currentUserAccessor, domainObjectQueryHelper);
-        selectBody.accept(aclVistor);
-        String modifiedQuery = selectBody.toString();
-        modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
-        SqlQueryParser sqlParser = new SqlQueryParser(modifiedQuery);
-        return sqlParser.getSelectBody();
+    public void addAclQuery(Select select) {
+        select.accept(new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper));
     }
 
     public void checkDuplicatedColumns(Select select) {

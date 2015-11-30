@@ -224,10 +224,11 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         SelectBody selectBody = select.getSelectBody();
         selectBody = sqlQueryModifier.addIdBasedFilters(selectBody, filterValues, collectionConfig.getIdField());
-        if (accessToken.isDeferred()) {
-            selectBody = sqlQueryModifier.addAclQuery(selectBody);
-        }
         select.setSelectBody(selectBody);
+
+        if (accessToken.isDeferred()) {
+            sqlQueryModifier.addAclQuery(select);
+        }
 
         sqlQueryModifier.checkDuplicatedColumns(select);
 
@@ -249,11 +250,9 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
         sqlQueryModifier.addServiceColumns(select);
 
-        SelectBody selectBody = select.getSelectBody();
         if (accessToken.isDeferred()) {
-            selectBody = sqlQueryModifier.addAclQuery(selectBody);
+            sqlQueryModifier.addAclQuery(select);
         }
-        select.setSelectBody(selectBody);
 
         sqlQueryModifier.checkDuplicatedColumns(select);
 

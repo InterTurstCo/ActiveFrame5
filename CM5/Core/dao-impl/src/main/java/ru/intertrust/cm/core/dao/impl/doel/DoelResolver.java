@@ -19,10 +19,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,7 +267,10 @@ public class DoelResolver implements DoelEvaluator {
         }
 
         // Формируем запрос в БД
-        PlainSelect select = new PlainSelect();
+        Select select = new Select();
+        PlainSelect plainSelect = new PlainSelect();
+        select.setSelectBody(plainSelect);
+
         ArrayList<Join> joins = new ArrayList<>();
         int tableNum = 0;
         String currentTable = null;
@@ -285,8 +285,8 @@ public class DoelResolver implements DoelEvaluator {
                     from.setName(realTable);
                     from.setAlias(new Alias("t" + tableNum, false));
                     if (linkField == null) {
-                        select.setFromItem(from);
-                        select.setWhere(makeWhere("id", sourceIds));
+                        plainSelect.setFromItem(from);
+                        plainSelect.setWhere(makeWhere("id", sourceIds));
                     } else {
                         Join join = new Join();
                         join.setRightItem(from);
@@ -309,8 +309,8 @@ public class DoelResolver implements DoelEvaluator {
                 from.setName(currentTable);
                 from.setAlias(new Alias("t" + tableNum, false));
                 if (tableNum == 0) {
-                    select.setFromItem(from);
-                    select.setWhere(makeWhere(childrenElem.getParentLink(), sourceIds));
+                    plainSelect.setFromItem(from);
+                    plainSelect.setWhere(makeWhere(childrenElem.getParentLink(), sourceIds));
                 } else {
                     Join join = new Join();
                     join.setRightItem(from);
@@ -349,7 +349,7 @@ public class DoelResolver implements DoelEvaluator {
             }
         }
 
-        select.setJoins(joins);
+        plainSelect.setJoins(joins);
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(branch.getType(), linkField);
         List<String> columns = getColumnNames(Collections.singletonList(fieldConfig));
         ArrayList<SelectItem> fields = new ArrayList<>(columns.size());
@@ -358,10 +358,11 @@ public class DoelResolver implements DoelEvaluator {
             item.setExpression(new Column(new Table(null, "t" + (tableNum - 1)), column));
             fields.add(item);
         }
-        select.setSelectItems(fields);
-        select.accept(new WrapAndLowerCaseSelectVisitor());
+        plainSelect.setSelectItems(fields);
+        plainSelect.accept(new WrapAndLowerCaseSelectVisitor());
+        applyAcl(select, accessToken);
 
-        String query = applyAcl(select, accessToken);
+        String query = select.toString();
         Map<String, Object> parameters = new HashMap<String, Object>();
         applyAclParameters(parameters, accessToken);
 
@@ -420,16 +421,13 @@ public class DoelResolver implements DoelEvaluator {
      * @param accessToken маркер доступа
      * @return измененный SQL запрос
      */
-    private String applyAcl(PlainSelect select, AccessToken accessToken) {
+    private void applyAcl(Select select, AccessToken accessToken) {
         SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
 
         String query = null;
         if (!isSystemAccessToken(accessToken)) {
-            query = sqlQueryModifier.addAclQuery(select.toString());
-        } else {
-            query = select.toString();
+            sqlQueryModifier.addAclQuery(select);
         }
-        return query;
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
