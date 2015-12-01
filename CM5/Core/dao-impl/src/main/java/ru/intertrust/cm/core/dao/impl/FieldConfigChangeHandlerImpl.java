@@ -34,6 +34,8 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
 
         if (newFieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof StringFieldConfig) {
             handle((StringFieldConfig) newFieldConfig, (StringFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+        } else if (newFieldConfig instanceof TextFieldConfig && oldFieldConfig instanceof StringFieldConfig) {
+            handle((TextFieldConfig) newFieldConfig, (StringFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof PasswordFieldConfig && oldFieldConfig instanceof PasswordFieldConfig) {
             handle((PasswordFieldConfig) newFieldConfig, (PasswordFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof ReferenceFieldConfig && oldFieldConfig instanceof ReferenceFieldConfig) {
@@ -41,6 +43,10 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
+    }
+
+    private void handle(TextFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
     }
 
     private void handle(StringFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -127,7 +133,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
 
         if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
-                !dataStructureDao.getSqlType(newFieldConfig).startsWith(columnInfo.getDataType())) {
+                !dataStructureDao.getSqlType(newFieldConfig).startsWith(columnInfo.getDataType()) &&
+                !(TextFieldConfig.class.equals(newFieldConfig.getClass()) &&
+                        StringFieldConfig.class.equals(oldFieldConfig.getClass()))) {
             throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
                     domainObjectTypeConfig.getName() + " from " +
                     oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());
