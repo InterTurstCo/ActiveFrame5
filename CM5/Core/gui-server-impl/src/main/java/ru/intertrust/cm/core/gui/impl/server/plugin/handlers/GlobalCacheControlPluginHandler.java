@@ -14,7 +14,7 @@ import ru.intertrust.cm.core.gui.model.plugin.GlobalCacheStatPanel;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -119,7 +119,7 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
     }
 
     public Dto resetHourlyStatistics(Dto request){
-        globalCacheManager.clearStatistics(false);
+        globalCacheManager.clearStatistics(true);
         return request;
     }
 
@@ -134,7 +134,7 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         globalCacheManager.setDebugEnabled(globalCachePluginData.getControlPanelModel().isDebugMode());
         globalCacheManager.setExtendedStatisticsEnabled(globalCachePluginData.getControlPanelModel().isExpandedStatistics());
 
-        Map<String, Serializable> settings = globalCacheManager.getSettings();
+        Map<String, Serializable> settings = new HashMap<>(globalCacheManager.getSettings());
         if(globalCachePluginData.getControlPanelModel().getMaxSize()!=0){
             settings.put("global.cache.max.size",globalCachePluginData.getControlPanelModel().getMaxSize());
         }

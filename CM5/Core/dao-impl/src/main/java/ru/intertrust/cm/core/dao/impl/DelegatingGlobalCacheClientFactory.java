@@ -111,10 +111,9 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
 
         final GlobalCacheClient currentImpl = switchableClient.getGlobalCacheClientImpl();
         switchableClient.setGlobalCacheClientImpl(newImpl);
-        if (!enabled) {
-            currentImpl.deactivate();
-        } else {
-            currentImpl.activate(false);
+        currentImpl.deactivate();
+        if (enabled) {
+            newImpl.activate(false);
         }
         return this.enabled;
     }

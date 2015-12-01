@@ -9,13 +9,16 @@ import java.util.Map;
 public class PlaceholderResolver {
 
     public static String substitute(String string, Map<String, ? extends Object> properties) {
+        if (string == null) {
+            return string;
+        }
         StringBuilder sb = new StringBuilder(string);
         if (properties != null) {
             for (Map.Entry<String, ? extends Object> entry : properties.entrySet()) {
                 String key = parenthesize(entry.getKey());
                 String value = entry.getValue() != null ? entry.getValue().toString() : "";
                 replaceAll(sb, key, value);
-             }
+            }
         }
         return sb.toString();
     }
