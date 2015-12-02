@@ -7,6 +7,8 @@ import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import ru.intertrust.cm.core.model.FatalException;
 @Local(ImportDataService.class)
 @Remote(ImportDataService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class ImportDataServiceImpl implements ImportDataService {
 
     @Autowired
@@ -49,7 +52,7 @@ public class ImportDataServiceImpl implements ImportDataService {
     public List<Id> importData(byte[] importFileAsByteArray, String encoding, boolean owerwrite, String attachmentBasePath) {
         try {
             ImportData importData = (ImportData) springContext.getBean(ImportData.PERSON_IMPORT_BEAN);
-            return importData.importData(importFileAsByteArray, encoding, owerwrite, attachmentBasePath);
+            return importData.importData(importFileAsByteArray, encoding, owerwrite, attachmentBasePath, context.getUserTransaction());
         } catch (Exception ex) {
             throw new FatalException("Error load data", ex);
         }
