@@ -250,11 +250,39 @@ public class TestProcess extends ClientBase {
             attachment = crudService.find(attachment.getId());
             assertTrue("Check signalintermediatecatchevent1", attachment.getString("test_text").endsWith("Получили уведомление 5."));     
             
-            //Спим больее минуты, должен сработать таймер
+            //Проверяем что таймер еще не сработал
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check timer start", attachment.getString("test_text").endsWith("Получили уведомление 5."));     
+            
+            //Спим более минуты, должен сработать таймер
             Thread.currentThread().sleep(65000);
             attachment = crudService.find(attachment.getId());
-            assertTrue("Check timer", attachment.getString("test_text").endsWith("Сработал таймер."));     
+            assertTrue("Check timer end", attachment.getString("test_text").endsWith("Сработал таймер."));     
             
+            personActionService = getActionService("person5");
+            actions = personActionService.getActions(attachment.getId());
+
+            // Получение всех задач по документу и их завершение
+            for (ActionContext actionContext : actions) {
+                context = (SimpleActionContext) actionContext;
+                config = (SimpleActionConfig) context.getActionConfig();
+                getProcessService("person5").completeTask(new RdbmsId((String) config.getProperty("complete.task.id")), null,
+                        (String) config.getProperty("complete.task.action"));
+            }            
+            
+            //Проверяем что таймер еще не сработал
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check timer 2 start", attachment.getString("test_text").endsWith("Сработал таймер."));                 
+            
+            //Спим более минуты, должен сработать второй таймер
+            Thread.currentThread().sleep(65000);
+            
+            //Проверяем таймер повторно
+            attachment = crudService.find(attachment.getId());
+            assertTrue("Check timer 2 end", attachment.getString("test_text").endsWith("Сработал таймер 2."));                 
+            
+            //Получаем сервис чтоб удалить под admin
+            getProcessService("admin");
             crudService.delete(attachmentNotInProcess.getId());
 
             log("Test complete");
