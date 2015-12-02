@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
@@ -19,7 +20,6 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.AnnotationScanCallback;
 import ru.intertrust.cm.core.util.AnnotationScanner;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

@@ -1,7 +1,9 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -13,11 +15,10 @@ import java.util.*;
  * Date: 23.05.13
  * Time: 10:54
  */
-public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection {
+public class GenericIdentifiableObjectCollection implements IdentifiableObjectCollection, Cloneable {
 
     private ArrayList<FastIdentifiableObjectImpl> list = new ArrayList<>();
     private CaseInsensitiveMap<Integer> fieldIndexes = new CaseInsensitiveMap<>();
-    private ArrayList<String> fields;
     private ArrayList<FieldConfig> fieldConfigs;
 
     public GenericIdentifiableObjectCollection() {
@@ -187,6 +188,21 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         return new HashSet<>(list).equals(new HashSet<>(objCollection.list));
     }
 
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        final GenericIdentifiableObjectCollection clone = (GenericIdentifiableObjectCollection) super.clone();
+        ArrayList<FastIdentifiableObjectImpl> listClone = new ArrayList<>(list.size());
+        for (FastIdentifiableObjectImpl fastIdentifiableObject : clone.list) {
+            listClone.add((FastIdentifiableObjectImpl) fastIdentifiableObject.clone());
+        }
+
+        clone.list = listClone;
+        clone.fieldIndexes = (CaseInsensitiveMap<Integer>) fieldIndexes.clone();
+        clone.fieldConfigs = ObjectCloner.getInstance().cloneObject(fieldConfigs);
+        return clone;
+    }
+
     private FastIdentifiableObjectImpl createObjectByTemplate() {
         if (fieldConfigs == null) {
             setFieldsConfiguration(new ArrayList<FieldConfig>(0));
@@ -197,7 +213,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     /**
      * Имплементация, позволяющая получить быстрый доступ к значениям полей по индексу
      */
-    static class FastIdentifiableObjectImpl implements IdentifiableObject {
+    static class FastIdentifiableObjectImpl implements IdentifiableObject, Cloneable {
         private Id id;
         private ArrayList<Value> fieldValues;
         private IdentifiableObjectCollection collection;
@@ -460,6 +476,25 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
                 result.add(config.getName());
             }            
             return result;
+        }
+
+        @Override
+        @GwtIncompatible
+        public Object clone() {
+            try {
+                final FastIdentifiableObjectImpl clone = (FastIdentifiableObjectImpl) super.clone();
+                ArrayList<Value> clonedFieldValues = (ArrayList<Value>) fieldValues.clone();
+                final ObjectCloner cloner = ObjectCloner.getInstance();
+                for (int i = 0; i < clonedFieldValues.size(); i++) {
+                    Value fieldValue = clonedFieldValues.get(i);
+                    if (fieldValue != null && !fieldValue.isImmutable()) {
+                        clonedFieldValues.set(i, cloner.cloneObject(fieldValue));
+                    }
+                }
+                clone.fieldValues = clonedFieldValues;
+            } catch (CloneNotSupportedException e) { // impossible
+            }
+            return this;
         }
 
         @Override

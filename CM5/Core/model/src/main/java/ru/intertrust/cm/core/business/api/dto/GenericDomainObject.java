@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.SystemField;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
  * <p/>
  * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
-public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
+public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject, Cloneable {
 
     private String typeName;
 
@@ -149,6 +150,12 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     @Override
     public boolean isNew() {
         return (getId() == null);
+    }
+
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override

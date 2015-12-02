@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -36,6 +35,14 @@ public abstract class Value<T extends Value<T>> implements Dto, Comparable<T> {
      */
     public final FieldType getFieldType() {
         return FieldType.find(getClass());
+    }
+
+    /**
+     * Возвращает true, если состояние объекта невозможно изменить ничем, кроме механизмов рефлексии (Reflection). В противном случае возвращает false
+     * @return true, если состояние объекта невозможно изменить ничем, кроме механизмов рефлексии (Reflection). В противном случае возвращает false
+     */
+    public boolean isImmutable() {
+        return false;
     }
 
     @Override

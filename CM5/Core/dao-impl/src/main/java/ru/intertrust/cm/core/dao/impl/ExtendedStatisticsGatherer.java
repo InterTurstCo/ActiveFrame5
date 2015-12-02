@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;

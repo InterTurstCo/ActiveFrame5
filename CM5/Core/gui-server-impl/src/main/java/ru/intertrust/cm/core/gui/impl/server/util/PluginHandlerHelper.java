@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -26,7 +27,6 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.model.UnexpectedException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.StringWriter;
 import java.util.ArrayList;

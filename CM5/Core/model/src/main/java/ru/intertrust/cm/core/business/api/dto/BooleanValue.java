@@ -43,6 +43,11 @@ public class BooleanValue extends Value<BooleanValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(BooleanValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

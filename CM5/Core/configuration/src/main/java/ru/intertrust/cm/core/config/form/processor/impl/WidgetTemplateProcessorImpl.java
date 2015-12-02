@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.form.processor.impl;
 
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.FormProcessingUtil;
 import ru.intertrust.cm.core.config.form.processor.WidgetTemplateProcessor;
@@ -8,7 +9,6 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.template.OverrideConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.template.TemplateBasedWidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.template.WidgetTemplateConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

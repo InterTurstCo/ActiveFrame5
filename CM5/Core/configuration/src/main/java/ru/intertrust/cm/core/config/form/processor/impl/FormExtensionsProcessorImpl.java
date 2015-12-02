@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.form.processor.impl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
@@ -15,7 +16,6 @@ import ru.intertrust.cm.core.config.gui.form.extension.markup.MarkupExtensionCon
 import ru.intertrust.cm.core.config.gui.form.extension.widget.configuration.WidgetConfigurationExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.WidgetGroupsExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.ArrayList;
 import java.util.List;

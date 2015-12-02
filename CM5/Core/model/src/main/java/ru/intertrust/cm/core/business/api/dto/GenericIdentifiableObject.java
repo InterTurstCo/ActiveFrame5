@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -10,7 +12,7 @@ import java.util.*;
  * Date: 23.05.13
  * Time: 17:13
  */
-public class GenericIdentifiableObject implements IdentifiableObject {
+public class GenericIdentifiableObject implements IdentifiableObject, Cloneable {
 
     private Id id;
     protected LinkedHashMap<String, Value> fieldValues;
@@ -319,5 +321,23 @@ public class GenericIdentifiableObject implements IdentifiableObject {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        final GenericIdentifiableObject clone = (GenericIdentifiableObject) super.clone();
+        // id is immutable, nothing to do with it
+        clone.originalKeys = new LinkedHashSet<>(clone.originalKeys); // everything is a string, so just put them into a different map
+        clone.fieldValues = new LinkedHashMap<>(clone.fieldValues);
+
+        final ObjectCloner cloner = ObjectCloner.getInstance();
+        for (Map.Entry<String, Value> stringValueEntry : clone.fieldValues.entrySet()) {
+            final Value value = stringValueEntry.getValue();
+            if (value != null && !value.isImmutable()) {
+                stringValueEntry.setValue(cloner.cloneObject(value));
+            }
+        }
+        return clone;
     }
 }

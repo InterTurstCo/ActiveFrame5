@@ -5,13 +5,13 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;

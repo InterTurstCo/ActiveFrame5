@@ -31,6 +31,11 @@ public class DateTimeValue extends Value<DateTimeValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(DateTimeValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

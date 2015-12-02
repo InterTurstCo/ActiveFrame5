@@ -37,6 +37,11 @@ public class LongValue extends Value<LongValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(LongValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

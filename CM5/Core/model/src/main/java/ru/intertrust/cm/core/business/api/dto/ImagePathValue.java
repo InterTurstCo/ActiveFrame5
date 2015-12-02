@@ -26,6 +26,11 @@ public class ImagePathValue extends Value<ImagePathValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(ImagePathValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

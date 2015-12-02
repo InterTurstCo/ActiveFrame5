@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.access.AccessVerificationService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.gui.form.widget.FillParentOnAddConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectHyperlinkConfig;
@@ -30,7 +31,6 @@ import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 import java.util.regex.Matcher;

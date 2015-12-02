@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -18,7 +19,6 @@ import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.*;
 import java.util.concurrent.locks.Lock;

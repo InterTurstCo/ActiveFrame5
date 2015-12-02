@@ -40,6 +40,11 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
         return value;
     }
 
+    @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
     public DateTimeWithTimeZone getValue() {
         return value;
     }

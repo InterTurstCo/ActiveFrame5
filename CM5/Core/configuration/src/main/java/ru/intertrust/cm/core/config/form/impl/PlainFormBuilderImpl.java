@@ -2,11 +2,11 @@ package ru.intertrust.cm.core.config.form.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormTemplateProcessor;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 /**
  * @author Yaroslav Bondarchuk

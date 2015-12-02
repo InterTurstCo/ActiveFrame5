@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
 /**
  * Критерий сортировки
  *
@@ -7,7 +9,7 @@ package ru.intertrust.cm.core.business.api.dto;
  * Date: 22.05.13
  * Time: 23:32
  */
-public class SortCriterion implements Dto {
+public class SortCriterion implements Dto, Cloneable {
     /**
      * Порядок сортировки
      */
@@ -58,6 +60,12 @@ public class SortCriterion implements Dto {
      */
     public Order getOrder() {
         return order;
+    }
+
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     @Override

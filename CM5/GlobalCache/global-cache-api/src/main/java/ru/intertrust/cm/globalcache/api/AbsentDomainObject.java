@@ -12,7 +12,7 @@ import java.util.Map;
  *         Date: 10.07.2015
  *         Time: 15:18
  */
-public class AbsentDomainObject implements DomainObject {
+public class AbsentDomainObject implements DomainObject, Cloneable {
     public static final DomainObject INSTANCE = new AbsentDomainObject();
 
     AbsentDomainObject() {
@@ -194,5 +194,10 @@ public class AbsentDomainObject implements DomainObject {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return this == INSTANCE ? this : super.clone();
     }
 }

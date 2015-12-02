@@ -1,11 +1,10 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.Date;
+import java.util.*;
 
 /**
  * Фильтр, используемый в основном для отсеивания результатов коллекций
@@ -14,7 +13,7 @@ import java.util.Date;
  * Date: 24.05.13
  * Time: 13:53
  */
-public class Filter implements Dto {
+public class Filter implements Dto, Cloneable {
 
     /**
      * содержит имя фильтра
@@ -251,5 +250,33 @@ public class Filter implements Dto {
     @Override
     public int hashCode() {
         return parameterMap.hashCode();
+    }
+
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        final Filter clone = (Filter) super.clone();
+        if (isSingleParameterMap != null) {
+            clone.isSingleParameterMap = (HashMap<Integer, Boolean>) isSingleParameterMap.clone();
+        }
+        if (parameterMap != null) {
+            final ObjectCloner cloner = ObjectCloner.getInstance();
+            final HashMap<Integer, List<Value>> clonedParameterMap = (HashMap<Integer, List<Value>>) parameterMap.clone();
+            for (Map.Entry<Integer, List<Value>> entry : clonedParameterMap.entrySet()) {
+                final List<Value> list = entry.getValue();
+                if (list != null) {
+                    final ArrayList<Value> listClone = new ArrayList<>(list);
+                    entry.setValue(listClone);
+                    for (int i = 0; i < listClone.size(); i++) {
+                        final Value value = listClone.get(i);
+                        if (value != null && !value.isImmutable()) {
+                            listClone.set(i, cloner.cloneObject(value));
+                        }
+                    }
+                }
+            }
+            clone.parameterMap = clonedParameterMap;
+        }
+        return clone;
     }
 }

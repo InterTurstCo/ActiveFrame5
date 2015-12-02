@@ -42,6 +42,11 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(TimelessDateValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

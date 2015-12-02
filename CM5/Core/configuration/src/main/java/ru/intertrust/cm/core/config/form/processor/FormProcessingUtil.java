@@ -1,11 +1,11 @@
 package ru.intertrust.cm.core.config.form.processor;
 
 import org.springframework.beans.BeanUtils;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 import ru.intertrust.cm.core.util.ReflectionUtil;
 
 import java.lang.reflect.Field;

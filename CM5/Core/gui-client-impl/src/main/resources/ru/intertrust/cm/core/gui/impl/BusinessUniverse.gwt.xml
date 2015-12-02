@@ -13,7 +13,6 @@
     <!-- for correct viewing names of GWT css classes -->
     <set-configuration-property name="CssResource.style" value="pretty"/>
 
-    <inherits name="ru.intertrust.cm.core.config.Configuration"/>
     <source path="client"/>
     <source path="images"/>
 

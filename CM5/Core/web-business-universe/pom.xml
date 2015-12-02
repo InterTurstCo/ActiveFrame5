@@ -51,6 +51,9 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
                             </modules>
+                            <!--<logLevel>
+                                DEBUG
+                            </logLevel>-->
                         </configuration>
                         <goals>
                             <goal>compile</goal>

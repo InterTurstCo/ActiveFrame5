@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.model.GwtIncompatible;
+
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -10,7 +12,7 @@ import java.util.Set;
  * @author atsvetkov
  *
  */
-public class CaseInsensitiveMap<T> implements Dto {
+public class CaseInsensitiveMap<T> implements Dto, Cloneable {
 
     protected LinkedHashMap<String, T> map = new LinkedHashMap<>();
 
@@ -52,6 +54,13 @@ public class CaseInsensitiveMap<T> implements Dto {
         map.clear();
     }
 
+    @Override
+    @GwtIncompatible
+    protected Object clone() throws CloneNotSupportedException {
+        final CaseInsensitiveMap clone = (CaseInsensitiveMap) super.clone();
+        clone.map = new LinkedHashMap(clone.map);
+        return clone;
+    }
 
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;
@@ -60,5 +69,4 @@ public class CaseInsensitiveMap<T> implements Dto {
         }
         return lowerCaseKey;
     }
-
 }
