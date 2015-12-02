@@ -343,7 +343,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         if (collectionQueryCache != null) {
             return collectionQueryCache.getMaxSize();
         } else {
-            return new Integer(0);
+            return 1000;
         }
     }
     
