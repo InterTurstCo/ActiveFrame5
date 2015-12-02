@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -35,7 +36,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -561,7 +561,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     private List<WidgetConfig> getWidgetConfigs(String formName) {
-        FormConfig formConfig = configurationService.getConfig(FormConfig.class, formName);
+        FormConfig formConfig = configurationService.getPlainFormConfig(formName);
         return formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
     }
 
