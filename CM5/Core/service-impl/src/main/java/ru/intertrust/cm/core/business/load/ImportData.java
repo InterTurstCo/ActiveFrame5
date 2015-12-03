@@ -121,6 +121,7 @@ public class ImportData {
     private LinkedHashSet<Id> importedIds;
     private boolean systemPermission;
     private String attachmentBasePath;
+    private boolean inTransaction;
 
     /**
      * Конструктор. Инициалитзирует класс флагом с какими правами должен
@@ -247,11 +248,12 @@ public class ImportData {
     }
 
     private void commitTransactionIfNeed(UserTransaction transaction, int lineNum) throws SecurityException, IllegalStateException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-        if (transaction != null){
+        if (transaction != null && inTransaction){
             if (((lineNum+1) % rowsInOneTransaction) == 0){
                 if (transaction.getStatus() == javax.transaction.Status.STATUS_ACTIVE){
                     transaction.commit();
                     logger.info("Commit transaction on block " + (lineNum / rowsInOneTransaction));
+                    inTransaction = false;
                 }else{
                     throw new FatalException("Transaction can not committed. Transaction status " + transaction.getStatus());
                 }
@@ -260,10 +262,11 @@ public class ImportData {
     }
 
     private void commitTransaction(UserTransaction transaction) throws SecurityException, IllegalStateException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-        if (transaction != null){
+        if (transaction != null && inTransaction){
             if (transaction.getStatus() == javax.transaction.Status.STATUS_ACTIVE){
                 transaction.commit();
                 logger.info("Commit transaction on file or partition");
+                inTransaction = false;
             }else{
                 throw new FatalException("Transaction can not committed. Transaction status " + transaction.getStatus());
             }
@@ -277,6 +280,7 @@ public class ImportData {
                 transaction.setTransactionTimeout(transactionTimeout);
                 transaction.begin();
                 logger.info("Begin transaction on block " + (lineNum / rowsInOneTransaction));
+                inTransaction = true;
             }
         }
     }
