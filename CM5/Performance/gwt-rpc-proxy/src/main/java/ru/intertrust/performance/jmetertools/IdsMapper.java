@@ -58,7 +58,7 @@ public class IdsMapper {
             InvocationTargetException {
         Id saveId = (Id) field.get(savedResponce);
         Id realId = (Id) field.get(realResponce);
-        if (saveId != null && !saveId.equals(realId)) {
+        if (saveId != null && !saveId.equals(realId) && realId != null) {
             idsMap.put(saveId, realId);
         }
     }

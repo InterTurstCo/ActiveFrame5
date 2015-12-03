@@ -59,7 +59,7 @@ public class DomainObjectMapper {
             InvocationTargetException {
         DomainObject saveDo = (DomainObject) field.get(savedResponce);
         DomainObject realDo = (DomainObject) field.get(realResponce);
-        if (saveDo != null && saveDo.getId() != null) {
+        if (saveDo != null && saveDo.getId() != null && realDo != null) {
             doMap.put(saveDo.getId(), realDo);
         }
     }

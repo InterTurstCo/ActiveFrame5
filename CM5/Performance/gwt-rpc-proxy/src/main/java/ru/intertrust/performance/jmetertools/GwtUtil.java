@@ -16,11 +16,12 @@ import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
+import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
@@ -219,6 +220,19 @@ public class GwtUtil {
         return row;
     }
 
+    public static SuggestionItem getRndSuggestionItem(Dto responce) {
+        SuggestionList suggestionList = null;
+        if (responce instanceof SuggestionList){
+            suggestionList = (SuggestionList) responce;
+        }
+        SuggestionItem suggestionItem = null;
+        if (suggestionList != null && suggestionList.getSuggestions().size() > 0){
+            suggestionItem = suggestionList.getSuggestions().get(rnd.nextInt(suggestionList.getSuggestions().size()));
+        }
+        return suggestionItem;
+    }
+    
+    
     /**
      * Поиск строки в коллекции по условию
      * @param responce
