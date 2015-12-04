@@ -65,7 +65,7 @@ public class GlobalCacheControlView extends PluginView {
         extendedStatPanel = new AbsolutePanel();
         cacheCleaningPanel = new AbsolutePanel();
         controlPanel = new AbsolutePanel();
-        shortStatGrid = new Grid(1, 6);
+        shortStatGrid = new Grid(1, 8);
         cacheCleaningTable = new FlexTable();
         controlAlert = new FlexTable();
     }
@@ -198,6 +198,8 @@ public class GlobalCacheControlView extends PluginView {
         shortStatGrid.setWidget(0, 3, new Label(globalCachePluginData.getStatPanel().getFreeSpacePercentage() + PERCENT));
         shortStatGrid.setWidget(0, 4, new Label(GlobalCacheControlUtils.LBL_SHORT_STAT_HITS));
         shortStatGrid.setWidget(0, 5, new Label(globalCachePluginData.getStatPanel().getHitCount() + PERCENT));
+        shortStatGrid.setWidget(0, 6, new Label(GlobalCacheControlUtils.LBL_CONTROL_PANEL_MAX_SIZE));
+        shortStatGrid.setWidget(0, 7, new Label(globalCachePluginData.getControlPanelModel().getMaxSize()/1024/1024 + MEGABYTES));
     }
 
     private void buildExtendedStatisticsPanel() {
@@ -413,7 +415,7 @@ public class GlobalCacheControlView extends PluginView {
         for (String key : globalCachePluginData.getControlPanelModel().getUoms().keySet()) {
             uomListBox.addItem(globalCachePluginData.getControlPanelModel().getUoms().get(key), key);
         }
-        uomListBox.setItemSelected(1, true);
+        uomListBox.setItemSelected(globalCachePluginData.getControlPanelModel().getUomIndex(),true);
 
         maxSizePanel.add(uomListBox);
         controlGrid.setWidget(1, 3, maxSizePanel);

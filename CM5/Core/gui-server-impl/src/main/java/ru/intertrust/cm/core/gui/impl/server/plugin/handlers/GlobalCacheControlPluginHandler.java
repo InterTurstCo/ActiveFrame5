@@ -135,9 +135,17 @@ public class GlobalCacheControlPluginHandler extends PluginHandler {
         globalCacheManager.setDebugEnabled(globalCachePluginData.getControlPanelModel().isDebugMode());
         globalCacheManager.setExtendedStatisticsEnabled(globalCachePluginData.getControlPanelModel().isExpandedStatistics());
 
+        Long maxSize;
+        if(globalCachePluginData.getControlPanelModel().getSizeUom().equals("M")){
+            maxSize = globalCachePluginData.getControlPanelModel().getMaxSize()*1024*1024;
+        }
+        else {
+            maxSize = globalCachePluginData.getControlPanelModel().getMaxSize()*1000*1024*1024;
+        }
+
         Map<String, Serializable> settings = new HashMap<>(globalCacheManager.getSettings());
         if(globalCachePluginData.getControlPanelModel().getMaxSize()!=0){
-            settings.put("global.cache.max.size",globalCachePluginData.getControlPanelModel().getMaxSize());
+            settings.put("global.cache.max.size",maxSize);
         }
         settings.put("global.cache.mode",globalCachePluginData.getControlPanelModel().getMode());
         globalCacheManager.applySettings(settings);

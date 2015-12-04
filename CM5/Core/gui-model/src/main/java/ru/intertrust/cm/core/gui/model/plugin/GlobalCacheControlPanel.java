@@ -138,4 +138,12 @@ public class GlobalCacheControlPanel implements Dto {
        else
            return 1;
     }
+
+    public int getUomIndex(){
+        if(getSizeUom().equals(VALUE_UOM_MEGABYTE))
+            return 1;
+        else
+            return 0;
+    }
+
 }
