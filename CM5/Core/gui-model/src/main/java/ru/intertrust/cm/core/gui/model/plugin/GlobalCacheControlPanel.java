@@ -15,6 +15,10 @@ public class GlobalCacheControlPanel implements Dto {
     public static final String VALUE_MODES_ASYNC = "Асинхронный";
     public static final String VALUE_UOM_MB = "Мб";
     public static final String VALUE_UOM_GB = "Гб";
+    public static final String VALUE_MODE_BLOCKING = "blocking";
+    public static final String VALUE_MODE_NON_BLOCKING = "non-blocking";
+    public static final String VALUE_UOM_MEGABYTE = "M";
+    public static final String VALUE_UOM_GIGABYTE = "G";
 
     /**
      * Кэш включен
@@ -118,10 +122,20 @@ public class GlobalCacheControlPanel implements Dto {
 
     public GlobalCacheControlPanel() {
         modes = new HashMap<>();
-        modes.put("1", VALUE_MODES_SYNC);
-        modes.put("2", VALUE_MODES_ASYNC);
+        modes.put("blocking", VALUE_MODES_SYNC);
+        modes.put("non-blocking", VALUE_MODES_ASYNC);
+
         uoms = new HashMap<>();
-        uoms.put("1", VALUE_UOM_MB);
-        uoms.put("2", VALUE_UOM_GB);
+        uoms.put(VALUE_UOM_MEGABYTE, VALUE_UOM_MB);
+        uoms.put(VALUE_UOM_GIGABYTE, VALUE_UOM_GB);
+
+        sizeUom = VALUE_UOM_MEGABYTE;
+    }
+
+    public int getModeIndex(){
+       if(getMode().equals(VALUE_MODE_BLOCKING))
+           return 0;
+       else
+           return 1;
     }
 }

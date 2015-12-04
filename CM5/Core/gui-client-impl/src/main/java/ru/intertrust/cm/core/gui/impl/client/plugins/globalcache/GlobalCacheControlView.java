@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.ConfiguredButton;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.plugin.GlobalCacheControlPanel;
 import ru.intertrust.cm.core.gui.model.plugin.GlobalCachePluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -46,7 +47,7 @@ public class GlobalCacheControlView extends PluginView {
     private CheckBox expandedStatisticsCB;
     private CheckBox debugModeCB;
     private ListBox modeListBox;
-    private LongBox maxSizeTB;
+    private TextBox maxSizeTB;
     private ListBox uomListBox;
 
     /**
@@ -397,16 +398,23 @@ public class GlobalCacheControlView extends PluginView {
         for (String key : globalCachePluginData.getControlPanelModel().getModes().keySet()) {
             modeListBox.addItem(globalCachePluginData.getControlPanelModel().getModes().get(key), key);
         }
+        modeListBox.setItemSelected(globalCachePluginData.getControlPanelModel().getModeIndex(), true);
+
         controlGrid.setWidget(0, 3, modeListBox);
 
         Panel maxSizePanel = new HorizontalPanel();
-        maxSizeTB = new LongBox();
-        maxSizeTB.setValue(globalCachePluginData.getControlPanelModel().getMaxSize());
+        Long sizeM = globalCachePluginData.getControlPanelModel().getMaxSize() / 1024 / 1024;
+        Long sizeG = globalCachePluginData.getControlPanelModel().getMaxSize() / 1024 / 1024 / 1000;
+        maxSizeTB = new TextBox();
+        maxSizeTB.setValue((globalCachePluginData.getControlPanelModel().getSizeUom().equals(GlobalCacheControlPanel.VALUE_UOM_MEGABYTE)?sizeM.toString():sizeG.toString()));
         maxSizePanel.add(maxSizeTB);
+
         uomListBox = new ListBox();
         for (String key : globalCachePluginData.getControlPanelModel().getUoms().keySet()) {
             uomListBox.addItem(globalCachePluginData.getControlPanelModel().getUoms().get(key), key);
         }
+        uomListBox.setItemSelected(1, true);
+
         maxSizePanel.add(uomListBox);
         controlGrid.setWidget(1, 3, maxSizePanel);
         /**
@@ -526,9 +534,16 @@ public class GlobalCacheControlView extends PluginView {
                 debugModeCB.getValue().equals(Boolean.TRUE)) {
             Window.alert("Внимание, режим отладки приведёт к снижению производительности приложения.");
         }
+        if(modeListBox.getSelectedValue().equals(GlobalCacheControlPanel.VALUE_MODE_NON_BLOCKING) &&
+                globalCachePluginData.getControlPanelModel().getMode().equals(GlobalCacheControlPanel.VALUE_MODE_BLOCKING)){
+            Window.alert("Внимание, асинхронный режим работы кэша является тестовым и категорически не рекомендуется при реальной эксплуатации");
+        }
+
         globalCachePluginData.getControlPanelModel().setCacheEnabled(cacheActiveCB.getValue());
         globalCachePluginData.getControlPanelModel().setDebugMode(debugModeCB.getValue());
         globalCachePluginData.getControlPanelModel().setExpandedStatistics(expandedStatisticsCB.getValue());
-        globalCachePluginData.getControlPanelModel().setMaxSize(maxSizeTB.getValue());
+        globalCachePluginData.getControlPanelModel().setMaxSize(Long.valueOf(maxSizeTB.getValue()));
+        globalCachePluginData.getControlPanelModel().setMode(modeListBox.getSelectedValue());
+        globalCachePluginData.getControlPanelModel().setSizeUom(uomListBox.getSelectedValue());
     }
 }
