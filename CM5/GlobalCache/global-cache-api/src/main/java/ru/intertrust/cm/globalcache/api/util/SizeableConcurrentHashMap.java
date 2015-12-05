@@ -179,7 +179,7 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
             }
         }
         if (includeValueSizes) {
-            if (!includeValueSizes || value != key) {
+            if (value != key) {
                 if (value instanceof Sizeable) {
                     ((Sizeable) value).getSize().detachFromTotal();
                 } else {
