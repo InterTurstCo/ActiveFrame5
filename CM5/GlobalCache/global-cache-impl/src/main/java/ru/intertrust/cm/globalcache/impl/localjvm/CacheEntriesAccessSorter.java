@@ -63,8 +63,10 @@ public class CacheEntriesAccessSorter implements Sizeable {
         final int eltsQty = accessOrder.size();
         if (eltsQty > maxAccessOrderElts) {
             maxAccessOrderElts = eltsQty;
-            mapSize = ((long) Math.pow(2, SizeableConcurrentHashMap.intLog2(maxAccessOrderElts - 1) + 1)) * SizeEstimator.REFERENCE_SIZE;
-            changed = true;
+            if (maxAccessOrderElts < 10 || maxAccessOrderElts % 10 == 0) {
+                mapSize = ((long) Math.pow(2, SizeableConcurrentHashMap.intLog2(maxAccessOrderElts - 1) + 1)) * SizeEstimator.REFERENCE_SIZE;
+                changed = true;
+            }
         }
         if (changed) {
             this.size.set(keysSize + mapSize);
