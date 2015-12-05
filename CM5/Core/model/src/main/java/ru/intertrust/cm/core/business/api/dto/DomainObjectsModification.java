@@ -53,9 +53,9 @@ public class DomainObjectsModification implements Dto {
 
     public void addChangeStatusDomainObject(DomainObject domainObject){
         final Id id = domainObject.getId();
+        savedAndChangedStatusDomainObjects.put(id, domainObject);
         if (!changeStatusDomainObjects.containsKey(id)){
             changeStatusDomainObjects.put(id, domainObject);
-            savedAndChangedStatusDomainObjects.put(id, domainObject);
         }
     }
 
