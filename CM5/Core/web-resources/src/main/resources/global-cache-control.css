@@ -1,7 +1,6 @@
 .topMenuButtonsWrapper {
     box-sizing: border-box;
     display: inline-block;
-    float: right;
     padding: 5px 0 18px 5px
 }
 
@@ -67,14 +66,14 @@
 }
 
 .bildControlPanel input[type=text] {
-    height: 36px;
+    height: 40px;
     width: 100px;
     margin: 5px 10px 5px -4px;
     text-indent: 10px;
     border: 1px solid #ccc;
 }
 .cacheCleaningTable {
-    text-align: center;
+    text-align: right;
     margin: 0 0 13px 13px;
 }
 
@@ -84,7 +83,7 @@
 }
 
 .cacheCleaningTable tr:nth-child(3)>td:nth-child(1) {
-    padding: 10px 69px 10px 10px !important;
+    /*padding: 10px 69px 10px 10px !important;*/
 }
 
 .cacheCleaningTable tr:nth-child(2) {
@@ -95,16 +94,40 @@
     font-weight: bold;
 }
 
+.cacheCleaningTable tr>td:nth-child(1) {
+    text-align: left;
+}
+
+.cacheCleaningTable tr:nth-child(1)>td,
+.cacheCleaningTable tr:nth-child(2)>td,
+.cacheCleaningTable tr:nth-child(3)>td,
+.cacheCleaningTable tr:nth-child(4)>td,
+.cacheCleaningTable tr:nth-child(22)>td {
+    text-align: center;
+}
+
+.cacheCleaningTable tr:nth-child(21)>td:nth-child(1),
+.cacheCleaningTable tr:nth-child(31)>td:nth-child(1),
+.cacheCleaningTable tr:nth-child(33)>td:nth-child(1) {
+    font-weight: bold;
+}
+
+.cacheCleaningTable tr:nth-child(21)>td,
+.cacheCleaningTable tr:nth-child(31)>td,
+.cacheCleaningTable tr:nth-child(33)>td {
+    color: red;
+}
+
 .shortStatGrid .gwt-Label {
     text-decoration: none;
 }
 
 .shortStatGrid tr>td:nth-child(2) {
-    width: 27%;
+    width: 26%;
 }
 
 .shortStatGrid tr>td:nth-child(4) {
-    width: 27%;
+    width: 26%;
 }
 
 .shortStatGrid {
