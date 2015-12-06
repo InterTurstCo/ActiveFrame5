@@ -43,6 +43,7 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES;
@@ -71,6 +72,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         for (RowItem rowItem : rowItems) {
             model.getList().add(rowItem);
         }
+        fetchItemsForNewStates();
         VerticalPanel view = (VerticalPanel) impl;
         if (table != null) {
             view.remove(table);
@@ -98,6 +100,34 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             } else {
                 addButton.removeFromParent();
             }
+        }
+    }
+
+    private void fetchItemsForNewStates() {
+        if (!currentState.getNewFormStates().isEmpty()) {
+            SummaryTableConfig summaryTableConfig = currentState.getLinkedDomainObjectsTableConfig().getSummaryTableConfig();
+            RepresentationRequest request = new RepresentationRequest();
+            request.setSummaryTableConfig(summaryTableConfig);
+            request.setNewFormStates(currentState.getNewFormStates());
+
+            Command command = new Command("convertFormStatesToRowItem", getName(), request);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onSuccess(Dto result) {
+                    RowItemsResponse response = (RowItemsResponse) result;
+                    LinkedHashMap<String, RowItem> rowItemsMap = response.getRowItemsMap();
+                    for (Map.Entry<String, RowItem> entry : rowItemsMap.entrySet()) {
+                        RowItem rowItem = entry.getValue();
+                        rowItem.setParameter(STATE_KEY, entry.getKey());
+                        insertInCorrectModel(rowItem);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining row items", caught);
+                }
+            });
         }
     }
 
