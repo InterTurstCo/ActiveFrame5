@@ -26,7 +26,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     @Attribute(name = "max-tooltip-height", required = false)
     protected String maxTooltipHeight;
 
-    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer","coordination"})
+    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer","coordination","questionlist"})
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 
