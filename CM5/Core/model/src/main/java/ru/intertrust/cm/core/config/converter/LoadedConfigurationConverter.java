@@ -39,24 +39,26 @@ public class LoadedConfigurationConverter extends ConfigurationConverter {
         ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        InputNode nexNode;
+        InputNode nextNode;
 
-        while ((nexNode = inputNode.getNext()) != null) {
-            Class nodeClass = configurationClassesCache.getClassByTagName(nexNode.getName());
+        while ((nextNode = inputNode.getNext()) != null) {
+            Class nodeClass = configurationClassesCache.getClassByTagName(nextNode.getName());
             if (nodeClass == null) {
                 continue;
             }
 
             TopLevelConfig deserializedObject = null;
             try {
-                deserializedObject = (TopLevelConfig) serializer.read(nodeClass, nexNode);
+                deserializedObject = (TopLevelConfig) serializer.read(nodeClass, nextNode);
             } catch(Exception e) {
-                String errorMessage = buildErrorMessage(nexNode, e);
+                String errorMessage = buildErrorMessage(nextNode, e);
                 if (DomainObjectTypeConfig.class.equals(nodeClass)) {
                     creationErrorList.add(errorMessage);
                 } else {
                     creationWarningList.add(errorMessage);
                 }
+
+                nextNode.skip();
             }
 
             if (deserializedObject != null) {
