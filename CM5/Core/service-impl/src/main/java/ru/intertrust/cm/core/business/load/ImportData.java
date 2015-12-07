@@ -108,7 +108,7 @@ public class ImportData {
     private DoelEvaluator doelEvaluator;
     @org.springframework.beans.factory.annotation.Value("${import.rows.in.one.transaction:1000}")
     private int rowsInOneTransaction;
-    @org.springframework.beans.factory.annotation.Value("${import.transaction.timeout:100}")
+    @org.springframework.beans.factory.annotation.Value("${import.transaction.timeout:1000}")
     private int transactionTimeout;
 
     private String typeName;

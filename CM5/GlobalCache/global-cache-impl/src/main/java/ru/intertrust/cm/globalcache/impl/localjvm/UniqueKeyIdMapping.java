@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.globalcache.api.UniqueKey;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.Collection;
  *         Date: 17.08.2015
  *         Time: 15:09
  */
-public class UniqueKeyIdMapping {
+public class UniqueKeyIdMapping implements Sizeable {
     private Size size; // total cache size will be set to this object when it's added to the parent map
 
     private SizeableConcurrentHashMap<UniqueKey, Id> idByUniqueKey;
@@ -90,5 +91,10 @@ public class UniqueKeyIdMapping {
 
     public Id getId(UniqueKey uniqueKey) {
         return idByUniqueKey.get(uniqueKey);
+    }
+
+    @Override
+    public Size getSize() {
+        return size;
     }
 }

@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.util.CollectionUtils;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
@@ -421,13 +422,27 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         RepresentationRequest request = (RepresentationRequest) inputParams;
         FormState createdObjectState = request.getCreatedObjectState();
         SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
+        Id id = CollectionUtils.isEmpty(request.getIds()) ? null : request.getIds().get(0);
+        return convertFormStateToRowItem(id, request.getRootId(), createdObjectState, summaryTableConfig);
+    }
+
+    public Dto convertFormStatesToRowItem(Dto inputParams) {
+        RepresentationRequest request = (RepresentationRequest) inputParams;
+        LinkedHashMap<String, FormState> createdObjectStates = request.getNewFormStates();
+        SummaryTableConfig summaryTableConfig = request.getSummaryTableConfig();
+        LinkedHashMap<String,RowItem> result = new LinkedHashMap<>(createdObjectStates.size());
+        for (Map.Entry<String, FormState> entry : createdObjectStates.entrySet()) {
+            RowItem rowItem = convertFormStateToRowItem(null, null, entry.getValue(), summaryTableConfig);
+            result.put(entry.getKey(), rowItem);
+        }
+        return new RowItemsResponse(result);
+    }
+
+    private RowItem convertFormStateToRowItem(Id objectId, Id rootId,FormState createdObjectState,
+                                              SummaryTableConfig summaryTableConfig){
         RowItem item = new RowItem();
         item.setDomainObjectType(createdObjectState.getRootDomainObjectType());
-        List<Id> requestIds = request.getIds();
-
-        if (requestIds != null && !requestIds.isEmpty()) {
-            item.setObjectId(requestIds.get(0));
-        }
+        item.setObjectId(objectId);
         Map<String, WidgetState> fieldPathWidgetStateMap = createWidgetStateByFieldPath(createdObjectState.getName(),
                 createdObjectState.getFullWidgetsState());
         for (SummaryTableColumnConfig summaryTableColumnConfig : summaryTableConfig.getSummaryTableColumnConfigList()) {
@@ -440,7 +455,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 item.setValueByKey(columnId, replacement.toString());
             } else {
 
-                String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig, createdObjectState.getRootDomainObjectType()).getValue();
+                String selectionPattern = findSuitablePatternForObjectType(summaryTableColumnConfig,
+                        createdObjectState.getRootDomainObjectType()).getValue();
                 Matcher matcher = fieldPatternMatcher(selectionPattern);
                 FormattingConfig formattingConfig = summaryTableColumnConfig.getFormattingConfig();
                 while (matcher.find()) {
@@ -454,10 +470,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                      * 3) если есть виджет с field-path == main_street.name, то значение вытаскиваем из виджета
                      */
                     WidgetState widgetState = fieldPathWidgetStateMap.get(fieldPathValue);
-                    String displayValue = widgetState == null ? findWidgetStateAndFormat(fieldPathValue, fieldPathWidgetStateMap, formattingConfig)
+                    String displayValue = widgetState == null ? findWidgetStateAndFormat(fieldPathValue,
+                            fieldPathWidgetStateMap, formattingConfig)
                             : formatFromWidgetState(fieldPathValue, widgetState, formattingConfig);
                     if ("".equals(displayValue)) {
-                        displayValue = formatFromDb(fieldPathValue, request.getRootId(), formattingConfig);
+                        displayValue = formatFromDb(fieldPathValue, rootId, formattingConfig);
                     }
                     matcher.appendReplacement(replacement, displayValue);
 

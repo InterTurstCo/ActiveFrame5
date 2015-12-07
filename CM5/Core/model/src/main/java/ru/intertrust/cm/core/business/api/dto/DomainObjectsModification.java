@@ -13,6 +13,7 @@ public class DomainObjectsModification implements Dto {
     private List<DomainObject> createdDomainObjects = new ArrayList<>();
     private Map<Id, DomainObject> deletedDomainObjects = new HashMap<>();
     private Map<Id, DomainObject> changeStatusDomainObjects = new LinkedHashMap<>();
+    private Map<Id, DomainObject> savedAndChangedStatusDomainObjects = new LinkedHashMap<>();
 
     public DomainObjectsModification(String transactionId) {
         this.transactionId = transactionId;
@@ -39,10 +40,7 @@ public class DomainObjectsModification implements Dto {
     }
 
     public Collection<DomainObject> getSavedAndChangedStatusDomainObjects() {
-        HashSet<DomainObject> result = new HashSet<>((int) ((changeStatusDomainObjects.size() + savedDomainObjects.size()) / 0.75f) + 1);
-        result.addAll(savedDomainObjects.values());
-        result.addAll(changeStatusDomainObjects.values());
-        return result;
+        return savedAndChangedStatusDomainObjects.values();
     }
 
     public Collection<DomainObject> getDeletedDomainObjects() {
@@ -55,6 +53,7 @@ public class DomainObjectsModification implements Dto {
 
     public void addChangeStatusDomainObject(DomainObject domainObject){
         final Id id = domainObject.getId();
+        savedAndChangedStatusDomainObjects.put(id, domainObject);
         if (!changeStatusDomainObjects.containsKey(id)){
             changeStatusDomainObjects.put(id, domainObject);
         }
@@ -68,6 +67,7 @@ public class DomainObjectsModification implements Dto {
 
     public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
         savedDomainObjects.put(domainObject.getId(), domainObject);
+        savedAndChangedStatusDomainObjects.put(domainObject.getId(), domainObject);
 
         //Ишем не сохраняли ранее
         Map<String, FieldModification> fields = savedDomainObjectsModificationMap.get(domainObject.getId());

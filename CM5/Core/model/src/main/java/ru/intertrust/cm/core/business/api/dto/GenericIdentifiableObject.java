@@ -308,9 +308,9 @@ public class GenericIdentifiableObject implements IdentifiableObject, Cloneable 
         }
         for (String fieldName : allFieldNames) {
             Value value = getValue(fieldName);
-            Value thatValue = getValue(fieldName);
+            Value thatValue = that.getValue(fieldName);
             Object valueObj = value == null ? null : value.get();
-            Object thatValueObj = thatValue == null ? null : value.get();
+            Object thatValueObj = thatValue == null ? null : thatValue.get();
             if (!Objects.equals(valueObj, thatValueObj)) {
                 return false;
             }

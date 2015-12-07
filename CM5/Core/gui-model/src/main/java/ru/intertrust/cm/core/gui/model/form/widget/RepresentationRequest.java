@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.FormattingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SummaryTableConfig;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -22,6 +23,7 @@ public class RepresentationRequest implements Dto {
     private String linkedFormName;
     private String collectionName;
     private Id rootId;
+    private LinkedHashMap<String, FormState> newFormStates;
 
     public RepresentationRequest() {
     }
@@ -107,5 +109,17 @@ public class RepresentationRequest implements Dto {
 
     public void setRootId(Id rootId) {
         this.rootId = rootId;
+    }
+
+    public void setCollectionName(String collectionName) {
+        this.collectionName = collectionName;
+    }
+
+    public LinkedHashMap<String, FormState> getNewFormStates() {
+        return newFormStates;
+    }
+
+    public void setNewFormStates(LinkedHashMap<String, FormState> newFormStates) {
+        this.newFormStates = newFormStates;
     }
 }

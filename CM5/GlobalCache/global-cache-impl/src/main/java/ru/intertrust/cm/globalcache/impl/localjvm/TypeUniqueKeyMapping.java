@@ -1,6 +1,7 @@
 package ru.intertrust.cm.globalcache.impl.localjvm;
 
 import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
 import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
@@ -12,12 +13,14 @@ import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 public class TypeUniqueKeyMapping implements Sizeable {
     private SizeableConcurrentHashMap<String, UniqueKeyIdMapping> uniqueKeyMappingByType;
     private int concurrencyLevel;
-    private Size cacheTotal;
+    private Size size;
 
     public TypeUniqueKeyMapping(int concurrencyLevel, Size cacheTotal) {
+        size = new Size(cacheTotal);
+        size.add(4 * SizeEstimator.REFERENCE_SIZE);
+
         this.concurrencyLevel = concurrencyLevel;
-        this.cacheTotal = cacheTotal;
-        this.uniqueKeyMappingByType = new SizeableConcurrentHashMap<>(100, 0.75f, concurrencyLevel, cacheTotal, true, true);
+        this.uniqueKeyMappingByType = new SizeableConcurrentHashMap<>(100, 0.75f, concurrencyLevel, size, true, true);
     }
 
     public UniqueKeyIdMapping getUniqueKeyIdMapping(String type) {
@@ -37,6 +40,6 @@ public class TypeUniqueKeyMapping implements Sizeable {
 
     @Override
     public Size getSize() {
-        return null;
+        return size;
     }
 }
