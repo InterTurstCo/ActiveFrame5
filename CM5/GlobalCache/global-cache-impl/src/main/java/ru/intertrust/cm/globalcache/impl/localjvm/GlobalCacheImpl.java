@@ -268,10 +268,7 @@ public class GlobalCacheImpl implements GlobalCache {
             if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
                 return; // don't put anything as list has been retrieved before the last commit occured
             }
-            ObjectNode node = objectsTree.getDomainObjectNode(id);
-            if (node == null) {
-                node = objectsTree.addDomainObjectNode(id, new ObjectNode(id, null));
-            }
+            ObjectNode node = getOrCreateDomainObjectNode(id);
             final UserSubject userSubject = getUserSubject(accessToken);
             final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
             // todo: do something if node already exists?
@@ -311,15 +308,21 @@ public class GlobalCacheImpl implements GlobalCache {
             if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
                 return;
             }
-            ObjectNode node = objectsTree.getDomainObjectNode(id);
-            if (node == null) {
-                node = objectsTree.addDomainObjectNode(id, new ObjectNode(id, null));
-            }
+            ObjectNode node = getOrCreateDomainObjectNode(id);
             final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
             LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(new LinkedHashSet<>(linkedObjectsIds));
             node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
         }
         assureCacheSizeLimit();
+    }
+
+    private ObjectNode getOrCreateDomainObjectNode(Id id) {
+        ObjectNode node = objectsTree.getDomainObjectNode(id);
+        if (node == null) {
+            node = objectsTree.addDomainObjectNode(id, new ObjectNode(id, null));
+        }
+        accessSorter.logAccess(id);
+        return node;
     }
 
     private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
@@ -898,7 +901,7 @@ public class GlobalCacheImpl implements GlobalCache {
             if (action.isNodeInitializedWithRealObject()) {
                 final Id accessObjectId = getAccessObjectId(id, action.domainObject);
                 objectAccessDelegation.setDelegation(id, accessObjectId);
-                if (accessObjectId != id) {
+                if (!accessObjectId.equals(id)) {
                     accessSorter.logAccess(accessObjectId);
                 }
             }
@@ -1149,6 +1152,9 @@ public class GlobalCacheImpl implements GlobalCache {
             final CollectionBaseNode baseNode = collectionsTree.getBaseNode(collectionAccessKey.key);
             if (baseNode != null) {
                 baseNode.removeCollectionNode(collectionAccessKey.subKey);
+                if (baseNode.isEmpty()) {
+                    collectionsTree.removeBaseNode(collectionAccessKey.key);
+                }
             }
             accessSorter.remove(collectionAccessKey);
         }

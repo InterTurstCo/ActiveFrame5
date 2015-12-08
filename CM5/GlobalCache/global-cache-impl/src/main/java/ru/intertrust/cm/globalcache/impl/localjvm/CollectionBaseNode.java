@@ -56,6 +56,10 @@ public class CollectionBaseNode implements Sizeable {
         return collections.entrySet();
     }
 
+    public boolean isEmpty() {
+        return collections.isEmpty();
+    }
+
     @Override
     public Size getSize() {
         return size;

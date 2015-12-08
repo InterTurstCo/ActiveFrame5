@@ -3,6 +3,7 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 import java.util.Set;
@@ -14,7 +15,7 @@ import java.util.Set;
  *         Date: 24.07.2015
  *         Time: 19:50
  */
-public class ObjectAccessDelegation {
+public class ObjectAccessDelegation implements Sizeable {
     private SizeableConcurrentHashMap<Id, Id> delegateById;
     private SizeableConcurrentHashMap<Id, SizeableConcurrentHashMap<Id, Id>> objectsByDelegate; // key - object, which defines user access. value - objects delegating their checks to the key
 
@@ -31,7 +32,9 @@ public class ObjectAccessDelegation {
     public void setDelegation(Id objectId, Id accessCheckDelegateId) {
         if (!objectId.equals(accessCheckDelegateId)) {
             delegateById.put(objectId, accessCheckDelegateId);
-            findOrCreateObjectsByDelegate(accessCheckDelegateId).put(objectId, objectId);
+            synchronized (objectsByDelegate) { // todo
+                findOrCreateObjectsByDelegate(accessCheckDelegateId).put(objectId, objectId);
+            }
         }
     }
 
@@ -49,6 +52,11 @@ public class ObjectAccessDelegation {
         final SizeableConcurrentHashMap<Id, Id> objectsDelegateResponsibleFor = objectsByDelegate.get(delegate);
         if (objectsDelegateResponsibleFor != null) {
             objectsDelegateResponsibleFor.remove(objectId);
+                synchronized (objectsByDelegate) { // todo
+                    if (objectsDelegateResponsibleFor.isEmpty()) {
+                       objectsByDelegate.remove(delegate);
+                    }
+                }
         }
     }
 
@@ -71,5 +79,10 @@ public class ObjectAccessDelegation {
             }
         }
         return objectsForDelegate;
+    }
+
+    @Override
+    public Size getSize() {
+        return new Size(delegateById.getSize().get() + objectsByDelegate.getSize().get());
     }
 }

@@ -61,7 +61,7 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
 
     @Override
     public V remove(Object key) {
-        --approximateEntriesQty;
+        decrementSize(1);
         ++modifications;
         updateSelfSize();
         final V removed = super.remove(key);
@@ -71,7 +71,7 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
 
     @Override
     public boolean remove(Object key, Object value) {
-        --approximateEntriesQty;
+        decrementSize(1);
         ++modifications;
         updateSelfSize();
         final boolean removed = super.remove(key, value);
@@ -121,6 +121,15 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
         approximateEntriesQty = size;
     }
 
+    private void decrementSize(int increment) {
+        int size = approximateEntriesQty;
+        size -= increment;
+        if (size < 0) {
+            size = 0;
+        }
+        approximateEntriesQty = size;
+    }
+
     @Override
     public void clear() {
         super.clear();
@@ -148,18 +157,18 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
             final boolean addNewValueSize = newValue != null && (!includeKeySizes || key != newValue);
             final boolean extractPrevValueSize = prevValue != null && (!includeKeySizes || key != prevValue);
             if (prevValue instanceof Sizeable || newValue instanceof Sizeable) {
-                if (extractPrevValueSize) {
-                    ((Sizeable) prevValue).getSize().detachFromTotal();
-                }
                 if (addNewValueSize) {
                     ((Sizeable) newValue).getSize().setTotal(this.size);
                 }
-            } else {
                 if (extractPrevValueSize) {
-                    this.size.add(-SizeEstimator.estimateSize(prevValue));
+                    ((Sizeable) prevValue).getSize().detachFromTotal();
                 }
+            } else {
                 if (addNewValueSize) {
                     this.size.add(SizeEstimator.estimateSize(newValue));
+                }
+                if (extractPrevValueSize) {
+                    this.size.add(-SizeEstimator.estimateSize(prevValue));
                 }
             }
         }
@@ -231,6 +240,6 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
 
     @Override
     public Size getSize() {
-        return includeKeySizes ? size : selfSize;
+        return size;
     }
 }

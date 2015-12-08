@@ -3,6 +3,7 @@ package ru.intertrust.cm.globalcache.impl.localjvm;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.globalcache.api.util.Size;
 import ru.intertrust.cm.globalcache.api.util.SizeEstimator;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
 
 /**
@@ -10,7 +11,7 @@ import ru.intertrust.cm.globalcache.api.util.SizeableConcurrentHashMap;
  *         Date: 09.07.2015
  *         Time: 18:02
  */
-public class ObjectsTree {
+public class ObjectsTree implements Sizeable {
     private static final long SELF_SIZE = 2 * SizeEstimator.REFERENCE_SIZE;
 
     private Size cacheTotalSize;
@@ -37,5 +38,10 @@ public class ObjectsTree {
 
     public ObjectNode deleteDomainObjectNode(Id id) {
         return domainObjects.remove(id);
+    }
+
+    @Override
+    public Size getSize() {
+        return domainObjects.getSize();
     }
 }

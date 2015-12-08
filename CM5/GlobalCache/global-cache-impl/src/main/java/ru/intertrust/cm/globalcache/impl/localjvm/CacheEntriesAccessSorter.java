@@ -49,6 +49,10 @@ public class CacheEntriesAccessSorter implements Sizeable {
         }
     }
 
+    public synchronized boolean contains(Object key) {
+        return accessOrder.containsKey(key);
+    }
+
     @Override
     public Size getSize() {
         return size;
