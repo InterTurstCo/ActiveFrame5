@@ -131,7 +131,9 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     @Override
     public WidgetState getFullClientStateCopy() {
         if (!isEditable()) {
-            return super.getFullClientStateCopy();
+            SuggestBoxState copy = createNewState();
+            copy.setListValues(currentState.getListValues());
+            return copy;
         }
         SuggestBoxState state = new SuggestBoxState();
         state.setSelectedIds(currentState.getSelectedIds());
