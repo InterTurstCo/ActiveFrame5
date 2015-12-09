@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+
 import java.util.*;
 
 /**
@@ -47,12 +49,16 @@ public class DomainObjectsModification implements Dto {
         return deletedDomainObjects.values();
     }
 
-    public void addCreatedDomainObject(DomainObject domainObject){
+    public void addCreatedDomainObject(DomainObject domainObject) {
+        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
+
         createdDomainObjects.add(domainObject);
     }
 
     public void addChangeStatusDomainObject(DomainObject domainObject){
         final Id id = domainObject.getId();
+        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
+
         savedAndChangedStatusDomainObjects.put(id, domainObject);
         if (!changeStatusDomainObjects.containsKey(id)){
             changeStatusDomainObjects.put(id, domainObject);
@@ -66,19 +72,21 @@ public class DomainObjectsModification implements Dto {
     }
 
     public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
+        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
+
         savedDomainObjects.put(domainObject.getId(), domainObject);
         savedAndChangedStatusDomainObjects.put(domainObject.getId(), domainObject);
 
         //Ишем не сохраняли ранее
         Map<String, FieldModification> fields = savedDomainObjectsModificationMap.get(domainObject.getId());
-        if (fields == null){
+        if (fields == null) {
             fields = new HashMap<>();
             savedDomainObjectsModificationMap.put(domainObject.getId(), fields);
         }
 
         //Мержим информацию об измененных полях
         for (FieldModification newFieldModification : newFields) {
-            FieldModificationImpl registeredFieldModification = (FieldModificationImpl)fields.get(newFieldModification.getName());
+            FieldModificationImpl registeredFieldModification = (FieldModificationImpl) fields.get(newFieldModification.getName());
             if (registeredFieldModification == null) {
                 registeredFieldModification = new FieldModificationImpl(newFieldModification.getName(),
                         newFieldModification.getBaseValue(), newFieldModification.getComparedValue());

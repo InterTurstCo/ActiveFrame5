@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.MD5Utils;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.*;
@@ -182,6 +181,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         permissionService.notifyDomainObjectChangeStatus(domainObject);
         dynamicGroupService.notifyDomainObjectChanged(domainObject, fieldModification[0], beforeSaveInvalicContexts);
 
+        // Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
+        // Это ОБЯЗАТЕЛЬНО должно предшествовать вызову точек расширения, чтобы в слушателе отразились корректные состояния доменных объектов
+        // (так как точки расширения могут менять состояние сохраняемого доменного объекта)
+        DomainObjectActionListener listener = getTransactionListener();
+        listener.addChangeStatusDomainObject(result);
+
         // Вызов точки расширения после смены статуса
         String[] parentTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObject.getTypeName());
         for (String typeName : parentTypes) {
@@ -190,9 +195,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         //вызываем обработчики с неуказанным фильтром
         extensionService.getExtentionPoint(AfterChangeStatusExtentionHandler.class, "").onAfterChangeStatus(domainObject);
 
-        //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
-        DomainObjectActionListener listener = getTransactionListener();
-        listener.addChangeStatusDomainObject(result);
 
         return result;
     }
@@ -350,16 +352,18 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             // Запись в auditLog
             createAuditLog(domainObject, domainObject.getTypeName(), auditLogType, accessToken, operation);
 
-            // Вызов точки расширения после сохранения
+            // Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции.
+            // Это ОБЯЗАТЕЛЬНО должно предшествовать вызову точек расширения, чтобы в слушателе отразились корректные состояния доменных объектов
             List<FieldModification> doChangedFields = changedFields[i];
+            DomainObjectActionListener listener = getTransactionListener();
+            listener.addSavedDomainObject(domainObject, doChangedFields);
+
+            // Вызов точки расширения после сохранения
             for (String typeName : parentTypes) {
                 extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, typeName).onAfterSave(domainObject, doChangedFields);
             }
             extensionService.getExtentionPoint(AfterSaveExtensionHandler.class, "").onAfterSave(domainObject, doChangedFields);
 
-            //Добавляем слушателя комита транзакции, чтобы вызвать точки расширения после транзакции
-            DomainObjectActionListener listener = getTransactionListener();
-            listener.addSavedDomainObject(domainObject, doChangedFields);
 
         }
 
@@ -645,12 +649,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 continue;
             }
 
+            //Добавляем слушателя коммита транзакции, чтобы вызвать точки расширения после транзакции
+            DomainObjectActionListener listener = getTransactionListener();
+            listener.addDeletedDomainObject(deletedObject);
+
             for (String typeName : parentTypes) {
                 extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, typeName).onAfterDelete(deletedObject);
-
-                //Добавляем слушателя коммита транзакции, чтобы вызвать точки расширения после транзакции
-                DomainObjectActionListener listener = getTransactionListener();
-                listener.addDeletedDomainObject(deletedObject);
             }
             extensionService.getExtentionPoint(AfterDeleteExtensionHandler.class, "").onAfterDelete(deletedObject);
         }
