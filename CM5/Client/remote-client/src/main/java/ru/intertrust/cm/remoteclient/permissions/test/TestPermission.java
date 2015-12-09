@@ -378,7 +378,7 @@ public class TestPermission extends ClientBase {
             //Проверка создания обьектов и наличия к ним доступа из той же транзакции CMFIVE-1779
             DomainObject country1 = notAdminCrudservice.createDomainObject("country");
             country1.setString("name", "Name-" + System.nanoTime());
-            notAdminCrudservice.save(country1);
+            country1 = notAdminCrudservice.save(country1);
             
             // То же самое но для read-everybody (CMFIVE-4778)
             DomainObject testType17 = notAdminCrudservice.createDomainObject("test_type_17");
@@ -387,9 +387,13 @@ public class TestPermission extends ClientBase {
 
             // То же самое но для matrix-reference (CMFIVE-4778)
             DomainObject testType18 = notAdminCrudservice.createDomainObject("test_type_18");
-            testType17.setString("name", "Name-" + System.nanoTime());
-            testType17.setReference("test_type_17", testType17.getId());
-            notAdminCrudservice.save(testType17);
+            testType18.setString("name", "Name-" + System.nanoTime());
+            testType18.setReference("test_type_17", testType17.getId());
+            testType18 = notAdminCrudservice.save(testType18);
+            
+            getCrudService().delete(country1.getId());
+            getCrudService().delete(testType18.getId());
+            getCrudService().delete(testType17.getId());
             
             //Проверка мапинга прав
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
