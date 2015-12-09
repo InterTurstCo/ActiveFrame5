@@ -42,9 +42,9 @@ public class AfterSaveTestType17 implements AfterSaveExtensionHandler {
         if (!userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId())) {
             // Проверяем наличие прав на изменение и удаление
             DomainObjectPermission permissions = permissionService.getObjectPermission(domainObject.getId(), currentUserAccessor.getCurrentUserId());
-            if (!permissions.getPermission().contains(DomainObjectPermission.Permission.Write))
+            if (permissions == null || !permissions.getPermission().contains(DomainObjectPermission.Permission.Write))
                 throw new FatalException("Not write permissions on new object. Error in permission service");
-            if (!permissions.getPermission().contains(DomainObjectPermission.Permission.Delete))
+            if (permissions == null || !permissions.getPermission().contains(DomainObjectPermission.Permission.Delete))
                 throw new FatalException("Not delete permissions on new object. Error in permission service");
         }
 
