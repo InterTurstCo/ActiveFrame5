@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
@@ -20,6 +21,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionList;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -206,20 +208,19 @@ public class GwtUtil {
      * @return
      */
     public static CollectionRowItem getRndCollectionsRow(Dto responce) {
-        CollectionPluginData collectionPluginData = null;
-        if (responce instanceof CollectionPluginData){
-            collectionPluginData = (CollectionPluginData) responce;
-        }else if(responce instanceof DomainObjectSurferPluginData){
-            DomainObjectSurferPluginData data = (DomainObjectSurferPluginData)responce;
-            collectionPluginData = data.getCollectionPluginData();
-        }
+        ArrayList<CollectionRowItem> items = getCollectionRowItems(responce);
         CollectionRowItem row = null;
-        if (collectionPluginData.getItems().size() > 0){
-            row = collectionPluginData.getItems().get(rnd.nextInt(collectionPluginData.getItems().size()));
+        if (items.size() > 0){
+            row = items.get(rnd.nextInt(items.size()));
         }
         return row;
     }
 
+    /**
+     * Получение случайного значения в выпадающем списке SuggestionList 
+     * @param responce
+     * @return
+     */
     public static SuggestionItem getRndSuggestionItem(Dto responce) {
         SuggestionList suggestionList = null;
         if (responce instanceof SuggestionList){
@@ -241,21 +242,36 @@ public class GwtUtil {
      * @return
      */
     public static CollectionRowItem findCollectionsRow(Dto responce, String fieldName, Value value) {
-        CollectionPluginData collectionPluginData = null;
-        if (responce instanceof CollectionPluginData){
-            collectionPluginData = (CollectionPluginData) responce;
-        }else if(responce instanceof DomainObjectSurferPluginData){
-            DomainObjectSurferPluginData data = (DomainObjectSurferPluginData)responce;
-            collectionPluginData = data.getCollectionPluginData();
-        }
+        ArrayList<CollectionRowItem> items = getCollectionRowItems(responce);
         CollectionRowItem row = null;
-        for (CollectionRowItem item : collectionPluginData.getItems()) {                    
+        for (CollectionRowItem item : items) {                    
             if (item.getRowValue(fieldName).equals(value)){
                 row = item;
                 break;
             }
         }
         return row;
+    }
+    
+    /**
+     * Получение коллекции строк из разных структур ее содержащих
+     * @param responce
+     * @return
+     */
+    public static ArrayList<CollectionRowItem> getCollectionRowItems(Dto responce){
+        ArrayList<CollectionRowItem> items = null;
+        if (responce instanceof CollectionPluginData){
+            CollectionPluginData collectionPluginData = (CollectionPluginData) responce;
+            items = collectionPluginData.getItems();
+        }else if(responce instanceof DomainObjectSurferPluginData){
+            DomainObjectSurferPluginData data = (DomainObjectSurferPluginData)responce;
+            CollectionPluginData collectionPluginData = data.getCollectionPluginData();
+            items = collectionPluginData.getItems();
+        }else if(responce instanceof CollectionRowsResponse){
+            CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse)responce;
+            items = collectionRowsResponse.getCollectionRows();
+        }
+        return items;
     }
     
     /**
