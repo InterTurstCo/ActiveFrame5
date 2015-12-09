@@ -1239,14 +1239,18 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
             //Исключаем из списка доменные объекты с заимствованными правами и с правами на чтение всем
-            List<Id> effectiveDomainObjectIds = new ArrayList<Id>(domainObjectIds.size());
+            List<Id> effectiveDomainObjectIdsRead = new ArrayList<Id>(domainObjectIds.size());
+            List<Id> effectiveDomainObjectIdsNoRead = new ArrayList<Id>(domainObjectIds.size());
             for (Id id : domainObjectIds) {
                 String typeName = domainObjectTypeIdCache.getName(id);
                 AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);                
-                if (matrixConfig != null                         
-                        && (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) 
-                        && matrixConfig.getMatrixReference() == null){
-                    effectiveDomainObjectIds.add(id);
+                if (matrixConfig != null){
+                    if (matrixConfig.getMatrixReference() == null){
+                        effectiveDomainObjectIdsNoRead.add(id);
+                        if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()){
+                            effectiveDomainObjectIdsRead.add(id);
+                        }
+                    }
                 }
             }
             // Получение динамической группы текущего пользователя.
@@ -1259,11 +1263,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.WRITE, currentPersonGroup));
             aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
 
-            RdbmsId[] idsArray = effectiveDomainObjectIds.toArray(new RdbmsId[effectiveDomainObjectIds.size()]);
+            RdbmsId[] idsArrayRead = effectiveDomainObjectIdsRead.toArray(new RdbmsId[effectiveDomainObjectIdsRead.size()]);
+            RdbmsId[] idsArrayNoRead = effectiveDomainObjectIdsRead.toArray(new RdbmsId[effectiveDomainObjectIdsNoRead.size()]);
 
-            insertAclRecordsInBatch(aclInfoRead, idsArray, true);
-            insertAclRecordsInBatch(aclInfoNoRead, idsArray, false);
-
+            insertAclRecordsInBatch(aclInfoRead, idsArrayRead, true);
+            insertAclRecordsInBatch(aclInfoNoRead, idsArrayNoRead, false);
         }
     }
 
@@ -1280,17 +1284,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             //Исключаем доменные объекты с заимствованными правами и с правами на чтение всем        
             String typeName = domainObjectTypeIdCache.getName(domainObject);
             AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);
-            if (matrixConfig != null
-                    && (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) 
-                    && matrixConfig.getMatrixReference() == null){
-                //Получение динамической группы текущего пользователя.
-                Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
-    
-                //Добавляем права группе
-                insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
-                insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
-                insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
-            }
+            if (matrixConfig != null)
+                if (matrixConfig.getMatrixReference() == null) {
+
+                    //Получение динамической группы текущего пользователя.
+                    Id currentPersonGroup = getUserGroupByGroupNameAndObjectId("Person", currentPersonId);
+
+                    //Добавляем права группе
+                    if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) {
+                        insertAclRecord(DomainObjectAccessType.READ, domainObject, currentPersonGroup);
+                    }
+                    insertAclRecord(DomainObjectAccessType.WRITE, domainObject, currentPersonGroup);
+                    insertAclRecord(DomainObjectAccessType.DELETE, domainObject, currentPersonGroup);
+                }
         }
     }
 
