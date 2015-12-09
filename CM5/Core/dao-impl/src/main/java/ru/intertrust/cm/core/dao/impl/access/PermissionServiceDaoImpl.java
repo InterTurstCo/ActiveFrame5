@@ -1264,7 +1264,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             aclInfoNoRead.add(new AclInfo(DomainObjectAccessType.DELETE, currentPersonGroup));
 
             RdbmsId[] idsArrayRead = effectiveDomainObjectIdsRead.toArray(new RdbmsId[effectiveDomainObjectIdsRead.size()]);
-            RdbmsId[] idsArrayNoRead = effectiveDomainObjectIdsRead.toArray(new RdbmsId[effectiveDomainObjectIdsNoRead.size()]);
+            RdbmsId[] idsArrayNoRead = effectiveDomainObjectIdsNoRead.toArray(new RdbmsId[effectiveDomainObjectIdsNoRead.size()]);
 
             insertAclRecordsInBatch(aclInfoRead, idsArrayRead, true);
             insertAclRecordsInBatch(aclInfoNoRead, idsArrayNoRead, false);

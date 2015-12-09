@@ -347,5 +347,19 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="test_type_17" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>    
+        </status>
+    </access-matrix>
+    <access-matrix type="test_type_18" matrix-reference-field="test_type_17"/>
     
 </configuration>
