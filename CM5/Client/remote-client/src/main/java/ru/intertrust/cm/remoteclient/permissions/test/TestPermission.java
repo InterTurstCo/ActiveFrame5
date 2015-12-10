@@ -384,16 +384,30 @@ public class TestPermission extends ClientBase {
             DomainObject testType17 = notAdminCrudservice.createDomainObject("test_type_17");
             testType17.setString("name", "Name-" + System.nanoTime());
             testType17 = notAdminCrudservice.save(testType17);
-
+            
+            //И дочерний тип
+            DomainObject testType19 = notAdminCrudservice.createDomainObject("test_type_19");
+            testType19.setString("name", "Name-" + System.nanoTime());
+            testType19 = notAdminCrudservice.save(testType19);
+                        
             // То же самое но для matrix-reference (CMFIVE-4778)
             DomainObject testType18 = notAdminCrudservice.createDomainObject("test_type_18");
             testType18.setString("name", "Name-" + System.nanoTime());
             testType18.setReference("test_type_17", testType17.getId());
             testType18 = notAdminCrudservice.save(testType18);
             
+            DomainObject testType20 = notAdminCrudservice.createDomainObject("test_type_20");
+            testType20.setString("name", "Name-" + System.nanoTime());
+            testType20.setReference("test_type_17", testType19.getId());
+            testType20 = notAdminCrudservice.save(testType20);
+
+            
             getCrudService().delete(country1.getId());
             getCrudService().delete(testType18.getId());
             getCrudService().delete(testType17.getId());
+            getCrudService().delete(testType20.getId());
+            getCrudService().delete(testType19.getId());
+            
             
             //Проверка мапинга прав
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");

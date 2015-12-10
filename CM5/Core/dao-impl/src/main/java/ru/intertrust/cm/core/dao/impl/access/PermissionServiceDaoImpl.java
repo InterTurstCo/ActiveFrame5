@@ -1230,7 +1230,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             List<Id> effectiveDomainObjectIdsNoRead = new ArrayList<Id>(domainObjectIds.size());
             for (Id id : domainObjectIds) {
                 String typeName = domainObjectTypeIdCache.getName(id);
-                AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);                
+                AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);                
                 if (matrixConfig != null){
                     if (matrixConfig.getMatrixReference() == null){
                         effectiveDomainObjectIdsNoRead.add(id);
@@ -1270,7 +1270,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         if (currentPersonId != null && !userGroupGlobalCache.isPersonSuperUser(currentPersonId)) {
             //Исключаем доменные объекты с заимствованными правами и с правами на чтение всем        
             String typeName = domainObjectTypeIdCache.getName(domainObject);
-            AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);
+            AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
             if (matrixConfig != null)
                 if (matrixConfig.getMatrixReference() == null) {
 
