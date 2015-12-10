@@ -659,21 +659,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void cleanAclFor(Id objectId) {
-        String typeName = domainObjectTypeIdCache.getName(objectId);
-        AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectType(typeName);
-        //Удаляем acl толко если они могли создаваться
-        if (matrixConfig != null){
-            //Права на чтение могут быть только если это не заимствованные права и не доступен на чтение всем
-            if((matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) 
-                && matrixConfig.getMatrixReference() == null){        
-                deleteAclReadRecords(objectId);
-            }
-                        
-            //Остальные права могут быть только если это не заимствованные права 
-            if(matrixConfig.getMatrixReference() == null){
-                deleteAclRecords(objectId);
-            }
-        }
+        deleteAclRecords(objectId);
+        deleteAclReadRecords(objectId);
     }
 
     private void deleteAclRecords(Id objectId) {
