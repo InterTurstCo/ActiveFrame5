@@ -1654,7 +1654,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         queryBuilder.append(") values (");
 
-        for (int i = 0; i < query.getParameterInfoMap().size(); i ++) {
+        for (int i = 0; i < query.getNameToParameterInfoMap().size(); i ++) {
             if (i > 0) {
                 queryBuilder.append(", ");
             }

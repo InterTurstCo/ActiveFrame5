@@ -1,12 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
-import java.util.Calendar;
-import java.util.Formatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,8 +21,6 @@ import ru.intertrust.cm.core.config.TransactionTrace;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
 
 /**
  * @author vmatsukevich
@@ -38,7 +31,8 @@ import ru.intertrust.cm.core.model.ObjectNotFoundException;
 public class SqlLogger {
     private static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
 
-    private static final String PARAMETER_PATTERN = ":\\w";
+    private static final String NAMED_PARAMETER_PATTERN = ":\\w";
+    private static final String PARAMETER_PATTERN = "\\?";
 
     public static final ThreadLocal<Long> SQL_PREPARATION_TIME_CACHE = new ThreadLocal<>();
     
@@ -205,11 +199,17 @@ public class SqlLogger {
     private String resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
         if (isResolve) {
             if (joinPoint.getThis() instanceof JdbcOperations || joinPoint.getThis() instanceof NamedParameterJdbcOperations) {
-                Object parameters = getParameters(joinPoint.getArgs());
+                Object[] args = joinPoint.getArgs();
+                Object parameters = getParameters(args);
+
                 if (parameters instanceof Object[]) {
                     query = fillParameters(query, (Object[]) parameters);
                 } else if (parameters instanceof Map) {
-                    query = fillParameters(query, (Map) parameters);
+                    if (args.length == 4 && args[3] instanceof BatchPreparedStatementSetter) {
+                        query = fillParameters(query, (Map) parameters, (BatchPreparedStatementSetter) args[3]);
+                    } else {
+                        query = fillParameters(query, (Map) parameters);
+                    }
                 }
             } else {
                 throw new IllegalStateException("SqlLogger intercepts unsupported class type");
@@ -241,6 +241,13 @@ public class SqlLogger {
             Object argument = methodArgs[i];
             if (argument instanceof Map) {
                 parameters = argument;
+                break;
+            } else if (argument instanceof Collection && !((Collection) argument).isEmpty()) {
+                // todo only for one string
+                Object firstElement = ((Collection) argument).iterator().next();
+                if (firstElement instanceof Map) {
+                    parameters = firstElement;
+                }
                 break;
             } else if (argument instanceof Map[]) {
                 Map[] args = (Map[]) argument;
@@ -295,7 +302,7 @@ public class SqlLogger {
 
         int index;
         int prevIndex = 0;
-        Pattern pattern = Pattern.compile(PARAMETER_PATTERN);
+        Pattern pattern = Pattern.compile(NAMED_PARAMETER_PATTERN);
         Matcher matcher = pattern.matcher(query);
 
         while (matcher.find()) {
@@ -314,6 +321,44 @@ public class SqlLogger {
 
             prevIndex = index + parameterName.length() + 1;
 
+        }
+
+        if (prevIndex != query.length()) {
+            queryWithParameters.append(query.substring(prevIndex));
+        }
+
+        return queryWithParameters.toString();
+    }
+
+    protected String fillParameters(String query, Map<String, Object> parameters, BatchPreparedStatementSetter batchPreparedStatementSetter) {
+        if (parameters == null || parameters.isEmpty()) {
+            return query;
+        }
+
+        StringBuilder queryWithParameters = new StringBuilder();
+
+        int index;
+        int prevIndex = 0;
+        Pattern pattern = Pattern.compile(PARAMETER_PATTERN);
+        Matcher matcher = pattern.matcher(query);
+
+        int parameterIndex = 1;
+        while (matcher.find()) {
+
+            index = matcher.start();
+
+            String parameterName = batchPreparedStatementSetter.getParameterName(parameterIndex);
+            if (parameterName == null) {
+                continue;
+            }
+
+            queryWithParameters.append(query.substring(prevIndex, index));
+
+            Object value = parameters.get(parameterName);
+            appendFormattedValue(value, queryWithParameters);
+
+            prevIndex = index + 1;
+            parameterIndex++;
         }
 
         if (prevIndex != query.length()) {

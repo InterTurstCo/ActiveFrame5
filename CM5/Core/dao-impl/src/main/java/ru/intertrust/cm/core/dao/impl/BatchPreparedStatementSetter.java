@@ -33,7 +33,7 @@ public class BatchPreparedStatementSetter implements org.springframework.jdbc.co
         }
 
         for (Map.Entry<String, Object> entry : argument.entrySet()) {
-            Query.ParameterInfo parameterInfo = query.getParameterInfoMap().get(entry.getKey());
+            Query.ParameterInfo parameterInfo = query.getNameToParameterInfoMap().get(entry.getKey());
             if (parameterInfo == null) {
                 continue;
             }
@@ -54,5 +54,14 @@ public class BatchPreparedStatementSetter implements org.springframework.jdbc.co
                 }
             }
         }
+    }
+
+    public String getParameterName(int index) {
+        Query.ParameterInfo parameterInfo = query.getIndexToParameterInfo().get(index);
+        if (parameterInfo == null) {
+            return null;
+        }
+
+        return parameterInfo.getName();
     }
 }

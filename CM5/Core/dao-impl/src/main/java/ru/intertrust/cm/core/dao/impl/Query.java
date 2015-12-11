@@ -4,7 +4,6 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.impl.utils.ParameterType;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,8 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.generateReferenceTyp
 public class Query {
 
     private String query;
-    private Map<String, ParameterInfo> parameterInfoMap = new HashMap<>();
+    private Map<String, ParameterInfo> nameToParameterInfoMap = new HashMap<>();
+    private Map<Integer, ParameterInfo> indexToParameterInfo = new HashMap<>();
     private int parameterCounter = 1;
 
     public String getQuery() {
@@ -33,8 +33,12 @@ public class Query {
      * Возвращает карту соответствия имен параметров их позициям в запросе
      * @return
      */
-    public Map<String, ParameterInfo> getParameterInfoMap() {
-        return parameterInfoMap;
+    public Map<String, ParameterInfo> getNameToParameterInfoMap() {
+        return nameToParameterInfoMap;
+    }
+
+    public Map<Integer, ParameterInfo> getIndexToParameterInfo() {
+        return indexToParameterInfo;
     }
 
     /**
@@ -122,12 +126,11 @@ public class Query {
             return;
         }
 
-        ParameterInfo parameterInfo = parameterInfoMap.get(parameter);
-        if (parameterInfo == null) {
-            parameterInfo = new ParameterInfo(type);
-            parameterInfoMap.put(parameter, parameterInfo);
-        }
-        parameterInfo.addParameterIndex(parameterCounter++);
+        ParameterInfo parameterInfo = new ParameterInfo(parameter, type, parameterCounter);
+        nameToParameterInfoMap.put(parameter, parameterInfo);
+        indexToParameterInfo.put(parameterCounter, parameterInfo);
+
+        parameterCounter++;
     }
 
     /**
@@ -160,11 +163,15 @@ public class Query {
     }
 
     static class ParameterInfo {
+
+        private String name;
         private ParameterType type;
         private Integer index;
 
-        private ParameterInfo(ParameterType type) {
+        ParameterInfo(String name, ParameterType type, Integer index) {
+            this.name = name;
             this.type = type;
+            this.index = index;
         }
 
         public ParameterType getType() {
@@ -175,8 +182,8 @@ public class Query {
             return index;
         }
 
-        public void addParameterIndex(int index) {
-            this.index = index;
+        public String getName() {
+            return name;
         }
     }
 }
