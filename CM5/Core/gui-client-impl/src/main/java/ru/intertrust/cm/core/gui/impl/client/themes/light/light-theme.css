@@ -791,7 +791,7 @@ a.action-bar-button:hover {
 }
 
 .widget-wrapper table {
-    width: 100%;
+    /*width: 100%;*/
 }
 
 .widget-wrapper th {
@@ -799,6 +799,7 @@ a.action-bar-button:hover {
     background: #ebf5fe;
     border-right: 2px solid white;
     border-bottom: none;
+    min-width: 120px;
 }
 
 .widget-wrapper .gwt-Good-Label.labelWidgetDefault {
@@ -818,4 +819,8 @@ a.action-bar-button:hover {
 
 .treeItemTitle:hover {
     color: #72ccff;
+}
+
+.columnWrapper {
+    white-space: nowrap;
 }
