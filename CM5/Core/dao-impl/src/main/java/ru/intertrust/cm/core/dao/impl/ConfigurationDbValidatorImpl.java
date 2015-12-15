@@ -68,6 +68,11 @@ public class ConfigurationDbValidatorImpl implements ConfigurationDbValidator {
     private boolean isIndexErrorsFound(DomainObjectTypeConfig domainObjectTypeConfig) {
         // Check missing indexes
         for (IndexConfig indexConfig : domainObjectTypeConfig.getIndicesConfig().getIndices()) {
+            // Skip check for expression type indices because search by fields doesn't work for them
+            if (isExpressionIndex(indexConfig)) {
+                continue;
+            }
+
             String indexName = schemaCache.getIndexName(domainObjectTypeConfig, indexConfig);
             if (indexName == null) {
                 return true;
@@ -82,6 +87,20 @@ public class ConfigurationDbValidatorImpl implements ConfigurationDbValidator {
                         indexInfo.getColumnNames().equals(indexInfo2.getColumnNames())) {
                     return true;
                 }
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isExpressionIndex(IndexConfig indexConfig) {
+        if (indexConfig.getIndexFieldConfigs() == null || indexConfig.getIndexFieldConfigs().isEmpty()) {
+            return false;
+        }
+
+        for (BaseIndexExpressionConfig indexExpressionConfig : indexConfig.getIndexFieldConfigs()) {
+            if (indexExpressionConfig instanceof  IndexExpressionConfig) {
+                return true;
             }
         }
 
