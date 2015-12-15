@@ -29,7 +29,7 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
  */
 @Aspect
 public class SqlLogger {
-    private static final String DATE_PATTERN = "MM/dd/yyyy HH:mm:ss";
+    private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     private static final String NAMED_PARAMETER_PATTERN = ":\\w";
     private static final String PARAMETER_PATTERN = "\\?";
@@ -44,8 +44,10 @@ public class SqlLogger {
     private Long minRowsNum;
     @org.springframework.beans.factory.annotation.Value("${sql.trace.resolveParams:false}")
     private Boolean resolveParams;
-    @org.springframework.beans.factory.annotation.Value("${(sql.trace.output.for.e-tables:true}")
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.output.for.e-tables:true}")
     private Boolean excelTableFormat = true;
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.output.transactionId:false}")
+    private Boolean showTransactionId = false;
     
 
     @Autowired
@@ -80,15 +82,25 @@ public class SqlLogger {
         int rows = countSqlRows(returnValue, query);
         
         boolean logWarn = executionTime >= minWarnTime || rows >= minRowsNum;
+
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
-            query = resolveParameters(query, joinPoint, true);
-            logger.info(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
+            List<String> resolvedQueries = resolveParameters(query, joinPoint, true);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            for (String logEntry : resolvedQueries) {
+                logger.info(logEntry);
+            }
         } else if (logWarn && logger.isWarnEnabled()) {
-            query = resolveParameters(query, joinPoint);
-            logger.warn(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
+            List<String> resolvedQueries = resolveParameters(query, joinPoint);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            for (String logEntry : resolvedQueries) {
+                logger.warn(logEntry);
+            }
         } else if (logger.isTraceEnabled()){
-            query = resolveParameters(query, joinPoint);
-            logger.trace(formatLogEntry(query, preparationTimeMillis, executionTime, rows));
+            List<String> resolvedQueries = resolveParameters(query, joinPoint);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            for (String logEntry : resolvedQueries) {
+                logger.trace(logEntry);
+            }
         }
 
         return returnValue;
@@ -166,8 +178,8 @@ public class SqlLogger {
 
         int rows = countSqlRows(returnValue, query);
 
-        query = resolveParameters(query, joinPoint);
-        String logEntry = formatLogEntry(query, preparationTimeMillis, executionTime, rows);
+        List<String> resolvedQueries = resolveParameters(query, joinPoint);
+        formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
 
         LogTransactionListener listener = null;
         listener = userTransactionService.getListener(LogTransactionListener.class);
@@ -176,8 +188,11 @@ public class SqlLogger {
             userTransactionService.addListener(listener);
         }
 
-        listener.addSqlLogEntry(logEntry);
+        for (String logEntry : resolvedQueries) {
+            listener.addSqlLogEntry(logEntry);
+        }
         listener.addPreparationTime(preparationTime);
+
         return returnValue;
     }
 
@@ -192,76 +207,98 @@ public class SqlLogger {
     }
 
 
-    private String resolveParameters(String query, ProceedingJoinPoint joinPoint) {
+    private List<String> resolveParameters(String query, ProceedingJoinPoint joinPoint) {
         return resolveParameters(query, joinPoint, resolveParams);
     }
 
-    private String resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
-        if (isResolve) {
-            if (joinPoint.getThis() instanceof JdbcOperations || joinPoint.getThis() instanceof NamedParameterJdbcOperations) {
-                Object[] args = joinPoint.getArgs();
-                Object parameters = getParameters(args);
-
-                if (parameters instanceof Object[]) {
-                    query = fillParameters(query, (Object[]) parameters);
-                } else if (parameters instanceof Map) {
-                    if (args.length == 4 && args[3] instanceof BatchPreparedStatementSetter) {
-                        query = fillParameters(query, (Map) parameters, (BatchPreparedStatementSetter) args[3]);
-                    } else {
-                        query = fillParameters(query, (Map) parameters);
-                    }
-                }
-            } else {
-                throw new IllegalStateException("SqlLogger intercepts unsupported class type");
-            }
+    private List<String> resolveParameters(String query, ProceedingJoinPoint joinPoint, boolean isResolve) {
+        if (!(joinPoint.getThis() instanceof JdbcOperations) &&
+                !(joinPoint.getThis() instanceof NamedParameterJdbcOperations)) {
+            throw new IllegalStateException("SqlLogger intercepts unsupported class type");
         }
 
-        return query;
+        if (!isResolve) {
+            return singletonList(query);
+        }
+
+        List<String> resolvedQueries = null;
+
+        Object[] args = joinPoint.getArgs();
+
+        if (args == null || args.length < 2) {
+            return singletonList(query);
+        }
+
+        Object parameters = args[1];
+
+        if (parameters instanceof Map[]) {
+            resolvedQueries = fillParameters(query, (Map[]) parameters);
+        } else if (parameters instanceof Object[]) {
+            query = fillParameters(query, (Object[]) parameters);
+            resolvedQueries = singletonList(query);
+        } else if (parameters instanceof Map) {
+            query = fillParameters(query, (Map) parameters);
+            resolvedQueries = singletonList(query);
+        } else if (parameters instanceof Collection &&
+                args.length == 4 && args[3] instanceof BatchPreparedStatementSetter) {
+            resolvedQueries = fillParameters(query, (Collection) parameters, (BatchPreparedStatementSetter) args[3]);
+        } else {
+            resolvedQueries = singletonList(query);
+        }
+
+        return resolvedQueries;
     }
 
-    public String formatLogEntry(String query, Long preparationTime, long executionTime, int rows) {
+    public void formatLogEntries(List<String> queries, Long preparationTime, long executionTime, int rows) {
+        if (queries == null || queries.isEmpty()) {
+            return;
+        }
+
         Long totalTime = preparationTime != null ? preparationTime + executionTime : executionTime;
 
         StringBuilder traceStringBuilder = new StringBuilder();
-
         Formatter formatter = new Formatter(traceStringBuilder);
+
         String format = null;
-        if (excelTableFormat) {
-            format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s";
+        if (showTransactionId) {
+            if (excelTableFormat) {
+                format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s\t%6$s";
+            } else {
+                format = "SQL Trace: %1$s %2$6s (%3$s+%4$s)  [%5$7s]: %6$s";
+            }
         } else {
-            format = "SQL Trace: %1$6s (%2$s+%3$s)  [%4$7s]: %5$s";
-        }
-        formatter.format(format, totalTime, preparationTime, executionTime, rows, query);
-        return traceStringBuilder.toString();
-    }
-    
-    private Object getParameters(Object[] methodArgs) {
-        Object parameters = null;
-        for (int i = 1; i < methodArgs.length; i++) {
-            Object argument = methodArgs[i];
-            if (argument instanceof Map) {
-                parameters = argument;
-                break;
-            } else if (argument instanceof Collection && !((Collection) argument).isEmpty()) {
-                // todo only for one string
-                Object firstElement = ((Collection) argument).iterator().next();
-                if (firstElement instanceof Map) {
-                    parameters = firstElement;
-                }
-                break;
-            } else if (argument instanceof Map[]) {
-                Map[] args = (Map[]) argument;
-                if (args.length > 0) {
-                    // todo only for one string
-                    parameters = args[0];
-                }
-                break;
-            } else if (argument instanceof Object[]) {
-                parameters = argument;
-                break;
+            if (excelTableFormat) {
+                format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s";
+            } else {
+                format = "SQL Trace: %1$6s (%2$s+%3$s)  [%4$7s]: %5$s";
             }
         }
-        return parameters;
+
+        if (showTransactionId) {
+            formatter.format(format, userTransactionService.getTransactionId(), totalTime, preparationTime,
+                    executionTime, rows, queries.get(0));
+        } else {
+            formatter.format(format, totalTime, preparationTime, executionTime, rows, queries.get(0));
+        }
+
+        queries.set(0, traceStringBuilder.toString());
+
+        if (queries.size() == 1) {
+            return;
+        }
+
+        if (excelTableFormat) {
+            format = "SQL Trace:\t%1$s";
+        } else {
+            format = "SQL Trace: %1$s";
+        }
+
+        for (int i = 1; i < queries.size(); i ++) {
+            traceStringBuilder = new StringBuilder();
+            formatter = new Formatter(traceStringBuilder);
+            formatter.format(format, queries.get(i));
+            queries.set(i, traceStringBuilder.toString());
+        }
     }
 
     private String fillParameters(String query, Object[] sqlArgs) {
@@ -330,42 +367,93 @@ public class SqlLogger {
         return queryWithParameters.toString();
     }
 
-    protected String fillParameters(String query, Map<String, Object> parameters, BatchPreparedStatementSetter batchPreparedStatementSetter) {
-        if (parameters == null || parameters.isEmpty()) {
-            return query;
+    protected List<String> fillParameters(String query, Map<String, Object>[] parametersArray) {
+        if (parametersArray == null || parametersArray.length == 0) {
+            return singletonList(query);
         }
 
-        StringBuilder queryWithParameters = new StringBuilder();
+        Map<Integer, String> parametersPositionMap = getParametersPositionMap(query, parametersArray[0]);
+        if (parametersPositionMap == null || parametersPositionMap.isEmpty()) {
+            return singletonList(query);
+        }
 
-        int index;
-        int prevIndex = 0;
-        Pattern pattern = Pattern.compile(PARAMETER_PATTERN);
-        Matcher matcher = pattern.matcher(query);
+        List<String> resolvedQueries = new ArrayList<>(parametersArray.length);
+        for (Map<String, Object> parameters : parametersArray) {
+            StringBuilder queryWithParameters = new StringBuilder();
 
-        int parameterIndex = 1;
-        while (matcher.find()) {
+            int index;
+            int prevIndex = 0;
+            Pattern pattern = Pattern.compile(NAMED_PARAMETER_PATTERN);
+            Matcher matcher = pattern.matcher(query);
 
-            index = matcher.start();
+            while (matcher.find()) {
+                index = matcher.start();
 
-            String parameterName = batchPreparedStatementSetter.getParameterName(parameterIndex);
-            if (parameterName == null) {
-                continue;
+                String parameterName = parametersPositionMap.get(index);
+                if (parameterName == null) {
+                    continue;
+                }
+
+                queryWithParameters.append(query.substring(prevIndex, index));
+
+                Object value = parameters.get(parameterName);
+                appendFormattedValue(value, queryWithParameters);
+
+                prevIndex = index + parameterName.length() + 1;
+
             }
 
-            queryWithParameters.append(query.substring(prevIndex, index));
+            if (prevIndex != query.length()) {
+                queryWithParameters.append(query.substring(prevIndex));
+            }
 
-            Object value = parameters.get(parameterName);
-            appendFormattedValue(value, queryWithParameters);
-
-            prevIndex = index + 1;
-            parameterIndex++;
+            resolvedQueries.add(queryWithParameters.toString());
         }
 
-        if (prevIndex != query.length()) {
-            queryWithParameters.append(query.substring(prevIndex));
+        return resolvedQueries;
+    }
+
+    protected List<String> fillParameters(String query, Collection<Map<String, Object>> parametersCollection,
+                                          BatchPreparedStatementSetter batchPreparedStatementSetter) {
+        if (parametersCollection == null || parametersCollection.isEmpty()) {
+            return singletonList(query);
         }
 
-        return queryWithParameters.toString();
+        List<String> resolvedQueries = new ArrayList<>(parametersCollection.size());
+        for(Map<String, Object> parameters : parametersCollection) {
+            StringBuilder queryWithParameters = new StringBuilder();
+
+            int index;
+            int prevIndex = 0;
+            Pattern pattern = Pattern.compile(PARAMETER_PATTERN);
+            Matcher matcher = pattern.matcher(query);
+
+            int parameterIndex = 1;
+            while (matcher.find()) {
+                index = matcher.start();
+
+                String parameterName = batchPreparedStatementSetter.getParameterName(parameterIndex);
+                if (parameterName == null) {
+                    continue;
+                }
+
+                queryWithParameters.append(query.substring(prevIndex, index));
+
+                Object value = parameters.get(parameterName);
+                appendFormattedValue(value, queryWithParameters);
+
+                prevIndex = index + 1;
+                parameterIndex++;
+            }
+
+            if (prevIndex != query.length()) {
+                queryWithParameters.append(query.substring(prevIndex));
+            }
+
+            resolvedQueries.add(queryWithParameters.toString());
+        }
+
+        return resolvedQueries;
     }
 
     private Map<Integer, String> getParametersPositionMap(String query, Map<String, Object> parameters) {
@@ -399,5 +487,11 @@ public class SqlLogger {
         } else {
             queryWithParameters.append(value.toString());
         }
-    }    
+    }
+
+    private List<String> singletonList(String element) {
+        List<String> result = new ArrayList<>(1);
+        result.add(element);
+        return result;
+    }
 }
