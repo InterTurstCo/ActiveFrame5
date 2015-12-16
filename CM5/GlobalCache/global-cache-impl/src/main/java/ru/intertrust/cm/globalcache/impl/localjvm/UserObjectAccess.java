@@ -51,22 +51,22 @@ public class UserObjectAccess implements Sizeable {
 
     public void setAccess(UserSubject user, Id objectId, boolean accessGranted) {
         Record record = new Record(user, objectId);
-        synchronized (record.getLock()) {
-            if (access.containsKey(record)) {
-                updateRecordAccess(record, accessGranted);
-            } else {
-                addRecord(record, accessGranted);
-            }
+        //synchronized (record.getLock()) { // todo - correct lock impl for async cache
+        if (access.containsKey(record)) {
+            updateRecordAccess(record, accessGranted);
+        } else {
+            addRecord(record, accessGranted);
         }
+        //}
     }
 
     public void clearAccess(UserSubject user, Id objectId) {
         Record record = new Record(user, objectId);
-        synchronized (record.getLock()) {
-            if (access.containsKey(record)) {
-                deleteRecord(record);
-            }
+        //synchronized (record.getLock()) { // todo - correct lock impl for async cache
+        if (access.containsKey(record)) {
+            deleteRecord(record);
         }
+        //}
     }
 
     public void clearAccess(Id objectId) {
@@ -124,13 +124,13 @@ public class UserObjectAccess implements Sizeable {
     private SizeableConcurrentHashMap<Record, Record> getObjectUsers(Id objectId) {
         SizeableConcurrentHashMap<Record, Record> objectUsers = accessByObjectId.get(objectId);
         if (objectUsers == null) {
-            synchronized (objectId.toStringRepresentation().intern()) {
-                objectUsers = accessByObjectId.get(objectId);
-                if (objectUsers == null) {
-                    objectUsers = new SizeableConcurrentHashMap<>(INITIAL_USERS_CAPACITY_PER_OBJECT, DEFAULT_LOAD_FACTOR, 16, null, false, false);
-                    accessByObjectId.put(objectId, objectUsers);
-                }
+            // synchronized (objectId.toStringRepresentation().intern()) { // todo - correct lock impl for async cache
+            objectUsers = accessByObjectId.get(objectId);
+            if (objectUsers == null) {
+                objectUsers = new SizeableConcurrentHashMap<>(INITIAL_USERS_CAPACITY_PER_OBJECT, DEFAULT_LOAD_FACTOR, 16, null, false, false);
+                accessByObjectId.put(objectId, objectUsers);
             }
+            // }
         }
         return objectUsers;
     }
@@ -138,13 +138,13 @@ public class UserObjectAccess implements Sizeable {
     private SizeableConcurrentHashMap<Record, Record> getUserAccess(UserSubject user) {
         SizeableConcurrentHashMap<Record, Record> userAccess = accessByUser.get(user);
         if (userAccess == null) {
-            synchronized (user.getName().intern()) {
+            // synchronized (user.getName().intern()) { // todo - correct lock impl for async cache
                 userAccess = accessByUser.get(user);
                 if (userAccess == null) {
                     userAccess = new SizeableConcurrentHashMap<>(INITIAL_OBJECTS_CAPACITY_PER_USER, DEFAULT_LOAD_FACTOR, 16, null, true, true);
                     accessByUser.put(user, userAccess);
                 }
-            }
+            // }
         }
         return userAccess;
     }
@@ -164,7 +164,7 @@ public class UserObjectAccess implements Sizeable {
         }
 
         public String getLock() {
-            return (subject.getName() + objectId.toStringRepresentation()).intern();
+            return ""; //(subject.getName() + objectId.toStringRepresentation()).intern(); // todo - correct lock impl for async cache
         }
 
         @Override

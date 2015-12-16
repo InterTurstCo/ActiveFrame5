@@ -65,7 +65,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         globalCache.activate();
 
         this.globalCache = globalCache;
-        this.transactionChanges = new ConcurrentHashMap<>();
+        this.transactionChanges = new ConcurrentHashMap<>(128, 0.5f, 128);
         if (!isInitialActivation) {
             reActivationTime = System.currentTimeMillis();
         }

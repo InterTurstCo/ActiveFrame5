@@ -9,7 +9,10 @@ import ru.intertrust.cm.core.business.api.util.DecimalCounter;
 import ru.intertrust.cm.core.business.api.util.LongCounter;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
-import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
@@ -340,7 +343,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final UserSubject subject = getUserSubject(accessToken);
         final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
-        notifyCollectionRead(key, subKey, domainObjectTypes, collection, time);
+        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
     }
 
     @Override
@@ -349,7 +352,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
         final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit); // todo clone key
-        notifyCollectionRead(key, subKey, domainObjectTypes, collection, time);
+        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
     }
 
     @Override
@@ -374,6 +377,8 @@ public class GlobalCacheImpl implements GlobalCache {
             doTypeLastChangeTime.setLastModificationTime(updated.getTypeName(), System.currentTimeMillis(), updated.getModifiedDate().getTime());
             final Id id = updated.getId();
             final Action updateAction = createOrUpdateDomainObjectEntries(id, updated, null);
+            // todo
+            // if (updateAction --> is valid)... otherwise - clear everything
             updateUniqueKeys(updated);
             updateLinkedObjectsOfParents(updateAction.getDomainObjectBefore(), updated);
         }
@@ -968,14 +973,9 @@ public class GlobalCacheImpl implements GlobalCache {
         if (uniqueKeyConfigs == null || uniqueKeyConfigs.isEmpty()) {
             return null;
         }
-        ArrayList<UniqueKey> uniqueKeys = new ArrayList<>(uniqueKeyConfigs.size());
+        final ArrayList<UniqueKey> uniqueKeys = new ArrayList<>(uniqueKeyConfigs.size());
         for (UniqueKeyConfig uniqueKeyConfig : uniqueKeyConfigs) {
-            final List<UniqueKeyFieldConfig> fields = uniqueKeyConfig.getUniqueKeyFieldConfigs();
-            final HashMap<String, Value> valueMap = new HashMap<>((int) (fields.size() / 0.75f + 1));
-            for (UniqueKeyFieldConfig field : fields) {
-                valueMap.put(field.getName(), object.getValue(field.getName()));
-            }
-            uniqueKeys.add(new UniqueKey(valueMap));
+            uniqueKeys.add(new UniqueKey(uniqueKeyConfig, object));
         }
         return uniqueKeys;
     }
@@ -1025,22 +1025,22 @@ public class GlobalCacheImpl implements GlobalCache {
         }
     }
 
-    private void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
-                                     IdentifiableObjectCollection collection, long time) {
+    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
+                                     IdentifiableObjectCollection clonedCollection, long time) {
         CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             baseNode = new CollectionBaseNode(domainObjectTypes == null ? Collections.EMPTY_SET : domainObjectTypes);
             baseNode = collectionsTree.addBaseNode(key, baseNode);
         }
         synchronized (subKey) { // todo fix
-            CollectionNode collectionNode = new CollectionNode(ObjectCloner.fastCloneCollection(collection), time);
+            CollectionNode collectionNode = new CollectionNode(clonedCollection, time);
             baseNode.setCollectionNode(subKey, collectionNode);
         }
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         assureCacheSizeLimit();
     }
 
-    private IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
+    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
         final CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             return null;
