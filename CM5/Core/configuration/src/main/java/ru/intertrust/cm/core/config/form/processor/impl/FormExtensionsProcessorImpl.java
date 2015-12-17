@@ -31,12 +31,6 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
 
     private ConfigurationExplorer configurationExplorer;
 
-    private ObjectCloner clonePerformer;
-
-    public FormExtensionsProcessorImpl() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -93,7 +87,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
         FormConfig parentFormConfig = null;
         int size = formConfigs.size();
         for (int i = 0; i < size; i++) {
-            FormConfig currentFormConfig = clonePerformer.cloneObject(formConfigs.get(i), FormConfig.class);
+            FormConfig currentFormConfig = ObjectCloner.getInstance().cloneObject(formConfigs.get(i));
             if (parentFormConfig == null) {
                 parentFormConfig = applyExtensions(currentFormConfig, errors);
             } else {
@@ -111,7 +105,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
     }
 
     private FormConfig applyExtensions(FormConfig rawForm, List<String> errors) {
-        FormConfig formConfig = clonePerformer.cloneObject(rawForm, FormConfig.class);
+        FormConfig formConfig = ObjectCloner.getInstance().cloneObject(rawForm);
         processMarkupExtension(formConfig.getMarkup(), formConfig.getMarkupExtensionConfig(), errors);
         processWidgetConfigurationExtension(formConfig.getWidgetConfigurationConfig(), formConfig.getWidgetConfigurationExtensionConfig(), errors);
         processWidgetGroupsExtension(formConfig.getWidgetGroupsConfig(), formConfig.getWidgetGroupsExtensionConfig(), errors);

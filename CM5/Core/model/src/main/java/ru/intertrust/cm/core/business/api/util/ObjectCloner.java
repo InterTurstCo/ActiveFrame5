@@ -15,7 +15,9 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo
+ * Вспомогательный класс для клонирования обхектов с использованием библиотеки Kryo. Класс потоконебезопасный, один экземпляр нельзя
+ * использовать при совместном доступе нескольких потоков (например, объявлять ObjectCloner полем класса, который реализует
+ * шаблон "Одиночка" ("Singleton").
  */
 public class ObjectCloner {
     private static final Class<Value>[] IMMUTABLE_VALUE_CLASSES = new Class[] {
@@ -42,6 +44,11 @@ public class ObjectCloner {
         }
     }
 
+    /**
+     * Возвращает экземпляр данного класса. Экземпляр нельзя использовать при совместном доступе нескольких потоков
+     * (например, объявлять ObjectCloner полем класса, который реализует шаблон "Одиночка" ("Singleton"), так класс {@link ObjectCloner} потоконебезопасный.
+     * @return
+     */
     public static ObjectCloner getInstance () {
         return objectCloner.get();
     }

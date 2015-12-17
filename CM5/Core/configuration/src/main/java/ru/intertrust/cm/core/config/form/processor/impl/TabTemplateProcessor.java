@@ -23,12 +23,6 @@ public class TabTemplateProcessor implements FormTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
-    private ObjectCloner clonePerformer;
-
-    public TabTemplateProcessor() {
-        clonePerformer = ObjectCloner.getInstance();
-    }
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -84,7 +78,7 @@ public class TabTemplateProcessor implements FormTemplateProcessor {
     }
 
     private void processTabTemplate(TabConfig template, String idsPrefix, List<TabConfig> tabConfigs){
-        TabConfig tabConfig = clonePerformer.cloneObject(template);
+        TabConfig tabConfig = ObjectCloner.getInstance().cloneObject(template);
         if(idsPrefix != null){
             FormProcessingUtil.processTabIds(idsPrefix, tabConfig);
         }

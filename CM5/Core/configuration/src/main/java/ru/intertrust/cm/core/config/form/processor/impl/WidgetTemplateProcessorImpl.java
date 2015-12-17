@@ -25,12 +25,6 @@ public class WidgetTemplateProcessorImpl implements WidgetTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
-    private ObjectCloner clonePerformer;
-
-    public WidgetTemplateProcessorImpl() {
-        clonePerformer = ObjectCloner.getInstance();
-    }
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -119,7 +113,7 @@ public class WidgetTemplateProcessorImpl implements WidgetTemplateProcessor {
 
     private WidgetConfig processTemplate(WidgetTemplateConfig templateConfig,
                                          TemplateBasedWidgetConfig templateBasedWidgetConfig) {
-        WidgetConfig widgetConfig = clonePerformer.cloneObject(templateConfig.getWidgetConfig());
+        WidgetConfig widgetConfig = ObjectCloner.getInstance().cloneObject(templateConfig.getWidgetConfig());
         FormProcessingUtil.copyNotNullProperties(templateBasedWidgetConfig, widgetConfig);
         if (templateBasedWidgetConfig.getOverrideConfig() != null) {
            FormProcessingUtil.copyNotNullProperties(templateBasedWidgetConfig.getOverrideConfig().getWidgetConfig(), widgetConfig);

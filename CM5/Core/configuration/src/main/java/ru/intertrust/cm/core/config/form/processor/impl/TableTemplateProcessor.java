@@ -21,12 +21,6 @@ public class TableTemplateProcessor implements FormTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
-    private ObjectCloner clonePerformer;
-
-    public TableTemplateProcessor() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
-
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -130,7 +124,7 @@ public class TableTemplateProcessor implements FormTemplateProcessor {
     }
 
     private TableLayoutConfig processTableTemplate(TableLayoutConfig template, String idsPrefix) {
-        TableLayoutConfig result = clonePerformer.cloneObject(template);
+        TableLayoutConfig result = ObjectCloner.getInstance().cloneObject(template);
         if (idsPrefix != null) {
             FormProcessingUtil.processTableIds(idsPrefix, result);
         }

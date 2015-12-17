@@ -30,15 +30,9 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     @Qualifier("tableTemplateProcessor")
     private FormTemplateProcessor tableTemplateProcessor;
 
-    private ObjectCloner clonePerformer;
-
-    public PlainFormBuilderImpl() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
-
     @Override
     public FormConfig buildPlainForm(FormConfig rawFormConfig) {
-        FormConfig result = clonePerformer.cloneObject(rawFormConfig);
+        FormConfig result = ObjectCloner.getInstance().cloneObject(rawFormConfig);
         if (formExtensionsProcessor.hasExtensions(rawFormConfig)) {
             result = formExtensionsProcessor.processExtensions(result);
         }
