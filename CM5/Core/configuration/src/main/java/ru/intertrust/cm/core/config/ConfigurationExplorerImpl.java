@@ -51,8 +51,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Autowired
     private PlainFormBuilder plainFormBuilder;
 
-    //private ObjectCloner objectCloner = new ObjectCloner();
-
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
@@ -84,7 +82,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public Configuration getConfiguration() {
         readLock.lock();
         try {
-            return getReturnObject(configStorage.configuration);
+            return configStorage.configuration;
         } finally {
             readLock.unlock();
         }
@@ -93,7 +91,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     public GlobalSettingsConfig getGlobalSettings() {
         readLock.lock();
         try {
-            return getReturnObject(configStorage.globalSettings);
+            return configStorage.globalSettings;
         } finally {
             readLock.unlock();
         }
@@ -162,7 +160,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
 
             T config = (T) typeMap.get(name);
-            return getReturnObject(config);
+            return config;
         } finally {
             readLock.unlock();
         }
@@ -185,7 +183,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             List<T> result = new ArrayList<T>();
             result.addAll((Collection<T>) typeMap.values());
 
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -227,7 +225,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return Collections.emptyList();
             }
 
-            return getReturnObject(childTypes);
+            return childTypes;
         } finally {
             readLock.unlock();
         }
@@ -245,7 +243,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 referenceFieldConfigs = configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
             }
 
-            return getReturnObject(referenceFieldConfigs);
+            return referenceFieldConfigs;
         } finally {
             readLock.unlock();
         }
@@ -264,7 +262,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 immutableReferenceFieldConfigs = configStorage.immutableReferenceFieldsMap.get(domainObjectConfigName);
             }
 
-            return getReturnObject(immutableReferenceFieldConfigs);
+            return immutableReferenceFieldConfigs;
         } finally {
             readLock.unlock();
         }
@@ -305,7 +303,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 if (NullValues.isNull(result)) {
                     return null;
                 } else {
-                    return getReturnObject(result);
+                    return result;
                 }
             }
 
@@ -316,7 +314,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
                 if (!NullValues.isNull(result)) {
                     configStorage.fieldConfigMap.put(fieldConfigKey, result);
-                    return getReturnObject(result);
+                    return result;
                 }
 
                 DomainObjectTypeConfig domainObjectTypeConfig =
@@ -367,14 +365,14 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 if (NullValues.isNull(result)) {
                     return null;
                 } else {
-                    return getReturnObject(result);
+                    return result;
                 }
             }
 
             FieldConfig fieldConfig = getFieldConfig(doType, fieldName, false);
             if (fieldConfig != null) {
                 configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, doType);
-                return getReturnObject(doType);
+                return doType;
             } else {
                 DomainObjectTypeConfig doTypeConfig = getConfig(DomainObjectTypeConfig.class, doType);
                 if (doTypeConfig != null && doTypeConfig.getExtendsAttribute() != null) {
@@ -405,7 +403,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         try {
             FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
             CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
-            return getReturnObject(collectionColumnConfig);
+            return collectionColumnConfig;
         } finally {
             readLock.unlock();
         }
@@ -423,7 +421,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigContextMap(domainObjectType);
             }
 
-            return getReturnObject(dynamicGroups);
+            return dynamicGroups;
         } finally {
             readLock.unlock();
         }
@@ -441,7 +439,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigsByTrackDOMap(trackDOTypeName, status);
             }
 
-            return getReturnObject(dynamicGroups);
+            return dynamicGroups;
         } finally {
             readLock.unlock();
         }
@@ -473,7 +471,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return null;
             }
 
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -491,7 +489,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
             //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
             AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-            return getReturnObject(accessMatrixConfig);
+            return accessMatrixConfig;
         } finally {
             readLock.unlock();
         }
@@ -521,7 +519,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return null;
             }
 
-            return getReturnObject(accessMatrixConfig);
+            return accessMatrixConfig;
         } finally {
             readLock.unlock();
         }
@@ -595,7 +593,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return null;
             }
 
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -620,7 +618,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 result = configStorage.typesDelegatingAccessCheckTo.get(typeName);
             }
 
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -645,7 +643,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
             }
 
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -661,10 +659,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.localizedToolbarConfigMap.get(currentLocale);
             if (toolbarMap != null) {
                 ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
-                return getReturnObject(toolBarConfig);
+                return toolBarConfig;
             }
             ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
-            return getReturnObject(toolBarConfig);
+            return toolBarConfig;
         } finally {
             readLock.unlock();
         }
@@ -710,7 +708,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (result == null) {
                 result = configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
             }
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -725,7 +723,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
                 result = this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
             }
-            return getReturnObject(result);
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -740,12 +738,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         } finally {
             writeLock.unlock();
         }
-    }
-
-    private <T> T getReturnObject(Object source) {
-        //return objectCloner.cloneObject(source, tClass);
-        // cloning is switched off for performance purpose
-        return (T) source;
     }
 
     @Override
@@ -795,9 +787,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         readLock.lock();
         try {
             if (this.configStorage.eventLogDomainObjectAccessConfig.containsKey(typeName)) {
-                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get(typeName));
+                return this.configStorage.eventLogDomainObjectAccessConfig.get(typeName);
             } else {
-                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get("*"));
+                return this.configStorage.eventLogDomainObjectAccessConfig.get("*");
             }
         } finally {
             readLock.unlock();
@@ -835,7 +827,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                         configStorage.localizedConfigMap.get(new Pair<String, Class>(currentLocale, type));
                 if (typeMap != null) {
                     T config = (T) typeMap.get(name);
-                    return getReturnObject(config);
+                    return config;
                 }
             } finally {
                 readLock.unlock();
@@ -853,10 +845,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             if (typeMap == null) {
                 return Collections.EMPTY_LIST;
             }
-//            //Перекладываем в другой контейнер, для возможности сериализации
+            //Перекладываем в другой контейнер, для возможности сериализации
             List<T> result = new ArrayList<T>();
             result.addAll((Collection<T>) typeMap.values());
-            return getReturnObject(typeMap.values());
+            return result;
         } finally {
             readLock.unlock();
         }
@@ -886,7 +878,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return null;
             }
 
-            return getReturnObject(formConfig);
+            return formConfig;
         } finally {
             readLock.unlock();
         }
