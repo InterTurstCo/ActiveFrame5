@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -319,4 +320,6 @@ public interface ConfigurationExplorer {
      * @return список родительских конфигураций формы, если родительских конфигураций нет - пустой список
      */
     List<FormConfig> getParentFormConfigs(FormConfig formConfig);
+
+    ReentrantReadWriteLock getReadWriteLock();
 }
