@@ -351,7 +351,7 @@ public class GlobalCacheImpl implements GlobalCache {
                                      int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
         final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
-        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues, offset, limit); // todo clone key
+        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues == null ? null : new ArrayList<>(paramValues), offset, limit);
         notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
     }
 
@@ -414,7 +414,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 final Boolean accessGranted = personAccess.getValue();
                 // todo: update only if access already set!
                 userObjectAccess.setAccess(new UserSubject((int) ((RdbmsId) personAccess.getKey()).getId()), objectId, accessGranted);
-                if (++count % 100 == 0) {
+                if (++count % 50 == 0) {
                     assureCacheSizeLimit();
                 }
                 if (!atLeastOnePersonAccessGranted && accessGranted == Boolean.TRUE) {
@@ -692,6 +692,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 if (invalid) {
                     baseNode.removeCollectionNode(subKey);
                 }
+                accessSorter.remove(new CollectionAccessKey(entry.getKey(), subKey));
             }
         }
     }
@@ -1107,7 +1108,8 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private class Cleaner {
-        private static final int CLEAN_ATTEMPTS = 100;
+        private static final int CLEAN_ATTEMPTS = 10000;
+        private static final int CLEAN_ATTEMPTS_WARN = 100;
 
         public void checkSize() {
             logger.warn("Cache size: " + size.get());
@@ -1125,8 +1127,10 @@ public class GlobalCacheImpl implements GlobalCache {
                 if (size.get() < sizeLimit) {
                     return;
                 }
+                if (i % CLEAN_ATTEMPTS_WARN == 0 && i > 0) {
+                    logger.warn("After " + i + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB");
+                }
             }
-            logger.warn("After " + CLEAN_ATTEMPTS + " attempts size: " + size + " is still larger than limit: " + sizeLimit / Size.BYTES_IN_MEGABYTE + " MB");
         }
 
         public void deleteEldest() {
