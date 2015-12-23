@@ -532,7 +532,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (domainObject.isNew()) {
             for (String fieldName : domainObject.getFields()) {
                 Value<?> newValue = domainObject.getValue(fieldName);
-                if (newValue != null){
+                if (newValue != null && newValue.get() != null){
                     modifiedFieldNames.add(new FieldModificationImpl(fieldName, null, newValue));
                 }
             }
@@ -556,14 +556,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private boolean isValueChanged(Value originalValue, Value newValue) {
-        if (newValue == null && originalValue == null) {
+        final boolean originalIsEmpty = originalValue == null || originalValue.get() == null;
+        final boolean newIsEmpty = newValue == null || newValue.get() == null;
+        if (originalIsEmpty && newIsEmpty) {
             return false;
         }
-
-        if (newValue != null && originalValue == null) {
+        if (!newIsEmpty && originalIsEmpty || !originalIsEmpty && newIsEmpty) {
             return true;
         }
-        return originalValue != null && !originalValue.equals(newValue);
+        return !originalValue.equals(newValue);
     }
 
     @Override
