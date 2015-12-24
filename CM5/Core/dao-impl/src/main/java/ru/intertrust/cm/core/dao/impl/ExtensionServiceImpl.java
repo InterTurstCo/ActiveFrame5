@@ -125,7 +125,7 @@ public class ExtensionServiceImpl implements ExtensionService{
                                             // Проверяем есть ли спринг бин этого
                                             // класса, если есть то используем его
                                             String[] beanNames =
-                                                    applicationContext.getBeanNamesForType(extentionPointClass);
+                                                    applicationContext.getBeanNamesForType(extentionPointClass, false, false);
                                             if (beanNames.length > 0) {
                                                 extentionPoint = (ExtensionPointHandler) applicationContext
                                                         .getBean(extentionPointClass);
