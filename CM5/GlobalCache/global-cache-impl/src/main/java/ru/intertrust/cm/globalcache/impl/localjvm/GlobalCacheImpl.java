@@ -392,7 +392,6 @@ public class GlobalCacheImpl implements GlobalCache {
             return;
         }
         final Set<String> objectTypesAccessChanged = accessChanges.getObjectTypesAccessChanged();
-        final HashSet<String> allTypesAffected = new HashSet<>(objectTypesAccessChanged);
         for (String type : objectTypesAccessChanged) {
             Collection<String> typesAffected = explorer.getAllTypesDelegatingAccessCheckToInLowerCase(type);
             for (String typeAffected : typesAffected) {
