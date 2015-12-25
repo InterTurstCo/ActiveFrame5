@@ -2,16 +2,14 @@ package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -38,7 +36,7 @@ public class DateTimeValueConverter extends AbstractDateValueConverter<DateTimeV
     public DateTimeValue contextToValue(final DateTimeContext context) {
         if (context.getDateTime() != null) {
             final String timeZoneId = getTimeZoneId(context.getTimeZoneId());
-            final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
+            final DateFormat dateFormat = ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(ModelUtil.DTO_PATTERN, null), TimeZone.getTimeZone(timeZoneId));
             dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             try {
                 final Date date = dateFormat.parse(context.getDateTime());
