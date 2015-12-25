@@ -49,6 +49,8 @@
     <bean id="formResolver" class="ru.intertrust.cm.core.gui.impl.server.form.FormResolver" scope="singleton"
           lazy-init="true"/>
 
+    <bean id="representationFormatHandler" class="ru.intertrust.cm.core.gui.impl.server.widget.RepresentationFormatHandler" scope="singleton"/>
+
     <bean id="defaultImageMapper" class="ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl"/>
 
     <bean id="navigationTreeResolver" class="ru.intertrust.cm.core.gui.impl.server.plugin.handlers.NavigationTreeResolver"

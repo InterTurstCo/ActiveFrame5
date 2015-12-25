@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.gui.api.server.widget.FormatHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.ValueEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
-import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.FormObjects;
 import ru.intertrust.cm.core.gui.model.form.SingleObjectNode;
@@ -37,7 +36,6 @@ import static ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetRepresenta
  *         Date: 03.05.14
  *         Time: 13:15
  */
-@ComponentName("representation-updater")
 public class RepresentationFormatHandler implements FormatHandler {
     @Autowired
     private ApplicationContext applicationContext;

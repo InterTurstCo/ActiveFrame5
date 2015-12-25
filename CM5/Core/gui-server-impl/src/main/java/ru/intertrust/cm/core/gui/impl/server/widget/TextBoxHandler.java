@@ -17,20 +17,18 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
  */
 @ComponentName("text-box")
 public class TextBoxHandler extends ValueEditingWidgetHandler {
-    private TextState state;
-
     @Override
     public TextState getInitialState(WidgetContext context) {
         final FieldConfig fieldConfig = getFieldConfig(context);
         boolean encrypted = fieldConfig instanceof StringFieldConfig && ((StringFieldConfig) fieldConfig).isEncrypted();
-        state = new TextState(context.<String>getFieldPlainValue(), encrypted);
+        TextState state = new TextState(context.<String>getFieldPlainValue(), encrypted);
         if (context.getWidgetConfig() instanceof TextBoxConfig) {
-            setPaswordIds(context);
+            setPaswordIds(context, state);
         }
         return state;
     }
 
-    private void setPaswordIds(WidgetContext context) {
+    private void setPaswordIds(WidgetContext context, TextState state) {
             TextBoxConfig currentTextBoxConfig = context.getWidgetConfig();
 
             if (currentTextBoxConfig.getConfirmationFor() != null) {
