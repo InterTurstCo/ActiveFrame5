@@ -50,6 +50,10 @@
         <extended-search-popup>
             <dialog-window height="600px" width="650px" resizable="true"/>
         </extended-search-popup>
+        
+        <default-form-editing-style>
+            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit>
+        </default-form-editing-style>
         <right-panel/>
        <bottom-panel>
           <stick-notes/>

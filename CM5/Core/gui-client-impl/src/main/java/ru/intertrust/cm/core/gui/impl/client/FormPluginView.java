@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
+import ru.intertrust.cm.core.gui.impl.client.event.FormSavedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.FormSavedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
@@ -23,7 +26,7 @@ import java.util.Map;
  *         Date: 23.08.13
  *         Time: 15:29
  */
-public class FormPluginView extends PluginView {
+public class FormPluginView extends PluginView implements FormSavedEventHandler {
 
     private FormPanel formPanel;
     // локальная шина событий
@@ -51,6 +54,7 @@ public class FormPluginView extends PluginView {
         formPanel = new FormPanel(formDisplayData, pluginState, eventBus, plugin);
         Application.getInstance().getHistoryManager()
                 .setMode(HistoryManager.Mode.APPLY, FormPlugin.class.getSimpleName());
+        eventBus.addHandler(FormSavedEvent.TYPE, this);
     }
 
     @Override
@@ -69,26 +73,26 @@ public class FormPluginView extends PluginView {
             if (filter.exclude(widget)) {
                 continue;
             }
-           putWidgetStateInMap(widget, deepClone, result);
+            putWidgetStateInMap(widget, deepClone, result);
         }
 
         return result;
     }
 
-    private void putWidgetStateInMap(BaseWidget widget, boolean deepClone,  HashMap<String, WidgetState> stateMap){
+    private void putWidgetStateInMap(BaseWidget widget, boolean deepClone, HashMap<String, WidgetState> stateMap) {
         String id = widget.getDisplayConfig().getId();
-            try {
-                WidgetState state = null;
-                if(deepClone){
-                    state = widget.getFullClientStateCopy();
-                    stateMap.put(id, state);
-                } else if(widget.isEditable()){
-                    state = widget.getCurrentState();
-                    stateMap.put(id, state);
-                }
-            } catch (GuiException e) {
-                ApplicationWindow.errorAlert("Ошибка при получении состояния виджетов: " + e.getMessage()); // todo something more interesting
+        try {
+            WidgetState state = null;
+            if (deepClone) {
+                state = widget.getFullClientStateCopy();
+                stateMap.put(id, state);
+            } else if (widget.isEditable()) {
+                state = widget.getCurrentState();
+                stateMap.put(id, state);
             }
+        } catch (GuiException e) {
+            ApplicationWindow.errorAlert("Ошибка при получении состояния виджетов: " + e.getMessage()); // todo something more interesting
+        }
 
     }
 
@@ -102,6 +106,13 @@ public class FormPluginView extends PluginView {
 
     public void updateViewFromHistory() {
         formPanel.updateViewFromHistory();
+    }
+
+    @Override
+    public void afterFormSaved(FormSavedEvent event) {
+        if (event.getViewHashcode() == hashCode()) {
+            Window.alert("I am saved "+hashCode());
+        }
     }
 
     private static class DefaultWidgetStateFilter implements IWidgetStateFilter {

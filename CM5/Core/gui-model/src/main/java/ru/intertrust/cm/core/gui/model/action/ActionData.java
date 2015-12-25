@@ -18,4 +18,6 @@ public class ActionData implements Dto {
     public void setOnSuccessMessage(String onSuccessMessage) {
         this.onSuccessMessage = onSuccessMessage;
     }
+
+
 }

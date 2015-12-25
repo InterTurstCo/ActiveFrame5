@@ -29,6 +29,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
     @Element(name = "base-url", required = false)
     private BaseUrlConfig baseUrlConfig;
 
+    @Element(name = "default-form-editing-style", required = false)
+    private DefaultFormEditingStyleConfig defaultFormEditingStyleConfig;
+
     @Element(name = "header-notification-refresh", required = false)
     private HeaderNotificationRefreshConfig headerNotificationRefreshConfig;
 
@@ -83,6 +86,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     public CollectionCountCacheRefreshConfig getCollectionCountCacheRefreshConfig() {
         return collectionCountCacheRefreshConfig;
+    }
+
+    public DefaultFormEditingStyleConfig getDefaultFormEditingStyleConfig() {
+        return defaultFormEditingStyleConfig;
+    }
+
+    public void setDefaultFormEditingStyleConfig(DefaultFormEditingStyleConfig defaultFormEditingStyleConfig) {
+        this.defaultFormEditingStyleConfig = defaultFormEditingStyleConfig;
     }
 
     public void setCollectionCountCacheRefreshConfig(CollectionCountCacheRefreshConfig collectionCountCacheRefreshConfig) {
@@ -195,7 +206,10 @@ public class BusinessUniverseConfig implements LocalizableConfig {
                 : that.sideBarOpenningTimeConfig != null) {
             return false;
         }
-
+        if (defaultFormEditingStyleConfig != null ? !defaultFormEditingStyleConfig.equals(that.defaultFormEditingStyleConfig)
+                : that.defaultFormEditingStyleConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -209,6 +223,7 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         result = 31 * result + (collectionCountRefreshConfig != null ? collectionCountRefreshConfig.hashCode() : 0);
         result = 31 * result + (collectionCountCacheRefreshConfig != null ? collectionCountCacheRefreshConfig.hashCode() : 0);
         result = 31 * result + (settingsPopupConfig != null ? settingsPopupConfig.hashCode() : 0);
+        result = 31 * result + (defaultFormEditingStyleConfig != null ? defaultFormEditingStyleConfig.hashCode() : 0);
         return result;
     }
 

@@ -178,6 +178,7 @@
                                 <form-mapping domain-object-type="country" form="country_form"/>
                                 <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
                             </form-viewer>
+                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -200,7 +201,7 @@
                                     <default-sort-criteria column-field="name" order="asc"/>
                                 </child-collection>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -234,7 +235,7 @@
                             <collection-viewer>
                                 <collection-ref name="a2_collection"/>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -244,7 +245,7 @@
                             <collection-viewer>
                                 <collection-ref name="a3_collection"/>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="false">false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

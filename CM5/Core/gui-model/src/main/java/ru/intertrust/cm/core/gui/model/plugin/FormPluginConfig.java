@@ -102,4 +102,5 @@ public class FormPluginConfig extends PluginConfig {
     public String getComponentName() {
         return "form.plugin";
     }
+
 }
