@@ -549,7 +549,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         lock();
         try {
             Set<String> result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
-            if (result == null) {
+            if (result != null) {
                 return result;
             }
         } finally {
