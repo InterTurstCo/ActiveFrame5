@@ -103,11 +103,8 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
             return null;
         }
         try {
-            final long t1 = System.nanoTime();
             final Dto dto = (Dto) componentHandler.getClass().getMethod(command.getName(), Dto.class)
                     .invoke(componentHandler, command.getParameter());
-            final long t2 = System.nanoTime();
-            log.warn("Command " + command.getComponentName() + "." + command.getName() + ": " + (t2 - t1) / 1000.0 + " ms");
             return dto;
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
