@@ -82,13 +82,13 @@ public class SaveAction extends SimpleServerAction {
                     if (defaultFormEditingStyleConfig != null
                             && defaultFormEditingStyleConfig.getToggleEditConfig().getSwitchToReadModeOnSave() != null
                             && defaultFormEditingStyleConfig.getToggleEditConfig().getSwitchToReadModeOnSave()) {
-                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode(),formPluginData.getFormDisplayData().getFormState()));
+                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode()));
                     }
                 } else {
                     if (domainObjectSurferConfig.isToggleEdit()
                             && domainObjectSurferConfig.getToggleEdit().getSwitchToReadModeOnSave() != null
                             && domainObjectSurferConfig.getToggleEdit().getSwitchToReadModeOnSave()) {
-                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode(),formPluginData.getFormDisplayData().getFormState()));
+                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode()));
                     }
                 }
 

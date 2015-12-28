@@ -13,13 +13,11 @@ public class FormSavedEvent extends GwtEvent<FormSavedEventHandler> {
 
     private Boolean readOnly;
     private int viewHashcode;
-    private FormState formState;
     public static Type<FormSavedEventHandler> TYPE = new GwtEvent.Type<>();
 
-    public FormSavedEvent(Boolean readOnly, int viewHashcode, FormState formState) {
+    public FormSavedEvent(Boolean readOnly, int viewHashcode) {
         this.readOnly = readOnly;
         this.viewHashcode = viewHashcode;
-        this.formState = formState;
     }
 
     @Override
@@ -48,11 +46,4 @@ public class FormSavedEvent extends GwtEvent<FormSavedEventHandler> {
         this.viewHashcode = viewHashcode;
     }
 
-    public FormState getFormState() {
-        return formState;
-    }
-
-    public void setFormState(FormState formState) {
-        this.formState = formState;
-    }
 }
