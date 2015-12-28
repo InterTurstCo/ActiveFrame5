@@ -2,6 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
@@ -111,7 +114,7 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
     @Override
     public void afterFormSaved(FormSavedEvent event) {
         if (event.getViewHashcode() == hashCode()) {
-            Window.alert("I am saved "+hashCode());
+           formPanel.setReadOnly();
         }
     }
 

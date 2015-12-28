@@ -94,7 +94,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         this.formDisplayData.setFormState(formState);
     }
 
-    public void updateViewFromHistory() {
+   public void updateViewFromHistory() {
         final HistoryManager historyManager = Application.getInstance().getHistoryManager();
         final Integer tabNum = StringUtil.integerFromString(
                 historyManager.getValue(getFormIdentifier(), TAB_KEY), DEFAULT_TAB);
@@ -127,6 +127,12 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         return (T) widgetsById.get(id);
     }
 
+    public void setReadOnly(){
+        panel.clear();
+        state.setEditable(false);
+        build();
+    }
+
     private FlowPanel build() {
 
 
@@ -147,7 +153,6 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         buildTabs(markup);
 
         panel.add(bodyTabPanel);
-
         panel.add(footer);
         return panel;
     }

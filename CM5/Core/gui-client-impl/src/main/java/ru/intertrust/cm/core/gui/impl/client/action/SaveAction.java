@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.DefaultFormEditingStyleConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DomainObjectSurferConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -22,7 +23,9 @@ import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.IsDomainObjectEditor;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 
@@ -79,15 +82,14 @@ public class SaveAction extends SimpleServerAction {
                     if (defaultFormEditingStyleConfig != null
                             && defaultFormEditingStyleConfig.getToggleEditConfig().getSwitchToReadModeOnSave() != null
                             && defaultFormEditingStyleConfig.getToggleEditConfig().getSwitchToReadModeOnSave()) {
-                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode()));
+                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode(),formPluginData.getFormDisplayData().getFormState()));
                     }
                 } else {
                     if (domainObjectSurferConfig.isToggleEdit()
                             && domainObjectSurferConfig.getToggleEdit().getSwitchToReadModeOnSave() != null
                             && domainObjectSurferConfig.getToggleEdit().getSwitchToReadModeOnSave()) {
-                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode()));
+                        plugin.getLocalEventBus().fireEvent(new FormSavedEvent(true, plugin.getView().hashCode(),formPluginData.getFormDisplayData().getFormState()));
                     }
-
                 }
 
             }

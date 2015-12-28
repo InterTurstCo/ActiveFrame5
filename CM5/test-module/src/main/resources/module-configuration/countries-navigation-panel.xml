@@ -178,7 +178,7 @@
                                 <form-mapping domain-object-type="country" form="country_form"/>
                                 <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
                             </form-viewer>
-                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
