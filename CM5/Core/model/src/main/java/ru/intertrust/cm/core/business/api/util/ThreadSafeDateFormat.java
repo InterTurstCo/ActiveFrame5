@@ -18,6 +18,7 @@ import java.util.TimeZone;
  */
 @GwtIncompatible
 public class ThreadSafeDateFormat {
+    public static final TimeZone DEFAULT_TIME_ZONE = new ImmutableTimeZone();
 
     private static final ThreadLocal<HashMap<Pair, SimpleDateFormat>> dateFormatsCache = new ThreadLocal<HashMap<Pair, SimpleDateFormat>>() {
         @Override
@@ -39,37 +40,41 @@ public class ThreadSafeDateFormat {
      * @param timeZone временная зона
      * @return закешированный объект DateFormat.
      */
-    public static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, TimeZone timeZone) {
+    public static SimpleDateFormat getDateFormat(final Pair<String, Locale> pair, final TimeZone timeZone) {
         final HashMap<Pair, SimpleDateFormat> cache = dateFormatsCache.get();
-        if (cache.get(pair) != null) {
-            SimpleDateFormat dateFormat = cache.get(pair);
-            setTimeZone(timeZone, dateFormat);
-            return dateFormat;
+        final SimpleDateFormat cachedSimpleDateFormat = cache.get(pair);
+        if (cachedSimpleDateFormat != null) {
+            setTimeZone(timeZone, cachedSimpleDateFormat);
+            return cachedSimpleDateFormat;
         } else {
-            SimpleDateFormat dateFormat;
+            final SimpleDateFormat dateFormat;
             if (pair.getSecond() != null) {
                 dateFormat = new SimpleDateFormat(pair.getFirst(), pair.getSecond());
             } else {
                 dateFormat = new SimpleDateFormat(pair.getFirst());
 
             }
-            setTimeZone(timeZone, dateFormat);
+            dateFormat.setTimeZone(timeZone == null ? DEFAULT_TIME_ZONE : timeZone);
             cache.put(pair, dateFormat);
             return dateFormat;
         }
     }
-    
+
     /**
      * Устанавливает временную зону. Если тайм зона не передана, устанавливает значение по умолчанию
      * (TimeZone.getDefault()).
      * @param timeZone
      * @param dateFormat
      */
-    private static void setTimeZone(TimeZone timeZone, SimpleDateFormat dateFormat) {
+    private static void setTimeZone(final TimeZone timeZone, final SimpleDateFormat dateFormat) {
         if (timeZone != null) {
-            dateFormat.setTimeZone(timeZone);
+            if (!dateFormat.getTimeZone().equals(timeZone)) {
+                dateFormat.setTimeZone(timeZone);
+            }
         } else {
-            dateFormat.setTimeZone(TimeZone.getDefault());
+            if (!dateFormat.getTimeZone().equals(DEFAULT_TIME_ZONE)) {
+                dateFormat.setTimeZone(DEFAULT_TIME_ZONE);
+            }
         }
     }
 
@@ -133,4 +138,97 @@ public class ThreadSafeDateFormat {
         }
     }
 
+    private static final class ImmutableTimeZone extends TimeZone {
+        public final TimeZone timeZone;
+        public final int hashCode;
+
+        public ImmutableTimeZone() {
+            this(TimeZone.getDefault());
+        }
+
+        private ImmutableTimeZone(TimeZone timeZone) {
+            this.timeZone = timeZone;
+            hashCode = timeZone.hashCode();
+        }
+
+        @Override
+        public int getOffset(int era, int year, int month, int day, int dayOfWeek, int milliseconds) {
+            return timeZone.getOffset(era, year, month, day, dayOfWeek, milliseconds);
+        }
+
+        @Override
+        public int getOffset(long date) {
+            return timeZone.getOffset(date);
+        }
+
+        @Override
+        public void setRawOffset(int offsetMillis) {
+            throw new UnsupportedOperationException("Not supported");
+        }
+
+        @Override
+        public int getRawOffset() {
+            return timeZone.getRawOffset();
+        }
+
+        @Override
+        public boolean useDaylightTime() {
+            return timeZone.useDaylightTime();
+        }
+
+        @Override
+        public boolean inDaylightTime(Date date) {
+            return timeZone.inDaylightTime(date);
+        }
+
+        @Override
+        public void setID(String ID) {
+            throw new UnsupportedOperationException("Not supported");
+        }
+
+        @Override
+        public String getID() {
+            return timeZone.getID();
+        }
+
+        @Override
+        public String getDisplayName(boolean daylight, int style, Locale locale) {
+            return timeZone.getDisplayName(daylight, style, locale);
+        }
+
+        @Override
+        public int getDSTSavings() {
+            return timeZone.getDSTSavings();
+        }
+
+        @Override
+        public boolean observesDaylightTime() {
+            return timeZone.observesDaylightTime();
+        }
+
+        @Override
+        public boolean hasSameRules(TimeZone other) {
+            return this == other || timeZone.hasSameRules(other);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return this == obj || timeZone.equals(obj);
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
+        @Override
+        public Object clone() {
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return timeZone.toString();
+        }
+    }
 }

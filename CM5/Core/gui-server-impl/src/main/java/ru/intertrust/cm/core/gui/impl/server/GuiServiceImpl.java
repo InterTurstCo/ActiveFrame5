@@ -44,7 +44,6 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**

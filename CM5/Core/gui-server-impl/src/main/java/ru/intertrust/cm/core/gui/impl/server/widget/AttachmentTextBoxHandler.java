@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import com.healthmarketscience.rmiio.*;
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -35,8 +36,6 @@ public class AttachmentTextBoxHandler extends LinkEditingWidgetHandler {
 
     @Autowired
     private AttachmentService attachmentService;
-
-    private AttachmentTextState state;
 
     @Override
     public AttachmentTextState getInitialState(WidgetContext context) {

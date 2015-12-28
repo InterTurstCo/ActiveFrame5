@@ -44,9 +44,15 @@ public class PatternIterator {
     }
 
     private void initLastElement() {
-        String[] splitByDotAndOr = fieldPath.split("\\.|\\|");
-        int index = splitByDotAndOr.length - 1;
-        lastElement = splitByDotAndOr[index];
+        final int length = fieldPath.length();
+        for (int i = length - 1; i >= 0; --i) {
+            final char c = fieldPath.charAt(i);
+            if (c == '.' || c == '|') {
+                lastElement = fieldPath.substring(i + 1);
+                return;
+            }
+        }
+        lastElement = fieldPath;
     }
 
     private void parseFieldPath() {

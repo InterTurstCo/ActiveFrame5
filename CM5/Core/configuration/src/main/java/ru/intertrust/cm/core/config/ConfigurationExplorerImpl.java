@@ -8,7 +8,6 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.Pair;
-import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
@@ -21,8 +20,9 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 
 import java.util.*;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
+import static ru.intertrust.cm.core.config.NullValues.convertNull;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -34,8 +34,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private final static Logger logger = LoggerFactory.getLogger(ConfigurationExplorerImpl.class);
 
     private final ReentrantReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private final Lock readLock = readWriteLock.readLock();
-    private final Lock writeLock = readWriteLock.writeLock();
 
     private ConfigurationStorage configStorage;
     private ConfigurationStorageBuilder configurationStorageBuilder;
@@ -50,8 +48,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     @Autowired
     private PlainFormBuilder plainFormBuilder;
-
-    //private ObjectCloner objectCloner = new ObjectCloner();
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
@@ -82,20 +78,20 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public Configuration getConfiguration() {
-        readLock.lock();
+        lock();
         try {
-            return getReturnObject(configStorage.configuration);
+            return configStorage.configuration;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     public GlobalSettingsConfig getGlobalSettings() {
-        readLock.lock();
+        lock();
         try {
-            return getReturnObject(configStorage.globalSettings);
+            return configStorage.globalSettings;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -154,17 +150,16 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     @SuppressWarnings("unchecked")
     public <T> T getConfig(Class<T> type, String name) {
-        readLock.lock();
+        lock();
         try {
             CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
             if (typeMap == null) {
                 return null;
             }
 
-            T config = (T) typeMap.get(name);
-            return getReturnObject(config);
+            return(T) typeMap.get(name);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -174,7 +169,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     @SuppressWarnings("unchecked")
     public <T> Collection<T> getConfigs(Class<T> type) {
-        readLock.lock();
+        lock();
         try {
             CaseInsensitiveMap<TopLevelConfig> typeMap = configStorage.topLevelConfigMap.get(type);
             if (typeMap == null) {
@@ -184,10 +179,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             //Перекладываем в другой контейнер, для возможности сериализации
             List<T> result = new ArrayList<T>();
             result.addAll((Collection<T>) typeMap.values());
-
-            return getReturnObject(result);
+            return result;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -197,27 +191,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     @SuppressWarnings("unchecked")
     public Set<Class<?>> getTopLevelConfigClasses() {
-        readLock.lock();
+        lock();
         try {
             return configStorage.topLevelConfigMap.keySet();
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     @Override
     public DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName) {
-        readLock.lock();
-        try {
-            return getConfig(DomainObjectTypeConfig.class, typeName);
-        } finally {
-            readLock.unlock();
-        }
+        return getConfig(DomainObjectTypeConfig.class, typeName);
     }
 
     @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
-        readLock.lock();
+        lock();
         try {
             Collection<DomainObjectTypeConfig> childTypes =
                     includeIndirect ? configStorage.indirectChildDomainObjectTypesMap.get(typeName) :
@@ -227,9 +216,9 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
                 return Collections.emptyList();
             }
 
-            return getReturnObject(childTypes);
+            return childTypes;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -238,17 +227,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName) {
-        readLock.lock();
+        lock();
         try {
             Set<ReferenceFieldConfig> referenceFieldConfigs = configStorage.referenceFieldsMap.get(domainObjectConfigName);
-            if (referenceFieldConfigs == null) {
-                referenceFieldConfigs = configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
+            if (referenceFieldConfigs != null) {
+                return referenceFieldConfigs;
             }
-
-            return getReturnObject(referenceFieldConfigs);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
     }
 
     /**
@@ -256,17 +245,23 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public Set<ReferenceFieldConfig> getImmutableReferenceFieldConfigs(String domainObjectConfigName) {
-        readLock.lock();
+        lock();
         try {
             Set<ReferenceFieldConfig> immutableReferenceFieldConfigs = configStorage.immutableReferenceFieldsMap.get(domainObjectConfigName);
-            if (immutableReferenceFieldConfigs == null) {
-                configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
-                immutableReferenceFieldConfigs = configStorage.immutableReferenceFieldsMap.get(domainObjectConfigName);
+            if (immutableReferenceFieldConfigs != null) {
+                return immutableReferenceFieldConfigs;
             }
-
-            return getReturnObject(immutableReferenceFieldConfigs);
         } finally {
-            readLock.unlock();
+            unlock();
+        }
+
+        configurationStorageBuilder.fillReferenceFieldsMap(domainObjectConfigName);
+
+        lock();
+        try {
+            return configStorage.immutableReferenceFieldsMap.get(domainObjectConfigName);
+        } finally {
+            unlock();
         }
     }
 
@@ -275,12 +270,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
-        readLock.lock();
-        try {
-            return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
-        } finally {
-            readLock.unlock();
-        }
+        return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
     }
 
     /**
@@ -288,112 +278,58 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
-        if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
-            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
-        }
+        lock();
 
-        if (domainObjectConfigName == null || fieldConfigName == null) {
-            return null;
-        }
-
-        readLock.lock();
         try {
+            if (REFERENCE_TYPE_ANY.equals(domainObjectConfigName)) {
+                throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+            }
+
+            if (domainObjectConfigName == null || fieldConfigName == null) {
+                return null;
+            }
+
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
             FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
 
             if (result != null) {
-                if (NullValues.isNull(result)) {
-                    return null;
-                } else {
-                    return getReturnObject(result);
-                }
-            }
-
-            if (returnInheritedConfig) {
-                FieldConfigKey fieldConfigKeyWithoutInheritance =
-                        new FieldConfigKey(domainObjectConfigName, fieldConfigName, false);
-                result = configStorage.fieldConfigMap.get(fieldConfigKeyWithoutInheritance);
-
-                if (!NullValues.isNull(result)) {
-                    configStorage.fieldConfigMap.put(fieldConfigKey, result);
-                    return getReturnObject(result);
-                }
-
-                DomainObjectTypeConfig domainObjectTypeConfig =
-                        getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
-
-                if (domainObjectTypeConfig == null || domainObjectTypeConfig.getExtendsAttribute() == null) {
-                    configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                    return null;
-                }
-
-                result = getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
-                if (NullValues.isNull(result)) {
-                    configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                    return null;
-                } else {
-                    configStorage.fieldConfigMap.put(fieldConfigKey, result);
-                    return result;
-                }
-            } else {
-                configStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                return null;
+                return convertNull(result);
             }
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillFieldConfigMap(domainObjectConfigName, fieldConfigName, returnInheritedConfig));
     }
 
     @Override
     public String getFromHierarchyDomainObjectTypeHavingField(String doType, String fieldName) {
-        if (REFERENCE_TYPE_ANY.equals(doType)) {
-            throw new IllegalArgumentException("'*' is not a valid Domain Object type");
-        }
+        lock();
 
-        if (doType == null) {
-            throw new IllegalArgumentException("doType cannot be null");
-        }
-
-        if (fieldName == null) {
-            throw new IllegalArgumentException("fieldName cannot be null");
-        }
-
-        readLock.lock();
         try {
+            if (REFERENCE_TYPE_ANY.equals(doType)) {
+                throw new IllegalArgumentException("'*' is not a valid Domain Object type");
+            }
+
+            if (doType == null) {
+                throw new IllegalArgumentException("doType cannot be null");
+            }
+
+            if (fieldName == null) {
+                throw new IllegalArgumentException("fieldName cannot be null");
+            }
+
             FieldConfigKey fieldConfigKey = new FieldConfigKey(doType, fieldName);
             String result = configStorage.typeInHierarchyHavingFieldMap.get(fieldConfigKey);
 
             if (result != null) {
-                if (NullValues.isNull(result)) {
-                    return null;
-                } else {
-                    return getReturnObject(result);
-                }
-            }
-
-            FieldConfig fieldConfig = getFieldConfig(doType, fieldName, false);
-            if (fieldConfig != null) {
-                configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, doType);
-                return getReturnObject(doType);
-            } else {
-                DomainObjectTypeConfig doTypeConfig = getConfig(DomainObjectTypeConfig.class, doType);
-                if (doTypeConfig != null && doTypeConfig.getExtendsAttribute() != null) {
-                    result = getFromHierarchyDomainObjectTypeHavingField(doTypeConfig.getExtendsAttribute(), fieldName);
-                    if (NullValues.isNull(result)) {
-                        configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, NullValues.STRING);
-                        return null;
-                    } else {
-                        configStorage.typeInHierarchyHavingFieldMap.put(fieldConfigKey, result);
-                        return result;
-                    }
-                } else {
-                    throw new ConfigurationException("Field '" + fieldName +
-                            "' is not found in hierarchy of domain object type '" + doType + "'");
-                }
+                return convertNull(result);
             }
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillTypeInHierarchyHavingField(doType, fieldName));
     }
 
     /**
@@ -401,13 +337,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public CollectionColumnConfig getCollectionColumnConfig(String collectionViewName, String columnConfigName) {
-        readLock.lock();
+        lock();
         try {
             FieldConfigKey collectionColumnConfigKey = new FieldConfigKey(collectionViewName, columnConfigName);
-            CollectionColumnConfig collectionColumnConfig = configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
-            return getReturnObject(collectionColumnConfig);
+            return configStorage.collectionColumnConfigMap.get(collectionColumnConfigKey);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -416,35 +351,35 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public List<DynamicGroupConfig> getDynamicGroupConfigsByContextType(String domainObjectType) {
-        readLock.lock();
+        lock();
         try {
             List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigByContextMap.get(domainObjectType);
-            if (dynamicGroups == null) {
-                dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigContextMap(domainObjectType);
+            if (dynamicGroups != null) {
+                return dynamicGroups;
             }
-
-            return getReturnObject(dynamicGroups);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return configurationStorageBuilder.fillDynamicGroupConfigContextMap(domainObjectType);
     }
 
     /**
      * {@inheritDoc}
      */
     public List<DynamicGroupConfig> getDynamicGroupConfigsByTrackDO(String trackDOTypeName, String status) {
-        readLock.lock();
+        lock();
         try {
             FieldConfigKey key = new FieldConfigKey(trackDOTypeName, status);
             List<DynamicGroupConfig> dynamicGroups = configStorage.dynamicGroupConfigsByTrackDOMap.get(key);
-            if (dynamicGroups == null) {
-                dynamicGroups = configurationStorageBuilder.fillDynamicGroupConfigsByTrackDOMap(trackDOTypeName, status);
+            if (dynamicGroups != null) {
+                return dynamicGroups;
             }
-
-            return getReturnObject(dynamicGroups);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return configurationStorageBuilder.fillDynamicGroupConfigsByTrackDOMap(trackDOTypeName, status);
     }
 
     /**
@@ -452,7 +387,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public AccessMatrixStatusConfig getAccessMatrixByObjectTypeAndStatus(String domainObjectType, String status) {
-        readLock.lock();
+        lock();
+
         try {
             if (isAuditLogType(domainObjectType)) {
                 domainObjectType = getParentTypeOfAuditLog(domainObjectType);
@@ -463,20 +399,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
 
             FieldConfigKey key = new FieldConfigKey(domainObjectType, status);
+
             AccessMatrixStatusConfig result = configStorage.accessMatrixByObjectTypeAndStatusMap.get(key);
-
-            if (result == null) {
-                result = configurationStorageBuilder.fillAccessMatrixByObjectTypeAndStatus(domainObjectType, status);
+            if (result != null) {
+                return convertNull(result);
             }
-
-            if (NullValues.isNull(result)) {
-                return null;
-            }
-
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillAccessMatrixByObjectTypeAndStatus(domainObjectType, status));
+
     }
 
     /**
@@ -484,22 +417,12 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public AccessMatrixConfig getAccessMatrixByObjectType(String domainObjectType) {
-        readLock.lock();
-        try {
-            if (isAuditLogType(domainObjectType)) {
-                domainObjectType = getParentTypeOfAuditLog(domainObjectType);
-            }
-            //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
-            AccessMatrixConfig accessMatrixConfig = getConfig(AccessMatrixConfig.class, domainObjectType);
-            return getReturnObject(accessMatrixConfig);
-        } finally {
-            readLock.unlock();
+        if (isAuditLogType(domainObjectType)) {
+            domainObjectType = getParentTypeOfAuditLog(domainObjectType);
         }
-    }
 
-    private String getParentTypeOfAuditLog(String domainObjectType) {
-        domainObjectType = domainObjectType.replace(Configuration.AUDIT_LOG_SUFFIX, "");
-        return domainObjectType;
+        //Получение конфигурации матрицы, здесь НЕЛЬЗЯ учитывать наследование, так как вызывающие методы должны получить матрицу непосредственно для переданного типа
+        return getConfig(AccessMatrixConfig.class, domainObjectType);
     }
 
     /**
@@ -507,24 +430,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public AccessMatrixConfig getAccessMatrixByObjectTypeUsingExtension(String domainObjectType) {
-        readLock.lock();
+        lock();
         try {
             AccessMatrixConfig accessMatrixConfig =
                     configStorage.accessMatrixByObjectTypeUsingExtensionMap.get(domainObjectType);
-
-            if (accessMatrixConfig == null) {
-                accessMatrixConfig = configurationStorageBuilder.
-                        fillAccessMatrixByObjectTypeUsingExtension(domainObjectType);
+            if (accessMatrixConfig != null) {
+                return convertNull(accessMatrixConfig);
             }
-
-            if (NullValues.isNull(accessMatrixConfig)) {
-                return null;
-            }
-
-            return getReturnObject(accessMatrixConfig);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillAccessMatrixByObjectTypeUsingExtension(domainObjectType));
     }
 
     /**
@@ -532,11 +449,11 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public boolean isAttachmentType(String domainObjectType) {
-        readLock.lock();
+        lock();
         try {
             return configStorage.attachmentDomainObjectTypes.containsKey(domainObjectType);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -545,32 +462,32 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public boolean isAuditLogType(String domainObjectType) {
-        readLock.lock();
+        lock();
         try {
             return configStorage.auditLogTypes.containsKey(domainObjectType);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     @Override
     public String[] getAllAttachmentTypes() {
-        readLock.lock();
+        lock();
         try {
             Collection<String> values = configStorage.attachmentDomainObjectTypes.values();
             return values.toArray(new String[values.size()]);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     public boolean isReadPermittedToEverybody(String domainObjectType) {
-        readLock.lock();
+        lock();
         try {
             Boolean result = configStorage.readPermittedToEverybodyMap.get(domainObjectType);
             return result != null ? result : false;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -583,22 +500,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public String getMatrixReferenceTypeName(String childTypeName) {
-        readLock.lock();
+        lock();
         try {
             String result = configStorage.matrixReferenceTypeNameMap.get(childTypeName);
-
-            if (result == null) {
-                result = configurationStorageBuilder.fillMatrixReferenceTypeNameMap(childTypeName);
+            if (result != null) {
+                return convertNull(result);
             }
-
-            if (NullValues.isNull(result)) {
-                return null;
-            }
-
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillMatrixReferenceTypeNameMap(childTypeName));
     }
 
     /**
@@ -611,19 +523,17 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public Set<String> getAllTypesDelegatingAccessCheckTo(String typeName) {
-        readLock.lock();
+        lock();
         try {
             Set<String> result = configStorage.typesDelegatingAccessCheckTo.get(typeName);
-
-            if (result == null) {
-                configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
-                result = configStorage.typesDelegatingAccessCheckTo.get(typeName);
+            if (result != null) {
+                return result;
             }
-
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
     }
 
     /**
@@ -636,18 +546,23 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public Set<String> getAllTypesDelegatingAccessCheckToInLowerCase(String typeName) {
-        readLock.lock();
+        lock();
         try {
             Set<String> result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
-
-            if (result == null) {
-                configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
-                result = configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
+            if (result != null) {
+                return result;
             }
-
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
+        }
+
+        configurationStorageBuilder.fillTypesDelegatingAccessCheckTo(typeName);
+
+        lock();
+        try {
+            return configStorage.typesDelegatingAccessCheckToInLowerCase.get(typeName);
+        } finally {
+            unlock();
         }
     }
 
@@ -656,132 +571,101 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     @Override
     public ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale) {
-        readLock.lock();
+        lock();
         try {
             CaseInsensitiveMap<ToolBarConfig> toolbarMap = configStorage.localizedToolbarConfigMap.get(currentLocale);
             if (toolbarMap != null) {
-                ToolBarConfig toolBarConfig = toolbarMap.get(pluginName);
-                return getReturnObject(toolBarConfig);
+                return toolbarMap.get(pluginName);
             }
-            ToolBarConfig toolBarConfig = configStorage.toolbarConfigByPluginMap.get(pluginName);
-            return getReturnObject(toolBarConfig);
+            return configStorage.toolbarConfigByPluginMap.get(pluginName);
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     @Override
     public String getDomainObjectParentType(String typeName) {
-        readLock.lock();
-        try {
-            String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
 
-            if (typesHierarchy == null || typesHierarchy.length == 0) {
-                return null;
-            }
-
-            return typesHierarchy[typesHierarchy.length - 1];
-        } finally {
-            readLock.unlock();
+        if (typesHierarchy == null || typesHierarchy.length == 0) {
+            return null;
         }
+
+        return typesHierarchy[typesHierarchy.length - 1];
     }
 
     @Override
     public String getDomainObjectRootType(String typeName) {
-        readLock.lock();
-        try {
-            String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
+        String[] typesHierarchy = getDomainObjectTypesHierarchy(typeName);
 
-            if (typesHierarchy == null || typesHierarchy.length == 0) {
-                return typeName;
-            }
-
-            return typesHierarchy[0];
-        } finally {
-            readLock.unlock();
+        if (typesHierarchy == null || typesHierarchy.length == 0) {
+            return typeName;
         }
+
+        return typesHierarchy[0];
     }
 
     @Override
     public String[] getDomainObjectTypesHierarchy(String typeName) {
-        readLock.lock();
+        lock();
         try {
             String[] result = this.configStorage.domainObjectTypesHierarchy.get(typeName);
-            if (result == null) {
-                result = configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
+            if (result != null) {
+                return result;
             }
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
     }
 
     @Override
     public String[] getDomainObjectTypesHierarchyBeginningFromType(String typeName) {
-        readLock.lock();
+        lock();
         try {
             String[] result = this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
-            if (result == null) {
-                configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
-                result = this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
+            if (result != null) {
+                return result;
             }
-            return getReturnObject(result);
         } finally {
-            readLock.unlock();
+            unlock();
+        }
+
+        configurationStorageBuilder.fillDomainObjectTypesHierarchyMap(typeName);
+
+        lock();
+        try {
+            return this.configStorage.domainObjectTypesHierarchyBeginningFromType.get(typeName);
+        } finally {
+            unlock();
         }
     }
 
     @Override
     public void updateConfig(TopLevelConfig config) {
-        writeLock.lock();
+        readWriteLock.writeLock().lock();
         try {
             TopLevelConfig oldConfig = getConfig(config.getClass(), config.getName());
             applicationEventPublisher.publishEvent(new ConfigurationUpdateEvent(this, configStorage, oldConfig, config));
         } finally {
-            writeLock.unlock();
+            readWriteLock.writeLock().unlock();
         }
-    }
-
-    private <T> T getReturnObject(Object source) {
-        //return objectCloner.cloneObject(source, tClass);
-        // cloning is switched off for performance purpose
-        return (T) source;
-    }
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Override
     public List<String> getAllowedToCreateUserGroups(String objectType) {
-        readLock.lock();
+        lock();
         try {
             List<String> userGroups = configStorage.allowedToCreateUserGroupsMap.get(objectType);
             if (userGroups != null) {
-                if (NullValues.isNull(userGroups)) {
-                    return null;
-                } else {
-                    return userGroups;
-                }
+                return convertNull(userGroups);
             }
-
-            userGroups = new ArrayList<>();
-
-            AccessMatrixConfig accessMatrix = getAccessMatrixByObjectTypeUsingExtension(objectType);
-
-            if (accessMatrix != null && accessMatrix.getCreateConfig() != null && accessMatrix.getCreateConfig().getPermitGroups() != null) {
-                for (PermitGroup permitGroup : accessMatrix.getCreateConfig().getPermitGroups()) {
-                    userGroups.add(permitGroup.getName());
-                }
-            }
-
-            userGroups = Collections.unmodifiableList(userGroups);
-            configStorage.allowedToCreateUserGroupsMap.put(objectType, userGroups);
-            return userGroups;
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillAllowedToCreateUserGroups(objectType));
     }
 
     @Override
@@ -792,15 +676,15 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     @Override
     public LogDomainObjectAccessConfig getDomainObjectAccessEventLogsConfiguration(String typeName) {
-        readLock.lock();
+        lock();
         try {
             if (this.configStorage.eventLogDomainObjectAccessConfig.containsKey(typeName)) {
-                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get(typeName));
+                return this.configStorage.eventLogDomainObjectAccessConfig.get(typeName);
             } else {
-                return getReturnObject(this.configStorage.eventLogDomainObjectAccessConfig.get("*"));
+                return this.configStorage.eventLogDomainObjectAccessConfig.get("*");
             }
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
@@ -829,110 +713,89 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     public <T> T getLocalizedConfig(Class<T> type, String name, String currentLocale) {
         if (LocalizableConfig.class.isAssignableFrom(type)) {
-            readLock.lock();
+            lock();
             try {
                 CaseInsensitiveMap<LocalizableConfig> typeMap =
                         configStorage.localizedConfigMap.get(new Pair<String, Class>(currentLocale, type));
                 if (typeMap != null) {
                     T config = (T) typeMap.get(name);
-                    return getReturnObject(config);
+                    return config;
                 }
             } finally {
-                readLock.unlock();
+                unlock();
             }
         }
+
         return getConfig(type, name);
     }
 
     @Override
     public <T> Collection<T> getLocalizedConfigs(Class<T> type, String currentLocale) {
-        readLock.lock();
+        lock();
         try {
             CaseInsensitiveMap<LocalizableConfig> typeMap = configStorage.localizedConfigMap.get(
                     new Pair<String, Class>(currentLocale, type));
             if (typeMap == null) {
                 return Collections.EMPTY_LIST;
             }
-//            //Перекладываем в другой контейнер, для возможности сериализации
+            //Перекладываем в другой контейнер, для возможности сериализации
             List<T> result = new ArrayList<T>();
             result.addAll((Collection<T>) typeMap.values());
-            return getReturnObject(typeMap.values());
+            return result;
         } finally {
-            readLock.unlock();
+            unlock();
         }
     }
 
     @Override
     public FormConfig getPlainFormConfig(String name) {
-        FormConfig formConfig = getConfig(FormConfig.class, name);
-        readLock.lock();
+        FormConfig formConfig;
+
+        lock();
         try {
+            formConfig = getConfig(FormConfig.class, name);
+
             if (plainFormBuilder.isRaw(formConfig)) {
                 FormConfig formConfigFromCash = configStorage.collectedFormConfigMap.get(name);
-                if (formConfigFromCash == null) {
-                    formConfig = plainFormBuilder.buildPlainForm(formConfig);
-
-                    if (formConfig == null) {
-                        formConfig = NullValues.FORM_CONFIG;
-                    }
-
-                    configStorage.collectedFormConfigMap.put(formConfig.getName(), formConfig);
-                } else {
-                    formConfig = formConfigFromCash;
+                if (formConfigFromCash != null) {
+                    return convertNull(formConfigFromCash);
                 }
+            } else {
+                return convertNull(formConfig);
             }
-
-            if (NullValues.isNull(formConfig)) {
-                return null;
-            }
-
-            return getReturnObject(formConfig);
         } finally {
-            readLock.unlock();
+            unlock();
         }
 
+        return convertNull(configurationStorageBuilder.fillPlainFormConfigMap(formConfig, plainFormBuilder));
     }
 
     @Override
     public FormConfig getLocalizedPlainFormConfig(String name, String currentLocale) {
-        readLock.lock();
+        FormConfig formConfig = null;
+
+        lock();
         try {
             CaseInsensitiveMap<FormConfig> typeMap = configStorage.localizedCollectedFormConfigMap.get(currentLocale);
-            if (typeMap == null) {
-                typeMap = new CaseInsensitiveMap<>();
-                configStorage.localizedCollectedFormConfigMap.put(currentLocale, typeMap);
+            if (typeMap != null) {
+                formConfig = typeMap.get(name);
             }
-
-            FormConfig formConfig = typeMap.get(name);
-            if (formConfig == null) {
-                formConfig = getPlainFormConfig(name);
-                ObjectCloner cloner = ObjectCloner.getInstance();
-                FormConfig clonedConfig = cloner.cloneObject(formConfig, FormConfig.class);
-                configurationStorageBuilder.localize(currentLocale, clonedConfig);
-
-                if (clonedConfig == null) {
-                    clonedConfig = NullValues.FORM_CONFIG;
-                }
-
-                typeMap.put(formConfig.getName(), clonedConfig);
-                formConfig = clonedConfig;
+            if (formConfig != null) {
+                return convertNull(formConfig);
             }
-
-            if (NullValues.isNull(formConfig)) {
-                return null;
-            }
-
-            return formConfig;
         } finally {
-            readLock.unlock();
+            unlock();
         }
+
+        return convertNull(configurationStorageBuilder.fillLocalizedPlainFormConfigMap(name, currentLocale));
     }
 
     public List<FormConfig> getParentFormConfigs(FormConfig formConfig) {
         if (formConfig == null) {
             return Collections.EMPTY_LIST;
         }
-        readLock.lock();
+
+        lock();
         try {
             List<FormConfig> parentFormConfigs = new ArrayList<>();
             FormConfig parentFormConfig = getParent(formConfig);
@@ -947,8 +810,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
             return parentFormConfigs;
         } finally {
-            readLock.unlock();
+            unlock();
         }
+    }
+
+    @Override
+    public ReentrantReadWriteLock getReadWriteLock() {
+        return readWriteLock;
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     private FormConfig getParent(FormConfig formConfig) {
@@ -957,5 +830,18 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             result = getConfig(FormConfig.class, formConfig.getExtends());
         }
         return result;
+    }
+
+    private String getParentTypeOfAuditLog(String domainObjectType) {
+        domainObjectType = domainObjectType.replace(Configuration.AUDIT_LOG_SUFFIX, "");
+        return domainObjectType;
+    }
+
+    private void lock() {
+        readWriteLock.readLock().lock();
+    }
+
+    private void unlock() {
+        readWriteLock.readLock().unlock();
     }
 }

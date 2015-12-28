@@ -61,20 +61,26 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
 
     @Override
     public V remove(Object key) {
+        final V removed = super.remove(key);
+        if (removed == null) {
+            return null;
+        }
         decrementSize(1);
         ++modifications;
         updateSelfSize();
-        final V removed = super.remove(key);
         updateSizeOnRemove((K) key, removed);
         return removed;
     }
 
     @Override
     public boolean remove(Object key, Object value) {
+        final boolean removed = super.remove(key, value);
+        if (!removed) {
+            return false;
+        }
         decrementSize(1);
         ++modifications;
         updateSelfSize();
-        final boolean removed = super.remove(key, value);
         if (removed) {
             updateSizeOnRemove((K) key, (V) value);
         }
@@ -83,22 +89,24 @@ public class SizeableConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> imp
 
     @Override
     public V putIfAbsent(K key, V value) {
-        incrementSize(1);
-        ++modifications;
-        updateSelfSize();
         final V result = super.putIfAbsent(key, value);
         if (result == null) {
+            incrementSize(1);
             updateSizeOnPut(key, null, value);
         }
+        ++modifications;
+        updateSelfSize();
         return result;
     }
 
     @Override
     public V put(K key, V value) {
-        incrementSize(1);
+        final V previousValue = super.put(key, value);
+        if (previousValue == null) {
+            incrementSize(1);
+        }
         ++modifications;
         updateSelfSize();
-        final V previousValue = super.put(key, value);
         updateSizeOnPut(key, previousValue, value);
         return previousValue;
     }

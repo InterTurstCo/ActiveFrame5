@@ -1,16 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -71,7 +69,7 @@ public class DateUtil {
     @Deprecated //use the same method GuiServerHelper
     public static DateFormat getDateFormat(String datePattern, String timePattern) {
         String formatDatePattern = prepareDatePattern(datePattern, timePattern);
-        return formatDatePattern == null ? null : new SimpleDateFormat(formatDatePattern);
+        return formatDatePattern == null ? null : ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(formatDatePattern, null), null);
     }
     @Deprecated //use the same method GuiServerHelper
     public static String prepareDatePattern(String datePattern, String timePattern){

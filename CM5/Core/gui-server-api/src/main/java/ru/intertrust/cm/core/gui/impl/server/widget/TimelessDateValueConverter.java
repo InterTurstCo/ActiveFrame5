@@ -1,17 +1,19 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import ru.intertrust.cm.core.business.api.dto.FieldType;
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -40,7 +42,7 @@ public class TimelessDateValueConverter implements DateValueConverter<TimelessDa
     @Override
     public TimelessDateValue contextToValue(DateTimeContext dateTimeContext) {
         if (dateTimeContext.getDateTime() != null) {
-            final DateFormat dateFormat = new SimpleDateFormat(ModelUtil.DTO_PATTERN);
+            final DateFormat dateFormat = ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(ModelUtil.DTO_PATTERN, null), GuiServerHelper.GMT_TIME_ZONE);
 //            final String timeZoneId = GuiContext.get().getUserInfo().getTimeZoneId();
 //            dateFormat.setTimeZone(TimeZone.getTimeZone(timeZoneId));
             dateFormat.setTimeZone(GuiServerHelper.GMT_TIME_ZONE);

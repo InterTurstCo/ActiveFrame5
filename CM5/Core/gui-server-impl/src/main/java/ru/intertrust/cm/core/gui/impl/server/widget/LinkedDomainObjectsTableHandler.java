@@ -77,17 +77,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     private static final String DEFAULT_VIEW_ACCESS_CHECKER = "default.view.access.checker";
     private static final String DEFAULT_CREATE_NEW_ACCESS_CHECKER = "default.create.new.access.checker";
 
-    private LinkedDomainObjectsTableConfig widgetConfig;
-    private HashMap<String, FormConfig> formConfigByDomainObjectType = new HashMap<>();
-    private HashMap<String, HashMap<String, EnumBoxConfig>> enumBoxConfigsByDomainObjectType = new HashMap<>();
-    private String currentPersonUid;
-
     @Override
     public LinkedDomainObjectsTableState getInitialState(WidgetContext context) {
-        this.widgetConfig = context.getWidgetConfig();
-        this.currentPersonUid = personService.getCurrentPersonUid();
-
-        LinkedDomainObjectsTableState state = new LinkedDomainObjectsTableState();
+        final LinkedDomainObjectsTableConfig widgetConfig = context.getWidgetConfig();
+        final LinkedDomainObjectsTableState state = new LinkedDomainObjectsTableState();
         state.setLinkedDomainObjectTableConfig(widgetConfig);
         SingleChoiceConfig singleChoiceConfig = widgetConfig.getSingleChoiceConfig();
         Boolean singleChoiceFromConfig = singleChoiceConfig == null ? false : singleChoiceConfig.isSingleChoice();
@@ -111,9 +104,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         state.setFilteredItemsNumber(idsForItemsGenerating.size());
         int limit = WidgetUtil.getLimit(selectionFiltersConfig);
         WidgetServerUtil.doLimit(idsForItemsGenerating, limit);
-        CreatedObjectsConfig restrictedCreatedObjectsConfig = createRestrictedCreateObjectsConfig(root);
+        CreatedObjectsConfig restrictedCreatedObjectsConfig = createRestrictedCreateObjectsConfig(root, widgetConfig);
         state.setRestrictedCreatedObjectsConfig(restrictedCreatedObjectsConfig);
-        List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating, state.hasAllowedCreationDoTypes());
+        List<RowItem> rowItems = generateRowItems(widgetConfig, idsForItemsGenerating, state.hasAllowedCreationDoTypes(), new Cache(personService.getCurrentPersonUid()));
         state.setRowItems(rowItems);
         state.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
                 context.getWidgetConfigsById().values()));
@@ -121,7 +114,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    private CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root) {
+    private CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root, LinkedDomainObjectsTableConfig widgetConfig) {
         CreatedObjectsConfig restrictedCreatedObjectsConfig = null;
         if (widgetConfig.getCreatedObjectsConfig() != null) {
             restrictedCreatedObjectsConfig = ObjectCloner.getInstance().cloneObject(widgetConfig.getCreatedObjectsConfig(),
@@ -136,10 +129,10 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
                 FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
                 String domainObjectType = defaultFormConfig.getDomainObjectType();
                 if(accessVerificationService.isCreatePermitted(domainObjectType)){
-                CreatedObjectConfig createdObjectConfig = new CreatedObjectConfig();
-                createdObjectConfig.setDomainObjectType(domainObjectType);
-                createdObjectConfig.setText(domainObjectType);
-                createdObjectConfigs.add(createdObjectConfig);
+                    CreatedObjectConfig createdObjectConfig = new CreatedObjectConfig();
+                    createdObjectConfig.setDomainObjectType(domainObjectType);
+                    createdObjectConfig.setText(domainObjectType);
+                    createdObjectConfigs.add(createdObjectConfig);
                 }
             }
         }
@@ -172,7 +165,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
-                                           List<Id> selectedIds, boolean hasAllowedCreationDoTypes) {
+                                           List<Id> selectedIds, boolean hasAllowedCreationDoTypes, Cache cache) {
         List<RowItem> rowItems = new ArrayList<>();
         if (selectedIds.isEmpty()) {
             return rowItems;
@@ -181,10 +174,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         DomainObjectsSorter.sort(widgetConfig.getSelectionSortCriteriaConfig(), domainObjects);
         List<SummaryTableColumnConfig> summaryTableColumnConfigs = widgetConfig
                 .getSummaryTableConfig().getSummaryTableColumnConfigList();
-
         for (DomainObject domainObject : domainObjects) {
             RowItem rowItem;
-            rowItem = map(domainObject, summaryTableColumnConfigs, hasAllowedCreationDoTypes);
+            rowItem = map(domainObject, widgetConfig, summaryTableColumnConfigs, hasAllowedCreationDoTypes, cache);
             rowItem.setObjectId(domainObject.getId());
             rowItems.add(rowItem);
         }
@@ -270,7 +262,8 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
     // Column -> Pattern -> Domain Object Type
-    public RowItem map(DomainObject domainObject, List<SummaryTableColumnConfig> summaryTableColumnConfigs, boolean hasAllowedCreationDoTypes) {
+    public RowItem map(DomainObject domainObject, LinkedDomainObjectsTableConfig widgetConfig, List<SummaryTableColumnConfig> summaryTableColumnConfigs,
+                       boolean hasAllowedCreationDoTypes, Cache cache) {
         RowItem rowItem = new RowItem();
         rowItem.setDomainObjectType(domainObject.getTypeName());
         Map<String, Boolean> rowAccessMatrix = new HashMap<>();
@@ -282,7 +275,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         rowAccessMatrix.put(DEFAULT_VIEW_ACCESS_CHECKER, defaultAccessChecker.checkAccess(domainObject.getId()));
         rowAccessMatrix.put(DEFAULT_CREATE_NEW_ACCESS_CHECKER, hasAllowedCreationDoTypes);
 
-        HashMap<String, EnumBoxConfig> enumBoxConfigsByFieldPath = getEnumBoxConfigs(domainObject.getTypeName());
+        HashMap<String, EnumBoxConfig> enumBoxConfigsByFieldPath = getEnumBoxConfigs(domainObject.getTypeName(), widgetConfig, cache);
         for (SummaryTableColumnConfig columnConfig : summaryTableColumnConfigs) {
             SummaryTableActionColumnConfig summaryTableActionColumnConfig = columnConfig.getSummaryTableActionColumnConfig();
             if (summaryTableActionColumnConfig != null) {
@@ -316,25 +309,25 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return rowItem;
     }
 
-    private HashMap<String, EnumBoxConfig> getEnumBoxConfigs(String domainObjectType) {
-        HashMap<String, EnumBoxConfig> result = enumBoxConfigsByDomainObjectType.get(domainObjectType);
+    private HashMap<String, EnumBoxConfig> getEnumBoxConfigs(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
+        HashMap<String, EnumBoxConfig> result = cache.enumBoxConfigsByDomainObjectType.get(domainObjectType);
         if (result != null) {
             return result;
         }
 
-        FormConfig formConfig = getFormConfig(domainObjectType);
+        FormConfig formConfig = getFormConfig(domainObjectType, widgetConfig, cache);
         HashMap<String, EnumBoxConfig> configs = new HashMap<>();
         for (WidgetConfig config : formConfig.getWidgetConfigsById().values()) {
             if (config instanceof EnumBoxConfig) {
                 configs.put(config.getFieldPathConfig().getValue(), (EnumBoxConfig) config);
             }
         }
-        enumBoxConfigsByDomainObjectType.put(domainObjectType, configs);
+        cache.enumBoxConfigsByDomainObjectType.put(domainObjectType, configs);
         return configs;
     }
 
-    private FormConfig getFormConfig(String domainObjectType) {
-        final FormConfig formConfig = formConfigByDomainObjectType.get(domainObjectType);
+    private FormConfig getFormConfig(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
+        final FormConfig formConfig = cache.formConfigByDomainObjectType.get(domainObjectType);
         if (formConfig != null) {
             return formConfig;
         }
@@ -351,11 +344,11 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         }
         FormConfig config;
         if (formName == null) {
-            config = formResolver.findFormConfig(domainObjectType, FormConfig.TYPE_EDIT, currentPersonUid);
+            config = formResolver.findFormConfig(domainObjectType, FormConfig.TYPE_EDIT, cache.currentPersonUid);
         } else {
             config = configurationService.getConfig(FormConfig.class, formName);
         }
-        formConfigByDomainObjectType.put(domainObjectType, config);
+        cache.formConfigByDomainObjectType.put(domainObjectType, config);
         return config;
     }
 
@@ -411,9 +404,9 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         boolean collectionNameConfigured = refConfig != null;
         List<Id> idsForItemsGenerating = selectionFiltersConfig == null || !collectionNameConfigured ? ids
                 : getNotLimitedIds(config, ids, filtersParams, true);
-        CreatedObjectsConfig createdObjectsConfig = createRestrictedCreateObjectsConfig(null);
+        CreatedObjectsConfig createdObjectsConfig = createRestrictedCreateObjectsConfig(null, config);
         boolean hasAllowedCreationDoTypes = !createdObjectsConfig.getCreateObjectConfigs().isEmpty();
-        List<RowItem> rowItems = generateRowItems(config, idsForItemsGenerating, hasAllowedCreationDoTypes);
+        List<RowItem> rowItems = generateRowItems(config, idsForItemsGenerating, hasAllowedCreationDoTypes, new Cache(personService.getCurrentPersonUid()));
 
         return new LinkedTableTooltipResponse(rowItems);
     }
@@ -582,6 +575,14 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
     }
 
+    private static final class Cache {
+        private HashMap<String, FormConfig> formConfigByDomainObjectType = new HashMap<>();
+        private HashMap<String, HashMap<String, EnumBoxConfig>> enumBoxConfigsByDomainObjectType = new HashMap<>();
+        private String currentPersonUid;
 
+        private Cache(String currentPersonUid) {
+            this.currentPersonUid = currentPersonUid;
+        }
+    }
 }
 
