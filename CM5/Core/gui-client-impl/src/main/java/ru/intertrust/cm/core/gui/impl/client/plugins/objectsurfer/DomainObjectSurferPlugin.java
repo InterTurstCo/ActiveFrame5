@@ -45,7 +45,7 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.SELECTED_I
 public class DomainObjectSurferPlugin extends Plugin implements IsActive, CollectionRowSelectedEventHandler,
         IsDomainObjectEditor, IsIdentifiableObjectList, PluginPanelSizeChangedEventHandler,
         HierarchicalCollectionEventHandler, OpenDomainObjectFormEventHandler, OpenHyperlinkInSurferEventHandler,
-        DeleteCollectionRowEventHandler, UpdateCollectionEventHandler {
+        DeleteCollectionRowEventHandler {
 
     private CollectionPlugin collectionPlugin;
     private FormPlugin formPlugin;
@@ -64,7 +64,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         eventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
         eventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
         eventBus.addHandler(DeleteCollectionRowEvent.TYPE, this);
-        eventBus.addHandler(UpdateCollectionEvent.TYPE, this);
         Application.getInstance().addOpenDoInPluginHandlerRegistration(this);
     }
 
@@ -344,25 +343,6 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
 
     }
 
-    /**
-     * CMFIVE-4732
-     * Если фильтр есть и это новый обьект, то после создания записи
-     * коллекция обновляется чтобы применить фильтр. Иначе нет смысла обновлять
-     * если обьект не новый или фильтра нет.
-     * @param event
-     */
-    @Override
-    public void updateCollection(UpdateCollectionEvent event) {
-        if(getConfig()!=null){
-            DomainObjectSurferConfig pConfig = (DomainObjectSurferConfig)getConfig();
-            if(pConfig.getCollectionViewerConfig().getInitialFiltersConfig()!=null){
-                if(event.getIdentifiableObject().getTimestamp("created_date").equals(event.getIdentifiableObject().getTimestamp("updated_date"))){
-                    refresh();
-                }
-            }
-        }
-
-    }
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
 

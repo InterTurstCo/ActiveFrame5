@@ -538,11 +538,13 @@ public class CollectionPluginView extends PluginView {
     private void refreshCollection(Id id) {
         Set<Id> includedIds = new HashSet<>();
         includedIds.add(id);
-
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
         final CollectionRowsRequest collectionRowsRequest =
                 new CollectionRowsRequest(0, 1, getPluginData().getCollectionName(),
                         getPluginData().getDomainObjectFieldPropertiesMap(), simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
+        InitialFiltersConfig initialFiltersConfig = config.getInitialFiltersConfig();
+        collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         collectionOneRowRequestCommand(new CollectionRefreshRequest(collectionRowsRequest, null));
     }
 
