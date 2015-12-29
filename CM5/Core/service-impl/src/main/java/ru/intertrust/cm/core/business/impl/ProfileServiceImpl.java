@@ -5,14 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.DefaultLocaleConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
@@ -50,7 +46,7 @@ public class ProfileServiceImpl implements ProfileService {
     private CurrentUserAccessor currentUserAccessor;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private ConfigurationExplorer configurationService;
 
     /**
      * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для

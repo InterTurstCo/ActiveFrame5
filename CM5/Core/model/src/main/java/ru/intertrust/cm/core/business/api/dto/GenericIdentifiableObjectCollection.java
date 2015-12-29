@@ -469,10 +469,9 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public ArrayList<String> getFields() {
-            ArrayList<String> result = new ArrayList<>();
-            
-            for (int i = 0; i < collection.getFieldsConfiguration().size(); i++) {
-                FieldConfig config = collection.getFieldsConfiguration().get(i);
+            final ArrayList<FieldConfig> fieldsConfiguration = collection.getFieldsConfiguration();
+            final ArrayList<String> result = new ArrayList<>(fieldsConfiguration.size());
+            for (FieldConfig config : fieldsConfiguration) {
                 result.add(config.getName());
             }            
             return result;

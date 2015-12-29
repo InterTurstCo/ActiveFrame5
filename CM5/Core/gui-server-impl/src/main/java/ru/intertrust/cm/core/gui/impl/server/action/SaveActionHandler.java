@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.gui.impl.server.action;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.UserInfo;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -18,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 
-import javax.ejb.EJB;
 import java.util.List;
 
 /**
@@ -33,8 +31,8 @@ public class SaveActionHandler extends ActionHandler<SaveActionContext, SaveActi
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    @EJB
-    private ConfigurationService configurationService;
+    @Autowired
+    private ConfigurationExplorer configurationService;
 
     @Override
     public SaveActionData executeAction(SaveActionContext context) {

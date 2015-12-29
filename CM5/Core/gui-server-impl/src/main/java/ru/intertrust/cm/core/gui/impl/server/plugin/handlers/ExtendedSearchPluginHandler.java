@@ -1,51 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
-import static ru.intertrust.cm.core.business.api.dto.FieldType.BOOLEAN;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.DATETIME;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.DATETIMEWITHTIMEZONE;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.DECIMAL;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.LONG;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.REFERENCE;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.STRING;
-import static ru.intertrust.cm.core.business.api.dto.FieldType.TIMELESSDATE;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.UserInfo;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.SearchService;
-import ru.intertrust.cm.core.business.api.dto.BooleanSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.EmptyValueFilter;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ImagePathValue;
-import ru.intertrust.cm.core.business.api.dto.NumberRangeFilter;
-import ru.intertrust.cm.core.business.api.dto.OneOfListFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchFilter;
-import ru.intertrust.cm.core.business.api.dto.SearchQuery;
-import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
-import ru.intertrust.cm.core.business.api.dto.TimeIntervalFilter;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -72,21 +33,15 @@ import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
-import ru.intertrust.cm.core.gui.model.form.widget.CheckBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.DateBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.EnumBoxState;
-import ru.intertrust.cm.core.gui.model.form.widget.LinkEditingWidgetState;
-import ru.intertrust.cm.core.gui.model.form.widget.TextState;
-import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
-import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+
+import java.math.BigDecimal;
+import java.util.*;
+
+import static ru.intertrust.cm.core.business.api.dto.FieldType.*;
 
 /**
  * User: IPetrov Date: 03.01.14 Time: 15:58 Обработчик плагина расширенного
@@ -96,7 +51,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 public class ExtendedSearchPluginHandler extends PluginHandler {
 
     @Autowired
-    ConfigurationService configurationService;
+    ConfigurationExplorer configurationService;
 
     @Autowired
     protected ApplicationContext applicationContext;

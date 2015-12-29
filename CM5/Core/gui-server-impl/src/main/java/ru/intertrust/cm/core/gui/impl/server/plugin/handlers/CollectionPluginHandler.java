@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -16,9 +16,9 @@ import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.api.server.plugin.DefaultImageMapper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
-import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -50,13 +50,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     private CollectionsService collectionsService;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private ConfigurationExplorer configurationService;
 
     @Autowired
     private SearchService searchService;
 
     @Autowired
-    private DefaultImageMapperImpl defaultImageMapper;
+    private DefaultImageMapper defaultImageMapper;
 
     @Autowired
     private ActionConfigBuilder actionConfigBuilder;

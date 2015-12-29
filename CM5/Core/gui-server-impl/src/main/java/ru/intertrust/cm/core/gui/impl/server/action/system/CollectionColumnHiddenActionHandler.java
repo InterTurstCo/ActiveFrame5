@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.action.system;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -28,7 +28,7 @@ import static ru.intertrust.cm.core.gui.model.util.UserSettingsHelper.DO_COLLECT
 @ComponentName(CollectionColumnHiddenActionContext.COMPONENT_NAME)
 public class CollectionColumnHiddenActionHandler extends ActionHandler<CollectionColumnHiddenActionContext, ActionData> {
 
-    @Autowired private ConfigurationService configurationService;
+    @Autowired private ConfigurationExplorer configurationService;
     @Autowired private CrudService crudService;
     @Autowired private CollectionsService collectionsService;
     @Autowired private CurrentUserAccessor currentUserAccessor;
