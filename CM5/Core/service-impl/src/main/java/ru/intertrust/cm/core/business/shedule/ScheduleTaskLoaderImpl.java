@@ -1,11 +1,5 @@
 package ru.intertrust.cm.core.business.shedule;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
@@ -20,18 +14,11 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskDefaultParameters;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
-import ru.intertrust.cm.core.business.api.schedule.SheduleTaskReestrItem;
-import ru.intertrust.cm.core.business.api.schedule.SheduleType;
+import ru.intertrust.cm.core.business.api.schedule.*;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -44,8 +31,12 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Singleton;
-import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
 
 /**
  * EJB загрузчик классов периодических заданий
@@ -134,7 +125,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         task.setLong(ScheduleService.SCHEDULE_TIMEOUT, item.getConfiguration().timeout());
         task.setLong(ScheduleService.SCHEDULE_PRIORITY, item.getConfiguration().priority());
         task.setString(ScheduleService.SCHEDULE_PARAMETERS, getDefaultParameters(item.getConfiguration()));
-        task.setLong(ScheduleService.SCHEDULE_ACTIVE, item.getConfiguration().active() ? 1L : 0);
+        task.setBoolean(ScheduleService.SCHEDULE_ACTIVE, item.getConfiguration().active());
         return domainObjectDao.save(task, accessToken);
     }
 
