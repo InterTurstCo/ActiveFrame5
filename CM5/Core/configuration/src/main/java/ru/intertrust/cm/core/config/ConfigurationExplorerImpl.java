@@ -39,7 +39,6 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private ConfigurationStorageBuilder configurationStorageBuilder;
 
     private ApplicationEventPublisher applicationEventPublisher;
-
     @Autowired
     private FormLogicalValidator formLogicalValidator;
 

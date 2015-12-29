@@ -1,28 +1,16 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.DomainObjectFilter;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.config.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.AttachmentTypesConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelValidator;
@@ -49,6 +37,38 @@ public class SearchConfigHelper {
     private ConfigurationExplorer configurationExplorer;
 
     private List<SearchLanguageConfig> languageConfigs;
+
+    private Map<String, ArrayList<SearchAreaDetailsConfig>> effectiveConfigsMap =
+            Collections.synchronizedMap(new HashMap<String, ArrayList<SearchAreaDetailsConfig>>());
+
+    private Map<Pair<IndexedFieldConfig, String>, SearchFieldType> fieldTypeMap =
+            Collections.synchronizedMap(new HashMap<Pair<IndexedFieldConfig, String>, SearchFieldType>());
+
+    private Map<Pair<String, String>, String> attachmentParentLinkNameMap =
+            Collections.synchronizedMap(new HashMap<Pair<String, String>, String>());
+
+    private Map<Pair<String, String>, List<IndexedFieldConfig>> indexedFieldConfigsMap =
+            Collections.synchronizedMap(new HashMap<Pair<String, String>, List<IndexedFieldConfig>>());
+
+    private Map<Pair<String, String>, List<String>> supportedLanguagesMap =
+            Collections.synchronizedMap(new HashMap<Pair<String, String>, List<String>>());
+
+    private Map<Pair<String, Collection<String>>, Set<SearchFieldType>> fieldTypesMap =
+            Collections.synchronizedMap(new HashMap<Pair<String, Collection<String>>, Set<SearchFieldType>>());
+
+    private Map<Trio<String, List<String>, String>, Set<String>> objectTypesContainingFieldMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Set<String>>());
+
+    private Map<Trio<String, List<String>, String>, Set<String>> objectTypesWithContentMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Set<String>>());
+
+    private Map<Trio<String, String, String>, IndexedFieldConfig> indexedFieldConfigMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, String, String>, IndexedFieldConfig>());
+
+    private Map<Trio<String, List<String>, String>, Collection<String>> applicableTypesMap =
+            Collections.synchronizedMap(new HashMap<Trio<String, List<String>, String>, Collection<String>>());
+
+    private List<String> supportedLanguages = null;
 
     /**
      * Класс, созданный для удобства работы с конфигурацией областей поиска.
@@ -170,16 +190,25 @@ public class SearchConfigHelper {
      * @return множество типов объектов (пустой, если поле не найдено)
      */
     public Set<String> findObjectTypesContainingField(String field, List<String> areaNames, String targetObjectType) {
-        HashSet<String> configs = new HashSet<>();
+        Trio<String, List<String>, String> key = new Trio<>(field, areaNames, targetObjectType);
+
+        Set<String> result = objectTypesContainingFieldMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
+        result = new HashSet<>();
         for (String area : areaNames) {
             SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
             for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
                 if (targetObjectType == null || targetObjectType.equalsIgnoreCase(targetConfig.getType())) {
-                    addAllObjectTypesContainingField(field, targetConfig, configs);
+                    addAllObjectTypesContainingField(field, targetConfig, result);
                 }
             }
         }
-        return configs;
+
+        objectTypesContainingFieldMap.put(key, result);
+        return result;
     }
 
     private void addAllObjectTypesContainingField(String field, IndexedDomainObjectConfig root, Set<String> result) {
@@ -212,16 +241,25 @@ public class SearchConfigHelper {
      * @return множество типов объектов (пустой, если вложения не найдены)
      */
     public Set<String> findObjectTypesWithContent(String type, List<String> areaNames, String targetObjectType) {
-        HashSet<String> configs = new HashSet<>();
+        Trio<String, List<String>, String> key = new Trio<>(type, areaNames, targetObjectType);
+
+        Set<String> result = objectTypesWithContentMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
+        result = new HashSet<>();
         for (String area : areaNames) {
             SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
             for (TargetDomainObjectConfig targetConfig : areaConfig.getTargetObjects()) {
                 if (targetObjectType == null || targetObjectType.equalsIgnoreCase(targetConfig.getType())) {
-                    addAllObjectTypesWithContent(type, targetConfig, configs);
+                    addAllObjectTypesWithContent(type, targetConfig, result);
                 }
             }
         }
-        return configs;
+
+        objectTypesWithContentMap.put(key, result);
+        return result;
     }
 
     private void addAllObjectTypesWithContent(String type, IndexedDomainObjectConfig root, Set<String> result) {
@@ -246,17 +284,28 @@ public class SearchConfigHelper {
      * @throws IllegalArgumentException если область поиска с заданным именем отсутствует в конфигурации
      */
     public List<IndexedFieldConfig> findIndexedFieldConfigs(String field, String area) {
+        Pair<String, String> key = new Pair<>(field, area);
+
+        List<IndexedFieldConfig> result = indexedFieldConfigsMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
+
         SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
         if (areaConfig == null) {
             throw new IllegalArgumentException("Search area '" + area + "' does not exist");
         }
-        ArrayList<IndexedFieldConfig> result = new ArrayList<>();
+
+        result = new ArrayList<>();
         for (TargetDomainObjectConfig objectConfig : areaConfig.getTargetObjects()) {
             IndexedFieldConfig fieldConfig = findIndexedFieldConfig(field, objectConfig);
             if (fieldConfig != null) {
                 result.add(fieldConfig);
             }
         }
+
+        indexedFieldConfigsMap.put(key, result);
         return result;
     }
 
@@ -272,13 +321,22 @@ public class SearchConfigHelper {
      *          или не содержит заданный целевой объект
      */
     public IndexedFieldConfig findIndexedFieldConfig(String field, String area, String targetType) {
+        Trio<String, String, String> key = new Trio<>(field, area, targetType);
+
+        IndexedFieldConfig result = indexedFieldConfigMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
         SearchAreaConfig areaConfig = configurationExplorer.getConfig(SearchAreaConfig.class, area);
         if (areaConfig == null) {
             throw new IllegalArgumentException("Search area '" + area + "' does not exist");
         }
         for (TargetDomainObjectConfig objectConfig : areaConfig.getTargetObjects()) {
             if (targetType.equalsIgnoreCase(objectConfig.getType())) {
-                return findIndexedFieldConfig(field, objectConfig);
+                result = findIndexedFieldConfig(field, objectConfig);
+                indexedFieldConfigMap.put(key, result);
+                return result;
             }
         }
         throw new IllegalArgumentException("Target type '" + targetType + "' not found in search area '" + area + "'");
@@ -306,12 +364,19 @@ public class SearchConfigHelper {
      * @return список элементов конфигурации (пустой, если заданный тип не сконфигурирован для поиска)
      */
     public List<SearchAreaDetailsConfig> findEffectiveConfigs(String objectType) {
-        ArrayList<SearchAreaDetailsConfig> result = new ArrayList<>();
+        ArrayList<SearchAreaDetailsConfig> result = effectiveConfigsMap.get(objectType);
+        if (result != null) {
+            return result;
+        }
+
+        result = new ArrayList<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             processConfigList(objectType, area.getName(), null, area.getTargetObjects(),
                     new LinkedList<IndexedDomainObjectConfig>(), result);
         }
+
+        effectiveConfigsMap.put(objectType, result);
         return result;
     }
 
@@ -443,6 +508,13 @@ public class SearchConfigHelper {
      * @throws IllegalArgumentException если конфигурация ссылается на несуществующее поле
      */
     public SearchFieldType getFieldType(IndexedFieldConfig config, String objectType) {
+        Pair<IndexedFieldConfig, String> key = new Pair<>(config, objectType);
+
+        SearchFieldType result = fieldTypeMap.get(new Pair<>(config, objectType));
+        if (result != null) {
+            return result;
+        }
+
         if (config.getDoel() != null) {
             DoelExpression expr = DoelExpression.parse(config.getDoel());
             DoelValidator.DoelTypes analyzed = DoelValidator.validateTypes(expr, objectType);
@@ -451,18 +523,21 @@ public class SearchConfigHelper {
                 return null;
             }
             Set<FieldType> types = analyzed.getResultTypes();
-            return SearchFieldType.getFieldType(types.size() == 1 ? types.iterator().next() : FieldType.STRING,
+            result = SearchFieldType.getFieldType(types.size() == 1 ? types.iterator().next() : FieldType.STRING,
                     !analyzed.isSingleResult());
         } else if (config.getScript() != null) {
-            return null;
+            result = null;
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(),
                     config.getName().toLowerCase());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }
-            return SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
+            result = SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
         }
+
+        fieldTypeMap.put(key, result);
+        return result;
     }
 
     /**
@@ -472,14 +547,23 @@ public class SearchConfigHelper {
      * @return
      */
     public Set<SearchFieldType> getFieldTypes(String name, Collection<String> areas) {
-        Set<SearchFieldType> types = new HashSet<>();
+        Pair<String, Collection<String>> key = new Pair<>(name, areas);
+
+        Set<SearchFieldType> result = fieldTypesMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
+        result = new HashSet<>();
         Collection<SearchAreaConfig> allAreas = configurationExplorer.getConfigs(SearchAreaConfig.class);
         for (SearchAreaConfig area : allAreas) {
             if (areas.contains(area.getName())) {
-                findFieldTypes(name, area.getTargetObjects(), types);
+                findFieldTypes(name, area.getTargetObjects(), result);
             }
         }
-        return types;
+
+        fieldTypesMap.put(key, result);
+        return result;
     }
 
     private void findFieldTypes(String fieldName, Collection<? extends IndexedDomainObjectConfig> configs,
@@ -521,6 +605,13 @@ public class SearchConfigHelper {
      *          или если какой-либо из типов не определён в конфигурации
      */
     public String getAttachmentParentLinkName(String attachmentType, String parentType) {
+        Pair<String, String> key = new Pair<>(attachmentType, parentType);
+
+        String result = attachmentParentLinkNameMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
         while (parentType != null) {
             DomainObjectTypeConfig config = configurationExplorer.getConfig(DomainObjectTypeConfig.class, parentType);
             if (config == null) {
@@ -532,15 +623,20 @@ public class SearchConfigHelper {
                     if (attachmentType.equalsIgnoreCase(attachmentConfig.getName())) {
                         ReferenceFieldConfig parentFieldConfig = attachmentConfig.getParentReference();
                         if (parentFieldConfig != null) {
-                            return parentFieldConfig.getName();
+                            result = parentFieldConfig.getName();
+                            attachmentParentLinkNameMap.put(key, result);
+                            return result;
                         } else {
-                            return parentType;
+                            result = parentType;
+                            attachmentParentLinkNameMap.put(key, result);
+                            return result;
                         }
                     }
                 }
             }
             parentType = config.getExtendsAttribute();
         }
+
         throw new IllegalArgumentException(parentType + " type does not have attachments of type " + attachmentType);
     }
 
@@ -556,14 +652,21 @@ public class SearchConfigHelper {
      * @return Список строк - идентификаторов языков
      */
     public List<String> getSupportedLanguages() {
+        if (supportedLanguages != null) {
+            return supportedLanguages;
+        }
+
         if (languageConfigs == null || languageConfigs.size() == 0) {
-            return Collections.singletonList("");
+            supportedLanguages = Collections.singletonList("");
+        } else {
+            ArrayList<String> result = new ArrayList<>(languageConfigs.size());
+            for (SearchLanguageConfig config : languageConfigs) {
+                result.add(config.getLangId().trim());
+            }
+            supportedLanguages = result;
         }
-        ArrayList<String> result = new ArrayList<>(languageConfigs.size());
-        for (SearchLanguageConfig config : languageConfigs) {
-            result.add(config.getLangId().trim());
-        }
-        return result;
+
+        return supportedLanguages;
     }
 
     /**
@@ -576,10 +679,20 @@ public class SearchConfigHelper {
      * @return Список строк - идентификаторов языков
      */
     public List<String> getSupportedLanguages(String field, String area) {
+        Pair<String, String> key = new Pair<>(field, area);
+
+        List<String> result = supportedLanguagesMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
         List<IndexedFieldConfig> foundFields = findIndexedFieldConfigs(field, area);
         if (foundFields.size() == 0) {
-            return Collections.emptyList();
+            result = Collections.emptyList();
+            supportedLanguagesMap.put(key, result);
+            return result;
         }
+
         HashSet<String> langIds = new HashSet<>();
         boolean defaultAdded = false;
         for (IndexedFieldConfig fieldConfig : foundFields) {
@@ -602,6 +715,40 @@ public class SearchConfigHelper {
                 }
             }
         }
-        return new ArrayList<>(langIds);
+
+        result = new ArrayList<>(langIds);
+        supportedLanguagesMap.put(key, result);
+        return result;
+    }
+
+    public Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, String targetType) {
+        Trio<String, List<String>, String> key = new Trio<>(fieldName, areaNames, targetType);
+
+        Collection<String> result = applicableTypesMap.get(key);
+        if (result != null) {
+            return result;
+        }
+
+        if (SearchFilter.EVERYWHERE.equals(fieldName)) {
+            //types = configHelper.findAllObjectTypes(areaNames, targetType);
+            result = Collections.singleton("*");
+        } else if (SearchFilter.CONTENT.equals(fieldName)) {
+            //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
+            result = Collections.singleton("*");
+        } else {
+            result = findObjectTypesContainingField(fieldName, areaNames, targetType);
+        }
+        if (isAttachmentObjectField(fieldName)) {
+            result.addAll(findObjectTypesWithContent(areaNames, targetType));
+        }
+
+        applicableTypesMap.put(key, result);
+        return result;
+    }
+
+    private boolean isAttachmentObjectField(String fieldName) {
+        return AttachmentService.NAME.equals(fieldName)
+                || AttachmentService.DESCRIPTION.equals(fieldName)
+                || AttachmentService.CONTENT_LENGTH.equals(fieldName);
     }
 }

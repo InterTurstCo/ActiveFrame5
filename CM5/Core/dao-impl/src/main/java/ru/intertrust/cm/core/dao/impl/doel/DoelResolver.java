@@ -436,7 +436,6 @@ public class DoelResolver implements DoelEvaluator {
 
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {
         HashSet<String> typeSet = new HashSet<>();
-        HashMap<String, String> typeMap = new HashMap<>();
         for (DoelTypes.Link link : types) {
             typeSet.add(link.getType());
         }
@@ -450,11 +449,10 @@ public class DoelResolver implements DoelEvaluator {
             } else {
                 throw new IllegalArgumentException("ids list must contain only Ids or ReferenceValues");
             }
-            String type = domainObjectTypeIdCache.getName(id);
-            if (typeMap.containsKey(type)) {
-                type = typeMap.get(type);
-            }
-            while (type != null) {
+            String idType = domainObjectTypeIdCache.getName(id);
+            String[] hierarchyTypes = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(idType);
+
+            for (String type : hierarchyTypes) {
                 if (typeSet.contains(type)) {
                     if (!result.containsKey(type)) {
                         result.put(type, new ArrayList<RdbmsId>());
@@ -462,8 +460,8 @@ public class DoelResolver implements DoelEvaluator {
                     result.get(type).add(id);
                     continue idCycle;
                 }
-                type = configurationExplorer.getConfig(DomainObjectTypeConfig.class, type).getExtendsAttribute();
             }
+
             if (log.isInfoEnabled()) {
                 log.info("Unexpected object type: " + domainObjectTypeIdCache.getName(id)); //*****
             }
