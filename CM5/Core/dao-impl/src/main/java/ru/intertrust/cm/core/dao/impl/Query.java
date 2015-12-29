@@ -46,10 +46,10 @@ public class Query {
      */
     public int addParameter(String parameter, Class<? extends FieldConfig> type) {
         if (LongFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.NUMERIC);
+            addParameter(parameter, ParameterType.LONG);
             return 1;
         } else if (DateTimeFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.DATE);
+            addParameter(parameter, ParameterType.DATETIME);
             return 1;
         } else if (ReferenceFieldConfig.class.equals(type)) {
             addReferenceParameters(parameter);
@@ -58,20 +58,20 @@ public class Query {
             addParameter(parameter, ParameterType.STRING);
             return 1;
         } else if (TimelessDateFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.DATE);
+            addParameter(parameter, ParameterType.DATETIME);
             return 1;
         } else if (DateTimeWithTimeZoneFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.DATE);
+            addParameter(parameter, ParameterType.DATETIME);
             addParameter(getTimeZoneIdColumnName(parameter), ParameterType.STRING);
             return 2;
         } else if (DecimalFieldConfig.class.equals(type)) {
             addParameter(parameter, ParameterType.DECIMAL);
             return 1;
         } else if (TextFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.STRING);
+            addParameter(parameter, ParameterType.TEXT);
             return 1;
         } else if (BooleanFieldConfig.class.equals(type)) {
-            addParameter(parameter, ParameterType.NUMERIC);
+            addParameter(parameter, ParameterType.BOOLEAN);
             return 1;
         } else if (StringFieldConfig.class.equals(type)) {
             addParameter(parameter, ParameterType.STRING);
@@ -86,36 +86,36 @@ public class Query {
      * Добавляет именованный параметр в запрос
      */
     public void addLongParameter(String parameter) {
-        addParameter(parameter, ParameterType.NUMERIC);
+        addParameter(parameter, ParameterType.LONG);
     }
 
     /**
      * Добавляет именованный параметр в запрос
      */
     public void addReferenceParameter(String parameter) {
-        addParameter(parameter, ParameterType.NUMERIC);
+        addParameter(parameter, ParameterType.REFERENCE);
     }
 
     /**
      * Добавляет именованный параметр в запрос
      */
     public void addReferenceTypeParameter(String parameter) {
-        addParameter(parameter, ParameterType.NUMERIC);
+        addParameter(parameter, ParameterType.REFERENCE_TYPE);
     }
 
     /**
      * Добавляет именованный параметр в запрос
      */
     public void addReferenceParameters(String parameter) {
-        addParameter(parameter, ParameterType.NUMERIC);
-        addParameter(generateReferenceTypeParameter(parameter), ParameterType.NUMERIC);
+        addParameter(parameter, ParameterType.REFERENCE);
+        addParameter(generateReferenceTypeParameter(parameter), ParameterType.REFERENCE_TYPE);
     }
 
     /**
      * Добавляет именованный параметр в запрос
      */
     public void addDateParameter(String parameter) {
-        addParameter(parameter, ParameterType.DATE);
+        addParameter(parameter, ParameterType.DATETIME);
     }
 
     /**

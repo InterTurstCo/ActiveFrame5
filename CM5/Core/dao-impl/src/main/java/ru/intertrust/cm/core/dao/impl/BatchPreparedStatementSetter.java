@@ -43,14 +43,15 @@ public class BatchPreparedStatementSetter implements org.springframework.jdbc.co
                 continue;
             }
 
+            final ParameterType type = parameterInfo.getType();
             if (entry.getValue() == null) {
-                ps.setNull(index, parameterInfo.getType().getSqlType());
+                ps.setNull(index, type.getSqlType());
             } else {
-                if (ParameterType.DATE == parameterInfo.getType()){
+                if (ParameterType.DATETIME == type){
                     Calendar cal = (Calendar) entry.getValue();
                     ps.setTimestamp(index, new java.sql.Timestamp(cal.getTime().getTime()), cal);
                 } else {
-                    ps.setObject(index, entry.getValue(), parameterInfo.getType().getSqlType());
+                    ps.setObject(index, entry.getValue(), type.getSqlType());
                 }
             }
         }
