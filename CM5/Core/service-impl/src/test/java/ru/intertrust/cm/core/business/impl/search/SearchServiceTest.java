@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -180,13 +179,17 @@ public class SearchServiceTest {
                 .thenReturn("<date filter>");
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
-        when(configHelper.findObjectTypesContainingField(anyString(), anyList(), anyString())).thenReturn(
-                Collections.singleton("TargetType"));
-/*        when(configHelper.findObjectConfigsContainingField(anyString(), anyList())).thenReturn(Arrays.asList(
-                new SearchConfigHelper.SearchAreaDetailsConfig(configMock, "Area1", "TargetType"),
-                new SearchConfigHelper.SearchAreaDetailsConfig(configMock, "Area2", "TargetType"),
-                new SearchConfigHelper.SearchAreaDetailsConfig(configMock, "Area3", "TargetType")));
-*/        QueryResponse response = mock(QueryResponse.class);
+
+        when(configHelper.findApplicableTypes("LongField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+        when(configHelper.findApplicableTypes("DateField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+        when(configHelper.findApplicableTypes("ReferenceField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+
+        QueryResponse response = mock(QueryResponse.class);
         when(solrServer.query(any(SolrParams.class))).thenReturn(response);
         SolrDocument docMock = mock(SolrDocument.class);
         SolrDocumentList docList = new SolrDocumentList();
@@ -233,8 +236,9 @@ public class SearchServiceTest {
                 .thenReturn("<text filter>");
         IndexedDomainObjectConfig configMock = mock(IndexedDomainObjectConfig.class);
         when(configMock.getType()).thenReturn("TargetType");
-        when(configHelper.findObjectTypesContainingField(anyString(), anyList(), anyString())).thenReturn(
-                Collections.singleton("TargetType"));
+
+        when(configHelper.findApplicableTypes("StringField", Arrays.asList("Area1", "Area2", "Area3"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
         when(solrServer.query(any(SolrParams.class))).thenReturn(response);
@@ -283,14 +287,16 @@ public class SearchServiceTest {
                 .thenReturn(adapterMock);
         when(adapterMock.getFilterString(argThat(isA(TextSearchFilter.class)), any(SearchQuery.class)))
                 .thenReturn("<text filter>");
+
         IndexedDomainObjectConfig targetObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(targetObjectFieldConfig.getType()).thenReturn("TargetType");
         IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
         when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
-        when(configHelper.findObjectTypesContainingField(eq("RootField"), anyList(), anyString())).thenReturn(
-                Collections.singleton("TargetType"));
-        when(configHelper.findObjectTypesContainingField(eq("LinkedField"), anyList(), anyString())).thenReturn(
-                Collections.singleton("LinkedType"));
+
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+                thenReturn(Arrays.asList("LinkedType"));
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
 
         QueryResponse response = mock(QueryResponse.class);
         when(solrServer.query(any(SolrParams.class))).thenReturn(response);
@@ -316,7 +322,6 @@ public class SearchServiceTest {
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
         when(objects.size()).thenReturn(5);
         when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), eq(20))).thenReturn(objects);
-        //when(idService.createId(anyString())).thenAnswer(RETURNS_MOCKS);
 
         // Вызов проверяемого метода
         service.search(query, "TestCollection", 20);

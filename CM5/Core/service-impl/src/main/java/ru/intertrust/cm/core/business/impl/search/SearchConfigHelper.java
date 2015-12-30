@@ -178,7 +178,7 @@ public class SearchConfigHelper {
      * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов
      */
-    public Set<String> findAllObjectTypes(List<String> areaNames, String targetObjectType) {
+    private Set<String> findAllObjectTypes(List<String> areaNames, String targetObjectType) {
         return findObjectTypesContainingField(null, areaNames, targetObjectType);
     }
 
@@ -189,7 +189,7 @@ public class SearchConfigHelper {
      * @param targetObjectType имя типа целевого объекта; может быть null
      * @return множество типов объектов (пустой, если поле не найдено)
      */
-    public Set<String> findObjectTypesContainingField(String field, List<String> areaNames, String targetObjectType) {
+    private Set<String> findObjectTypesContainingField(String field, List<String> areaNames, String targetObjectType) {
         Trio<String, List<String>, String> key = new Trio<>(field, areaNames, targetObjectType);
 
         Set<String> result = objectTypesContainingFieldMap.get(key);
