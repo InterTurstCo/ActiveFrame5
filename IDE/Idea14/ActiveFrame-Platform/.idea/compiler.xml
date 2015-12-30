@@ -41,6 +41,7 @@
         <module name="gui-rpc" />
         <module name="gui-server-api" />
         <module name="gui-server-impl" />
+        <module name="gwt-rpc-proxy" />
         <module name="it-test" />
         <module name="jdbc" />
         <module name="model" />

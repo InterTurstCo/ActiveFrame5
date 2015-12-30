@@ -7,6 +7,7 @@
     <file url="file://$PROJECT_DIR$/../../../CM5/Core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/bootstrap" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/configuration" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../CM5/Core/configuration/src/main/java/ru/intertrust/cm/core/util/Sizer.java" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/dao-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/dao-impl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/file-net-adapter" charset="UTF-8" />
