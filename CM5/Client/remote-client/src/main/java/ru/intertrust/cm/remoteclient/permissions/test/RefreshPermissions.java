@@ -27,15 +27,21 @@ public class RefreshPermissions extends ClientBase {
             
             String type = getParamerer(TYPE_NAME);
             log("Refresh permissions on " + type);
+            int errorCount = 0;
             
             IdentifiableObjectCollection collection =
                     getCollectionsService().findCollectionByQuery("select id from " + type);
             for (IdentifiableObject identifiableObject : collection) {
-                log("Refresh ACL of type=" + type + " id=" + identifiableObject.getId());
-                getPermissionService().refreshAclFor(identifiableObject.getId());
+                try{
+                    log("Refresh ACL of type=" + type + " id=" + identifiableObject.getId());
+                    getPermissionService().refreshAclFor(identifiableObject.getId());
+                }catch(Exception ex){
+                    log("Error refresh permissions on " + identifiableObject.getId());
+                    errorCount++;
+                }
             }
 
-            log("Complete");
+            log("Complete with " + errorCount + " errors.");
         } finally {
             writeLog();
         }

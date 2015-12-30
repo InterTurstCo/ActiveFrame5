@@ -232,7 +232,7 @@ public class TestPermission extends ClientBase {
             }            
 
             
-            //Статус "Complete" отсутствует в матрице, при переходе в этот статус прав должны обнулятся полностью
+            //Статус "Complete" отсутствует в матрице, при переходе в этот статус права должны обнулиться полностью
             internalDocument.setString("State", "Complete");
             internalDocument = getCrudService().save(internalDocument);
             etalon = new EtalonPermissions();
@@ -467,6 +467,15 @@ public class TestPermission extends ClientBase {
             assertTrue("Test 13 check write access", accessVerificationService.isWritePermitted(test13AuditId));
 
             assertFalse("Test 13 check delete access", accessVerificationService.isDeletePermitted(test13AuditId));
+            
+            //Проверка удаление ДО при наличие в матрице статичной группы и роли
+            DomainObject testType21 = getCrudService().createDomainObject("test_type_21");
+            testType21.setString("description", "_" + System.currentTimeMillis());
+            testType21.setReference("author", getPersonId("admin"));
+            testType21 = getCrudService().save(testType21);
+            
+            getCrudService().delete(testType21.getId());
+            log("Test delete DO with static group and context role: OK");
             
             log("Test complete");
         } finally {

@@ -411,6 +411,12 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="test_type_21" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+            <reference name="author" type="person" not-null="true" />
+        </fields>
+    </domain-object-type>
 
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
