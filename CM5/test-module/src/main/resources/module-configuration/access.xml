@@ -361,5 +361,37 @@
         </status>
     </access-matrix>
     <access-matrix type="test_type_18" matrix-reference-field="test_type_17"/>
+
+    <context-role name="test_type_21_author">
+        <context>
+            <domain-object type="test_type_21"/>
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+        
+    </context-role>
+    
+    <access-matrix type="test_type_21">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-role name="test_type_21_author" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>    
+        </status>
+    </access-matrix>
+
     
 </configuration>

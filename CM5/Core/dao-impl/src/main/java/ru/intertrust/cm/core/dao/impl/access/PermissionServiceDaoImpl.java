@@ -75,7 +75,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Autowired
     private PermissionAfterCommit permissionAfterCommit;
-    
+
     public void setMasterNamedParameterJdbcTemplate(NamedParameterJdbcOperations masterNamedParameterJdbcTemplate) {
         this.masterNamedParameterJdbcTemplate = masterNamedParameterJdbcTemplate;
     }
@@ -90,23 +90,25 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void notifyDomainObjectDeleted(DomainObject domainObject) {
-        notifyDomainObjectChangedInternal(domainObject, getDeletedModificationList(domainObject), false);
+        notifyDomainObjectChangedInternal(domainObject, getDeletedModificationList(domainObject), false, true);
         cleanAclFor(domainObject.getId());
     }
 
     @Override
     public void notifyDomainObjectChanged(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
-        notifyDomainObjectChangedInternal(domainObject, modifiedFieldNames, false);
+        notifyDomainObjectChangedInternal(domainObject, modifiedFieldNames, false, false);
     }
 
     @Override
     public void notifyDomainObjectCreated(DomainObject domainObject) {
-        notifyDomainObjectChangedInternal(domainObject, getNewObjectModificationList(domainObject), true);
+        notifyDomainObjectChangedInternal(domainObject, getNewObjectModificationList(domainObject), true, false);
     }
 
-    private void
-            notifyDomainObjectChangedInternal(DomainObject domainObject, List<FieldModification> modifiedFieldNames,
-                    boolean invalidateCurrent) {
+    private void notifyDomainObjectChangedInternal(DomainObject domainObject,
+            List<FieldModification> modifiedFieldNames,
+            boolean invalidateCurrent,
+            boolean delete) {
+
         String typeName = domainObject.getTypeName().toLowerCase();
 
         List<ContextRoleRegisterItem> typeCollectors = collectors.get(typeName);
@@ -127,6 +129,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                         dynamicGroupCollector.getCollector().getInvalidContexts(domainObject,
                                 modifiedFieldNames));
             }
+        }
+
+        //В случае удаления не надо добавлять в невалидные контексты ид самого удаляемого ДО
+        if (delete) {
+            invalidContexts.remove(domainObject.getId());
         }
 
         // Непосредственно формирование состава, должно вызываться в конце транзакции
@@ -429,7 +436,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         insertAclRecordsInBatch(aclInfoRead, new RdbmsId[] { rdbmsObjectId }, true);
-        insertAclRecordsInBatch(aclInfoNoRead, new RdbmsId[]{rdbmsObjectId}, false);
+        insertAclRecordsInBatch(aclInfoNoRead, new RdbmsId[] { rdbmsObjectId }, false);
 
         if (notifyCache) {
             globalCacheClient.notifyAclCreated(objectId, aclInfoRead);
@@ -1230,11 +1237,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             List<Id> effectiveDomainObjectIdsNoRead = new ArrayList<Id>(domainObjectIds.size());
             for (Id id : domainObjectIds) {
                 String typeName = domainObjectTypeIdCache.getName(id);
-                AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);                
-                if (matrixConfig != null){
-                    if (matrixConfig.getMatrixReference() == null){
+                AccessMatrixConfig matrixConfig = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
+                if (matrixConfig != null) {
+                    if (matrixConfig.getMatrixReference() == null) {
                         effectiveDomainObjectIdsNoRead.add(id);
-                        if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()){
+                        if (matrixConfig.isReadEverybody() == null || !matrixConfig.isReadEverybody()) {
                             effectiveDomainObjectIdsRead.add(id);
                         }
                     }
@@ -1305,7 +1312,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void notifyDomainObjectChangeStatus(DomainObject domainObject) {
-        notifyDomainObjectChangedInternal(domainObject, null, true);
+        notifyDomainObjectChangedInternal(domainObject, null, true, false);
     }
 
 }
