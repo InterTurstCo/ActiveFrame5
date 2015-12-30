@@ -51,11 +51,3 @@ CM5/deploy.properties
 
 CM5/server.properties
 CM5/Client/remote-client/client.properties
-IDE/Idea14/ActiveFrame-Platform/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/artifacts/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/copyright/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/inspectionProfiles/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/libraries/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/runConfigurations/*.*
-IDE/Idea14/ActiveFrame-Platform/.idea/scopes/*.*
