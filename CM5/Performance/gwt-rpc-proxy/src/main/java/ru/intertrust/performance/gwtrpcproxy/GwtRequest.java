@@ -21,6 +21,11 @@ public class GwtRequest {
     private FileInfo file;
     @Element(name="json", required=false)
     private String json;
+    @Element(name="serialization-policy-strong-name", required=false)
+    private String serializationPolicyStrongName;
+    @Element(name="module-base-url", required=false)
+    private String moduleBaseUrl;
+    
 
     public String getServiceMethod() {
         return serviceMethod;
@@ -69,6 +74,17 @@ public class GwtRequest {
     }
     public void setJson(String json) {
         this.json = json;
-    } 
-    
+    }
+    public String getSerializationPolicyStrongName() {
+        return serializationPolicyStrongName;
+    }
+    public void setSerializationPolicyStrongName(String serializationPolicyStrongName) {
+        this.serializationPolicyStrongName = serializationPolicyStrongName;
+    }
+    public void setModuleBaseUrl(String moduleBaseUrl) {
+        this.moduleBaseUrl = moduleBaseUrl;
+    }     
+    public String getModuleBaseUrl() {
+        return moduleBaseUrl;
+    }     
 }

@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -39,6 +43,8 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.jmeter.config.Argument;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.control.GenericController;
 import org.apache.jmeter.control.TransactionController;
 import org.apache.jmeter.control.gui.LogicControllerGui;
@@ -48,6 +54,7 @@ import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.gui.HeaderPanel;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
@@ -55,16 +62,17 @@ import org.apache.jmeter.sampler.TestAction;
 import org.apache.jmeter.sampler.gui.TestActionGui;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testbeans.gui.TestBeanGUI;
+import org.apache.jmeter.testelement.AbstractTestElement;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.simpleframework.xml.Serializer;
-import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.intertrust.performance.jmetertools.GwtProcySerializationPolicyProvider;
 import ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui;
+import ru.intertrust.performance.jmetertools.GwtRpcSampler;
 
 public class GwtRpcProxy implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(GwtRpcProxy.class);
@@ -75,7 +83,7 @@ public class GwtRpcProxy implements Runnable {
     private Integer automaticGroupDetectInterval;
     private GroupStrategy groupStrategy;
     private Thread serverThread;
-    private ProxyContext context = new ProxyContext();;
+    private ProxyContext context = new ProxyContext();
     private ConnectingIOReactor connectingIOReactor;
     private Integer betweenGroupPause;
 
@@ -286,11 +294,11 @@ public class GwtRpcProxy implements Runnable {
 
     public void saveResult() {
         try {
-            //Сохранение простого xml для отладки
             logger.info("Save out file");
-            Serializer serializer = new Persister();
+            //Сохранение простого xml для отладки
+            /*Serializer serializer = new Persister();
             File result = new File(context.getOutFile() + ".xml");
-            serializer.write(context.getJournal(), result);
+            serializer.write(context.getJournal(), result);*/
 
             //Сохранения jmeter скрипта
             //Загрузка шаблона
@@ -298,7 +306,11 @@ public class GwtRpcProxy implements Runnable {
             JMeterUtils.loadJMeterProperties(JMeterUtils.getJMeterHome() + "/bin/jmeter.properties");
             HashTree script = SaveService.loadTree(new File("gwt-proxy-template.jmx"));
 
-            HashTree recordScript = getRecordScript(script);
+            writeScriptParams(script);
+            writeSystemParams(script);    
+            writeHeaderManager(script);
+            
+            HashTree recordScript = getHashTreeByName(script, "Работа клиента");
             int samplerNo = 0;
             int groupNo = 0;
             for (GwtInteractionGroup group : context.getJournal().getGroupList()) {
@@ -313,51 +325,21 @@ public class GwtRpcProxy implements Runnable {
 
                 HashTree genericControllerTree = new ListedHashTree();
 
-                //Добавляем HeaderManager
-                HeaderManager headerManager = new HeaderManager();
-                headerManager.setName(group.getName() + " HTTP Header Manager");
-                headerManager.setProperty(TestElement.GUI_CLASS, HeaderPanel.class.getName());
-                headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
-                headerManager.setEnabled(true);
-                headerManager.add(new Header("Content-Type", "text/x-gwt-rpc;charset=UTF-8"));
-                // TODO вынести из кода
-                headerManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));
-
-                genericControllerTree.add(headerManager);
-
                 for (GwtInteraction requestResponce : group.getRequestResponceList()) {
 
-                    GenericController uploadGenericController = null;
-                    HashTree uploadGenericControllerTree = null;
-                    if (requestResponce.getRequest().getFile() != null) {
-                        //Создаем индивидуальную группу для upload вложений
-                        uploadGenericController = new GenericController();
-                        uploadGenericController.setName("Upload attachment group");
-                        uploadGenericController.setProperty(TestElement.GUI_CLASS, LogicControllerGui.class.getName());
-                        uploadGenericController.setProperty(TestElement.TEST_CLASS, GenericController.class.getName());
-                        uploadGenericController.setEnabled(true);
-
-                        uploadGenericControllerTree = new ListedHashTree();
-
-                        //Добавляем HeaderManager
-                        HeaderManager uploadHeaderManager = new HeaderManager();
-                        uploadHeaderManager.setName("Upload attachment HTTP Header Manager");
-                        uploadHeaderManager.setProperty(TestElement.GUI_CLASS, HeaderPanel.class.getName());
-                        uploadHeaderManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
-                        uploadHeaderManager.setEnabled(true);
-                        // TODO вынести из кода
-                        uploadHeaderManager.add(new Header("X-GWT-Permutation", "EF1349455A4DC0B042265E6477C7CF05"));
-
-                        uploadGenericControllerTree.add(uploadHeaderManager);
-                    }
-
-                    HTTPSamplerProxy sampler = new HTTPSamplerProxy();
+                    HTTPSamplerBase sampler = null;
                     if (requestResponce.getRequest().getServiceClass() != null) {
+                        sampler = new GwtRpcSampler();
+                        sampler.setProperty(TestElement.TEST_CLASS, GwtRpcSampler.class.getName());
                         sampler.setName(samplerNo + "-" + requestResponce.getRequest().getServiceClass() + "."
                                 + requestResponce.getRequest().getServiceMethod());
                     } else if (requestResponce.getRequest().getFile() != null) {
+                        sampler = new HTTPSamplerProxy();
+                        sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
                         sampler.setName(samplerNo + "-Upload file: " + requestResponce.getRequest().getFile().getFileName());
                     } else {
+                        sampler = new HTTPSamplerProxy();
+                        sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
                         sampler.setName(samplerNo + "-" + requestResponce.getRequest().getUrl());
                     }
                     sampler.setEnabled(true);
@@ -369,7 +351,6 @@ public class GwtRpcProxy implements Runnable {
                     sampler.setDoMultipartPost(false);
                     sampler.setMonitor(false);
                     sampler.setProperty(TestElement.GUI_CLASS, GwtRpcHttpTestSampleGui.class.getName());
-                    sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
                     sampler.setPostBodyRaw(true);
 
                     if (requestResponce.getRequest().getFile() != null) {
@@ -404,14 +385,14 @@ public class GwtRpcProxy implements Runnable {
                     String scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
 
                     scriptText += "try{\n";
-                    if (uploadGenericController == null) {
+                    if (requestResponce.getRequest().getFile() == null) {
                         //Обновление доменных объектов и идентификаторов в запросе
                         scriptText += "\t//Змена ID и доменных объектов\n";
                         scriptText += "\tGwtUtil.preRequestProcessing(ctx);\n";
                     }
                     scriptText += "}catch(Exception ex){\n";
                     scriptText += "\tlog.error(\"Pre request error in sampler \" + sampler.getName(), ex);\n";
-                    scriptText += "\tvars.put(\"PRE_REQUEST_ERROR\", \"true\");\n";
+                    scriptText += "\tsampler.setError(true);\n";
                     scriptText += "}\n";
 
                     preProcessor.setProperty("script", scriptText);
@@ -432,17 +413,13 @@ public class GwtRpcProxy implements Runnable {
 
                     scriptText = "import ru.intertrust.performance.jmetertools.*;\n";
                     scriptText += "try{\n";
-                    scriptText += "\tString preRequestError = vars.get(\"PRE_REQUEST_ERROR\");\n";
                     scriptText += "\t//Проверка на ошибки\n";
-                    scriptText += "\tif (preRequestError != null){\n";
-                    scriptText += "\t\tprev.setSuccessful(false);\n";
-                    scriptText += "\t}else if (GwtUtil.isError(prev)){\n";
-                    scriptText += "\t\tlog.error(GwtUtil.decodeResponce(prev).toString());\n";
+                    scriptText += "\tif (GwtUtil.isError(ctx)){\n";
                     scriptText += "\t\tprev.setSuccessful(false);\n";
                     scriptText += "\t}else{\n";
 
                     //Для вложения добавляем сохранялку имени временного контента
-                    if (uploadGenericController != null) {
+                    if (requestResponce.getRequest().getFile() != null) {
                         scriptText += "\t\t//Сохранение имени вложения\n";
                         scriptText += "\t\tGwtUtil.storeUploadResult(ctx);\n";
                     } else {
@@ -461,19 +438,14 @@ public class GwtRpcProxy implements Runnable {
                     HashTree postProcessorTree = new ListedHashTree();
                     samplerTree.add(postProcessor, postProcessorTree);
 
-                    if (uploadGenericController != null) {
-                        uploadGenericControllerTree.add(sampler, samplerTree);
-                        recordScript.add(uploadGenericController, uploadGenericControllerTree);
-                    } else {
-                        genericControllerTree.add(sampler, samplerTree);
-                    }
+                    genericControllerTree.add(sampler, samplerTree);
                     samplerNo++;
                 }
                 if (genericControllerTree.size() > 0) {
                     if (groupNo > 0) {
                         TestAction timer = new TestAction();
                         timer.setEnabled(true);
-                        timer.setName("Sleep " + groupNo);
+                        timer.setName("Пауза " + groupNo);
                         timer.setDuration("" + group.getBeforePause() * 1000);
                         timer.setTarget(TestAction.THREAD);
                         timer.setAction(TestAction.PAUSE);
@@ -495,23 +467,80 @@ public class GwtRpcProxy implements Runnable {
         }
     }
 
-    private HashTree getRecordScript(HashTree script) {
+    private void writeScriptParams(HashTree script) throws URISyntaxException {
+        Arguments sysParams = (Arguments)getSamplerByName(script, "Конфигурация скрипта");
+        
+        URI uri = new URI(targetUri);
+        
+        for (int i=0; i<sysParams.getArgumentCount(); i++) {
+            Argument arg = sysParams.getArgument(i);
+            if (arg.getName().equalsIgnoreCase("HOST")){
+                arg.setValue(uri.getHost());
+            }else if (arg.getName().equalsIgnoreCase("PORT")){
+                arg.setValue(String.valueOf(uri.getPort()));
+            }            
+        }
+    }
+
+    private void writeHeaderManager(HashTree script){
+        HeaderManager headerManager = (HeaderManager)getSamplerByName(script, "HTTP Header Manager");
+        //Добавляем Header
+        headerManager.add(new Header(ProxyContext.X_GWT_PERMUTATION, context.getJournal().getxGwtPermutation()));
+    }
+    
+    private void writeSystemParams(HashTree script) {
+        Arguments sysParams = (Arguments)getSamplerByName(script, "Системные переменные");
+        Map<String, String> strongNames = GwtProcySerializationPolicyProvider.getPolicyMap();
+        
+        Set<String> uniqueStrongNames = new HashSet<String>();
+        
+        for (String key : strongNames.keySet()) {
+            String policyKey = GwtRpcSampler.POLICY_PARAM_PREFIX + key;
+
+            if (!uniqueStrongNames.contains(policyKey)){
+                sysParams.addArgument(policyKey, strongNames.get(key));
+                uniqueStrongNames.add(policyKey);
+            }
+        }        
+    }
+
+    private HashTree getHashTreeByName(HashTree script, String name) {
         HashTree result = null;
         for (Object key : script.keySet()) {
-            if (key instanceof GenericController) {
-                GenericController controller = (GenericController) key;
-                if (controller.getName().equalsIgnoreCase("Работа клиента")) {
+            if (key instanceof AbstractTestElement) {
+                AbstractTestElement controller = (AbstractTestElement) key;
+                if (controller.getName().equalsIgnoreCase(name)) {
                     result = script.getTree(controller);
                 } else {
-                    result = getRecordScript(script.getTree(key));
+                    result = getHashTreeByName(script.getTree(key), name);
                 }
             } else {
-                result = getRecordScript(script.getTree(key));
+                result = getHashTreeByName(script.getTree(key), name);
             }
             if (result != null)
                 break;
         }
         return result;
+    }
+    
+    private AbstractTestElement getSamplerByName(HashTree script, String name){
+        AbstractTestElement result = null;
+        for (Object key : script.keySet()) {
+            if (key instanceof AbstractTestElement) {
+                AbstractTestElement controller = (AbstractTestElement) key;
+                if (controller.getName().equalsIgnoreCase(name)) {
+                    result = controller;
+                } else {
+                    result = getSamplerByName(script.getTree(key), name);
+                }
+            } else {
+                result = getSamplerByName(script.getTree(key), name);
+            }
+            if (result != null)
+                break;
+        }
+        return result;
+        
     }
 
     public void stop() throws IOException {
