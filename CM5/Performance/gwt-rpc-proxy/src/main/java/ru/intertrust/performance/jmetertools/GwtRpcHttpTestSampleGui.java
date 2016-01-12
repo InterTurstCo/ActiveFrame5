@@ -38,10 +38,11 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
         init();
     }
 
-    public String getLabelResource() {
-        return "gwt_rpc_testing_title"; // $NON-NLS-1$
-    }
-
+    @Override
+    public String getStaticLabel() {
+        return "Gwt Rpc Sampler";
+    }    
+    
     private void init() {
         MultipartUrlConfigGui paramPanel = findPanel(this, MultipartUrlConfigGui.class);
 
