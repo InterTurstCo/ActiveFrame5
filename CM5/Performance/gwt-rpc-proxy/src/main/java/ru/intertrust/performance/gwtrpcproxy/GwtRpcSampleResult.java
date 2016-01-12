@@ -9,11 +9,9 @@ public class GwtRpcSampleResult extends HTTPSampleResult {
     private static final long serialVersionUID = 8100037991784822809L;
     private Object responseObject;
     
-    public GwtRpcSampleResult(Object responseObject) {
+    public void setResponseObject(Object responseObject){
         this.responseObject = responseObject;
     }
-    
-    
 
     public void init(HTTPSampleResult originalResult) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
         Class superClass = HTTPSampleResult.class;

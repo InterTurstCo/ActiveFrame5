@@ -59,7 +59,7 @@ public class GwtRpcSampler extends HTTPSampler {
             arguments.addArgument(httpArgument);
             setArguments(arguments);
             HTTPSampleResult origResult = super.sample(url, method, areFollowingRedirect, depth);
-            result = new GwtRpcSampleResult(requestViewer.getParameters());           
+            result = new GwtRpcSampleResult();           
             result.init(origResult);
             if (origResult.getResponseDataAsString().startsWith("//EX")){
                 errorOnServer = true;
@@ -76,6 +76,7 @@ public class GwtRpcSampler extends HTTPSampler {
                 responceObj = reader.readObject();
                 String json = JsonWriter.objectToJson(responceObj, args);            
                 result.setResponseData(json);
+                result.setResponseObject(responceObj);
             }else{
                 String json = JsonWriter.objectToJson(null, args);   
                 result.setResponseData(json);
