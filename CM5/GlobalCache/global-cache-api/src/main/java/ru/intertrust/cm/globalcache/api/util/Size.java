@@ -40,8 +40,9 @@ public class Size {
     }
 
     public Size set(long size) {
-        final long previous = this.size.getAndSet(size);
-        updateTotal(size + SELF_SIZE - previous);
+        final long realSize = size + SELF_SIZE;
+        final long previous = this.size.getAndSet(realSize);
+        updateTotal(realSize - previous);
         return this;
     }
 
