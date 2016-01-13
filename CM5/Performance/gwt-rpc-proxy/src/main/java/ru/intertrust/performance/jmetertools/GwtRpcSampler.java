@@ -88,7 +88,8 @@ public class GwtRpcSampler extends HTTPSampler {
             }
         } catch (Exception ex) {
             log.error("Error in GwtRpcSampler sampler.", ex);
-            result.setResponseData(ex.getMessage());
+            ex.printStackTrace();
+            result.setResponseData(ex.toString());
             result.setSuccessful(false);            
         }
         return result;
