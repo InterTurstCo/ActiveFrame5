@@ -91,3 +91,17 @@ import ru.intertrust.cm.core.gui.model.form.widget.*;
 	
 	//Кодируем измененный запрос и записываем в семплер
 	GwtUtil.setRequest(sampler, request);
+	
+	
+	
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////    Новая версия
+////////////////////////////////////////////////////////////////////////////////////////
+
+//========= замена текстового поля
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+
+	TextState nameState = (TextState)GwtUtil.findWidgetState(sampler.getRequest(), "2", TextState.class);
+	nameState.setText("Страна-" + GwtUtil.getRndString(20));
+
+	

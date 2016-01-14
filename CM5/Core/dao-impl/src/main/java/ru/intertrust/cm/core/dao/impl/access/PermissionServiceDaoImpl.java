@@ -134,6 +134,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         //В случае удаления не надо добавлять в невалидные контексты ид самого удаляемого ДО
         if (delete) {
             invalidContexts.remove(domainObject.getId());
+            deleteRegisteredInvalidContext(domainObject.getId());
         }
 
         // Непосредственно формирование состава, должно вызываться в конце транзакции
@@ -1114,6 +1115,19 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         recalcGroupSynchronization.addContext(invalidContext);
     }
 
+    private void deleteRegisteredInvalidContext(Id invalidContext) {
+        //не обрабатываем вне транзакции
+        if (getTxReg().getTransactionKey() == null) {
+            return;
+        }
+        RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
+        if (recalcGroupSynchronization == null) {
+            recalcGroupSynchronization = new RecalcAclSynchronization();
+            userTransactionService.addListener(recalcGroupSynchronization);
+        }
+        recalcGroupSynchronization.deleteContext(invalidContext);
+    }    
+    
     private TransactionSynchronizationRegistry getTxReg() {
         if (txReg == null) {
             try {
@@ -1136,6 +1150,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
         public void addContext(Set<Id> invalidContexts) {
             addAllWithoutDuplicate(contextIds, invalidContexts);
+        }
+
+        public void deleteContext(Id invalidContexts) {
+            contextIds.remove(invalidContexts);
         }
 
         public void setAclData(Id id, AclData aclData) {

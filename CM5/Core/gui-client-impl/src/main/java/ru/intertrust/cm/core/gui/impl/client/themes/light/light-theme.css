@@ -1,3 +1,7 @@
+body, table td, select {
+    font-family: Verdana, Arial Unicode MS, Arial, sans-serif;
+}
+
 .gwt-TabPanel {
     position: relative;
     width: 100%;
@@ -306,7 +310,8 @@
 .gwt-TextBox,
 .gwt-ListBox,
 .gwt-TextArea {
-    padding: 7px !important;
+    /*padding: 7px !important;*/
+    padding: 10px 7px 11px;
     border: 1px solid #ccc;
     margin: 0;
     font-family: Arial, Helvetica, sans-serif;

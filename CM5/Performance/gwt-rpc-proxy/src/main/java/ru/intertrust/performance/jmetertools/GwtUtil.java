@@ -1,16 +1,19 @@
 package ru.intertrust.performance.jmetertools;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jorphan.logging.LoggingManager;
@@ -28,8 +31,10 @@ import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.performance.gwtrpcproxy.GwtRpcSampleResult;
 
 import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class GwtUtil {
@@ -42,8 +47,18 @@ public class GwtUtil {
      * @param responce
      * @return
      */
-    public static boolean isError(HTTPSampleResult responce) {
-        return responce.getResponseDataAsString().startsWith("//EX");
+    public static boolean isError(JMeterContext context) {
+        boolean result = false;
+        if (context.getCurrentSampler() instanceof GwtRpcSampler){
+            GwtRpcSampler sampler = (GwtRpcSampler)context.getCurrentSampler();
+            if (sampler.isError()){
+                result = true;         
+            }
+        }
+        if(!context.getPreviousResult().isSuccessful()){
+            result = true;
+        }
+        return result;
     }
 
     /**
@@ -65,31 +80,23 @@ public class GwtUtil {
 
     /**
      * Декодирование ответа
-     * @param sampleResult
-     * @return
-     * @throws SerializationException
-     */
-    public static Object decodeResponce(HTTPSampleResult sampleResult) throws SerializationException {
-        return decodeResponce(sampleResult.getQueryString(), sampleResult.getResponseDataAsString(), sampleResult.getURL().toString());
-    }
-
-    /**
-     * Декодирование ответа
      * @param request
      * @param responce
      * @param targetUri
      * @return
      * @throws SerializationException
      */
-    public static Object decodeResponce(String request, String responce, String targetUri) throws SerializationException {
+    public static Object decodeResponce(String moduleBaseUrl, String policyStrongName, String responce, String targetUri) throws SerializationException {
         try {
-            if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
+            if (responce == null || responce.length() == 0) {
                 return null;
             }
 
-            GwtRpcRequest gwtRpcRequest = GwtRpcRequest.decode(request, targetUri);
+            GwtProcySerializationPolicyProvider provider = new GwtProcySerializationPolicyProvider(targetUri);
 
-            SyncClientSerializationStreamReader reader = new SyncClientSerializationStreamReader(gwtRpcRequest.getSerializationPolicy());
+            
+            
+            SyncClientSerializationStreamReader reader = new SyncClientSerializationStreamReader(provider.getSerializationPolicy(moduleBaseUrl, policyStrongName));
             reader.prepareToRead(responce.substring(4));
             Object responceObj = null;
             if (reader.hasData()) {
@@ -127,7 +134,7 @@ public class GwtUtil {
      * @return
      * @throws Throwable
      */
-    public static WidgetState findWidgetState(GwtRpcRequest request, String widgetId, Class widgetStateClass) throws Throwable {
+    public static WidgetState findWidgetState(RequestViewer request, String widgetId, Class widgetStateClass) throws Throwable {
         try {
             Object parameter = request.getParameters()[0];
             return findWidget(parameter, widgetId, widgetStateClass);
@@ -192,15 +199,6 @@ public class GwtUtil {
         return sb.toString();
     }
 
-    /**
-     * Передача измененного запроса в сэмплер
-     * @param sampler
-     * @param request
-     * @throws SerializationException
-     */
-    public static void setRequest(HTTPSamplerProxy sampler, GwtRpcRequest request) throws SerializationException {
-        sampler.getArguments().getArgument(0).setValue(request.encode());
-    }
 
     /**
      * Получение случайной строки в коллекции
@@ -297,8 +295,8 @@ public class GwtUtil {
     public static void updateIdMap(JMeterContext context) throws Throwable {
         try {
             HTTPSampleResult sampleResult = (HTTPSampleResult) context.getPreviousResult();
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
-            Object realResponce = decodeResponce(sampleResult.getQueryString(), sampleResult.getResponseDataAsString(), sampleResult.getURL().toString());
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
+            Object realResponce = JsonReader.jsonToJava(sampleResult.getResponseDataAsString());
             String savedResponceJson = new String(Base64.decodeBase64(sampleProxy.getPropertyAsString("GwtRpcResponceJson")), "UTF-8");
             Object savedResponce = JsonReader.jsonToJava(savedResponceJson);
 
@@ -322,9 +320,10 @@ public class GwtUtil {
      */
     public static void applyIdMap(JMeterContext context) throws Throwable {
         try {
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
 
-            GwtRpcRequest request = decodeRequest(sampleProxy);
+            //GwtRpcRequest request = decodeRequest(sampleProxy);
+            RequestViewer request = (RequestViewer)sampleProxy.getRequest();
 
             IdsMapper mapper = (IdsMapper) context.getVariables().getObject("IdsMapper");
             if (mapper == null) {
@@ -333,7 +332,7 @@ public class GwtUtil {
             }
             mapper.replaceIdsInParams(request.getParameters());
 
-            setRequest(sampleProxy, request);
+            //setRequest(sampleProxy, request);
         } catch (Throwable ex) {
             log.error("Error applyIdMap " + context.getCurrentSampler().getName(), ex);
             throw ex;
@@ -348,8 +347,8 @@ public class GwtUtil {
     public static void extractDomainObjects(JMeterContext context) throws Throwable {
         try {
             HTTPSampleResult sampleResult = (HTTPSampleResult) context.getPreviousResult();
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
-            Object realResponce = decodeResponce(sampleResult.getQueryString(), sampleResult.getResponseDataAsString(), sampleResult.getURL().toString());
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
+            Object realResponce = JsonReader.jsonToJava(sampleResult.getResponseDataAsString());
             String savedResponceJson = new String(Base64.decodeBase64(sampleProxy.getPropertyAsString("GwtRpcResponceJson")), "UTF-8");
 
             Object savedResponce = JsonReader.jsonToJava(savedResponceJson);
@@ -374,9 +373,10 @@ public class GwtUtil {
      */
     public static void replaceDomainObjects(JMeterContext context) throws Throwable {
         try {
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
 
-            GwtRpcRequest request = decodeRequest(sampleProxy);
+            //GwtRpcRequest request = decodeRequest(sampleProxy);
+            RequestViewer request = (RequestViewer)sampleProxy.getRequest();
 
             DomainObjectMapper mapper = (DomainObjectMapper) context.getVariables().getObject("DomainObjectMapper");
             if (mapper == null) {
@@ -385,7 +385,7 @@ public class GwtUtil {
             }
             mapper.replaceIdsInParams(request.getParameters());
 
-            setRequest(sampleProxy, request);
+            //setRequest(sampleProxy, request);
         } catch (Throwable ex) {
             log.error("Error applyIdMap " + context.getCurrentSampler().getName(), ex);
             throw ex;
@@ -399,7 +399,21 @@ public class GwtUtil {
      */
     public static void postResponseProcessing(JMeterContext context)throws Throwable{
         extractDomainObjects(context);
-        updateIdMap(context);        
+        updateIdMap(context);      
+        boolean store = Boolean.parseBoolean(context.getVariables().get("STORE_REAL_REQUEST"));
+        if (store){
+            Object response = ((GwtRpcSampleResult)context.getPreviousResult()).getResponseObject();
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
+            Map args = new HashMap();
+            args.put(JsonWriter.PRETTY_PRINT, true);
+            String json = JsonWriter.objectToJson(response, args);
+            try(Writer writer = new OutputStreamWriter(new FileOutputStream("jmeter-gwt-rpc.log", true), "UTF-8")){
+                writer.write("======================Response========================\n");
+                writer.write(sampleProxy.getName() + "\n");
+                writer.write(json);
+                writer.write("\n");
+            }
+        }        
     }
     
     /**
@@ -414,12 +428,16 @@ public class GwtUtil {
         
         boolean store = Boolean.parseBoolean(context.getVariables().get("STORE_REAL_REQUEST"));
         if (store){
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
-            GwtRpcRequest request = decodeRequest(sampleProxy);
-            try(FileWriter writer = new FileWriter(new File("jmeter-gwt-rpc.log"), true)){
-                writer.write("==============================================\n");
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
+            Object request = sampleProxy.getRequest();
+            Map args = new HashMap();
+            args.put(JsonWriter.PRETTY_PRINT, true);  
+            String json = JsonWriter.objectToJson(request, args);
+            try(Writer writer = new OutputStreamWriter(new FileOutputStream("jmeter-gwt-rpc.log", true), "UTF-8")){
+                writer.write("======================Request========================\n");
                 writer.write(sampleProxy.getName() + "\n");
-                writer.write(request.asString());
+                writer.write(json);
+                writer.write("\n");
             }
         }
     }
@@ -427,7 +445,7 @@ public class GwtUtil {
     public static void storeUploadResult(JMeterContext context) throws Throwable{
         try {
             HTTPSampleResult sampleResult = (HTTPSampleResult) context.getPreviousResult();
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
+            HTTPSamplerBase sampleProxy = (HTTPSamplerBase) context.getCurrentSampler();
             String realResponce = sampleResult.getResponseDataAsString();
             String savedResponce = sampleProxy.getPropertyAsString("GwtRpcResponceJson");
 
@@ -446,9 +464,10 @@ public class GwtUtil {
     
     public static void replaceUploadResult(JMeterContext context) throws Throwable {
         try {
-            HTTPSamplerProxy sampleProxy = (HTTPSamplerProxy) context.getCurrentSampler();
+            GwtRpcSampler sampleProxy = (GwtRpcSampler) context.getCurrentSampler();
 
-            GwtRpcRequest request = decodeRequest(sampleProxy);
+            //GwtRpcRequest request = decodeRequest(sampleProxy);
+            RequestViewer request = (RequestViewer)sampleProxy.getRequest();
 
             UploadMapper mapper = (UploadMapper) context.getVariables().getObject("UploadMapper");
             if (mapper == null) {
@@ -457,7 +476,7 @@ public class GwtUtil {
             }
             
             mapper.replaceUploadResult(request.getParameters());
-            setRequest(sampleProxy, request);
+            //setRequest(sampleProxy, request);
         } catch (Throwable ex) {
             log.error("Error replaceUploadResult " + context.getCurrentSampler().getName(), ex);
             throw ex;
