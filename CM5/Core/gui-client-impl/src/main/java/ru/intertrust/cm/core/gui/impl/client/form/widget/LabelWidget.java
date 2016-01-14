@@ -74,7 +74,6 @@ public class LabelWidget extends BaseWidget {
         redAsteriskLabel.setStyleName("gwt-Red-Label");
         panel.add(redAsteriskLabel);
         panel.add(label);
-
         return panel;
     }
 

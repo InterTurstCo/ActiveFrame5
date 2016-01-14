@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.FormSavedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.LabelWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.TextBoxWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.LinkedDomainObjectHyperlinkWidget;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
@@ -62,6 +64,10 @@ public class FormPluginView extends PluginView implements FormSavedEventHandler 
 
     @Override
     public IsWidget getViewWidget() {
+        /*List<BaseWidget> widgets = formPanel.getWidgets();
+        for (BaseWidget widget : widgets) {
+            widget.asWidget().ensureDebugId("AF5Platform");
+        } */
         return formPanel;
     }
 
