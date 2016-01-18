@@ -223,6 +223,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         final SuggestBoxDisplay display = new SuggestBoxDisplay();
         TextBox suggestTextBox = new SuggestTextBox();
         suggestBox = new SuggestBox(oracle, suggestTextBox, display);
+        suggestBox.ensureDebugId(BaseWidget.SG_BOX+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId());
 
         presenter.suggestBox = suggestBox;
         display.setLazyLoadHandler(new ScrollLazyLoadHandler());
@@ -433,6 +434,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             DOM.appendChild(row, container);
             DOM.appendChild(getBody(), row);
             arrowBtn = DOM.createTD();
+            UIObject.ensureDebugId(arrowBtn,(BaseWidget.SG_BOX_ARROW+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId()));
             arrowBtn.setClassName("suggest-container-arrow-btn");
             DOM.setEventListener(arrowBtn, new EventListener() {
                 @Override
@@ -444,6 +446,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
             DOM.appendChild(row, arrowBtn);
             addCreateButton(state, row);
             clearAllButton = DOM.createTD();
+            UIObject.ensureDebugId(clearAllButton,BaseWidget.SG_BOX_CLR+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId());
             clearAllButton.setClassName("suggest-container-clear-btn");
             DOM.appendChild(row, clearAllButton);
             DOM.sinkEvents(arrowBtn, Event.ONCLICK);

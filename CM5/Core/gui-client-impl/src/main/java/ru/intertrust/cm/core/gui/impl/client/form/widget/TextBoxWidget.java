@@ -64,6 +64,7 @@ public class TextBoxWidget extends BaseWidget {
                 }
             }
         });
+        textBox.ensureDebugId(BaseWidget.TEXT_BOX+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId());
         return textBox;
 
     }

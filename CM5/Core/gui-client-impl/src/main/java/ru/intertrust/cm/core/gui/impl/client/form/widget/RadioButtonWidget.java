@@ -56,10 +56,13 @@ public class RadioButtonWidget extends BaseWidget {
         }
         layoutPanel.clear();
         panel.add(layoutPanel);
+        Integer rbCounter = 0;
         for (Id id : listValues.keySet()) {
             String text = listValues.get(id);
             String groupName = getDisplayConfig().getId();
             RadioButton rb = new RadioButton(groupName, text);
+            rb.ensureDebugId(BaseWidget.RADIO_BUTTON+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId()+"-"+rbCounter);
+            rbCounter++;
             rb.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {

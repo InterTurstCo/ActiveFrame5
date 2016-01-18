@@ -175,7 +175,7 @@ public class GlobalCacheImpl implements GlobalCache {
     @Override
     public void notifyReadByUniqueKey(String transactionId, String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
         final UserSubject subject = getUserSubject(accessToken);
-        final UniqueKey key = new SizeableUniqueKey(uniqueKey);
+        final UniqueKey key = new UniqueKey(uniqueKey);
         final UniqueKeyIdMapping uniqueKeyIdMapping = uniqueKeyMapping.getOrCreateUniqueKeyIdMapping(type);
         accessSorter.logAccess(new UniqueKeyAccessKey(type, key));
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // this lock doesn't allow to process 2 keys simultaneously
@@ -339,19 +339,19 @@ public class GlobalCacheImpl implements GlobalCache {
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                      SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new SizeableNamedCollectionTypesKey(name, filterNames);
+        final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames);
         final UserSubject subject = getUserSubject(accessToken);
         final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new SizeableNamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
+        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
         notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
     }
 
     @Override
     public void notifyCollectionRead(String transactionId, String query, Set<String> domainObjectTypes, List<? extends Value> paramValues,
                                      int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new SizeableQueryCollectionTypesKey(query);
+        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
-        final CollectionSubKey subKey = new SizeableQueryCollectionSubKey(subject, paramValues == null ? null : new ArrayList<>(paramValues), offset, limit);
+        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues == null ? null : new ArrayList<>(paramValues), offset, limit);
         notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
     }
 
@@ -690,8 +690,8 @@ public class GlobalCacheImpl implements GlobalCache {
                 final boolean invalid = subKey.subject == null ? timeRetrieved < minSystemValidTime : timeRetrieved < minUserValidTime;
                 if (invalid) {
                     baseNode.removeCollectionNode(subKey);
+                    accessSorter.remove(new CollectionAccessKey(entry.getKey(), subKey));
                 }
-                accessSorter.remove(new CollectionAccessKey(entry.getKey(), subKey));
             }
         }
     }

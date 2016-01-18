@@ -33,6 +33,13 @@ import java.util.Map;
  *         Time: 14:40
  */
 public abstract class BaseWidget extends BaseComponent implements IsWidget, CanBeValidated {
+    protected static final String TEXT_BOX = "text-box_";
+    protected static final String TEXT_AREA = "text-area_";
+    protected static final String RADIO_BUTTON = "radio_button_";
+    protected static final String SG_BOX = "suggest_box_";
+    protected static final String SG_BOX_ARROW = "suggest_box_arrow_";
+    protected static final String SG_BOX_CLR = "suggest_box_clear_";
+
     protected WidgetState initialData;
     protected WidgetDisplayConfig displayConfig;
     protected boolean isEditable = true;

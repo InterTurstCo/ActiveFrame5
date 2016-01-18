@@ -18,14 +18,14 @@ public class TestEncodeRpc {
         GwtRpcRequest request = GwtRpcRequest.decode(requestString, "http://localhost:8080");
         
         System.out.println(request.asString());
-        System.out.println(request.encode());
+        System.out.println(request.encode("http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint", "054A665A66D6A7C42043EAEA61DC385B"));
         
         //Повторная расшифровка
-        request = GwtRpcRequest.decode(request.encode());
+        request = GwtRpcRequest.decode(request.encode("http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint", "054A665A66D6A7C42043EAEA61DC385B"));
         
 
         //Расшифровка ответа
-        Object responceObj = GwtUtil.decodeResponce(requestString, responceString, null);
+        Object responceObj = GwtUtil.decodeResponce("http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint", "054A665A66D6A7C42043EAEA61DC385B", responceString, null);
         System.out.println(responceObj);
     }
 }

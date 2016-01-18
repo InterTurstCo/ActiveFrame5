@@ -15,8 +15,8 @@ import javax.swing.JPanel;
 import org.apache.jmeter.gui.util.VerticalPanel;
 import org.apache.jmeter.protocol.http.config.gui.MultipartUrlConfigGui;
 import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
+import org.apache.jmeter.protocol.http.sampler.HTTPSampler;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
-import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
@@ -38,10 +38,11 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
         init();
     }
 
-    public String getLabelResource() {
-        return "gwt_rpc_testing_title"; // $NON-NLS-1$
-    }
-
+    @Override
+    public String getStaticLabel() {
+        return "Gwt Rpc Sampler";
+    }    
+    
     private void init() {
         MultipartUrlConfigGui paramPanel = findPanel(this, MultipartUrlConfigGui.class);
 
@@ -103,7 +104,7 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
     @Override
     public void configure(TestElement element) {
         super.configure(element);
-        final HTTPSamplerProxy samplerBase = (HTTPSamplerProxy) element;
+        final HTTPSamplerBase samplerBase = (HTTPSamplerBase) element;
         requestJson = samplerBase.getPropertyAsString("GwtRpcRequestJson");
         responceJson = samplerBase.getPropertyAsString("GwtRpcResponceJson");
     }
@@ -113,7 +114,7 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
      */
     @Override
     public TestElement createTestElement() {
-        HTTPSamplerBase sampler = new HTTPSamplerProxy();
+        HTTPSamplerBase sampler = new GwtRpcSampler();
         modifyTestElement(sampler);
         return sampler;
     }
@@ -126,7 +127,7 @@ public class GwtRpcHttpTestSampleGui extends HttpTestSampleGui {
     @Override
     public void modifyTestElement(TestElement sampler) {
         super.modifyTestElement(sampler);
-        final HTTPSamplerProxy samplerBase = (HTTPSamplerProxy) sampler;
+        final HTTPSamplerBase samplerBase = (HTTPSamplerBase) sampler;
         samplerBase.setProperty("GwtRpcRequestJson", requestJson);
         samplerBase.setProperty("GwtRpcResponceJson", responceJson);
     }

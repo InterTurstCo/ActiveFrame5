@@ -16,6 +16,7 @@ import java.util.zip.ZipException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.ParameterParser;
+import org.apache.http.Header;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 
 import ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy.GroupStrategy;
@@ -26,6 +27,8 @@ import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class ProxyContext {
+    public static final String X_GWT_PERMUTATION = "X-GWT-Permutation";
+    
     private int localPort;
     private String targetUri;
     private String outFile = "gwtProxyOut.xml";
@@ -71,6 +74,13 @@ public class ProxyContext {
     public void addResponce(ProxyHttpExchange proxyHttpExchange) {
         try {
             synchronized (journal) {
+                if (journal.getxGwtPermutation() == null){
+                    Header[] headers = proxyHttpExchange.getRequest().getHeaders(X_GWT_PERMUTATION);
+                    if (headers != null && headers.length > 0){
+                        journal.setxGwtPermutation(headers[0].getValue());
+                    }
+                }
+                
                 GwtInteraction requestResponce = new GwtInteraction();
                 GwtRequest request = new GwtRequest();
                 request.setMethod(proxyHttpExchange.getRequest().getRequestLine().getMethod());
@@ -94,6 +104,8 @@ public class ProxyContext {
                         request.setJson(gwtRpcRequest.asString());
                         request.setServiceClass(gwtRpcRequest.getServiceClass());
                         request.setServiceMethod(gwtRpcRequest.getMethod());
+                        request.setSerializationPolicyStrongName(gwtRpcRequest.getPolicyStrongName());
+                        request.setModuleBaseUrl(gwtRpcRequest.getModuleBaseUrl());
                     }
                 }
                 GwtResponce responce = new GwtResponce();
@@ -107,7 +119,7 @@ public class ProxyContext {
                             ));
                     responce.setContentType(proxyHttpExchange.getResponse().getEntity().getContentType() != null ? proxyHttpExchange.getResponse().getEntity()
                             .getContentType().getValue() : null);
-                    responce.setJson(decodeResponceToJson(request.getBody(), responce.getBody(), targetUri));
+                    responce.setJson(decodeResponceToJson(request.getModuleBaseUrl(), request.getSerializationPolicyStrongName(), responce.getBody(), targetUri));
                 }
 
                 requestResponce.setRequest(request);
@@ -141,7 +153,7 @@ public class ProxyContext {
             throw new RuntimeException(ex);
         }
     }
-    
+
     private void creategroup(String groupName, int beforePause){
         group = new GwtInteractionGroup();
         group.setRequestResponceList(new ArrayList<GwtInteraction>());
@@ -153,11 +165,11 @@ public class ProxyContext {
         }
     }
 
-    private String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
-        if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
+    private String decodeResponceToJson(String moduleBaseUrl, String policyStrongName, String responce, String targetUri) throws SerializationException {
+        if (moduleBaseUrl == null || policyStrongName == null || responce == null || responce.length() == 0) {
             return null;
         }
-        Object responceObj = GwtUtil.decodeResponce(request, responce, targetUri);
+        Object responceObj = GwtUtil.decodeResponce(moduleBaseUrl, policyStrongName, responce, targetUri);
         Map args = new HashMap();
         args.put(JsonWriter.PRETTY_PRINT, true);        
         String json = JsonWriter.objectToJson(responceObj, args);

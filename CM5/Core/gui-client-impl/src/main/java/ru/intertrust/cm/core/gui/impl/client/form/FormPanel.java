@@ -314,6 +314,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
 
             for (CellConfig cell : cells) {
                 WidgetDisplayConfig displayConfig = cell.getWidgetDisplayConfig();
+                displayConfig.setParentName(formState.getName());
                 WidgetState widgetState = formState.getWidgetState(displayConfig.getId());
                 if (widgetState == null) {
                     continue;
