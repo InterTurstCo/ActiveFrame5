@@ -829,3 +829,59 @@ a.action-bar-button:hover {
 .columnWrapper {
     white-space: nowrap;
 }
+
+a[href='#login']:hover {
+    color: #ff0000 !important;
+}
+
+a[href='#login'] {
+    font-family: Verdana, Arial, sans-serif;
+}
+
+.gwt-TreeItem {
+    position: relative;
+    white-space: nowrap;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 12px;
+}
+
+#sidebar a span {
+    display: block;
+    font-family: Verdana, Arial, sans-serif;
+}
+
+.facebook-main-box {
+    background: none;
+}
+
+.formContainer, .frm-pnl-top {
+    background: #c2e7f0;
+    background: -moz-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2e7f0), color-stop(100%, #b4c1d4) );
+    background: -webkit-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+    background: -o-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+    background: -ms-linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#c2e7f0", endColorstr\= "#b4c1d4", GradientType\= 0 \);
+    background: linear-gradient(top, #c2e7f0 0%, #b4c1d4 100%);
+}
+
+.form-panel-header {
+    background: transparent;
+}
+.form-footer-blank {
+    background: transparent;
+}
+
+.form-footer-long {
+    /*top: 111px;*/
+    background-image: none;
+}
+
+.form-footer-short {
+    /*top: 111px;*/
+    background-image: none;
+}
+
+.gwt-TabBar {
+    background: transparent;
+}
