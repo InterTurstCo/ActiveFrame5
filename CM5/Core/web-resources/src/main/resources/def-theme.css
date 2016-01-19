@@ -3540,3 +3540,8 @@ a:active .icon.back {
     font-weight: bold;
     padding: 10px 0;
 }
+
+.gwt-TextArea {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
