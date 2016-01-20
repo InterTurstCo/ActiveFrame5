@@ -2,8 +2,12 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
@@ -12,7 +16,6 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import javax.annotation.Resource;
 import javax.naming.InitialContext;
@@ -93,7 +96,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         private void setDomainObject(DomainObject domainObject) {
             //deep clone
-            this.domainObject = ObjectCloner.getInstance().cloneObject(domainObject);
+            this.domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
         }
 
 
@@ -162,7 +165,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         }
 
         private DomainObject getDomainObject() {
-            return domainObject == null ? null : ObjectCloner.getInstance().cloneObject(domainObject);
+            return ObjectCloner.fastCloneDomainObject(domainObject);
         }
 
         static String generateKey(String ... key) {
@@ -331,11 +334,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             domainObjects.clear();
         }
 
-        for (DomainObject object : dobjs) {
-            DomainObject clonedObject = ObjectCloner.getInstance().cloneObject(object);
-            clonedObject.getId();
-            domainObjects.add(clonedObject);
-        }
+        domainObjects.addAll(ObjectCloner.fastCloneDomainObjectList(dobjs));
 
         // TODO Do we need to put objects to cache individually?
     }
@@ -379,11 +378,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         String objectCollectionKey = generateCollectionKey(parentId, key);
 
         List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
-        if (domainObjects == null) {
-            return null;
-        }
-
-        return ObjectCloner.getInstance().cloneObject(domainObjects);
+        return ObjectCloner.fastCloneDomainObjectList(domainObjects);
     }
 
     /**
@@ -781,7 +776,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         return objectCollectionMap;
     }
 
-    private boolean isCacheEnabled() {
+    public boolean isCacheEnabled() {
         return cacheEnabled;
     }
 }

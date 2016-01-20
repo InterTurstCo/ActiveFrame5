@@ -1,15 +1,14 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Глобальный кеш. Кеширует информацию о пользователях: идентификатор пользователя для данного логина, вхождение
@@ -61,27 +60,24 @@ public class UserGroupGlobalCacheImpl implements UserGroupGlobalCache {
     @Override
     public boolean isPersonSuperUser(Id personId) {
 
-        boolean isSuperUser = false;
-        if (personIdToIsSuperUserCache.get(personId) != null) {
-            isSuperUser = personIdToIsSuperUserCache.get(personId);
-        } else {
-            isSuperUser = personManagementService.isPersonInGroup(getSuperUsersGroupId(), personId);
-            personIdToIsSuperUserCache.put(personId, isSuperUser);
+        final Boolean cached = personIdToIsSuperUserCache.get(personId);
+        if (cached != null) {
+            return cached;
         }
+        final boolean isSuperUser = personManagementService.isPersonInGroup(getSuperUsersGroupId(), personId);
+        personIdToIsSuperUserCache.put(personId, isSuperUser);
         return isSuperUser;
 
     }
 
     @Override
     public boolean isAdministrator(Id personId) {
-
-        boolean isAdministrator = false;
-        if (personIdToIsAdministratorCache.get(personId) != null) {
-            isAdministrator = personIdToIsAdministratorCache.get(personId);
-        } else {
-            isAdministrator = personManagementService.isPersonInGroup(getAdministratorsGroupId(), personId);
-            personIdToIsAdministratorCache.put(personId, isAdministrator);
+        final Boolean cached = personIdToIsAdministratorCache.get(personId);
+        if (cached != null) {
+            return cached;
         }
+        final boolean isAdministrator = personManagementService.isPersonInGroup(getAdministratorsGroupId(), personId);
+        personIdToIsAdministratorCache.put(personId, isAdministrator);
         return isAdministrator;
     }
 

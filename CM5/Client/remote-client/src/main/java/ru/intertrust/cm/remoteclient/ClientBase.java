@@ -35,6 +35,8 @@ import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
  * 
  */
 public abstract class ClientBase {
+    public static final String APP_NAME = "appName";
+    public static final String MODULE_NAME = "moduleName";
     private CommandLine commandLine;
     private Properties properties = new Properties();
     private StringBuilder log = new StringBuilder();
@@ -115,6 +117,8 @@ public abstract class ClientBase {
         optionNamesList.add("user");
         optionNamesList.add("password");
         optionNamesList.add("log");
+        optionNamesList.add(APP_NAME);
+        optionNamesList.add(MODULE_NAME);
         if (optionNames != null) {
             for (int i = 0; i < optionNames.length; i++) {
                 optionNamesList.add(optionNames[i]);
@@ -192,11 +196,11 @@ public abstract class ClientBase {
     }    
     
     protected String getAppName(){
-        return "cm-sochi";
+        return getParamerer(APP_NAME);
     }
     
     protected String getModuleName(){
-        return "web-app";
+        return getParamerer(MODULE_NAME);
     }
     /**
      * Запись лог файла. Необходимо вызывать в finally блоке переопределенного метода execute

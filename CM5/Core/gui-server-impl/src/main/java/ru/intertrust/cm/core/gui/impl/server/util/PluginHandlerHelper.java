@@ -4,9 +4,9 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.ValidatorConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
@@ -26,7 +26,6 @@ import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 import ru.intertrust.cm.core.gui.model.validation.ValidationMessage;
 import ru.intertrust.cm.core.gui.model.validation.ValidationResult;
 import ru.intertrust.cm.core.model.UnexpectedException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -167,7 +166,7 @@ public class PluginHandlerHelper {
 
     public static CollectionViewConfig findCollectionViewConfig(final String collectionName, String collectionViewName,
                                                                 final String userLogin, final String link,
-                                                                final ConfigurationService configurationService,
+                                                                final ConfigurationExplorer configurationService,
                                                                 final CollectionsService collectionsService,
                                                                 String locale) {
         if (collectionViewName == null) {
@@ -190,7 +189,7 @@ public class PluginHandlerHelper {
     }
 
     private static String findDefaultCollectionViewName(final String collectionName,
-                                                        final ConfigurationService configurationService) {
+                                                        final ConfigurationExplorer configurationService) {
         final Collection<CollectionViewConfig> collectionViewConfigs =
                 configurationService.getConfigs(CollectionViewConfig.class);
         for (CollectionViewConfig collectionViewConfig : collectionViewConfigs) {

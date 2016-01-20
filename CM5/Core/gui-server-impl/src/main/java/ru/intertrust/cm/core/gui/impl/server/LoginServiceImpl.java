@@ -1,5 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
@@ -9,9 +12,6 @@ import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.model.AuthenticationException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-
 
 /**
  * @author Denis Mitavskiy
@@ -19,10 +19,6 @@ import javax.servlet.http.HttpServletRequest;
  *         Time: 13:17
  */
 public class LoginServiceImpl implements LoginService {
-    /**
-     * Атрибут, в котором хранятся данные авторизованного пользователя
-     */
-    public static final String USER_CREDENTIALS_SESSION_ATTRIBUTE = "_USER_CREDENTIALS";
 
     @Override
     public void login(HttpServletRequest request, UserCredentials credentials) throws AuthenticationException {

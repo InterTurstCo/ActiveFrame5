@@ -40,4 +40,10 @@
         </after-auto-migration>
     </migration-script>
 
+    <migration-script sequence-number="2">
+        <after-auto-migration>
+            <execute component-name="UniqueKeysFix"/>
+        </after-auto-migration>
+    </migration-script>
+
 </configuration>

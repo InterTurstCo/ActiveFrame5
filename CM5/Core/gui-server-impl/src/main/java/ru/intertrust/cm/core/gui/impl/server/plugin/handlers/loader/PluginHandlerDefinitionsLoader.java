@@ -1,16 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.plugin.handlers.loader;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -24,11 +16,17 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.RegexPatternTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
-
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * A bean registry postprocessor which loads classes, annotated with {@link ComponentName} as bean definitions
@@ -45,14 +43,19 @@ public class PluginHandlerDefinitionsLoader implements BeanDefinitionRegistryPos
     }
 
     private void registerBeanDefinitionInRegistry(ScannedGenericBeanDefinition pluginHandlerDefinition, BeanDefinitionRegistry registry) {
-        ScannedGenericBeanDefinition scannedGenericBeanDefinition = pluginHandlerDefinition;
-        scannedGenericBeanDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
-        final Map<String, Object> annotationAttributes = scannedGenericBeanDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName());
+        final String beanClassName = pluginHandlerDefinition.getBeanClassName();
+        if (beanClassName.startsWith("ru.intertrust.cm.core.gui.impl.server.widget")) {
+            pluginHandlerDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+        } else {
+            pluginHandlerDefinition.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+            logger.warn(beanClassName + " is registered as prototype. Please check that it matches Singleton convention. Prototypes will be removed in future version of the Platform.");
+        }
+        final Map<String, Object> annotationAttributes = pluginHandlerDefinition.getMetadata().getAnnotationAttributes(ComponentName.class.getName());
         if (annotationAttributes == null) {
             return;
         }
         String annotationValue = annotationAttributes.get(VALUE_ATTRIBUTE).toString();
-        registry.registerBeanDefinition(annotationValue, scannedGenericBeanDefinition);
+        registry.registerBeanDefinition(annotationValue, pluginHandlerDefinition);
     }
 
     @Override

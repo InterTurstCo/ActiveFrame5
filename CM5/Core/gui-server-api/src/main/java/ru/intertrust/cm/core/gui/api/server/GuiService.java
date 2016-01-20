@@ -39,6 +39,7 @@ public interface GuiService {
      */
     NavigationConfig getNavigationConfiguration();
 
+    NavigationConfig getNavigationConfiguration(String applicationName);
     /**
      * Выполняет команду компонента GUI (например, плагина или виджета) и возвращает результат
      * @param command команда плагина

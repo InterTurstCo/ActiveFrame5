@@ -1,7 +1,12 @@
 package ru.intertrust.cm.core.dao.api;
 
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
+import ru.intertrust.cm.core.business.api.dto.IndexInfo;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Сервис, кэширующий метаданные базы данных и предоставляющий доступ к ним
@@ -85,6 +90,13 @@ public interface SchemaCache {
     String getForeignKeyName(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig);
 
     /**
+     * Возвращает все уникальные ключи типа доменного объекта
+     * @param config конфигурация типа ДО
+     * @return все уникальные ключи типа доменного объекта
+     */
+    Collection<UniqueKeyInfo> getUniqueKeys(DomainObjectTypeConfig config);
+
+    /**
      * Находит имя уникального ключа по его конфигурации
      * @param config конфигурация типа ДО
      * @param keyConfig конфигурация уникального ключа
@@ -99,4 +111,18 @@ public interface SchemaCache {
      * @return имя индекса
      */
     String getIndexName(DomainObjectTypeConfig config, IndexConfig indexConfig);
+
+    /**
+     * Находит все созданные для типа доменного объекта индексы
+     * @param config конфигурация типа ДО
+     * @return все созданные для типа доменного объекта индексы
+     */
+    Collection<IndexInfo> getIndices(DomainObjectTypeConfig config);
+
+    /**
+     * Находит имена всех созданных для типа доменного объекта индексов
+     * @param config конфигурация типа ДО
+     * @return имена всех созданных для типа доменного объекта индексов
+     */
+    Set<String> getIndexNames(DomainObjectTypeConfig config);
 }

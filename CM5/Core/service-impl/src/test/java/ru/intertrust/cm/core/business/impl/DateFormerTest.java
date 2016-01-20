@@ -1,28 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.when;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import ru.intertrust.cm.core.business.api.DateFormer;
 import ru.intertrust.cm.core.business.api.ProfileService;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Profile;
-import ru.intertrust.cm.core.business.api.dto.ProfileObject;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DateFormerTest {
@@ -49,10 +44,7 @@ public class DateFormerTest {
 
     @Test
     public void testTimelessDate() throws ParseException{
-        TimelessDate testDate = new TimelessDate();
-        testDate.setYear(2014);
-        testDate.setMonth(1);
-        testDate.setDayOfMonth(28);
+        TimelessDate testDate = new TimelessDate(2014, 1, 28);
         String result = former.format(testDate, new RdbmsId(1,1));
         assertTrue(result.equals("28 Февраль 2014 г."));
     }

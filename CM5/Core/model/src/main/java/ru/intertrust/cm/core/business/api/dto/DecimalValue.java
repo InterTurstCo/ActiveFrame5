@@ -57,6 +57,11 @@ public class DecimalValue extends Value<DecimalValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(DecimalValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

@@ -2,11 +2,11 @@ package ru.intertrust.cm.core.gui.impl.server.counters;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.BusinessUniverseConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ComponentHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -25,7 +25,7 @@ public class CollectionCountersHandler implements ComponentHandler {
     @Autowired
     CrudService crudService;
     @Autowired
-    ConfigurationService configurationService;
+    ConfigurationExplorer configurationService;
     @Autowired
     CurrentUserAccessor currentUserAccessor;
     @Autowired

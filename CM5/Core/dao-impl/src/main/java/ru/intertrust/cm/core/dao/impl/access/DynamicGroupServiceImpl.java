@@ -1,31 +1,14 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
-import java.util.*;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.config.DynamicGroupTrackDomainObjectsConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -37,11 +20,14 @@ import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.AccessException;
-import ru.intertrust.cm.core.model.CrudException;
-import ru.intertrust.cm.core.model.ObjectNotFoundException;
-import ru.intertrust.cm.core.model.PermissionException;
-import ru.intertrust.cm.core.model.UnexpectedException;
+import ru.intertrust.cm.core.model.*;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+import java.util.*;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -437,7 +423,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     private void registerConfig(String contextType, DynamicGroupConfig dynamicGroupConfig,
             Configuration configuration) {
         registerOneTypeConfig(contextType, dynamicGroupConfig);
-        List<String> subTypes = getSubTypes(contextType, configuration);
+        List<String> subTypes = AccessControlUtility.getSubTypes(contextType, configurationExplorer);
         for (String subtype : subTypes) {
             registerOneTypeConfig(subtype, dynamicGroupConfig);
         }
@@ -474,7 +460,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
                 // Ищем всех наследников и так же регистрируем
                 // их в
                 // реестре с данным коллектором
-                List<String> subTypes = getSubTypes(type, configuration);
+                List<String> subTypes = AccessControlUtility.getSubTypes(type, configurationExplorer);
                 for (String subtype : subTypes) {
                     registerCollector(subtype, collector, dynamicGroupConfig);
                 }
@@ -493,7 +479,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             DynamicGroupConfig config) {
         List<DynamicGroupRegisterItem> groupCollectors = collectorsByGroupName.get(groupName);
         if (groupCollectors == null) {
-            groupCollectors = new ArrayList<DynamicGroupRegisterItem>();
+            groupCollectors = new ArrayList<>();
             collectorsByGroupName.put(groupName, groupCollectors);
         }
         groupCollectors.add(new DynamicGroupRegisterItem(config, collector));
@@ -513,33 +499,6 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             collectorsByTrackingType.put(typeKey, typeCollectors);
         }
         typeCollectors.add(new DynamicGroupRegisterItem(config, collector));
-    }
-
-    /**
-     * Получение всех дочерних типов переданного типа
-     * 
-     * @param type
-     * @return
-     */
-    private List<String> getSubTypes(String type, Configuration configuration) {
-        List<String> result = new ArrayList<String>();
-        // Получение всех конфигураций доменных оьъектов
-        List<TopLevelConfig> configurationList = configuration.getConfigurationList();
-        for (TopLevelConfig topConfig : configurationList) {
-            if (topConfig instanceof DomainObjectTypeConfig) {
-                DomainObjectTypeConfig config = (DomainObjectTypeConfig) topConfig;
-                // Сравнение родительского типа и переданного парамера
-                if (config.getExtendsAttribute() != null
-                        && config.getExtendsAttribute().equals(type)) {
-                    // Если нашли наследника добавляем в результат
-                    result.add(config.getName());
-                    // Рекурсивно вызываем для получения всех наследников
-                    // найденного наследника
-                    result.addAll(getSubTypes(config.getName(), configuration));
-                }
-            }
-        }
-        return result;
     }
 
     /**
@@ -594,7 +553,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         String query =
                 "select t.id from group_member t where t.person_id = "
                         + ((RdbmsId) deletedDomainObject.getId()).getId();
-        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(query, 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             domainObjectDao.delete(identifiableObject.getId(), accessToken);
             deleteRowCount++;

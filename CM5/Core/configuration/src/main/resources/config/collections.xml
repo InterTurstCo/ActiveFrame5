@@ -772,6 +772,27 @@
         </filter>
     </collection>
 
+    <collection name="IsPersonInGroups" idField="person_id">
+
+        <prototype>
+            <![CDATA[
+                select gm.person_id
+                from group_member gm
+                inner join group_group gg on gg.child_group_id = gm.usergroup
+                inner join user_group ug on gg.parent_group_id = ug.id
+                where 1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byGroupsAndPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ug.group_name in ({0}) and gm.person_id = {1}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
     <collection name="PersonTask" idField="id">
 
         <prototype>

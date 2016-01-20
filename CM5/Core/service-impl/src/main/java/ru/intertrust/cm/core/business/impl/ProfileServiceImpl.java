@@ -5,19 +5,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.DefaultLocaleConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProfileException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 import javax.ejb.Local;
@@ -26,6 +22,7 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 @Stateless(name = "ProfileService")
@@ -49,7 +46,7 @@ public class ProfileServiceImpl implements ProfileService {
     private CurrentUserAccessor currentUserAccessor;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private ConfigurationExplorer configurationService;
 
     /**
      * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
@@ -74,7 +71,7 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return profileObject;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getProfile", ex);
@@ -128,7 +125,7 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return personProfileObject;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getPersonProfile", ex);
@@ -176,7 +173,7 @@ public class ProfileServiceImpl implements ProfileService {
                     saveProfileAttribute(profile, profileId, attributeName);
                 }
             }
-        } catch (AccessException | ProfileException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in setProfile", ex);
@@ -194,10 +191,11 @@ public class ProfileServiceImpl implements ProfileService {
      */
     @Override
     public Profile getPersonProfile() {
-
         try {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
             return getPersonProfileByPersonId(currentUserId);
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getPersonProfile", ex);
             throw new UnexpectedException("ProfileService", "getPersonProfile", "", ex);
@@ -226,6 +224,8 @@ public class ProfileServiceImpl implements ProfileService {
             }
 
             return personProfileObject;
+        } catch (SystemException ex) {
+            throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getPersonProfileByPersonId", ex);
             throw new UnexpectedException("ProfileService", "getPersonProfileByPersonId", "personId: " + personId, ex);
@@ -234,7 +234,6 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public void setPersonProfile(Profile profile) {
-
         try {
             Id profileId = profile.getId();
 
@@ -280,7 +279,7 @@ public class ProfileServiceImpl implements ProfileService {
 
             // save only overridden attributes
             ArrayList<String> attributeNames = profile.getFields();
-            ArrayList<String> parentProfileAttributeNames = parentProfile.getFields();
+            HashSet<String> parentProfileAttributeNames = new HashSet<>(parentProfile.getFields());
             if (attributeNames != null) {
                 for (String attributeName : attributeNames) {
                     ProfileValue profileValue = (ProfileValue) profile.getValue(attributeName);
@@ -298,7 +297,7 @@ public class ProfileServiceImpl implements ProfileService {
                     saveProfileAttribute(profile, profileId, attributeName);
                 }
             }
-        } catch (AccessException | ProfileException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in setPersonProfile", ex);
@@ -308,15 +307,22 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public String getPersonLocale() {
-        Profile profile = getPersonProfile();
-        if (profile != null) {
-            final String locale = profile.getString(ProfileService.LOCALE);
-            if (locale != null && MessageResourceProvider.getAvailableLocales().contains(locale)) {
-                return locale;
+        try {
+            Profile profile = getPersonProfile();
+            if (profile != null) {
+                final String locale = profile.getString(ProfileService.LOCALE);
+                if (locale != null && MessageResourceProvider.getAvailableLocales().contains(locale)) {
+                    return locale;
+                }
             }
+            final DefaultLocaleConfig defaultLocaleConfig = configurationService.getGlobalSettings().getDefaultLocaleConfig();
+            return defaultLocaleConfig != null ? defaultLocaleConfig.getName() : MessageResourceProvider.getDefaultLocale();
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception caught in getPersonLocale", ex);
+            throw new UnexpectedException("ProfileService getPersonLocale", ex);
         }
-        final DefaultLocaleConfig defaultLocaleConfig = configurationService.getGlobalSettings().getDefaultLocaleConfig();
-        return defaultLocaleConfig != null ? defaultLocaleConfig.getName() : MessageResourceProvider.getDefaultLocale();
     }
 
     @Override
@@ -398,7 +404,7 @@ public class ProfileServiceImpl implements ProfileService {
         parentProfileObject.setId(parentProfileDo.getId());
         fillProfileAttributes(parentProfileObject, getProfileValues(parentProfileDo.getId()));
 
-        ArrayList<String> personFields = result.getFields();
+        HashSet<String> personFields = new HashSet<>(result.getFields());
         ArrayList<String> parentFields = parentProfileObject.getFields();
 
         if (parentFields != null) {

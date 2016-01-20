@@ -42,6 +42,7 @@ public class FormPluginState implements PluginState {
         this.domainObjectSource = domainObjectSource;
     }
 
+
     @Override
     public FormPluginState createClone() {
         final FormPluginState clone = new FormPluginState();

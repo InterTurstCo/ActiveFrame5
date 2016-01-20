@@ -6,7 +6,7 @@ package ru.intertrust.cm.core.model;
  *         Date: 10.07.13
  *         Time: 15:18
  */
-public class AuthenticationException extends SystemException {
+public class AuthenticationException extends NonRollingBackException {
     public AuthenticationException() {
     }
 

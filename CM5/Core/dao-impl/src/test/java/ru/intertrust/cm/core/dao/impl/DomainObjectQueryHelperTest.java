@@ -25,10 +25,14 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class DomainObjectQueryHelperTest {
 
-    private static final String ACCESS_RIGHTS_PART = " and exists (select a.\"object_id\" from \"person_read\" a  " +
-            "inner join \"group_group\" gg on a.\"group_id\" = gg.\"parent_group_id\" "
-            + "inner join \"group_member\" gm on gg.\"child_group_id\" = gm.\"usergroup\" "
-            + "inner join \"person\" o on (o.\"access_object_id\" = a.\"object_id\") ";
+    private static final String ACCESS_RIGHTS_PART = " and exists (select 1 from \"person_read\" r " +
+            "inner join \"person\" rt on rt.\"access_object_id\" = r.\"object_id\" " +
+            "where r.\"group_id\" in (select \"parent_group_id\" from cur_user_groups) and " +
+            "rt.\"id\" = :id)";
+
+    private static final String WITH_PART = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
+            "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
+            "where gm.\"person_id\" = :user_id) ";
 
     private final DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
 
@@ -50,24 +54,23 @@ public class DomainObjectQueryHelperTest {
     @Test
     public void testGenerateFindQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id" +
-                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
+        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"id\"=:id" + ACCESS_RIGHTS_PART;
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, false));
     }
 
     @Test
     public void testGenerateFindQueryWithLock() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"id\"=:id"
-                + ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id) for update";
+        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"id\"=:id"
+                + ACCESS_RIGHTS_PART + " for update";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person", accessToken, true));
     }
 
     @Test
     public void testGenerateFindByUniqueKeyQuery() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
-                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id)";
+        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+                ACCESS_RIGHTS_PART;
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
                 domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, false));
     }
@@ -75,8 +78,8 @@ public class DomainObjectQueryHelperTest {
     @Test
     public void testGenerateFindByUniqueKeyQueryWithLock() throws Exception {
         AccessToken accessToken = createMockAccessToken();
-        String expectedQuery = "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
-                ACCESS_RIGHTS_PART + "where gm.\"person_id\" = :user_id and o.\"id\" = :id) for update";
+        String expectedQuery = WITH_PART + "select person.* from \"person\" person where person.\"email\" = :email and person.\"login\" = :login" +
+                ACCESS_RIGHTS_PART + " for update";
         Assert.assertEquals(expectedQuery, domainObjectQueryHelper.generateFindQuery("Person",
                 domainObjectTypeConfig.getUniqueKeyConfigs().get(0), accessToken, true));
     }

@@ -40,4 +40,13 @@
             <act:workflow-action name="test.action"/>
         </act:workflow-actions>
     </act:action-group>
+
+    <act:action-group name="create.visual.parameters.objects" text="Новые обьекты" order="500" merged="true">
+        <act:action-ref name-ref="aCreate" text="Поле">
+            <act:action-params>
+                <act:action-param name="create.object.type" value="Department" />
+                <act:action-param name="create.object.form" value="department_form2" />
+            </act:action-params>
+        </act:action-ref>
+    </act:action-group>
 </configuration>

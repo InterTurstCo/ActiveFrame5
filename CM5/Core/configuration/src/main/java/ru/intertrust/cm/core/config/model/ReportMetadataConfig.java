@@ -26,8 +26,6 @@ public class ReportMetadataConfig implements Dto{
     private List<ReportParameter> parameters;
     @ElementList(name="formats", required=true)
     private List<String> formats;
-    @Attribute(required=false)
-    private Long version;
     
     public String getName() {
         return name;
@@ -77,12 +75,5 @@ public class ReportMetadataConfig implements Dto{
     public void setKeepDays(Integer keepDays) {
         this.keepDays = keepDays;
     }
-    public Long getVersion() {
-        return version;
-    }
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
 
 }

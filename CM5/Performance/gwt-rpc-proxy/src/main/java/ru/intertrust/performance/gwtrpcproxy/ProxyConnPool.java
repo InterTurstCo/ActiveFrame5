@@ -8,8 +8,11 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.pool.PoolStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyConnPool extends BasicNIOConnPool {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyConnPool.class);
 
     public ProxyConnPool(
             final ConnectingIOReactor ioreactor,
@@ -26,14 +29,14 @@ public class ProxyConnPool extends BasicNIOConnPool {
 
     @Override
     public void release(final BasicNIOPoolEntry entry, boolean reusable) {
-        System.out.println("[proxy->origin] connection released " + entry.getConnection());
+        logger.info("[proxy->origin] connection released " + entry.getConnection());
         super.release(entry, reusable);
         StringBuilder buf = new StringBuilder();
         PoolStats totals = getTotalStats();
         buf.append("[total kept alive: ").append(totals.getAvailable()).append("; ");
         buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
         buf.append(" of ").append(totals.getMax()).append("]");
-        System.out.println("[proxy->origin] " + buf.toString());
+        logger.info("[proxy->origin] " + buf.toString());
     }
 
 }

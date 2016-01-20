@@ -1,16 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.TimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -48,17 +46,16 @@ public class DateUtil {
     public static DateTimeWithTimeZone prepareDateTimeWithTimeZone(Date date, String rawTimeZone, TimeZone timeZone) {
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.setTime(date);
-        DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
-        dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
-        dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
-        dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-        dateTimeWithTimeZone.setHours(calendar.get(Calendar.HOUR_OF_DAY));
-        dateTimeWithTimeZone.setMinutes(calendar.get(Calendar.MINUTE));
-        dateTimeWithTimeZone.setSeconds(calendar.get(Calendar.SECOND));
-        dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
-        TimeZoneContext timeZoneContext = prepareTimeZoneContext(rawTimeZone, timeZone);
-        dateTimeWithTimeZone.setTimeZoneContext(timeZoneContext);
-        return dateTimeWithTimeZone;
+        return new DateTimeWithTimeZone(
+            prepareTimeZoneContext(rawTimeZone, timeZone),
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH),
+            calendar.get(Calendar.HOUR_OF_DAY),
+            calendar.get(Calendar.MINUTE),
+            calendar.get(Calendar.SECOND),
+            calendar.get(Calendar.MILLISECOND)
+        );
     }
 
     public static TimeZoneContext prepareTimeZoneContext(String rawTimeZone, TimeZone timeZone) {
@@ -72,7 +69,7 @@ public class DateUtil {
     @Deprecated //use the same method GuiServerHelper
     public static DateFormat getDateFormat(String datePattern, String timePattern) {
         String formatDatePattern = prepareDatePattern(datePattern, timePattern);
-        return formatDatePattern == null ? null : new SimpleDateFormat(formatDatePattern);
+        return formatDatePattern == null ? null : ThreadSafeDateFormat.getDateFormat(new Pair<String, Locale>(formatDatePattern, null), null);
     }
     @Deprecated //use the same method GuiServerHelper
     public static String prepareDatePattern(String datePattern, String timePattern){

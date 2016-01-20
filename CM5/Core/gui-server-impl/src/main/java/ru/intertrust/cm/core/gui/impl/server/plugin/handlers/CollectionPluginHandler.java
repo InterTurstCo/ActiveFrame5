@@ -2,25 +2,23 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
+import ru.intertrust.cm.core.gui.api.server.plugin.DefaultImageMapper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.SortOrderHelper;
-import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.ActionConfigBuilder;
 import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -52,13 +50,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     private CollectionsService collectionsService;
 
     @Autowired
-    private ConfigurationService configurationService;
+    private ConfigurationExplorer configurationService;
 
     @Autowired
     private SearchService searchService;
 
     @Autowired
-    private DefaultImageMapperImpl defaultImageMapper;
+    private DefaultImageMapper defaultImageMapper;
 
     @Autowired
     private ActionConfigBuilder actionConfigBuilder;
@@ -134,13 +132,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             }
         }
 
-        List<String> expandableTypes = new ArrayList<String>();
+        List<String> expandableTypes;
         if(collectionViewerConfig.getChildCollectionConfig()!=null){
-
-            for(ExpandableObjectConfig expandableObjectConfig :collectionViewerConfig.getChildCollectionConfig().
-                    getExpandableObjectsConfig().getExpandableObjects()){
+            final List<ExpandableObjectConfig> expandableObjects = collectionViewerConfig.getChildCollectionConfig().getExpandableObjectsConfig().getExpandableObjects();
+            expandableTypes = new ArrayList<>(expandableObjects.size());
+            for(ExpandableObjectConfig expandableObjectConfig : expandableObjects){
                 expandableTypes.add(expandableObjectConfig.getObjectName());
             }
+        } else {
+            expandableTypes = Collections.emptyList();
         }
 
         ArrayList<CollectionRowItem> items = getRows(collectionName, 0, initRowsNumber, filters, order, columnPropertyMap, expandableTypes);
@@ -235,7 +235,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     public CollectionRowItem generateCollectionRowItem(final IdentifiableObject identifiableObject,
                                                        final Map<String, CollectionColumnProperties> columnPropertiesMap,
                                                        final Map<String, Map<Value, ImagePathValue>> fieldMappings,
-                                                       final Boolean typeIsExpandable) {
+                                                       final boolean typeIsExpandable) {
         CollectionRowItem item = new CollectionRowItem();
         item.setExpandable(expandable); //stub for poc
         expandable = !expandable;
@@ -253,15 +253,11 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                                                 List<String> expandableTypes) {
 
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-        IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, sortOrder, filters, offset, count);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters, offset, count);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(columnPropertiesMap);
         for (IdentifiableObject identifiableObject : collection) {
-            Boolean typeIsExpandable = false;
-            if(expandableTypes.contains(crudService.find(identifiableObject.getId()).getTypeName())){
-                typeIsExpandable = true;
-            }
-            items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings,typeIsExpandable));
+            boolean typeIsExpandable = expandableTypes.contains(crudService.getDomainObjectType(identifiableObject.getId()));
+            items.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMappings, typeIsExpandable));
 
         }
         return items;
@@ -277,11 +273,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 searchService.search(simpleSearchQuery, searchArea, collectionName, 1000);
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(properties);
         for (IdentifiableObject identifiableObject : collection) {
-            Boolean typeIsExpandable = false;
-            if(expandableTypes.contains(crudService.find(identifiableObject.getId()).getTypeName())){
-                typeIsExpandable = true;
-            }
-            items.add(generateCollectionRowItem(identifiableObject, properties, fieldMappings,typeIsExpandable));
+            Boolean typeIsExpandable = expandableTypes.contains(crudService.getDomainObjectType(identifiableObject.getId()));
+            items.add(generateCollectionRowItem(identifiableObject, properties, fieldMappings, typeIsExpandable));
         }
         return items;
     }
@@ -403,6 +396,8 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 findCollection(collectionName, sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
+
+        /* Фильтр в выпадающую коллекцию пока не нужен
         if(notMoreItems){
             CollectionRowItem filter = new CollectionRowItem();
             filter.setParentId(parentId);
@@ -410,13 +405,11 @@ public class CollectionPluginHandler extends ActivePluginHandler {
             filter.setRow(new HashMap<String, Value>(0));
             filter.setFilters(filtersMap);
             items.add(filter);
-        }
+        } */
+
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
-            Boolean typeIsExpandable = false;
-            if(((CollectionRowsRequest) request).getExpandableTypes().contains(crudService.find(identifiableObject.getId()).getTypeName())){
-                typeIsExpandable = true;
-            }
+            Boolean typeIsExpandable = ((CollectionRowsRequest) request).getExpandableTypes().contains(crudService.getDomainObjectType(identifiableObject.getId()));
             CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings,typeIsExpandable);
             item.setParentId(parentId);
             item.setNestingLevel(rowsRequest.getCurrentNestingLevel()+1);

@@ -1,38 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.server.util;
 
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.BOOLEAN_TYPE;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.DATE_TIME_TYPE;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.DATE_TIME_WITH_TIME_ZONE_TYPE;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.DECIMAL_TYPE;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.LONG_TYPE;
-import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.TIMELESS_DATE_TYPE;
-import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareDateTimeWithTimeZone;
-import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareTimeZone;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
-
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
-import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
@@ -43,6 +11,14 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
+
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.*;
+
+import static ru.intertrust.cm.core.business.api.dto.util.ModelConstants.*;
+import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareDateTimeWithTimeZone;
+import static ru.intertrust.cm.core.gui.impl.server.util.DateUtil.prepareTimeZone;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -213,15 +189,14 @@ public class FilterBuilderUtil {
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(selectedDate);
             Date rangeStart = prepareStartOfDayForSelectedDate(calendar);
-            DateTimeValue rangeStartDateTimeValue = new DateTimeValue();
-            rangeStartDateTimeValue.setValue(rangeStart);
+            DateTimeValue rangeStartDateTimeValue = new DateTimeValue(rangeStart);
             filter.addCriterion(0, rangeStartDateTimeValue);
-            DateTimeValue rangeEndDateTimeValue = new DateTimeValue();
+            DateTimeValue rangeEndDateTimeValue;
             if (isUserWithoutTimePattern(calendar)) {
                 Date rangeEnd = prepareEndOfDayForSelectedDate(calendar);
-                rangeEndDateTimeValue.setValue(rangeEnd);
+                rangeEndDateTimeValue = new DateTimeValue(rangeEnd);
             } else {
-                rangeEndDateTimeValue.setValue(selectedDate);
+                rangeEndDateTimeValue = new DateTimeValue(selectedDate);
             }
             filter.addCriterion(1, rangeEndDateTimeValue);
         } else {

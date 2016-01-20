@@ -1,18 +1,17 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -54,8 +53,8 @@ public class CollectionRowMapper extends BasicRowMapper implements
         GenericIdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
 
         ColumnModel columnModel = buildColumnModel(rs);
-        Map<String, FieldConfig> columnTypeMap = new HashMap<>();
         ResultSetMetaData metaData = rs.getMetaData();
+        Map<String, FieldConfig> columnTypeMap = new HashMap<>((int) (metaData.getColumnCount() / 0.75f));
 
         for (int i = 1; i <= metaData.getColumnCount(); i++) {
             String fieldName = metaData.getColumnName(i);
@@ -67,6 +66,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
         collection.setFieldsConfiguration(collectionFieldConfigs);
         
         int row = 0;
+        String firstReferenceName = null;
         while (rs.next()) {
 
             int index = 0;
@@ -95,13 +95,15 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
             // Для случая извлечения коллекции по запросу при отсутствующем Id, заполняем Id первым ссылочным полем
             if (collectionName == null && collection.getId(row) == null) {
-                for (FieldConfig fieldConfig : collection.getFieldsConfiguration()) {
-                    if (fieldConfig instanceof ReferenceFieldConfig) {
-                        ReferenceFieldConfig referenceFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                        collection.setId(row, collection.get(row).getReference(referenceFieldConfig.getName()));
-                        break;
+                if (firstReferenceName == null) {
+                    for (FieldConfig fieldConfig : collection.getFieldsConfiguration()) {
+                        if (fieldConfig instanceof ReferenceFieldConfig) {
+                            firstReferenceName = ((ReferenceFieldConfig) fieldConfig).getName();
+                            break;
+                        }
                     }
                 }
+                collection.setId(row, collection.get(row).getReference(firstReferenceName));
             } else if (collection.getId(row) == null) {
                 throw new FatalException("Id field can not be null in collection " + collectionName);
             }
@@ -115,7 +117,7 @@ public class CollectionRowMapper extends BasicRowMapper implements
 
     private List<FieldConfig> collectFieldConfigs(ColumnModel columnModel) {
         List<String> fieldNamesToDisplay = collectColumnNamesToDisplay(columnModel);
-        List<FieldConfig> collectionFieldConfigs = new ArrayList<FieldConfig>();
+        List<FieldConfig> collectionFieldConfigs = new ArrayList<>(fieldNamesToDisplay.size());
 
         ObjectCloner cloner = ObjectCloner.getInstance();
 
@@ -166,8 +168,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
      * @return список колонок, которые будут добавлены в коллекцию.
      */
     private List<String> collectColumnNamesToDisplay(ColumnModel columnModel) {
-        List<String> fieldNamesToInsert = new ArrayList<String>();
-        for (Column column : columnModel.getColumns()) {
+        final List<Column> columns = columnModel.getColumns();
+        final List<String> fieldNamesToInsert = new ArrayList<>(columns.size());
+        for (Column column : columns) {
             if(!TYPE_ID_COLUMN.equals(column.getName())) {
                 fieldNamesToInsert.add(column.getName());
             }

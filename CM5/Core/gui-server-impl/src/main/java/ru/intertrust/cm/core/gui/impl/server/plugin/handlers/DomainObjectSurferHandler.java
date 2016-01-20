@@ -77,6 +77,7 @@ public class DomainObjectSurferHandler extends ActivePluginHandler {
         result.setFormPluginData(formPluginData);
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(config.isToggleEdit());
+
         result.setPluginState(dosState);
         final IdentifiableObject identifiableObject = PluginHandlerHelper.getUserSettingsIdentifiableObject(
                 currentUserAccessor.getCurrentUser(), collectionsService);

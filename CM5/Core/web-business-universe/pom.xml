@@ -7,7 +7,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>0.5.15-36-tomee</version>
+        <version>0.5.17-19-tomee</version>
     </parent>
 
     <dependencies>
@@ -51,6 +51,9 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint</module>
                             </modules>
+                            <!--<logLevel>
+                                DEBUG
+                            </logLevel>-->
                         </configuration>
                         <goals>
                             <goal>compile</goal>

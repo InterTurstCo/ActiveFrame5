@@ -253,6 +253,7 @@ public class DoelResolverTest {
         documentConfig.setName("Document");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Document")).thenReturn(documentConfig);
         when(configurationExplorer.getDomainObjectRootType("Document")).thenReturn("Document");
+        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Document")).thenReturn(new String[] {"Document"});
 
         DomainObjectTypeConfig incomingDocConfig = new DomainObjectTypeConfig();
         incomingDocConfig.setName("IncomingDocument");
@@ -265,6 +266,7 @@ public class DoelResolverTest {
         commissionConfig.setName("Commission");
         when(configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Commission")).thenReturn(commissionConfig);
         when(configurationExplorer.getDomainObjectRootType("Commission")).thenReturn("Commission");
+        when(configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType("Commission")).thenReturn(new String[] {"Commission"});
 
         DomainObjectTypeConfig jobConfig = new DomainObjectTypeConfig();
         jobConfig.setName("Job");

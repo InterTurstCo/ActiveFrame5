@@ -2,18 +2,26 @@
     <listener>
         <listener-class>ru.intertrust.cm.core.gui.impl.server.LogOutListener</listener-class>
     </listener>
-
+    <listener>
+        <listener-class>ru.intertrust.cm.core.gui.impl.server.CustomContextListener</listener-class>
+    </listener>
     <!--Export to CSV-->
     <!-- Uploader and Downloader part -->
     <servlet>
         <servlet-name>Spring Dispatcher</servlet-name>
-        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <servlet-class>ru.intertrust.cm.core.web.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
             <param-value>classpath:META-INF/dispatcherContext.xml</param-value>
         </init-param>
+        <init-param>
+            <param-name>PARENT_CONTEXT</param-name>
+            <param-value>ear.context</param-value>
+        </init-param>        
         <load-on-startup>1</load-on-startup>
     </servlet>
+
+
     <servlet-mapping>
         <servlet-name>Spring Dispatcher</servlet-name>
         <url-pattern>/attachment-upload</url-pattern>
@@ -24,7 +32,7 @@
         <url-pattern>/image-preview</url-pattern>
     </servlet-mapping>
 
-    <security-constraint>
+   <security-constraint>
         <display-name>Constraint</display-name>
         <auth-constraint>
             <description>

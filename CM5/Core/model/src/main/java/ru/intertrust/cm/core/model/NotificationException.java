@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class NotificationException extends SystemException {
+public class NotificationException extends NonRollingBackException {
 
     public NotificationException() {
     }

@@ -29,6 +29,11 @@ public class StringValue extends Value<StringValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(StringValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;

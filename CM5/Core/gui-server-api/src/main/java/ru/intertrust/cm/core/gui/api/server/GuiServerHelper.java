@@ -14,7 +14,6 @@ import ru.intertrust.cm.core.gui.model.util.GuiConstants;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -134,9 +133,6 @@ public final class GuiServerHelper {
     }
 
     private static String convertToUserFormat(String value, CollectionColumnProperties properties) throws ParseException {
-        final SimpleDateFormat timelessDateFormat = new SimpleDateFormat(GuiConstants.TIMELESS_DATE_FORMAT);
-        final SimpleDateFormat dateTimeFormat = new SimpleDateFormat(GuiConstants.DATE_TIME_FORMAT);
-
         String type = (String) properties.getProperty(CollectionColumnProperties.TYPE_KEY);
         FieldType fieldType = FieldType.forTypeName(type);
 
@@ -147,7 +143,7 @@ public final class GuiServerHelper {
 
             case DATETIME:
             case DATETIMEWITHTIMEZONE:
-                Date date = dateTimeFormat.parse(value);
+                Date date = ThreadSafeDateFormat.parse(value, GuiConstants.DATE_TIME_FORMAT);
                 return getUserDateFormatter(properties).format(date);
             default:
                 return value;

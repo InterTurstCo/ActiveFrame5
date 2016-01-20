@@ -15,6 +15,8 @@ public class AccessMatrixConfigUpdateHandler extends ConfigurationUpdateHandler<
         ConfigurationStorage configStorage = configurationUpdateEvent.getConfigurationStorage();
         configStorage.accessMatrixByObjectTypeAndStatusMap.clear();
         configStorage.matrixReferenceTypeNameMap.clear();
+        configStorage.typesDelegatingAccessCheckTo.clear();
+        configStorage.typesDelegatingAccessCheckToInLowerCase.clear();
         configStorage.readPermittedToEverybodyMap.clear();
     }
 

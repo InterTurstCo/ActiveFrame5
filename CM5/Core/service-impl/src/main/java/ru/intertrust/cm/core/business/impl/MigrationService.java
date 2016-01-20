@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 
 import java.util.*;

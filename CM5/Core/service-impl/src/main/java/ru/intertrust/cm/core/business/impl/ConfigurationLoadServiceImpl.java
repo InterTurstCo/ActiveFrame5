@@ -10,7 +10,9 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -45,6 +47,9 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     @Autowired
     private DataStructureDao dataStructureDao;
 
+    @org.springframework.beans.factory.annotation.Value("${force.db.consistency.check:false}")
+    private boolean forceDbCheck;
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }
@@ -58,7 +63,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             RecursiveConfigurationLoader recursiveLoader = createRecursiveConfigurationLoader();
             recursiveLoader.load(configurationExplorer);
             saveConfiguration();
-        } catch (ConfigurationException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected exception caught in loadConfiguration", e);
@@ -89,29 +94,30 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         "configuration. This may mean that configuration structure has changed since last configuration load", e);
             }
 
-            if (configurationExplorer.getConfiguration().equals(oldConfiguration)) {
-                return;
-            }
+            boolean executeAutoMigration = !configurationExplorer.getConfiguration().equals(oldConfiguration);
 
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
-            boolean schemaUpdatedByAutoMigration =
-                    createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+            boolean schemaUpdatedByAutoMigration = false;
 
-            saveConfiguration();
+            if (executeAutoMigration) {
+                schemaUpdatedByAutoMigration =
+                        createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+                saveConfiguration();
+            }
 
-            schemaUpdatedByScriptMigration = schemaUpdatedByScriptMigration ||
-                    migrationService.executeAfterAutoMigration(oldConfigurationExplorer);
+            schemaUpdatedByScriptMigration = migrationService.executeAfterAutoMigration(oldConfigurationExplorer) ||
+                    schemaUpdatedByScriptMigration;
 
-            if (schemaUpdatedByScriptMigration) {
+            if (schemaUpdatedByScriptMigration || forceDbCheck) {
                 configurationDbValidator.validate();
             }
 
             if (schemaUpdatedByScriptMigration || schemaUpdatedByAutoMigration) {
                 dataStructureDao.gatherStatistics();
             }
-        } catch (ConfigurationException e) {
+        } catch (SystemException e) {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected exception caught in updateConfiguration", e);

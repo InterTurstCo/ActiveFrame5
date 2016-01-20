@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
@@ -27,8 +28,14 @@ public class NavigationTreePluginHandler extends PluginHandler {
 
     @Override
     public PluginData initialize(Dto param) {
+        NavigationConfig navigationConfig;
+        NavigationTreePluginConfig navigationTreePluginConfig = (NavigationTreePluginConfig)param;
+        if(navigationTreePluginConfig.getApplicationName()!=null){
+             navigationConfig = guiService.getNavigationConfiguration(navigationTreePluginConfig.getApplicationName());
+        } else {
+             navigationConfig = guiService.getNavigationConfiguration();
+        }
 
-        NavigationConfig navigationConfig = guiService.getNavigationConfiguration();
         NavigationTreePluginData navigationTreePluginData = new NavigationTreePluginData();
         navigationTreePluginData.setNavigationConfig(navigationConfig);
 

@@ -5,16 +5,16 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfoConverter;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.SchemaCache;
-import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.FieldConfigChangeHandler;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.getSourceDomainObjectType;
+import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.isParentObject;
 
 /**
 * Recursively merges configurations
@@ -133,7 +133,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             }
 
             if (!newFieldConfigs.isEmpty()) {
-                boolean isParent = isParentObject(domainObjectTypeConfig);
+                boolean isParent = isParentObject(domainObjectTypeConfig, configurationExplorer);
                 dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false, isParent);
                 setSchemaUpdateDone();
             }
@@ -155,13 +155,13 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     private void updateDomainObjectConfig(DomainObjectTypeConfig domainObjectTypeConfig,
                                           DomainObjectTypeConfig oldDomainObjectTypeConfig) {
         boolean isAl = configurationExplorer.isAuditLogType(domainObjectTypeConfig.getName());
-        boolean isParent = isParentObject(domainObjectTypeConfig);
+        boolean isParent = isParentObject(domainObjectTypeConfig, configurationExplorer);
         DomainObjectTypeConfig sourceDomainObjectTypeConfig = null;
 
         Integer usedId;
 
         if (isAl) {
-            sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig);
+            sourceDomainObjectTypeConfig = getSourceDomainObjectType(domainObjectTypeConfig, configurationExplorer);
             usedId = domainObjectTypeIdDao.findIdByName(sourceDomainObjectTypeConfig.getName());
         } else {
             usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());

@@ -45,6 +45,7 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleProcessor;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -115,7 +116,7 @@ public class SchedulerBean {
     public void backgroundProcessing()
     {
         try {
-            if (configurationLoader.isConfigurationLoaded() && scheduleTaskLoader.isLoaded()) {
+            if (configurationLoader.isConfigurationLoaded() && scheduleTaskLoader.isLoaded() && scheduleTaskLoader.isEnable()) {
                 AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
                 //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
@@ -163,7 +164,11 @@ public class SchedulerBean {
 
                 executeTasks();
             } else {
-                logger.warn("Can not run scheduler. Configuration is not loaded.");
+                if (!scheduleTaskLoader.isEnable()){
+                    logger.warn("Can not run scheduler. Service is disabled.");
+                }else{
+                    logger.warn("Can not run scheduler. Configuration is not loaded.");
+                }
             }
         } catch (Exception ex) {
             logger.error("Error on run shedule task", ex);

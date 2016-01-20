@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,8 +16,10 @@ import java.util.zip.ZipException;
 
 import org.apache.commons.fileupload.MultipartStream;
 import org.apache.commons.fileupload.ParameterParser;
+import org.apache.http.Header;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 
+import ru.intertrust.performance.gwtrpcproxy.GwtRpcProxy.GroupStrategy;
 import ru.intertrust.performance.jmetertools.GwtRpcRequest;
 import ru.intertrust.performance.jmetertools.GwtUtil;
 
@@ -23,14 +27,29 @@ import com.cedarsoftware.util.io.JsonWriter;
 import com.google.gwt.user.client.rpc.SerializationException;
 
 public class ProxyContext {
+    public static final String X_GWT_PERMUTATION = "X-GWT-Permutation";
+    
     private int localPort;
     private String targetUri;
     private String outFile = "gwtProxyOut.xml";
     private final GwtRpcJournal journal = new GwtRpcJournal();
-    private int groupPause;
+    private int automaticGroupDetectInterval;
     private long lastIteractionTime = 0;
     private int groupCount = 0;
     private GwtInteractionGroup group;
+    private String groupName = "";
+    private GwtRpcProxy.GroupStrategy strategy;
+    private String manualStategyGroupName = "First group";
+    private int betweenGroupPause;
+    private List<ProxyContextListener> listners = new ArrayList<ProxyContextListener>();
+    
+    public int getAutomaticGroupDetectInterval() {
+        return automaticGroupDetectInterval;
+    }
+
+    public void setAutomaticGroupDetectInterval(int automaticGroupDetectInterval) {
+        this.automaticGroupDetectInterval = automaticGroupDetectInterval;
+    }
 
     public ProxyContext() {
         journal.setGroupList(new ArrayList<GwtInteractionGroup>());
@@ -55,7 +74,13 @@ public class ProxyContext {
     public void addResponce(ProxyHttpExchange proxyHttpExchange) {
         try {
             synchronized (journal) {
-
+                if (journal.getxGwtPermutation() == null){
+                    Header[] headers = proxyHttpExchange.getRequest().getHeaders(X_GWT_PERMUTATION);
+                    if (headers != null && headers.length > 0){
+                        journal.setxGwtPermutation(headers[0].getValue());
+                    }
+                }
+                
                 GwtInteraction requestResponce = new GwtInteraction();
                 GwtRequest request = new GwtRequest();
                 request.setMethod(proxyHttpExchange.getRequest().getRequestLine().getMethod());
@@ -77,6 +102,10 @@ public class ProxyContext {
                                                 .getContentEncoding().getValue() : null));
                         GwtRpcRequest gwtRpcRequest = GwtRpcRequest.decode(request.getBody(), targetUri);
                         request.setJson(gwtRpcRequest.asString());
+                        request.setServiceClass(gwtRpcRequest.getServiceClass());
+                        request.setServiceMethod(gwtRpcRequest.getMethod());
+                        request.setSerializationPolicyStrongName(gwtRpcRequest.getPolicyStrongName());
+                        request.setModuleBaseUrl(gwtRpcRequest.getModuleBaseUrl());
                     }
                 }
                 GwtResponce responce = new GwtResponce();
@@ -90,7 +119,7 @@ public class ProxyContext {
                             ));
                     responce.setContentType(proxyHttpExchange.getResponse().getEntity().getContentType() != null ? proxyHttpExchange.getResponse().getEntity()
                             .getContentType().getValue() : null);
-                    responce.setJson(decodeResponceToJson(request.getBody(), responce.getBody(), targetUri));
+                    responce.setJson(decodeResponceToJson(request.getModuleBaseUrl(), request.getSerializationPolicyStrongName(), responce.getBody(), targetUri));
                 }
 
                 requestResponce.setRequest(request);
@@ -99,16 +128,25 @@ public class ProxyContext {
                 //Сохраняем только нужные вызовы
                 if (isSaveRequest(requestResponce)) {
                     //Определяем надо ли создавать новую группу
-                    if ((System.currentTimeMillis() - lastIteractionTime) > (groupPause * 1000)) {
-                        group = new GwtInteractionGroup();
-                        group.setRequestResponceList(new ArrayList<GwtInteraction>());
-                        group.setName("Group " + groupCount);
+                    //При автоматической стратегии проверяем прошло ли нужное количество времени
+                    if (strategy == GroupStrategy.AUTOMATIC && (System.currentTimeMillis() - lastIteractionTime) > (automaticGroupDetectInterval * 1000)) {
+                        String groupName = "Group " + groupCount;
                         groupCount++;
-                        journal.getGroupList().add(group);
-                        lastIteractionTime = System.currentTimeMillis();
+                        creategroup(groupName, betweenGroupPause);
+                    }
+                    lastIteractionTime = System.currentTimeMillis();
+                    
+                    //При ручной стратегии проверяем изменилось ли имя группы
+                    if (strategy == GroupStrategy.MANUAL && !groupName.equals(manualStategyGroupName)){
+                        groupName = manualStategyGroupName;
+                        creategroup(++groupCount + " " + manualStategyGroupName, betweenGroupPause);
                     }
 
                     group.getRequestResponceList().add(requestResponce);
+                    
+                    for (ProxyContextListener listener : listners) {
+                        listener.onAddGwtInteraction(requestResponce);
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -116,16 +154,25 @@ public class ProxyContext {
         }
     }
 
-    private String decodeResponceToJson(String request, String responce, String targetUri) throws SerializationException {
-        if (request == null || request.length() == 0 || responce == null || responce.length() == 0) {
+    private void creategroup(String groupName, int beforePause){
+        group = new GwtInteractionGroup();
+        group.setRequestResponceList(new ArrayList<GwtInteraction>());
+        group.setName(groupName);        
+        group.setBeforePause(beforePause);
+        journal.getGroupList().add(group);
+        for (ProxyContextListener listener : listners) {
+            listener.onAddGroup(group);
+        }
+    }
+
+    private String decodeResponceToJson(String moduleBaseUrl, String policyStrongName, String responce, String targetUri) throws SerializationException {
+        if (moduleBaseUrl == null || policyStrongName == null || responce == null || responce.length() == 0) {
             return null;
         }
-        Object responceObj = GwtUtil.decodeResponce(request, responce, targetUri);
-        String json = JsonWriter.objectToJson(responceObj);
-        try {
-            json = JsonWriter.formatJson(json);
-        } catch (Exception ex) {
-        }
+        Object responceObj = GwtUtil.decodeResponce(moduleBaseUrl, policyStrongName, responce, targetUri);
+        Map args = new HashMap();
+        args.put(JsonWriter.PRETTY_PRINT, true);        
+        String json = JsonWriter.objectToJson(responceObj, args);
         return json;
     }    
     
@@ -236,11 +283,35 @@ public class ProxyContext {
         return journal;
     }
 
-    public int getGroupPause() {
-        return groupPause;
+    public GwtRpcProxy.GroupStrategy getStrategy() {
+        return strategy;
     }
 
-    public void setGroupPause(int groupPause) {
-        this.groupPause = groupPause;
+    public void setStrategy(GwtRpcProxy.GroupStrategy strategy) {
+        this.strategy = strategy;
+    }
+
+    public String getManualStategyGroupName() {
+        return manualStategyGroupName;
+    }
+
+    public void setManualStategyGroupName(String manualStategyGroupName) {
+        this.manualStategyGroupName = manualStategyGroupName;
+    }
+
+    public int getBetweenGroupPause() {
+        return betweenGroupPause;
+    }
+
+    public void setBetweenGroupPause(int betweenGroupPause) {
+        this.betweenGroupPause = betweenGroupPause;
+    }
+    
+    public void addListener(ProxyContextListener listener){
+        listners.add(listener);
+    }
+
+    public void clearListeners(){
+        listners.clear();
     }
 }

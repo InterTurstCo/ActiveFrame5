@@ -6,7 +6,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.History;
+import ru.intertrust.cm.core.gui.api.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;

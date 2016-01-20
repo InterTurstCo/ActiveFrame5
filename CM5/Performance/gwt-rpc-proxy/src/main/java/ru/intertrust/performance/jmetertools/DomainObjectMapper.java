@@ -3,6 +3,7 @@ package ru.intertrust.performance.jmetertools;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +41,7 @@ public class DomainObjectMapper {
                         }
                     } else if (List.class.isAssignableFrom(field.getType())) {
                         //С массивом не знаю что делать ( могут и разное кол во записей вернутся может и порядок изменится
-                    } else if (Dto.class.isAssignableFrom(field.getType()) && !field.getType().isEnum()) {
+                    } else if (Dto.class.isAssignableFrom(field.getType()) && !field.getType().isEnum() && !Modifier.isStatic(field.getModifiers())) {
                         Dto savedObj = (Dto) field.get(savedResponce);
                         Dto realObj = (Dto) field.get(realResponce);
                         //System.err.println(savedResponce + "." + field.getName() + "=" + savedObj);
@@ -58,7 +59,7 @@ public class DomainObjectMapper {
             InvocationTargetException {
         DomainObject saveDo = (DomainObject) field.get(savedResponce);
         DomainObject realDo = (DomainObject) field.get(realResponce);
-        if (saveDo != null) {
+        if (saveDo != null && saveDo.getId() != null && realDo != null) {
             doMap.put(saveDo.getId(), realDo);
         }
     }
@@ -70,6 +71,10 @@ public class DomainObjectMapper {
     }
 
     private void replaceIdInParam(Object parameter) throws IllegalArgumentException, IllegalAccessException {
+        if (parameter == null){
+            return;
+        }
+        
         Class superClass = parameter.getClass();
         do {
             Field[] fields = superClass.getDeclaredFields();
@@ -94,8 +99,8 @@ public class DomainObjectMapper {
 
                 } else if (Dto.class.isAssignableFrom(field.getType())) {
                     Dto savedObj = (Dto) field.get(parameter);
-                    if (savedObj != null && !savedObj.getClass().isEnum()) {
-                        //System.out.println(parameter + " " + savedObj + " " + field.getName());
+                    if (savedObj != null && !savedObj.getClass().isEnum() && !Modifier.isStatic(field.getModifiers())) {
+                        //log.info(parameter + " " + savedObj + " " + field.getName());
                         replaceIdInParam(savedObj);
                     }
                 }
@@ -106,9 +111,16 @@ public class DomainObjectMapper {
 
     private void setField(Object data, Field field) throws IllegalArgumentException, IllegalAccessException {
         DomainObject savedDo = (DomainObject) field.get(data);
-        if (doMap.containsKey(savedDo.getId())) {
-            field.set(data, doMap.get(savedDo.getId()));
-            log.info("Replace with id " + savedDo.getId() + " to " + ((DomainObject) doMap.get(savedDo.getId())).getId());
+        if (savedDo != null){
+            if (doMap.containsKey(savedDo.getId())) {
+                field.set(data, doMap.get(savedDo.getId()));
+                log.info("Replace with id " + savedDo.getId() + " to " + ((DomainObject) doMap.get(savedDo.getId())).getId());
+            }
         }
     }
+    
+    public void clear(){
+        doMap.clear();
+    }
+    
 }

@@ -29,15 +29,25 @@ public interface EventLogService {
 
     void logLogInEvent(String login, String ip, boolean success);
 
+    void doLogLogInEvent(String login, String ip, boolean success);
+
     void logLogOutEvent(String login);
 
+    void doLogLogOutEvent(String login);
+
     void logDownloadAttachmentEvent(Id attachment);
+
+    void doLogDownloadAttachmentEvent(Id attachment);
 
     void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success);
 
     void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success);
 
     void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success);
+
+    void saveAccessLogObjects(List<DomainObject> objectAccessLogs);
+
+    void doLogDomainObjectAccess(Id objectId, String accessType, boolean success);
 
     boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success);
 }

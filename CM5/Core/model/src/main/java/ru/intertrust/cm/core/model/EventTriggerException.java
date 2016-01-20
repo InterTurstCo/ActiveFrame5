@@ -5,7 +5,7 @@ package ru.intertrust.cm.core.model;
  * @author atsvetkov
  *
  */
-public class EventTriggerException extends SystemException {
+public class EventTriggerException extends NonRollingBackException {
 
     private static final long serialVersionUID = 3814955429458773118L;
 

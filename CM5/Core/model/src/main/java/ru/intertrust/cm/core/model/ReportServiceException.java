@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class ReportServiceException extends SystemException {
+public class ReportServiceException extends NonRollingBackException {
     public ReportServiceException() {
     }
 

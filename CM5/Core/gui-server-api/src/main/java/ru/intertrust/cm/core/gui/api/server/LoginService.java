@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface LoginService {
     /**
+     * Атрибут, в котором хранятся данные авторизованного пользователя
+     */
+    public static final String USER_CREDENTIALS_SESSION_ATTRIBUTE = "_USER_CREDENTIALS";
+    
+    /**
      * Осуществляет вход пользователя в систему, проверяя соответствие учётных данных
      * @param credentials учётные данные пользователя
      * @throws ru.intertrust.cm.core.model.AuthenticationException, если по учётным данным вход в систему запрещён

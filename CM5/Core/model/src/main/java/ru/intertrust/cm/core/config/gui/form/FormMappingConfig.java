@@ -34,6 +34,12 @@ public class FormMappingConfig implements Dto {
     @Element(name = "groups", required = false)
     private GroupsConfig groupsConfig;
 
+    @Attribute(name = "modal-width", required = false)
+    private String modalWidth;
+
+    @Attribute(name = "modal-height", required = false)
+    private String modalHeight;
+
     public UsersConfig getUsersConfig() {
         return usersConfig;
     }
@@ -66,6 +72,22 @@ public class FormMappingConfig implements Dto {
         this.domainObjectType = domainObjectType;
     }
 
+    public String getModalWidth() {
+        return modalWidth;
+    }
+
+    public void setModalWidth(String modalWidth) {
+        this.modalWidth = modalWidth;
+    }
+
+    public String getModalHeight() {
+        return modalHeight;
+    }
+
+    public void setModalHeight(String modalHeight) {
+        this.modalHeight = modalHeight;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,6 +100,8 @@ public class FormMappingConfig implements Dto {
         if (form != null ? !form.equals(that.form) : that.form != null) return false;
         if (groupsConfig != null ? !groupsConfig.equals(that.groupsConfig) : that.groupsConfig != null) return false;
         if (usersConfig != null ? !usersConfig.equals(that.usersConfig) : that.usersConfig != null) return false;
+        if (modalWidth != null ? !modalWidth.equals(that.modalWidth) : that.modalWidth != null) return false;
+        if (modalHeight != null ? !modalHeight.equals(that.modalHeight) : that.modalHeight != null) return false;
         return true;
     }
 
@@ -88,6 +112,8 @@ public class FormMappingConfig implements Dto {
         result = 31 * result + (usersConfig != null ? usersConfig.hashCode() : 0);
         result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
         result = 31 * result + (fieldPathConfigs != null ? fieldPathConfigs.hashCode() : 0);
+        result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
+        result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
         return result;
     }
 

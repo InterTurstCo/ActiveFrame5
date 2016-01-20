@@ -1,20 +1,16 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.text.DateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.OlsonTimeZoneContext;
-import ru.intertrust.cm.core.business.api.dto.UTCOffsetTimeZoneContext;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.model.DateTimeContext;
+
+import java.text.DateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -48,21 +44,23 @@ public class DateTimeWithTimezoneValueConverter extends AbstractDateValueConvert
                 final String timeZoneId = getTimeZoneId(rawTimeZoneId);
                 final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
                 calendar.setTime(date);
-                final DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
-                dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
-                dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
-                dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                dateTimeWithTimeZone.setHours(calendar.get(Calendar.HOUR_OF_DAY));
-                dateTimeWithTimeZone.setMinutes(calendar.get(Calendar.MINUTE));
-                dateTimeWithTimeZone.setSeconds(calendar.get(Calendar.SECOND));
-                dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
+                TimeZoneContext timeZoneContext;
                 if (timeZoneId.startsWith("GMT")) {
                     TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-                    dateTimeWithTimeZone.setTimeZoneContext(new UTCOffsetTimeZoneContext(timeZone.getRawOffset()));
+                    timeZoneContext = new UTCOffsetTimeZoneContext(timeZone.getRawOffset());
                 } else {
-                    dateTimeWithTimeZone.setTimeZoneContext(new OlsonTimeZoneContext(timeZoneId));
+                    timeZoneContext = new OlsonTimeZoneContext(timeZoneId);
                 }
-                return new DateTimeWithTimeZoneValue(dateTimeWithTimeZone);
+                return new DateTimeWithTimeZoneValue(new DateTimeWithTimeZone(
+                    timeZoneContext,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH),
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    calendar.get(Calendar.SECOND),
+                    calendar.get(Calendar.MILLISECOND)
+                ));
             } catch (Exception ignored) {
                 ignored.printStackTrace(); // for developers only
             }
@@ -83,27 +81,28 @@ public class DateTimeWithTimezoneValueConverter extends AbstractDateValueConvert
 
     @Override
     public DateTimeWithTimeZoneValue dateToValue(final Date date, final String timeZoneRaw) {
-        final DateTimeWithTimeZoneValue result = new DateTimeWithTimeZoneValue();
         if (date != null) {
             final String timeZoneId = getTimeZoneId(timeZoneRaw == null ? ModelUtil.DEFAULT_TIME_ZONE_ID : timeZoneRaw);
             final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(timeZoneId));
             calendar.setTime(date);
-            final DateTimeWithTimeZone dateTimeWithTimeZone = new DateTimeWithTimeZone();
-            dateTimeWithTimeZone.setYear(calendar.get(Calendar.YEAR));
-            dateTimeWithTimeZone.setMonth(calendar.get(Calendar.MONTH));
-            dateTimeWithTimeZone.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-            dateTimeWithTimeZone.setHours(calendar.get(Calendar.HOUR_OF_DAY));
-            dateTimeWithTimeZone.setMinutes(calendar.get(Calendar.MINUTE));
-            dateTimeWithTimeZone.setSeconds(calendar.get(Calendar.SECOND));
-            dateTimeWithTimeZone.setMilliseconds(calendar.get(Calendar.MILLISECOND));
+            TimeZoneContext timeZoneContext;
             if (timeZoneId.startsWith("GMT")) {
                 TimeZone timeZone = TimeZone.getTimeZone(timeZoneId);
-                dateTimeWithTimeZone.setTimeZoneContext(new UTCOffsetTimeZoneContext(timeZone.getRawOffset()));
+                timeZoneContext = new UTCOffsetTimeZoneContext(timeZone.getRawOffset());
             } else {
-                dateTimeWithTimeZone.setTimeZoneContext(new OlsonTimeZoneContext(timeZoneId));
+                timeZoneContext = new OlsonTimeZoneContext(timeZoneId);
             }
-            result.setValue(dateTimeWithTimeZone);
+            return new DateTimeWithTimeZoneValue(new DateTimeWithTimeZone(
+                timeZoneContext,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH),
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                calendar.get(Calendar.SECOND),
+                calendar.get(Calendar.MILLISECOND)
+            ));
         }
-        return result;
+        return new DateTimeWithTimeZoneValue();
     }
 }

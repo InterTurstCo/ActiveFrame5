@@ -77,3 +77,31 @@ ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData responce 
 ru.intertrust.cm.core.business.api.dto.Id city = GwtUtil.getRndCollectionsRow(responce);
 //Сохраняем в переменной
 vars.putObject("RND_CITY", city);
+
+
+//========================= замена одного поля на случайную величину
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+
+	//Декодируем запрос
+	GwtRpcRequest request = GwtUtil.decodeRequest(sampler);
+	
+	//поле наименование
+	TextState nameState = (TextState)GwtUtil.findWidgetState(request, "2", TextState.class);
+	nameState.setText(GwtUtil.getRndString(20));
+	
+	//Кодируем измененный запрос и записываем в семплер
+	GwtUtil.setRequest(sampler, request);
+	
+	
+	
+////////////////////////////////////////////////////////////////////////////////////////
+//////////////    Новая версия
+////////////////////////////////////////////////////////////////////////////////////////
+
+//========= замена текстового поля
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+
+	TextState nameState = (TextState)GwtUtil.findWidgetState(sampler.getRequest(), "2", TextState.class);
+	nameState.setText("Страна-" + GwtUtil.getRndString(20));
+
+	

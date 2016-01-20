@@ -116,9 +116,9 @@
         <uniqueKey> <!-- This key means automatic key + index creation-->
             <field name="Login"/>
         </uniqueKey>
-        <uniqueKey> <!-- This key means automatic key + index creation-->
+        <!--<uniqueKey> &lt;!&ndash; This key means automatic key + index creation&ndash;&gt;
             <field name="EMail"/>
-        </uniqueKey>
+        </uniqueKey>-->
         <attachment-types>
             <attachment-type name="Person_Attachment"></attachment-type>
         </attachment-types>
@@ -318,8 +318,8 @@
         <fields>
             <string name="name" length="256" not-null="true" />
             <string name="description" length="512" not-null="true" />
-            <long name="version" not-null="false" />
             <boolean name="forceMaster"/>
+            <boolean name="lockUpdate"/>
         </fields>
         <uniqueKey>
             <field name="name" />

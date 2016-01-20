@@ -94,7 +94,10 @@
         <configuration-path>module-configuration/no-permission-poc.xml</configuration-path>
         
         <!-- Настройки криптопровайдера -->
-        <configuration-path>module-configuration/crypto.xml</configuration-path>        
+        <configuration-path>module-configuration/crypto.xml</configuration-path>
+        <!-- Настройки ссылок в сообщениях -->
+        <configuration-path>module-configuration/url-config.xml</configuration-path>
+                
     </configuration-paths>
     
     <import-files on-clean-base-by-type="locale">

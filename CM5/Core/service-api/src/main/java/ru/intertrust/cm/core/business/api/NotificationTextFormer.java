@@ -12,7 +12,13 @@ import ru.intertrust.cm.core.business.api.dto.notification.NotificationText;
  * 
  */
 public interface NotificationTextFormer {
-
+    public static final String PARAM_NOTIFICATION_TYPE = "NOTIFICATION_TYPE";
+    public static final String PARAM_NOTIFICATION_PART = "NOTIFICATION_PART";
+    public static final String PARAM_NOTIFICATION_ADDRESSEE = "NOTIFICATION_ADDRESSEE";
+    public static final String PARAM_NOTIFICATION_LOCALE = "NOTIFICATION_LOCALE";
+    public static final String PARAM_NOTIFICATION_CHANNEL = "NOTIFICATION_CHANNEL";
+    public static final String PARAM_NOTIFICATION_CONTEXT = "NOTIFICATION_CONTEXT";
+    
     /**
      * Метод формирует текст сообщения по типу сообщения и каналу
      * @param notificationType

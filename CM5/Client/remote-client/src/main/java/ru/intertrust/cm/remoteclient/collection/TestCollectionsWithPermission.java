@@ -69,6 +69,6 @@ public class TestCollectionsWithPermission extends TestCollection{
                 + "from department d "
                 + ") t";
         executeQuery(query, 2);
-        
+        log("Test OK");
     }
 }

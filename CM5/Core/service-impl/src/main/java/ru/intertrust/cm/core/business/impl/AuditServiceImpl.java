@@ -19,6 +19,7 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResult;
 import ru.intertrust.cm.core.business.api.dto.VersionComparisonResultImpl;
 import ru.intertrust.cm.core.dao.api.AuditLogServiceDao;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
@@ -46,6 +47,8 @@ public class AuditServiceImpl implements AuditService {
     public List<DomainObjectVersion> findAllVersions(Id domainObjectId) {
         try {
             return auditLogServiceDao.findAllVersions(domainObjectId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findAllVersions", ex);
             throw new UnexpectedException("AuditService", "findAllVersions",
@@ -62,6 +65,8 @@ public class AuditServiceImpl implements AuditService {
     public DomainObjectVersion findVersion(Id versionId) {
         try {
             return auditLogServiceDao.findVersion(versionId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in findVersion", ex);
             throw new UnexpectedException("AuditService", "findVersion",
@@ -77,6 +82,8 @@ public class AuditServiceImpl implements AuditService {
     public void clean(Id domainObjectId) {
         try {
             auditLogServiceDao.clean(domainObjectId);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in clean", ex);
             throw new UnexpectedException("AuditService", "clean",
@@ -98,6 +105,8 @@ public class AuditServiceImpl implements AuditService {
             DomainObjectVersion comparedVersion = auditLogServiceDao.findLastVersion(baseVersion.getDomainObjectId());
 
             return compare(baseVersion, comparedVersion);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in compare", ex);
             throw new UnexpectedException("AuditService", "compare",
@@ -120,6 +129,8 @@ public class AuditServiceImpl implements AuditService {
             DomainObjectVersion comparedVersion = findVersion(comparedVersionId);
 
             return compare(baseVersion, comparedVersion);
+        } catch (SystemException e) {
+            throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in compare", ex);
             throw new UnexpectedException("AuditService", "compare",

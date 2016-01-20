@@ -2,10 +2,10 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
+import java.util.List;
+
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
 
 /**
@@ -28,7 +28,12 @@ public abstract class BasicSequenceIdGenerator implements IdGenerator {
     }
 
     @Override
-    public Object generatetLogId(Integer doTypeId) {
+    public List generateIds(Integer doTypeId, Integer idsNumber) {
+        return generateIdsFromSequence(DataStructureNamingHelper.getSqlSequenceName(doTypeId), idsNumber);
+    }
+
+    @Override
+    public Object generateAuditLogId(Integer doTypeId) {
         return generateIdFromSequence(DataStructureNamingHelper.getSqlAuditSequenceName(doTypeId));
     }
 
@@ -37,10 +42,16 @@ public abstract class BasicSequenceIdGenerator implements IdGenerator {
         return generateIdFromSequence(getSqlSequenceName(name));
     }
 
-    public Object generateIdFromSequence(String sequenceName) {
+    protected Object generateIdFromSequence(String sequenceName) {
         return jdbcTemplate.queryForObject(generateSelectNextValueQuery(sequenceName), Long.class);
     }
 
+    protected List generateIdsFromSequence(String sequenceName, Integer idsNumber) {
+        return jdbcTemplate.queryForList(generateSelectNextValuesQuery(sequenceName, idsNumber), Long.class);
+    }
+
     protected abstract String generateSelectNextValueQuery(String sequenceName);
+
+    protected abstract String generateSelectNextValuesQuery(String sequenceName, Integer nextValuesNumber);
 
 }

@@ -122,6 +122,7 @@ public abstract class BaseWidget extends BaseComponent implements IsWidget, CanB
         this.initialData = state;
     }
 
+
     public abstract void setCurrentState(WidgetState currentState);
 
     /**

@@ -1,22 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,34 +7,26 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.SortCriterion;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
-import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-import ru.intertrust.cm.core.config.base.CollectionConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
-import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.*;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
+
+import java.util.*;
+
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.*;
 
 /**'employee'
  * @author vmatsukevich
@@ -89,40 +64,49 @@ public class CollectionsDaoImplTest {
                     "FROM person e INNER JOIN department AS d ON e.department = d.id";
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
-           "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                   "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                   "WHERE gm.\"person_id\" = :user_id) " +
+                   "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
                    "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
-                   "WHERE EXISTS (SELECT r.\"object_id\" FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
-                   "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                   "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-                   "r.\"object_id\" = person.\"access_object_id\")) e INNER JOIN (SELECT department.* " +
-                   "FROM \"department\" department WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r " +
-                   "INNER JOIN \"group_group\" gg ON r.\"group_id\" = gg.\"parent_group_id\" " +
-                   "INNER JOIN \"group_member\" gm ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                   "WHERE gm.\"person_id\" = :user_id AND r.\"object_id\" = department.\"access_object_id\")) AS d " +
+                   "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
+                   "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                   "rt.\"id\" = person.\"id\")) e INNER JOIN (SELECT department.* " +
+                   "FROM \"department\" department WHERE 1 = 1 AND " +
+                   "EXISTS (SELECT 1 FROM \"department_read\" r " +
+                   "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                   "rt.\"id\" = department.\"id\")) AS d " +
                    "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
-            "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "SELECT e.\"id\", e.\"id_type\", e.\"name\", e.\"position\", e.\"created_date\", e.\"updated_date\", " +
                     "'employee' \"test_constant\" FROM (SELECT employee.* FROM \"employee\" employee " +
-                    "WHERE EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-                    "r.\"object_id\" = employee.\"access_object_id\")) e " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
+                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                    "rt.\"id\" = employee.\"id\")) e " +
                     "INNER JOIN (SELECT department.* FROM \"department\" department " +
-                    "WHERE EXISTS (SELECT r.\"object_id\" FROM \"department_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-                    "r.\"object_id\" = department.\"access_object_id\")) d ON e.\"department\" = d.\"id\" " +
-                    "WHERE 1 = 1 AND d.\"name\" = 'dep1' ORDER BY e.\"name\"";
+                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
+                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                    "rt.\"id\" = department.\"id\")) d ON e.\"department\" = d.\"id\" " +
+                    "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\"";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
-            "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
+            "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
+                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "SELECT p.\"id\", p.\"id_type\", p.\"login\", p.\"password\", coalesce(p.\"boss1\", p.\"boss2\") \"boss\", " +
                     "p.\"created_date\", p.\"updated_date\", 'person' \"test_constant\" FROM " +
-                    "(SELECT person.* FROM \"person\" person WHERE EXISTS " +
-                    "(SELECT r.\"object_id\" FROM \"person_read\" r INNER JOIN \"group_group\" gg ON " +
-                    "r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" gm ON " +
-                    "gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-                    "r.\"object_id\" = person.\"access_object_id\")) p WHERE 1 = 1";
+                    "(SELECT person.* FROM \"person\" person WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
+                    "INNER JOIN \"person\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                    "rt.\"id\" = person.\"id\")) p WHERE 1 = 1";
 
     private static final String FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT" +
@@ -185,6 +169,11 @@ public class CollectionsDaoImplTest {
     @Mock
     private NamedParameterJdbcOperations jdbcTemplate;
 
+    @Mock
+    private GlobalCacheClient globalCacheClient;
+
+    private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
+
     private ConfigurationExplorerImpl configurationExplorer;
     CollectionQueryCacheImpl collectionQueryCache = new CollectionQueryCacheImpl();
 
@@ -206,6 +195,10 @@ public class CollectionsDaoImplTest {
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         collectionsDaoImpl.setCollectionQueryCache(collectionQueryCache);
 
+        domainObjectQueryHelper.setUserGroupCache(userGroupCache);
+        domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
+        domainObjectQueryHelper.setConfigurationExplorer(configurationExplorer);
+        collectionsDaoImpl.setDomainObjectQueryHelper(domainObjectQueryHelper);
     }
 
     private void initConfigurationExplorer() {

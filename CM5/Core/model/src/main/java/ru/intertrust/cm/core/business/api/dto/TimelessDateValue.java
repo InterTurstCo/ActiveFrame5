@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.model.GwtIncompatible;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -43,6 +42,11 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
     }
 
     @Override
+    public boolean isImmutable() {
+        return true;
+    }
+
+    @Override
     public int compareTo(TimelessDateValue o) {
         if (o == null || o.isEmpty()) {
             return this.isEmpty() ? 0 : 1;
@@ -53,9 +57,5 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
 
     public TimelessDate getValue() {
         return value;
-    }
-
-    public void setValue(TimelessDate value) {
-        this.value = value;
     }
 }

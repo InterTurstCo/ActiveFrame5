@@ -164,6 +164,18 @@
         </fields> 
     </domain-object-type>
 
+    <domain-object-type name="friend_city_test" initial-status="Active">
+        <fields>
+            <reference name="city" type="city_test" />
+            <string name="name" length="128" />
+            <long name="population" />
+            <long name="year_of_foundation" />
+            <decimal name="latitude" precision="9" scale="2" />
+            <decimal name="longitude" precision="9" scale="2" />
+            <decimal name="square" precision="9" scale="2" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="notification_test" initial-status="Active">
         <fields>
             <string name="Name" length="128" not-null="true" />
@@ -366,6 +378,46 @@
         </fields>
     </domain-object-type>    
 
+    <domain-object-type name="test_type_16" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+            <string name="status_name" length="128" />
+            <date-time name="reg_date"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_17" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_18" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+            <reference name="test_type_17" type="test_type_17"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_19" extends="test_type_17" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_20" extends="test_type_18" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_21" initial-status="Active">
+        <fields>
+            <string name="description" length="128" />
+            <reference name="author" type="person" not-null="true" />
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
@@ -529,5 +581,24 @@
             </delete>
         </status>
     </access-matrix>
+    
+    <access-matrix type="test_type_16">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+        </status>
+    </access-matrix>
+    
+    
       
 </configuration>

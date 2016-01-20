@@ -2,11 +2,11 @@ package ru.intertrust.cm.core.config.form.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormTemplateProcessor;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -30,15 +30,9 @@ public class PlainFormBuilderImpl implements PlainFormBuilder {
     @Qualifier("tableTemplateProcessor")
     private FormTemplateProcessor tableTemplateProcessor;
 
-    private ObjectCloner clonePerformer;
-
-    public PlainFormBuilderImpl() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
-
     @Override
     public FormConfig buildPlainForm(FormConfig rawFormConfig) {
-        FormConfig result = clonePerformer.cloneObject(rawFormConfig);
+        FormConfig result = ObjectCloner.getInstance().cloneObject(rawFormConfig);
         if (formExtensionsProcessor.hasExtensions(rawFormConfig)) {
             result = formExtensionsProcessor.processExtensions(result);
         }

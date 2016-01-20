@@ -44,10 +44,7 @@ import ru.intertrust.cm.core.gui.model.validation.ValidationException;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Базовая реализация сервиса GUI
@@ -74,12 +71,25 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         NavigationTreeResolver navigationTreeResolver = (NavigationTreeResolver)
                 applicationContext.getBean("navigationTreeResolver");
         return navigationTreeResolver.getNavigationPanel(sessionContext.getCallerPrincipal().getName());
-/*
-        String navigationPanelName = "panel";
-        NavigationConfig navigationConfig = configurationExplorer.getConfig(NavigationConfig.class, navigationPanelName);
-        return navigationConfig;
-*/
+    }
 
+    /**
+     * Получить конфигурацию панели навигации по имени приложения (значение аттрибута
+     * application при обьявлении navigation). Если панели с таким именем не найдено
+     * возвращаем панель по умолчанию.
+     * @param applicationName
+     * @return
+     */
+    @Override
+    public NavigationConfig getNavigationConfiguration(String applicationName) {
+
+        Collection<NavigationConfig> navigationConfigs = configurationExplorer.getConfigs(NavigationConfig.class);
+        for (NavigationConfig config : navigationConfigs) {
+            if (config.getApplication() != null && config.getApplication().toLowerCase().equals(applicationName.toLowerCase())) {
+                return config;
+            }
+        }
+        return getNavigationConfiguration();
     }
 
     @Override
@@ -87,6 +97,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         final GuiContext guiCtx = GuiContext.get();
         guiCtx.setUserInfo(userInfo);
         ComponentHandler componentHandler = obtainHandler(command.getComponentName());
+
         if (componentHandler == null) {
             log.warn("handler for component '{}' not found", command.getComponentName());
             return null;
@@ -270,7 +281,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 
     private String buildMessage(String message, String defaultValue, Pair<String, String>... params) {
         Map<String, String> paramsMap = new HashMap<>();
-        for (Pair<String, String> pair  : params) {
+        for (Pair<String, String> pair : params) {
             paramsMap.put(pair.getFirst(), pair.getSecond());
         }
         return PlaceholderResolver.substitute(buildMessage(message, defaultValue), paramsMap);

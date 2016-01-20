@@ -41,8 +41,7 @@ import com.google.gwt.user.server.rpc.impl.SerializedInstanceReference;
  * @see com.google.gwt.user.server.rpc.impl.ServerSerializationStreamWriter
  * @see com.google.gwt.user.server.rpc.impl.ServerSerializationStreamReader
  */
-public class SyncClientSerializationStreamReader extends
-AbstractSerializationStreamReader {
+public class SyncClientSerializationStreamReader extends AbstractSerializationStreamReader {
 	/**
 	 * Used to accumulate elements while deserializing array types. The generic
 	 * type of the BoundedList will vary from the component type of the array it

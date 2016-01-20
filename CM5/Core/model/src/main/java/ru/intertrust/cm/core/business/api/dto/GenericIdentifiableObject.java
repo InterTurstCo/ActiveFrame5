@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -10,7 +12,7 @@ import java.util.*;
  * Date: 23.05.13
  * Time: 17:13
  */
-public class GenericIdentifiableObject implements IdentifiableObject {
+public class GenericIdentifiableObject implements IdentifiableObject, Cloneable {
 
     private Id id;
     protected LinkedHashMap<String, Value> fieldValues;
@@ -242,11 +244,100 @@ public class GenericIdentifiableObject implements IdentifiableObject {
         dirty = false;
     }
 
+    public boolean containsFieldValues(Map<String, Value> fieldValues) {
+        return containsFieldValues(this, fieldValues);
+    }
+
+    static boolean containsFieldValues(IdentifiableObject object, Map<String, Value> fieldValues) {
+        final Set<String> fields = fieldValues.keySet();
+        for (String field : fields) {
+            final Value thisValue = object.getValue(field);
+            final Value valueToCheck = fieldValues.get(field);
+            boolean thisValueNull = thisValue == null || thisValue.get() == null;
+            boolean valueToCheckNull = valueToCheck == null || valueToCheck.get() == null;
+            if (thisValueNull && valueToCheckNull) {
+                continue;
+            }
+            if (thisValueNull && !valueToCheckNull || !thisValueNull && valueToCheckNull || !thisValue.equals(valueToCheck)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private String getLowerCaseKey(String key) {
         String lowerCaseKey = null;
         if (key != null) {
             lowerCaseKey = key.toLowerCase();
         }
         return lowerCaseKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        GenericIdentifiableObject that = (GenericIdentifiableObject) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) {
+            return false;
+        }
+        final boolean fieldValuesEmpty = fieldValues == null || fieldValues.isEmpty();
+        final boolean thatFieldValuesEmpty = that.fieldValues == null || that.fieldValues.isEmpty();
+        if (fieldValuesEmpty && thatFieldValuesEmpty) {
+            return true;
+        }
+        if (!fieldValuesEmpty && thatFieldValuesEmpty || fieldValuesEmpty && !thatFieldValuesEmpty) {
+            return false;
+        }
+        // we don't compare original keys, as presence of NULL-value in one object and its absense of this value
+        // in another means the same
+        final Set<String> fieldNames = fieldValues.keySet();
+        final Set<String> thatFieldNames = that.fieldValues.keySet();
+        HashSet<String> allFieldNames = new HashSet<>(2 * (fieldNames.size() + thatFieldNames.size()));
+        for (String fieldName : fieldNames) {
+            allFieldNames.add(fieldName.toLowerCase());
+        }
+        for (String thatFieldName : thatFieldNames) {
+            allFieldNames.add(thatFieldName.toLowerCase());
+        }
+        for (String fieldName : allFieldNames) {
+            Value value = getValue(fieldName);
+            Value thatValue = that.getValue(fieldName);
+            Object valueObj = value == null ? null : value.get();
+            Object thatValueObj = thatValue == null ? null : thatValue.get();
+            if (!Objects.equals(valueObj, thatValueObj)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        final GenericIdentifiableObject clone = (GenericIdentifiableObject) super.clone();
+        // id is immutable, nothing to do with it
+        clone.originalKeys = new LinkedHashSet<>(clone.originalKeys); // everything is a string, so just put them into a different map
+        clone.fieldValues = new LinkedHashMap<>(clone.fieldValues);
+
+        final ObjectCloner cloner = ObjectCloner.getInstance();
+        for (Map.Entry<String, Value> stringValueEntry : clone.fieldValues.entrySet()) {
+            final Value value = stringValueEntry.getValue();
+            if (value != null && !value.isImmutable()) {
+                stringValueEntry.setValue(cloner.cloneObject(value));
+            }
+        }
+        return clone;
     }
 }

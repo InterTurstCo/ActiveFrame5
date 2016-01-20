@@ -124,7 +124,7 @@ public class TestReportService extends ClientBase {
             deployData.getItems().add(item);
         }
         
-        reportServiceAdmin.deploy(deployData);
+        reportServiceAdmin.deploy(deployData, true);
     }   
 
 }

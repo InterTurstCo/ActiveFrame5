@@ -26,6 +26,12 @@ public class BusinessUniverseConfig implements LocalizableConfig {
     @Element(name = "logo", required = false)
     private LogoConfig logoConfig;
 
+    @Element(name = "base-url", required = false)
+    private BaseUrlConfig baseUrlConfig;
+
+    @Element(name = "default-form-editing-style", required = false)
+    private DefaultFormEditingStyleConfig defaultFormEditingStyleConfig;
+
     @Element(name = "header-notification-refresh", required = false)
     private HeaderNotificationRefreshConfig headerNotificationRefreshConfig;
 
@@ -82,6 +88,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         return collectionCountCacheRefreshConfig;
     }
 
+    public DefaultFormEditingStyleConfig getDefaultFormEditingStyleConfig() {
+        return defaultFormEditingStyleConfig;
+    }
+
+    public void setDefaultFormEditingStyleConfig(DefaultFormEditingStyleConfig defaultFormEditingStyleConfig) {
+        this.defaultFormEditingStyleConfig = defaultFormEditingStyleConfig;
+    }
+
     public void setCollectionCountCacheRefreshConfig(CollectionCountCacheRefreshConfig collectionCountCacheRefreshConfig) {
         this.collectionCountCacheRefreshConfig = collectionCountCacheRefreshConfig;
     }
@@ -134,6 +148,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         this.userExtraInfoConfig = userExtraInfoConfig;
     }
 
+    public BaseUrlConfig getBaseUrlConfig() {
+        return baseUrlConfig;
+    }
+
+    public void setBaseUrlConfig(BaseUrlConfig baseUrlConfig) {
+        this.baseUrlConfig = baseUrlConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -170,6 +192,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         if (logoConfig != null ? !logoConfig.equals(that.logoConfig) : that.logoConfig != null) {
             return false;
         }
+        if (baseUrlConfig != null ? !baseUrlConfig.equals(that.baseUrlConfig) : that.baseUrlConfig != null) {
+            return false;
+        }
         if (rightPanelConfig != null ? !rightPanelConfig.equals(that.rightPanelConfig) : that.rightPanelConfig != null) {
             return false;
         }
@@ -181,7 +206,10 @@ public class BusinessUniverseConfig implements LocalizableConfig {
                 : that.sideBarOpenningTimeConfig != null) {
             return false;
         }
-
+        if (defaultFormEditingStyleConfig != null ? !defaultFormEditingStyleConfig.equals(that.defaultFormEditingStyleConfig)
+                : that.defaultFormEditingStyleConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -190,10 +218,12 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         int result = loginScreenConfig != null ? loginScreenConfig.hashCode() : 0;
         result = 31 * result + (sideBarOpenningTimeConfig != null ? sideBarOpenningTimeConfig.hashCode() : 0);
         result = 31 * result + (logoConfig != null ? logoConfig.hashCode() : 0);
+        result = 31 * result + (baseUrlConfig != null ? baseUrlConfig.hashCode() : 0);
         result = 31 * result + (headerNotificationRefreshConfig != null ? headerNotificationRefreshConfig.hashCode() : 0);
         result = 31 * result + (collectionCountRefreshConfig != null ? collectionCountRefreshConfig.hashCode() : 0);
         result = 31 * result + (collectionCountCacheRefreshConfig != null ? collectionCountCacheRefreshConfig.hashCode() : 0);
         result = 31 * result + (settingsPopupConfig != null ? settingsPopupConfig.hashCode() : 0);
+        result = 31 * result + (defaultFormEditingStyleConfig != null ? defaultFormEditingStyleConfig.hashCode() : 0);
         return result;
     }
 

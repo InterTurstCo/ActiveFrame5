@@ -1,20 +1,25 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import net.sf.jsqlparser.statement.select.Select;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
+import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.ReferenceFilterUtility;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
@@ -32,6 +37,7 @@ import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
  *         Time: 6:58 PM
  */
 public class CollectionsDaoImpl implements CollectionsDao {
+    private static final Logger logger = LoggerFactory.getLogger(CollectionsDaoImpl.class);
 
     public static final String END_PARAM_SIGN = "_END_PARAM_'";
     public static final String START_PARAM_SIGN = "'_START_PARAM";
@@ -44,6 +50,23 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     public static final String IDS_EXCLUDED_FILTER_PREFIX = "idsExcluded";
     public static final String IDS_INCLUDED_FILTER_PREFIX = "idsIncluded";
+
+    private static final AccessToken QUERY_ACCESS_TOKEN = new AccessToken() {
+        @Override
+        public Subject getSubject() {
+            return null;
+        }
+
+        @Override
+        public boolean isDeferred() {
+            return false;
+        }
+
+        @Override
+        public AccessLimitationType getAccessLimitationType() {
+            return null;
+        }
+    };
 
     @Autowired
     private CollectionQueryCache collectionQueryCache;
@@ -58,6 +81,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    private GlobalCacheClient globalCacheClient;
+    
+    @Autowired
+    private GlobalCacheManager globalCacheManager;
+
     @Autowired
     private CollectionsCacheServiceImpl collectionsCacheService;
 
@@ -69,6 +97,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     @Autowired
     private ServerComponentService serverComponentService;
+
+    @Autowired
+    protected DomainObjectQueryHelper domainObjectQueryHelper;
 
     
     public CurrentUserAccessor getCurrentUserAccessor() {
@@ -99,6 +130,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
         this.collectionQueryCache = collectionQueryCache;
     }
 
+    public void setDomainObjectQueryHelper(DomainObjectQueryHelper domainObjectQueryHelper) {
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
+    }
+
     /**
      * Устанавливает {@link #configurationExplorer}
      * @param configurationExplorer {@link #configurationExplorer}
@@ -107,10 +142,14 @@ public class CollectionsDaoImpl implements CollectionsDao {
         this.configurationExplorer = configurationExplorer;
     }
 
+    public void setGlobalCacheClient(GlobalCacheClient globalCacheClient) {
+        this.globalCacheClient = globalCacheClient;
+    }
+
     /*
-     * {@see ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollection(ru.intertrust.cm.core.config.model.
-     * CollectionNestedConfig, java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
-     */
+         * {@see ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollection(ru.intertrust.cm.core.config.model.
+         * CollectionNestedConfig, java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
+         */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName,
             List<? extends Filter> filterValues,
@@ -129,10 +168,30 @@ public class CollectionsDaoImpl implements CollectionsDao {
             }
         }
 
-        if (collectionConfig.getGenerator() != null) {
+        if (collectionConfig.getGenerator() != null) { // generated collections aren't supported by global cache yet
             String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
+
+        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
+        if (fromGlobalCache != null) {
+            return validateCache(collectionName, filterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
+        }
+
+        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken);
+        final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
+
+        if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
+            collectionsCacheService.putCollectionToCache(collection, collectionName, filterValues, sortOrder, offset, limit);
+        }
+        globalCacheClient.notifyCollectionRead(collectionName, filterValues, sortOrder, offset, limit, collection, dbResultAndStart.getSecond(), accessToken);
+        return collection;
+    }
+
+    private Pair<IdentifiableObjectCollection, Long> findCollectionInDB(long preparationStartTime, String collectionName,
+                                                       List<? extends Filter> filterValues,
+                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         String collectionQuery;
         Map<String, FieldConfig> columnToConfigMapForSelectItems;
         CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(collectionName, filterValues, sortOrder, offset, limit, accessToken);
@@ -175,18 +234,56 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         addCurrentPersonParameter(collectionQuery, parameters);
 
-        long preparationTime = System.nanoTime() - start;
+        long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
-        IdentifiableObjectCollection collection = jdbcTemplate.query(collectionQuery, parameters,
+        long retrieveTime = System.currentTimeMillis();
+
+        return new Pair<>(jdbcTemplate.query(collectionQuery, parameters,
                 new CollectionRowMapper(collectionName, columnToConfigMapForSelectItems, collectionConfig.getIdField(),
-                        configurationExplorer, domainObjectTypeIdCache));
+                        configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
+    }
 
-        if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
-            collectionsCacheService.putCollectionToCache(collection, collectionName, filterValues, sortOrder, offset, limit);
+    private IdentifiableObjectCollection validateCache(String collectionName, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+        if (globalCacheManager.isDebugEnabled()) {
+            IdentifiableObjectCollection fromDb = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken).getFirst();
+            if (!fromGlobalCache.equals(fromDb)) {
+                logger.error("CACHE ERROR! Named collection: " + collectionName);
+            }
         }
+        return fromGlobalCache;
+    }
 
-        return collection;
+    /**
+     * Возвращает доменные объекты, воздействующие на коллекцию
+     * @param collectionName название коллекции
+     * @param filterValues значения фильтров
+     * @return пару, первое значения которой - имена фильтров, второе - типы объектов
+     */
+    public Pair<Set<String>, Set<String>> getDOTypes(String collectionName, List<? extends Filter> filterValues) {
+        final Set<String> filterNames = ModelUtil.getFilterNames(filterValues);
+        Set<String> result = collectionQueryCache.getCollectionDomainObjectTypes(collectionName, filterNames);
+        if (result != null) {
+            return new Pair<>(filterNames, result);
+        }
+        CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
+        String preparedQuery = getFindCollectionQuery(collectionConfig, filterValues, null, 0, 0, QUERY_ACCESS_TOKEN);
+        result = new CollectDOTypesVisitor(configurationExplorer).getDOTypes(preparedQuery);
+        collectionQueryCache.putCollectionDomainObjectTypes(collectionName, filterNames, result);
+        return new Pair<>(filterNames, result);
+    }
+
+    public Set<String> getQueryDOTypes(String collectionQuery) {
+        Set<String> result = collectionQueryCache.getCollectionDomainObjectTypes(collectionQuery);
+        if (result != null) {
+            return result;
+        }
+        CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
+        String preparedQuery = adjustParameterNamesBeforePreProcessing(collectionQuery, PARAM_NAME_PREFIX);
+        preparedQuery = collectionQueryInitializer.initializeQuery(preparedQuery, 0, 0, QUERY_ACCESS_TOKEN);
+        result = new CollectDOTypesVisitor(configurationExplorer).getDOTypes(preparedQuery);
+        collectionQueryCache.putCollectionDomainObjectTypes(collectionQuery, result);
+        return result;
     }
 
     private List<Filter> processIdsFilters(List<? extends Filter> filterValues) {
@@ -281,7 +378,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     private void checkFilterValues(List<? extends Filter> filterValues) {
         if (filterValues != null && !filterValues.isEmpty()) {
-            List<String> names = new ArrayList<>();
+            Set<String> names = new HashSet<>((int)(filterValues.size() / 0.75f) + 1);
             for (Filter filterValue : filterValues) {
                 String filterName = filterValue.getFilter();
                 if (names.contains(filterName)) {
@@ -311,6 +408,37 @@ public class CollectionsDaoImpl implements CollectionsDao {
             AccessToken accessToken) {
 
         long start = System.nanoTime();
+        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(query, null, offset, limit, accessToken);
+        if (fromGlobalCache != null) {
+            return validateCache(query, offset, limit, accessToken, start, fromGlobalCache);
+        }
+
+        final Pair<IdentifiableObjectCollection, Long> result = findCollectionByQueryInDB(start, query, offset, limit, accessToken);
+        final IdentifiableObjectCollection collection = result.getFirst();
+        globalCacheClient.notifyCollectionRead(query, null, offset, limit, collection, result.getSecond(), accessToken);
+        return collection;
+    }
+
+    /*
+     * {@inheritDoc}
+     */
+    @Override
+    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
+                                                              int offset, int limit, AccessToken accessToken) {
+        long start = System.nanoTime();
+        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(query, params, offset, limit, accessToken);
+        if (fromGlobalCache != null) {
+            return validateCache(query, params, offset, limit, accessToken, start, fromGlobalCache);
+        }
+
+        final Pair<IdentifiableObjectCollection, Long> result = findCollectionByQueryInDB(start, query, params, offset, limit, accessToken);
+        final IdentifiableObjectCollection collection = result.getFirst();
+        globalCacheClient.notifyCollectionRead(query, params, offset, limit, collection, result.getSecond(), accessToken);
+        return collection;
+    }
+
+    public Pair<IdentifiableObjectCollection, Long> findCollectionByQueryInDB(long preparationStartTime, String query, int offset, int limit,
+                                                                              AccessToken accessToken) {
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -320,7 +448,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
-            columnToConfigMapForSelectItems = cachedQueryEntry.getColumnToConfigMap();           
+            columnToConfigMapForSelectItems = cachedQueryEntry.getColumnToConfigMap();
         } else {
 
             CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
@@ -341,21 +469,17 @@ public class CollectionsDaoImpl implements CollectionsDao {
         if (accessToken.isDeferred()) {
             fillAclParameters(accessToken, parameters);
         }
-        long preparationTime = System.nanoTime() - start;
+        long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
-        return jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
+        long retrieveTime = System.currentTimeMillis();
+
+        return new Pair<>(jdbcTemplate.query(collectionQuery, parameters,
+                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
     }
 
-    /*
-     * {@inheritDoc}
-     */
-    @Override
-    public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
-            int offset, int limit, AccessToken accessToken) {
-        long start = System.nanoTime();
-
+    private Pair<IdentifiableObjectCollection, Long> findCollectionByQueryInDB(long preparationStartTime, String query, List<? extends Value> params,
+                                                              int offset, int limit, AccessToken accessToken) {
         Map<String, Object> parameters = new HashMap<>();
 
         Set<ListValue> listValueParams = getListValueParams(params);
@@ -398,11 +522,34 @@ public class CollectionsDaoImpl implements CollectionsDao {
         }
         fillParameterMap(params, parameters);
 
-        long preparationTime = System.nanoTime() - start;
+        long preparationTime = System.nanoTime() - preparationStartTime;
         SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
 
-        return jdbcTemplate.query(collectionQuery, parameters,
-                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache));
+        long retrieveTime = System.currentTimeMillis();
+        return new Pair<>(jdbcTemplate.query(collectionQuery, parameters,
+                new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
+    }
+
+    private IdentifiableObjectCollection validateCache(String query, int offset, int limit,
+                                                       AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+        if (globalCacheManager.isDebugEnabled()) {
+            IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, offset, limit, accessToken).getFirst();
+            if (!fromGlobalCache.equals(fromDb)) {
+                logger.error("CACHE ERROR! Query: " + query);
+            }
+        }
+        return fromGlobalCache;
+    }
+
+    private IdentifiableObjectCollection validateCache(String query, List<? extends Value> params, int offset, int limit,
+                                                       AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+        if (globalCacheManager.isDebugEnabled()) {
+            IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, params, offset, limit, accessToken).getFirst();
+            if (!fromGlobalCache.equals(fromDb)) {
+                logger.error("CACHE ERROR! Query: " + query);
+            }
+        }
+        return fromGlobalCache;
     }
 
     private Set<ListValue> getListValueParams(List<? extends Value> params) {
@@ -416,7 +563,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     private void addReferenceParameters(Map<String, Object> parameters, List<? extends Value> params) {
@@ -551,7 +698,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {
-        return new CollectionQueryInitializerImpl(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new CollectionQueryInitializerImpl(configurationExplorer, userGroupCache,
+                currentUserAccessor, domainObjectQueryHelper);
     }
 
     /**

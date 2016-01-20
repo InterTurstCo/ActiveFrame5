@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.action;
 
+import ru.intertrust.cm.core.config.DefaultFormEditingStyleConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 /**
@@ -9,6 +10,7 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
  */
 public class SaveActionData extends ActionData {
     private FormPluginData formPluginData;
+    private DefaultFormEditingStyleConfig defaultFormEditingStyleConfig;
 
     public FormPluginData getFormPluginData() {
         return formPluginData;
@@ -16,5 +18,13 @@ public class SaveActionData extends ActionData {
 
     public void setFormPluginData(FormPluginData formPluginData) {
         this.formPluginData = formPluginData;
+    }
+
+    public DefaultFormEditingStyleConfig getDefaultFormEditingStyleConfig() {
+        return defaultFormEditingStyleConfig;
+    }
+
+    public void setDefaultFormEditingStyleConfig(DefaultFormEditingStyleConfig defaultFormEditingStyleConfig) {
+        this.defaultFormEditingStyleConfig = defaultFormEditingStyleConfig;
     }
 }

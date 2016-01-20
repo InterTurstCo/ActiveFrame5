@@ -3,6 +3,7 @@ package ru.intertrust.performance.jmetertools;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class IdsMapper {
                         }
                     } else if (List.class.isAssignableFrom(field.getType())) {
                         //С массивом не знаю что делать ( могут и разное кол во записей вернутся может и порядок изменится
-                    } else if (Dto.class.isAssignableFrom(field.getType()) && !field.getType().isEnum()) {
+                    } else if (Dto.class.isAssignableFrom(field.getType()) && !field.getType().isEnum() && !Modifier.isStatic(field.getModifiers())) {
                         Dto savedObj = (Dto) field.get(savedResponce);
                         Dto realObj = (Dto) field.get(realResponce);
                         //System.err.println(savedResponce + "." + field.getName() + "=" + savedObj);
@@ -57,7 +58,7 @@ public class IdsMapper {
             InvocationTargetException {
         Id saveId = (Id) field.get(savedResponce);
         Id realId = (Id) field.get(realResponce);
-        if (saveId != null && !saveId.equals(realId)) {
+        if (saveId != null && !saveId.equals(realId) && realId != null) {
             idsMap.put(saveId, realId);
         }
     }
@@ -81,12 +82,14 @@ public class IdsMapper {
                     if (savedMap != null) {
                         for (Object key : savedMap.keySet()) {
                             Object value = savedMap.get(key);
-                            if (Id.class.isAssignableFrom(value.getClass())){
-                                if (idsMap.containsKey(value)){
-                                    savedMap.put(key, idsMap.get(value));
+                            if (value != null){
+                                if (Id.class.isAssignableFrom(value.getClass())){
+                                    if (idsMap.containsKey(value)){
+                                        savedMap.put(key, idsMap.get(value));
+                                    }
+                                }else{
+                                    replaceIdInParam(savedMap.get(key));
                                 }
-                            }else{
-                                replaceIdInParam(savedMap.get(key));
                             }
                         }
                     }
@@ -115,7 +118,7 @@ public class IdsMapper {
 
                 } else if (Dto.class.isAssignableFrom(field.getType())) {
                     Dto savedObj = (Dto) field.get(parameter);
-                    if (savedObj != null && !savedObj.getClass().isEnum()) {
+                    if (savedObj != null && !savedObj.getClass().isEnum() && !Modifier.isStatic(field.getModifiers())) {
                         //System.out.println(parameter + " " + savedObj + " " + field.getName());
                         replaceIdInParam(savedObj);
                     }
@@ -131,5 +134,9 @@ public class IdsMapper {
             field.set(data, idsMap.get(savedId));
             log.info("In field " + field + " replace " + savedId + " to " + idsMap.get(savedId));
         }
+    }
+    
+    public void clear(){
+        idsMap.clear();
     }
 }

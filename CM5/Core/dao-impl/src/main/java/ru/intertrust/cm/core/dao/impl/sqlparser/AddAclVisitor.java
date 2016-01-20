@@ -1,90 +1,38 @@
 
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.AllComparisonExpression;
-import net.sf.jsqlparser.expression.AnalyticExpression;
-import net.sf.jsqlparser.expression.AnyComparisonExpression;
-import net.sf.jsqlparser.expression.BinaryExpression;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.DateValue;
-import net.sf.jsqlparser.expression.DoubleValue;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
-import net.sf.jsqlparser.expression.ExtractExpression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.IntervalExpression;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.JdbcParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.SignedExpression;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.TimeValue;
-import net.sf.jsqlparser.expression.TimestampValue;
-import net.sf.jsqlparser.expression.WhenClause;
-import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
-import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
-import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
-import net.sf.jsqlparser.expression.operators.arithmetic.Division;
-import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
-import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
-import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
+import net.sf.jsqlparser.expression.*;
+import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.Between;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
-import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
-import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
-import net.sf.jsqlparser.expression.operators.relational.Matches;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.AllColumns;
-import net.sf.jsqlparser.statement.select.AllTableColumns;
-import net.sf.jsqlparser.statement.select.FromItem;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.Join;
-import net.sf.jsqlparser.statement.select.LateralSubSelect;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SelectItemVisitor;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
-import net.sf.jsqlparser.statement.select.SetOperationList;
-import net.sf.jsqlparser.statement.select.SubJoin;
-import net.sf.jsqlparser.statement.select.SubSelect;
-import net.sf.jsqlparser.statement.select.ValuesList;
-import net.sf.jsqlparser.statement.select.WithItem;
+import net.sf.jsqlparser.statement.StatementVisitor;
+import net.sf.jsqlparser.statement.Statements;
+import net.sf.jsqlparser.statement.alter.Alter;
+import net.sf.jsqlparser.statement.create.index.CreateIndex;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
+import net.sf.jsqlparser.statement.create.view.CreateView;
+import net.sf.jsqlparser.statement.delete.Delete;
+import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.replace.Replace;
+import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.truncate.Truncate;
+import net.sf.jsqlparser.statement.update.Update;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций. Заменяет названия таблиц (доменных объектов)
@@ -92,19 +40,26 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
  * Например, employee -> (select * from employee where exists(...))
  * @author atsvetkov
  */
-public class AddAclVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
+public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
-    private static Map<String, String> aclSubQueryCache = new HashMap<>();
+    private static Map<String, SelectBody> aclSelectBodyCache = new HashMap<>();
+    private static WithItem aclWithItem = null;
 
     private ConfigurationExplorer configurationExplorer;
 
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
-    public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
+    private Select select = null;
+    private boolean aclWithItemAdded = false;
+
+    public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+                         CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     @Override
@@ -135,20 +90,13 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     private void processJoins(PlainSelect plainSelect) {
         if (plainSelect.getJoins() != null) {
-            for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
-                Join join = (Join) joinsIt.next();
+            for (Join join : plainSelect.getJoins()) {
                 FromItem joinItem = join.getRightItem();
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
                     //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
                     if (needToAddAclSubQuery(table)) {
-                        SubSelect replace = createAclSubQuery(table.getName());
-                        if (table.getAlias() == null) {
-                            replace.setAlias(new Alias(table.getName(), false));
-                        } else {
-                            replace.setAlias(table.getAlias());
-                        }
-                        join.setRightItem(replace);
+                        join.setRightItem(createAclSubSelect(table));
                     }
                 } else {
                     join.getRightItem().accept(this);
@@ -178,103 +126,55 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
             Table table = (Table) from;
             //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
             if (needToAddAclSubQuery(table)) {
-                SubSelect replace = createAclSubQuery(table.getName());
-                if (table.getAlias() == null) {
-                    replace.setAlias(new Alias(table.getName(), false));
-                } else {
-                    replace.setAlias(table.getAlias());
-                }
-                plainSelect.setFromItem(replace);
+                plainSelect.setFromItem(createAclSubSelect(table));
             }
         } else {
             plainSelect.getFromItem().accept(this);
         }
     }
 
-/*    private boolean isDomainObjectType(String tableName) {
-        return configurationExplorer.getConfig(DomainObjectTypeConfig.class, tableName) != null;
-    }
-*/
-    /**
-     * Выполняет замену названия таблицы на ACL подзапрос.
-     * @param domainObjectType
-     * @return
-     */
-    private SubSelect createAclSubQuery(String domainObjectType) {
-        domainObjectType = DaoUtils.unwrap(domainObjectType);        
+    private SelectBody getAclSelectBody(Table table) {
+        String tableName = DaoUtils.unwrap(table.getName());
 
-        boolean isAuditLog = configurationExplorer.isAuditLogType(domainObjectType);
-        String originalDomainObjectType = domainObjectType;
-
-        String aclQueryString = null;
-        if (aclSubQueryCache.get(originalDomainObjectType) != null) {
-            aclQueryString = aclSubQueryCache.get(originalDomainObjectType);
+        if (aclSelectBodyCache.get(tableName) != null) {
+            return aclSelectBodyCache.get(tableName);
         } else {
-            
-            // Проверка прав для аудит лог объектов выполняются от имени родительского объекта.
-            domainObjectType = AccessControlUtility.getRelevantType(domainObjectType, configurationExplorer);
-            
-            //В случае заимствованных прав формируем запрос с "чужой" таблицей xxx_read
-            String matrixReferenceTypeName = configurationExplorer.getMatrixReferenceTypeName(domainObjectType);
-            String aclReadTable = null;
-            if (matrixReferenceTypeName != null){
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, matrixReferenceTypeName);
-            }else{
-                aclReadTable = AccessControlUtility.getAclReadTableNameFor(configurationExplorer, domainObjectType);
-            }
-                        
-            String topLevelParentType = configurationExplorer.getDomainObjectRootType(domainObjectType).toLowerCase();
-            String topLevelAuditTable = getALTableSqlName(topLevelParentType);
-           
             StringBuilder aclQuery = new StringBuilder();
-            
-            aclQuery.append("Select ").append(originalDomainObjectType).append(".* from ").
-                    append(DaoUtils.wrap(originalDomainObjectType)).append(" ").append(originalDomainObjectType);
+            aclQuery.append("select ").append(tableName).append(".* from ").
+                    append(DaoUtils.wrap(tableName)).append(" ").append(tableName).
+                    append(" where 1=1");
 
-            if (isAuditLog) {
-                aclQuery.append(" inner join ").append(wrap(topLevelAuditTable)).append(" pal on ").append(originalDomainObjectType).append(".")
-                        .append(wrap(Configuration.ID_COLUMN)).append(" = pal.").append(wrap(Configuration.ID_COLUMN));
+            domainObjectQueryHelper.appendAccessControlLogicToQuery(aclQuery, tableName);
+
+            SqlQueryParser aclSqlParser = new SqlQueryParser(aclQuery.toString());
+            Select aclSelect = aclSqlParser.getSelectStatement();
+
+            if (aclWithItem == null) {
+                aclWithItem = aclSelect.getWithItemsList().get(0);
             }
 
-            if (!topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
-                aclQuery.append(" inner join ").append(DaoUtils.wrap(topLevelParentType)).append(" rt on rt.").
-                        append(wrap(Configuration.ID_COLUMN)).append(" = ");
-                if (isAuditLog) {
-                    aclQuery.append("pal.").append(DaoUtils.wrap(Configuration.DOMAIN_OBJECT_ID_COLUMN));
-                } else {
-                    aclQuery.append(originalDomainObjectType).append(".").append(wrap(Configuration.ID_COLUMN));
-                }
-            }
+            aclSelectBodyCache.put(tableName, aclSelect.getSelectBody());
 
-            aclQuery.append(" where exists (select r.").append(DaoUtils.wrap("object_id"))
-                    .append(" from ")
-                    .append(DaoUtils.wrap(aclReadTable)).append(" r ");
-            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_group")).append(" gg on r.")
-                    .append(DaoUtils.wrap("group_id") + " = gg.").append(DaoUtils.wrap("parent_group_id"));
-            aclQuery.append(" inner join ").append(DaoUtils.wrap("group_member")).append(" gm on gg.")
-                    .append(DaoUtils.wrap("child_group_id"))
-                    .append(" = gm.").append(DaoUtils.wrap("usergroup"));
+            return aclSelect.getSelectBody();
+        }
+    }
 
-            aclQuery.append(" where gm.\"person_id\" = ").append(SqlQueryModifier.USER_ID_PARAM).
-                     append(" and r.").append(wrap("object_id")).append(" = ");
+    private SubSelect createAclSubSelect(Table table) {
+        SubSelect aclSubSelect = new SubSelect();
+        aclSubSelect.setSelectBody(getAclSelectBody(table));
 
-            if (topLevelParentType.equalsIgnoreCase(originalDomainObjectType)) {
-                aclQuery.append(originalDomainObjectType).append(".").append(wrap("access_object_id"));
-            } else {
-                aclQuery.append("rt.").append(wrap("access_object_id"));
-            }
-
-            aclQuery.append(")");
-
-            aclQueryString = aclQuery.toString();
-            aclSubQueryCache.put(originalDomainObjectType, aclQueryString);
+        if (table.getAlias() == null) {
+            aclSubSelect.setAlias(new Alias(table.getName(), false));
+        } else {
+            aclSubSelect.setAlias(table.getAlias());
         }
 
-        SubSelect subSelectWithAcl = new SubSelect();
-        SqlQueryParser aclSqlParser = new SqlQueryParser(aclQueryString);
-        PlainSelect aclEnforcedExpression = (PlainSelect) aclSqlParser.getSelectBody();
-        subSelectWithAcl.setSelectBody(aclEnforcedExpression);
-        return subSelectWithAcl;
+        if (!aclWithItemAdded) {
+            select.getWithItemsList().add(aclWithItem);
+            aclWithItemAdded = true;
+        }
+
+        return aclSubSelect;
     }
 
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
@@ -614,6 +514,78 @@ public class AddAclVisitor implements SelectVisitor, FromItemVisitor, Expression
 
     @Override
     public void visit(WithItem withItem) {
+
     }
 
+    @Override
+    public void visit(Select select) {
+        this.select = select;
+
+        if (select.getWithItemsList() == null) {
+            select.setWithItemsList(new ArrayList<WithItem>());
+        }
+
+        if (select.getSelectBody() != null) {
+            select.getSelectBody().accept(this);
+        }
+
+        for (WithItem withItem : select.getWithItemsList()) {
+            withItem.accept(this);
+        }
+    }
+
+    @Override
+    public void visit(Delete delete) {
+
+    }
+
+    @Override
+    public void visit(Update update) {
+
+    }
+
+    @Override
+    public void visit(Insert insert) {
+
+    }
+
+    @Override
+    public void visit(Replace replace) {
+
+    }
+
+    @Override
+    public void visit(Drop drop) {
+
+    }
+
+    @Override
+    public void visit(Truncate truncate) {
+
+    }
+
+    @Override
+    public void visit(CreateIndex createIndex) {
+
+    }
+
+    @Override
+    public void visit(CreateTable createTable) {
+
+    }
+
+    @Override
+    public void visit(CreateView createView) {
+
+    }
+
+    @Override
+    public void visit(Alter alter) {
+
+    }
+
+    @Override
+    public void visit(Statements statements) {
+
+    }
 }

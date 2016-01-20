@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class ScheduleException extends SystemException {
+public class ScheduleException extends NonRollingBackException {
     public ScheduleException() {
     }
 

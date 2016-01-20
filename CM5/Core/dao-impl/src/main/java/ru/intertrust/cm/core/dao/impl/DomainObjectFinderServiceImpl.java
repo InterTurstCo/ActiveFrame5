@@ -68,7 +68,7 @@ public class DomainObjectFinderServiceImpl implements DomainObjectFinderService 
                     params.add(new ReferenceValue(contextDomainObjectId));
                 }
                 IdentifiableObjectCollection collection =
-                        collectionService.findCollectionByQuery(config.getData(), params, 0, 1000, accessToken);
+                        collectionService.findCollectionByQuery(config.getData(), params, 0, 0, accessToken);
                 result = new ArrayList<Id>();
                 for (IdentifiableObject identifiableObject : collection) {
                     result.add(identifiableObject.getId());

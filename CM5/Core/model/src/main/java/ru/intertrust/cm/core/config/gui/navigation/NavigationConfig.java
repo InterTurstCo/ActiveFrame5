@@ -21,6 +21,9 @@ public class NavigationConfig implements LocalizableConfig {
     @Attribute(name = "name")
     private String name;
 
+    @Attribute(name = "application",required = false)
+    private String application;
+
     @Attribute(name = "is-default")
     private boolean isDefault;
 
@@ -64,6 +67,14 @@ public class NavigationConfig implements LocalizableConfig {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getApplication() {
+        return application;
+    }
+
+    public void setApplication(String application) {
+        this.application = application;
     }
 
     public boolean isDefault() {
@@ -152,6 +163,9 @@ public class NavigationConfig implements LocalizableConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (application != null ? !application.equals(that.application) : that.application != null) {
             return false;
         }
         if (sideBarOpeningTime != null ? !sideBarOpeningTime.equals(that.sideBarOpeningTime) : that.sideBarOpeningTime != null) {

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.navigation;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import ru.intertrust.cm.core.config.gui.form.ToggleEditConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -18,7 +19,7 @@ public class DomainObjectSurferConfig extends PluginConfig {
     private FormViewerConfig formViewerConfig;
 
     @Element(name = "toggle-edit", required = false)
-    private boolean toggleEdit = true;
+    private ToggleEditConfig toggleEdit;
 
     @Attribute(name = "domain-object-type-to-create", required = false)
     private String domainObjectTypeToCreate;
@@ -39,8 +40,26 @@ public class DomainObjectSurferConfig extends PluginConfig {
         this.formViewerConfig = formViewerConfig;
     }
 
-    public boolean isToggleEdit() {
+    public Boolean isToggleEdit() {
+        if(toggleEdit == null)
+            return true;
+        else
+            return toggleEdit.getValue();
+    }
+
+    public ToggleEditConfig getToggleEdit(){
         return toggleEdit;
+    }
+
+    public Boolean isReadOnlyAfterSave(){
+        if(toggleEdit!=null && toggleEdit.getSwitchToReadModeOnSave()!=null){
+            return toggleEdit.getSwitchToReadModeOnSave();
+        }
+        else return false;
+    }
+
+    public void setToggleEdit(ToggleEditConfig toggleEdit) {
+        this.toggleEdit = toggleEdit;
     }
 
     public String getDomainObjectTypeToCreate() {

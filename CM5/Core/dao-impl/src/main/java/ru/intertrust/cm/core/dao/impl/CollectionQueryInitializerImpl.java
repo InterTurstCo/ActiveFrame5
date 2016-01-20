@@ -55,12 +55,14 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     private ConfigurationExplorer configurationExplorer;
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     public CollectionQueryInitializerImpl(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
-            CurrentUserAccessor currentUserAccessor) {
+            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -222,10 +224,11 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         SelectBody selectBody = select.getSelectBody();
         selectBody = sqlQueryModifier.addIdBasedFilters(selectBody, filterValues, collectionConfig.getIdField());
-        if (accessToken.isDeferred()) {
-            selectBody = sqlQueryModifier.addAclQuery(selectBody);
-        }
         select.setSelectBody(selectBody);
+
+        if (accessToken.isDeferred()) {
+            sqlQueryModifier.addAclQuery(select);
+        }
 
         sqlQueryModifier.checkDuplicatedColumns(select);
 
@@ -247,11 +250,9 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
         sqlQueryModifier.addServiceColumns(select);
 
-        SelectBody selectBody = select.getSelectBody();
         if (accessToken.isDeferred()) {
-            selectBody = sqlQueryModifier.addAclQuery(selectBody);
+            sqlQueryModifier.addAclQuery(select);
         }
-        select.setSelectBody(selectBody);
 
         sqlQueryModifier.checkDuplicatedColumns(select);
 
@@ -260,7 +261,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor);
+        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
 
     private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs,
@@ -447,7 +448,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
         private String createCriteriaValue(String value) {
             String condition = DEFAULT_CRITERIA_CONDITION;
-            return EMPTY_STRING + condition + EMPTY_STRING + value;
+            return EMPTY_STRING + condition + EMPTY_STRING + "(" + value + ")";
         }
 
         public String getPlaceholderValue(String placeholder) {

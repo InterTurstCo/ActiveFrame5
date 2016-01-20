@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.dao.access;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 
+import java.util.Objects;
+
 public class AclInfo {
     private AccessType accessType;
     private Id groupId;
@@ -20,34 +22,21 @@ public class AclInfo {
     }
 
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((accessType == null) ? 0 : accessType.hashCode());
-        result = prime * result + ((groupId == null) ? 0 : groupId.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AclInfo aclInfo = (AclInfo) o;
+        return Objects.equals(accessType, aclInfo.accessType) &&
+                Objects.equals(groupId, aclInfo.groupId);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AclInfo other = (AclInfo) obj;
-        if (accessType == null) {
-            if (other.accessType != null)
-                return false;
-        } else if (!accessType.equals(other.accessType))
-            return false;
-        if (groupId == null) {
-            if (other.groupId != null)
-                return false;
-        } else if (!groupId.equals(other.groupId))
-            return false;
-        return true;
+    public int hashCode() {
+        return Objects.hash(accessType, groupId);
     }
 
     @Override
@@ -58,6 +47,5 @@ public class AclInfo {
         result.append("\t\t\t\tgroupId : " + groupId + "\n");
         result.append("\t\t\t}\n");
         return result.toString();    
-    }    
-    
+    }
 }

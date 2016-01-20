@@ -147,11 +147,11 @@ public class DynamicGroupTrackDomainObjectCollector extends BaseDynamicGroupServ
         }else if(query != null){
             IdentifiableObjectCollection collection = null;
             if (contextObjectid == null){
-                collection = collectionsService.findCollectionByQuery(query, 0, 1000, accessToken);
+                collection = collectionsService.findCollectionByQuery(query, 0, 0, accessToken);
             }else{
                 List<Value> params = new ArrayList<Value>();
                 params.add(new ReferenceValue(contextObjectid));
-                collection = collectionsService.findCollectionByQuery(query, params, 0, 1000, accessToken);
+                collection = collectionsService.findCollectionByQuery(query, params, 0, 0, accessToken);
             }
             
             for (IdentifiableObject identifiableObject : collection) {

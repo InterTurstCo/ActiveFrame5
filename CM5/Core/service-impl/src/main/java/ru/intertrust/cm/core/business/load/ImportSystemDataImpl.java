@@ -23,9 +23,14 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.FatalException;
 
+import javax.annotation.Resource;
+import javax.ejb.EJBContext;
 import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
 /**
@@ -38,6 +43,7 @@ import javax.interceptor.Interceptors;
 @Local(ImportSystemData.class)
 @Remote(ImportSystemData.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.Remote {
 
     private static final Logger logger = Logger.getLogger(ImportSystemDataImpl.class);
@@ -56,6 +62,8 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
     private AttachmentContentDao attachmentContentDao;
     @Autowired
     private ApplicationContext springContext;
+    @Resource
+    private EJBContext context;        
 
     public void load() {
         String fileName = null;
@@ -96,7 +104,7 @@ public class ImportSystemDataImpl implements ImportSystemData, ImportSystemData.
                                     ImportData importData = (ImportData) springContext.getBean(ImportData.SYSTEM_IMPORT_BEAN);
 
                                     importData.importData(readFile(new URL(moduleConfiguration.getModuleUrl().toString()
-                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite, null);
+                                            + importFile.getFileName())), importFilesConfiguration.getCsvEncoding(), rewrite, null, context.getUserTransaction());
                                     logger.info("Import system data from file " + importFile.getFileName());
                                 }
                             }

@@ -13,4 +13,13 @@ public class OracleSequenceIdGenerator extends BasicSequenceIdGenerator {
     protected String generateSelectNextValueQuery(String sequenceName) {
         return "select " + wrap(sequenceName) + ".nextval from dual";
     }
+
+    @Override
+    protected String generateSelectNextValuesQuery(String sequenceName, Integer nextValuesNumber) {
+        if (nextValuesNumber == null || nextValuesNumber < 1) {
+            throw new IllegalArgumentException("nextValuesNumber must be positive integer");
+        }
+
+        return "select " + wrap(sequenceName) + ".nextval from dual connect by level<=" + nextValuesNumber;
+    }
 }

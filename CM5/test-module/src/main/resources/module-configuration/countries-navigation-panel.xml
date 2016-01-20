@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
                xmlns:act="https://cm5.intertrust.ru/config/action">
-    <navigation name="panel" level2-panel-width="220px"  level2-default-state="unpinned"  margin-size="default" text-auto-cut="false"
-                                                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+    <navigation name="panel" level2-panel-width="220px" level2-default-state="unpinned" margin-size="default"
+                text-auto-cut="false"
+                is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
                 <link name="Calendar1" display-text="Календарь1">
                     <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                        <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                             <calendar-view>
                                 <collection-ref name="letters"/>
                                 <date-field-path value="actual_start_period"/>
@@ -16,14 +17,17 @@
                                     <sort-criterion field="created_date" order="asc"/>
                                 </sort-criteria>
                                 <month-item type="link">
-                                    <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                                    <pattern
+                                            value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
                                 </month-item>
                                 <day-items>
                                     <day-item type="link">
-                                        <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                                        <pattern
+                                                value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
                                     </day-item>
                                     <day-item type="label">
-                                        <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                                        <pattern
+                                                value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
                                     </day-item>
                                 </day-items>
                                 <image-field name="letter_image">
@@ -37,125 +41,127 @@
                 </link>
             </child-links>
         </link>
+        <!--
+                <link name="events" display-text="События" image="images/calendar.png" child-to-open="link_events">
+                    <child-links>
+                        <link name="link_events" display-text="Список событий">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="Occa_Occasion_Fixed">
+                                    <collection-viewer>
+                                        <act:tool-bar useDefault="false">
+                                            <act:action name="aCreate" componentName="create.new.object.action"
+                                                        text="Создать фиксированное"
+                                                        tooltip="Создать новое с фиксированной датой"
+                                                        imageClass="actionBar-create" order="100"
+                                                        dirtySensitivity="true" permissions="Create">
+                                                <act:action-params>
+                                                    <act:action-param name="create.object.type" value="Occa_Occasion_Fixed"/>
+                                                </act:action-params>
+                                            </act:action>
 
-        <!--<link name="events" display-text="События" image="images/calendar.png" child-to-open="link_events">
-            <child-links>
-                <link name="link_events" display-text="Список событий">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="Occa_Occasion_Fixed">
-                            <collection-viewer>
-                                <act:tool-bar useDefault="false">
-                                    <act:action name="aCreate" componentName="create.new.object.action"
-                                                text="Создать фиксированное"
-                                                tooltip="Создать новое с фиксированной датой"
-                                                imageClass="actionBar-create" order="100"
-                                                dirtySensitivity="true" permissions="Create">
-                                        <act:action-params>
-                                            <act:action-param name="create.object.type" value="Occa_Occasion_Fixed"/>
-                                        </act:action-params>
-                                    </act:action>
+                                            <act:action name="aCreate" componentName="create.new.object.action"
+                                                        text="Создать вычисляемое" tooltip="Создать событие с вычисляемой датой"
+                                                        imageClass="actionBar-create" order="101"
+                                                        dirtySensitivity="true" permissions="Create">
+                                                <act:action-params>
+                                                    <act:action-param name="create.object.type"
+                                                                      value="Occa_Occasion_Calculated"/>
+                                                </act:action-params>
+                                            </act:action>
+                                            <act:action name="aCreate" componentName="create.new.object.action"
+                                                        text="Создать переходящее" tooltip="Создать событие с переходящей датой"
+                                                        imageClass="actionBar-create" order="102"
+                                                        dirtySensitivity="true" permissions="Create">
+                                                <act:action-params>
+                                                    <act:action-param name="create.object.type" value="Occa_Occasion_Floated"/>
+                                                </act:action-params>
+                                            </act:action>
 
-                                    <act:action name="aCreate" componentName="create.new.object.action"
-                                                text="Создать вычисляемое" tooltip="Создать событие с вычисляемой датой"
-                                                imageClass="actionBar-create" order="101"
-                                                dirtySensitivity="true" permissions="Create">
-                                        <act:action-params>
-                                            <act:action-param name="create.object.type"
-                                                              value="Occa_Occasion_Calculated"/>
-                                        </act:action-params>
-                                    </act:action>
-                                    <act:action name="aCreate" componentName="create.new.object.action"
-                                                text="Создать переходящее" tooltip="Создать событие с переходящей датой"
-                                                imageClass="actionBar-create" order="102"
-                                                dirtySensitivity="true" permissions="Create">
-                                        <act:action-params>
-                                            <act:action-param name="create.object.type" value="Occa_Occasion_Floated"/>
-                                        </act:action-params>
-                                    </act:action>
+                                        </act:tool-bar>
+                                        <collection-ref name="col_events"/>
+                                        <default-sort-criteria column-field="event_date"/>
+                                    </collection-viewer>
+                                    <toggle-edit>true</toggle-edit>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
 
-                                </act:tool-bar>
-                                <collection-ref name="col_events"/>
-                                <default-sort-criteria column-field="event_date"/>
-                            </collection-viewer>
-                            <toggle-edit>true</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
-
-                <link name="OccasionCalendar" display-text="Календарь событий">
-                    <plugin>
-                        <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
-                            <calendar-view>
-                                <collection-ref name="col_events"/>
-                                <date-field-path value="event_date"/>
-                                <date-field-filter name="byEventDate" type="timelessDate"/>
-                                <sort-criteria>
-                                    <sort-criterion field="event_date" order="asc"/>
-                                </sort-criteria>
-                                <month-item type="link">
-                                    <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;&lt;/br&gt;"/>
-                                </month-item>
-                                <day-items>
-                                    <day-item type="link">
-                                        <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;"/>
-                                    </day-item>
-                                    <day-item type="label">
-                                        <pattern value="актуально с {event_date} по {event_date}"/>
-                                    </day-item>
-                                </day-items>
-                                &lt;!&ndash; <image-field name="letter_image">
-                                    <image-mappings imageWidth="10px" imageHeight="10px">
-                                        <mapping value="" image="cancel.png"/>
-                                    </image-mappings>
-                                </image-field> &ndash;&gt;
-                            </calendar-view>
-                        </calendar>
-                    </plugin>
-                </link>
+                        <link name="OccasionCalendar" display-text="Календарь событий">
+                            <plugin>
+                                <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                                    <calendar-view>
+                                        <collection-ref name="col_events"/>
+                                        <date-field-path value="event_date"/>
+                                        <date-field-filter name="byEventDate" type="timelessDate"/>
+                                        <sort-criteria>
+                                            <sort-criterion field="event_date" order="asc"/>
+                                        </sort-criteria>
+                                        <month-item type="link">
+                                            <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;&lt;/br&gt;"/>
+                                        </month-item>
+                                        <day-items>
+                                            <day-item type="link">
+                                                <pattern value="&lt;span style='color:black'&gt;{name}&lt;/span&gt;"/>
+                                            </day-item>
+                                            <day-item type="label">
+                                                <pattern value="актуально с {event_date} по {event_date}"/>
+                                            </day-item>
+                                        </day-items>
+                                        &lt;!&ndash; <image-field name="letter_image">
+                                            <image-mappings imageWidth="10px" imageHeight="10px">
+                                                <mapping value="" image="cancel.png"/>
+                                            </image-mappings>
+                                        </image-field> &ndash;&gt;
+                                    </calendar-view>
+                                </calendar>
+                            </plugin>
+                        </link>
             </child-links>
-        </link>-->
+        </link> -->
         <!--<link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">-->
-            <!--<child-links>-->
-                <!--<link name="Calendar1" display-text="Календар 1">-->
-                    <!--<plugin>-->
-                        <!--<calendar  show-detail-panel="true" show-weekend="true" start-mode="month">-->
-                            <!--<calendar-view>-->
-                                <!--<collection-ref name="Countries"/>-->
-                                <!--<date-field-path value="independence_day"/>-->
-                                <!--<date-field-filter name="byIndependenceDay" type="datetime"/>-->
-                                <!--<sort-criteria>-->
-                                    <!--<sort-criterion field="population" order="asc"/>-->
-                                <!--</sort-criteria>-->
-                                <!--<month-item type="link">-->
-                                    <!--<pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>-->
-                                <!--</month-item>-->
-                                <!--<day-items>-->
-                                    <!--<day-item type="link">-->
-                                        <!--<pattern value="&lt;span style='color:red'&gt;{name}&lt;/span&gt; Население:{population}"/>-->
-                                    <!--</day-item>-->
-                                    <!--<day-item type="label">-->
-                                        <!--<pattern value="Столица: {capital.name}"/>-->
-                                    <!--</day-item>-->
-                                <!--</day-items>-->
-                                <!--<image-field name="population">-->
-                                    <!--<image-mappings imageWidth="30px" imageHeight="30px">-->
-                                        <!--<mapping value="" image="cancel.png"/>-->
-                                        <!--<mapping value="0" image="addButton.png"/>-->
-                                        <!--<mapping value="45469800" image="addButton.png"/>-->
-                                        <!--<mapping value="143548980" image="CMJSpinner.gif"/>-->
-                                    <!--</image-mappings>-->
-                                <!--</image-field>-->
-                            <!--</calendar-view>-->
-                        <!--</calendar>-->
-                    <!--</plugin>-->
-                <!--</link>-->
-            <!--</child-links>-->
+        <!--<child-links>-->
+        <!--<link name="Calendar1" display-text="Календар 1">-->
+        <!--<plugin>-->
+        <!--<calendar  show-detail-panel="true" show-weekend="true" start-mode="month">-->
+        <!--<calendar-view>-->
+        <!--<collection-ref name="Countries"/>-->
+        <!--<date-field-path value="independence_day"/>-->
+        <!--<date-field-filter name="byIndependenceDay" type="datetime"/>-->
+        <!--<sort-criteria>-->
+        <!--<sort-criterion field="population" order="asc"/>-->
+        <!--</sort-criteria>-->
+        <!--<month-item type="link">-->
+        <!--<pattern value="{population} &lt;span style='color:red'&gt;{name}&lt;/span&gt;"/>-->
+        <!--</month-item>-->
+        <!--<day-items>-->
+        <!--<day-item type="link">-->
+        <!--<pattern value="&lt;span style='color:red'&gt;{name}&lt;/span&gt; Население:{population}"/>-->
+        <!--</day-item>-->
+        <!--<day-item type="label">-->
+        <!--<pattern value="Столица: {capital.name}"/>-->
+        <!--</day-item>-->
+        <!--</day-items>-->
+        <!--<image-field name="population">-->
+        <!--<image-mappings imageWidth="30px" imageHeight="30px">-->
+        <!--<mapping value="" image="cancel.png"/>-->
+        <!--<mapping value="0" image="addButton.png"/>-->
+        <!--<mapping value="45469800" image="addButton.png"/>-->
+        <!--<mapping value="143548980" image="CMJSpinner.gif"/>-->
+        <!--</image-mappings>-->
+        <!--</image-field>-->
+        <!--</calendar-view>-->
+        <!--</calendar>-->
+        <!--</plugin>-->
+        <!--</link>-->
+        <!--</child-links>-->
         <!--</link>-->
 
         <!-- Пример на основе "Руководства разработчика"-->
-        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries" tooltip="Вкладка 'География'">
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries"
+              tooltip="Вкладка 'География'">
             <child-links>
-                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран" counter-type="non-read"  auto-cut="true" >
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран"
+                      counter-type="non-read" auto-cut="true">
                     <plugin>
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
@@ -172,6 +178,7 @@
                                 <form-mapping domain-object-type="country" form="country_form"/>
                                 <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
                             </form-viewer>
+                            <toggle-edit switch-to-read-mode-on-save="true">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -194,7 +201,7 @@
                                     <default-sort-criteria column-field="name" order="asc"/>
                                 </child-collection>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="false">true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                     <decorations>
@@ -228,7 +235,7 @@
                             <collection-viewer>
                                 <collection-ref name="a2_collection"/>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -238,7 +245,7 @@
                             <collection-viewer>
                                 <collection-ref name="a3_collection"/>
                             </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
+                            <toggle-edit switch-to-read-mode-on-save="false">false</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>
@@ -318,10 +325,10 @@
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="np1">
                             <collection-viewer>
-                                <collection-ref name="np1_collection" />
+                                <collection-ref name="np1_collection"/>
                             </collection-viewer>
                             <form-viewer>
-                                <form-mapping domain-object-type="np1" form="np1_form" />
+                                <form-mapping domain-object-type="np1" form="np1_form"/>
                             </form-viewer>
                             <toggle-edit>false</toggle-edit>
                         </domain-object-surfer>
@@ -333,6 +340,8 @@
         <link name="Administration" display-text="Состав" image="images/cases.png" child-to-open="Employee">
             <!-- в администрировании не задан плагин, значит по клику ничего открываться не должно, либо должна открываться дочерняя ссылка. дочерняя ссылка должна быть одной из вложенных (1й уровень вложенности). если не задан ни плагин, ни дочерняя ссылка, то данная ссылка является простой группировкой дочерних -->
             <child-links> <!-- group-name параметр не обязательный. Если он задан, то на экране появляется элемент-название группы (см. "Руководство разработчика", раздел Строение системы, Навигационное дерево -> "Стадии и задачи"-->
+
+
                 <link name="Employee" display-text="Сотрудники" image="images/inbox.png" display-counter="true"
                       counter-type="non-read">
                     <plugin>
@@ -501,7 +510,8 @@
                                 <collection-ref name="allSchedule" use-default="false"/>
                                 <default-sort-criteria column-field="name" order="asc"/>
                                 <act:tool-bar useDefault="true">
-                                    <act:simple-action componentName="simple.action" action-handler="schedule-task-execute"
+                                    <act:simple-action componentName="simple.action"
+                                                       action-handler="schedule-task-execute"
                                                        text="Запустить сейчас" permissions="Write">
                                         <act:after-execution>
                                             <act:on-success-message text="Задача будет запущена в течение минуты"/>
@@ -597,7 +607,8 @@
             </child-links>
         </link>
         <link name="InboxTest" display-text="Группа" image="images/meetings.png" child-to-open="TasksTest">
-            <child-links group-name="Группа....................                  1" tooltip="Группа №1" auto-cut="false">
+            <child-links group-name="Группа....................                  1" tooltip="Группа №1"
+                         auto-cut="false">
                 <link name="TasksTest" display-text="Задачи">
 
                     <plugin>
@@ -681,7 +692,8 @@
 
             </child-links>
         </link>
-        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png" child-to-open="ModuleOrganizations">
+        <link name="SochiServer" display-text="Сочи Сервер" image="images/matugalnik2.png"
+              child-to-open="ModuleOrganizations">
             <child-links>
                 <link name="ModuleOrganizations" display-text="Модуль и Организация">
                     <plugin>
@@ -1422,7 +1434,7 @@
                         </domain-object-surfer>
                     </plugin>
                 </link>
-                <link name="link_authentication"  display-text="Данные аутентификации">
+                <link name="link_authentication" display-text="Данные аутентификации">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Authentication_Info">
                             <collection-viewer>
@@ -1439,10 +1451,21 @@
                 </link>
             </child-links>
         </link>
+
+        <link name="Dashboard" display-text="Панель управления" image="images/settings.png"
+              child-to-open="CacheControl">
+            <child-links>
+                <link name="CacheControl" display-text="Управление кэшем">
+                    <plugin>
+                        <global-cache-control statistics-only="false"/>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
     </navigation>
 
-    <navigation name="panel_1" is-default="true">
-        <link name="Geography" display-text="География" image="images/analitika.png" >
+    <navigation name="panel_1" is-default="true" application="geo">
+        <link name="Geography" display-text="География" image="images/analitika.png">
             <plugin>
                 <!--domain-object-type-to-create="country" - temp solution - remove later-->
                 <domain-object-surfer domain-object-type-to-create="country">
@@ -1467,9 +1490,9 @@
             </plugin>
 
         </link>
-        <link name="Calendar" display-text="Календарь" image="images/calendar.png" >
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png">
             <plugin>
-                <calendar  show-detail-panel="true" show-weekend="true" start-mode="month">
+                <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
                     <calendar-view>
                         <collection-ref name="letters"/>
                         <date-field-path value="actual_start_period"/>
@@ -1478,14 +1501,17 @@
                             <sort-criterion field="created_date" order="asc"/>
                         </sort-criteria>
                         <month-item type="link">
-                            <pattern value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                            <pattern
+                                    value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
                         </month-item>
                         <day-items>
                             <day-item type="link">
-                                <pattern value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                                <pattern
+                                        value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
                             </day-item>
                             <day-item type="label">
-                                <pattern value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                                <pattern
+                                        value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
                             </day-item>
                         </day-items>
                         <image-field name="letter_image">
@@ -1499,6 +1525,7 @@
 
         </link>
     </navigation>
+
 
     <navigation name="panel_2" is-default="false" merge="true">
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
@@ -1646,6 +1673,212 @@
         </link>
     </navigation>
 
+    <navigation name="panel_8" is-default="false" application="calenda">
+
+        <link name="Calendar" display-text="Календарь" image="images/calendar.png">
+            <plugin>
+                <calendar show-detail-panel="true" show-weekend="true" start-mode="month">
+                    <calendar-view>
+                        <collection-ref name="letters"/>
+                        <date-field-path value="actual_start_period"/>
+                        <date-field-filter name="byActualStartPeriod" type="datetime"/>
+                        <sort-criteria>
+                            <sort-criterion field="created_date" order="asc"/>
+                        </sort-criteria>
+                        <month-item type="link">
+                            <pattern
+                                    value="&lt;span style='color:red; font-weight:bold'&gt;{subject}&lt;/span&gt;&lt;/br&gt;"/>
+                        </month-item>
+                        <day-items>
+                            <day-item type="link">
+                                <pattern
+                                        value="&lt;span style='color:red'&gt;{subject}&lt;/span&gt; &lt;/br&gt; Дата создания:{created_date}"/>
+                            </day-item>
+                            <day-item type="label">
+                                <pattern
+                                        value="&lt;/span&gt;&lt;/br&gt;актуально с {actual_start_period} по {actual_end_period}"/>
+                            </day-item>
+                        </day-items>
+                        <image-field name="letter_image">
+                            <image-mappings imageWidth="10px" imageHeight="10px">
+                                <mapping value="" image="cancel.png"/>
+                            </image-mappings>
+                        </image-field>
+                    </calendar-view>
+                </calendar>
+            </plugin>
+
+        </link>
+
+        <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries"
+              tooltip="Вкладка 'География'">
+            <child-links>
+                <link name="Countries" display-text="Страны, текст этого линка может не поместиться на весь экран"
+                      counter-type="non-read" auto-cut="true">
+                    <plugin>
+                        <!--domain-object-type-to-create="country" - temp solution - remove later-->
+                        <domain-object-surfer domain-object-type-to-create="country">
+                            <collection-viewer>
+                                <collection-ref name="Countries"/>
+                                <default-sort-criteria column-field="name" order="desc"/>
+                                <search-area-ref name="Countries-Search-Area"/>
+                                <search-collection-ref name="Countries"/>
+                                <filter-panel panel-state="open"/>
+                                <rows-selection default-state="empty"/>
+                            </collection-viewer>
+                            <!--form-viewer form-mapping-component="custom.mapping.component"/-->
+                            <form-viewer>
+                                <form-mapping domain-object-type="country" form="country_form"/>
+                                <form-mapping domain-object-type="superCountry" form="my-custom-form"/>
+                            </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="Cities" display-text="Города, текст этого линка может не поместиться на весь экран">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="city">
+                            <collection-viewer>
+                                <collection-ref name="Cities"/>
+                                <default-sort-criteria column-field="population" order="desc"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                    <decorations>
+                        <collection-counter/>
+                    </decorations>
+                </link>
+                <link name="CountryUnions" display-text="Союзы">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="country_union">
+                            <collection-viewer>
+                                <collection-ref name="CountryUnions"/>
+                                <default-sort-criteria column-field="name" order="ask"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest1" display-text="Механизм форм 1">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a1">
+                            <collection-viewer>
+                                <collection-ref name="a1_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest2" display-text="Механизм форм 2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a2">
+                            <collection-viewer>
+                                <collection-ref name="a2_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest3" display-text="Механизм форм 3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a3">
+                            <collection-viewer>
+                                <collection-ref name="a3_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest4" display-text="Механизм форм 4">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="a4">
+                            <collection-viewer>
+                                <collection-ref name="a4_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTest4_1" display-text="Механизм форм 5">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="c4">
+                            <collection-viewer>
+                                <collection-ref name="c4_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest" display-text="Наследование форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest2" display-text="Наследование форм2">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsExtensionTest3" display-text="Наследование форм3">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_child_child_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="FormsTemplatesTest" display-text="Шаблоны форм">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="ex1">
+                            <collection-viewer>
+                                <collection-ref name="ex1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="ex1" form="ex1_form_with_templates"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+                <link name="NoPermissionTest" display-text="Права для связанной таблицы" auto-cut="true">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="np1">
+                            <collection-viewer>
+                                <collection-ref name="np1_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="np1" form="np1_form"/>
+                            </form-viewer>
+                            <toggle-edit>false</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+            </child-links>
+        </link>
+
+    </navigation>
+
     <navigation-panel-mappings name="nav-panel-map1">
         <navigation-panel-mapping name="panel">
             <users>
@@ -1658,11 +1891,12 @@
             </groups-->
         </navigation-panel-mapping>
 
+
         <navigation-panel-mapping name="panel_1">
 
-           <!-- <groups>
-                <group-name value="test-group-1" priority="10"/>
-            </groups>-->
+            <!-- <groups>
+                 <group-name value="test-group-1" priority="10"/>
+             </groups>-->
         </navigation-panel-mapping>
     </navigation-panel-mappings>
 
@@ -1677,5 +1911,6 @@
             </groups>
         </navigation-panel-mapping>
     </navigation-panel-mappings>
+
 
 </configuration>

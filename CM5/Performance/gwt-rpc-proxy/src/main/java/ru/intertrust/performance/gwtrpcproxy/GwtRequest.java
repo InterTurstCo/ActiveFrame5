@@ -13,11 +13,32 @@ public class GwtRequest {
     private String body;
     @Attribute(name="content-type", required=false)
     private String contentType;
+    @Attribute(name="service-class", required=false)
+    private String serviceClass;
+    @Attribute(name="service-method", required=false)
+    private String serviceMethod;
     @Element(name="file", required=false)
     private FileInfo file;
     @Element(name="json", required=false)
     private String json;
+    @Element(name="serialization-policy-strong-name", required=false)
+    private String serializationPolicyStrongName;
+    @Element(name="module-base-url", required=false)
+    private String moduleBaseUrl;
     
+
+    public String getServiceMethod() {
+        return serviceMethod;
+    }
+    public void setServiceMethod(String serviceMethod) {
+        this.serviceMethod = serviceMethod;
+    }
+    public String getServiceClass() {
+        return serviceClass;
+    }
+    public void setServiceClass(String serviceClass) {
+        this.serviceClass = serviceClass;
+    }
     public String getMethod() {
         return method;
     }
@@ -53,6 +74,17 @@ public class GwtRequest {
     }
     public void setJson(String json) {
         this.json = json;
-    } 
-    
+    }
+    public String getSerializationPolicyStrongName() {
+        return serializationPolicyStrongName;
+    }
+    public void setSerializationPolicyStrongName(String serializationPolicyStrongName) {
+        this.serializationPolicyStrongName = serializationPolicyStrongName;
+    }
+    public void setModuleBaseUrl(String moduleBaseUrl) {
+        this.moduleBaseUrl = moduleBaseUrl;
+    }     
+    public String getModuleBaseUrl() {
+        return moduleBaseUrl;
+    }     
 }

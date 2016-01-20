@@ -232,7 +232,7 @@ public class TestPermission extends ClientBase {
             }            
 
             
-            //Статус "Complete" отсутствует в матрице, при переходе в этот статус прав должны обнулятся полностью
+            //Статус "Complete" отсутствует в матрице, при переходе в этот статус права должны обнулиться полностью
             internalDocument.setString("State", "Complete");
             internalDocument = getCrudService().save(internalDocument);
             etalon = new EtalonPermissions();
@@ -378,7 +378,36 @@ public class TestPermission extends ClientBase {
             //Проверка создания обьектов и наличия к ним доступа из той же транзакции CMFIVE-1779
             DomainObject country1 = notAdminCrudservice.createDomainObject("country");
             country1.setString("name", "Name-" + System.nanoTime());
-            notAdminCrudservice.save(country1);
+            country1 = notAdminCrudservice.save(country1);
+            
+            // То же самое но для read-everybody (CMFIVE-4778)
+            DomainObject testType17 = notAdminCrudservice.createDomainObject("test_type_17");
+            testType17.setString("name", "Name-" + System.nanoTime());
+            testType17 = notAdminCrudservice.save(testType17);
+            
+            //И дочерний тип
+            DomainObject testType19 = notAdminCrudservice.createDomainObject("test_type_19");
+            testType19.setString("name", "Name-" + System.nanoTime());
+            testType19 = notAdminCrudservice.save(testType19);
+                        
+            // То же самое но для matrix-reference (CMFIVE-4778)
+            DomainObject testType18 = notAdminCrudservice.createDomainObject("test_type_18");
+            testType18.setString("name", "Name-" + System.nanoTime());
+            testType18.setReference("test_type_17", testType17.getId());
+            testType18 = notAdminCrudservice.save(testType18);
+            
+            DomainObject testType20 = notAdminCrudservice.createDomainObject("test_type_20");
+            testType20.setString("name", "Name-" + System.nanoTime());
+            testType20.setReference("test_type_17", testType19.getId());
+            testType20 = notAdminCrudservice.save(testType20);
+
+            
+            getCrudService().delete(country1.getId());
+            getCrudService().delete(testType18.getId());
+            getCrudService().delete(testType17.getId());
+            getCrudService().delete(testType20.getId());
+            getCrudService().delete(testType19.getId());
+            
             
             //Проверка мапинга прав
             notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
@@ -438,6 +467,15 @@ public class TestPermission extends ClientBase {
             assertTrue("Test 13 check write access", accessVerificationService.isWritePermitted(test13AuditId));
 
             assertFalse("Test 13 check delete access", accessVerificationService.isDeletePermitted(test13AuditId));
+            
+            //Проверка удаление ДО при наличие в матрице статичной группы и роли
+            DomainObject testType21 = getCrudService().createDomainObject("test_type_21");
+            testType21.setString("description", "_" + System.currentTimeMillis());
+            testType21.setReference("author", getPersonId("admin"));
+            testType21 = getCrudService().save(testType21);
+            
+            getCrudService().delete(testType21.getId());
+            log("Test delete DO with static group and context role: OK");
             
             log("Test complete");
         } finally {

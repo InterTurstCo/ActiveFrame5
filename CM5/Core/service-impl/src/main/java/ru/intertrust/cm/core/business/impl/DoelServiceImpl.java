@@ -18,6 +18,8 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "DoelService")
 @Local(DoelService.class)
@@ -31,14 +33,30 @@ public class DoelServiceImpl implements DoelService {
 
     @Override
     public <T extends Value> List<T> evaluate(String expression, Id contextId) {
-        AccessToken accessToken = accessControlService.createCollectionAccessToken(
-                currentUserAccessor.getCurrentUser());
-        return doelEvaluator.evaluate(DoelExpression.parse(expression), contextId, accessToken);
+        try {
+            AccessToken accessToken = accessControlService.createCollectionAccessToken(
+                    currentUserAccessor.getCurrentUser());
+            return doelEvaluator.evaluate(DoelExpression.parse(expression), contextId, accessToken);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("DoelService", "evaluate", "expression:" + expression +
+                    ", contextId:" + contextId, ex);
+        }
     }
 
     @Override
     public <T extends Value> T evaluate(String expression, Id contextId, Class<T> valueClass) {
-        List<T> values = evaluate(expression, contextId);
+        List<T> values;
+        try {
+            values = evaluate(expression, contextId);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("DoelService", "evaluate", "expression:" + expression +
+                    ", contextId:" + contextId + ", valueClass:" + valueClass, ex);
+        }
+
         switch(values.size()) {
         case 0:
             return null;

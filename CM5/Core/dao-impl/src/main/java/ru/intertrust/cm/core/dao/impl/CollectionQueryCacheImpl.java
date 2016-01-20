@@ -1,16 +1,10 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.LruLimitedSynchronizedMap;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
@@ -18,6 +12,12 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
+import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
+import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
+import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 
@@ -27,7 +27,8 @@ import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
 
-    public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap <>();
+    public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap<>();
+    private static Map<CollectionTypesKey, Set<String>> collectionDomainObjectTypes = new LruLimitedSynchronizedMap<>(10000);
 
     private static final Logger logger = LoggerFactory.getLogger(CollectionQueryCacheImpl.class);
 
@@ -317,12 +318,32 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         }
     }
 
+    @Override
+    public Set<String> getCollectionDomainObjectTypes(String collectionName, Set<String> filterNames) {
+        return collectionDomainObjectTypes.get(new NamedCollectionTypesKey(collectionName, filterNames));
+    }
+
+    @Override
+    public void putCollectionDomainObjectTypes(String collectionName, Set<String> filterNames, Set<String> types) {
+        collectionDomainObjectTypes.put(new NamedCollectionTypesKey(collectionName, filterNames), Collections.unmodifiableSet(types));
+    }
+
+    @Override
+    public Set<String> getCollectionDomainObjectTypes(String query) {
+        return collectionDomainObjectTypes.get(new QueryCollectionTypesKey(query));
+    }
+
+    @Override
+    public void putCollectionDomainObjectTypes(String query, Set<String> types) {
+        collectionDomainObjectTypes.put(new QueryCollectionTypesKey(query), Collections.unmodifiableSet(types));
+    }
+
     public Integer getCacheMaxSize() {
         CollectionQueryCacheConfig collectionQueryCache = configurationExplorer.getGlobalSettings().getCollectionQueryCacheConfig();
         if (collectionQueryCache != null) {
             return collectionQueryCache.getMaxSize();
         } else {
-            return new Integer(0);
+            return 1000;
         }
     }
     
@@ -339,6 +360,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     @Override
     public void clearCollectionQueryCache() {
         collectionQueryCache.clear();
+        collectionDomainObjectTypes.clear();
     }
 
 }

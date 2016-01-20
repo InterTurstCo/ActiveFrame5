@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.form.processor.impl;
 
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.FormProcessingUtil;
 import ru.intertrust.cm.core.config.form.processor.FormTemplateProcessor;
@@ -7,7 +8,6 @@ import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.template.FormTableTemplateConfig;
 import ru.intertrust.cm.core.config.gui.form.template.TemplateBasedTableConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +20,6 @@ import java.util.List;
 public class TableTemplateProcessor implements FormTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
-
-    private ObjectCloner clonePerformer;
-
-    public TableTemplateProcessor() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -130,7 +124,7 @@ public class TableTemplateProcessor implements FormTemplateProcessor {
     }
 
     private TableLayoutConfig processTableTemplate(TableLayoutConfig template, String idsPrefix) {
-        TableLayoutConfig result = clonePerformer.cloneObject(template);
+        TableLayoutConfig result = ObjectCloner.getInstance().cloneObject(template);
         if (idsPrefix != null) {
             FormProcessingUtil.processTableIds(idsPrefix, result);
         }

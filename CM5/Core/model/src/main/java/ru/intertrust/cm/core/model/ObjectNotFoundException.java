@@ -7,7 +7,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  * @author skashanski
  *
  */
-public class ObjectNotFoundException extends SystemException {
+public class ObjectNotFoundException extends NonRollingBackException {
 
     private final Id id;
 

@@ -15,10 +15,6 @@ public class OlsonTimeZoneContext extends TimeZoneContext {
         this.timeZoneId = timeZoneId;
     }
 
-    public void setTimeZoneId(String timeZoneId) {
-        this.timeZoneId = timeZoneId;
-    }
-
     @Override
     public String getTimeZoneId() {
         return timeZoneId;

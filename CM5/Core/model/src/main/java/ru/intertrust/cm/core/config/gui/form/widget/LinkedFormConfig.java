@@ -82,6 +82,14 @@ public class LinkedFormConfig implements Dto{
         this.resizable = resizable;
     }
 
+    public void setModalWidth(String modalWidth) {
+        this.modalWidth = modalWidth;
+    }
+
+    public void setModalHeight(String modalHeight) {
+        this.modalHeight = modalHeight;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

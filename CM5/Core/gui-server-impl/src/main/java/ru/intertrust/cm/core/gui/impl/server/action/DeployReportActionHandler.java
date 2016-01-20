@@ -53,7 +53,7 @@ public class DeployReportActionHandler extends ActionHandler<DeployReportActionC
                 e.printStackTrace(); //TODO: handle exception
             }
         }
-        reportServiceAdmin.deploy(deployData);
+        reportServiceAdmin.deploy(deployData, true);
 
         return new SimpleActionData();
     }

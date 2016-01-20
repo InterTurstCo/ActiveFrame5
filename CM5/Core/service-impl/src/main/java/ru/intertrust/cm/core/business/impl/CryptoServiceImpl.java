@@ -36,6 +36,8 @@ import ru.intertrust.cm.core.config.crypto.TypeCryptoSettingsConfig;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.model.FatalException;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "CryptoService")
 @Local(CryptoService.class)
@@ -68,17 +70,36 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
 
     @Override
     public VerifyResult verify(InputStream document) {
-        return cryptoBean.verify(document);
+        try {
+            return cryptoBean.verify(document);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document, ex);
+        }
     }
 
     @Override
     public VerifyResult verify(InputStream document, byte[] signature) {
-        return cryptoBean.verify(document, signature);
+        try {
+            return cryptoBean.verify(document, signature);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document + ", signature:" + signature, ex);
+        }
     }
 
     @Override
     public VerifyResult verify(InputStream document, byte[] signature, byte[] signerSertificate) {
-        return cryptoBean.verify(document, signature, signerSertificate);
+        try {
+            return cryptoBean.verify(document, signature, signerSertificate);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "verify", "document:" + document + ", signature:" +
+                    signature + ", signerSertificate:" + signerSertificate, ex);
+        }
     }
 
     @Override
@@ -124,7 +145,7 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
             } else {
                 throw new FatalException("Type crypto settings not found for type " + rootType);
             }
-        } catch (FatalException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new FatalException("Error verify attachments signature", ex);
@@ -140,7 +161,13 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
 
     @Override
     public CryptoSettingsConfig getCryptoSettingsConfig() {
-        return configurationExplorer.getGlobalSettings().getCryptoSettingsConfig();
+        try {
+            return configurationExplorer.getGlobalSettings().getCryptoSettingsConfig();
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl getCryptoSettingsConfig", ex);
+        }
     }
 
     private TypeCryptoSettingsConfig getTypeCryptoSettingsConfig(String rootTypeName) {
@@ -178,58 +205,87 @@ public class CryptoServiceImpl implements CryptoService, ApplicationListener<Con
 
     @Override
     public void saveSignedResult(SignedResultItem signedResult) {
-        String signedType = domainObjectTypeIdCache.getName(signedResult.getId());
-        TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
+        try {
+            String signedType = domainObjectTypeIdCache.getName(signedResult.getId());
+            TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
 
-        if (config != null) {
-            String signatureStorageBeanName = config.getSignatureStorageBeanName();
-            SignatureStorageService signatureResultService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
-            signatureResultService.saveSignature(config.getSignatureStorageBeanSettings(), signedResult);
-        } else {
-            throw new FatalException("Type crypto settings not found for type " + signedType);
+            if (config != null) {
+                String signatureStorageBeanName = config.getSignatureStorageBeanName();
+                SignatureStorageService signatureResultService = (SignatureStorageService) context.getBean(signatureStorageBeanName);
+                signatureResultService.saveSignature(config.getSignatureStorageBeanSettings(), signedResult);
+            } else {
+                throw new FatalException("Type crypto settings not found for type " + signedType);
+            }
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "saveSignedResult", "signedResult:" + signedResult, ex);
         }
     }
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent event) {
-        //Очищаем кэш
-        typeCryptoConfigs.clear();
-
+        try {
+            //Очищаем кэш
+            typeCryptoConfigs.clear();
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "onApplicationEvent", "event:" + event, ex);
+        }
     }
 
     @Override
     public byte[] hash(InputStream document) {
-        return cryptoBean.hash(document);
+        try {
+            return cryptoBean.hash(document);
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "hash", "document:" + document, ex);
+        }
     }
 
     @Override
     public SignedDataItem getContentForSignature(Id id) {
-        String signedType = domainObjectTypeIdCache.getName(id);
-        TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
-        SignedDataItem result = null;
-        if (config != null) {
-            String getContentBeanName = config.getGetContentBeanName();
-            SignatureDataService signatureDataService = (SignatureDataService) context.getBean(getContentBeanName);
-            result = signatureDataService.getContentForSignature(config.getGetContentBeanSettings(), id);
-        } else {
-            throw new FatalException("Type crypto settings not found for type " + signedType);
+        try {
+            String signedType = domainObjectTypeIdCache.getName(id);
+            TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
+            SignedDataItem result = null;
+            if (config != null) {
+                String getContentBeanName = config.getGetContentBeanName();
+                SignatureDataService signatureDataService = (SignatureDataService) context.getBean(getContentBeanName);
+                result = signatureDataService.getContentForSignature(config.getGetContentBeanSettings(), id);
+            } else {
+                throw new FatalException("Type crypto settings not found for type " + signedType);
+            }
+            return result;
+        } catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "getContentForSignature", "id:" + id, ex);
         }
-        return result;
     }
 
     @Override
     public List<Id> getBatchForSignature(Id rootId) {
-        String signedType = domainObjectTypeIdCache.getName(rootId);
-        TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
-        List<Id> result = null;
-        if (config != null) {
-            String getContentBeanName = config.getGetContentBeanName();
-            SignatureDataService signatureDataService = (SignatureDataService) context.getBean(getContentBeanName);
-            result = signatureDataService.getBatchForSignature(config.getGetContentBeanSettings(), rootId);
-        } else {
-            throw new FatalException("Type crypto settings not found for type " + signedType);
+        try {
+            String signedType = domainObjectTypeIdCache.getName(rootId);
+            TypeCryptoSettingsConfig config = getTypeCryptoSettingsConfig(signedType);
+            List<Id> result = null;
+            if (config != null) {
+                String getContentBeanName = config.getGetContentBeanName();
+                SignatureDataService signatureDataService = (SignatureDataService) context.getBean(getContentBeanName);
+                result = signatureDataService.getBatchForSignature(config.getGetContentBeanSettings(), rootId);
+            } else {
+                throw new FatalException("Type crypto settings not found for type " + signedType);
+            }
+            return result;
+        }  catch (SystemException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UnexpectedException("CryptoServiceImpl", "getBatchForSignature", "rootId:" + rootId, ex);
         }
-        return result;
     }
 
 }

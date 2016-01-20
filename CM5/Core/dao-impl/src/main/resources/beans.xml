@@ -86,7 +86,9 @@
 
     <bean id="initializationLockDao" factory-bean="daoFactory" factory-method="createInitializationLockDao"/>
 
-    <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao"/>
+    <bean id="collectionsDao" factory-bean="daoFactory" factory-method="createCollectionsDao">
+        <property name="globalCacheClient" ref="globalCacheClient"/>
+    </bean>
 
     <bean id="statusDao" factory-bean="daoFactory" factory-method="createStatusDao"/>
 
@@ -98,7 +100,7 @@
 
     <bean id="personManagement" factory-bean="daoFactory" factory-method="createPersonManagementServiceDao"/>
 
-    <bean id="domainObjectQueryHelper" class="ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper"/>
+    <bean id="domainObjectQueryHelper" factory-bean="daoFactory" factory-method="createQueryHelper"/>
 
     <bean id="identifiableObjectConverter" class="ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter"/>
 
@@ -127,7 +129,7 @@
 
     <bean id="collectionQueryCache"
           class="ru.intertrust.cm.core.dao.impl.CollectionQueryCacheImpl" init-method="init"/>
-          
+
     <bean id="userGroupGlobalCache"
           class="ru.intertrust.cm.core.dao.impl.access.UserGroupGlobalCacheImpl" />
 
@@ -152,6 +154,16 @@
 
     <bean id="sqlLoggerEnforcer" class="ru.intertrust.cm.core.dao.impl.SqlLoggerEnforcerImpl"/>
 
+    <bean id="delegatingGlobalCacheClientFactory" class="ru.intertrust.cm.core.dao.impl.DelegatingGlobalCacheClientFactory"/>
+
+    <bean id="globalCacheClient" factory-bean="delegatingGlobalCacheClientFactory" factory-method="getGlobalCacheClient">
+        <property name="collectionsDao" ref="collectionsDao"/>
+    </bean>
+
+    <bean id="fieldConfigDbValidator" class="ru.intertrust.cm.core.dao.impl.FieldConfigDbValidatorImpl" />
+
+    <bean id="configurationDbValidator" class="ru.intertrust.cm.core.dao.impl.ConfigurationDbValidatorImpl" />
+
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"
                     business-interface="ru.intertrust.cm.core.dao.api.EventLogService"/>
@@ -160,9 +172,13 @@
                     jndi-name="java:module/AfterCommitExtensionPointService!ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService"
                     business-interface="ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService"/>
 
+    <jee:local-slsb id="permissionsAfterCommit"
+                    jndi-name="java:module/PermissionAfterCommitImpl!ru.intertrust.cm.core.dao.impl.access.PermissionAfterCommit"
+                    business-interface="ru.intertrust.cm.core.dao.impl.access.PermissionAfterCommit"/>
+
     <beans profile="default">
         <bean id="attachmentContentDao"
-            class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
+              class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
     </beans>
 
 </beans>

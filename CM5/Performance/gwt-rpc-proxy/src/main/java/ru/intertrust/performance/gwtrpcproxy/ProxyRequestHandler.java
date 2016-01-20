@@ -21,8 +21,11 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExchange> {
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRequestHandler.class);
 
     private final HttpHost target;
     private final HttpAsyncRequester executor;
@@ -66,8 +69,7 @@ public class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExc
             final HttpContext context) throws HttpException, IOException {
         synchronized (httpExchange) {
             Exception ex = httpExchange.getException();
-            if (ex != null) {
-                System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
+            if (ex != null) {                
                 int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
                 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
                         EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
@@ -77,12 +79,12 @@ public class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExc
                 }
                 response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
                 responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
-                System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
+                logger.error("[client<-proxy] error response triggered " + httpExchange.getId(), ex);
             }
             HttpResponse response = httpExchange.getResponse();
             if (response != null) {
                 responseTrigger.submitResponse(new ProxyResponseProducer(httpExchange));
-                System.out.println("[client<-proxy] " + httpExchange.getId() + " response triggered");
+                logger.info("[client<-proxy] " + httpExchange.getId() + " response triggered");
             }
             // No response yet.
             httpExchange.setResponseTrigger(responseTrigger);

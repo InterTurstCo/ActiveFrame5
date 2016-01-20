@@ -9,7 +9,7 @@
         <session-timeout>30</session-timeout>
         <!-- minutes -->
     </session-config>
-    
+
     <context-param>
         <param-name>parentContextKey</param-name>
         <param-value>ear.context</param-value>

@@ -20,6 +20,8 @@ import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
 import ru.intertrust.cm.core.dao.access.ExecuteActionAccessType;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless
 @Local(AccessVerificationService.class)
@@ -37,98 +39,140 @@ public class AccessVerificationServiceImpl implements AccessVerificationService 
 
     @Override
     public boolean isReadPermitted(Id objectId) {
-
-        String currentUser = currentUserAccessor.getCurrentUser();
-
-        AccessToken accessToken = accessControlService.createAccessToken(currentUser, objectId, DomainObjectAccessType.READ);
-
         try {
-            accessControlService.verifyDeferredAccessToken(accessToken, objectId, DomainObjectAccessType.READ);
-        } catch (AccessException ex) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Read permission to " + objectId + " is denied for user:" + currentUser);
-            }
-            return false;
+            String currentUser = currentUserAccessor.getCurrentUser();
 
+            AccessToken accessToken = accessControlService.createAccessToken(currentUser, objectId, DomainObjectAccessType.READ);
+
+            try {
+                accessControlService.verifyDeferredAccessToken(accessToken, objectId, DomainObjectAccessType.READ);
+            } catch (AccessException ex) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Read permission to " + objectId + " is denied for user:" + currentUser);
+                }
+                return false;
+
+            }
+            return true;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isReadPermitted", "objectId:" + objectId, e);
         }
-        return true;
     }
 
     @Override
     public boolean isWritePermitted(Id objectId) {
-        String currentUser = currentUserAccessor.getCurrentUser();
-        boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.WRITE);
-        if (!result){
-            if (logger.isDebugEnabled()) {
-                logger.debug("Write permission to " + objectId + " is denied for user:" + currentUser);
+        try {
+            String currentUser = currentUserAccessor.getCurrentUser();
+            boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.WRITE);
+            if (!result){
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Write permission to " + objectId + " is denied for user:" + currentUser);
+                }
             }
+            return result;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isWritePermitted", "objectId:" + objectId, e);
         }
-        return result;
     }
 
     @Override
     public boolean isDeletePermitted(Id objectId) {
-        String currentUser = currentUserAccessor.getCurrentUser();
-        boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.DELETE);
-        if (!result) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Delete permission to " + objectId + " is denied for user:" + currentUser);
+        try {
+            String currentUser = currentUserAccessor.getCurrentUser();
+            boolean result = accessControlService.verifyAccess(currentUser, objectId, DomainObjectAccessType.DELETE);
+            if (!result) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Delete permission to " + objectId + " is denied for user:" + currentUser);
+                }
             }
+            return result;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isDeletePermitted", "objectId:" + objectId, e);
         }
-        return result;
     }
 
     @Override
     public boolean isCreatePermitted(String domainObjectType) {
-
-        String currentUser = currentUserAccessor.getCurrentUser();
         try {
-            accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType, null);
-        } catch (AccessException ex) {
-            return false;
+            String currentUser = currentUserAccessor.getCurrentUser();
+            try {
+                accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType, null);
+            } catch (AccessException ex) {
+                return false;
+            }
+            return true;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isCreatePermitted",
+                    "domainObjectType:" + domainObjectType, e);
         }
-        return true;
     }
     
     @Override
     public boolean isCreatePermitted(DomainObject domainObject) {
-
-        String currentUser = currentUserAccessor.getCurrentUser();
         try {
-            accessControlService.createDomainObjectCreateToken(currentUser, domainObject);
-        } catch (AccessException ex) {
-            return false;
+            String currentUser = currentUserAccessor.getCurrentUser();
+            try {
+                accessControlService.createDomainObjectCreateToken(currentUser, domainObject);
+            } catch (AccessException ex) {
+                return false;
+            }
+            return true;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isCreatePermitted",
+                    "domainObject:" + domainObject, e);
         }
-        return true;
     }
 
     @Override
     public boolean isCreateChildPermitted(String domainObjectType, Id parentObjectId) {
-
-        String currentUser = currentUserAccessor.getCurrentUser();
         try {
-            accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType,
-                    new Id[] {parentObjectId });
-        } catch (AccessException ex) {
-            return false;
+            String currentUser = currentUserAccessor.getCurrentUser();
+            try {
+                accessControlService.createDomainObjectCreateToken(currentUser, domainObjectType,
+                        new Id[] {parentObjectId });
+            } catch (AccessException ex) {
+                return false;
+            }
+            return true;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isCreateChildPermitted",
+                    "domainObjectType:" + domainObjectType + ", parentObjectId:" + parentObjectId, e);
         }
-        return true;
     }
     
     @Override
     public boolean isExecuteActionPermitted(String actionName, Id objectId) {
-        AccessType accessType = new ExecuteActionAccessType(actionName);
-        String currentUser = currentUserAccessor.getCurrentUser();
-
         try {
-            accessControlService.createAccessToken(currentUser, objectId, accessType);
-        } catch (AccessException ex) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Execute action " + actionName + " on object " + objectId + " is denied for user:" + currentUser);
-            }
-            return false;
-        }
+            AccessType accessType = new ExecuteActionAccessType(actionName);
+            String currentUser = currentUserAccessor.getCurrentUser();
 
-        return true;
+            try {
+                accessControlService.createAccessToken(currentUser, objectId, accessType);
+            } catch (AccessException ex) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Execute action " + actionName + " on object " + objectId + " is denied for user:" + currentUser);
+                }
+                return false;
+            }
+
+            return true;
+        } catch (SystemException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedException("AccessVerificationService", "isExecuteActionPermitted",
+                    "actionName:" + actionName + ", objectId:" + objectId, e);
+        }
     }
 }

@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.stereotype.Service;
-
 import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -12,8 +11,6 @@ import javax.naming.NamingException;
 import javax.transaction.Status;
 import javax.transaction.Synchronization;
 import javax.transaction.TransactionSynchronizationRegistry;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -117,6 +114,9 @@ public class UserTransactionServiceImpl implements UserTransactionService{
     }
 
     static private class ListenerBasedSynchronization implements Synchronization {
+        private enum Operation {
+            BeforeCommit, AfterCommit, Rollback
+        }
         List<ActionListener> actionListeners;
 
         public ListenerBasedSynchronization(List list) {
@@ -126,28 +126,53 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         @Override
         public void beforeCompletion() {
             //Идем с конца спсика, чтобы не получить ошибку модификации списка в итераторе
-            //for (ActionListener l : actionListeners) {
-            for (int i=actionListeners.size()-1; i>=0; i--){
-                actionListeners.get(i).onBeforeCommit();
-            }
+            notifyListeners(Operation.BeforeCommit);
         }
 
         @Override
         public void afterCompletion(int status) {
             try {
                 if (Status.STATUS_ROLLEDBACK == status) {
-                    //for (ActionListener l : actionListeners) {
-                    for (int i=actionListeners.size()-1; i>=0; i--){
-                        actionListeners.get(i).onRollback();
-                    }
-                }else if(Status.STATUS_COMMITTED == status){
-                    for (int i=actionListeners.size()-1; i>=0; i--){
-                        actionListeners.get(i).onAfterCommit();
-                    }
-                    
+                    notifyListeners(Operation.Rollback);
+                } else if (Status.STATUS_COMMITTED == status) {
+                    notifyListeners(Operation.AfterCommit);
                 }
             } finally {
                 actionListeners = null;
+            }
+        }
+
+        private void notifyListeners(Operation operation) {
+            //В 1ю очередь необходимо вызвать слушатель, модифицирующий кэш
+            for (int i = actionListeners.size() - 1; i >= 0; i--) {
+                final ActionListener listener = actionListeners.get(i);
+                if (listener.getClass().equals(DomainObjectDaoImpl.CacheCommitNotifier.class)) {
+                    switch (operation) {
+                        case BeforeCommit:
+                            listener.onBeforeCommit();
+                            break;
+                        case AfterCommit:
+                            listener.onAfterCommit();
+                            break;
+                        case Rollback:
+                            listener.onRollback();
+                    }
+                }
+            }
+            for (int i = actionListeners.size() - 1; i >= 0; i--) {
+                final ActionListener listener = actionListeners.get(i);
+                if (!listener.getClass().equals(DomainObjectDaoImpl.CacheCommitNotifier.class)) {
+                    switch (operation) {
+                        case BeforeCommit:
+                            listener.onBeforeCommit();
+                            break;
+                        case AfterCommit:
+                            listener.onAfterCommit();
+                            break;
+                        case Rollback:
+                            listener.onRollback();
+                    }
+                }
             }
         }
     }

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.rpc.server;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
+import ru.intertrust.cm.core.gui.api.client.History;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
@@ -51,6 +53,7 @@ import java.util.*;
 public class BusinessUniverseServiceImpl extends BaseService implements BusinessUniverseService {
     private static final String CLIENT_INFO_SESSION_ATTRIBUTE = "_CLIENT_INFO";
     private static final String DEFAULT_LOGO_PATH = "logo.gif";
+    private static final String APPLICATION_URI_ATTRIBUTE = "uri";
 
     private static Logger log = LoggerFactory.getLogger(BusinessUniverseServiceImpl.class);
 
@@ -85,11 +88,22 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
     @Override
     public BusinessUniverseInitialization getBusinessUniverseInitialization(Client clientInfo) {
+
         getThreadLocalRequest().getSession().setAttribute(CLIENT_INFO_SESSION_ATTRIBUTE, clientInfo);
         UserInfo userInfo = getUserInfo();
         GuiContext.get().setUserInfo(userInfo);
 
         BusinessUniverseInitialization initialization = new BusinessUniverseInitialization();
+
+        if(getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE)!=null)
+        {
+            String applicationNamePart = getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().substring(
+                    getThreadLocalRequest().getSession().getAttribute(APPLICATION_URI_ATTRIBUTE).toString().lastIndexOf("/")+1
+            );
+            initialization.setApplicationName(applicationNamePart);
+
+        }
+
         addInformationToInitializationObject(initialization);
         String currentLocale = userInfo.getLocale();
         initialization.setCurrentLocale(currentLocale);
@@ -116,6 +130,9 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
         initialization.setGlobalLocalizedResources(messages);
         DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(false);
         initialization.setInitialNavigationLink(domainObject.getString(UserSettingsHelper.DO_INITIAL_NAVIGATION_LINK_KEY));
+        if(initialization.getApplicationName()==null){
+            initialization.setApplicationName(domainObject.getString(UserSettingsHelper.DO_INITIAL_APPLICATION_NAME));
+        }
         return initialization;
     }
 
@@ -139,6 +156,8 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
             throw handleEjbException(command, e);
         }
     }
+
+
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
         final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,

@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Предоставляет быстрый доступ к элементам конфигурации.
@@ -100,6 +101,13 @@ public interface ConfigurationExplorer {
     Set<ReferenceFieldConfig> getReferenceFieldConfigs(String domainObjectConfigName);
 
     /**
+     * Возвращает все неизменяемые ссылочные поля типа ДО, включая поля из групп полей и родительских типов ДО
+     * @param domainObjectConfigName
+     * @return
+     */
+    Set<ReferenceFieldConfig> getImmutableReferenceFieldConfigs(String domainObjectConfigName);
+
+    /**
      * Находит конфигурацию поля доменного объекта по имени доменного объекта и имени поля ()
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
      * Изменение данного объекта недопустимо и напрямую приводит к некорректной работе приложения
@@ -111,6 +119,14 @@ public interface ConfigurationExplorer {
      * @return конфигурация поля доменного объекта
      */
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
+
+    /**
+     * Находит в иерархии типов ДО тип, содержащий заданное поле
+     * @param doType имя типа ДО
+     * @param fieldName имя поля
+     * @return тип, содержащий заданное поле
+     */
+    String getFromHierarchyDomainObjectTypeHavingField(String doType, String fieldName);
 
     /**
      * Находит конфигурацию отображаемого поля коллекции по имени представления коллекции (view) и имени поля в представлении коллекции
@@ -199,7 +215,11 @@ public interface ConfigurationExplorer {
      * @return имя типа у которого заимствуются права или null в случае если заимствования нет
      */
     String getMatrixReferenceTypeName(String childTypeName);
-    
+
+    Set getAllTypesDelegatingAccessCheckTo(String typeName);
+
+    Set<String> getAllTypesDelegatingAccessCheckToInLowerCase(String typeName);
+
     /**
      * Returns default toolbar for plugin.
      * Важно: метод возвращает ссылку на непосредственно объект конфигурации.
@@ -231,6 +251,13 @@ public interface ConfigurationExplorer {
      * @return цепочку от корня до родителя. Если нет родителя - пустой массив.
      */
     String[] getDomainObjectTypesHierarchy(String typeName);
+
+    /**
+     * Нахождение иерархии наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     * @param typeName имя типа доменного объекта
+     * @return иерархию наследования по цепочке от типа ДО (включая его) до корневого типа иерархии
+     */
+    String[] getDomainObjectTypesHierarchyBeginningFromType(String typeName);
 
     void updateConfig(TopLevelConfig config);
     
@@ -293,4 +320,6 @@ public interface ConfigurationExplorer {
      * @return список родительских конфигураций формы, если родительских конфигураций нет - пустой список
      */
     List<FormConfig> getParentFormConfigs(FormConfig formConfig);
+
+    ReentrantReadWriteLock getReadWriteLock();
 }

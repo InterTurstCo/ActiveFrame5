@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.form.processor.impl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
@@ -15,7 +16,6 @@ import ru.intertrust.cm.core.config.gui.form.extension.markup.MarkupExtensionCon
 import ru.intertrust.cm.core.config.gui.form.extension.widget.configuration.WidgetConfigurationExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.WidgetGroupsExtensionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
-import ru.intertrust.cm.core.util.ObjectCloner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +30,6 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
     private ApplicationContext applicationContext;
 
     private ConfigurationExplorer configurationExplorer;
-
-    private ObjectCloner clonePerformer;
-
-    public FormExtensionsProcessorImpl() {
-        this.clonePerformer = ObjectCloner.getInstance();
-    }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -93,7 +87,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
         FormConfig parentFormConfig = null;
         int size = formConfigs.size();
         for (int i = 0; i < size; i++) {
-            FormConfig currentFormConfig = clonePerformer.cloneObject(formConfigs.get(i), FormConfig.class);
+            FormConfig currentFormConfig = ObjectCloner.getInstance().cloneObject(formConfigs.get(i));
             if (parentFormConfig == null) {
                 parentFormConfig = applyExtensions(currentFormConfig, errors);
             } else {
@@ -111,7 +105,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
     }
 
     private FormConfig applyExtensions(FormConfig rawForm, List<String> errors) {
-        FormConfig formConfig = clonePerformer.cloneObject(rawForm, FormConfig.class);
+        FormConfig formConfig = ObjectCloner.getInstance().cloneObject(rawForm);
         processMarkupExtension(formConfig.getMarkup(), formConfig.getMarkupExtensionConfig(), errors);
         processWidgetConfigurationExtension(formConfig.getWidgetConfigurationConfig(), formConfig.getWidgetConfigurationExtensionConfig(), errors);
         processWidgetGroupsExtension(formConfig.getWidgetGroupsConfig(), formConfig.getWidgetGroupsExtensionConfig(), errors);

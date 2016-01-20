@@ -81,15 +81,37 @@ public class DateTimeWithTimeZone implements Dto {
         this.milliseconds = milliseconds;
     }
 
+    public DateTimeWithTimeZone(TimeZoneContext timeZoneContext, int year, int month, int dayOfMonth, int hours, int minutes, int seconds, int milliseconds) {
+        this.timeZoneContext = timeZoneContext;
+        this.year = year;
+        this.month = month;
+        this.dayOfMonth = dayOfMonth;
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
+        this.milliseconds = milliseconds;
+    }
+
+    @GwtIncompatible
+    public DateTimeWithTimeZone(Date date, int timeZoneUtcOffset) {
+        this(date, new UTCOffsetTimeZoneContext(timeZoneUtcOffset));
+    }
+
     @GwtIncompatible
     public DateTimeWithTimeZone(Date date, TimeZone timeZone) {
+        this(date, new OlsonTimeZoneContext(timeZone == null ? null : timeZone.getID()));
+    }
+
+    @GwtIncompatible
+    public DateTimeWithTimeZone(Date date, TimeZoneContext timeZoneContext) {
         if (date == null) {
             return;
         }
+        final TimeZone timeZone = TimeZone.getTimeZone(timeZoneContext.getTimeZoneId());
         final Calendar cal = Calendar.getInstance(timeZone);
         cal.setTime(date);
 
-        this.timeZoneContext = new OlsonTimeZoneContext(timeZone.getID());
+        this.timeZoneContext = timeZoneContext;
         this.year = cal.get(Calendar.YEAR);
         this.month = cal.get(Calendar.MONTH);
         this.dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
@@ -103,64 +125,32 @@ public class DateTimeWithTimeZone implements Dto {
         return year;
     }
 
-    public void setYear(int year) {
-        this.year = year;
-    }
-
     public int getMonth() {
         return month;
-    }
-
-    public void setMonth(int month) {
-        this.month = month;
     }
 
     public int getDayOfMonth() {
         return dayOfMonth;
     }
 
-    public void setDayOfMonth(int dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
-    }
-
     public int getHours() {
         return hours;
-    }
-
-    public void setHours(int hours) {
-        this.hours = hours;
     }
 
     public int getMinutes() {
         return minutes;
     }
 
-    public void setMinutes(int minutes) {
-        this.minutes = minutes;
-    }
-
     public int getSeconds() {
         return seconds;
-    }
-
-    public void setSeconds(int seconds) {
-        this.seconds = seconds;
     }
 
     public int getMilliseconds() {
         return milliseconds;
     }
 
-    public void setMilliseconds(int milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
     public TimeZoneContext getTimeZoneContext() {
         return timeZoneContext;
-    }
-
-    public void setTimeZoneContext(TimeZoneContext timeZoneContext) {
-        this.timeZoneContext = timeZoneContext;
     }
 
     @Override

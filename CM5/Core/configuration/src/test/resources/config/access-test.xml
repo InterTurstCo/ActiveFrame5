@@ -359,6 +359,34 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="Test_DO_2" matrix-reference-field="Ref_DO_1" />
+
+    <access-matrix type="Test_DO_3" read-everybody="false" matrix-reference-field="Ref_DO_3_1" />
+
+    <access-matrix type="Ref_DO_3_1" read-everybody="false" matrix-reference-field="Ref_DO_3_2" />
+
+    <access-matrix type="Ref_DO_3_2" read-everybody="true" />
+
+    <access-matrix type="Ref_DO_1" matrix-reference-field="Ref_DO_2" />
+
+    <access-matrix type="Ref_DO_2" matrix-reference-field="Ref_DO_3" />
+
+    <access-matrix type="Ref_DO_3" read-everybody="true" />
+
+    <access-matrix type="Test_type_1" read-everybody="true" />
+
+    <access-matrix type="Test_type_2" matrix-reference-field="Test_type_1" />
+
+    <access-matrix type="Test_type_4" read-everybody="true" />
+
+    <access-matrix type="Test_type_5" read-everybody="true" />
+
+    <access-matrix type="digital_signature" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+    </access-matrix>
+
 </configuration>
 
 

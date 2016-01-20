@@ -15,12 +15,18 @@
       <module fileurl="file://$PROJECT_DIR$/dataset-generator-client.iml" filepath="$PROJECT_DIR$/dataset-generator-client.iml" group="performance and modules" />
       <module fileurl="file://$PROJECT_DIR$/ear.iml" filepath="$PROJECT_DIR$/ear.iml" />
       <module fileurl="file://$PROJECT_DIR$/filenet-adapter.iml" filepath="$PROJECT_DIR$/filenet-adapter.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/../../../CM5/GlobalCache/global-cache.iml" filepath="$PROJECT_DIR$/../../../CM5/GlobalCache/global-cache.iml" group="global-cache and modules" />
+      <module fileurl="file://$PROJECT_DIR$/global-cache.iml" filepath="$PROJECT_DIR$/global-cache.iml" group="global-cache and modules" />
+      <module fileurl="file://$PROJECT_DIR$/global-cache-api.iml" filepath="$PROJECT_DIR$/global-cache-api.iml" group="global-cache and modules" />
+      <module fileurl="file://$PROJECT_DIR$/global-cache-client.iml" filepath="$PROJECT_DIR$/global-cache-client.iml" group="global-cache and modules" />
+      <module fileurl="file://$PROJECT_DIR$/global-cache-impl.iml" filepath="$PROJECT_DIR$/global-cache-impl.iml" group="global-cache and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-client-api.iml" filepath="$PROJECT_DIR$/gui-client-api.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-client-impl.iml" filepath="$PROJECT_DIR$/gui-client-impl.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-model.iml" filepath="$PROJECT_DIR$/gui-model.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-rpc.iml" filepath="$PROJECT_DIR$/gui-rpc.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-server-api.iml" filepath="$PROJECT_DIR$/gui-server-api.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-server-impl.iml" filepath="$PROJECT_DIR$/gui-server-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/../../../CM5/Performance/gwt-rpc-proxy/gwt-rpc-proxy.iml" filepath="$PROJECT_DIR$/../../../CM5/Performance/gwt-rpc-proxy/gwt-rpc-proxy.iml" group="performance and modules" />
       <module fileurl="file://$PROJECT_DIR$/it-test.iml" filepath="$PROJECT_DIR$/it-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/jdbc.iml" filepath="$PROJECT_DIR$/jdbc.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/jmeter-tools.iml" filepath="$PROJECT_DIR$/jmeter-tools.iml" group="performance and modules" />

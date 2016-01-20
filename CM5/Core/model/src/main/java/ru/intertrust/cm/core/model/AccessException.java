@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.model;
 
 import ru.intertrust.cm.core.model.SystemException;
 
-public class AccessException extends SystemException {
+public class AccessException extends NonRollingBackException {
 
     public AccessException() {
         super();

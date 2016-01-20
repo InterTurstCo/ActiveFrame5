@@ -1,6 +1,6 @@
 package ru.intertrust.cm.core.model;
 
-public class ProfileException extends SystemException {
+public class ProfileException extends NonRollingBackException {
 
     public ProfileException() {
     }

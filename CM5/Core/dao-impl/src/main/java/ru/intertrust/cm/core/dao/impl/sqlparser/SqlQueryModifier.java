@@ -1,33 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import net.sf.jsqlparser.expression.Alias;
-import net.sf.jsqlparser.expression.CaseExpression;
-import net.sf.jsqlparser.expression.CastExpression;
-import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.StringValue;
-import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
@@ -41,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -49,9 +24,18 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
-import ru.intertrust.cm.core.util.ObjectCloner;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getServiceColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 
 /**
@@ -68,13 +52,16 @@ public class SqlQueryModifier {
 
     private UserGroupGlobalCache userGroupCache;
     private CurrentUserAccessor currentUserAccessor;
+    private DomainObjectQueryHelper domainObjectQueryHelper;
 
     Map<String, Map<String, List<SelectItem>>> withItemColumnReplacementMap;
 
-    public SqlQueryModifier(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache, CurrentUserAccessor currentUserAccessor) {
+    public SqlQueryModifier(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
+                            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
+        this.domainObjectQueryHelper = domainObjectQueryHelper;
     }
 
     /**
@@ -279,31 +266,9 @@ public class SqlQueryModifier {
 
         return modifiedQuery;
     }
-    
-    /**
-     * Добавляет ACL фильтр в SQL получения данных для коллекции.
-     * @param query первоначальный запрос
-     * @return запрос с добавленным ACL фильтром
-     */
-    public String addAclQuery(String query) {
-        SqlQueryParser sqlParser = new SqlQueryParser(query);
-        SelectBody selectBody = sqlParser.getSelectBody();
-        
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
-        selectBody.accept(aclVistor);
-        String modifiedQuery = selectBody.toString();
-        modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
-        return modifiedQuery;
 
-    }
-
-    public SelectBody addAclQuery(SelectBody selectBody) {
-        AddAclVisitor aclVistor = new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor);
-        selectBody.accept(aclVistor);
-        String modifiedQuery = selectBody.toString();
-        modifiedQuery = modifiedQuery.replaceAll(USER_ID_PARAM, USER_ID_VALUE);
-        SqlQueryParser sqlParser = new SqlQueryParser(modifiedQuery);
-        return sqlParser.getSelectBody();
+    public void addAclQuery(Select select) {
+        select.accept(new AddAclVisitor(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper));
     }
 
     public void checkDuplicatedColumns(Select select) {

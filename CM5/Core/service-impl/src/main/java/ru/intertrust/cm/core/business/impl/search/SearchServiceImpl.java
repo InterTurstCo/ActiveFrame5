@@ -4,14 +4,12 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -31,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.CombiningFilter;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -39,6 +36,7 @@ import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.model.SearchException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 
 @Stateless(name = "SearchService")
@@ -51,12 +49,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Autowired
     private SolrServer solrServer;
-
-    //@Autowired
-    //private CollectionsService collectionsService;
-
-    //@Autowired
-    //private IdService idService;
 
     @Autowired
     private ImplementorFactory<SearchFilter, FilterAdapter<? extends SearchFilter>> searchFilterImplementorFactory;
@@ -102,7 +94,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SearchException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             log.error("Unexpected exception caught in search", ex);
@@ -156,7 +148,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 }
                 return result;
             }
-        } catch (SearchException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             log.error("Unexpected exception caught in search", ex);
@@ -194,7 +186,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     continue;
                 }
 
-                Collection<String> types = findApplicableTypes(filter.getFieldName(), query.getAreas(),
+                Collection<String> types = configHelper.findApplicableTypes(filter.getFieldName(), query.getAreas(),
                         query.getTargetObjectType());
                 if (types.size() == 0) {
                     log.info("Field " + filter.getFieldName() + " is not indexed; excluded from search");
@@ -216,23 +208,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 filterString.append(combineOperation == CombiningFilter.AND ? " AND " : " OR ");
             }
             filterString.append(filterValue);
-        }
-
-        private Collection<String> findApplicableTypes(String fieldName, List<String> areaNames, String targetType) {
-            Set<String> types;
-            if (SearchFilter.EVERYWHERE.equals(fieldName)) {
-                //types = configHelper.findAllObjectTypes(areaNames, targetType);
-                types = Collections.singleton("*");
-            } else if (SearchFilter.CONTENT.equals(fieldName)) {
-                //types = configHelper.findObjectTypesWithContent(areaNames, targetType);
-                types = Collections.singleton("*");
-            } else {
-                types = configHelper.findObjectTypesContainingField(fieldName, areaNames, targetType);
-            }
-            if (isAttachmentObjectField(fieldName)) {
-                types.addAll(configHelper.findObjectTypesWithContent(areaNames, targetType));
-            }
-            return types;
         }
 
         public SolrDocumentList execute(int fetchLimit, SearchQuery query) {
@@ -450,16 +425,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             log.error("Search error", e);
             throw new SearchException("Search error: " + e.getMessage());
         }
-    }
-/*
-    private IdentifiableObjectCollection queryCollection(String collectionName,
-            List<? extends Filter> collectionFilters, SolrDocumentList found, int maxResults) {
-    }
-*/
-    private boolean isAttachmentObjectField(String fieldName) {
-        return AttachmentService.NAME.equals(fieldName)
-            || AttachmentService.DESCRIPTION.equals(fieldName)
-            || AttachmentService.CONTENT_LENGTH.equals(fieldName);
     }
 
     private int estimateFetchLimit(int foundSize, int collectionSize) {

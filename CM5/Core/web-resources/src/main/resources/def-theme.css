@@ -692,7 +692,7 @@ h1 {
     width: 100%;
     display: block;
     /*height: auto;*/
-    /*position: absolute !important;*/
+    position: absolute !important;
     /*top: 0;*/
     /*left: 0;*/
     /*bottom: 0;*/
@@ -912,9 +912,8 @@ a[href='#login']:hover {
 .tested {
     position: absolute !important;
     width: 100% !important;
-    height: 100% !important;
     display: block;
-    height: auto;
+    height: 95.7% !important;
     top: 0;
     left: 0;
     right: 0;
@@ -925,7 +924,7 @@ a[href='#login']:hover {
     display: block;
     height: 100%;
     /*height: auto;*/
-    /*position: absolute !important;*/
+    /*position: static !important;*/
     /*top: 0;*/
     /*left: 0;*/
     /*right: 0;*/
@@ -3132,6 +3131,51 @@ a:active .icon.back {
 
 .infoDialogBox {
     z-index: 20;
+    box-shadow: 0px 1px 12px 0px;
+    border-radius: 7px;
+    padding-top: 5px;
+    background: #fff;
+}
+
+.infoDialogBox .Caption {
+    background: #336599 !important;
+    padding: 10px !important;
+    border: none !important;
+}
+
+.infoDialogBox .gwt-Button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none !important;
+    background: none !important;
+    color: #fff;
+}
+
+.infoDialogBox .gwt-Button:hover {
+    color: #f00;
+}
+.infoDialogBox .dialogContent {
+    background: #F5F6F8;
+    padding: 5px;
+}
+
+.infoDialogBox .gwt-Label {
+    padding: 10px;
+    border-radius: 5px 0 0 0;
+    font-size: 100%;
+    color: #8d91a2;
+    text-decoration: none;
+}
+
+.infoDialogBox .dialogTopLeft,
+.infoDialogBox .dialogTopRight,
+.infoDialogBox .dialogMiddleLeft,
+.infoDialogBox .dialogMiddleRight,
+.infoDialogBox .dialogBottomLeft,
+.infoDialogBox .dialogBottomCenter,
+.infoDialogBox .dialogBottomRight {
+   background: none !important;
 }
 
 .linkedTableActionLabel{
@@ -3192,6 +3236,7 @@ a:active .icon.back {
     border-radius: 30px 0 0 30px;
     margin-left: 10px;
     position: relative;
+    top: -2px;
     height: 20px;
     padding: 6px 0 6px 10px;
 }
@@ -3215,6 +3260,7 @@ a:active .icon.back {
     display: inline-block;
     width: 100%;
     margin-left: 11px;
+    cursor: pointer;
 }
 .collectionButtonCellWrapper .moreItems {
     background: #4D90FD;
@@ -3394,14 +3440,14 @@ a:active .icon.back {
     top: 6px;
     background: url(css/icons/icon_classifier.png)no-repeat;
     background-size: cover;
-    z-index: 100;
+    z-index: 10;
 }
 .createElement {
     right: 6px;
     top: 6px;
     background: url(css/icons/icon_group.png)no-repeat;
     background-size: cover;
-    z-index: 100;
+    z-index: 10;
 }
 
 .collectionCellWrapper:hover .createElement {

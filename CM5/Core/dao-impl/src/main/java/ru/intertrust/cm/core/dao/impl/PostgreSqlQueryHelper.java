@@ -50,9 +50,10 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
             "select table_class.relname as table_name, index_class.relname as index_name, attr.attname as column_name " +
                     "from pg_index join pg_class table_class on table_class.oid = pg_index.indrelid " +
                         "join pg_class index_class on index_class.oid = pg_index.indexrelid " +
-                        "join pg_attribute attr on attr.attrelid = table_class.oid " +
+                        "left join pg_attribute attr on (attr.attrelid = table_class.oid and attr.attnum = ANY(pg_index.indkey)) " +
                         "join pg_tables tables on table_class.relname = tables.tablename " +
-                    "where attr.attnum = ANY(pg_index.indkey) and table_class.relkind = 'r' and " +
+                    "where table_class.relkind = 'r' and " +
+                        "index_class.relname like 'i%' and " +
                         "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
                     "order by table_class.relname, index_class.relname;";
 

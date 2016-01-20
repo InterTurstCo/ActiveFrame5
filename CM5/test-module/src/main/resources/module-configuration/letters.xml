@@ -1124,9 +1124,12 @@
                         <td width="100px" h-align="right">
                             <widget id="Name-Label"/>
                         </td>
-                        <td width="100%" h-align="left">
+                        <td width="50%" h-align="left">
                             <widget id="Name"/>
                         </td>
+                        <td width="50%" h-align="left">
+                            <widget id="Organization"/>
+                        </td>     
                         <!-- text-box (Название) -->
                     </tr>
                 </table>
@@ -1158,7 +1161,7 @@
 
     <form name="organization_form" domain-object-type="Organization" is-default="true">
 
-        <default-value-setter>
+        <default-value-setter component="temp.org.value.setter">
             <widget-states>
                 <widgets ids="letter_priority,subject"/>
             </widget-states>
@@ -1335,7 +1338,7 @@
             <label id="status_label">
                 <text>Статус:</text>
             </label>
-            <suggest-box id="status">
+            <suggest-box id="status" read-only="true">
                 <field-path value="status"/>
 
                 <collection-ref name="Statuses"/>

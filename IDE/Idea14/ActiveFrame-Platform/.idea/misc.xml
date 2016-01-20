@@ -12,13 +12,22 @@
     <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-login-page" />
     <file type="gwt" url="file://$PROJECT_DIR$/../../../CM5/Core/web-resources" />
     <file type="javaeeApplication" url="file://$PROJECT_DIR$/../../../CM5/Ear" />
+    <file type="Spring" url="file://$PROJECT_DIR$/../../../CM5/Core/web-resources/src/main/resources/META-INF/applicationContext.xml" />
+    <file type="Spring" url="file://$PROJECT_DIR$/../../../CM5/Core/web-resources/src/main/resources/META-INF/dispatcherContext.xml" />
     <file type="web" url="file://$PROJECT_DIR$/../../../CM5/Core/web-app" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/../../../CM5/pom.xml" />
+        <option value="$PROJECT_DIR$/../../../CM5/GlobalCache/pom.xml" />
+        <option value="$PROJECT_DIR$/../../../CM5/GlobalCache/global-cache-client/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/../../../CM5/Performance/gwt-rpc-proxy/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">

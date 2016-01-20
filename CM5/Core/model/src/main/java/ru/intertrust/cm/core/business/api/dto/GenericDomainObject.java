@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.api.dto;
 
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.SystemField;
+import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.Date;
 
@@ -10,7 +11,7 @@ import java.util.Date;
  * <p/>
  * Author: Denis Mitavskiy Date: 19.05.13 Time: 15:57
  */
-public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject {
+public class GenericDomainObject extends GenericIdentifiableObject implements DomainObject, Cloneable {
 
     private String typeName;
 
@@ -137,6 +138,11 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
      return getReference(SystemField.status.name());
     }
 
+    @Override
+    public boolean isAbsent() {
+        return false;
+    }
+
     public void setStatus(Id status) {
         setReference(SystemField.status.name(), status);
     }
@@ -147,6 +153,12 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
     }
 
     @Override
+    @GwtIncompatible
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
         result.append('{').append('\n');
@@ -154,5 +166,26 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
         result.append(ModelUtil.getDetailedDescription(this));
         result.append('}');
         return result.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GenericDomainObject that = (GenericDomainObject) o;
+        String typeLower = typeName == null ? null : typeName.toLowerCase();
+        String thatTypeLower = that.typeName == null ? null : that.typeName.toLowerCase();
+        if (typeLower != null ? !typeLower.equals(thatTypeLower) : thatTypeLower != null) {
+            return false;
+        }
+        return super.equals(o);
+    }
+
+    public static boolean isAbsent(DomainObject object) {
+        return object != null && object.isAbsent();
     }
 }

@@ -112,8 +112,8 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
         }
 
         private boolean cancelSelection( CollectionRowItem clickedItem, Element element){
-            return clickedItem.isExpanded()
-                    || CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
+            //return clickedItem.isExpanded() ||
+            return        CollectionRowItem.RowType.FILTER.equals(clickedItem.getRowType())
                     || (displayCheckBoxes && "checkbox".equalsIgnoreCase(element.getPropertyString("type")));
         }
 

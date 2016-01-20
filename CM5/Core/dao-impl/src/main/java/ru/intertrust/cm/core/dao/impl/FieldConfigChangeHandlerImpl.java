@@ -34,6 +34,8 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
 
         if (newFieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof StringFieldConfig) {
             handle((StringFieldConfig) newFieldConfig, (StringFieldConfig) oldFieldConfig, domainObjectTypeConfig);
+        } else if (newFieldConfig instanceof TextFieldConfig && oldFieldConfig instanceof StringFieldConfig) {
+            handle((TextFieldConfig) newFieldConfig, (StringFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof PasswordFieldConfig && oldFieldConfig instanceof PasswordFieldConfig) {
             handle((PasswordFieldConfig) newFieldConfig, (PasswordFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         } else if (newFieldConfig instanceof ReferenceFieldConfig && oldFieldConfig instanceof ReferenceFieldConfig) {
@@ -41,6 +43,10 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         } else if (newFieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof DecimalFieldConfig) {
             handle((DecimalFieldConfig) newFieldConfig, (DecimalFieldConfig) oldFieldConfig, domainObjectTypeConfig);
         }
+    }
+
+    private void handle(TextFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
+        dataStructureDao.updateColumnType(domainObjectTypeConfig, newFieldConfig);
     }
 
     private void handle(StringFieldConfig newFieldConfig, StringFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
@@ -106,14 +112,18 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
     private void handle(DecimalFieldConfig newFieldConfig, DecimalFieldConfig oldFieldConfig, DomainObjectTypeConfig domainObjectTypeConfig) {
         ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
 
-        if (!newFieldConfig.getScale().equals(oldFieldConfig.getScale()) &&
-                columnInfo.getScale() != newFieldConfig.getScale()) {
+        if ((newFieldConfig.getScale() == null && oldFieldConfig.getScale() != null &&
+                newFieldConfig.getScale() == null && columnInfo.getScale() != null) ||
+                (!newFieldConfig.getScale().equals(oldFieldConfig.getScale()) &&
+                        !newFieldConfig.getScale().equals(columnInfo.getScale()))) {
             throw new ConfigurationException("Configuration loading aborted: unsupported scale attribute " +
                     "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
         }
 
-        if (!newFieldConfig.getPrecision().equals(oldFieldConfig.getPrecision()) &&
-                columnInfo.getPrecision() != newFieldConfig.getPrecision()) {
+        if ((newFieldConfig.getPrecision() == null && oldFieldConfig.getPrecision() != null &&
+                newFieldConfig.getPrecision() == null && columnInfo.getPrecision() != null) ||
+                (!newFieldConfig.getPrecision().equals(oldFieldConfig.getPrecision()) &&
+                        !newFieldConfig.getPrecision().equals(columnInfo.getPrecision()))) {
             throw new ConfigurationException("Configuration loading aborted: unsupported precision attribute " +
                     "modification of " + domainObjectTypeConfig.getName() + "." + newFieldConfig.getName());
         }
@@ -123,7 +133,9 @@ public class FieldConfigChangeHandlerImpl implements FieldConfigChangeHandler {
         ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, newFieldConfig);
 
         if (!newFieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
-                !dataStructureDao.getSqlType(newFieldConfig).startsWith(columnInfo.getDataType())) {
+                !dataStructureDao.getSqlType(newFieldConfig).startsWith(columnInfo.getDataType()) &&
+                !(TextFieldConfig.class.equals(newFieldConfig.getClass()) &&
+                        StringFieldConfig.class.equals(oldFieldConfig.getClass()))) {
             throw new ConfigurationException("Configuration loading aborted: cannot change field type of " +
                     domainObjectTypeConfig.getName() + " from " +
                     oldFieldConfig.getClass().getName() + " to " + newFieldConfig.getClass().getName());

@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.EventListener;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.form.PopupTitlesHolder;
@@ -20,6 +22,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListene
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.buttons.CaptionCloseButton;
 import ru.intertrust.cm.core.gui.impl.client.panel.ResizablePanel;
 import ru.intertrust.cm.core.gui.impl.client.panel.RightSideResizablePanel;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
@@ -42,7 +45,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 /**
  * Created by andrey on 27.02.14.
  */
-public class LinkedFormDialogBoxBuilder {
+public class LinkedFormDialogBoxBuilder  {
     private static final int MINIMAL_HEIGHT = 200;
     private static final int MINIMAL_WIDTH = 300;
     private DialogBoxAction saveAction;
@@ -61,6 +64,7 @@ public class LinkedFormDialogBoxBuilder {
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
     private boolean editable = true;
     private boolean resizable;
+    private Button cancelButton;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -168,7 +172,10 @@ public class LinkedFormDialogBoxBuilder {
         PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? this.popupTitlesHolder : typeTitleMap.get(domainObjectType);
         String title = popupTitlesHolder == null ? (GuiUtil.getConfiguredTitle(formPlugin, id == null))
                 : getTitleFromHolder(popupTitlesHolder);
-        dialogBox.getCaption().setText(title);
+        Panel captionPanel = new AbsolutePanel();
+        captionPanel.add(new Label(title));
+        HTML caption = (HTML) dialogBox.getCaption();
+        caption.getElement().appendChild(captionPanel.getElement());
     }
 
     private String getTitleFromHolder(PopupTitlesHolder popupTitlesHolder) {
@@ -217,7 +224,7 @@ public class LinkedFormDialogBoxBuilder {
             }
             buttonsPanel.add(saveButton);
         }
-        Button cancelButton = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
+        cancelButton = new Button(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON));
         cancelButton.setStyleName("lnfm-cancel-button darkButton");
         decorateButton(cancelButton);
 
@@ -244,6 +251,16 @@ public class LinkedFormDialogBoxBuilder {
         ResizablePanel resizablePanel = new RightSideResizablePanel(MINIMAL_WIDTH, MINIMAL_HEIGHT, true, resizable);
         resizablePanel.wrapWidget(panel);
         db.add(resizablePanel);
+
+        HTML caption = (HTML) db.getCaption();
+        CaptionCloseButton captionCloseButton = new CaptionCloseButton();
+        captionCloseButton.addClickListener(new EventListener() {
+            @Override
+            public void onBrowserEvent(Event event) {
+                cancelButton.click();
+            }
+        });
+        caption.getElement().appendChild(captionCloseButton.getElement());
 
         return db;
     }

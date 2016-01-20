@@ -450,6 +450,8 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="logo" type="con:logoType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="base-url" type="con:baseUrl" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="settings-popup" type="con:settingsPopupType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="header-notification-refresh" type="con:collectionCountRefreshType" maxOccurs="1"
@@ -466,6 +468,8 @@
             <xs:element name="right-panel" type="con:rightPanelType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="user-extra-info" type="con:userExtraInfoType" maxOccurs="1" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="default-form-editing-style" type="con:defaultFormEditingStyleType" maxOccurs="1" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
@@ -529,6 +533,9 @@
     </xs:complexType>
     <xs:complexType name="logoType">
         <xs:attribute name="image" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:complexType name="baseUrl">
+        <xs:attribute name="value" use="required" type="xs:string"/>
     </xs:complexType>
     <xs:complexType name="productTitleType">
         <xs:attribute name="style" use="required" type="xs:string"/>
@@ -1003,6 +1010,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute name="name" type="xs:string" use="optional"/>
+        <xs:attribute name="application" type="xs:string" use="optional"/>
         <xs:attribute name="is-default" type="xs:string" use="optional"/>
         <xs:attribute name="side-bar-opening-time" type="xs:integer" use="optional"/>
         <xs:attribute name="merge" type="xs:boolean" use="optional"/>
@@ -1104,8 +1112,7 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:formViewerType" name="form-viewer"
                                 xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
-                    <xs:element type="xs:boolean" name="toggle-edit" minOccurs="0"/>
-
+                    <xs:element type="con:toggleEditType" name="toggle-edit" minOccurs="0"  xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:sequence>
                 <xs:attribute type="xs:string" name="collection" use="optional"/>
                 <xs:attribute type="xs:string" name="domain-object-type-to-create" use="optional"/>
@@ -1113,6 +1120,20 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:complexType name="toggleEditType">
+        <xs:simpleContent>
+            <xs:extension base="xs:boolean">
+                <xs:attribute name="switch-to-read-mode-on-save" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="defaultFormEditingStyleType">
+        <xs:sequence>
+            <xs:element type="con:toggleEditType" name="toggle-edit" minOccurs="1" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="collectionViewerType">
         <xs:choice maxOccurs="unbounded">
@@ -1141,7 +1162,8 @@
             <xs:element type="con:nonReadElementsDefinitionType" name="non-read-elements-definition"
                         xmlns:con="https://cm5.intertrust.ru/config"
                         minOccurs="0"/>
-            <xs:element type="con:childCollectionType" name="child-collection" xmlns:con="https://cm5.intertrust.ru/config"
+            <xs:element type="con:childCollectionType" name="child-collection"
+                        xmlns:con="https://cm5.intertrust.ru/config"
                         minOccurs="0"/>
             <xs:element type="con:rowsSelectionType" name="rows-selection"/>
         </xs:choice>
@@ -1177,7 +1199,6 @@
     <xs:complexType name="expandableObjectType">
         <xs:attribute name="object-name" type="xs:string" use="required"/>
     </xs:complexType>
-
 
 
     <xs:complexType name="rowsSelectionType">
@@ -1269,6 +1290,17 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+
+    <xs:element type="con:globalCacheControlPluginType" name="global-cache-control"
+                substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="globalCacheControlPluginType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:attribute type="xs:boolean" name="statistics-only" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
 
     <xs:complexType name="collectionRefType">
         <xs:simpleContent>

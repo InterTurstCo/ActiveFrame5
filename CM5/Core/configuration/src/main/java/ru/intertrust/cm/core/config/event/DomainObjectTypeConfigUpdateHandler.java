@@ -31,6 +31,8 @@ public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHand
             configStorage.referenceFieldsMap.remove(oldConfig.getName());
         }
 
+        configStorage.typesDelegatingAccessCheckTo.clear();
+        configStorage.typesDelegatingAccessCheckToInLowerCase.clear();
     }
 
     @Override

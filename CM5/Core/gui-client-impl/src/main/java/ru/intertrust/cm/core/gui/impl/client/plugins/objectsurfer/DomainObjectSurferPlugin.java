@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.event.shared.GwtEvent;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -341,6 +342,7 @@ public class DomainObjectSurferPlugin extends Plugin implements IsActive, Collec
         replaceForm(config);
 
     }
+
 
     private class FormPluginCreatedListener implements PluginViewCreatedEventListener {
 

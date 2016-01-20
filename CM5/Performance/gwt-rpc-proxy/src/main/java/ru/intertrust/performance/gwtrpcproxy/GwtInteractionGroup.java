@@ -8,6 +8,8 @@ import org.simpleframework.xml.ElementList;
 public class GwtInteractionGroup {
     @Attribute
     private String name;
+    @Attribute(name="before-pause")
+    private int beforePause;
     
     @ElementList(inline=true, entry="pair")
     private List<GwtInteraction> requestResponceList;
@@ -27,6 +29,12 @@ public class GwtInteractionGroup {
     public void setName(String name) {
         this.name = name;
     }
-    
-    
+
+    public int getBeforePause() {
+        return beforePause;
+    }
+
+    public void setBeforePause(int beforePause) {
+        this.beforePause = beforePause;
+    }
 }

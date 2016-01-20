@@ -262,6 +262,15 @@ public class CollectionPluginView extends PluginView {
         handlerRegistrations.add(eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
+                /**
+                 * Для иерархических коллекций, при добавлении дочерних строк и обновлении
+                 * родительских, обновляется вся коллекция. До того как будет разработан
+                 * иеррахический плагин коллекций это временный фикс. Для обычных коллекций это
+                 * не происходит.
+                 */
+                if(((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig()!=null){
+                    getPlugin().refresh();
+                }
                 if (event.getId() == null) {
                     refreshCollection(event.getIdentifiableObject());
                 } else {
@@ -529,11 +538,13 @@ public class CollectionPluginView extends PluginView {
     private void refreshCollection(Id id) {
         Set<Id> includedIds = new HashSet<>();
         includedIds.add(id);
-
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
         final CollectionRowsRequest collectionRowsRequest =
                 new CollectionRowsRequest(0, 1, getPluginData().getCollectionName(),
                         getPluginData().getDomainObjectFieldPropertiesMap(), simpleSearchQuery, searchArea);
         collectionRowsRequest.setIncludedIds(includedIds);
+        InitialFiltersConfig initialFiltersConfig = config.getInitialFiltersConfig();
+        collectionRowsRequest.setInitialFiltersConfig(initialFiltersConfig);
         collectionOneRowRequestCommand(new CollectionRefreshRequest(collectionRowsRequest, null));
     }
 

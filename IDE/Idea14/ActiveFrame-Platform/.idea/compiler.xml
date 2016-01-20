@@ -32,12 +32,16 @@
         <module name="dataset-generator-client" />
         <module name="ear" />
         <module name="filenet-adapter" />
+        <module name="global-cache-api" />
+        <module name="global-cache-client" />
+        <module name="global-cache-impl" />
         <module name="gui-client-api" />
         <module name="gui-client-impl" />
         <module name="gui-model" />
         <module name="gui-rpc" />
         <module name="gui-server-api" />
         <module name="gui-server-impl" />
+        <module name="gwt-rpc-proxy" />
         <module name="it-test" />
         <module name="jdbc" />
         <module name="model" />
@@ -56,7 +60,6 @@
         <sourceTestOutputDir name="target\generated-test-sources\test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="jmeter-tools" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -73,12 +76,18 @@
       <module name="dataset-generator-client" target="1.7" />
       <module name="ear" target="1.7" />
       <module name="filenet-adapter" target="1.7" />
+      <module name="global-cache" target="1.7" />
+      <module name="global-cache-api" target="1.7" />
+      <module name="global-cache-client" target="1.7" />
+      <module name="global-cache-impl" target="1.7" />
+      <module name="globalcache" target="1.7" />
       <module name="gui-client-api" target="1.7" />
       <module name="gui-client-impl" target="1.7" />
       <module name="gui-model" target="1.7" />
       <module name="gui-rpc" target="1.7" />
       <module name="gui-server-api" target="1.7" />
       <module name="gui-server-impl" target="1.7" />
+      <module name="gwt-rpc-proxy" target="1.7" />
       <module name="it-test" target="1.7" />
       <module name="jdbc" target="1.7" />
       <module name="jmeter-tools" target="1.7" />

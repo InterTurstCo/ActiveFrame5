@@ -13,20 +13,28 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.Transaction;
+import javax.transaction.UserTransaction;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
@@ -49,7 +57,6 @@ import ru.intertrust.cm.core.business.api.dto.TimelessDate;
 import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.business.impl.BaseAttachmentServiceImpl;
 import ru.intertrust.cm.core.config.AttachmentTypeConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -77,6 +84,7 @@ import ru.intertrust.cm.core.model.FatalException;
  * 
  */
 public class ImportData {
+    private static final Logger logger = Logger.getLogger(ImportData.class);
     private static final String TIMELESS_DATE_PATTERN = "dd.MM.yyyy";
     private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss";
     //Имя спринг бина для работы под системными правами
@@ -98,6 +106,10 @@ public class ImportData {
     private CurrentUserAccessor currentUserAccessor;
     @Autowired
     private DoelEvaluator doelEvaluator;
+    @org.springframework.beans.factory.annotation.Value("${import.rows.in.one.transaction:1000}")
+    private int rowsInOneTransaction;
+    @org.springframework.beans.factory.annotation.Value("${import.transaction.timeout:1000}")
+    private int transactionTimeout;
 
     private String typeName;
     private boolean deleteOther;
@@ -106,9 +118,10 @@ public class ImportData {
     private String login;
     private Hashtable<String, Integer> fieldIndex;
     private String emptyStringSymbol;
-    private List<Id> importedIds;
+    private LinkedHashSet<Id> importedIds;
     private boolean systemPermission;
     private String attachmentBasePath;
+    private boolean inTransaction;
 
     /**
      * Конструктор. Инициалитзирует класс флагом с какими правами должен
@@ -132,7 +145,7 @@ public class ImportData {
      * Загрузка одного файла с данными
      * @param loadFileAsByteArray
      */
-    public List<Id> importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite, String attachmentBasePath) {
+    public List<Id> importData(byte[] loadFileAsByteArray, String encoding, Boolean rewrite, String attachmentBasePath, UserTransaction transaction) {
         Reader reader = null;
         this.attachmentBasePath = attachmentBasePath;
 
@@ -154,21 +167,24 @@ public class ImportData {
             //Удаление всех записей данного типа, которые отсутствуют в импортируемом файле
             deleteOther = false;
             //Список импортированных записей
-            importedIds = new ArrayList<Id>();
+            importedIds = new LinkedHashSet<>();
 
+            logger.info("Import data from csv by " + rowsInOneTransaction + " rows in transactions.");
             //итератор по строкам
             for (CSVRecord record : records) {
                 if (!isEmptyRow(record)) {
                     //CMFIVE-2116 В случае если в одном файле импортируются данные разных типов то сбрасываем счетчик строк в 0 и обнуляем всю метаинформацию
                     if (lineNum > 0 && record.size() > 0 && record.get(0).trim().toUpperCase().startsWith(ImportDataService.TYPE_NAME + "=")) {
+                        commitTransaction(transaction);
+
                         lineNum = 0;
                         typeName = null;
                         keys = null;
                         fields = null;
                         emptyStringSymbol = null;
-                        deleteOther = false;
-
-                        deleteOther();
+                        deleteOther = false;                        
+                        
+                        deleteOther(transaction);
                     }
 
                     //Первые две строки это метаданные
@@ -202,22 +218,69 @@ public class ImportData {
                             fieldIndex.put(fields[i], i);
                         }
                     } else {
+                        beginTransactionIfNeed(transaction, lineNum-2);
                         //Импорт одной строки
                         Id importedId = importLine(csvRecordToArray(record), rewrite);
                         importedIds.add(importedId);
+                        commitTransactionIfNeed(transaction, lineNum-2);
                     }
 
                     lineNum++;
                 }
             }
-            deleteOther();
-            return importedIds;
+            commitTransaction(transaction);
+            deleteOther(transaction);
+            return new ArrayList<>(importedIds);
         } catch (Exception ex) {
+            try {
+                if (transaction != null && transaction.getStatus() == javax.transaction.Status.STATUS_ACTIVE){
+                    transaction.rollback();
+                }
+            } catch (Exception ignoreEx) {
+            }
             throw new FatalException("Error load data. TypeName=" + typeName, ex);
         } finally {
             try {
-                reader.close();
+                reader.close();                
             } catch (Exception ignoreEx) {
+            }
+        }
+    }
+
+    private void commitTransactionIfNeed(UserTransaction transaction, int lineNum) throws SecurityException, IllegalStateException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+        if (transaction != null && inTransaction){
+            if (((lineNum+1) % rowsInOneTransaction) == 0){
+                if (transaction.getStatus() == javax.transaction.Status.STATUS_ACTIVE){
+                    transaction.commit();
+                    logger.info("Commit transaction on block " + (lineNum / rowsInOneTransaction));
+                    inTransaction = false;
+                }else{
+                    throw new FatalException("Transaction can not committed. Transaction status " + transaction.getStatus());
+                }
+            }
+        }
+    }
+
+    private void commitTransaction(UserTransaction transaction) throws SecurityException, IllegalStateException, SystemException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
+        if (transaction != null && inTransaction){
+            if (transaction.getStatus() == javax.transaction.Status.STATUS_ACTIVE){
+                transaction.commit();
+                logger.info("Commit transaction on file or partition");
+                inTransaction = false;
+            }else{
+                throw new FatalException("Transaction can not committed. Transaction status " + transaction.getStatus());
+            }
+        }
+    }
+
+    private void beginTransactionIfNeed(UserTransaction transaction, int lineNum) throws SystemException, NotSupportedException {
+        if (transaction != null){
+            if ((lineNum % rowsInOneTransaction) == 0 
+                    && transaction.getStatus() == javax.transaction.Status.STATUS_NO_TRANSACTION){
+                transaction.setTransactionTimeout(transactionTimeout);
+                transaction.begin();
+                logger.info("Begin transaction on block " + (lineNum / rowsInOneTransaction));
+                inTransaction = true;
             }
         }
     }
@@ -260,8 +323,15 @@ public class ImportData {
     /**
      * Удаление всех записей импортируемого типа, если данные записи не
      * упоминаются в csv файле
+     * @throws NotSupportedException 
+     * @throws SystemException 
+     * @throws HeuristicRollbackException 
+     * @throws HeuristicMixedException 
+     * @throws RollbackException 
+     * @throws IllegalStateException 
+     * @throws SecurityException 
      */
-    private void deleteOther() {
+    private void deleteOther(UserTransaction transaction) throws SystemException, NotSupportedException, SecurityException, IllegalStateException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
         //Проверка флага удалить лишнее в заголовке
         if (deleteOther) {
             //Поиск объектов в базе
@@ -276,8 +346,12 @@ public class ImportData {
 
             //Удаление лишних записей
             if (toDeleteIds.size() > 0) {
+                int rows = 0;
                 for (IdentifiableObject row : collection) {
+                    beginTransactionIfNeed(transaction, rows);
                     domainObjectDao.delete(row.getId(), getDeleteAccessToken(row.getId()));
+                    commitTransactionIfNeed(transaction, rows);
+                    rows++;
                 }
             }
         }
@@ -424,13 +498,13 @@ public class ImportData {
                 newValue = new ReferenceValue(getReference(fieldName, fieldValue));
             } else if (fieldConfig.getFieldType() == FieldType.TIMELESSDATE) {
                 if (fieldValue.length() != 0) {
-                    TimelessDate date = new TimelessDate();
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(ThreadSafeDateFormat.parse(fieldValue, TIMELESS_DATE_PATTERN));
-                    date.setYear(calendar.get(Calendar.YEAR));
-                    date.setMonth(calendar.get(Calendar.MONTH));
-                    date.setDayOfMonth(calendar.get(Calendar.DAY_OF_MONTH));
-                    newValue = new TimelessDateValue(date);
+                    newValue = new TimelessDateValue(new TimelessDate(
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ));
                 }
             } else {
                 //В остальных случаях считаем строкой
@@ -691,14 +765,17 @@ public class ImportData {
      * @throws ParseException
      */
     private DomainObject findDomainObject(String[] fieldValues) throws ParseException {
-        List<Value> values = getPlatformFieldValues(fieldValues);
-
-        String query = getQuery(typeName, keys, values);
-
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, getSelectAccessToken());
         DomainObject result = null;
-        if (collection.size() > 0) {
-            result = domainObjectDao.find(collection.get(0).getId(), getReadAccessToken(collection.get(0).getId()));
+        if (keys != null){
+            List<Value> values = getPlatformFieldValues(fieldValues);
+    
+            String query = getQuery(typeName, keys, values);
+    
+            IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, values, 0, 0, getSelectAccessToken());
+            
+            if (collection.size() > 0) {
+                result = domainObjectDao.find(collection.get(0).getId(), getReadAccessToken(collection.get(0).getId()));
+            }
         }
         return result;
     }

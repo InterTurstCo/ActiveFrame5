@@ -38,6 +38,8 @@ public interface DaoFactory {
      */
     DomainObjectDao createDomainObjectDao();
 
+    DomainObjectQueryHelper createQueryHelper();
+
     InitializationLockDao createInitializationLockDao();
 
     /**

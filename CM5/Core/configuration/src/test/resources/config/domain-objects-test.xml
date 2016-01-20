@@ -128,4 +128,101 @@
     <domain-object-type name="C1" extends="B1"/>
     <domain-object-type name="D1" extends="C1"/>
 
+    <domain-object-type name="Test_DO_1" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_DO_2" initial-status="Active" extends="Test_DO_1">
+        <fields>
+            <string name="name2" length="128" />
+            <reference name="Ref_DO_1" type="Ref_DO_1" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_DO_3" initial-status="Active" extends="Test_DO_2">
+        <fields>
+            <string name="name3" length="128" />
+            <reference name="Ref_DO_3_1" type="Ref_DO_1" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_DO_4" initial-status="Active" extends="Test_DO_3">
+        <fields>
+            <string name="name4" length="128" />
+            <reference name="Ref_DO_4_1" type="Ref_DO_1" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_DO_5" initial-status="Active" extends="Test_DO_4">
+        <fields>
+            <string name="name5" length="128" />
+            <reference name="Ref_DO_5_1" type="Ref_DO_1" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Ref_DO_3_1" initial-status="Active">
+        <fields>
+            <reference name="Ref_DO_3_2" type="Ref_DO_3_2" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Ref_DO_3_2" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Ref_DO_1" initial-status="Active">
+        <fields>
+            <reference name="Ref_DO_2" type="Ref_DO_2" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Ref_DO_2" initial-status="Active">
+        <fields>
+            <reference name="Ref_DO_3" type="Ref_DO_3" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Ref_DO_3" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+    <!-- End of test DO hierarchy for read-everybody flag -->
+
+    <domain-object-type name="Test_type_1" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_type_2" initial-status="Active">
+        <fields>
+            <reference name="Test_type_1" type="Test_type_1"/>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_type_3">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_type_4" initial-status="Active" extends="Test_type_3">
+        <fields>
+            <reference name="employee" type="employee"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="Test_type_5">
+        <fields>
+            <string name="name" length="128" />
+            <reference name="employee" type="employee"/>
+        </fields>
+    </domain-object-type>
+
 </configuration>

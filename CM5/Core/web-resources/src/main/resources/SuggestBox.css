@@ -243,3 +243,10 @@ td .gwt-SuggestBox {
     display: inline-block;
     vertical-align: middle;
 }
+
+.gwt-SuggestBoxPopup .popupContent>div {
+    width: inherit !important;
+    overflow: hidden !important;
+    overflow-y: auto !important;
+    padding-right: 15px;
+}

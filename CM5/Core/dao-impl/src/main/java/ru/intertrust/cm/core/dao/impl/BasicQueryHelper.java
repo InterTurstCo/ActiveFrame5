@@ -19,17 +19,12 @@ import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
 import static ru.intertrust.cm.core.dao.api.InitializationLockDao.INITIALIZATION_LOCK_TABLE;
 import static ru.intertrust.cm.core.dao.api.InitializationLockDao.SERVER_ID_COLUMN;
 import static ru.intertrust.cm.core.dao.api.InitializationLockDao.START_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getALTableSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlAuditSequenceName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSequenceName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.unwrap;
 import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -405,17 +400,19 @@ public abstract class BasicQueryHelper {
             return null;
         }
 
-        DelimitedListFormatter<UniqueKeyFieldConfig> listFormatter =
-                new DelimitedListFormatter<UniqueKeyFieldConfig>() {
+        List<String> uniqueKeyFields = getUniqueKeyFields(config, uniqueKeyConfig);
+
+
+        DelimitedListFormatter<String> listFormatter =
+                new DelimitedListFormatter<String>() {
                     @Override
-                    protected String format(UniqueKeyFieldConfig item) {
-                        return getSqlName(item.getName());
+                    protected String format(String item) {
+                        return getSqlName(item);
                     }
                 };
 
         String constraintName = "u_" + getDOTypeConfigId(config) + "_" + index;
-        String fieldsList =
-                listFormatter.formatAsDelimitedList(uniqueKeyConfig.getUniqueKeyFieldConfigs(), ", ", "\"");
+        String fieldsList = listFormatter.formatAsDelimitedList(uniqueKeyFields, ", ", "\"");
 
         query.append("add ");
         appendUniqueConstraint(query, constraintName, fieldsList);
@@ -473,7 +470,7 @@ public abstract class BasicQueryHelper {
         return indexFields.toString();
     }
     
-    public String generateDeleteExplicitIndexesQuery(List<String> indexNames) {
+    public String generateDeleteExplicitIndexesQuery(Collection<String> indexNames) {
         StringBuilder query = new StringBuilder();
         for (String indexName : indexNames) {
             appendDeleteIndexQueryPart(query, indexName);
@@ -487,8 +484,8 @@ public abstract class BasicQueryHelper {
     }
     
     public String generateComplexIndexQuery(DomainObjectTypeConfig config, IndexConfig indexConfig) {
-        List<String> indexFields = new ArrayList<String>();
-        List<String> indexExpressions = new ArrayList<String>();
+        List<String> indexFields = new ArrayList<>();
+        List<String> indexExpressions = new ArrayList<>();
 
         for (BaseIndexExpressionConfig indexExpression : indexConfig.getIndexFieldConfigs()) {
             if (indexExpression instanceof IndexFieldConfig) {

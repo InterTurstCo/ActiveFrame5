@@ -1,18 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -25,6 +14,12 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
+
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Stateless
 @Local(EventLogService.class)
@@ -50,12 +45,20 @@ public class EventLogServiceImpl implements EventLogService {
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
+    @EJB
+    private EventLogService newTransactionService;
+
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logLogInEvent(String login, String ip, boolean success) {
         if (!isLoginEventEnabled()) {
             return;
         }
+        newTransactionService.doLogLogInEvent(login, ip, success);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void doLogLogInEvent(String login, String ip, boolean success) {
         UserEventLogBuilder userEventLogBuilder = createLoginEventLogBuilder(login, ip, success);
         saveUserEventLog(userEventLogBuilder);
     }
@@ -69,12 +72,17 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logLogOutEvent(String login) {
         if (!isLogoutEventEnabled()) {
             return;
         }
 
+        newTransactionService.doLogLogOutEvent(login);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void doLogLogOutEvent(String login) {
         UserEventLogBuilder logoutEventLogBuilder = createLogoutEventLogBuilder(login);
         saveUserEventLog(logoutEventLogBuilder);
     }
@@ -106,12 +114,17 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logDownloadAttachmentEvent(Id attachment) {
         if (!isDownloadAttachmentEventEnabled()) {
             return;
         }
 
+        newTransactionService.doLogDownloadAttachmentEvent(attachment);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void doLogDownloadAttachmentEvent(Id attachment) {
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
         if (currentUserAccessor.getCurrentUserId() != null) {
             accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
@@ -125,46 +138,7 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     @Override
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void logAccessDomainObjectEvent(Id objectId, String accessType, boolean success) {
-        logAccessDomainObject(objectId, accessType, success);
-    }
-
-    @Override
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
-        List<DomainObject> objectAccessLogs = new ArrayList<>();
-
-        for (Id objectId : objectIds) {
-            DomainObject objectAccessLog = createObjectAccessLogObject(objectId, accessType, success);
-            if (objectAccessLog != null) {
-                objectAccessLogs.add(objectAccessLog);
-            }
-        }
-        domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
-    }
-
-    @Override
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
-        List<DomainObject> objectAccessLogs = new ArrayList<>();
-
-        for (DomainObject object : objects) {
-            DomainObject objectAccessLog = createObjectAccessLogObject(object.getId(), accessType, success);
-            if (objectAccessLog != null) {
-                objectAccessLogs.add(objectAccessLog);
-            }
-        }
-        if (objectAccessLogs.size() > 0) {
-            domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
-        }
-    }
-
-    private void logAccessDomainObject(Id objectId, String accessType, boolean success) {
-        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
-            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
-        }
-
         if (objectId == null) {
             return;
         }
@@ -173,6 +147,67 @@ public class EventLogServiceImpl implements EventLogService {
             return;
         }
 
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
+        }
+        newTransactionService.doLogDomainObjectAccess(objectId, accessType, success);
+    }
+
+    @Override
+    public void logAccessDomainObjectEvent(List<Id> objectIds, String accessType, boolean success) {
+        if (!isDomainObjectAccessLogEnabled()) {
+            return;
+        }
+
+        List<DomainObject> objectAccessLogs = null;
+
+        for (Id objectId : objectIds) {
+            DomainObject objectAccessLog = createObjectAccessLogObject(objectId, accessType, success);
+            if (objectAccessLog != null) {
+                if (objectAccessLogs == null) {
+                    objectAccessLogs = new ArrayList<>();
+                }
+                objectAccessLogs.add(objectAccessLog);
+            }
+        }
+        if (objectAccessLogs != null && objectAccessLogs.size() > 0) {
+            newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        }
+    }
+
+    @Override
+    public void logAccessDomainObjectEventByDo(List<DomainObject> objects, String accessType, boolean success) {
+        if (!isDomainObjectAccessLogEnabled()) {
+            return;
+        }
+
+        List<DomainObject> objectAccessLogs = null;
+
+        for (DomainObject object : objects) {
+            DomainObject objectAccessLog = createObjectAccessLogObject(object.getId(), accessType, success);
+            if (objectAccessLog != null) {
+                if (objectAccessLogs == null) {
+                    objectAccessLogs = new ArrayList<>();
+                }
+                objectAccessLogs.add(objectAccessLog);
+            }
+        }
+        if (objectAccessLogs != null && objectAccessLogs.size() > 0) {
+            newTransactionService.saveAccessLogObjects(objectAccessLogs);
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void saveAccessLogObjects(List<DomainObject> objectAccessLogs) {
+        if (objectAccessLogs.size() > 0) {
+            domainObjectDao.save(objectAccessLogs, getSystemAccessToken());
+        }
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void doLogDomainObjectAccess(Id objectId, String accessType, boolean success) {
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
         if (currentUserAccessor.getCurrentUserId() != null) {
             accessLogBuilder.setPerson(currentUserAccessor.getCurrentUserId());
@@ -186,17 +221,16 @@ public class EventLogServiceImpl implements EventLogService {
     }
 
     private DomainObject createObjectAccessLogObject(Id objectId, String accessType, boolean success) {
-        DomainObject objectAccessLog = null;
-        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
-            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
-        }
-
         if (objectId == null) {
-            return objectAccessLog;
+            return null;
         }
 
         if (!isAccessDomainObjectEventEnabled(objectId, accessType, success)) {
-            return objectAccessLog;
+            return null;
+        }
+
+        if (!EventLogService.ACCESS_OBJECT_READ.equals(accessType) && !EventLogService.ACCESS_OBJECT_WRITE.equals(accessType)) {
+            throw new IllegalArgumentException("Illegal access type '" + accessType + "' passed.");
         }
 
         ObjectAccessLogBuilder accessLogBuilder = new ObjectAccessLogBuilder();
@@ -208,8 +242,7 @@ public class EventLogServiceImpl implements EventLogService {
         accessLogBuilder.setEventType(EventLogType.ACCESS_OBJECT.name());
         accessLogBuilder.setObjectId(objectId).setAccessType(accessType).setDate(new Date()).setSuccess(success);
 
-        objectAccessLog = createObjectAccessLogDO(accessLogBuilder);
-        return objectAccessLog;
+        return createObjectAccessLogDO(accessLogBuilder);
     }
     
     private DomainObject saveObjectAccessLog(ObjectAccessLogBuilder objectAccessLogBuilder) {
@@ -253,6 +286,14 @@ public class EventLogServiceImpl implements EventLogService {
             return eventLogsConfiguration.getDownloadAttachment().isEnable();
         }
         return false;
+    }
+
+    private boolean isDomainObjectAccessLogEnabled() {
+        EventLogsConfig eventLogsConfiguration = configurationExplorer.getEventLogsConfiguration();
+        if (eventLogsConfiguration == null || eventLogsConfiguration.getDomainObjectAccess() == null) {
+            return false;
+        }
+        return eventLogsConfiguration.getDomainObjectAccess().isEnable();
     }
 
     public boolean isAccessDomainObjectEventEnabled(Id objectId, String accessType, boolean success) {
