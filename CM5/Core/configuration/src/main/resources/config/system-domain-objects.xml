@@ -9,6 +9,11 @@
             <string name="Description" length="128"/>
             <long name="ContentLength"/>
         </fields>
+        <indices>
+            <index>
+                <field name="Path"/>
+            </index>
+        </indices>
     </domain-object-type>
 
     <domain-object-type name="Status" db-id="31">

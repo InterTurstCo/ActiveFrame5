@@ -99,7 +99,7 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
                 //Получение задачи и запуск ее выполнения
                 ScheduleTaskHandle handle =
                         scheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
-                result = handle.execute(sessionContext, scheduleService.getTaskParams(taskId));
+                result = handle.execute(ejbContext, sessionContext, scheduleService.getTaskParams(taskId));
             } catch (InterruptedException ex) {
                 logger.error("Task " + taskId + " abort by InterruptedException", ex);
                 ejbContext.getUserTransaction().rollback();

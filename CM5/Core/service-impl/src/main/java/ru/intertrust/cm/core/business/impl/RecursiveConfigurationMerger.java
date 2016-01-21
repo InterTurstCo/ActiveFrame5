@@ -141,6 +141,10 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
     }
 
     private void merge(DomainObjectTypeConfig domainObjectTypeConfig) {
+        if (domainObjectTypeConfig.isTemplate()) {
+            return;
+        }
+
         DomainObjectTypeConfig oldDomainObjectTypeConfig =
                 oldConfigExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectTypeConfig.getName());
 
@@ -167,7 +171,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             usedId = domainObjectTypeIdDao.findIdByName(domainObjectTypeConfig.getName());
         }
 
-        if (usedId == null) {
+        if (!domainObjectTypeConfig.isTemplate() && usedId == null) {
             throw new FatalException("Cannot update domain object type " + domainObjectTypeConfig.getName() +
                     " because it's not found in domain_object_type_id table");
         }

@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl.notification;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class NotificationScheduleTask extends NotificationSenderBase implements 
     private PermissionServiceDao permissionService;
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
 
         NotificationTaskConfig notificationTaskConfig = (NotificationTaskConfig) parameters;
 

@@ -4,13 +4,15 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
 import ru.intertrust.cm.core.model.ScheduleException;
+
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 @ScheduleTask(name = "TestSingleScheduleWithParams", minute = "*/1", configClass = TestSheduleDefaultParameter.class)
 public class TestSingleScheduleWithParams implements ScheduleTaskHandle {
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) {
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) {
         try {
             TestScheduleParameters testScheduleParameters = (TestScheduleParameters)parameters;
             

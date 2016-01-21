@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.UUID;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,13 +199,16 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         return fs.toAbsolutePath().toString();
     }
 
-    private String toRelativeFromAbsPathFile(String absFilePath) {
-
-        if (Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation))) {
-            return absFilePath.substring(attachmentSaveLocation.length());
-        } else {
-            return absFilePath;
+    @Override
+    public String toRelativeFromAbsPathFile(String absFilePath) {
+        String relativePath = Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation)) ?
+                absFilePath.substring(attachmentSaveLocation.length()) : absFilePath;
+        
+        if (relativePath.startsWith("\\")) {
+            relativePath = FilenameUtils.separatorsToUnix(relativePath);
         }
+
+        return relativePath;
     }
 
     private String toAbsFromRelativePathFile(String relFilePath) {

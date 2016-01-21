@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.business.api.schedule;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 /**
@@ -13,5 +14,5 @@ public interface ScheduleTaskHandle {
      * @param parameters
      * @return возвращает результат работы периодического задания в виде строки. Строка будет хранится в доменном обете задания
      */
-    String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException;
+    String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException;
 }

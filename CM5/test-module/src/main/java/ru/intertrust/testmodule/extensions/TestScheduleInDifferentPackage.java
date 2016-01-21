@@ -1,5 +1,6 @@
 package ru.intertrust.testmodule.extensions;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.slf4j.Logger;
@@ -14,7 +15,7 @@ public class TestScheduleInDifferentPackage implements ScheduleTaskHandle{
     private Logger logger = LoggerFactory.getLogger(TestScheduleInDifferentPackage.class);
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
         logger.info("start TestScheduleInDifferentPackage");
         return "ОК";
     }

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.schedule;
 
 import java.text.ParseException;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.junit.Assert;
@@ -24,7 +25,7 @@ public class TestSchedule {
     public class TestScheduleWithDefaultParams implements ScheduleTaskHandle {
 
         @Override
-        public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) {
+        public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) {
             return "OK";
         }
 
