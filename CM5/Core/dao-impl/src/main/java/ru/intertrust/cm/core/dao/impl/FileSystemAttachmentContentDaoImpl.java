@@ -178,6 +178,18 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
     }
 
+    @Override
+    public String toRelativeFromAbsPathFile(String absFilePath) {
+        String relativePath = Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation)) ?
+                absFilePath.substring(attachmentSaveLocation.length()) : absFilePath;
+
+        if (relativePath.startsWith("\\")) {
+            relativePath = FilenameUtils.separatorsToUnix(relativePath);
+        }
+
+        return relativePath;
+    }
+
     private boolean isPathEmptyInDo(DomainObject domainObject) {
         Value<?> value = domainObject.getValue(PATH_NAME);
         return value == null || value.isEmpty() || !(value instanceof StringValue);
@@ -197,18 +209,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             fs = Paths.get(absDirPath, nameCandidate);
         } while (Files.exists(fs, LinkOption.NOFOLLOW_LINKS));
         return fs.toAbsolutePath().toString();
-    }
-
-    @Override
-    public String toRelativeFromAbsPathFile(String absFilePath) {
-        String relativePath = Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation)) ?
-                absFilePath.substring(attachmentSaveLocation.length()) : absFilePath;
-        
-        if (relativePath.startsWith("\\")) {
-            relativePath = FilenameUtils.separatorsToUnix(relativePath);
-        }
-
-        return relativePath;
     }
 
     private String toAbsFromRelativePathFile(String relFilePath) {

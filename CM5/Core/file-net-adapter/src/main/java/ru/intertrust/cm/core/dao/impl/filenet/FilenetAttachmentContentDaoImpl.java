@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.dao.impl.filenet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -73,6 +74,11 @@ public class FilenetAttachmentContentDaoImpl implements AttachmentContentDao {
         } catch (Exception ex) {
             throw new DaoException("Error delete content", ex);
         }
+    }
+
+    @Override
+    public String toRelativeFromAbsPathFile(String absFilePath) {
+        throw new UnsupportedOperationException();
     }
 
 }
