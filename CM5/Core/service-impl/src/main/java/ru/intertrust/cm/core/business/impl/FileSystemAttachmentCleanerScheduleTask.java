@@ -34,7 +34,7 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
     private String attachmentSaveLocation;
 
     @org.springframework.beans.factory.annotation.Value("${attachment.delete.batch.size:100}")
-    private String fileDeleteBatchSize;
+    private int fileDeleteBatchSize;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
