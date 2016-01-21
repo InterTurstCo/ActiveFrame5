@@ -284,6 +284,10 @@ public class GwtUtil {
         if (doMapper != null) {
             doMapper.clear();
         }
+        UploadMapper uploadMapper = (UploadMapper)  context.getVariables().getObject("UploadMapper");
+        if (uploadMapper != null) {
+            uploadMapper.clear();
+        }        
     }
 
     
