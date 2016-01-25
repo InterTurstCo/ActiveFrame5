@@ -21,7 +21,7 @@ public class MinimumFunction implements DoelFunctionImplementation {
             AccessToken accessToken) {
         T min = null;
         for (Object value : context) {
-            if (min == null || min.compareTo(value) >= 0) {
+            if (min == null || min.compareTo((T)value) >= 0) {
                 min = (T) value;
             }
         }

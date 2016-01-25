@@ -46,6 +46,11 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
 
     private static final String EMAIL_FIELD = "email";
 
+    /**
+     * Зарезарвированное имя вложения, которое означает что имя надо использовать такое же как и у вложения ДО
+     */
+    private static final String ATTACH_NAME = "ATTACH_NAME";
+
     private static final Logger logger = Logger.getLogger(MailNotificationChannel.class);
 
     @Override
@@ -128,7 +133,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                 notificationTextFormer.format(notificationType, ATTACHMENT_MAIL_PART, addresseeId, locale,
                         MAIL_NOTIFICATION_CHANNEL, context);
         
-            //В attachment должна находиться строка в формате имя_фйла,идентификатор_объекта_с_вложением,имя_вложения      
+            //В attachment должна находиться строка в формате имя_фйла;идентификатор_объекта_с_вложением;имя_вложения      
             String[] attachmentInfo = attachment.split(";"); 
             //Получаем объект к которому приаттачено вложение
             Id documentWithAttachmentId = idService.createId(attachmentInfo[1]);
@@ -139,9 +144,13 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
             for (AttachmentTypeConfig attachmentTypeConfig : documentWithAttachmentTypeConfig.getAttachmentTypesConfig().getAttachmentTypeConfigs()) {
                 List<DomainObject> linkedAttachments = domainObjectDao.findLinkedDomainObjects(documentWithAttachmentId, attachmentTypeConfig.getName(), documentWithAttachment.getTypeName(), systemAccessToken);
                 for (DomainObject attachmentObject : linkedAttachments) {
-                    if (attachmentObject.getString("name").equalsIgnoreCase(attachmentInfo[2])){
-                        ByteArrayResource streamSource = new ByteArrayResource(getAttachmentContent(attachmentObject)); 
-                        message.addAttachment(attachmentInfo[0],  streamSource);
+                    if (attachmentObject.getString("name").matches(attachmentInfo[2])){
+                        ByteArrayResource streamSource = new ByteArrayResource(getAttachmentContent(attachmentObject));
+                        String attachName = attachmentInfo[0];
+                        if (attachmentInfo[0].equals(ATTACH_NAME)){
+                            attachName = attachmentObject.getString("name");
+                        }
+                        message.addAttachment(attachName,  streamSource);
                     }
                 }
             }
