@@ -38,6 +38,7 @@ import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeaderController;
@@ -638,7 +639,7 @@ public class CollectionPluginView extends PluginView {
 
     private void createEmbeddedTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<Boolean> checkBoxColumn =
-                new CollectionColumn<Boolean>(new CheckboxCell(true, true)) {
+                new CollectionColumn<Boolean>(new LabledCheckboxCell(true, true)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
                         return getPluginData().getChosenIds().contains(object.getId());
@@ -664,7 +665,7 @@ public class CollectionPluginView extends PluginView {
 
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<Boolean> checkBoxColumn =
-                new CollectionColumn<Boolean>(new CheckboxCell(false, false)) {
+                new CollectionColumn<Boolean>(new LabledCheckboxCell(false, false)) {
                     @Override
                     public Boolean getValue(CollectionRowItem object) {
                         CollectionPlugin collectionPlugin = getPlugin();
