@@ -1,31 +1,21 @@
 package ru.intertrust.cm.core.tools;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.LongFieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Класс обертка над сервисом domainObjectDao для более удобной работы с объектм
@@ -133,8 +123,10 @@ public class DomainObjectAccessor implements Dto {
         } else if (config instanceof DecimalFieldConfig) {
             if (value instanceof BigDecimal) {
                 domainObject.setDecimal(fieldName, (BigDecimal) value);
-            } else {
+            } else if (value instanceof Double){
                 domainObject.setDecimal(fieldName, BigDecimal.valueOf((double) value));
+            } else {
+                domainObject.setDecimal(fieldName, BigDecimal.valueOf((int) value));
             }
         } else if (config instanceof DateTimeFieldConfig) {
             if (value instanceof Date) {

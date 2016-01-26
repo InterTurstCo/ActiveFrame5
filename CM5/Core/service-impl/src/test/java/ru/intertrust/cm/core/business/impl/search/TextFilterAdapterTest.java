@@ -1,21 +1,23 @@
 package ru.intertrust.cm.core.business.impl.search;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.initMocks;
-
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.model.SearchException;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TextFilterAdapterTest {
 
@@ -41,9 +43,12 @@ public class TextFilterAdapterTest {
                 .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         String result = adapter.getFilterString(filter, query);
-        assertEquals("(cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)"
-                + " OR cm_ru_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon))",
-                result);
+        if (!result.equals("(cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)" +
+                " OR cm_ru_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon))") &&
+            !result.equals("(cm_ru_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)" +
+                    " OR cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon))")) {
+            assertTrue("Incorrect result: " + result, false);
+        }
     }
 
     @Test
