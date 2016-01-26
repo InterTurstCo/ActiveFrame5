@@ -26,14 +26,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelExpression.Function;
@@ -49,6 +44,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DoelEvaluator;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
@@ -64,10 +60,7 @@ public class DoelResolver implements DoelEvaluator {
     private static final Logger log = LoggerFactory.getLogger(DoelResolver.class);
 
     @Autowired
-    @Qualifier("switchableNamedParameterJdbcTemplate")
-    private NamedParameterJdbcOperations jdbcTemplate;
-    //private NamedParameterJdbcTemplate jdbcTemplate;
-
+    private CollectionsDao collectionsDao;
     @Autowired
     private AccessControlService accessControlService;
     @Autowired
@@ -84,10 +77,6 @@ public class DoelResolver implements DoelEvaluator {
     private UserGroupGlobalCache userGroupCache;
     @Autowired
     private DomainObjectQueryHelper domainObjectQueryHelper;
-
-    public void setDataSource(DataSource dataSource) {
-        this.jdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
 
     public ConfigurationExplorer getConfigurationExplorer() {
         return configurationExplorer;
@@ -114,11 +103,11 @@ public class DoelResolver implements DoelEvaluator {
     }
 
     @Override
-    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
+    public List<Value> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
         return evaluateInternal(expression, sourceObjectId, accessToken);
     }
 
-    public <T extends Value> List<T> evaluateInternal(DoelExpression expression, Id sourceObjectId,
+    public List<Value> evaluateInternal(DoelExpression expression, Id sourceObjectId,
             AccessToken accessToken) {
         try {
             RdbmsId id = (RdbmsId) sourceObjectId;
@@ -127,7 +116,7 @@ public class DoelResolver implements DoelEvaluator {
             if (!check.isCorrect()) {
                 return Collections.emptyList();
             }
-            ArrayList<T> result = new ArrayList<>();
+            ArrayList<Value> result = new ArrayList<>();
             for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
                 evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
             }
@@ -163,8 +152,8 @@ public class DoelResolver implements DoelEvaluator {
      *            Выходной параметр - список, в который заносятся вычисленные значения выражения
      */
     @SuppressWarnings("unchecked")
-    private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
-            List<RdbmsId> sourceIds, List<T> result, AccessToken accessToken) {
+    private void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
+            List<RdbmsId> sourceIds, List<Value> result, AccessToken accessToken) {
         //String type = branch.getType();
 
         ArrayList<RdbmsId> nextIds = new ArrayList<>();
@@ -196,11 +185,11 @@ public class DoelResolver implements DoelEvaluator {
                             result.add((T) value);
                         }*/
                         if (fieldElem.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)) {
-                            result.add((T) new ReferenceValue(obj.getId()));
+                            result.add(new ReferenceValue(obj.getId()));
                         } else {
-                            T value = obj.getValue(fieldElem.getName());
+                            Value value = obj.getValue(fieldElem.getName());
                             if (value != null) {
-                                result.add((T) value);
+                                result.add(value);
                             }
                         }
                     } else {
@@ -231,7 +220,7 @@ public class DoelResolver implements DoelEvaluator {
                     } else {
                         for (DomainObject child : children) {
                             if (lastStep) {
-                                result.add((T) new ReferenceValue(child.getId()));
+                                result.add(new ReferenceValue(child.getId()));
                             } else {
                                 nextIds.add((RdbmsId) child.getId());
                             }
@@ -363,12 +352,15 @@ public class DoelResolver implements DoelEvaluator {
         applyAcl(select, accessToken);
 
         String query = select.toString();
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        applyAclParameters(parameters, accessToken);
+        IdentifiableObjectCollection collectionValues = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
 
-        List<T> values = jdbcTemplate.query(query, parameters, new DoelResolverRowMapper<T>(linkField, fieldConfig));
-        if (values.size() == 0) {
+        if (collectionValues == null || collectionValues.size() == 0) {
             return;
+        }
+
+        List<Value> values = new ArrayList<>(collectionValues.size());
+        for (int i = 0; i < collectionValues.size(); i ++) {
+            values.add(collectionValues.get(0, i));
         }
 
         Function[] functions = expr.getElements()[step - 1].getFunctions();
