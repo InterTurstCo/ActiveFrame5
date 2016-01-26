@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.headernotification;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbsolutePanel;
@@ -40,6 +42,7 @@ public class HeaderNotificationPluginView extends PluginView{
     private HeaderNotificationPluginData headerNotificationPluginData;
     private ArrayList<HeaderNotificationItem> listNotificationItem;
     private FormPlugin oldFormPlugin;
+
 
     protected HeaderNotificationPluginView(Plugin plugin) {
         super(plugin);
@@ -115,12 +118,14 @@ public class HeaderNotificationPluginView extends PluginView{
                     formPluginState.setToggleEdit(true);
                     formPluginState.setEditable(false);
                     formPluginState.setInCentralPanel(true);
+
                     config.setPluginState(formPluginState);
                     //commented out: don't close the old plugin, to be able to return back to it when notification plugin is closed
 //                    if (oldFormPlugin != null){
 //                        oldFormPlugin.getOwner().closeCurrentPlugin();
 //                    }
                     formPlugin = createFormPlugin(config);
+                    formPlugin.setLocalEventBus(new SimpleEventBus());
                     oldFormPlugin = formPlugin;
 
 
