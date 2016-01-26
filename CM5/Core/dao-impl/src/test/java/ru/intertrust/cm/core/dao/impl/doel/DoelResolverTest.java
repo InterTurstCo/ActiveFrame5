@@ -5,10 +5,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -25,16 +22,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.doel.AnnotationFunctionValidator;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.doel.DoelFunction;
@@ -42,6 +32,7 @@ import ru.intertrust.cm.core.config.doel.DoelFunctionRegistry;
 import ru.intertrust.cm.core.config.doel.DoelFunctionValidator;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
@@ -53,7 +44,7 @@ public class DoelResolverTest {
     @InjectMocks
     private final DoelResolver doelResolver = new DoelResolver();
     @Mock
-    private NamedParameterJdbcTemplate jdbcTemplate;
+    private CollectionsDao collectionsDao;
     @Mock
     private ConfigurationExplorer configurationExplorer;
     @Mock
@@ -92,7 +83,8 @@ public class DoelResolverTest {
                 "join \"job\" t1 on t0.\"id\" = t1.\"parent\" " +
                 "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
                 "where t0.\"parent\" = 105";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
     }
 
     @Test
@@ -116,7 +108,8 @@ public class DoelResolverTest {
                 "from \"job\" t0 " +
                 "join \"person\" t1 on t0.\"assignee\" = t1.\"id\" " +
                 "where t0.\"parent\" in (11, 12)";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
     }
 
     @Test
@@ -133,7 +126,8 @@ public class DoelResolverTest {
                 "join \"person\" t2 on t1.\"assignee\" = t2.\"id\" " +
                 "join \"unit\" t3 on t2.\"department\" = t3.\"id\" " +
                 "where t0.\"parent\" = 105";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
     }
 
     @Test
@@ -149,16 +143,26 @@ public class DoelResolverTest {
                 "join \"incomingdocument\" t1 on t0.\"parent\" = t1.\"id\" " +
                 "join \"person\" t2 on t1.\"addressee\" = t2.\"id\" " +
                 "where t0.\"id\" = 11";
-        verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql)), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testEvaluationWithWildcardReference() {
         DoelExpression expr = DoelExpression.parse("from.Name");
-        when(jdbcTemplate.query(anyString(), any(Map.class), any(RowMapper.class))).thenReturn(
-                Arrays.asList(new ReferenceValue(docId), new ReferenceValue(comm1Id)),
-                Collections.emptyList());
+
+        IdentifiableObjectCollection collectionValues = new GenericIdentifiableObjectCollection();
+        List<FieldConfig> collectionFieldConfigs = new ArrayList<>(1);
+        collectionFieldConfigs.add(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee"));
+        collectionValues.setFieldsConfiguration(collectionFieldConfigs);
+
+        collectionValues.set(0, 0, new ReferenceValue(docId));
+        collectionValues.set(0, 1, new ReferenceValue(comm1Id));
+
+        when(collectionsDao.findCollectionByQuery(anyString(), any(Integer.class), any(Integer.class),
+                any(AccessToken.class))).thenReturn(collectionValues);
+
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         doelResolver.evaluate(expr, linkId, accessToken);
 
@@ -172,7 +176,8 @@ public class DoelResolverTest {
                 "from \"document\" t0 " +
                 "where t0.\"id\" = " + docId.getId();
         //verify(jdbcTemplate).query(argThat(new SqlStatementMatcher(correctSql1)), any(RowMapper.class));
-        verify(jdbcTemplate, times(2)).query(sql.capture(), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao, times(2)).findCollectionByQuery(sql.capture(), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
         assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
     }
@@ -184,9 +189,17 @@ public class DoelResolverTest {
     @SuppressWarnings("unchecked")
     public void testEvaluationWithFunction() {
         DoelExpression expr = DoelExpression.parse("Commission^parent:Status(Assigned,Executing).Job^parent.Assignee");
-        when(jdbcTemplate.query(anyString(), any(Map.class), any(RowMapper.class))).thenReturn(
-                Arrays.asList(new ReferenceValue(comm1Id), new ReferenceValue(comm2Id)),
-                Collections.emptyList());
+
+        IdentifiableObjectCollection collectionValues = new GenericIdentifiableObjectCollection();
+        List<FieldConfig> collectionFieldConfigs = new ArrayList<>(1);
+        collectionFieldConfigs.add(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee"));
+        collectionValues.setFieldsConfiguration(collectionFieldConfigs);
+
+        collectionValues.set(0, 0, new ReferenceValue(comm1Id));
+        collectionValues.set(0, 1, new ReferenceValue(comm2Id));
+
+        when(collectionsDao.findCollectionByQuery(anyString(), any(Integer.class), any(Integer.class),
+                any(AccessToken.class))).thenReturn(collectionValues);
         DoelFunctionValidator statusValidator = new AnnotationFunctionValidator(
                 TestStatusFunction.class.getAnnotation(DoelFunction.class));
         when(doelFunctionRegistry.getFunctionValidator("Status")).thenReturn(statusValidator);
@@ -216,8 +229,8 @@ public class DoelResolverTest {
                 "select t0.\"assignee\", t0.\"assignee_type\" " +
                 "from \"job\" t0 " +
                 "where t0.\"parent\" = " + comm1Id.getId();
-        //verify(jdbcTemplate, times(2)).query(argThat(new SqlStatementMatcher(correctSql1)), any(RowMapper.class));
-        verify(jdbcTemplate, times(2)).query(sql.capture(), any(Map.class), any(RowMapper.class));
+        verify(collectionsDao, times(2)).findCollectionByQuery(sql.capture(), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
         assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
     }
