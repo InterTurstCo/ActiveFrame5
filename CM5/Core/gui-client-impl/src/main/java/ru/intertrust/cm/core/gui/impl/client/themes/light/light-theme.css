@@ -104,14 +104,11 @@ body, table td, select {
 
 .calendarScrollPanel {
     position: absolute !important;
+    background: #F6F6F6
     top: 65px;
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(248, 249, 255);
-
-    /*   overflow-y: hidden !important;*/
-
 }
 
 .calendarContainer {
@@ -144,12 +141,12 @@ body, table td, select {
 }
 
 .calendar-work-day-block {
-    background: rgb(248, 249, 255);
+    background: #F6F6F6;
     float: left;
 }
 
 .calendar-holiday-block {
-    background: rgb(248, 249, 255);
+    background: #F6F6F6;
     float: none;
 }
 
@@ -204,7 +201,7 @@ body, table td, select {
 }
 
 .today {
-    background: #fffbe2;
+    background: #FFFBE2;
 
 }
 
@@ -729,7 +726,7 @@ div.gwt-Good-Label {
 }
 
 .right-div {
-    /*background: #fafafa;*/
+    min-height: 71px;
 }
 
 .gwt-TabPanelBottom,
@@ -885,3 +882,122 @@ a[href='#login'] {
 .gwt-TabBar {
     background: transparent;
 }
+
+/*checkbox in table*/
+
+/*.collection-plugin-view-container input[type="checkbox"] {*/
+    /*margin: 8px;*/
+    /*position: relative;*/
+    /*top: 30px;*/
+/*}*/
+
+/*.collection-plugin-view-container input[type="checkbox"]+label:before {*/
+    /*content: "";*/
+    /*display: block;*/
+    /*width: 15px;*/
+    /*height: 15px;*/
+    /*border: 1px solid black;*/
+    /*position: absolute;*/
+    /*top: -32px;*/
+    /*left: -4px;*/
+    /*z-index: 100;*/
+/*}*/
+
+/*.collection-plugin-view-container input[type="checkbox"]+label:after {*/
+    /*content: "";*/
+    /*width: 18px;*/
+    /*height: 18px;*/
+    /*background: url(images/check-ok.png) no-repeat;*/
+    /*background-size: cover;*/
+    /*position: absolute;*/
+    /*top: -33px;*/
+    /*left: -5px;*/
+    /*opacity: 0;*/
+    /*transition: opacity 0.3s linear;*/
+/*}*/
+
+/*.collection-plugin-view-container input[type=checkbox]:checked+label:after {*/
+    /*opacity: 1;*/
+/*}*/
+
+/*.GAKMBIVEG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridFirstColumn>div {*/
+    /*position: relative;*/
+/*}*/
+
+
+label.checkbox {
+    width: 20px;
+    height: 26px;
+    display: block;
+    position: relative;
+    z-index: 9;
+}
+
+label.checkbox input[type="checkbox"] {
+    opacity: 0;
+    position: relative;
+    z-index: 10;
+    top: 4px;
+    left: -1px;
+}
+
+label.checkbox input[type="checkbox"] + span {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    background: url(images/CheckBoxT.png) -20px 1px no-repeat;
+    cursor: pointer;
+}
+
+label.checkbox input[type="checkbox"]:checked + span {
+    background-position:  1px 1px;
+}
+/*end checkbox in table*/
+
+.gwt-TabBarItem-wrapper .gwt-Label {
+    font-size: 15px;
+}
+/*style for row table*/
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow {
+    background: #F5F5F5 !important;
+    outline: 1px solid black;
+    box-shadow: none !important;
+}
+
+.GAKMBIVJD-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedRow {
+    background: #FFF0CD !important;
+}
+
+.GAKMBIVKD-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedRowCell {
+    border: 2px solid #FFF0CD !important;
+}
+
+.GAKMBIVID-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedCell {
+    border: 2px solid #d7dde8 !important;
+}
+
+.GAKMBIVGE-com-google-gwt-user-cellview-client-CellTable-Style-cellTableWidget {
+    border-collapse: separate !important;
+}
+
+/* end style for row table*/
+
+.root-div {
+    background: #fefeff; /* Old browsers */
+    background: -moz-linear-gradient(left,  #fefeff 0%, #d4e1e9 13%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(left,  #fefeff 0%,#d4e1e9 13%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to right,  #fefeff 0%,#d4e1e9 13%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefeff', endColorstr='#d4e1e9',GradientType=1 ); /* IE6-9 */
+}
+
+.left-div-visible {
+    background: none;
+}
+
+
+/*style for calendar*/
+
+
+

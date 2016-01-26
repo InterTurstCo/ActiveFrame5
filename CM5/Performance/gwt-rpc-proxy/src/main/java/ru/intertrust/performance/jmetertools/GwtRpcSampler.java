@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.engine.event.LoopIterationEvent;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
@@ -31,6 +32,7 @@ public class GwtRpcSampler extends HTTPSampler {
     private Object response;
 
     private boolean error;
+    
 
     @Override
     protected HTTPSampleResult sample(java.net.URL url, String method,
@@ -51,7 +53,6 @@ public class GwtRpcSampler extends HTTPSampler {
             SerializationPolicy policy = provider.getSerializationPolicy(requestViewer.getModuleBaseUrl(), policyStrongName);
             GwtRpcRequest request = new GwtRpcRequest(methodDef, requestViewer.getParameters(), policy, 0, requestViewer.getModuleBaseUrl(), policyStrongName, requestViewer.getPolicyNameAlias());
 
-            //getArguments().getArgument(0).setValue(request.encode());
             Arguments arguments = new Arguments();
             HTTPArgument httpArgument = new HTTPArgument("", request.encode(requestViewer.getModuleBaseUrl(), policyStrongName));
             httpArgument.setAlwaysEncoded(false);
@@ -130,6 +131,11 @@ public class GwtRpcSampler extends HTTPSampler {
         }
         return result;
     }    
+
+    @Override
+    public void testIterationStart(LoopIterationEvent event) {
+        request = null;
+    }
 
 }
 

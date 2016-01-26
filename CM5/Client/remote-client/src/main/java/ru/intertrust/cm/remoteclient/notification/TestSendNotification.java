@@ -1,10 +1,27 @@
 package ru.intertrust.cm.remoteclient.notification;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.naming.NamingException;
+
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.SimpleRemoteInputStream;
+
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddressee;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationAddresseePerson;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
+import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestSendNotification extends ClientBase {
@@ -13,6 +30,8 @@ public class TestSendNotification extends ClientBase {
     private CollectionsService.Remote collectionService;
 
     private AttachmentService.Remote attachmentService;
+
+    private NotificationService notificationService;
 
     public static void main(String[] args) {
         try {
@@ -34,7 +53,10 @@ public class TestSendNotification extends ClientBase {
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
 
             attachmentService = (AttachmentService.Remote) getService(
-                    "AttachmentServiceImpl", AttachmentService.Remote.class);
+                    "RemoteAttachmentServiceImpl", AttachmentService.Remote.class);
+
+            notificationService = (NotificationService.Remote) getService(
+                    "NotificationService", NotificationService.Remote.class);
 
             DomainObject organization = createOrganization("Organization-" + System.currentTimeMillis());
 
@@ -42,13 +64,59 @@ public class TestSendNotification extends ClientBase {
 
             department.setString("Description", "description-" + System.currentTimeMillis());
             department = crudService.save(department);
-            
+
             DomainObject employee = createEmployee("employee-" + System.currentTimeMillis(), department);
 
+            //Сообщение с несколькими вложениями
+            DomainObject test22 = crudService
+                    .createDomainObject("test_type_22");
+            test22.setString("name", "test-" + System.currentTimeMillis());
+            test22 = crudService.save(test22);
+
+            DomainObject firstAttachment = setAttachment(test22, new File("test.pdf"));
+            DomainObject secondAttachment = setAttachment(test22, new File("test.bmp"));
+
+            NotificationContext context = new NotificationContext();
+            context.addContextObject("attach", test22.getId());
+
+            List<NotificationAddressee> addressee = new ArrayList<NotificationAddressee>();
+            addressee.add(new NotificationAddresseePerson(getPersonId("person10")));
+            notificationService.sendNow("TEST_MULTY_ATTACH", getPersonId("admin"), 
+                    addressee,
+                    NotificationPriority.HIGH, context);
             System.out.println("Test End");
         } finally {
             writeLog();
         }
+    }
+
+    private Id getPersonId(String personLogin) throws NamingException {
+        IdentifiableObjectCollection collection =
+                collectionService.findCollectionByQuery("select t.id from person t where t.login = '" + personLogin
+                        + "'");
+        Id result = null;
+        if (collection.size() > 0) {
+            result = collection.getId(0);
+        }
+        return result;
+    }
+
+    private DomainObject setAttachment(DomainObject domainObject, File file) throws IOException {
+        return setAttachment(domainObject, file.getName(), readFile(file));
+    }
+
+    private DomainObject setAttachment(DomainObject domainObject, String name, byte[] content) throws IOException {
+        DomainObject attachment =
+                attachmentService.createAttachmentDomainObjectFor(domainObject.getId(),
+                        "test_type_22_attach");
+        attachment.setString("Name", name);
+        ByteArrayInputStream bis = new ByteArrayInputStream(content);
+        SimpleRemoteInputStream simpleRemoteInputStream = new SimpleRemoteInputStream(bis);
+
+        RemoteInputStream remoteInputStream;
+        remoteInputStream = simpleRemoteInputStream.export();
+        DomainObject result = attachmentService.saveAttachment(remoteInputStream, attachment);
+        return result;
     }
 
     private DomainObject createEmployee(String name, DomainObject department) {
