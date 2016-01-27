@@ -1,107 +1,51 @@
-//Формирование тестовой строки прямо в форме при сохранение
-${__RandomString(50,qwertyuiopasdfghjklzxcvbnm)}
-//=====================================================
-
-//Установка имени вложения (надо заменить в тексте запроса имя которое было сохранено при записи)
-${ATTACHMENT_TEMP_NAME}
-
-
-//=====================================================
-
-//Замена текстового поля в форме
-import ru.intertrust.performance.jmetertools.*;
-
-//Декодируем запрос
-GwtRpcRequest request = GwtUtil.decodeRequest(sampler);
-
-//Получаем нужный параметр
-ru.intertrust.cm.core.gui.model.Command command = request.getParameters()[0];
-ru.intertrust.cm.core.gui.model.action.SaveActionContext saveContext = command.getParameter();
-ru.intertrust.cm.core.gui.model.form.FormState formState = saveContext.getFormState();
-log.info(formState.toString());
-java.util.Map widgetStateMap = formState.getFullWidgetsState();
-log.info(widgetStateMap.toString());
-ru.intertrust.cm.core.gui.model.form.widget.TextState textState = widgetStateMap.get("2");
-log.info(textState.toString() + textState.getText());
-
-//Устанавливаем новое значение
-textState.setText("frtretretwertwertwer");
-
-//Кодируем измененный запрос
-sampler.getArguments().getArgument(0).setValue(request.encode());
-
-
-
-
-
-
-
-
-//=====================================================
-
-
-//Замена текстового поляb не только с помощью GwtUtil
-import ru.intertrust.performance.jmetertools.*;
-
-//Декодируем запрос
-GwtRpcRequest request = GwtUtil.decodeRequest(sampler);
-
-//Получаем виджет с именем
-ru.intertrust.cm.core.gui.model.form.widget.TextState nameState = GwtUtil.getWidgetState(request, "2");
-//Устанавливаем новое значение
-nameState.setText(GwtUtil.getRndString(20));
-
-// получаем виджет country_attachment
-ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState countryAttachmentState = GwtUtil.getWidgetState(request, "country_attachment");
-//Устанавливаем новое значение
-countryAttachmentState.getAttachments().get(0).setTemporaryName(vars.get("ATTACHMENT_TEMP_NAME"));
-
-// получаем виджет capital (на форме 8a)
-ru.intertrust.cm.core.gui.model.form.widget.ListBoxState capital = GwtUtil.getWidgetState(request, "8a");
-//Устанавливаем новое значение, ранее сохраненный город в 10-/cm-sochi/remote/BusinessUniverseService
-capital.getSelectedIds().get(0).clear();
-capital.getSelectedIds().get(0).add(vars.getObject("RND_CITY"));
-
-//Кодируем измененный запрос и записываем в семплер
-GwtUtil.setRequest(sampler, request);
-
-
-//=====================================================
-
-//Сохранение случайного значения справочника в переменной
-import ru.intertrust.performance.jmetertools.*;
-
-//Сохранение случайного значения справочника в переменной
-ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData responce = GwtUtil.decodeResponce(prev);
-//Запоминаем случайный город
-ru.intertrust.cm.core.business.api.dto.Id city = GwtUtil.getRndCollectionsRow(responce);
-//Сохраняем в переменной
-vars.putObject("RND_CITY", city);
-
-
-//========================= замена одного поля на случайную величину
-import ru.intertrust.cm.core.gui.model.form.widget.*;
-
-	//Декодируем запрос
-	GwtRpcRequest request = GwtUtil.decodeRequest(sampler);
-	
-	//поле наименование
-	TextState nameState = (TextState)GwtUtil.findWidgetState(request, "2", TextState.class);
-	nameState.setText(GwtUtil.getRndString(20));
-	
-	//Кодируем измененный запрос и записываем в семплер
-	GwtUtil.setRequest(sampler, request);
-	
-	
-	
-////////////////////////////////////////////////////////////////////////////////////////
-//////////////    Новая версия
-////////////////////////////////////////////////////////////////////////////////////////
-
 //========= замена текстового поля
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 
 	TextState nameState = (TextState)GwtUtil.findWidgetState(sampler.getRequest(), "2", TextState.class);
 	nameState.setText("Страна-" + GwtUtil.getRndString(20));
 
+//========= замена значения в SuggestBox
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+
+	SuggestBoxState capital = GwtUtil.findWidgetState(sampler.getRequest(), "8a", SuggestBoxState.class);
+	capital.getSelectedIds().clear();
+	//Устанавливаем новое значение из ранее сохраненной переменной
+	capital.getSelectedIds().add(vars.getObject("RND_CITY"));	
 	
+	
+//========= Получение случайного элемента из выпадающего списка и сохранение в переменной
+import ru.intertrust.cm.core.gui.model.plugin.collection.*;
+import ru.intertrust.cm.core.business.api.dto.*;
+
+	//Получаем случайную строку
+	CollectionRowItem row = GwtUtil.getRndCollectionsRow(prev.getResponseObject());
+	Id city = row.getId();
+	//Сохраняем ID строки в переменной		
+	vars.putObject("RND_CITY", city);	
+
+//========= Получение идентификатора только что созданного ДО		
+import ru.intertrust.cm.core.business.api.dto.*;
+
+	Id newDataId = GwtUtil.getSavedId(prev.getResponseObject());
+
+
+//========= Аутентификация под заданным пользователем		
+import ru.intertrust.cm.core.business.api.dto.*;
+
+	String userName = "USERXXX";
+	String password = "1";
+	UserUidWithPassword userUidWithPassword = (UserUidWithPassword)sampler.getRequest().getParameters()[0];
+	userUidWithPassword.setUserUid(userName);
+	userUidWithPassword.setPassword(password);
+	
+//========= Получение номера потока
+
+	//Нумерация потоков начинается с 1
+	int threadNum=ctx.getThreadNum();
+
+//========= Получение номера итерации
+
+	//Нумерация итераций начинается с 0
+	int iterNum=vars.getIteration(); 
+
+		

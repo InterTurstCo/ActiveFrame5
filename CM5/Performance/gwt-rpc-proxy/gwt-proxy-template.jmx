@@ -185,7 +185,7 @@
             <threadCounts>true</threadCounts>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename">GwtRpcJmeterFullReport.csv</stringProp>
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ru.intertrust.performance.jmetertools.GwtRpcStatVisualizer" testclass="ResultCollector" testname="Отчет по группам" enabled="true">
@@ -218,7 +218,7 @@
             <threadCounts>true</threadCounts>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename">GwtRpcJmeterGroupReport.csv</stringProp>
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="Список ошибок" enabled="true">
@@ -251,7 +251,7 @@
             <threadCounts>true</threadCounts>
           </value>
         </objProp>
-        <stringProp name="filename"></stringProp>
+        <stringProp name="filename">GwtRpcJmeterErrorList.csv</stringProp>
       </ResultCollector>
       <hashTree/>
     </hashTree>
