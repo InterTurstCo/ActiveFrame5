@@ -40,11 +40,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DoelEvaluator;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
@@ -69,6 +65,8 @@ public class DoelResolver implements DoelEvaluator {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private DomainObjectCacheServiceImpl domainObjectCacheService;
+    @Autowired
+    private GlobalCacheClient globalCacheClient;
     @Autowired
     private DoelFunctionRegistry doelFunctionRegistry;
     @Autowired
@@ -173,6 +171,10 @@ public class DoelResolver implements DoelEvaluator {
                     for (RdbmsId objId : sourceIds) {
                         DomainObject obj = domainObjectCacheService.get(objId, accessToken);
                         if (obj == null) {
+                            obj = globalCacheClient.getDomainObject(objId, accessToken);
+                        }
+
+                        if (obj == null) {
                             break useCache;
                         }
                         nextObjects.add(obj);
@@ -208,7 +210,13 @@ public class DoelResolver implements DoelEvaluator {
 
                 for (RdbmsId objId : sourceIds) {
                     List<DomainObject> children = domainObjectCacheService.getAll(objId, accessToken,
-                            childrenElem.getChildType(), childrenElem.getParentLink(), "0", "0");
+                            childrenElem.getChildType(), childrenElem.getParentLink());
+
+                    if (children == null) {
+                        children = globalCacheClient.getLinkedDomainObjects(objId, childrenElem.getChildType(),
+                                childrenElem.getParentLink(), false, accessToken);
+                    }
+
                     if (children == null) {
                         break useCache;
                     }
