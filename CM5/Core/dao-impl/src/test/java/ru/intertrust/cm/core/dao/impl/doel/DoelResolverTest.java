@@ -34,6 +34,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.SqlStatementMatcher;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlServiceImpl;
@@ -51,6 +52,8 @@ public class DoelResolverTest {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Mock
     private DomainObjectCacheServiceImpl domainObjectCacheService;
+    @Mock
+    private GlobalCacheClient globalCacheClient;
     @Mock
     private DoelFunctionRegistry doelFunctionRegistry;
     @Mock
@@ -75,6 +78,9 @@ public class DoelResolverTest {
     public void testEvaluation() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        when(globalCacheClient.getLinkedDomainObjects(any(Id.class), anyString(), anyString(), anyBoolean(), any(AccessToken.class))).thenReturn(null);
+
         doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
@@ -97,10 +103,13 @@ public class DoelResolverTest {
 
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        when(domainObjectCacheService.getAll(docId, accessToken, "Commission", "parent", "0", "0"))
+        when(domainObjectCacheService.getAll(docId, accessToken, "Commission", "parent"))
                 .thenReturn(Arrays.asList((DomainObject) comm1, comm2));
 
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
+
+        when(globalCacheClient.getLinkedDomainObjects(any(Id.class), anyString(), anyString(), anyBoolean(), any(AccessToken.class))).thenReturn(null);
+
         doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
@@ -117,6 +126,9 @@ public class DoelResolverTest {
     public void testEvaluationWithInheritedField() {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department.Name");
+
+        when(globalCacheClient.getLinkedDomainObjects(any(Id.class), anyString(), anyString(), anyBoolean(), any(AccessToken.class))).thenReturn(null);
+
         doelResolver.evaluate(expr, docId, accessToken);
 
         String correctSql =
@@ -218,6 +230,9 @@ public class DoelResolverTest {
                 });
         when(doelFunctionRegistry.getFunctionImplementation("Status")).thenReturn(statusImpl);
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        when(globalCacheClient.getLinkedDomainObjects(any(Id.class), anyString(), anyString(), anyBoolean(), any(AccessToken.class))).thenReturn(null);
+
         doelResolver.evaluate(expr, docId, accessToken);
 
         ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
