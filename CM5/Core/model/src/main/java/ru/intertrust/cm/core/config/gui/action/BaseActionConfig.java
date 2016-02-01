@@ -36,7 +36,7 @@ public class BaseActionConfig extends AbstractActionConfig {
             for (ActionParamConfig param : actionParams) {
                 properties.put(param.getName(), param.getValue());
             }
-            actionParams = null;
+            //actionParams = null;
         }
     }
 
