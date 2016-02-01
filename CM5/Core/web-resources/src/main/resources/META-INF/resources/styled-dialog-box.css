@@ -1,0 +1,138 @@
+.dialog-box-header {
+    background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    padding: 15px 30px;
+    z-index: 1;
+    height: 20px;
+    background: #356a9e;
+    background: -moz-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e), color-stop(100%, #1f2b5d));
+    background: -webkit-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -o-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    background: -ms-linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    filter: progid\:DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#356a9e", endColorstr\= "#1f2b5d", GradientType\=0 \);
+    background: linear-gradient(top, #356a9e 0%, #1f2b5d 100%);
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+
+}
+
+.dialog-box-button {
+    -webkit-border-radius: 14px;
+    -moz-border-radius: 14px;
+    border-radius: 14px;
+    box-shadow: 0 2px 2px #000;
+    text-shadow: none;
+    background: #54b5df;
+    background: -moz-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
+    background: -webkit-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
+    background: -o-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
+    background: -ms-linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#54b5df", endColorstr\= "#353f86", GradientType\= 0 \);
+    background: linear-gradient(top, #54b5df 0%, #135ea1 50%, #3177b2 51%, #353f86 100%);
+    font-size: 100%;
+    font-weight: bold;
+    border: none;
+    padding: 5px 6px 7px;
+    color: white;
+    margin: 0 30px 5px 0;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.dialog-box-button:hover {
+    -webkit-border-radius: 14px;
+    -moz-border-radius: 14px;
+    border-radius: 14px;
+    box-shadow: 0 2px 2px #999;
+    text-shadow: none;
+    background: #54b5df;
+    background: -moz-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
+    background: -webkit-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
+    background: -o-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
+    background: -ms-linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#54b5df", endColorstr\= "#353f86", GradientType\= 0 \);
+    background: linear-gradient(top, #54b5df 0%, #135ea1 50%, #353f86 100%);
+    padding: 6px 6px;
+    font-size: 100%;
+    cursor: pointer;
+}
+
+.dialogBoxBody {
+    background-color: white;
+    border: 3px solid #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.3);
+    color: #000;
+    clip: inherit !important;
+    position: relative;
+    z-index: 25;
+}
+
+.dialogBoxBody .gwt-Good-Label.labelWidgetDefault {
+    width: auto !important;
+}
+
+.search-popup-body {
+    display: inline-block;
+}
+
+.attachments-buttons-panel {
+    margin-left: 10px;
+    margin-top: 45px;
+    padding-bottom: 5px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.search-buttons-panel {
+    padding-bottom: 10px;
+    margin-left: 10px;
+    margin-top: 45px;
+}
+
+.dialog-box-content {
+    background: white;
+    display: inline-block;
+    height: 200px;
+    width: 512px;
+}
+
+.dialog-box-message {
+    margin-top: 30px;
+    margin-left: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.form-dialog-box-content {
+    display: inline-block;
+    width: 512px;
+}
+
+.dialogBoxBody .form-dialog-box-content {
+    min-height: 250px;
+}
+.form-dialog-box-content .frm-pnl-top {
+    top: 0px!important;
+}
+
+.dialogBoxBody .dialog-box-header {
+    background: none;
+}
+
+.buttons-panel {
+    position: absolute;
+    bottom: 0;
+}
+
+.form-buttons-panel {
+    padding-bottom: 5px;
+    margin-left: 10px;
+    margin-top: 5px;
+}
+
+.form-header-message {
+    margin: auto;
+    font-family: Arial, sans-serif;
+    color: white;
+}

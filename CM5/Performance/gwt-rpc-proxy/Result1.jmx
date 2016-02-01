@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="2.8" jmeter="2.13.20151117">
+  <hashTree>
+    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
+      <stringProp name="TestPlan.comments"></stringProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
+      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <stringProp name="TestPlan.user_define_classpath"></stringProp>
+    </TestPlan>
+    <hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Конфигурация" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <longProp name="ThreadGroup.start_time">1434362147000</longProp>
+        <longProp name="ThreadGroup.end_time">1434362147000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Конфигурация скрипта" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="THREAD_COUNT" elementType="Argument">
+              <stringProp name="Argument.name">THREAD_COUNT</stringProp>
+              <stringProp name="Argument.value">100</stringProp>
+              <stringProp name="Argument.desc">Количество потоков</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="RUMP_UP_PERIOD" elementType="Argument">
+              <stringProp name="Argument.name">RUMP_UP_PERIOD</stringProp>
+              <stringProp name="Argument.value">10</stringProp>
+              <stringProp name="Argument.desc">Время запуска потоков</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="ITERATION_COUNT" elementType="Argument">
+              <stringProp name="Argument.name">ITERATION_COUNT</stringProp>
+              <stringProp name="Argument.value">2</stringProp>
+              <stringProp name="Argument.desc">Количество итераций</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="HOST" elementType="Argument">
+              <stringProp name="Argument.name">HOST</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
+              <stringProp name="Argument.desc">Сервер</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="PORT" elementType="Argument">
+              <stringProp name="Argument.name">PORT</stringProp>
+              <stringProp name="Argument.value">8080</stringProp>
+              <stringProp name="Argument.desc">Порт</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Системные переменные" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="BASE_DIR" elementType="Argument">
+              <stringProp name="Argument.name">BASE_DIR</stringProp>
+              <stringProp name="Argument.value">${__BeanShell(import org.apache.jmeter.services.FileServer; FileServer.getFileServer().getBaseDir();)}${__BeanShell(File.separator,)}</stringProp>
+              <stringProp name="Argument.desc">Директория скрипта</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="STORE_REAL_REQUEST" elementType="Argument">
+              <stringProp name="Argument.name">STORE_REAL_REQUEST</stringProp>
+              <stringProp name="Argument.value">false</stringProp>
+              <stringProp name="Argument.desc">Включение логирования каждого запроса на сервер в файл jmeter-gwt-rpc.log</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="POLICY-2" elementType="Argument">
+              <stringProp name="Argument.name">POLICY-2</stringProp>
+              <stringProp name="Argument.value">F6D898BA9550D61162566FE512826C45</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="POLICY-1" elementType="Argument">
+              <stringProp name="Argument.name">POLICY-1</stringProp>
+              <stringProp name="Argument.value">9D1E8F76238CE75DC91A4E5835D5B56A</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
+        <hashTree/>
+      </hashTree>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Основной поток" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">${ITERATION_COUNT}</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">${THREAD_COUNT}</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">${RUMP_UP_PERIOD}</stringProp>
+        <longProp name="ThreadGroup.start_time">1434362304000</longProp>
+        <longProp name="ThreadGroup.end_time">1434362304000</longProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+      </ThreadGroup>
+      <hashTree>
+        <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
+          <stringProp name="HTTPSampler.domain">${HOST}</stringProp>
+          <stringProp name="HTTPSampler.port">${PORT}</stringProp>
+          <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+          <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          <stringProp name="HTTPSampler.protocol"></stringProp>
+          <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
+          <stringProp name="HTTPSampler.path"></stringProp>
+          <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+          <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+        </ConfigTestElement>
+        <hashTree/>
+        <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+          <collectionProp name="CookieManager.cookies"/>
+          <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+          <stringProp name="CookieManager.implementation">org.apache.jmeter.protocol.http.control.HC4CookieHandler</stringProp>
+        </CookieManager>
+        <hashTree/>
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+          <collectionProp name="HeaderManager.headers">
+            <elementProp name="X-GWT-Permutation" elementType="Header">
+              <stringProp name="Header.name">X-GWT-Permutation</stringProp>
+              <stringProp name="Header.value">CD5A17F96A8864AF8C44BA43EA37236F</stringProp>
+            </elementProp>
+          </collectionProp>
+        </HeaderManager>
+        <hashTree/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Работа клиента" enabled="true"/>
+        <hashTree>
+          <ru.intertrust.performance.jmetertools.GwtRpcSampler guiclass="ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui" testclass="ru.intertrust.performance.jmetertools.GwtRpcSampler" testname="0-ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService.login" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.value">7|0|7|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.LoginPage/|9D1E8F76238CE75DC91A4E5835D5B56A|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService|login|ru.intertrust.cm.core.business.api.dto.UserCredentials|ru.intertrust.cm.core.business.api.dto.UserUidWithPassword/2142978794|admin|1|2|3|4|1|5|6|0|7|7|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseAuthenticationService</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <stringProp name="GwtRpcRequestJson">ew0KICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LnBlcmZvcm1hbmNlLmptZXRlcnRvb2xzLlJlcXVlc3RWaWV3ZXIiLA0KICAibW9kdWxlQmFzZVVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9jbS1zb2NoaS9ydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLmltcGwuTG9naW5QYWdlLyIsDQogICJwb2xpY3lOYW1lQWxpYXMiOiIxIiwNCiAgInNlcnZpY2UiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLnJwYy5hcGkuQnVzaW5lc3NVbml2ZXJzZUF1dGhlbnRpY2F0aW9uU2VydmljZSIsDQogICJtZXRob2QiOiJsb2dpbiIsDQogICJwYXJhbWV0ZXJzIjpbDQogICAgew0KICAgICAgIkB0eXBlIjoicnUuaW50ZXJ0cnVzdC5jbS5jb3JlLmJ1c2luZXNzLmFwaS5kdG8uVXNlclVpZFdpdGhQYXNzd29yZCIsDQogICAgICAidXNlclVpZCI6ImFkbWluIiwNCiAgICAgICJwYXNzd29yZCI6ImFkbWluIiwNCiAgICAgICJjbGllbnRUaW1lWm9uZSI6bnVsbA0KICAgIH0NCiAgXSwNCiAgInBhcmFtZXRlclR5cGVzIjpbDQogICAgInJ1LmludGVydHJ1c3QuY20uY29yZS5idXNpbmVzcy5hcGkuZHRvLlVzZXJDcmVkZW50aWFscyINCiAgXQ0KfQ==</stringProp>
+            <stringProp name="GwtRpcResponceJson">bnVsbA==</stringProp>
+          </ru.intertrust.performance.jmetertools.GwtRpcSampler>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Формирование запроса" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Змена ID и доменных объектов
+	GwtUtil.preRequestProcessing(ctx);
+	//-----  Пользовательский код   ----------------------------
+	
+	//----------------------------------------------------------
+}catch(Exception ex){
+	log.error(&quot;Pre request error in sampler &quot; + sampler.getName(), ex);
+	sampler.setError(true);
+}
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Анализ результата" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Проверка на ошибки
+	if (GwtUtil.isError(ctx)){
+		prev.setSuccessful(false);
+	}else{
+		//Сохранение ID и доменных объектов
+		GwtUtil.postResponseProcessing(ctx);
+		//-----  Пользовательский код   ----------------------------
+		
+		//----------------------------------------------------------
+	}
+}catch(Exception ex){
+	prev.setSuccessful(false);
+	log.error(&quot;Post request error in sampler &quot; + ctx.getCurrentSampler().getName(), ex);
+}
+</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <ru.intertrust.performance.jmetertools.GwtRpcSampler guiclass="ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui" testclass="ru.intertrust.performance.jmetertools.GwtRpcSampler" testname="1-ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService.getBusinessUniverseInitialization" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.value">7|0|8|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint/|F6D898BA9550D61162566FE512826C45|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseService|getBusinessUniverseInitialization|ru.intertrust.cm.core.gui.model.Client|ru.intertrust.cm.core.gui.model.Browser/2441220581|Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36|GMT+03:00|1|2|3|4|1|5|6|7|8|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseService</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <stringProp name="GwtRpcRequestJson">ew0KICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LnBlcmZvcm1hbmNlLmptZXRlcnRvb2xzLlJlcXVlc3RWaWV3ZXIiLA0KICAibW9kdWxlQmFzZVVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9jbS1zb2NoaS9ydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLmltcGwuQnVzaW5lc3NVbml2ZXJzZUVudHJ5UG9pbnQvIiwNCiAgInBvbGljeU5hbWVBbGlhcyI6IjIiLA0KICAic2VydmljZSI6InJ1LmludGVydHJ1c3QuY20uY29yZS5ndWkucnBjLmFwaS5CdXNpbmVzc1VuaXZlcnNlU2VydmljZSIsDQogICJtZXRob2QiOiJnZXRCdXNpbmVzc1VuaXZlcnNlSW5pdGlhbGl6YXRpb24iLA0KICAicGFyYW1ldGVycyI6Ww0KICAgIHsNCiAgICAgICJAdHlwZSI6InJ1LmludGVydHJ1c3QuY20uY29yZS5ndWkubW9kZWwuQnJvd3NlciIsDQogICAgICAiZGVzY3JpcHRvciI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDYuMTsgV09XNjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS80Ny4wLjI1MjYuMTExIFNhZmFyaS81MzcuMzYiLA0KICAgICAgInRpbWVab25lSWQiOiJHTVQrMDM6MDAiDQogICAgfQ0KICBdLA0KICAicGFyYW1ldGVyVHlwZXMiOlsNCiAgICAicnUuaW50ZXJ0cnVzdC5jbS5jb3JlLmd1aS5tb2RlbC5DbGllbnQiDQogIF0NCn0=</stringProp>
+            <stringProp name="GwtRpcResponceJson">ew0KICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLm1vZGVsLkJ1c2luZXNzVW5pdmVyc2VJbml0aWFsaXphdGlvbiIsDQogICJjdXJyZW50TG9naW4iOiJhZG1pbiIsDQogICJmaXJzdE5hbWUiOiJhZG1pbiIsDQogICJsYXN0TmFtZSI6IiIsDQogICJlTWFpbCI6ImFkbWluQGxvY2FsaG9zdC5jb20iLA0KICAibG9nb0ltYWdlUGF0aCI6ImltYWdlcy9sb2dvLnBuZyIsDQogICJzZXR0aW5nc1BvcHVwQ29uZmlnIjp7DQogICAgInRoZW1lc0NvbmZpZyI6ew0KICAgICAgInRoZW1lcyI6ew0KICAgICAgICAiQHR5cGUiOiJqYXZhLnV0aWwuQXJyYXlMaXN0IiwNCiAgICAgICAgIkBpdGVtcyI6Ww0KICAgICAgICAgIHsNCiAgICAgICAgICAgICJAdHlwZSI6InJ1LmludGVydHJ1c3QuY20uY29yZS5jb25maWcuVGhlbWVDb25maWciLA0KICAgICAgICAgICAgImRpc3BsYXlOYW1lIjoi0J7RgdC90L7QstC90LDRjyDRgtC10LzQsCIsDQogICAgICAgICAgICAiY29tcG9uZW50TmFtZSI6ImRlZmF1bHQtdGhlbWUiLA0KICAgICAgICAgICAgImltZyI6InJlc291cmNlcy9jb21tb24vaW1hZ2VzL2RlZmF1bHQtdGhlbWUtcHJldmlldy5wbmciLA0KICAgICAgICAgICAgImRlZmF1bHRUaGVtZSI6dHJ1ZQ0KICAgICAgICAgIH0sDQogICAgICAgICAgew0KICAgICAgICAgICAgIkB0eXBlIjoicnUuaW50ZXJ0cnVzdC5jbS5jb3JlLmNvbmZpZy5UaGVtZUNvbmZpZyIsDQogICAgICAgICAgICAiZGlzcGxheU5hbWUiOiLQotGR0LzQvdCw0Y8g0YLQtdC80LAiLA0KICAgICAgICAgICAgImNvbXBvbmVudE5hbWUiOiJkYXJrLXRoZW1lIiwNCiAgICAgICAgICAgICJpbWciOiJyZXNvdXJjZXMvY29tbW9uL2ltYWdlcy9kYXJrLXRoZW1lLXByZXZpZXcucG5nIiwNCiAgICAgICAgICAgICJkZWZhdWx0VGhlbWUiOmZhbHNlDQogICAgICAgICAgfSwNCiAgICAgICAgICB7DQogICAgICAgICAgICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuY29uZmlnLlRoZW1lQ29uZmlnIiwNCiAgICAgICAgICAgICJkaXNwbGF5TmFtZSI6ItCh0LLQtdGC0LvQsNGPINGC0LXQvNCwIiwNCiAgICAgICAgICAgICJjb21wb25lbnROYW1lIjoibGlnaHQtdGhlbWUiLA0KICAgICAgICAgICAgImltZyI6InJlc291cmNlcy9jb21tb24vaW1hZ2VzL2xpZ2h0LXRoZW1lLXByZXZpZXcucG5nIiwNCiAgICAgICAgICAgICJkZWZhdWx0VGhlbWUiOmZhbHNlDQogICAgICAgICAgfSwNCiAgICAgICAgICB7DQogICAgICAgICAgICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuY29uZmlnLlRoZW1lQ29uZmlnIiwNCiAgICAgICAgICAgICJkaXNwbGF5TmFtZSI6Ikx1Y2VtINGC0LXQvNCwIiwNCiAgICAgICAgICAgICJjb21wb25lbnROYW1lIjoibHVjZW0tdGhlbWUiLA0KICAgICAgICAgICAgImltZyI6InJlc291cmNlcy9jb21tb24vaW1hZ2VzL2x1Y2VtLXRoZW1lLXByZXZpZXcucG5nIiwNCiAgICAgICAgICAgICJkZWZhdWx0VGhlbWUiOmZhbHNlDQogICAgICAgICAgfQ0KICAgICAgICBdDQogICAgICB9LA0KICAgICAgInNlbGVjdGVkVGhlbWUiOm51bGwNCiAgICB9LA0KICAgICJsYW5ndWFnZXNDb25maWciOnsNCiAgICAgICJsYW5ndWFnZUNvbmZpZ3MiOnsNCiAgICAgICAgIkB0eXBlIjoiamF2YS51dGlsLkFycmF5TGlzdCIsDQogICAgICAgICJAaXRlbXMiOlsNCiAgICAgICAgICB7DQogICAgICAgICAgICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuY29uZmlnLkxhbmd1YWdlQ29uZmlnIiwNCiAgICAgICAgICAgICJuYW1lIjoicnUiLA0KICAgICAgICAgICAgImRpc3BsYXlOYW1lIjoi0KDRg9GB0YHQutC40LkiLA0KICAgICAgICAgICAgImltZyI6ImltYWdlcy9mbGFncy9SdXNzaWFuIEZlZGVyYXRpb24ucG5nIg0KICAgICAgICAgIH0sDQogICAgICAgICAgew0KICAgICAgICAgICAgIkB0eXBlIjoicnUuaW50ZXJ0cnVzdC5jbS5jb3JlLmNvbmZpZy5MYW5ndWFnZUNvbmZpZyIsDQogICAgICAgICAgICAibmFtZSI6ImVuIiwNCiAgICAgICAgICAgICJkaXNwbGF5TmFtZSI6IkVuZ2xpc2giLA0KICAgICAgICAgICAgImltZyI6ImltYWdlcy9mbGFncy9Vbml0ZWQgS2luZ2RvbShHcmVhdCBCcml0YWluKS5wbmciDQogICAgICAgICAgfSwNCiAgICAgICAgICB7DQogICAgICAgICAgICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuY29uZmlnLkxhbmd1YWdlQ29uZmlnIiwNCiAgICAgICAgICAgICJuYW1lIjoidWEiLA0KICAgICAgICAgICAgImRpc3BsYXlOYW1lIjoi0KPQutGA0LDRl9C90YHRjNC60LAiLA0KICAgICAgICAgICAgImltZyI6ImltYWdlcy9mbGFncy9Va3JhaW5lLnBuZyINCiAgICAgICAgICB9DQogICAgICAgIF0NCiAgICAgIH0sDQogICAgICAic2VsZWN0ZWRMYW5ndWFnZSI6bnVsbA0KICAgIH0NCiAgfSwNCiAgInBhZ2VOYW1lUHJlZml4Ijoi0J/Qu9Cw0YLRhNC+0YDQvNCwIENNINCh0L7Rh9C4OiAiLA0KICAidGltZVpvbmVJZHMiOnsNCiAgICAiQHR5cGUiOiJqYXZhLnV0aWwuQXJyYXlMaXN0IiwNCiAgICAiQGl0ZW1zIjpbDQogICAgICAi0J/QviDRg9C80L7Qu9GH0LDQvdC40Y4iLA0KICAgICAgItCb0L7QutCw0LvRjNC90LDRjyIsDQogICAgICAi0J7RgNC40LPQuNC90LDQu9GM0L3QsNGPIiwNCiAgICAgICJHTVQtMTIiLA0KICAgICAgIkdNVC0xMSIsDQogICAgICAiR01ULTEwIiwNCiAgICAgICJHTVQtOTozMCIsDQogICAgICAiR01ULTkiLA0KICAgICAgIkdNVC04IiwNCiAgICAgICJHTVQtNyIsDQogICAgICAiR01ULTYiLA0KICAgICAgIkdNVC01IiwNCiAgICAgICJHTVQtNDozMCIsDQogICAgICAiR01ULTQiLA0KICAgICAgIkdNVC0zOjMwIiwNCiAgICAgICJHTVQtMyIsDQogICAgICAiR01ULTIiLA0KICAgICAgIkdNVC0xIiwNCiAgICAgICJHTVQiLA0KICAgICAgIkdNVCsxIiwNCiAgICAgICJHTVQrMiIsDQogICAgICAiR01UKzMiLA0KICAgICAgIkdNVCszOjA3IiwNCiAgICAgICJHTVQrMzozMCIsDQogICAgICAiR01UKzQiLA0KICAgICAgIkdNVCs0OjMwIiwNCiAgICAgICJHTVQrNSIsDQogICAgICAiR01UKzU6MzAiLA0KICAgICAgIkdNVCs1OjQ1IiwNCiAgICAgICJHTVQrNiIsDQogICAgICAiR01UKzY6MzAiLA0KICAgICAgIkdNVCs3IiwNCiAgICAgICJHTVQrOCIsDQogICAgICAiR01UKzg6NDUiLA0KICAgICAgIkdNVCs5IiwNCiAgICAgICJHTVQrOTozMCIsDQogICAgICAiR01UKzEwIiwNCiAgICAgICJHTVQrMTA6MzAiLA0KICAgICAgIkdNVCsxMSIsDQogICAgICAiR01UKzExOjMwIiwNCiAgICAgICJHTVQrMTIiLA0KICAgICAgIkdNVCsxMjo0NSIsDQogICAgICAiR01UKzEzIiwNCiAgICAgICJHTVQrMTQiDQogICAgXQ0KICB9LA0KICAiY29sbGVjdGlvbkNvdW50ZXJzVXBkYXRlUGVyaW9kIjotMTIwLA0KICAiaGVhZGVyTm90aWZpY2F0aW9uUGVyaW9kIjotMTIsDQogICJhcHBsaWNhdGlvblZlcnNpb24iOiIwLjUuMTctMjEtU05BUFNIT1QiLA0KICAicHJvZHVjdFZlcnNpb24iOiIxLjkiLA0KICAiU2lkZUJhck9wZW5uaW5nVGltZUNvbmZpZyI6NTAwLA0KICAiaGVscGVyTGluayI6ImhlbHAvcGFnZTQwNC5odG1sIiwNCiAgImN1cnJlbnRMb2NhbGUiOiJydSIsDQogICJnbG9iYWxMb2NhbGl6ZWRSZXNvdXJjZXMiOnsNCiAgICAiQHR5cGUiOiJqYXZhLnV0aWwuSGFzaE1hcCIsDQogICAgIk9jdG9iZXJNb250aFNob3J0U3RhbmRhbG9uZSI6ItCe0LrRgi4iLA0KICAgICJEb25lQnV0dG9uIjoi0JPQvtGC0L7QstC+IiwNCiAgICAiUXVhcnRlclRoaXJkRnVsbCI6IjMt0Lkg0LrQstCw0YDRgtCw0LsiLA0KICAgICJGb3JMYXN0V2VlayI6ItCX0LAg0L3QtdC00LXQu9GOIiwNCiAgICAiQ29uZmlndXJhdGlvbkV4Y2VwdGlvbiI6ItCe0YjQuNCx0LrQsCDQutC+0L3RhNC40LPRg9GA0LDRhtC40Lgg0L7QsdGK0LXQutGC0LAuIiwNCiAgICAiQXByaWxNb250aFNob3J0Ijoi0LDQv9GALiIsDQogICAgIkd1aUV4Y2VwdGlvbi5Db21tYW5kTm90Rm91bmQiOiLQmtC+0LzQsNC90LTQsCAke2NvbW1hbmROYW1lfSDQvdC1INC90LDQudC00LXQvdCwIiwNCiAgICAiSmFudWFyeU1vbnRoTmFycm93Ijoi0K8iLA0KICAgICJRdWFydGVyRm9ydGhTaG9ydCI6IjQt0Lkg0LrQsi4iLA0KICAgICJUaHVyc2RheSI6ItCn0LXRgtCy0LXRgNCzIiwNCiAgICAiQXByaWxNb250aE5hcnJvdyI6ItCQIiwNCiAgICAiUmVzZXRBbGxTZXR0aW5ncyI6ItCh0LHRgNC+0YHQuNGC0Ywg0LLRgdC1INC90LDRgdGC0YDQvtC50LrQuCIsDQogICAgIkd1aUV4Y2VwdGlvbi5SZXBvcnRGb3JtRXJyb3IiOiLQmtC+0L3RhNC40LPRg9GA0LDRhtC40Y8g0YTQvtGA0LzRiyDQvtGC0YfQtdGC0LAg0L3QtSDQvdCw0LnQtNC10L3QsCDQuNC70Lgg0L3QtdC60L7RgNGA0LXQutGC0L3QsCEg0KTQvtGA0LzQsDogJyR7Zm9ybU5hbWV9Jywg0L7RgtGH0LXRgjogJyR7cmVwb3J0TmFtZX0nIiwNCiAgICAiRmlsdGVyVG9vbHRpcCI6ItCe0YLQvtCx0YDQsNC30LjRgtGML9Ch0LrRgNGL0YLRjCDRhNC40LvRjNGC0YDRiyIsDQogICAgIkd1aUV4Y2VwdGlvbi5XaWRnZXRJZE5vdEZvdW5kIjoiV2lkZ2V0LCBpZDogJHt3aWRnZXRJZH0gaXMgbm90IGNvbmZpZ3VyZWQgd2l0aCBGaWVsZCBQYXRoIiwNCiAgICAiW1NFQVJDSF9BUkVBXUNvdW50cmllcy1TZWFyY2gtQXJlYSI6ItCh0YLRgNCw0L3RiyIsDQogICAgIlNlcHRlbWJlck1vbnRoRnVsbFN0YW5kYWxvbmUiOiLQodC10L3RgtGP0LHRgNGMIiwNCiAgICAidmFsaWRhdGUubWF4Ijoi0J/QvtC70LUgJHtmaWVsZC1uYW1lfSDQvdC1INC80L7QttC10YIg0LHRi9GC0Ywg0LHQvtC70YzRiNC1INGH0LXQvCAke3ZhbHVlfSEiLA0KICAgICJXZWRuZXNkYXlOYXJyb3ciOiLRgdGAIiwNCiAgICAiW1NFQVJDSF9GSUVMRF1FbXBsb3llZS5Qb3NpdGlvbiI6ItCU0L7Qu9C20L3QvtGB0YLRjCIsDQogICAgIltGSUVMRF1jb3VudHJ5LnBvcHVsYXRpb24iOiLQndCw0YHQtdC70LXQvdC40LUiLA0KICAgICJRdWFydGVyU2Vjb25kRnVsbCI6IjIt0Lkg0LrQstCw0YDRgtCw0LsiLA0KICAgICJTdW5kYXlTaG9ydCI6ItCy0YEiLA0KICAgICJNYXlNb250aEZ1bGwiOiLQvNCw0Y8iLA0KICAgICJKYW51YXJ5TW9udGhGdWxsU3RhbmRhbG9uZSI6ItCv0L3QstCw0YDRjCIsDQogICAgIlNhdHVyZGF5RnVsbFN0YW5kYWxvbmUiOiLQodGD0LHQsdC+0YLQsCIsDQogICAgIkRhdGVGb3JtYXRTaG9ydCI6ImRkLk1NLnl5IiwNCiAgICAiUmVzZXRTZXR0aW5ncyI6ItCh0LHRgNC+0YHQuNGC0Ywg0L3QsNGB0YLRgNC+0LnQutC4IiwNCiAgICAiW1NFQVJDSF9GSUVMRF1Db3VudHJ5LmluZGVwZW5kZW5jZV9kYXkiOiLQlNC10L3RjCDQndC10LfQsNCy0LjRgdC40LzQvtGB0YLQuCIsDQogICAgIkVNYWlsIjoiRU1haWw6IiwNCiAgICAiVW5leHBlY3RlZEV4Y2VwdGlvbiI6ItCd0LXQuNC30LLQtdGB0YLQvdCw0Y8g0L7RiNC40LHQutCwINC/0YDQuNC70L7QttC10L3QuNGPLiIsDQogICAgIltGSUVMRF1jb3VudHJ5LnNxdWFyZSI6ItCf0LvQvtGJ0LDQtNGMIiwNCiAgICAiUGFzc3dvcmQiOiLQn9Cw0YDQvtC70YwiLA0KICAgICJTaWduT24iOiLQktC+0LnRgtC4IiwNCiAgICAiRmVicnVhcnlNb250aEZ1bGwiOiLRhNC10LLRgNCw0LvRjyIsDQogICAgIkF1dGhlbnRpY2F0aW9uRXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINCw0LLRgtC+0YDQuNC30LDRhtC40LguIiwNCiAgICAiR3VpRXhjZXB0aW9uLkNvbW1hbmRDYWxsRXJyb3IiOiLQntGI0LjQsdC60LAg0LLRi9C30L7QstCwINC60L7QvNCw0L3QtNGLOiAiLA0KICAgICJ2YWxpZGF0ZS5wcmVjaXNpb24iOiLQl9C90LDRh9C10L3QuNC1INC/0L7Qu9GPICR7ZmllbGQtbmFtZX0g0LTQvtC70LbQvdC+INC40LzQtdGC0Ywg0YLQvtGH0L3QvtGB0YLRjCAke3ByZWNpc2lvbn0iLA0KICAgICJTdXBlcnVzZXIiOiLQodGD0L/QtdGALdCw0LTQvNC40L3QuNGB0YLRgNCw0YLQvtGAIiwNCiAgICAiRmVicnVhcnlNb250aE5hcnJvdyI6ItCkIiwNCiAgICAiRXJhRnVsbE5vdyI6ItC9LtGNLiIsDQogICAgIk1vbmRheU5hcnJvdyI6ItC/0L0iLA0KICAgICJWYWxpZGF0aW9uRXhjZXB0aW9uIjoi0JjRgdC/0YDQsNCy0YzRgtC1INC+0YjQuNCx0LrQuCDQv9C10YDQtdC0INGB0L7RhdGA0LDQvdC10L3QuNC10LwiLA0KICAgICJUdWVzZGF5RnVsbFN0YW5kYWxvbmUiOiLQktGC0L7RgNC90LjQuiIsDQogICAgIkVkaXRCdXR0b24iOiLQoNC10LTQsNC60YLQuNGA0L7QstCw0YLRjCIsDQogICAgIkZyaWRheUZ1bGwiOiLQv9GP0YLQvdC40YbQsCIsDQogICAgIkF1dGhvcml6YXRpb25FcnJvciI6ItCe0YjQuNCx0LrQsCDQsNCy0YLQvtGA0LjQt9Cw0YbQuNC4LiAgIiwNCiAgICAiRGVjZW1iZXJNb250aFNob3J0U3RhbmRhbG9uZSI6ItCU0LXQui4iLA0KICAgICJGcmlkYXlTaG9ydCI6ItC/0YIiLA0KICAgICJBZGRSZXBvcnRGaWxlcyI6ItCU0L7QsdCw0LLRjNGC0LUg0YTQsNC50LvRiyDRiNCw0LHQu9C+0L3QsCDQvtGC0YfQtdGC0LA6IiwNCiAgICAi77u/QWNjZXNzRXhjZXB0aW9uIjoi0KMg0LLQsNGBINC90LXRgiDQv9GA0LDQsiDQtNC+0YHRgtGD0L/QsCDQuiDQtNCw0L3QvtC80YMg0L7QsdGK0LXQutGC0YMuIiwNCiAgICAiRm9yWWVzdGVyZGF5Ijoi0JfQsCDQstGH0LXRgNCwIiwNCiAgICAiU3VuZGF5U2hvcnRTdGFuZGFsb25lIjoi0JLRgSIsDQogICAgIkF1Z3VzdE1vbnRoU2hvcnQiOiLQsNCy0LMuIiwNCiAgICAidmFsaWRhdGUucmFuZ2UudG9vLXNtYWxsIjoi0JfQvdCw0YfQtdC90LjQtSDQv9C+0LvRjyAke2ZpZWxkLW5hbWV9INC90LUg0LzQvtC20LXRgiDQsdGL0YLRjCDQvNC10L3RjNGI0LUg0YfQtdC8ICR7cmFuZ2Utc3RhcnR9IiwNCiAgICAiR3VpRXhjZXB0aW9uLlVua25vd25VcmwiOiLQndC10LjQt9Cy0LXRgdGC0L3Ri9C5IHVybCIsDQogICAgIkFwcmlsTW9udGhGdWxsIjoi0LDQv9GA0LXQu9GPIiwNCiAgICAiQXByaWxNb250aFNob3J0U3RhbmRhbG9uZSI6ItCQ0L/RgC4iLA0KICAgICJTdW5kYXlGaXJzdENhcGl0YWwiOiLQkiIsDQogICAgIkZlYnJ1YXJ5TW9udGhTaG9ydFN0YW5kYWxvbmUiOiLQpNC10LLRgC4iLA0KICAgICJXZWRuZXNkYXlTaG9ydCI6ItGB0YAiLA0KICAgICJBdHRhY2htZW50VW5hdmFpbGFibGUiOiLQndC10LLQvtC30LzQvtC20L3QviDRgdC60LDRh9Cw0YLRjCDQstC70L7QttC10L3QuNC1IiwNCiAgICAiTW9uZGF5Ijoi0J/QvtC90LXQtNC10LvRjNC90LjQuiIsDQogICAgIkRhdGVGb3JtYXRMb25nIjoiZCBNTU1NIHkgJ9CzJy4iLA0KICAgICJHdWlFeGNlcHRpb24uU2VhcmNoRXJyb3IiOiLQntGI0LjQsdC60LAg0L/RgNC4INC/0L7QuNGB0LrQtTpcbiIsDQogICAgIldlZG5lc2RheSI6ItCh0YDQtdC00LAiLA0KICAgICJGb3JtYXRZZWFyTW9udGhGdWxsIjoiTExMTCB5IiwNCiAgICAiQ2hvb3NlTGFuZ3VhZ2UiOiLQktGL0LHRgNCw0YLRjCDRj9C30YvQuiIsDQogICAgIlZlcnNpb24iOiLQktC10YDRgdC40Y86IiwNCiAgICAidmFsaWRhdGUuZGVjaW1hbCI6Iicke3ZhbHVlfScg0LTQvtC70LbQvdC+INCx0YvRgtGMINC00LXRgdGP0YLQuNGH0L3Ri9C8ISIsDQogICAgIkF1Z3VzdE1vbnRoRnVsbFN0YW5kYWxvbmUiOiLQkNCy0LPRg9GB0YIiLA0KICAgICJGb3JtYXRZZWFyTW9udGhBYmJyZXZEYXkiOiJkIE1NTSB5ICfQsycuIiwNCiAgICAiRm9ybWF0TW9udGhGdWxsV2Vla2RheURheSI6ImNjY2MsIGQgTU1NTSIsDQogICAgIk1vbmRheUZpcnN0Q2FwaXRhbCI6ItCfIiwNCiAgICAidmFsaWRhdGUucG9zaXRpdmUtaW50IjoiJyR7dmFsdWV9JyDQtNC+0LvQttC90L4g0LHRi9GC0Ywg0YbQtdC70YvQvCDQv9C+0LvQvtC20LjRgtC10LvRjNC90YvQvCEiLA0KICAgICJKdW5Nb250aE5hcnJvdyI6ItCYIiwNCiAgICAiQWRtaW5pc3RyYXRvciI6ItCQ0LTQvNC40L3QuNGB0YLRgNCw0YLQvtGAIiwNCiAgICAiTW9uZGF5RnVsbCI6ItC/0L7QvdC10LTQtdC70YzQvdC40LoiLA0KICAgICJNYXJjaE1vbnRoU2hvcnQiOiLQvNCw0YDRgtCwIiwNCiAgICAiVGh1cnNkYXlGdWxsIjoi0YfQtdGC0LLQtdGA0LMiLA0KICAgICJOb05ld05vdGlmaWNhdGlvbnMiOiLQndC+0LLRi9GFINGD0LLQtdC00L7QvNC70LXQvdC40Lkg0L3QtdGCIiwNCiAgICAiU2F2ZUJ1dHRvbiI6ItCh0L7RhdGA0LDQvdC40YLRjCIsDQogICAgIk1heU1vbnRoRnVsbFN0YW5kYWxvbmUiOiLQnNCw0LkiLA0KICAgICJEZWNlbWJlck1vbnRoTmFycm93Ijoi0JQiLA0KICAgICJRdWFydGVyU2Vjb25kU2hvcnQiOiIyLdC5INC60LIuIiwNCiAgICAiQ2hvb3NlUGVyaW9kIjoi0JLRi9Cx0YDQsNGC0Ywg0L/QtdGA0LjQvtC0IiwNCiAgICAiRGVjZW1iZXJNb250aEZ1bGxTdGFuZGFsb25lIjoi0JTQtdC60LDQsdGA0YwiLA0KICAgICJUdWVzZGF5TmFycm93Ijoi0LLRgiIsDQogICAgIkp1bHlNb250aFNob3J0U3RhbmRhbG9uZSI6ItCY0Y7Qu9GMIiwNCiAgICAiTW9uZGF5U2hvcnRTdGFuZGFsb25lIjoi0J/QvSIsDQogICAgIkphbnVhcnlNb250aEZ1bGwiOiLRj9C90LLQsNGA0Y8iLA0KICAgICJTYXR1cmRheU5hcnJvdyI6ItGB0LEiLA0KICAgICJKYW51YXJ5TW9udGhTaG9ydFN0YW5kYWxvbmUiOiLQr9C90LIuIiwNCiAgICAiVXNlck5hbWUiOiLQmNC80Y8g0L/QvtC70YzQt9C+0LLQsNGC0LXQu9GPIiwNCiAgICAiQ29yZVZlcnNpb24iOiLQktC10YDRgdC40Y8g0L/Qu9Cw0YLRhNC+0YDQvNGLOiIsDQogICAgIk1hcmNoTW9udGhGdWxsU3RhbmRhbG9uZSI6ItCc0LDRgNGCIiwNCiAgICAiU2F0dXJkYXkiOiLQodGD0LHQsdC+0YLQsCIsDQogICAgInZhbGlkYXRlLm5vdC1lbXB0eSI6ItCf0L7Qu9C1ICR7ZmllbGQtbmFtZX0g0L3QtSDQtNC+0LvQttC90L4g0LHRi9GC0Ywg0L/Rg9GB0YLRi9C8ISIsDQogICAgInZhbGlkYXRlLmxlbmd0aC5ub3QtZXF1YWwiOiLQlNC70LjQvdCwINC/0L7Qu9GPICR7ZmllbGQtbmFtZX0g0LTQvtC70LbQvdCwINCx0YvRgtGMINGA0LDQstC90LAgJHtsZW5ndGh9IiwNCiAgICAiRm9ybWF0SG91cjI0TWludXRlU2Vjb25kIjoiSDptbTpzcyIsDQogICAgIkZyaWRheSI6ItCf0Y/RgtC90LjRhtCwIiwNCiAgICAiQ29udGludWVCdXR0b24iOiLQn9GA0L7QtNC+0LvQttC40YLRjCIsDQogICAgIkp1bHlNb250aEZ1bGwiOiLQuNGO0LvRjyIsDQogICAgIk9iamVjdE5vdEZvdW5kRXhjZXB0aW9uIjoi0JTQsNC90L3Ri9GFINC90LUg0L3QsNC50LTQtdC90L4uIiwNCiAgICAidmFsaWRhdGUudW5pcXVlLWZpZWxkIjoi0J/QvtC70LUgJHtmaWVsZC1uYW1lfSDRgdC+INC30L3QsNGH0LXQvdC40LXQvCAnJHt2YWx1ZX0nINGD0LbQtSDRgdGD0YnQtdGB0YLQstGD0LXRgiEiLA0KICAgICJTZWFyY2hFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0YDQsNCx0L7RgtGLINC/0L7QtNGB0LjRgdGC0LXQvNGLINC/0L7QuNGB0LrQsCIsDQogICAgIkZvcm1hdFllYXJNb250aE51bSI6Ik1NLnkiLA0KICAgICJTdW5kYXlGdWxsIjoi0LLQvtGB0LrRgNC10YHQtdC90YzQtSIsDQogICAgIlJlcG9ydFNlcnZpY2VFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0L7QsdGA0LDQsdC+0YLQutC4INC+0YLRh9C10YLQsCIsDQogICAgIk5vdmVtYmVyTW9udGhTaG9ydCI6ItC90L7Rj9CxLiIsDQogICAgIk9wdGltaXN0aWNMb2NrRXhjZXB0aW9uIjoi0KHQvtGF0YDQsNC90LXQvdC40LUg0L3QtdCy0L7Qt9C80L7QttC90L4sINC00LDQvdC90YvQtSDQuNC30LzQtdC90LXQvdGLINC00YDRg9Cz0LjQvCDQv9C+0LvRjNC30L7QstCw0YLQtdC70LXQvC4iLA0KICAgICJGb3JtYXRIb3VyMjRNaW51dGUiOiJIOm1tIiwNCiAgICAiQ29sdW1uc0Rpc3BsYXlUb29sdGlwIjoi0J7RgtC+0LHRgNCw0LbQtdC90LjQtSDQstC40LTQuNC80YvRhSDQutC+0LvQvtC90L7QuiIsDQogICAgIltTRUFSQ0hfRklFTERdRW1wbG95ZWUuRU1haWwiOiJFbWFpbCIsDQogICAgIkJsYWNrVGhlbWUiOiLQotGR0LzQvdCw0Y8g0YLQtdC80LAiLA0KICAgICJGcmlkYXlGdWxsU3RhbmRhbG9uZSI6ItCf0Y/RgtC90LjRhtCwIiwNCiAgICAiT2N0b2Jlck1vbnRoU2hvcnQiOiLQvtC60YIuIiwNCiAgICAiTHVjZW1UaGVtZSI6Ikx1Y2VtINGC0LXQvNCwIiwNCiAgICAiSW5mbyI6ItCh0L/RgNCw0LLQutCwIiwNCiAgICAiRXJhRnVsbEJlZm9yZSI6ItC00L4g0L0u0Y0uIiwNCiAgICAiU2VhcmNoIjoi0J/QvtC40YHQuiIsDQogICAgIk1heU1vbnRoTmFycm93Ijoi0JwiLA0KICAgICJKdWx5TW9udGhGdWxsU3RhbmRhbG9uZSI6ItCY0Y7Qu9GMIiwNCiAgICAiRm9ybWF0WWVhclF1YXJ0ZXJGdWxsIjoiUVFRUSB5ICfQsycuIiwNCiAgICAiRnJpZGF5TmFycm93Ijoi0L/RgiIsDQogICAgIldlZG5lc2RheUZ1bGwiOiLRgdGA0LXQtNCwIiwNCiAgICAiRm9yTGFzdFllYXIiOiLQl9CwINCz0L7QtCIsDQogICAgIkxhc3ROYW1lIjoi0KTQsNC80LjQu9C40Y86IiwNCiAgICAiV2VkbmVzZGF5RnVsbFN0YW5kYWxvbmUiOiLQodGA0LXQtNCwIiwNCiAgICAiW0ZJRUxEXWNvdW50cnkuY2FwaXRhbCI6ItCh0YLQvtC70LjRhtCwIiwNCiAgICAiTWF5TW9udGhTaG9ydFN0YW5kYWxvbmUiOiLQnNCw0LkiLA0KICAgICJKYW51YXJ5TW9udGhTaG9ydCI6ItGP0L3Qsi4iLA0KICAgICJBdWd1c3RNb250aE5hcnJvdyI6ItCQIiwNCiAgICAiRmF0YWxFeGNlcHRpb24iOiLQpNCw0YLQsNC70YzQvdCw0Y8g0L7RiNC40LHQutCwINC/0YDQuNC70L7QttC10L3QuNGPLiIsDQogICAgIkZyaWRheUZpcnN0Q2FwaXRhbCI6ItCfIiwNCiAgICAiRGVjZW1iZXJNb250aEZ1bGwiOiLQtNC10LrQsNCx0YDRjyIsDQogICAgIk5vdGlmaWNhdGlvbkV4Y2VwdGlvbiI6ItCe0YjQuNCx0LrQsCDQvtGC0L/RgNCw0LLQutC4INGB0L7QvtCx0YnQtdC90LjRjy4iLA0KICAgICJOb3ZlbWJlck1vbnRoU2hvcnRTdGFuZGFsb25lIjoi0J3QvtGP0LEuIiwNCiAgICAidmFsaWRhdGUucmFuZ2UudG9vLWJpZyI6ItCX0L3QsNGH0LXQvdC40LUg0L/QvtC70Y8gJHtmaWVsZC1uYW1lfSDQvdC1INC80L7QttC10YIg0LHRi9GC0Ywg0LHQvtC70YzRiNC1INGH0LXQvCAke3JhbmdlLWVuZH0iLA0KICAgICJTaXplQWN0aW9uVG9vbHRpcCI6ItCg0LDRgdC/0LDRhdC90YPRgtGML9Ch0LLQtdGA0L3Rg9GC0YwiLA0KICAgICJKdWx5TW9udGhOYXJyb3ciOiLQmCIsDQogICAgIkV4dGVuc2lvblBvaW50RXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINC40L3QuNGG0LjQsNC70LjQt9Cw0YbQuNC4INGC0L7Rh9C60Lgg0YDQsNGB0YjQuNGA0LXQvdC40Y8uIiwNCiAgICAiRG9lbEV4Y2VwdGlvbiI6ItCe0YjQuNCx0LrQsCDQvtCx0YDQsNCx0L7RgtC60LggRE9FTCDQstGL0YDQsNC20LXQvdC40Y8uIiwNCiAgICAiQ2FuY2VsbGF0aW9uQnV0dG9uIjoi0J7RgtC80LXQvdCwIiwNCiAgICAiSW52YWxpZElkRXhjZXB0aW9uIjoi0J3QtdC60L7RgNC10LrRgtC90YvQuSDQuNC00LXQvdGC0LjRhNC40LrQsNGC0L7RgCDQlNCeLiIsDQogICAgIkd1aUV4Y2VwdGlvbi5Db21tYW5kRXhlY3V0aW9uRXJyb3IiOiLQmtC+0LzQsNC90LTQsCDQvdC1INC80L7QttC10YIg0LHRi9GC0Ywg0LLRi9C/0L7Qu9C90LXQvdCwOiAiLA0KICAgICJGb3JUb2RheSI6ItCX0LAg0YHQtdCz0L7QtNC90Y8iLA0KICAgICJMaWdodFRoZW1lIjoi0KHQstC10YLQu9Cw0Y8g0YLQtdC80LAiLA0KICAgICJNb25kYXlGdWxsU3RhbmRhbG9uZSI6ItCf0L7QvdC10LTQtdC70YzQvdC40LoiLA0KICAgICJEYXRlRm9ybWF0TWVkaXVtIjoiZCBNTU0geSAn0LMnLiIsDQogICAgIkd1aUV4Y2VwdGlvbi5TaW5nbGVGaWVsZFBhdGgiOiJPbmx5IHNpbmdsZSBmaWVsZC1wYXRoIGlzIHN1cHBvcnRlZCIsDQogICAgIkRhdGVTZXBhcmF0b3IiOiIsIiwNCiAgICAiVHVlc2RheSI6ItCS0YLQvtGA0L3QuNC6IiwNCiAgICAiRXZlbnRUcmlnZ2VyRXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINC40L3QuNGG0LjQsNC70LjQt9Cw0YbQuNC4INGC0YDQuNCz0LXRgNCwLiIsDQogICAgIkZlYnJ1YXJ5TW9udGhGdWxsU3RhbmRhbG9uZSI6ItCk0LXQstGA0LDQu9GMIiwNCiAgICAiTm92ZW1iZXJNb250aE5hcnJvdyI6ItCdIiwNCiAgICAiU3VuZGF5TmFycm93Ijoi0LLRgSIsDQogICAgIk1hcmNoTW9udGhOYXJyb3ciOiLQnCIsDQogICAgIkF1Z3VzdE1vbnRoU2hvcnRTdGFuZGFsb25lIjoi0JDQstCzLiIsDQogICAgIlRodXJzZGF5TmFycm93Ijoi0YfRgiIsDQogICAgIlByb2ZpbGVFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0L7QsdGA0LDQsdC+0YLQutC4INC/0YDQvtGE0LjQu9GPINGB0LjRgdGC0LXQvNGLL9C/0L7Qu9GM0LfQvtCy0LDRgtC10LvRjy4iLA0KICAgICJKdWx5TW9udGhTaG9ydCI6ItC40Y7Qu9GPIiwNCiAgICAiRmluZEJ1dHRvbiI6ItCd0LDQudGC0LgiLA0KICAgICJDbG9zZUJ1dHRvbiI6ItCX0LDQutGA0YvRgtGMIiwNCiAgICAiW1NFQVJDSF9ET01BSU5fT0JKRUNUXUNvdW50cnkiOiLQodGC0YDQsNC90LAiLA0KICAgICJGb3JtYXRZZWFyTW9udGhXZWVrZGF5RGF5IjoiRUVFLCBkIE1NTSB5IiwNCiAgICAiU2NoZWR1bGVFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0YDQsNCx0L7RgtGLINC/0L7QtNGB0LjRgdGC0LXQvNGLINC/0LXRgNC40L7QtNC40YfQtdGB0LrQuNGFINC30LDQtNCw0L3QuNC5IiwNCiAgICAidmFsaWRhdGUuaW50ZWdlciI6Iicke3ZhbHVlfScg0LTQvtC70LbQvdC+INCx0YvRgtGMINGG0LXQu9GL0LwhIiwNCiAgICAiW1NFQVJDSF9GSUVMRF1FbXBsb3llZS5GaXJzdE5hbWUiOiLQmNC80Y8iLA0KICAgICJTYXR1cmRheVNob3J0U3RhbmRhbG9uZSI6ItCh0LEiLA0KICAgICJPcGVuSW5GdWxsV2luZG93QnV0dG9uIjoi0J7RgtC60YDRi9GC0Ywg0LIg0L/QvtC70L3QvtC8INC+0LrQvdC1IiwNCiAgICAiRmlyc3ROYW1lIjoi0JjQvNGPOiIsDQogICAgIk9jdG9iZXJNb250aEZ1bGxTdGFuZGFsb25lIjoi0J7QutGC0Y/QsdGA0YwiLA0KICAgICJHdWlFeGNlcHRpb24uTXVsdGlwbGVGaWVsZFBhdGhzIjoiTXVsdGlwbHkgZmllbGRQYXRocyBzaG91bGQgYmUgYWxsIHJlZmVyZW5jZSB0eXBlIG9yIGFsbCBiYWNrcmVmZXJlbmNlIHR5cGUiLA0KICAgICJTeXN0ZW1FeGNlcHRpb24iOiLQodC40YHRgtC10LzQvdCw0Y8g0L7RiNC40LHQutCwINC/0YDQuCDQstGL0L/QvtC70L3QtdC90LjQuCAke2NvbW1hbmROYW1lfSwg0L7QsdGA0LDRgtC40YLQtdGB0Ywg0Log0LDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YDRgy4iLA0KICAgICJUdWVzZGF5Rmlyc3RDYXBpdGFsIjoi0JIiLA0KICAgICJbU0VBUkNIX0ZJRUxEXUVtcGxveWVlLkxhc3ROYW1lIjoi0KTQsNC80LjQu9C40Y8iLA0KICAgICJbU0VBUkNIX0RPTUFJTl9PQkpFQ1RdSW50ZXJuYWxfRG9jdW1lbnQiOiLQktC90YPRgtGA0LXQvdC90LjQuSDQtNC+0LrRg9C80LXQvdGCIiwNCiAgICAiTW9yZUl0ZW1zIjoi0JfQsNCz0YDRg9C30LjRgtGMINCx0L7Qu9GM0YjQtSDQtNC+0YfQtdGA0L3QuNGFINC10LvQtdC80LXQvdGC0L7QsiIsDQogICAgIkd1aUV4Y2VwdGlvbi5Qcm9jZXNzTm90U3VwcG9ydGVkIjoiUHJvY2VzcyAnJHtwcm9jZXNzVHlwZX0nIG5vdCBzdXBwb3J0ZWQuIiwNCiAgICAiVHVlc2RheVNob3J0Ijoi0LLRgiIsDQogICAgIlNhdHVyZGF5Rmlyc3RDYXBpdGFsIjoi0KEiLA0KICAgICJGb3JtYXRZZWFyTW9udGhBYmJyZXYiOiJMTEwgeSIsDQogICAgIlBlcm1pc3Npb25FeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0YHQvtC30LTQsNC90LjRjyDQs9GA0YPQv9C/0YsuIiwNCiAgICAiW1NFQVJDSF9ET01BSU5fT0JKRUNUXUVtcGxveWVlIjoi0KHQvtGC0YDRg9C00L3QuNC6IiwNCiAgICAiV3JvbmdQc3dFcnJvciI6ItCe0YjQuNCx0LrQsCDQsNCy0YLQvtGA0LjQt9Cw0YbQuNC4LiDQn9GA0L7QstC10YDRgtC1INC/0YDQsNCy0LjQu9GM0L3QvtGB0YLRjCDQstCy0LXQtNC10L3QvdGL0YUg0LTQsNC90L3Ri9GFLiIsDQogICAgIlR1ZXNkYXlTaG9ydFN0YW5kYWxvbmUiOiLQktGCIiwNCiAgICAiSnVuTW9udGhGdWxsU3RhbmRhbG9uZSI6ItCY0Y7QvdGMIiwNCiAgICAiR3VpRXhjZXB0aW9uLlJlcG9ydE5hbWVOb3RGb3VuZCI6ItCY0LzRjyDQvtGC0YfQtdGC0LAg0L3QtSDRgdC60L7QvdGE0LjQs9GD0YDQuNGA0L7QstCw0L3QviDQvdC4INCyINC/0LvQsNCz0LjQvdC1LCDQvdC4INGE0L7RgNC80LUhIiwNCiAgICAiR3VpRXhjZXB0aW9uLkhpZXJhcmNoQ29sbGVjdGlvbiI6ItCe0YjQuNCx0LrQsCDQsiDQutC+0L3RhNC40LPRg9GA0LDRhtC40Lgg0LjQtdGA0LDRgNGF0LjRh9C10YHQutC+0Lkg0LrQvtC70LvQtdC60YbQuNC4IiwNCiAgICAiQXByaWxNb250aEZ1bGxTdGFuZGFsb25lIjoi0JDQv9GA0LXQu9GMIiwNCiAgICAiR3VpRXhjZXB0aW9uLk9iamVjdE5vdFNhdmVkIjoi0J7QsdGK0LXQutGCINC10YnRkSDQvdC1INGB0L7RhdGA0LDQvdGR0L0iLA0KICAgICJOb3ZlbWJlck1vbnRoRnVsbCI6ItC90L7Rj9Cx0YDRjyIsDQogICAgIlByb2Nlc3NFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0LLRi9C/0L7Qu9C90LXQvdC40Y8gd29ya2Zsb3cg0L/RgNC+0YbQtdGB0YHQsC4iLA0KICAgICJDb2xsZWN0aW9uUXVlcnlFeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0LIgU1FMINC30LDQv9GA0L7RgdC1LiIsDQogICAgIkp1bk1vbnRoU2hvcnRTdGFuZGFsb25lIjoi0JjRjtC90YwiLA0KICAgICJTdW5kYXlGdWxsU3RhbmRhbG9uZSI6ItCS0L7RgdC60YDQtdGB0LXQvdGM0LUiLA0KICAgICJTZXB0ZW1iZXJNb250aEZ1bGwiOiLRgdC10L3RgtGP0LHRgNGPIiwNCiAgICAiRXhpdCI6ItCS0YvRhdC+0LQiLA0KICAgICJHdWlFeGNlcHRpb24uUmVmUGF0aE5vdFN1cHBvcnRlZCI6IlJlZmVyZW5jZSAke3BhdGh9IG5vdCBzdXBwb3J0ZWQiLA0KICAgICJNYXJjaE1vbnRoU2hvcnRTdGFuZGFsb25lIjoi0JzQsNGA0YIiLA0KICAgICJTZXB0ZW1iZXJNb250aFNob3J0Ijoi0YHQtdC90YIuIiwNCiAgICAiUXVhcnRlckZvcnRoRnVsbCI6IjQt0Lkg0LrQstCw0YDRgtCw0LsiLA0KICAgICJBZGRDb25maWdGaWxlcyI6ItCU0L7QsdCw0LLRjNGC0LUg0YTQsNC50LvRiyDQutC+0L3RhNC40LPRg9GA0LDRhtC40Lg6IiwNCiAgICAidmFsaWRhdGUubGVuZ3RoLnRvby1zbWFsbCI6ItCU0LvQuNC90LAg0L/QvtC70Y8gJHtmaWVsZC1uYW1lfSDQvdC1INC80L7QttC10YIg0LHRi9GC0Ywg0LzQtdC90YzRiNC1INGH0LXQvCR7bWluLWxlbmd0aH0iLA0KICAgICJNYWlsTm90aWZpY2F0aW9uRXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINC+0YLQv9GA0LDQstC60Lgv0L/RgNC40LXQvNCwINGB0L7QvtCx0YnQtdC90LjRjyDQv9C+IGVtYWlsLiIsDQogICAgIkp1bk1vbnRoU2hvcnQiOiLQuNGO0L3RjyIsDQogICAgIkd1aUV4Y2VwdGlvbi5Db2xsZWN0aW9uVmlld0Vycm9yIjoiQ29sbGVjdGlvbiB2aWV3IGNvbmZpZyBoYXMgbm8gZGlzcGxheSB0YWdzIGNvbmZpZ3VyZWQiLA0KICAgICJ2YWxpZGF0ZS5wb3NpdGl2ZS1kZWMiOiInJHt2YWx1ZX0nINC00L7Qu9C20L3QviDQsdGL0YLRjCDQtNC10YHRj9GC0LjRh9C90YvQvCDQv9C+0LvQvtC20LjRgtC10LvRjNC90YvQvCEiLA0KICAgICJGb3JtYXRZZWFyTW9udGhOdW1EYXkiOiJkZC5NTS55IiwNCiAgICAiRGVmYXVsdFRoZW1lIjoi0J7RgdC90L7QstC90LDRjyDRgtC10LzQsCIsDQogICAgIkNvbHVtbnNXaWR0aFRvb2x0aXAiOiLQntGC0L7QsdGA0LDQt9C40YLRjCDQstGB0LUg0LrQvtC70L7QvdC60Lgg0L3QsCDRjdC60YDQsNC90LUiLA0KICAgICJGZWJydWFyeU1vbnRoU2hvcnQiOiLRhNC10LLRgC4iLA0KICAgICJPY3RvYmVyTW9udGhOYXJyb3ciOiLQniIsDQogICAgIlRodXJzZGF5U2hvcnRTdGFuZGFsb25lIjoi0KfRgiIsDQogICAgIkZvcm1hdE1vbnRoTnVtRGF5IjoiZGQuTU0iLA0KICAgICJDcnVkRXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINC+0L/QtdGA0LDRhtC40Lgg0YEg0JHQlC4iLA0KICAgICJSZW1lbWJlck1lIjoi0JfQsNC/0L7QvNC90LjRgtGMINC80LXQvdGPIiwNCiAgICAiTm9JdGVtc0ZldGNoZWQiOiLQndC10LLQvtC30LzQvtC20L3QviDQt9Cw0LPRgNGD0LfQuNGC0Ywg0LHQvtC70YzRiNC1INGN0LvQtdC80LXQvdGC0L7QsiIsDQogICAgIldlZWtTd2l0Y2hCdXR0b24iOiLQodGD0LHQsdC+0YLQsCwg0JLQvtGB0LrRgNC10YHQtdC90YzQtSIsDQogICAgIkRhdGVGb3JtYXRGdWxsIjoiRUVFRSwgZCBNTU1NIHkgJ9CzJy4iLA0KICAgICJHdWlFeGNlcHRpb24uT2JqZWN0Tm90RXhpc3QiOiJPYmplY3Qgd2l0aCBpZDogJHtvYmplY3RJZH0gZG9lc24ndCBleGlzdCIsDQogICAgIlNhdHVyZGF5U2hvcnQiOiLRgdCxIiwNCiAgICAiR3VpRXhjZXB0aW9uLk1hbnlEZWZhdWx0Rm9ybXMiOiJUaGVyZSdzIG1vcmUgdGhhbiAxIGRlZmF1bHQgZm9ybSBmb3IgdHlwZTogIiwNCiAgICAiRXJhU2hvcnROb3ciOiLQvS7RjS4iLA0KICAgICJUaHVyc2RheUZ1bGxTdGFuZGFsb25lIjoi0KfQtdGC0LLQtdGA0LMiLA0KICAgICJUdWVzZGF5RnVsbCI6ItCy0YLQvtGA0L3QuNC6IiwNCiAgICAiTm92ZW1iZXJNb250aEZ1bGxTdGFuZGFsb25lIjoi0J3QvtGP0LHRgNGMIiwNCiAgICAiW0RPTUFJTl9PQkpFQ1RdY291bnRyeSI6ItCh0YLRgNCw0L3QsCIsDQogICAgIltTRUFSQ0hfRklFTERdRW1wbG95ZWUuRGVwYXJ0bWVudCI6ItCU0LXQv9Cw0YDRgtCw0LzQtdC90YIiLA0KICAgICJPY3RvYmVyTW9udGhGdWxsIjoi0L7QutGC0Y/QsdGA0Y8iLA0KICAgICJRdWFydGVyVGhpcmRTaG9ydCI6IjMt0Lkg0LrQsi4iLA0KICAgICJXZWRuZXNkYXlGaXJzdENhcGl0YWwiOiLQoSIsDQogICAgIkRlY2VtYmVyTW9udGhTaG9ydCI6ItC00LXQui4iLA0KICAgICJDYW5jZWxCdXR0b24iOiLQntGC0LzQtdC90LjRgtGMIiwNCiAgICAidmFsaWRhdGUubGVuZ3RoLnRvby1iaWciOiLQlNC70LjQvdCwINC/0L7Qu9GPICR7ZmllbGQtbmFtZX0g0L3QtSDQvNC+0LbQtdGCINCx0YvRgtGMINCx0L7Qu9GM0YjQtSDRh9C10LwgJHttYXgtbGVuZ3RofSIsDQogICAgIkp1bk1vbnRoRnVsbCI6ItC40Y7QvdGPIiwNCiAgICAiU3VuZGF5Ijoi0JLQvtGB0LrRgNC10YHQtdC90YzQtSIsDQogICAgIkxvZ2luIjoi0JvQvtCz0LjQvToiLA0KICAgICJTYXR1cmRheUZ1bGwiOiLRgdGD0LHQsdC+0YLQsCIsDQogICAgIkNob29zZVRoZW1lIjoi0JLRi9Cx0YDQsNGC0Ywg0YLQtdC80YMiLA0KICAgICJGb3JtYXRZZWFyUXVhcnRlclNob3J0IjoiUSB5ICfQsycuIiwNCiAgICAiRm9ybWF0TW9udGhBYmJyZXZEYXkiOiJkIE1NTSIsDQogICAgIkFjdGlvblNlcnZpY2VFeGNlcHRpb24iOiLQndC10LLQvtC30LzQvtC20L3QviDQv9C+0LvRg9GH0LjRgtGMINGB0L/QuNGB0L7QuiDQtNC10LnRgdGC0LLQuNC5INC00LvRjyDQvtCx0YrQtdC60YLQsC4iLA0KICAgICJFcmFTaG9ydEJlZm9yZSI6ItC00L4g0L0u0Y0uIiwNCiAgICAiRG9lbFBhcnNlRXhjZXB0aW9uIjoi0J7RiNC40LHQutCwINGA0LDQt9Cx0L7RgNCwIERPRUwg0LLRi9GA0LDQttC10L3QuNGPLiIsDQogICAgIltGSUVMRF1jb3VudHJ5Lm5hbWUiOiLQndCw0LfQstCw0L3QuNC1IiwNCiAgICAiQ29sbGVjdGlvbkNvbmZpZ3VyYXRpb25FeGNlcHRpb24iOiLQntGI0LjQsdC60LAg0LrQvtC90YTQuNCz0YPRgNCw0YbQuNC4INC60L7Qu9C70LXQutGG0LjQuC4iLA0KICAgICJUaHVyc2RheVNob3J0Ijoi0YfRgiIsDQogICAgIltTRUFSQ0hfRklFTERdSW50ZXJuYWxfRG9jdW1lbnQuUmVnaXN0cmFudCI6ItCg0LXQs9C40YHRgtGA0LDRgtC+0YAiLA0KICAgICJ2YWxpZGF0ZS5zY2FsZSI6ItCX0L3QsNGH0LXQvdC40LUg0L/QvtC70Y8gJHtmaWVsZC1uYW1lfSDQtNC+0LvQttC90L4g0LjQvNC10YLRjCAke3NjYWxlfSDQt9C90LDQutC+0LIg0L/QvtGB0LvQtSDQt9Cw0L/Rj9GC0L7QuSIsDQogICAgIlF1YXJ0ZXJGaXJzdEZ1bGwiOiIxLdC5INC60LLQsNGA0YLQsNC7IiwNCiAgICAiUXVhcnRlckZpcnN0U2hvcnQiOiIxLdC5INC60LIuIiwNCiAgICAiTm9Db25uZWN0aW9uRXJyb3IiOiLQntGI0LjQsdC60LAg0LDQstGC0L7RgNC40LfQsNGG0LjQuC4g0J3QtdCy0L7Qt9C80L7QttC90L4g0L/QvtC00LrQu9GO0YfQuNGC0YzRgdGPINC6INGB0LXRgNCy0LXRgNGDLiIsDQogICAgIkZvcm1hdFllYXJNb250aERheUZ1bGwiOiJkIE1NTU0geSAn0LMnLiIsDQogICAgIkd1aUV4Y2VwdGlvbi5Tb3J0aW5nRmllbGROb3RGb3VuZCI6IkNvdWxkbid0IGZpbmQgc29ydGluZyAnJHtmaWVsZH0nIiwNCiAgICAiTWF5TW9udGhTaG9ydCI6ItC80LDRjyIsDQogICAgIk1vbmRheVNob3J0Ijoi0L/QvSIsDQogICAgIk1vbnRoU3dpdGNoQnV0dG9uIjoi0JfQsNC00LDRh9C4INC00L3RjyIsDQogICAgInZhbGlkYXRlLnBhdHRlcm4iOiLQn9C+0LvQtSAke2ZpZWxkLW5hbWV9INC00L7Qu9C20L3QviDRgdC+0L7RgtCy0LXRgtGB0YLQstC+0LLQsNGC0Ywg0YjQsNCx0LvQvtC90YMgJHtwYXR0ZXJufSEiLA0KICAgICJGYXZvcml0ZUFjdGlvblRvb2x0aXAiOiLQn9C+0LrQsNC30LDRgtGML9Ch0LrRgNGL0YLRjCDQuNC30LHRgNCw0L3QvdC+0LUiLA0KICAgICJTZXJ2ZXJWYWxpZGF0aW9uRXhjZXB0aW9uIjoiU2VydmVyLXNpZGUgdmFsaWRhdGlvbiBmYWlsZWQiLA0KICAgICJHdWlFeGNlcHRpb24uTm9Qcm9jZXNzTmFtZSI6ItCd0LUg0LfQsNC00LDQvdC+INC40LzRjyDQv9GA0L7RhtC10YHRgdCwIiwNCiAgICAiRm9ybWF0TW9udGhGdWxsRGF5IjoiZCBNTU1NIiwNCiAgICAiU2VwdGVtYmVyTW9udGhTaG9ydFN0YW5kYWxvbmUiOiLQodC10L3RgiIsDQogICAgIlRodXJzZGF5Rmlyc3RDYXBpdGFsIjoi0KciLA0KICAgICJXZWRuZXNkYXlTaG9ydFN0YW5kYWxvbmUiOiLQodGAIiwNCiAgICAiR3VpRXhjZXB0aW9uLlZlcnNpb25FcnJvciI6ItCe0YjQuNCx0LrQsCDQv9C+0LvRg9GH0LXQvdC40Y8g0LLQtdGA0YHQuNC4OiAiLA0KICAgICJOb1Jlc3VsdHMiOiLQoNC10LfRg9C70YzRgtCw0YLRiyDQvtGC0YHRg9GC0YHRgtCy0YPRjtGCIiwNCiAgICAiQXVndXN0TW9udGhGdWxsIjoi0LDQstCz0YPRgdGC0LAiLA0KICAgICJNYXJjaE1vbnRoRnVsbCI6ItC80LDRgNGC0LAiLA0KICAgICJDaGFuZ2VCdXR0b24iOiLQmNC30LzQtdC90LjRgtGMIiwNCiAgICAiRnJpZGF5U2hvcnRTdGFuZGFsb25lIjoi0J/RgiIsDQogICAgIkd1aUV4Y2VwdGlvbi5Ob1Byb2Nlc3NUeXBlIjoi0J3QtSDQt9Cw0LTQsNC90L4g0YLQuNC/INC/0YDQvtGG0LXRgdGB0LAiLA0KICAgICJTZXB0ZW1iZXJNb250aE5hcnJvdyI6ItChIg0KICB9LA0KICAiYm90dG9tUGFuZWxDb25maWciOnsNCiAgICAic3RpY2tOb3Rlc0NvbmZpZyI6ew0KICAgICAgDQogICAgfQ0KICB9LA0KICAicmlnaHRQYW5lbENvbmZpZyI6ew0KICAgIA0KICB9LA0KICAic2VhcmNoQ29uZmlndXJlZCI6dHJ1ZSwNCiAgInVzZXJFeHRyYUluZm8iOnsNCiAgICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLm1vZGVsLlBsYWluVGV4dFVzZXJFeHRyYUluZm8iLA0KICAgICJ0ZXh0Ijoi0KHRg9C/0LXRgC3QsNC00LzQuNC90LjRgdGC0YDQsNGC0L7RgCINCiAgfSwNCiAgImluaXRpYWxOYXZpZ2F0aW9uTGluayI6Imxpbms9Q291bnRyaWVzO2lkcz01MDY3MDAwMDAwMDAwMDI2OyIsDQogICJhcHBsaWNhdGlvbk5hbWUiOm51bGwNCn0=</stringProp>
+          </ru.intertrust.performance.jmetertools.GwtRpcSampler>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Формирование запроса" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Змена ID и доменных объектов
+	GwtUtil.preRequestProcessing(ctx);
+	//-----  Пользовательский код   ----------------------------
+	
+	//----------------------------------------------------------
+}catch(Exception ex){
+	log.error(&quot;Pre request error in sampler &quot; + sampler.getName(), ex);
+	sampler.setError(true);
+}
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Анализ результата" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Проверка на ошибки
+	if (GwtUtil.isError(ctx)){
+		prev.setSuccessful(false);
+	}else{
+		//Сохранение ID и доменных объектов
+		GwtUtil.postResponseProcessing(ctx);
+		//-----  Пользовательский код   ----------------------------
+		
+		//----------------------------------------------------------
+	}
+}catch(Exception ex){
+	prev.setSuccessful(false);
+	log.error(&quot;Post request error in sampler &quot; + ctx.getCurrentSampler().getName(), ex);
+}
+</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="ru.intertrust.performance.jmetertools.HttpUploadSampleGui" testclass="HTTPSamplerProxy" testname="20-Upload file: test.bmp" enabled="true">
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value"></stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/attachment-upload</stringProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">true</boolProp>
+            <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
+              <collectionProp name="HTTPFileArgs.files">
+                <elementProp name="${BASE_DIR}60-meg.doc" elementType="HTTPFileArg">
+                  <stringProp name="File.path">${BASE_DIR}60-meg.doc</stringProp>
+                  <stringProp name="File.paramname">fileUpload</stringProp>
+                  <stringProp name="File.mimetype">image/bmp</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="GwtRpcRequestJson"></stringProp>
+            <stringProp name="GwtRpcResponceJson">20457220988052-_-test.bmp,</stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Формирование запроса" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//-----  Пользовательский код   ----------------------------
+	
+	//----------------------------------------------------------
+}catch(Exception ex){
+	log.error(&quot;Pre request error in sampler &quot; + sampler.getName(), ex);
+	sampler.setError(true);
+}
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Анализ результата" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Проверка на ошибки
+	if (GwtUtil.isError(ctx)){
+		prev.setSuccessful(false);
+	}else{
+		//Сохранение имени вложения
+		GwtUtil.storeUploadResult(ctx);
+		//-----  Пользовательский код   ----------------------------
+		
+		//----------------------------------------------------------
+	}
+}catch(Exception ex){
+	prev.setSuccessful(false);
+	log.error(&quot;Post request error in sampler &quot; + ctx.getCurrentSampler().getName(), ex);
+}
+</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+          <ru.intertrust.performance.jmetertools.GwtRpcSampler guiclass="ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui" testclass="ru.intertrust.performance.jmetertools.GwtRpcSampler" testname="35-ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService.logout" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">true</boolProp>
+                  <stringProp name="Argument.value">7|0|4|http://localhost:8090/cm-sochi/ru.intertrust.cm.core.gui.impl.BusinessUniverseEntryPoint/|9D1E8F76238CE75DC91A4E5835D5B56A|ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationService|logout|1|2|3|4|0|</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <stringProp name="HTTPSampler.path">/cm-sochi/remote/BusinessUniverseAuthenticationService</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+            <stringProp name="GwtRpcRequestJson">ew0KICAiQHR5cGUiOiJydS5pbnRlcnRydXN0LnBlcmZvcm1hbmNlLmptZXRlcnRvb2xzLlJlcXVlc3RWaWV3ZXIiLA0KICAibW9kdWxlQmFzZVVybCI6Imh0dHA6Ly9sb2NhbGhvc3Q6ODA4MC9jbS1zb2NoaS9ydS5pbnRlcnRydXN0LmNtLmNvcmUuZ3VpLmltcGwuQnVzaW5lc3NVbml2ZXJzZUVudHJ5UG9pbnQvIiwNCiAgInBvbGljeU5hbWVBbGlhcyI6IjEiLA0KICAic2VydmljZSI6InJ1LmludGVydHJ1c3QuY20uY29yZS5ndWkucnBjLmFwaS5CdXNpbmVzc1VuaXZlcnNlQXV0aGVudGljYXRpb25TZXJ2aWNlIiwNCiAgIm1ldGhvZCI6ImxvZ291dCIsDQogICJwYXJhbWV0ZXJzIjpbXSwNCiAgInBhcmFtZXRlclR5cGVzIjpbXQ0KfQ==</stringProp>
+            <stringProp name="GwtRpcResponceJson">bnVsbA==</stringProp>
+          </ru.intertrust.performance.jmetertools.GwtRpcSampler>
+          <hashTree>
+            <BeanShellPreProcessor guiclass="TestBeanGUI" testclass="BeanShellPreProcessor" testname="Формирование запроса" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Змена ID и доменных объектов
+	GwtUtil.preRequestProcessing(ctx);
+	//-----  Пользовательский код   ----------------------------
+	
+	//----------------------------------------------------------
+}catch(Exception ex){
+	log.error(&quot;Pre request error in sampler &quot; + sampler.getName(), ex);
+	sampler.setError(true);
+}
+</stringProp>
+            </BeanShellPreProcessor>
+            <hashTree/>
+            <BeanShellPostProcessor guiclass="TestBeanGUI" testclass="BeanShellPostProcessor" testname="Анализ результата" enabled="true">
+              <boolProp name="resetInterpreter">false</boolProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="script">import ru.intertrust.performance.jmetertools.*;
+try{
+	//Проверка на ошибки
+	if (GwtUtil.isError(ctx)){
+		prev.setSuccessful(false);
+	}else{
+		//Сохранение ID и доменных объектов
+		GwtUtil.postResponseProcessing(ctx);
+		//-----  Пользовательский код   ----------------------------
+		
+		//----------------------------------------------------------
+	}
+}catch(Exception ex){
+	prev.setSuccessful(false);
+	log.error(&quot;Post request error in sampler &quot; + ctx.getCurrentSampler().getName(), ex);
+}
+</stringProp>
+            </BeanShellPostProcessor>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
+      </hashTree>
+      <ResultCollector guiclass="SimpleDataWriter" testclass="ResultCollector" testname="Файл отчета" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename">GwtRpcJmeterResult.csv</stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Полный отчет" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename">GwtRpcJmeterFullReport.csv</stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="ru.intertrust.performance.jmetertools.GwtRpcStatVisualizer" testclass="ResultCollector" testname="Отчет по группам" enabled="true">
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename">GwtRpcJmeterGroupReport.csv</stringProp>
+      </ResultCollector>
+      <hashTree/>
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="Список ошибок" enabled="true">
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <objProp>
+          <name>saveConfig</name>
+          <value class="SampleSaveConfiguration">
+            <time>true</time>
+            <latency>true</latency>
+            <timestamp>true</timestamp>
+            <success>true</success>
+            <label>true</label>
+            <code>true</code>
+            <message>true</message>
+            <threadName>true</threadName>
+            <dataType>true</dataType>
+            <encoding>false</encoding>
+            <assertions>true</assertions>
+            <subresults>true</subresults>
+            <responseData>false</responseData>
+            <samplerData>false</samplerData>
+            <xml>false</xml>
+            <fieldNames>false</fieldNames>
+            <responseHeaders>false</responseHeaders>
+            <requestHeaders>false</requestHeaders>
+            <responseDataOnError>false</responseDataOnError>
+            <saveAssertionResultsFailureMessage>false</saveAssertionResultsFailureMessage>
+            <assertionsResultsToSave>0</assertionsResultsToSave>
+            <bytes>true</bytes>
+            <threadCounts>true</threadCounts>
+          </value>
+        </objProp>
+        <stringProp name="filename">GwtRpcJmeterErrorList.csv</stringProp>
+      </ResultCollector>
+      <hashTree/>
+    </hashTree>
+  </hashTree>
+</jmeterTestPlan>

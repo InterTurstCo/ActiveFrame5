@@ -1,0 +1,434 @@
+.wrap-date {
+    background: #fff;
+    border: 1px solid #bbb;
+    float: left;
+    margin: 3px 0;
+    padding: 7px 0 6px 10px;
+    position: relative;
+    width: 150px;
+}
+
+.date-box-button {
+    background: url(images/icon-datepicker.png) no-repeat;
+    cursor: pointer;
+    height: 16px;
+    position: absolute;
+    top: 10px;
+    right: 6px;
+    width: 16px;
+    z-index: 5;
+}
+
+.gwt-DateBox.date-text-box {
+    border: none;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    min-height: 24px;
+    padding: 0;
+}
+
+.datePickerDecorate > table {
+    z-index: 99;
+    border: 3px solid #54b5df;
+    border-radius: 3px 3px 3px 3px;
+    width: 195px;
+}
+
+.date-picker-baloon {
+    width: 32px;
+    height: 17px;
+    position: absolute !important;
+    left: 115px;
+    top: 6px;
+    background-image: url(css/images/blue-arrow.png);
+    background-repeat: no-repeat;
+}
+
+.date-picker-baloon-up {
+    width: 29px;
+    height: 17px;
+    left: 115px;
+    top: -3px;
+    background: url(images/blue-arrow-down.png) no-repeat -2px 0;
+}
+
+.datePickerDecorate {
+    padding-top: 20px;
+}
+
+.dateBoxPopup {
+    z-index: 999;
+}
+
+/**
+ * top date picker
+ */
+.datePickerPreviousButton {
+    cursor: pointer;
+    background: url(css/i/arr_left.png) no-repeat;
+    height: 12px;
+    width: 16px;
+    margin-top: 4px;
+    padding: 0 !important;
+}
+
+.datePickerNextButton {
+    padding: 0 !important;
+    cursor: pointer;
+    background: url(css/i/arr_right.png) no-repeat;
+    height: 12px;
+    width: 16px;
+    margin-top: 4px;
+}
+
+.dateBoxPopup .html-face {
+    display: none;
+}
+
+/*.datePickerMonthSelector {*/
+/*background: white !important;*/
+/*width: 100%;*/
+/*}*/
+
+.datePickerDayIsValue {
+    background: #d7dfe8 !important;
+}
+
+/*.datePickerDay {*/
+/*height: 16px;*/
+/*}*/
+
+/*.datePickerDecorate {*/
+/*border: 1px red;*/
+/*}*/
+
+div, input, textarea, select {
+    outline: none;
+}
+
+.compositeDateTimeContainerHidden {
+    display: none;
+}
+
+.compositeDateTimeContainerShown {
+    width: auto;
+    padding: 10px 10px 0;
+}
+
+.compositeDateTimeContainerShown > div {
+    display: inline-block;
+}
+
+.compositeDateTimeContainerShown > div:nth-of-type(1) {
+    margin: 0 20px 0 0;
+}
+
+.composite-datetime-submit-button {
+    display: block !important;
+    /*float: right;*/
+    margin-right: 5px;
+}
+
+.time-picker {
+
+}
+
+.composite-date-picker {
+
+}
+
+.composite-datetime-selection-item .gwt-Label {
+    color: #555;
+    text-decoration: none;
+}
+
+.composite-datetime-selection-item:hover {
+    background: rgba(186, 186, 186, 0.4);
+    border-radius: 0;
+    color: #1a1a1a;
+}
+
+.composite-datetime-selection-item .gwt-Label:hover {
+    color: #1a1a1a;
+    cursor: hand;
+    cursor: pointer;
+}
+
+.composite-datetime-selection-item:active {
+    background: white;
+    color: #e17009;
+}
+
+.compositeDatetimePicker {
+    background: #fafafa;
+    border: 1px solid #999;
+    box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
+    padding: 2px;
+    z-index: 1000;
+}
+
+/********************/
+/* iOSButton Styles */
+/********************/
+.iOSButton-badge {
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    color: white;
+    background: #ff3333;
+    border: 2px solid white;
+    padding: 0 5px;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+.iOSButton {
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    background: #00b5e2;
+}
+
+.attPlImgCreate {
+    background: url(resources/defaulttheme/images/icons/icon-create.png) no-repeat 50% 5%;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px #999;
+    cursor: pointer;
+    float: left;
+    height: 25px;
+    margin: 10px 0 0;
+    padding: 0;
+    width: 25px;
+}
+
+.attPlImgCreate:hover {
+    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 -25px;
+}
+
+.attPlImgCreate:active {
+    background: url(resources/defaulttheme/images/icons/icon-upload.png) no-repeat 0 -50px;
+}
+
+.uploadReportTemplate {
+    padding: 0 10px;
+}
+
+.uploadConfigurationWrapper {
+    display: inline-block;
+    font-size: 100%;
+    padding: 10px;
+}
+
+.uploadConfigurationLabel div.gwt-Label {
+
+}
+
+/* ------------>>> datePicker popup <<<------------ */
+.compositeDatetimePicker {
+    background: #fafafa;
+    border: 1px solid #999;
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px rgba(128, 128, 128, .7);
+    padding: 10px;
+    z-index: 1000;
+}
+
+.datePickerDecorate {
+    border: 1px solid #d7d7d7;
+    width: 195px;
+}
+
+.datePickerMonthSelector {
+    background: #fff !important;
+    border-bottom: 1px solid #e7e7e7;
+    border-collapse: separate;
+    border-spacing: 3px;
+    padding: 3px 0;
+}
+
+.datePickerMonth {
+    font-size: 100% !important;
+    color: #333;
+}
+
+.datePickerDay {
+    /*background: turquoise;*/
+    border-right: 1px solid #ededed;
+    border-bottom: 1px solid #ededed;
+    color: #333;
+    cursor: hand;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-weight: bold !important;
+    font-size: 85%;
+    outline: none;
+    padding: 7px 4px !important;
+    text-align: center;
+    text-decoration: underline;
+}
+
+.datePickerWeekdayLabel,
+.datePickerWeekendLabel {
+    background: #eee !important;
+    /*border-right: 1px solid #ededed;*/
+    border-bottom: 1px solid #ededed;
+    color: #333;
+    font-family: Arial, sans-serif;
+    font-weight: bold !important;
+    padding: 4px !important;
+}
+
+.datePickerWeekendLabel {
+    color: #ff0000;
+}
+
+.datePickerDayIsFiller {
+    text-decoration: none;
+}
+
+.datePickerDayIsHighlighted:hover {
+    background: #f0e68c;
+}
+
+.datePickerDayIsWeekend {
+    background: #f7f7f7 !important;
+    color: #f00;
+}
+
+.datePickerDayIsWeekend:hover {
+    background: #f0e68c !important;
+}
+
+.datePickerDayIsWeekend.datePickerDayIsValue {
+    background-color: #d7dfe8 !important;
+}
+
+.datePickerDayIsToday {
+    border: 1px solid #232464 !important;
+    padding: 3px;
+    background: #4c93c9;
+    background: -moz-linear-gradient(top, #232464 0%, #3b649a 51%, #4c93c9 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #232464), color-stop(51%, #3b649a), color-stop(100%, #4c93c9));
+    background: -webkit-linear-gradient(top, #232464 0%, #3b649a 51%, #4c93c9 100%);
+    background: -o-linear-gradient(top, #232464 0%, #3b649a 51%, #4c93c9 100%);
+    background: -ms-linear-gradient(top, #232464 0%, #3b649a 51%, #4c93c9 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#232464 ', endColorstr='#4c93c9', GradientType=0);
+    background: linear-gradient(478 BCC);
+    color: #fff;
+    /*background: url(css/images/hborder.png) repeat-x 0 -2607px;*/
+    /*border: none !important*/
+
+}
+
+/* ------------>>> end datePicker popup <<<------------ */
+
+/* ------------>>> timePicker block <<<------------ */
+.timeboxContainer {
+    background: #f7f7f7;
+    border: 1px solid #d7d7d7;
+    border-radius: 3px;
+    color: #1f2b5d;
+    display: inline-block;
+    margin: 10px 0 0;
+    outline: medium none;
+    padding: 3px;
+    vertical-align: middle;
+    width: 80px;
+}
+
+.timeboxSeparator {
+    font-size: 10px;
+    text-align: center;
+    width: 5px;
+}
+
+.timeboxButtonUpDown {
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.timePickerReadOnlySmall {
+    background-color: #f2f2f2;
+    background-image: -webkit-linear-gradient(top, #e0e0e0, #e6e6e6, #8f8f8f);
+    background-image: -moz-linear-gradient(top, #e0e0e0, #e6e6e6, #8f8f8f);
+    background-image: -ms-linear-gradient(top, #e0e0e0, #e6e6e6, #8f8f8f);
+    background-image: -o-linear-gradient(top, #e0e0e0, #e6e6e6, #8f8f8f);
+    background-image: linear-gradient(top, #e0e0e0, #e6e6e6, #8f8f8f);
+    border: 1px solid #535353;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    box-shadow: 0 1px 0 0 black;
+    -webkit-box-shadow: 0 1px 0 0 black;
+    -moz-box-shadow: 0 1px 0 0 black;
+    color: black;
+    display: inline-block;
+    font-weight: bold;
+    padding: 6px 5px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.timePickerReadOnly,
+.timePickerReadOnly {
+    font-size: 18px;
+}
+
+.timePickerReadOnlySmall {
+    font-size: 12px;
+}
+
+.timePicker {
+    background: rgb(240, 240, 240);
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border: 1px solid #e4e4e4;
+    display: inline-block;
+    margin: 10px 0 0 0;
+    padding: 2px 5px 0;
+    text-decoration: none;
+}
+
+.timePickerEntry,
+.timePickerEntrySmall {
+    font-weight: bold;
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+    background-color: transparent;
+}
+
+.timePickerEntry {
+}
+
+.timePickerEntrySmall {
+    font-size: 12px;
+    width: 20px;
+}
+
+/* ------------>>> end timePicker block <<<------------ */
+
+/* ------------>>> datePicker confirm button <<<------------ */
+.compositeDatetimePicker .darkButton {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+}
+
+.compositeDateTimeContainerShown .darkButton {
+    display: block;
+    margin: 15px 0 10px 85%;
+    position: initial;
+}
+
+/* ------------>>> end datePicker confirm button <<<------------ */

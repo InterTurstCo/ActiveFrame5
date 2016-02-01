@@ -88,6 +88,7 @@
             <artifactId>crypto-pro-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>bouncycastle-crypto-service</artifactId>

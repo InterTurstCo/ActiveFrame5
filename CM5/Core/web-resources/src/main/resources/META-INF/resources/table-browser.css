@@ -1,0 +1,91 @@
+.table-browser-dialog-box-button-panel {
+    bottom: 45px;
+    display: inline-block;
+    left: 10px;
+    position: absolute !important;
+}
+
+.table-browser-dialog-box-button-panel .darkButton {
+}
+
+.buttons-fixed {
+    position: fixed;
+}
+
+.position-margin-left {
+    margin-left: 55px;
+}
+
+.table-browser-dialog {
+    background: #ffffff;
+    padding: 2px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -khtml-border-radius: 10px;
+    border-radius: 10px;
+    border: 3px solid silver;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, .4);
+}
+
+.table-browser-dialog .collection-plugin-view-container {
+    background: none;
+    margin-bottom: 45px;
+}
+
+.collection-plugin-view-container input[name="json"] {
+    border: none;
+}
+
+.table-browser-button.darkButton {
+}
+
+.table-browser-dialog-box-content {
+    padding: 10px;
+}
+
+.dataGridHeaderRow {
+}
+
+.dataGridHeaderRow:hover th {
+    border-right: 1px dashed #ffffff;
+}
+
+.table-browser-dialog.popup-z-index .dialogTopCenter {
+    display: block;
+}
+
+.table-browser-dialog.popup-z-index table[class="collection-plugin-view"] {
+    top: 30px;
+}
+
+.tableBrowserFilterInput {
+    border: hidden;
+    display: inline-block;
+    padding: 5px 5px 3px;
+}
+
+.inlineStyle {
+    display: inline-block;
+    float: left;
+
+}
+
+.facebookElementDel {
+    margin-top: 9px;
+}
+
+.tableBrowserRoot td {
+    width: 100%;
+}
+
+.tableBrowserControlsWrapper {
+    border: 1px solid grey;
+    margin: 5px;
+}
+
+.tableBrowserCollectionFilterInput {
+    border: hidden;
+    margin: 5px;
+    width: 100%;
+
+}

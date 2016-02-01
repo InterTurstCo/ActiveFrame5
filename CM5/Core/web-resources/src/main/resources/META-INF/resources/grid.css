@@ -1,0 +1,47 @@
+@CHARSET "UTF-8";
+
+/** Table Header */
+.docs-ctg-listContainerHeader {
+    color: black;
+    font-size: 12px;
+    font-style: italic;
+    font-weight: normal;
+    margin: 5px 0 0 0;
+}
+
+.rootPathPanel {
+    padding-top: 0px;
+    padding-bottom: 0px;
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rootSelectionPanel {
+}
+
+.rootPathView {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.searchPanel {
+    float: right;
+    padding: 5px;
+}
+
+.searchCountHeader {
+    float: right;
+    padding: 5px;
+}
+
+.scrollable-cell-table { /*border: 1px solid #ccc;*/
+    right: 0;
+    width: 18px;
+}
+
