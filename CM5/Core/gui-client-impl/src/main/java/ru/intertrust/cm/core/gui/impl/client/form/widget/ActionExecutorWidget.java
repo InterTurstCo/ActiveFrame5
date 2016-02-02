@@ -48,4 +48,9 @@ public class ActionExecutorWidget extends LabelWidget {
             action.perform();
         }
     }
+
+    @Override
+    protected Widget asNonEditableWidget(WidgetState state) {
+        return super.asEditableWidget(state);
+    }
 }
