@@ -51,6 +51,6 @@ public class ActionExecutorWidget extends LabelWidget {
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
-        return super.asEditableWidget(state);
+        return state.isForceReadOnly() ? super.asEditableWidget(state) : this.asEditableWidget(state);
     }
 }
