@@ -996,6 +996,38 @@ label.checkbox input[type="checkbox"]:checked + span {
     background: none;
 }
 
+.left-button {
+    background-position: 17%;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.7);
+    border: none;
+    height: 29px;
+    border-radius: 7px 0 0 7px;
+}
+
+.left-button:hover {
+    background-position: 17%;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.7);
+    border: none;
+}
+
+.left-button:active {
+    background-position: 17%;
+    box-shadow: 1px 2px 4px 0 rgba(0, 0, 0, 0.7);
+    border: none;
+}
+
+.right-button {
+    background: none no-repeat scroll 0 0 rgba(255, 255, 255, 0.8);
+    border-bottom: none;
+    border-color: #DDDDDD;
+    box-shadow: -3px -1px 3px 1px #C0C0C0;
+    cursor: pointer;
+    height: 41px;
+}
+
+.right-button .inside-vertical-tab-text {
+    padding: 16px 10px 3px;
+}
 
 /*style for calendar*/
 
