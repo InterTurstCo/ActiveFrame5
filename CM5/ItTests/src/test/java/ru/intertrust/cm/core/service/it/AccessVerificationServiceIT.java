@@ -150,7 +150,7 @@ public class AccessVerificationServiceIT extends IntegrationTestBase {
     
     @Test
     public void testIsReadPermited() throws LoginException {
-        assertFalse(configurationExplorer.isReadPermittedToEverybody("test_DO_1"));
+        assertTrue(configurationExplorer.isReadPermittedToEverybody("test_DO_1"));
         assertTrue(configurationExplorer.isReadPermittedToEverybody("test_DO_2"));
         assertFalse(configurationExplorer.isReadPermittedToEverybody("test_DO_3"));
 

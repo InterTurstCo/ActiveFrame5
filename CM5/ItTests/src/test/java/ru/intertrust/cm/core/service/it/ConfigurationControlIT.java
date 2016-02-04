@@ -43,7 +43,7 @@ public class ConfigurationControlIT extends IntegrationTestBase {
 
         // Check that existing domain object type is not modified
         DomainObjectTypeConfig doTypeConfig  = configurationService.getDomainObjectTypeConfig("notification");
-        assertTrue(doTypeConfig.getFieldConfigs().size() > 0);
+        assertTrue(doTypeConfig.getFieldConfigs().size() == 0);
 
         CollectionConfig collectionConfig = configurationService.getConfig(CollectionConfig.class, "NewCollection12345");
         //Check that new configuration config is loaded
@@ -71,6 +71,6 @@ public class ConfigurationControlIT extends IntegrationTestBase {
         // Check that toolbar config is updated
         ToolBarConfig toolBarConfig = configurationService.getDefaultToolbarConfig("collection.plugin", "DEFAULT_LOCALE");
         ActionSeparatorConfig actionSeparatorConfig = (ActionSeparatorConfig) toolBarConfig.getActions().get(1);
-        assertEquals(Integer.valueOf(200), (Integer) actionSeparatorConfig.getOrder());
+        assertEquals(Integer.valueOf(300), (Integer) actionSeparatorConfig.getOrder());
     }
 }

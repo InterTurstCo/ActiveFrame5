@@ -615,10 +615,10 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         paramsSimpleKey.put("newField", new StringValue("key2err"));
         try {
-            crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
-            assertTrue(false);
+            DomainObject result = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsSimpleKey);
+            assertNull(result);
         } catch (ObjectNotFoundException e) {
-            assertTrue(true);
+            assertTrue(false);
         }
 
         Map<String, Value> paramsComplexKey = new HashMap<>();
@@ -637,10 +637,10 @@ public class CrudServiceIT extends IntegrationTestBase {
 
         paramsComplexKey.put("stringField", new StringValue("key2err"));
         try {
-            crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
-            assertTrue(false);
+            DomainObject result = crudService.findByUniqueKey("EmployeeTestUniqueKey", paramsComplexKey);
+            assertNull(result);
         } catch (ObjectNotFoundException e) {
-            assertTrue(true);
+            assertTrue(false);
         }
 
         paramsComplexKey.put("stringField", new StringValue("str"));
@@ -654,12 +654,6 @@ public class CrudServiceIT extends IntegrationTestBase {
         } catch (Exception e) {
             assertTrue(true);
         }
-
-//        crudService.delete(employeeTestUniqueKey.getId());
-//        crudService.delete(organizationId);
-
-        DomainObject country = createCountryDomainObject();
-        String countryName = country.getString("Name");
     }
 
     @Test

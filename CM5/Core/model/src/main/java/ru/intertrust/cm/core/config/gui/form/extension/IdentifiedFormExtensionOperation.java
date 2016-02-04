@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.extension;
 
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.IdentifiedConfig;
 import ru.intertrust.cm.core.config.gui.form.extension.markup.ExtensionPlace;
 
@@ -10,7 +11,7 @@ import java.util.List;
  *         Date: 17.05.2015
  *         Time: 17:44
  */
-public interface IdentifiedFormExtensionOperation<T extends IdentifiedConfig> {
+public interface IdentifiedFormExtensionOperation<T extends IdentifiedConfig> extends Dto {
     String getId();
     List<T> getSource();
     ExtensionPlace getExtensionPlace();

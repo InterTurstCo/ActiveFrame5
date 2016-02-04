@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<act:tool-bar name="id_value" styleClass="styleClass_value"
+<act:tool-bar plugin="id_value" styleClass="styleClass_value"
               xmlns:act="https://cm5.intertrust.ru/config/action">
 
 

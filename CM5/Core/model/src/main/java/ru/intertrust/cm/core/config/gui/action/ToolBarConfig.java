@@ -84,7 +84,7 @@ public class ToolBarConfig extends BaseAttributeConfig implements LocalizableCon
 
     @Override
     public String getName() {
-        return name;
+        return plugin;
     }
 
     @Override

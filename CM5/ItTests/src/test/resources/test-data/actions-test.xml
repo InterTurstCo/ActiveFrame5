@@ -3,7 +3,7 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
 
     <act:tool-bar plugin="collection.plugin">
-        <act:action-ref actionId="aRefresh"/>
+        <act:action-ref name-ref="aRefresh"/>
         <act:action-separator order="300"/>
     </act:tool-bar>
 

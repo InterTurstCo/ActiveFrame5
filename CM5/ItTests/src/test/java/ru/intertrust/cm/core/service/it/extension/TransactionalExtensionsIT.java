@@ -63,15 +63,15 @@ public class TransactionalExtensionsIT extends IntegrationTestBase{
         
         lc.logout();
         
-        assertTrue(TestAftersaveAfterCommitExtPointhandler.save.size() == 1);
-        assertTrue(TestAftersaveAfterCommitExtPointhandler.save.get(0).modifications.size() == 2);
+        assertTrue(TestAftersaveAfterCommitExtPointhandler.save.size() == 2);
+        assertTrue(TestAftersaveAfterCommitExtPointhandler.save.get(0).modifications.size() == 4);
         FieldModification fieldName = getFieldModification("Name", TestAftersaveAfterCommitExtPointhandler.save.get(0).modifications);
         FieldModification fieldDescription = getFieldModification("Description", TestAftersaveAfterCommitExtPointhandler.save.get(0).modifications);
         //Проверяем мерж измененных полей
         assertTrue(fieldName.getBaseValue()==null && fieldName.getComparedValue().get().equals(organization.getString("Name")));
         assertTrue(fieldDescription.getBaseValue()==null && fieldDescription.getComparedValue().get().equals(organization.getString("Description")));
         //Проверяем количество созданных
-        assertTrue(TestAftersaveAfterCommitExtPointhandler.create.size() == 1);
+        assertTrue(TestAftersaveAfterCommitExtPointhandler.create.size() == 2);
         //Проверка количества удаленных
         assertTrue(TestAftersaveAfterCommitExtPointhandler.delete.size() == 1);
         
