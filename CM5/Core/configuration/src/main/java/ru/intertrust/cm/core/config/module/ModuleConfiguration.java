@@ -24,6 +24,9 @@ public class ModuleConfiguration implements Dto {
     @ElementList(entry="extension-points-package", required=false, name="extension-points-packages")
     private List<String> extensionPointsPackages;
 
+    @ElementList(entry="configuration-elements-package", required=false, name="configuration-elements-packages")
+    private List<String> configurationElementsPackages;
+
     @ElementList(entry="gui-components-package", required=false, name="gui-components-packages")
     private List<String> guiComponentsPackages;
 
@@ -35,13 +38,13 @@ public class ModuleConfiguration implements Dto {
 
     @Element(required=false, name="configuration-schema-path")
     private String configurationSchemaPath;
-    
+
     @ElementList(entry="configuration-path", required=false, name="configuration-paths")
     private List<String> configurationPaths;
 
     @Element(required=false, name="import-reports")
     private ImportReportsConfiguration importReports;
-    
+
     @ElementList(required=false, name="deploy-processes", entry="process-definition")
     private List<String> deployProcesses;
 
@@ -85,6 +88,12 @@ public class ModuleConfiguration implements Dto {
     }
     public void setExtensionPointsPackages(List<String> extensionPointsPackages) {
         this.extensionPointsPackages = extensionPointsPackages;
+    }
+    public List<String> getConfigurationElementsPackages() {
+        return configurationElementsPackages;
+    }
+    public void setConfigurationElementsPackages(List<String> configurationElementsPackages) {
+        this.configurationElementsPackages = configurationElementsPackages;
     }
     public List<String> getGuiComponentsPackages() {
         return guiComponentsPackages;
