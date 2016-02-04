@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
 import ru.intertrust.cm.core.business.api.*;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -31,6 +32,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +197,7 @@ public class ActionServiceTest {
         public ConfigurationExplorer configurationExplorer() throws Exception {
             ActionConfig.class.toString();
                         
-            ConfigurationClassesCache.getInstance().setSearchClassPath("classpath*:ru/**/*.class");
+            ConfigurationClassesCache.getInstance().setSearchClassPackages(Arrays.asList("ru"));
             ConfigurationClassesCache.getInstance().build();
             ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
 
