@@ -13,10 +13,6 @@
         <version>0.5.18-2-SNAPSHOT</version>
     </parent>
 
-    <properties>
-        <root.basedir>${project.parent.parent.basedir}</root.basedir>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
@@ -24,34 +20,5 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/../../</directory>
-                <targetPath>./</targetPath>
-                <filtering>false</filtering>
-                <includes>
-                    <include>gui.properties</include>
-                    <include>log4j.xml</include>
-                </includes>
-            </resource>
-
-            <resource>
-                <directory>src/main/resources</directory>
-                <targetPath>META-INF/resources</targetPath>
-                <excludes>
-                    <exclude>META-INF/*.xml</exclude>
-                </excludes>
-            </resource>
-            
-            <resource>
-                <directory>src/main/resources/META-INF</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>*.xml</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
+   
 </project>

@@ -99,7 +99,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     public void refresh() {
         final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
         final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
-        final Id selectedId = selectedIds == null ? null : selectedIds.get(0);
+        final Id selectedId = (selectedIds == null || selectedIds.size()==0) ? null : selectedIds.get(0);
         List<String> expandableTypes = new ArrayList<String>();
         if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
 
