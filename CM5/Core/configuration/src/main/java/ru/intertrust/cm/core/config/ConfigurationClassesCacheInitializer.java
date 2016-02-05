@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -32,7 +33,10 @@ public class ConfigurationClassesCacheInitializer {
         ConfigurationClassesCache cache = ConfigurationClassesCache.getInstance();
         ArrayList<String> packages = new ArrayList<>();
         for (ModuleConfiguration config : moduleService.getModuleList()) {
-            packages.addAll(config.getConfigurationElementsPackages());
+            List<String> modulePackages = config.getConfigurationElementsPackages();
+            if (modulePackages != null) {
+                packages.addAll(modulePackages);
+            }
         }
         if (packages.size() > 0) {
             cache.setSearchClassPackages(packages);
