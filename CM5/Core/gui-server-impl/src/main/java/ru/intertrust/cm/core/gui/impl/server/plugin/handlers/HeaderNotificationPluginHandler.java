@@ -2,16 +2,10 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.ConfigurationService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.SortOrder;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -37,6 +31,12 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
 
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
+
+    @Autowired
+    private ConfigurationService configurationService;
+
+    private static final String FIELD_ID = "id";
+    private static final String ASC_CRITERION = "asc";
 
     private final String collectionName = "NewNotifications";
     private final String subjectColumnName = "subject";
@@ -71,14 +71,24 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     }
 
     private ArrayList<HeaderNotificationItem> getNotificationList(){
-        ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
+        BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
+                BusinessUniverseConfig.NAME);
+        SortOrder sortOrder = new SortOrder();
+        if (businessUniverseConfig.getNotificationSortOrderConfig() != null && businessUniverseConfig.getNotificationSortOrderConfig().getValue() != null) {
+            if(businessUniverseConfig.getNotificationSortOrderConfig().getValue().toLowerCase().equals(ASC_CRITERION)){
+                sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.ASCENDING));
+            } else {
+                sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.DESCENDING));
+            }
+        }
+            ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
 
         Filter filter = new Filter();
         filter.setFilter("byRecipient");
 
         Id id = currentUserAccessor.getCurrentUserId();
         filter.addReferenceCriterion(0, id);
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, new SortOrder(),
+        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder,
                 Collections.singletonList(filter));
         for (int i =0; i < collection.size(); i++){
             IdentifiableObject identifiableObject = collection.get(i);

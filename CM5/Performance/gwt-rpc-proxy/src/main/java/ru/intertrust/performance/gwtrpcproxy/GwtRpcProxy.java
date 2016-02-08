@@ -45,15 +45,13 @@ import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.jmeter.config.Argument;
 import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.control.GenericController;
 import org.apache.jmeter.control.TransactionController;
-import org.apache.jmeter.control.gui.LogicControllerGui;
 import org.apache.jmeter.control.gui.TransactionControllerGui;
 import org.apache.jmeter.extractor.BeanShellPostProcessor;
 import org.apache.jmeter.modifiers.BeanShellPreProcessor;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
-import org.apache.jmeter.protocol.http.gui.HeaderPanel;
+import org.apache.jmeter.protocol.http.control.gui.HttpTestSampleGui;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerBase;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
@@ -73,6 +71,7 @@ import org.slf4j.LoggerFactory;
 import ru.intertrust.performance.jmetertools.GwtProcySerializationPolicyProvider;
 import ru.intertrust.performance.jmetertools.GwtRpcHttpTestSampleGui;
 import ru.intertrust.performance.jmetertools.GwtRpcSampler;
+import ru.intertrust.performance.jmetertools.HttpUploadSampleGui;
 
 public class GwtRpcProxy implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(GwtRpcProxy.class);
@@ -331,15 +330,18 @@ public class GwtRpcProxy implements Runnable {
                     if (requestResponce.getRequest().getServiceClass() != null) {
                         sampler = new GwtRpcSampler();
                         sampler.setProperty(TestElement.TEST_CLASS, GwtRpcSampler.class.getName());
+                        sampler.setProperty(TestElement.GUI_CLASS, GwtRpcHttpTestSampleGui.class.getName());
                         sampler.setName(samplerNo + "-" + requestResponce.getRequest().getServiceClass() + "."
                                 + requestResponce.getRequest().getServiceMethod());
                     } else if (requestResponce.getRequest().getFile() != null) {
                         sampler = new HTTPSamplerProxy();
                         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
+                        sampler.setProperty(TestElement.GUI_CLASS, HttpUploadSampleGui.class.getName());
                         sampler.setName(samplerNo + "-Upload file: " + requestResponce.getRequest().getFile().getFileName());
                     } else {
                         sampler = new HTTPSamplerProxy();
                         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
+                        sampler.setProperty(TestElement.GUI_CLASS, HttpTestSampleGui.class.getName());
                         sampler.setName(samplerNo + "-" + requestResponce.getRequest().getUrl());
                     }
                     sampler.setEnabled(true);
@@ -349,8 +351,7 @@ public class GwtRpcProxy implements Runnable {
                     sampler.setAutoRedirects(false);
                     sampler.setUseKeepAlive(true);
                     sampler.setDoMultipartPost(false);
-                    sampler.setMonitor(false);
-                    sampler.setProperty(TestElement.GUI_CLASS, GwtRpcHttpTestSampleGui.class.getName());
+                    sampler.setMonitor(false);                    
                     sampler.setPostBodyRaw(true);
 
                     if (requestResponce.getRequest().getFile() != null) {
@@ -390,6 +391,10 @@ public class GwtRpcProxy implements Runnable {
                         scriptText += "\t//Змена ID и доменных объектов\n";
                         scriptText += "\tGwtUtil.preRequestProcessing(ctx);\n";
                     }
+                    scriptText += "\t//-----  Пользовательский код   ----------------------------\n";
+                    scriptText += "\t\n";
+                    scriptText += "\t//----------------------------------------------------------\n";
+
                     scriptText += "}catch(Exception ex){\n";
                     scriptText += "\tlog.error(\"Pre request error in sampler \" + sampler.getName(), ex);\n";
                     scriptText += "\tsampler.setError(true);\n";
@@ -427,6 +432,9 @@ public class GwtRpcProxy implements Runnable {
                         scriptText += "\t\t//Сохранение ID и доменных объектов\n";
                         scriptText += "\t\tGwtUtil.postResponseProcessing(ctx);\n";
                     }
+                    scriptText += "\t\t//-----  Пользовательский код   ----------------------------\n";
+                    scriptText += "\t\t\n";
+                    scriptText += "\t\t//----------------------------------------------------------\n";
                     scriptText += "\t}\n";
                     scriptText += "}catch(Exception ex){\n";
                     scriptText += "\tprev.setSuccessful(false);\n";

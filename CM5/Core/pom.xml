@@ -10,7 +10,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.17-21-tomee-SNAPSHOT</version>
+        <version>0.5.18-1-tomee</version>
     </parent>
 
     <modules>
@@ -41,10 +41,12 @@
 
 
     <dependencies>
-
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>1.0.0.Final</version>
+            <type>pom</type>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -56,6 +58,7 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
         </dependency>
+
         <!--
                 <dependency>
                     <groupId>org.activiti</groupId>

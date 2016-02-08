@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.Date;
 import java.util.UUID;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.Tika;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,6 +178,18 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
         }
     }
 
+    @Override
+    public String toRelativeFromAbsPathFile(String absFilePath) {
+        String relativePath = Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation)) ?
+                absFilePath.substring(attachmentSaveLocation.length()) : absFilePath;
+
+        if (relativePath.startsWith("\\")) {
+            relativePath = FilenameUtils.separatorsToUnix(relativePath);
+        }
+
+        return relativePath;
+    }
+
     private boolean isPathEmptyInDo(DomainObject domainObject) {
         Value<?> value = domainObject.getValue(PATH_NAME);
         return value == null || value.isEmpty() || !(value instanceof StringValue);
@@ -196,15 +209,6 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
             fs = Paths.get(absDirPath, nameCandidate);
         } while (Files.exists(fs, LinkOption.NOFOLLOW_LINKS));
         return fs.toAbsolutePath().toString();
-    }
-
-    private String toRelativeFromAbsPathFile(String absFilePath) {
-
-        if (Paths.get(absFilePath).startsWith(Paths.get(attachmentSaveLocation))) {
-            return absFilePath.substring(attachmentSaveLocation.length());
-        } else {
-            return absFilePath;
-        }
     }
 
     private String toAbsFromRelativePathFile(String relFilePath) {

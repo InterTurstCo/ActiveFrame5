@@ -20,6 +20,8 @@ public class WidgetDisplayConfig implements Dto {
     @Attribute(name = "height", required = false)
     private String height;
 
+    private String parentName;
+
     public String getId() {
         return id;
     }
@@ -42,6 +44,14 @@ public class WidgetDisplayConfig implements Dto {
 
     public void setHeight(String height) {
         this.height = height;
+    }
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     @Override

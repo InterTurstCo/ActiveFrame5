@@ -11,8 +11,12 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.model.ScheduleException;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
+import javax.transaction.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +33,14 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
     @org.springframework.beans.factory.annotation.Value("${attachment.storage}")
     private String attachmentSaveLocation;
 
+    @org.springframework.beans.factory.annotation.Value("${attachment.delete.batch.size:100}")
+    private int fileDeleteBatchSize;
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
+
+    @Autowired
+    private AttachmentContentDao attachmentContentDao;
 
     @Autowired
     private CollectionsService collectionsService;
@@ -38,8 +48,7 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
     private String[] attachmentTypes;
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
-
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
         logger.info("FileSystemAttachmentCleanerScheduleTask started");
 
         attachmentTypes = configurationExplorer.getAllAttachmentTypes();
@@ -49,16 +58,50 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
         String storageDirAbsolutePath = storageDir.getAbsolutePath();
         List<File> allFiles = new ArrayList<>();
         readFiles(allFiles, storageDir, true);
-        for (File file : allFiles) {
-            String absolutePath = file.getAbsolutePath();
-            String relativePath = absolutePath.substring(storageDirAbsolutePath.length());
 
-            if (!isLinkedInDo(file.getName())) {
-                if (file.delete()) {
-                    logger.info("File " + relativePath + " has not linked from Domain Objects and was deleted");
-                } else {
-                    logger.error("File " + relativePath + " can not be deleted");
+        try {
+            if (Status.STATUS_ACTIVE != ejbContext.getUserTransaction().getStatus()) {
+                ejbContext.getUserTransaction().begin();
+            }
+
+            int counter = 0;
+
+            for (File file : allFiles) {
+                counter++;
+                String absolutePath = file.getAbsolutePath();
+                String relativePath = absolutePath.substring(storageDirAbsolutePath.length());
+                String unixRelativePath = attachmentContentDao.toRelativeFromAbsPathFile(absolutePath);
+
+                //TODO: Remove Windoes-related code when all clients move to unix-style paths of attachments
+                boolean isLinked = isLinkedInDo(unixRelativePath) || (relativePath.startsWith("\\") && isLinkedInDo(relativePath));
+
+                if (!isLinked) {
+                    if (file.delete()) {
+                        logger.info("File " + relativePath + " has not linked from Domain Objects and was deleted");
+                    } else {
+                        logger.error("File " + relativePath + " can not be deleted");
+                    }
                 }
+
+                if (counter == fileDeleteBatchSize) {
+                    counter = 0;
+                    ejbContext.getUserTransaction().commit();
+                    ejbContext.getUserTransaction().begin();
+                }
+            }
+        } catch (NotSupportedException | SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
+            try {
+                ejbContext.getUserTransaction().rollback();
+            } finally {
+                throw new ScheduleException(e);
+            }
+        } finally {
+            try {
+                if (Status.STATUS_ACTIVE ==  ejbContext.getUserTransaction().getStatus()) {
+                    ejbContext.getUserTransaction().commit();
+                }
+            } catch (SystemException | HeuristicRollbackException | HeuristicMixedException | RollbackException e) {
+                throw new ScheduleException(e);
             }
         }
 
@@ -67,15 +110,15 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
         return "COMPLETE";
     }
 
-    private boolean isLinkedInDo(String name) {
+    private boolean isLinkedInDo(String relativePath) {
 
         List<Value> params = new ArrayList<>();
-        Value value = new StringValue("%" + name);
-        params.add(value);
+        Value relativePathValue = new StringValue(relativePath);
+        params.add(relativePathValue);
 
         for (String attachmentType : attachmentTypes) {
             IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery(
-                    "select t.id from " + attachmentType + " t where t.path like {0}", params);
+                    "select t.id from " + attachmentType + " t where t.path = {0}", params);
             if (collection != null && collection.size() > 0) {
                 return true;
             }

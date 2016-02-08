@@ -99,6 +99,8 @@ public class UploadMapper {
             log.info("Upload. In field " + field + " replace " + savedFile + " to " + uploadMap.get(savedFile));
         }
     }
-    
 
+    public void clear() {
+        uploadMap.clear();        
+    }
 }

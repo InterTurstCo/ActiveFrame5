@@ -29,6 +29,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
     @Element(name = "base-url", required = false)
     private BaseUrlConfig baseUrlConfig;
 
+    @Element(name = "notification-sort-order", required = false)
+    private NotificationSortOrderConfig notificationSortOrderConfig;
+
     @Element(name = "default-form-editing-style", required = false)
     private DefaultFormEditingStyleConfig defaultFormEditingStyleConfig;
 
@@ -66,6 +69,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
     public HeaderNotificationRefreshConfig getHeaderNotificationRefreshConfig() {
         return headerNotificationRefreshConfig;
+    }
+
+    public NotificationSortOrderConfig getNotificationSortOrderConfig() {
+        return notificationSortOrderConfig;
+    }
+
+    public void setNotificationSortOrderConfig(NotificationSortOrderConfig notificationSortOrderConfig) {
+        this.notificationSortOrderConfig = notificationSortOrderConfig;
     }
 
     public LoginScreenConfig getLoginScreenConfig() {
@@ -195,6 +206,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         if (baseUrlConfig != null ? !baseUrlConfig.equals(that.baseUrlConfig) : that.baseUrlConfig != null) {
             return false;
         }
+        if (notificationSortOrderConfig != null ? !notificationSortOrderConfig.equals(that.notificationSortOrderConfig) : that.notificationSortOrderConfig != null) {
+            return false;
+        }
         if (rightPanelConfig != null ? !rightPanelConfig.equals(that.rightPanelConfig) : that.rightPanelConfig != null) {
             return false;
         }
@@ -219,6 +233,7 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         result = 31 * result + (sideBarOpenningTimeConfig != null ? sideBarOpenningTimeConfig.hashCode() : 0);
         result = 31 * result + (logoConfig != null ? logoConfig.hashCode() : 0);
         result = 31 * result + (baseUrlConfig != null ? baseUrlConfig.hashCode() : 0);
+        result = 31 * result + (notificationSortOrderConfig != null ? notificationSortOrderConfig.hashCode() : 0);
         result = 31 * result + (headerNotificationRefreshConfig != null ? headerNotificationRefreshConfig.hashCode() : 0);
         result = 31 * result + (collectionCountRefreshConfig != null ? collectionCountRefreshConfig.hashCode() : 0);
         result = 31 * result + (collectionCountCacheRefreshConfig != null ? collectionCountCacheRefreshConfig.hashCode() : 0);

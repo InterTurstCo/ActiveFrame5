@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.ejb.EJB;
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +69,7 @@ public class ReportShcedule implements ScheduleTaskHandle {
     private ConfigurationExplorer configurationExplorer;
 
     @Override
-    public String execute(SessionContext sessionContext,
+    public String execute(EJBContext ejbContext, SessionContext sessionContext,
             ScheduleTaskParameters parameters) throws InterruptedException {
         long start = System.currentTimeMillis();
 

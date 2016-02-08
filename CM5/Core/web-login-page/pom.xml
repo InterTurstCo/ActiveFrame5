@@ -7,7 +7,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>0.5.17-21-tomee-SNAPSHOT</version>
+        <version>0.5.18-1-tomee</version>
     </parent>
 
     <dependencies>
@@ -51,6 +51,10 @@
                             <modules>
                                 <module>ru.intertrust.cm.core.gui.impl.LoginPage</module>
                             </modules>
+                            <sourceLevel>1.7</sourceLevel>
+                            <!--<localWorkers>2</localWorkers>
+                            <optimizationLevel>0</optimizationLevel>
+                            <draftCompile>true</draftCompile>-->
                         </configuration>
                         <goals>
                             <goal>compile</goal>

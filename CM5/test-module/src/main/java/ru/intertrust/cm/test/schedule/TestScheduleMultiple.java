@@ -1,5 +1,6 @@
 package ru.intertrust.cm.test.schedule;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.springframework.jmx.access.InvocationFailureException;
@@ -15,7 +16,7 @@ import ru.intertrust.cm.core.model.ScheduleException;
 public class TestScheduleMultiple implements ScheduleTaskHandle {
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException{
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException{
         try {
             TestScheduleParameters testScheduleParameters = (TestScheduleParameters) parameters;
             System.out.println("Run TestScheduleMultiple value = " + testScheduleParameters.toString());

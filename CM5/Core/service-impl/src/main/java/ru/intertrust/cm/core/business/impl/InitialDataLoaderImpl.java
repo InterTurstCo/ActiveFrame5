@@ -198,7 +198,7 @@ public class InitialDataLoaderImpl implements InitialDataLoader {
         Map<String, Object> paramMap = new HashMap<String, Object>();
         paramMap.put("name", statusName);
         @SuppressWarnings("deprecation")
-        int total = jdbcTemplate.queryForInt(query, paramMap);
+        int total = jdbcTemplate.queryForObject(query, paramMap, Integer.class);
         return total > 0;
     }
 

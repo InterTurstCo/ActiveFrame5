@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl.email;
 
 import java.util.List;
 
+import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class EmailReceiverScheduleTaskHandle implements ScheduleTaskHandle {
     private EmailReceiver emailReceiver;
 
     @Override
-    public String execute(SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
+    public String execute(EJBContext ejbContext, SessionContext sessionContext, ScheduleTaskParameters parameters) throws InterruptedException {
         try {
             List<Id> messages = emailReceiver.receive((EmailReceiverConfig) parameters);
             return "Receive " + messages.size() + " messages";

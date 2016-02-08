@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>global-cache</artifactId>
-        <version>0.5.17-21-tomee-SNAPSHOT</version>
+        <version>0.5.18-1-tomee</version>
     </parent>
 
     <properties>
@@ -32,8 +32,11 @@
             <version>${spring.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
+            <groupId>org.jboss.spec</groupId>
+            <artifactId>jboss-javaee-6.0</artifactId>
+            <version>1.0.0.Final</version>
+            <type>pom</type>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

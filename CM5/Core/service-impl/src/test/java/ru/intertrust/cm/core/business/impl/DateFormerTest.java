@@ -21,6 +21,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DateFormerTest {
+    private final static boolean IS_JAVA_8 = System.getProperty("java.version").startsWith("1.8");
+
     @InjectMocks
     private DateFormer former = new DateFormerImpl();
     
@@ -39,14 +41,22 @@ public class DateFormerTest {
         SimpleDateFormat detaeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
         Date testDate = detaeFormat.parse("2014-02-28 18:36:41 356");
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 Февраль 2014 г. 18:36"));
+        if (IS_JAVA_8) {
+            assertTrue(result.equals("28 февраля 2014 г. 18:36"));
+        } else {
+            assertTrue(result.equals("28 Февраль 2014 г. 18:36"));
+        }
     }
 
     @Test
     public void testTimelessDate() throws ParseException{
         TimelessDate testDate = new TimelessDate(2014, 1, 28);
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 Февраль 2014 г."));
+        if (IS_JAVA_8) {
+            assertTrue(result.equals("28 февраля 2014 г."));
+        } else {
+            assertTrue(result.equals("28 Февраль 2014 г."));
+        }
     }
 
     @Test
@@ -54,7 +64,11 @@ public class DateFormerTest {
         DateTimeWithTimeZone testDate = new DateTimeWithTimeZone("GMT+5", 2014, 1, 28, 18, 36, 41, 356);
         
         String result = former.format(testDate, new RdbmsId(1,1));
-        assertTrue(result.equals("28 Февраль 2014 г. 18:36:41 GMT+05:00"));
+        if (IS_JAVA_8) {
+            assertTrue(result.equals("28 февраля 2014 г. 18:36:41 GMT+05:00"));
+        } else {
+            assertTrue(result.equals("28 Февраль 2014 г. 18:36:41 GMT+05:00"));
+        }
     }
-    
+
 }

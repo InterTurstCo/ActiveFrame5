@@ -19,10 +19,16 @@ import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jorphan.logging.LoggingManager;
 import org.apache.log.Logger;
 
+import com.cedarsoftware.util.io.JsonReader;
+import com.cedarsoftware.util.io.JsonWriter;
+import com.google.gwt.user.client.rpc.SerializationException;
+
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.action.SaveActionData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.form.widget.SuggestionItem;
@@ -32,10 +38,6 @@ import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.performance.gwtrpcproxy.GwtRpcSampleResult;
-
-import com.cedarsoftware.util.io.JsonReader;
-import com.cedarsoftware.util.io.JsonWriter;
-import com.google.gwt.user.client.rpc.SerializationException;
 
 public class GwtUtil {
     private static final String RND_STRING_LEGAL_CHARS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz _-";
@@ -284,6 +286,10 @@ public class GwtUtil {
         if (doMapper != null) {
             doMapper.clear();
         }
+        UploadMapper uploadMapper = (UploadMapper)  context.getVariables().getObject("UploadMapper");
+        if (uploadMapper != null) {
+            uploadMapper.clear();
+        }        
     }
 
     
@@ -481,5 +487,10 @@ public class GwtUtil {
             log.error("Error replaceUploadResult " + context.getCurrentSampler().getName(), ex);
             throw ex;
         }
-    }    
+    }
+    
+    public static Id getSavedId(SaveActionData saveActionData){
+        Id result = saveActionData.getFormPluginData().getFormDisplayData().getFormState().getObjects().getRootDomainObject().getId();
+        return result;
+    }
 }

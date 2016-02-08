@@ -43,6 +43,7 @@ public class TextAreaWidget extends TextBoxWidget {
                 validate();
             }
         });
+        widget.ensureDebugId(BaseWidget.TEXT_AREA+getDisplayConfig().getParentName()+"-"+getDisplayConfig().getId());
         return widget;
     }
 }

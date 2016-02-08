@@ -21,7 +21,7 @@ public class MaximumFunction implements DoelFunctionImplementation {
             AccessToken accessToken) {
         T max = null;
         for (Object value : context) {
-            if (max == null || max.compareTo(value) <= 0) {
+            if (max == null || max.compareTo((T)value) <= 0) {
                 max = (T) value;
             }
         }

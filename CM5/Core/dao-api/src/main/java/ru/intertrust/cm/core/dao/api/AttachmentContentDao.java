@@ -34,4 +34,5 @@ public interface AttachmentContentDao {
      */
     void deleteContent(DomainObject domainObject);
 
+    String toRelativeFromAbsPathFile(String absFilePath);
 }
