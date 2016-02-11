@@ -101,7 +101,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
                 try {
                     contentStream.close();
                 } catch (IOException e) {
-                    logger.error(e.getMessage());
+                    logger.error("Error closing input stream", e);
                 }
             }
 
@@ -143,31 +143,18 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
 
     @Override
     public RemoteInputStream loadAttachment(Id attachmentDomainObjectId) {
-        InputStream inFile = null;
-        RemoteInputStream remoteInputStream = null;
         DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
         try {
-            inFile = attachmentContentDao.loadContent(attachmentDomainObject);
-            remoteInputStream = wrapStream(inFile);
+            InputStream inFile = attachmentContentDao.loadContent(attachmentDomainObject);
+            RemoteInputStream remoteInputStream = wrapStream(inFile);
+            return remoteInputStream;
         } catch (SystemException e) {
             throw e;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in loadAttachment", ex);
             throw new UnexpectedException("AttachmentService", "loadAttachment",
                     "attachmentDomainObjectId:" + attachmentDomainObjectId, ex);
-        } finally {
-            if (inFile != null) {
-                try {
-                    inFile.close();
-                } catch (IOException e) {
-                    logger.error("Error closing file", e);
-                }
-            }
-            /*if (remoteInputStream != null) {
-                remoteInputStream.close();
-            }*/
         }
-        return remoteInputStream;
     }
 
     protected abstract RemoteInputStream wrapStream(InputStream inputStream) throws java.rmi.RemoteException;
