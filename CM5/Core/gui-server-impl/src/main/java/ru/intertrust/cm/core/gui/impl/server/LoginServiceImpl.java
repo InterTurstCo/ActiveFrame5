@@ -28,7 +28,7 @@ public class LoginServiceImpl implements LoginService {
         try {
             request.login(userUid, password);
             request.getSession().setAttribute(USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
-            request.logout();
+            //request.logout();
             getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), true);
         } catch (ServletException e) {
             getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), false);

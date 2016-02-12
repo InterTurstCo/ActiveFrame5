@@ -6,12 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.inject.Inject;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
@@ -28,10 +25,6 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.model.ReportServiceException;
-
-import com.healthmarketscience.rmiio.RemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 /**
  * Базовый класс имплементации сервисов подсистемы генерации отчетов
@@ -50,7 +43,7 @@ public class ReportServiceBase {
     @Autowired
     protected AccessControlService accessControlService;
 
-    @Inject
+    @Autowired
     protected AttachmentService attachmentService;
 
     /**
@@ -84,7 +77,7 @@ public class ReportServiceBase {
         ReportMetadataConfig config = serializer.read(ReportMetadataConfig.class, stream);
         return config;
     }
-
+/*
     protected byte[] getAttachmentContent(DomainObject attachment) {
         InputStream contentStream = null;
         RemoteInputStream inputStream = null;
@@ -109,7 +102,7 @@ public class ReportServiceBase {
             }
         }
     }
-
+*/
     /**
      * Создание нового доменного объекта
      * 
@@ -146,13 +139,13 @@ public class ReportServiceBase {
             input.close();
         }
     }
-
+/*
     /**
      * Запись массива байт в файл
      * @param content
      * @param file
      * @throws IOException
-     */
+     * /
     protected void writeToFile(byte[] content, File file) throws IOException {
         FileOutputStream outStream = null;
         try {
@@ -162,7 +155,7 @@ public class ReportServiceBase {
             outStream.close();
         }
     }
-    
+*/    
     protected File getTempFolder() throws IOException {
         if (tempFolder == null) {
             File tmpFile = File.createTempFile("report_", "_service.tmp");

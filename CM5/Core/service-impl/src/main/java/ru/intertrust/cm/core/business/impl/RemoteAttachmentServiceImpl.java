@@ -19,7 +19,7 @@ import java.rmi.RemoteException;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class RemoteAttachmentServiceImpl extends BaseAttachmentServiceImpl implements AttachmentService.Remote {
     @Override
-    RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {
+    protected RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {
         SimpleRemoteInputStream remoteInputStream = new SimpleRemoteInputStream(inputStream);
         return remoteInputStream.export();
     }

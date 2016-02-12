@@ -59,9 +59,11 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                     if (ejbContext.isCallerInRole("system")) {
                         result = "admin";
                     }
-                } else if (principalName.equals("anonymous")) {
-                    // и JBoss 7, JBoss 6.x возвращают anonymous для @RunAs("system"). Даже если делать проверку на isCallerInRole("system") перед этим,
-                    // то мы всё равно сюда попадём, если это не так. Вопрос, может ли кто-то со стороны ещё оказаться здесь как anonymous? Вряд ли.
+                } else if (principalName.equals("anonymous")
+                        || principalName.equals("guest")) {
+                    // и JBoss 7, JBoss 6.x возвращают anonymous для @RunAs("system"); Apache TomEE возвращает guest.
+                    // Даже если делать проверку на isCallerInRole("system") перед этим, то мы всё равно сюда попадём, если это не так.
+                    // Вопрос, может ли кто-то со стороны ещё оказаться здесь как anonymous? Вряд ли.
                     result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
                 } else {
                     result = principalName;

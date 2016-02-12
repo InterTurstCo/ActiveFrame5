@@ -264,4 +264,7 @@
 
     <bean id="threadContext" class="ru.intertrust.cm.core.business.impl.ThreadContextImpl" />
    
+    <beans profile="default">
+        <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>
+    </beans>
 </beans>

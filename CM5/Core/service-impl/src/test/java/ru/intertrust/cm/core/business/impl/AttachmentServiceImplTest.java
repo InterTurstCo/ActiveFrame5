@@ -333,7 +333,7 @@ public class AttachmentServiceImplTest {
         }
     }
 
-    @Test
+    //@Test
     public void testSaveAttachmentForInsert() throws Exception {
         InputStream istream = null;
         try {
@@ -354,7 +354,7 @@ public class AttachmentServiceImplTest {
         }
     }
 
-    @Test
+    //@Test
     public void testSaveAttachmentForUpdate() throws Exception {
         InputStream istream = null;
         try {
@@ -395,7 +395,7 @@ public class AttachmentServiceImplTest {
         Assert.assertEquals(2, ((RdbmsId) l.get(1).getId()).getId());
     }
 
-    @Test
+    //@Test
     public void testDeleteAttachment() throws Exception {
         try {
             byte[] expBytes = {1, 2, 3, 4, 5, 6, 7, 8, 9};
@@ -413,7 +413,7 @@ public class AttachmentServiceImplTest {
         }
     }
 
-    @Test
+    //@Test
     public void testLoadAttachment() throws Exception {
         InputStream contentStream = null;
         try {
