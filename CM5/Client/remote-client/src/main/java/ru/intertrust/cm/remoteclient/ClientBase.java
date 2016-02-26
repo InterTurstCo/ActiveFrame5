@@ -234,14 +234,14 @@ public abstract class ClientBase {
 
     protected void assertTrue(String message, boolean param) throws Exception {
         if (!param) {
-            throw new Exception("[" + new Date() + "] " + message);
+            throw new AssertExeption("[" + new Date() + "] " + message);
         }
         log(message + ": OK");
     }
 
     protected void assertFalse(String message, boolean param) throws Exception {
         if (param) {
-            throw new Exception("[" + new Date() + "] " + message);
+            throw new AssertExeption("[" + new Date() + "] " + message);
         }
         log(message + ": OK");
     }

@@ -149,7 +149,14 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<AccessType> result = new ArrayList<AccessType>();
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
-        if (martixRef != null) {
+        
+        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
+
+        //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
+        boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+        
+        //Маппинг производится только тогда когда есть заимснвование прав и эаимствование не комбинированное
+        if (martixRef != null && !combinateAccessReference) {
             //Получаем маппинг прав
             AccessMatrixConfig martix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
             if (martix.getMatrixReferenceMappingConfig() != null) {
@@ -273,10 +280,14 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     }
 
     private String getQueryForCheckDomainObjectAccess(RdbmsId id) {
+        String domainObjectTable = domainObjectTypeIdCache.getName(id.getTypeId());
         String domainObjectAclTable = getAclTableName(id);
         String domainObjectBaseTable = DataStructureNamingHelper.getSqlName(
                 ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, domainObjectTypeIdCache.getName(id.getTypeId())));
-
+        //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
+        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObjectTable);
+        boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+        
         StringBuilder query = new StringBuilder();
 
         query.append("select count(*) from ").append(wrap(domainObjectAclTable)).append(" a ");
@@ -285,8 +296,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         query.append(" inner join ").append(wrap("group_member")).append(" gm on gg.")
                 .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
-        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.").append(wrap("access_object_id"))
-                .append(" = a.").append(wrap("object_id"));
+        query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.");
+        if (combinateAccessReference){
+            query.append(wrap("id"));
+        }else{
+            query.append(wrap("access_object_id"));
+        }
+        query.append(" = a.").append(wrap("object_id"));
         query.append(" where gm.").append(wrap("person_id")).append(" = :user_id and o.")
                 .append(wrap("id")).append(" = :object_id and a.")
                 .append(wrap("operation")).append(" in (:operation)");
@@ -518,7 +534,13 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
     private String getAclTableName(RdbmsId id) {
         String domainObjectTable = domainObjectTypeIdCache.getName(id.getTypeId());
 
-        domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
+        //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
+        final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObjectTable);
+        boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+        
+        if (!combinateAccessReference){            
+            domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
+        }
 
         return AccessControlUtility.getAclTableNameFor(domainObjectTable);
     }

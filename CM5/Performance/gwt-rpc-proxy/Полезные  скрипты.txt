@@ -48,4 +48,20 @@ import ru.intertrust.cm.core.business.api.dto.*;
 	//Нумерация итераций начинается с 0
 	int iterNum=vars.getIteration(); 
 
+//========= Получение предзаполенного справочного поля формы нового документа
+import ru.intertrust.cm.core.gui.model.plugin.*;
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+import ru.intertrust.cm.core.business.api.dto.*;
+
+		DomainObjectSurferPluginData formData = prev.getResponseObject();
+		SuggestBoxState suggestBoxState = formData.getFormPluginData().getFormDisplayData().getFormState().getWidgetState("doc_type_value");
+		Id docTypeId = suggestBoxState.getSelectedIds().toArray()[0];
+		
+//========= Установка фильтра в SuggestBox
+import ru.intertrust.cm.core.gui.model.form.widget.*;
+
+	SuggestionRequest suggestionRequest = sampler.getRequest().getParameters()[0].getParameter();
+	SuggestBoxState suggestBoxState = suggestionRequest.getComplexFiltersParams().getWidgetValue("doc_type_value").getValue();
+	suggestBoxState.getSelectedIds().clear();
+	suggestBoxState.getSelectedIds().add(vars.getObject("DOC_TYPE_ID"));		
 		
