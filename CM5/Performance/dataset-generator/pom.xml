@@ -7,7 +7,7 @@
   <parent>
 	<groupId>ru.intertrust.cm-sochi</groupId>
 	<artifactId>performance</artifactId>
-	<version>0.5.18-2-SNAPSHOT</version>
+	<version>0.5.18-3</version>
   </parent>
 
   <dependencies>
@@ -25,7 +25,7 @@
     <dependency>
     	<groupId>ru.intertrust.cm-sochi</groupId>
     	<artifactId>service-api</artifactId>
-    	<version>0.5.18-2-SNAPSHOT</version>
+    	<version>0.5.18-3</version>
     	<exclusions>
     		<exclusion>
     			<artifactId>stax-api</artifactId>
@@ -36,12 +36,12 @@
     <dependency>
     	<groupId>ru.intertrust.cm-sochi</groupId>
     	<artifactId>model</artifactId>
-    	<version>0.5.18-2-SNAPSHOT</version>
+    	<version>0.5.18-3</version>
     </dependency>
 	<dependency>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>dao-api</artifactId>
-        <version>0.5.18-2-SNAPSHOT</version>
+        <version>0.5.18-3</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec</groupId>

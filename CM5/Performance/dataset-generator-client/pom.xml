@@ -3,7 +3,7 @@
 
   <groupId>ru.intertrust.cm-sochi</groupId>
   <artifactId>dataset-generator-client</artifactId>
-  <version>0.5.18-2-SNAPSHOT</version>
+  <version>0.5.18-3</version>
   <packaging>jar</packaging>
 
   <name>dataset-generator-client</name>
@@ -12,7 +12,7 @@
   <parent>
 	<groupId>ru.intertrust.cm-sochi</groupId>
 	<artifactId>performance</artifactId>
-	<version>0.5.18-2-SNAPSHOT</version>
+	<version>0.5.18-3</version>
   </parent>
 
   <properties>
