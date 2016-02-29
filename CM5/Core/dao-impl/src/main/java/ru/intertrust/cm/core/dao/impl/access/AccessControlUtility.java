@@ -127,6 +127,6 @@ public class AccessControlUtility {
     }
     
     public static boolean isCombineMatrixReference(AccessMatrixConfig accessMatrix){
-        return accessMatrix.getMatrixReference() != null && accessMatrix.getStatus() != null && accessMatrix.getStatus().size() > 0;
+        return accessMatrix!= null && accessMatrix.getMatrixReference() != null && accessMatrix.getStatus() != null && accessMatrix.getStatus().size() > 0;
     }
 }

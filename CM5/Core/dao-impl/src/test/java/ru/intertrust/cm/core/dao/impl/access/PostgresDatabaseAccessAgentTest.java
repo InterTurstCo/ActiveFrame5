@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.internal.matchers.Any;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
@@ -104,6 +105,7 @@ public class PostgresDatabaseAccessAgentTest {
     public void testCheckDomainObjectAccess() {
         when(jdbcTemplate.queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class))).thenReturn(1);
         when(domainObjetcTypeIdCache.getName(1)).thenReturn("Employee");
+        when(domainObjetcTypeIdCache.getName(employeeId)).thenReturn("Employee");
         boolean result = accessAgent.checkDomainObjectAccess(1, employeeId, DomainObjectAccessType.WRITE);
         verify(jdbcTemplate, times(1)).queryForObject(eq(CHECK_DOMAIN_OBJECT_ACCESS_QUERY), anyMapOf(String.class, Object.class), eq(Integer.class));
         assertEquals(result, true);
