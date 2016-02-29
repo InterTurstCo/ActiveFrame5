@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.security.Principal;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
@@ -51,34 +54,43 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
 
             // Workaround for JBoss7 bug in @RunAs
             EJBContext ejbContext = getEjbContext();
+
+            Principal principal = ejbContext.getCallerPrincipal();
+            logger.info("Caller principal: " + (principal != null ? "present" : "absent"));
+            if (principal != null) {
+                logger.info("Principal name: " + principal.getName());
+            }
+            logger.info("Roles: cm_user=" + (ejbContext.isCallerInRole("cm_user") ? "YES" : "NO")
+                    + "; system=" + (ejbContext.isCallerInRole("system") ? "YES" : "NO"));
+
             if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
             } else {
                 String principalName = ejbContext.getCallerPrincipal().getName();
-                if (principalName == null) {
+                //if (principalName == null) {
                     if (ejbContext.isCallerInRole("system")) {
                         result = "admin";
                     }
-                } else if (principalName.equals("anonymous")
+                /*} else if (principalName.equals("anonymous")
                         || principalName.equals("guest")) {
                     // и JBoss 7, JBoss 6.x возвращают anonymous для @RunAs("system"); Apache TomEE возвращает guest.
                     // Даже если делать проверку на isCallerInRole("system") перед этим, то мы всё равно сюда попадём, если это не так.
                     // Вопрос, может ли кто-то со стороны ещё оказаться здесь как anonymous? Вряд ли.
                     result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
-                } else {
+                }*/ else {
                     result = principalName;
                 }
             }
         } catch (Exception e) {
             result = null;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Error getting current user: " + e.getMessage());
-            }
+            //if (logger.isDebugEnabled()) {
+                logger.debug("Error getting current user", e);
+            //}
         }
 
         return result;
-   }
-    
+    }
+
     /**
      * Возвращает идентификатор текущего пользователя. Возвращает null, если невозможно получить пользователя из EJB
      * контекста.
@@ -87,15 +99,19 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     public Id getCurrentUserId() {
         String login = getCurrentUser();
         if (login != null) {
-            return getPersonServiceDao().findPersonByLogin(login).getId();
+            try {
+                return getPersonServiceDao().findPersonByLogin(login).getId();
+            } catch (Exception e) {
+                logger.info("Error getting current user", e);
+                return null;
+            }
         } else {
             return null;
         }
     }
-    
+
     private PersonServiceDao getPersonServiceDao() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(PersonServiceDao.class);
     }
-    
 }

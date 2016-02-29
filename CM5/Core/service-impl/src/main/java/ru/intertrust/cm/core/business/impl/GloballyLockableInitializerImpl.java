@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJBContext;
@@ -48,6 +49,7 @@ import java.util.concurrent.Executors;
 @Remote(GloballyLockableInitializer.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
+@RunAs("system")
 public class GloballyLockableInitializerImpl implements GloballyLockableInitializer, GloballyLockableInitializer.Remote {
 
     private static final Logger logger = LoggerFactory.getLogger(GloballyLockableInitializerImpl.class);

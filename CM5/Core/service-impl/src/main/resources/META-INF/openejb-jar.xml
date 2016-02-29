@@ -87,6 +87,10 @@
               interface="ru.intertrust.cm.core.business.api.NotificationService"/>
         <jndi name="module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService$Remote"
               interface="ru.intertrust.cm.core.business.api.NotificationService.Remote"/>
+        <role-mapping>
+            <role-name>system</role-name>
+            <principal-name>admin</principal-name>
+        </role-mapping>
     </ejb-deployment>
 
     <ejb-deployment ejb-name="PermissionService">
@@ -143,6 +147,10 @@
               interface="ru.intertrust.cm.core.business.api.ScheduleService"/>
         <jndi name="module/ScheduleService!ru.intertrust.cm.core.business.api.ScheduleService$Remote"
               interface="ru.intertrust.cm.core.business.api.ScheduleService.Remote"/>
+        <role-mapping>
+            <role-name>system</role-name>
+            <principal-name>admin</principal-name>
+        </role-mapping>
     </ejb-deployment>
 
     <ejb-deployment ejb-name="RemoteAttachmentServiceImpl">
