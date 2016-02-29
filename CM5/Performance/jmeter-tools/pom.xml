@@ -2,13 +2,13 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ru.intertrust.cm-sochi</groupId>
 	<artifactId>jmeter-tools</artifactId>
-	<version>0.5.18-3</version>
+	<version>0.5.18-4-SNAPSHOT</version>
 	<name>jmeter-tools</name>
 
 	<parent>
 		<groupId>ru.intertrust.cm-sochi</groupId>
 		<artifactId>performance</artifactId>
-		<version>0.5.18-3</version>
+		<version>0.5.18-4-SNAPSHOT</version>
 	</parent>
 
 	<build>
@@ -85,22 +85,22 @@
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>model</artifactId>
-			<version>0.5.18-3</version>
+			<version>0.5.18-4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>service-api</artifactId>
-			<version>0.5.18-3</version>
+			<version>0.5.18-4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>dao-api</artifactId>
-			<version>0.5.18-3</version>
+			<version>0.5.18-4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>ru.intertrust.cm-sochi</groupId>
 			<artifactId>dao-api</artifactId>
-			<version>0.5.18-3</version>
+			<version>0.5.18-4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.as</groupId>
