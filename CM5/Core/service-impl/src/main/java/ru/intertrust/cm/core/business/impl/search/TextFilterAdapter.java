@@ -18,8 +18,11 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
     @Override
     public String getFilterString(TextSearchFilter filter, SearchQuery query) {
-        StringBuilder value = new StringBuilder();
+        if (filter.getText() == null || filter.getText().trim().isEmpty()) {
+            return null;
+        }
 
+        StringBuilder value = new StringBuilder();
         boolean multiple = false;
         for (String solrField : enumSolrFields(filter.getFieldName(), query.getAreas())) {
             multiple = value.length() > 0;
