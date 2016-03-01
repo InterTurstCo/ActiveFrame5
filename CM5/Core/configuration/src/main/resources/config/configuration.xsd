@@ -2716,10 +2716,10 @@
     <xs:complexType name="actionExecutorType">
         <xs:complexContent>
             <xs:extension base="con:labelType">
-                <xs:choice>
+                <xs:sequence>
                     <xs:element type="con:actionContextBuilder" name="action-context-builder" minOccurs="0" maxOccurs="1"/>
                     <xs:element ref="act:action-ref" minOccurs="1" maxOccurs="1"/>
-                </xs:choice>
+                </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

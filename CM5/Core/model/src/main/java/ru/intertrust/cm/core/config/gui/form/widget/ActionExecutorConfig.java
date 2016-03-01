@@ -17,7 +17,7 @@ public class ActionExecutorConfig extends LabelConfig {
     @Element(name = "action-ref")
     private ActionRefConfig actionRefConfig;
 
-    @Element(name = "action-context-builder")
+    @Element(name = "action-context-builder",required = false)
     private ActionContextBuilderConfig actionContextBuilderConfig;
 
     public ActionRefConfig getActionRefConfig() {
