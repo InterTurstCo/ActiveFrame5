@@ -298,8 +298,6 @@ public class SearchServiceTest {
         when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
                 thenReturn(Arrays.asList("TargetType"));
 
-        QueryResponse response = mock(QueryResponse.class);
-        when(solrServer.query(any(SolrParams.class))).thenReturn(response);
         SolrDocument a1Doc = docMock("doc1", 1f);
         SolrDocument a2Doc = docMock("doc3", 0.77f);
         SolrDocument a3Doc = docMock("doc5", 0.5f);
@@ -308,6 +306,8 @@ public class SearchServiceTest {
         SolrDocumentList aDocList = new SolrDocumentList();
         aDocList.addAll(Arrays.asList(a1Doc, a2Doc, a3Doc, a4Doc, a5Doc));
         aDocList.setMaxScore(1f);
+        QueryResponse aResponse = mock(QueryResponse.class);
+        when(aResponse.getResults()).thenReturn(aDocList);
         SolrDocument b1Doc = docMock("doc2", 0.9f);
         SolrDocument b2Doc = docMock("doc1", 0.8f);
         SolrDocument b3Doc = docMock("doc4", 0.55f);
@@ -316,7 +316,9 @@ public class SearchServiceTest {
         SolrDocumentList bDocList = new SolrDocumentList();
         bDocList.addAll(Arrays.asList(b1Doc, b2Doc, b3Doc, b4Doc, b5Doc));
         bDocList.setMaxScore(0.9f);
-        when(response.getResults()).thenReturn(aDocList, bDocList);
+        QueryResponse bResponse = mock(QueryResponse.class);
+        when(bResponse.getResults()).thenReturn(bDocList);
+        when(solrServer.query(any(SolrParams.class))).thenReturn(aResponse, bResponse);
 
         whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
         IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
@@ -359,6 +361,89 @@ public class SearchServiceTest {
             expectedIds.remove(id);
         }
     }
+
+    // CMFIVE-5093 test
+    @Test
+    public void testExtendedSearch_MergeClippedResults() throws Exception {
+        // Подготовка данных
+        SearchQuery query = new SearchQuery();
+        query.addAreas(Arrays.asList("Area"));
+        query.setTargetObjectType("TargetType");
+        query.addFilter(new TextSearchFilter("RootField", "root object's field search"));
+        query.addFilter(new TextSearchFilter("LinkedField", "linked object's field search"));
+
+        FilterAdapter<SearchFilter> adapterMock = mock(FilterAdapter.class);
+        when((FilterAdapter<SearchFilter>)searchFilterImplementorFactory.createImplementorFor(any(Class.class)))
+                .thenReturn(adapterMock);
+        when(adapterMock.getFilterString(argThat(isA(TextSearchFilter.class)), any(SearchQuery.class)))
+                .thenReturn("<text filter>");
+
+        IndexedDomainObjectConfig targetObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
+        when(targetObjectFieldConfig.getType()).thenReturn("TargetType");
+        IndexedDomainObjectConfig linkedObjectFieldConfig = mock(IndexedDomainObjectConfig.class);
+        when(linkedObjectFieldConfig.getType()).thenReturn("LinkedType");
+
+        when(configHelper.findApplicableTypes("LinkedField", Arrays.asList("Area"), "TargetType")).
+                thenReturn(Arrays.asList("LinkedType"));
+        when(configHelper.findApplicableTypes("RootField", Arrays.asList("Area"), "TargetType")).
+                thenReturn(Arrays.asList("TargetType"));
+
+        SolrDocument a1Doc = docMock("doc1", 10f);
+        SolrDocument a2Doc = docMock("doc2", 7f);
+        SolrDocument a3Doc = docMock("doc3", 5f);
+        SolrDocument a4Doc = docMock("doc4", 5f);
+        SolrDocument a5Doc = docMock("doc5", 2f);
+        SolrDocument a6Doc = docMock("doc6", 1f);
+        SolrDocument a7Doc = docMock("doc7", 1f);
+        SolrDocument a8Doc = docMock("doc8", 1f);
+        SolrDocumentList aPartialList = new SolrDocumentList();
+        aPartialList.addAll(Arrays.asList(a1Doc, a2Doc, a3Doc));
+        aPartialList.setMaxScore(3f);
+        QueryResponse aPartialResponse = mock(QueryResponse.class);
+        when(aPartialResponse.getResults()).thenReturn(aPartialList);
+        SolrDocumentList aFullList = new SolrDocumentList();
+        aFullList.addAll(Arrays.asList(a1Doc, a2Doc, a3Doc, a4Doc, a5Doc, a6Doc, a7Doc, a8Doc));
+        aFullList.setMaxScore(3f);
+        QueryResponse aFullResponse = mock(QueryResponse.class);
+        when(aFullResponse.getResults()).thenReturn(aFullList);
+
+        SolrDocument b1Doc = docMock("docA", 8f);
+        SolrDocument b2Doc = docMock("doc7", 4f);
+        SolrDocument b3Doc = docMock("doc2", 2f);
+        SolrDocument b4Doc = docMock("docB", 1f);
+        SolrDocumentList bPartialList = new SolrDocumentList();
+        bPartialList.addAll(Arrays.asList(b1Doc, b2Doc, b3Doc));
+        bPartialList.setMaxScore(8f);
+        QueryResponse bPartialResponse = mock(QueryResponse.class);
+        when(bPartialResponse.getResults()).thenReturn(bPartialList);
+        SolrDocumentList bFullList = new SolrDocumentList();
+        bFullList.addAll(Arrays.asList(b1Doc, b2Doc, b3Doc, b4Doc));
+        bFullList.setMaxScore(8f);
+        QueryResponse bFullResponse = mock(QueryResponse.class);
+        when(bFullResponse.getResults()).thenReturn(bFullList);
+        when(solrServer.query(any(SolrParams.class)))
+                .thenReturn(aPartialResponse, bPartialResponse, aFullResponse, bFullResponse);
+
+        whenNew(NamedCollectionRetriever.class).withArguments("TestCollection").thenReturn(namedCollectionRetriever);
+        IdentifiableObjectCollection objects = mock(IdentifiableObjectCollection.class);
+        when(objects.size()).thenReturn(3);
+        when(namedCollectionRetriever.queryCollection(any(SolrDocumentList.class), anyInt())).thenReturn(objects);
+
+        // Вызов проверяемого метода
+        service.search(query, "TestCollection", 3);
+
+        // Проверка правильности запроса к сервису коллекций - по сути, проверка правильности объединённого списка
+        ArgumentCaptor<SolrDocumentList> docList = ArgumentCaptor.forClass(SolrDocumentList.class);
+        verify(namedCollectionRetriever).queryCollection(docList.capture(), eq(3));
+        HashSet<String> expectedIds = new HashSet<>(Arrays.asList( "doc2", "doc7" ));
+        assertEquals(expectedIds.size(), docList.getValue().size());
+        for (SolrDocument doc : docList.getValue()) {
+            String id = (String) doc.getFieldValue(SolrFields.MAIN_OBJECT_ID);
+            assertTrue(expectedIds.contains(id));
+            expectedIds.remove(id);
+        }
+    }
+
 /*
     @Test
     public void tempTestCombine() {
