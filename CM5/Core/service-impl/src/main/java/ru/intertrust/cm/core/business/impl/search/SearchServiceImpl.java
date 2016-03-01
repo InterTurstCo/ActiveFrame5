@@ -161,7 +161,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private HashMap<String, StringBuilder> filterStrings = new HashMap<>();
         private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
         private CombiningFilter.Op combineOperation = CombiningFilter.AND;
-        //private float clippingFactor = 1f;
 
         @SuppressWarnings("unchecked")
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
@@ -331,7 +330,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
         // Инициализация служебных структур
         int i = 0;
-        //int totalSize = 0;
         for (SolrDocumentList list : results) {
             // Обрабатываем все непустые списки
             if (list.size() > 0) {
@@ -343,8 +341,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     scores.put(score, new LinkedList<Integer>());
                 }
                 scores.get(score).add(i);
-                //totalSize += list.size();
-                i++;
+                ++i;
             }
         }
 
