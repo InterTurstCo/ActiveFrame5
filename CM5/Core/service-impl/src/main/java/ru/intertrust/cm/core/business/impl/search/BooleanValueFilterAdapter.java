@@ -17,7 +17,13 @@ public class BooleanValueFilterAdapter implements FilterAdapter<BooleanSearchFil
         String fieldName = filter.getFieldName();
         Set<SearchFieldType> types = configHelper.getFieldTypes(fieldName, query.getAreas());
         if (types.contains(SearchFieldType.BOOL)) {
-            return SolrFields.FIELD_PREFIX + SearchFieldType.BOOL.getInfix() + fieldName + ":" + (filter.getValue() ? "true" : "false");
+            return new StringBuilder()
+                    .append(SolrFields.FIELD_PREFIX)
+                    .append(SearchFieldType.BOOL.getInfix())
+                    .append(fieldName.toLowerCase())
+                    .append(":")
+                    .append(filter.getValue() ? "true" : "false")
+                    .toString();
         }
         return null;
     }
