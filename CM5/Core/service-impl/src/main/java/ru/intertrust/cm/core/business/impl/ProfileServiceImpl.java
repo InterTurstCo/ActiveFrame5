@@ -206,7 +206,7 @@ public class ProfileServiceImpl implements ProfileService {
     public Profile getPersonProfile() {
         try {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
-            return getPersonProfileByPersonId(currentUserId);
+            return currentUserId != null ? getPersonProfileByPersonId(currentUserId) : null;
         } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {

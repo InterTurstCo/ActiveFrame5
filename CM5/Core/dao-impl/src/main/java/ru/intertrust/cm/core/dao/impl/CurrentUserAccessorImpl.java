@@ -55,18 +55,20 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             // Workaround for JBoss7 bug in @RunAs
             EJBContext ejbContext = getEjbContext();
 
-            Principal principal = ejbContext.getCallerPrincipal();
-            logger.info("Caller principal: " + (principal != null ? "present" : "absent"));
-            if (principal != null) {
-                logger.info("Principal name: " + principal.getName());
+            if (logger.isDebugEnabled()) {
+                Principal principal = ejbContext.getCallerPrincipal();
+                logger.debug("Caller principal: " + (principal != null ? "present" : "absent"));
+                if (principal != null) {
+                    logger.debug("Principal name: " + principal.getName());
+                }
+                logger.debug("Roles: cm_user=" + (ejbContext.isCallerInRole("cm_user") ? "YES" : "no")
+                        + "; system=" + (ejbContext.isCallerInRole("system") ? "YES" : "no"));
             }
-            logger.info("Roles: cm_user=" + (ejbContext.isCallerInRole("cm_user") ? "YES" : "NO")
-                    + "; system=" + (ejbContext.isCallerInRole("system") ? "YES" : "NO"));
 
             if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
             } else {
-                String principalName = ejbContext.getCallerPrincipal().getName();
+                //String principalName = ejbContext.getCallerPrincipal().getName();
                 //if (principalName == null) {
                     if (ejbContext.isCallerInRole("system")) {
                         result = "admin";
@@ -77,8 +79,8 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
                     // Даже если делать проверку на isCallerInRole("system") перед этим, то мы всё равно сюда попадём, если это не так.
                     // Вопрос, может ли кто-то со стороны ещё оказаться здесь как anonymous? Вряд ли.
                     result = "admin"; // TODO возможно стоит подумать над иным пользователем, например system
-                }*/ else {
-                    result = principalName;
+                }*/ else if (ejbContext.isCallerInRole("cm_user")) {
+                    result = ejbContext.getCallerPrincipal().getName(); //principalName;
                 }
             }
         } catch (Exception e) {
