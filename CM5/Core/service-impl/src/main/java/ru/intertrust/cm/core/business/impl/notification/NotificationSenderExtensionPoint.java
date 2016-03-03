@@ -6,7 +6,7 @@ import javax.ejb.EJB;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
-import ru.intertrust.cm.core.business.impl.EventTriggerImpl.EventType;
+import ru.intertrust.cm.core.business.impl.EventType;
 import ru.intertrust.cm.core.dao.api.extension.AfterChangeStatusAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterCreateAfterCommitExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteAfterCommitExtensionHandler;

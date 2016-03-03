@@ -90,7 +90,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(reportMetadata.getName());
-           
+
             //Если не существует то создаем новый
             if (reportTemplateObject == null) {
                 reportTemplateObject = createDomainObject("report_template");
@@ -292,7 +292,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                         path = new File(dirName, fileName).getPath();
                     }  else { // process "file:" and other urls as usual
                         int end = url.getPath().indexOf(".jar") + 4;
-                        path = url.getPath().substring(0, end);
+                        int start = url.getPath().indexOf(":/") + 2;
+                        path = url.getPath().substring(start, end);
                     }
                     if (!paths.contains(path)){
                         cp.append(path).append(File.pathSeparator);

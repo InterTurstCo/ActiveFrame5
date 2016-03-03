@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ProfileService;
@@ -20,6 +21,7 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -32,6 +34,8 @@ import java.util.List;
 public class ProfileServiceImpl implements ProfileService {
 
     private static final Logger logger = LoggerFactory.getLogger(ProfileServiceImpl.class);
+
+    //private static final String DEFAULT_PROFILE_NAME = "admin";
 
     @Autowired
     private CollectionsService collectionsService;
@@ -48,6 +52,8 @@ public class ProfileServiceImpl implements ProfileService {
     @Autowired
     private ConfigurationExplorer configurationService;
 
+    //private Profile defaultProfile;
+
     /**
      * Получение профиля системы. Профиль содержит данные профиля без учета иерархии профилей. Предназначен для
      * редактирования системных профилей администраторами при его вызове должен создаваться AdminAccessToken
@@ -61,7 +67,7 @@ public class ProfileServiceImpl implements ProfileService {
             accessControlService.createAdminAccessToken(currentUserAccessor.getCurrentUser());
 
             Id profileId = findProfileByName(name);
-            
+
             ProfileObject profileObject = new ProfileObject();
             profileObject.setId(profileId);
             profileObject.setName(name);
@@ -78,7 +84,14 @@ public class ProfileServiceImpl implements ProfileService {
             throw new UnexpectedException("ProfileService", "getProfile", "name: " + name, ex);
         }
     }
-
+/*
+    private Profile getDefaultProfile() {
+        if (defaultProfile == null) {
+            defaultProfile = getProfile(DEFAULT_PROFILE_NAME);
+        }
+        return defaultProfile;
+    }
+*/
     private IdentifiableObjectCollection getProfileValues(Id profileId){
         //String query = "select pv.id from profile_value pv where pv.profile = {0}";
         String query = "select id from profile_value where profile = {0}";
@@ -193,7 +206,7 @@ public class ProfileServiceImpl implements ProfileService {
     public Profile getPersonProfile() {
         try {
             Id currentUserId = currentUserAccessor.getCurrentUserId();
-            return getPersonProfileByPersonId(currentUserId);
+            return currentUserId != null ? getPersonProfileByPersonId(currentUserId) : null;
         } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -308,7 +321,13 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public String getPersonLocale() {
         try {
-            Profile profile = getPersonProfile();
+            Profile profile = null;
+            try {
+                profile = getPersonProfile();
+            } catch (Exception e) {
+                logger.debug("Exception caught while fetching current user's profile", e);
+                // Локаль пользователя будет получена иным путём; пропускаем
+            }
             if (profile != null) {
                 final String locale = profile.getString(ProfileService.LOCALE);
                 if (locale != null && MessageResourceProvider.getAvailableLocales().contains(locale)) {

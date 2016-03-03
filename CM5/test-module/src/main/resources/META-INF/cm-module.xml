@@ -9,6 +9,9 @@
         <extension-points-package>ru/intertrust/cm/test</extension-points-package>
         <extension-points-package>ru/intertrust/testmodule/extensions</extension-points-package>
     </extension-points-packages>
+    <configuration-elements-packages>
+        <configuration-elements-package>ru/intertrust/cm/test</configuration-elements-package>
+    </configuration-elements-packages>
     <gui-components-packages>
         <gui-components-package>ru</gui-components-package>
         <gui-components-package>com</gui-components-package>

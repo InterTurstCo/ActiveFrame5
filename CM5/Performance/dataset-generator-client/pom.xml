@@ -1,9 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ru.intertrust.cm-sochi</groupId>
   <artifactId>dataset-generator-client</artifactId>
-  <version>0.5.18-4-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>dataset-generator-client</name>

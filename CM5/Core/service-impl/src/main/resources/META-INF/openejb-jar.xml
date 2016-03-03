@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openejb-jar>
+    <ejb-deployment ejb-name="AuditServiceImpl">
+        <jndi name="module/AuditServiceImpl!ru.intertrust.cm.core.business.api.AuditService"
+              interface="ru.intertrust.cm.core.business.api.AuditService"/>
+        <jndi name="module/AuditServiceImpl!ru.intertrust.cm.core.business.api.AuditService$Remote"
+              interface="ru.intertrust.cm.core.business.api.AuditService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="CollectionsServiceImpl">
+        <jndi name="module/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService"
+              interface="ru.intertrust.cm.core.business.api.CollectionsServiceImpl"/>
+        <jndi name="module/CollectionsServiceImpl!ru.intertrust.cm.core.business.api.CollectionsService$Remote"
+              interface="ru.intertrust.cm.core.business.api.CollectionsServiceImpl.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ConfigurationControlServiceImpl">
+        <jndi name="module/ConfigurationControlServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationControlService"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationControlService"/>
+        <jndi name="module/ConfigurationControlServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationControlService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationControlService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ConfigurationLoadServiceImpl">
+        <jndi name="module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService"/>
+        <jndi name="module/ConfigurationLoadServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationLoadService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationLoadService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ConfigurationServiceImpl">
+        <jndi name="module/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationService"/>
+        <jndi name="module/ConfigurationServiceImpl!ru.intertrust.cm.core.business.api.ConfigurationService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ConfigurationService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="CrudServiceImpl">
+        <jndi name="module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService"
+              interface="ru.intertrust.cm.core.business.api.CrudService"/>
+        <jndi name="module/CrudServiceImpl!ru.intertrust.cm.core.business.api.CrudService$Remote"
+              interface="ru.intertrust.cm.core.business.api.CrudService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="CryptoServiceImpl">
+        <jndi name="module/CryptoServiceImpl!ru.intertrust.cm.core.business.api.CryptoService"
+              interface="ru.intertrust.cm.core.business.api.CryptoService"/>
+        <jndi name="module/CryptoServiceImpl!ru.intertrust.cm.core.business.api.CryptoService$Remote"
+              interface="ru.intertrust.cm.core.business.api.CryptoService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="DoelService">
+        <jndi name="module/DoelService!ru.intertrust.cm.core.business.api.DoelService"
+              interface="ru.intertrust.cm.core.business.api.DoelService"/>
+        <jndi name="module/DoelService!ru.intertrust.cm.core.business.api.DoelService$Remote"
+              interface="ru.intertrust.cm.core.business.api.DoelService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="GloballyLockableInitializerImpl">
+        <jndi name="module/GloballyLockableInitializerImpl!ru.intertrust.cm.core.business.api.GloballyLockableInitializer"
+              interface="ru.intertrust.cm.core.business.api.GloballyLockableInitializer"/>
+        <jndi name="module/GloballyLockableInitializerImpl!ru.intertrust.cm.core.business.api.GloballyLockableInitializer$Remote"
+              interface="ru.intertrust.cm.core.business.api.GloballyLockableInitializer.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ImportDataService">
+        <jndi name="module/ImportDataService!ru.intertrust.cm.core.business.api.ImportDataService"
+              interface="ru.intertrust.cm.core.business.api.ImportDataService"/>
+        <jndi name="module/ImportDataService!ru.intertrust.cm.core.business.api.ImportDataService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ImportDataService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="InitialDataLoaderImpl">
+        <jndi name="module/InitialDataLoaderImpl!ru.intertrust.cm.core.business.api.InitialDataLoader"
+              interface="ru.intertrust.cm.core.business.api.InitialDataLoader"/>
+        <jndi name="module/InitialDataLoaderImpl!ru.intertrust.cm.core.business.api.InitialDataLoader$Remote"
+              interface="ru.intertrust.cm.core.business.api.InitialDataLoader.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="LocalAttachmentServiceImpl">
+        <jndi name="module/LocalAttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService"
+              interface="ru.intertrust.cm.core.business.api.AttachmentService"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="NotificationService">
+        <jndi name="module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService"
+              interface="ru.intertrust.cm.core.business.api.NotificationService"/>
+        <jndi name="module/NotificationService!ru.intertrust.cm.core.business.api.NotificationService$Remote"
+              interface="ru.intertrust.cm.core.business.api.NotificationService.Remote"/>
+        <role-mapping>
+            <role-name>system</role-name>
+            <principal-name>admin</principal-name>
+        </role-mapping>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="PermissionService">
+        <jndi name="module/PermissionService!ru.intertrust.cm.core.business.api.PermissionService"
+              interface="ru.intertrust.cm.core.business.api.PermissionService"/>
+        <jndi name="module/PermissionService!ru.intertrust.cm.core.business.api.PermissionService$Remote"
+              interface="ru.intertrust.cm.core.business.api.PermissionService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="PersonManagementService">
+        <jndi name="module/PersonManagementService!ru.intertrust.cm.core.business.api.PersonManagementService"
+              interface="ru.intertrust.cm.core.business.api.PersonManagementService"/>
+        <jndi name="module/PersonManagementService!ru.intertrust.cm.core.business.api.PersonManagementService$Remote"
+              interface="ru.intertrust.cm.core.business.api.PersonManagementService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="PersonService">
+        <jndi name="module/PersonService!ru.intertrust.cm.core.business.api.PersonService"
+              interface="ru.intertrust.cm.core.business.api.PersonService"/>
+        <jndi name="module/PersonService!ru.intertrust.cm.core.business.api.PersonService$Remote"
+              interface="ru.intertrust.cm.core.business.api.PersonService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ProcessService">
+        <jndi name="module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService"
+              interface="ru.intertrust.cm.core.business.api.ProcessService"/>
+        <jndi name="module/ProcessService!ru.intertrust.cm.core.business.api.ProcessService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ProcessService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ProfileService">
+        <jndi name="module/ProfileService!ru.intertrust.cm.core.business.api.ProfileService"
+              interface="ru.intertrust.cm.core.business.api.ProcessService"/>
+        <jndi name="module/ProfileService!ru.intertrust.cm.core.business.api.ProfileService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ProfileService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ReportServiceAdmin">
+        <jndi name="module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin"
+              interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin"/>
+        <jndi name="module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin$Remote"
+              interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ReportService">
+        <jndi name="module/ReportService!ru.intertrust.cm.core.business.api.ReportService"
+              interface="ru.intertrust.cm.core.business.api.ReportService"/>
+        <jndi name="module/ReportService!ru.intertrust.cm.core.business.api.ReportService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ReportService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ScheduleService">
+        <jndi name="module/ScheduleService!ru.intertrust.cm.core.business.api.ScheduleService"
+              interface="ru.intertrust.cm.core.business.api.ScheduleService"/>
+        <jndi name="module/ScheduleService!ru.intertrust.cm.core.business.api.ScheduleService$Remote"
+              interface="ru.intertrust.cm.core.business.api.ScheduleService.Remote"/>
+        <role-mapping>
+            <role-name>system</role-name>
+            <principal-name>admin</principal-name>
+        </role-mapping>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="RemoteAttachmentServiceImpl">
+        <jndi name="module/RemoteAttachmentServiceImpl!ru.intertrust.cm.core.business.api.AttachmentService$Remote"
+              interface="ru.intertrust.cm.core.business.api.AttachmentService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="AccessVerificationServiceImpl">
+        <jndi name="module/AccessVerificationServiceImpl!ru.intertrust.cm.core.business.api.AccessVerificationService"
+              interface="ru.intertrust.cm.core.business.api.AccessVerificationService"/>
+        <jndi name="module/AccessVerificationServiceImpl!ru.intertrust.cm.core.business.api.AccessVerificationService$Remote"
+              interface="ru.intertrust.cm.core.business.api.AccessVerificationService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="NotificationSenderAsync">
+        <jndi name="module/NotificationSenderAsync!ru.intertrust.cm.core.business.api.NotificationSenderAsync"
+              interface="ru.intertrust.cm.core.business.api.NotificationSenderAsync"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="SearchService">
+        <jndi name="module/SearchService!ru.intertrust.cm.core.business.api.SearchService"
+              interface="ru.intertrust.cm.core.business.api.SearchService"/>
+        <jndi name="module/SearchService!ru.intertrust.cm.core.business.api.SearchService$Remote"
+              interface="ru.intertrust.cm.core.business.api.SearchService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ImportReportsDataImpl">
+        <jndi name="module/ImportReportsDataImpl!ru.intertrust.cm.core.business.api.ImportReportsData"
+              interface="ru.intertrust.cm.core.business.api.ImportReportsData"/>
+        <jndi name="module/ImportReportsDataImpl!ru.intertrust.cm.core.business.api.ImportReportsData$Remote"
+              interface="ru.intertrust.cm.core.business.api.ImportReportsData.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ImportSystemDataImpl">
+        <jndi name="module/ImportSystemDataImpl!ru.intertrust.cm.core.business.api.ImportSystemData"
+              interface="ru.intertrust.cm.core.business.api.ImportSystemData"/>
+        <jndi name="module/ImportSystemDataImpl!ru.intertrust.cm.core.business.api.ImportSystemData$Remote"
+              interface="ru.intertrust.cm.core.business.api.ImportSystemData.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ScheduleProcessorImpl">
+        <jndi name="module/ScheduleProcessorImpl!ru.intertrust.cm.core.business.api.ScheduleProcessor"
+              interface="ru.intertrust.cm.core.business.api.ScheduleProcessor"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="ScheduleTaskLoaderImpl">
+        <jndi name="module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.api.ScheduleTaskLoader"
+              interface="ru.intertrust.cm.core.business.api.ScheduleTaskLoader"/>
+        <jndi name="module/ScheduleTaskLoaderImpl!ru.intertrust.cm.core.business.api.ScheduleTaskLoader$Remote"
+              interface="ru.intertrust.cm.core.business.api.ScheduleTaskLoader.Remote"/>
+    </ejb-deployment>
+</openejb-jar>

@@ -55,8 +55,8 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
     private static final Logger logger = LoggerFactory.getLogger(ReportServiceBaseImpl.class);
 
-    private static final String TEMPLATES_FOLDER_NAME = "report-service-templates";
-    private static final String RESULT_FOLDER_NAME = "report-service-results";
+    //private static final String TEMPLATES_FOLDER_NAME = "report-service-templates";
+    //private static final String RESULT_FOLDER_NAME = "report-service-results";
 
     public static final String PDF_FORMAT = "PDF";
     public static final String RTF_FORMAT = "RTF";
@@ -70,6 +70,9 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
     @Autowired
     private CurrentDataSourceContext currentDataSourceContext;
+
+    @Autowired
+    protected ReportTemplateCache templateCache;
 
     @Autowired
     private ExtensionService extensionService;
@@ -93,7 +96,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
             DomainObject reportTemplate = getReportTemplateObject(name);
 
             //Получение директории с шаблонами отчета
-            File templateFolder = getTemplateFolder(reportTemplate);
+            File templateFolder = templateCache.getTemplateFolder(reportTemplate);
 
             //Получение метаинформацию отчета
             ReportMetadataConfig reportMetadata = loadReportMetadata(
@@ -193,7 +196,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
 
         return stream.toByteArray();
     }
-
+/*
     private File getTemplateFolder(DomainObject reportTemplateDo) throws IOException {
         //Проверка есть директория для данного отчета в файловой системе, и если есть то проверка даты ее создания
         //Получение temp директории
@@ -229,7 +232,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
         return templateFolder;
 
     }
-
+*/
     /**
      * Генерация отчета
      * @param templatePath
@@ -317,11 +320,12 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
     }
 
     private File getResultFolder() throws IOException {
-        File resultFolder = new File(getTempFolder(), RESULT_FOLDER_NAME);
+        /*File resultFolder = new File(getTempFolder(), RESULT_FOLDER_NAME);
         if (!resultFolder.exists()) {
             resultFolder.mkdirs();
         }
-        return resultFolder;
+        return resultFolder;*/
+        return getTempFolder();
     }
 
     /**
@@ -339,7 +343,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
         }else{
             //Если задано несколько форматов то сначала применяем формат из параметра а если там не задан берем формат по умолчанию
             if (params != null) {
-                format = (String) params.get(FORMAP_PARAM);
+                format = (String) params.get(FORMAT_PARAM);
             }
             
             //Берем формат по умолчанию

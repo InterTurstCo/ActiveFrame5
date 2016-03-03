@@ -25,7 +25,7 @@
     <dependency>
     	<groupId>ru.intertrust.cm-sochi</groupId>
     	<artifactId>service-api</artifactId>
-    	<version>0.5.18-4-SNAPSHOT</version>
+    	<version>${project.version}</version>
     	<exclusions>
     		<exclusion>
     			<artifactId>stax-api</artifactId>
@@ -36,12 +36,12 @@
     <dependency>
     	<groupId>ru.intertrust.cm-sochi</groupId>
     	<artifactId>model</artifactId>
-    	<version>0.5.18-4-SNAPSHOT</version>
+    	<version>${project.version}</version>
     </dependency>
 	<dependency>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>dao-api</artifactId>
-        <version>0.5.18-4-SNAPSHOT</version>
+        <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.spec</groupId>

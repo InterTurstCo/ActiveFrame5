@@ -26,7 +26,7 @@ import java.util.List;
  * не имеющие ссылающихся на них доменных объектов.
  */
 @ScheduleTask(name = "FileSystemAttachmentCleanerScheduleTask", hour = "2", minute = "15",
-        active = true )
+        active = true)
 public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(FileSystemAttachmentCleanerScheduleTask.class);
 
@@ -56,7 +56,7 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
 
         File storageDir = new File(attachmentSaveLocation);
         String storageDirAbsolutePath = storageDir.getAbsolutePath();
-        List <File> allFiles = new ArrayList<>();
+        List<File> allFiles = new ArrayList<>();
         readFiles(allFiles, storageDir, true);
 
         try {
@@ -127,17 +127,18 @@ public class FileSystemAttachmentCleanerScheduleTask implements ScheduleTaskHand
         return false;
     }
 
-    public void readFiles(List<File> list, File dir, boolean root){
+    public void readFiles(List<File> list, File dir, boolean root) {
         File[] files = dir.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                readFiles(list, file, false);
-            } else if (!root) {
-                list.add(file);
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    readFiles(list, file, false);
+                } else if (!root) {
+                    list.add(file);
+                }
             }
         }
     }
-
 
 
 }

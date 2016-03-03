@@ -11,8 +11,6 @@
         <version>0.5.18-4-SNAPSHOT</version>
     </parent>
 
-    <version>0.5.18-4-SNAPSHOT</version>
-
     <properties>
         <root.basedir>${project.parent.parent.basedir}</root.basedir>
     </properties>

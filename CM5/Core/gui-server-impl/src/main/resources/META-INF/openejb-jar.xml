@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openejb-jar>
+    <ejb-deployment ejb-name="ActionServiceImpl">
+        <jndi name="module/ActionServiceImpl!ru.intertrust.cm.core.gui.api.server.ActionService"
+              interface="ru.intertrust.cm.core.gui.api.server.ActionService"/>
+        <jndi name="module/ActionServiceImpl!ru.intertrust.cm.core.gui.api.server.ActionService$Remote"
+              interface="ru.intertrust.cm.core.gui.api.server.ActionService.Remote"/>
+    </ejb-deployment>
+
+    <ejb-deployment ejb-name="GuiServiceImpl">
+        <jndi name="module/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService"
+              interface="ru.intertrust.cm.core.gui.api.server.GuiService"/>
+        <jndi name="module/GuiServiceImpl!ru.intertrust.cm.core.gui.api.server.GuiService$Remote"
+              interface="ru.intertrust.cm.core.gui.api.server.GuiService.Remote"/>
+    </ejb-deployment>
+</openejb-jar>

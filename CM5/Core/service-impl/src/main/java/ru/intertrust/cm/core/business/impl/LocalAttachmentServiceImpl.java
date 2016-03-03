@@ -20,7 +20,7 @@ import java.rmi.RemoteException;
 public class LocalAttachmentServiceImpl extends BaseAttachmentServiceImpl implements AttachmentService {
 
     @Override
-    RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {
+    protected RemoteInputStream wrapStream(InputStream inputStream) throws RemoteException {
         return new DirectRemoteInputStream(inputStream, false);
     }
 }

@@ -6,7 +6,9 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import javax.annotation.security.RunAs;
 import javax.ejb.*;
+
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -15,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
  */
 @Startup
 @Singleton
+//@RunAs("system")
 @TransactionManagement(TransactionManagementType.BEAN)
 public class BootstrapBean {
     private static final int DEFAULT_DEPLOY_TRANSACTION_TIMEOUT = 1000;

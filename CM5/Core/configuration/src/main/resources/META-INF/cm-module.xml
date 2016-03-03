@@ -5,6 +5,9 @@
     <extension-points-packages>
         <extension-points-package>ru/intertrust/cm</extension-points-package>
     </extension-points-packages>
+    <configuration-elements-packages>
+        <configuration-elements-package>ru/intertrust/cm/core</configuration-elements-package>
+    </configuration-elements-packages>
     <gui-components-packages>
         <gui-components-package>ru</gui-components-package>
         <gui-components-package>com</gui-components-package>

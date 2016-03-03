@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.config.BusinessUniverseConfig;
 
 import javax.ejb.EJB;
 import javax.servlet.*;
+import javax.servlet.annotation.WebListener;
+
 import java.util.EnumSet;
 
 /**
@@ -16,6 +18,7 @@ import java.util.EnumSet;
  * @version 1.0
  * @since 07.09.2015
  */
+@WebListener
 public class CustomContextListener implements ServletContextListener {
 
     private static final String LOGIN_FILTER = "LoginFilter";

@@ -1,4 +1,4 @@
-package ru.intertrust.cm.core.web;
+package ru.intertrust.cm.core.gui.impl.server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

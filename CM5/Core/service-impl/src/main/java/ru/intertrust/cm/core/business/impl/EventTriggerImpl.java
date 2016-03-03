@@ -35,18 +35,6 @@ import ru.intertrust.cm.core.tools.EventTriggerScriptContext;
 
 public class EventTriggerImpl implements EventTrigger, ApplicationContextAware {
 
-    /**
-     * Типы событий, поддерживаемых системой
-     * @author atsvetkov
-     *
-     */
-    public static enum EventType {
-        CREATE,
-        CHANGE,
-        CHANGE_STATUS,
-        DELETE
-    }
-
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     

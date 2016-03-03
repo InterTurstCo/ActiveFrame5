@@ -6,10 +6,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.UserCredentials;
 import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 
 
 import javax.servlet.Filter;
@@ -22,13 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import ru.intertrust.cm.core.business.api.dto.UserCredentials;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
@@ -99,7 +93,7 @@ public class AuthenticationFilter implements Filter {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            if (request.getUserPrincipal() != null) {
+            if (isLogoutRequired(request)) {
                 try {
                     request.logout();
                     //System.out.println(Thread.currentThread().getId() + " => log out");
@@ -111,6 +105,11 @@ public class AuthenticationFilter implements Filter {
             }
         }
 
+    }
+
+    private boolean isLogoutRequired(HttpServletRequest request) {
+        return request.getUserPrincipal() != null
+                && JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.JBOSS;
     }
 
     private boolean isLoginPageRequest(String requestUri) {
