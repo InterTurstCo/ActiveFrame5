@@ -866,13 +866,20 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         }
 
         final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
-
+        
+        //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
+        boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
+        
         String domainObjectBaseTable =
                 DataStructureNamingHelper.getSqlName(ConfigurationExplorerUtils.getTopLevelParentType(configurationExplorer, objectType));
         String tableNameRead =
                 AccessControlUtility.getAclReadTableName(configurationExplorer, permissionType);
-        String tableNameAcl =
-                AccessControlUtility.getAclTableName(permissionType);
+        String tableNameAcl = null;
+        if (combinateAccessReference){
+            tableNameAcl = AccessControlUtility.getAclTableName(objectType);
+        }else{
+            tableNameAcl = AccessControlUtility.getAclTableName(permissionType);
+        }
 
         StringBuilder query = new StringBuilder();
         query.append("select 'R' as operation, gm.").append(DaoUtils.wrap("person_id")).append(", gm.").
@@ -904,9 +911,14 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
                 .append(DaoUtils.wrap("usergroup")).
                 //обавляем в связи с появлением функциональности замещения прав
-                append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
-                .append(DaoUtils.wrap("access_object_id")).
-                append(" = a.").append(DaoUtils.wrap("object_id")).
+                append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
+                //В случае с комбинированными  правами используем свою таблицу acl и join по id
+                if (combinateAccessReference){
+                    query.append(DaoUtils.wrap("id"));
+                }else{
+                    query.append(DaoUtils.wrap("access_object_id"));
+                }
+                query.append(" = a.").append(DaoUtils.wrap("object_id")).
                 append(") where o.").append(DaoUtils.wrap("id")).append(" = :object_id ");
         if (personId != null) {
             query.append("and gm.").append(DaoUtils.wrap("person_id")).append(" = :person_id");

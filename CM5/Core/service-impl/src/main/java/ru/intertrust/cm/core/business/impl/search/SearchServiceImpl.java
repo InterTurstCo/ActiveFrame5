@@ -161,7 +161,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         private HashMap<String, StringBuilder> filterStrings = new HashMap<>();
         private ArrayList<ComplexQuery> nestedQueries = new ArrayList<>();
         private CombiningFilter.Op combineOperation = CombiningFilter.AND;
-        private float riddlingFactor = 1f;
 
         @SuppressWarnings("unchecked")
         public void addFilters(Collection<SearchFilter> filters, SearchQuery query) {
@@ -220,32 +219,45 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             }
             areas.append(")");
 
-            ArrayList<SolrDocumentList> foundParts = new ArrayList<>(filterStrings.size());
-            for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
-                SolrQuery solrQuery = new SolrQuery()
-                        .setQuery(entry.getValue().toString())
-                        .addFilterQuery(SolrFields.AREA + ":" + areas)
-                        .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
-                        //.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
-                        .addField(SolrFields.MAIN_OBJECT_ID)
-                        .addField(SolrUtils.SCORE_FIELD);
-                if (!"*".equals(entry.getKey())) {
-                    solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
+            SolrDocumentList result;
+            float clippingFactor = 1f;
+            /*if (combineOperation == CombiningFilter.AND) {
+                clippingFactor /= filterStrings.size();
+            }*/
+            boolean clipped;
+            do {
+                clipped = false;
+                ArrayList<SolrDocumentList> foundParts = new ArrayList<>(filterStrings.size());
+                for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
+                    SolrQuery solrQuery = new SolrQuery()
+                            .setQuery(entry.getValue().toString())
+                            .addFilterQuery(SolrFields.AREA + ":" + areas)
+                            .addFilterQuery(SolrFields.TARGET_TYPE + ":\"" + query.getTargetObjectType() + "\"")
+                            //.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
+                            .addField(SolrFields.MAIN_OBJECT_ID)
+                            .addField(SolrUtils.SCORE_FIELD);
+                    if (!"*".equals(entry.getKey())) {
+                        solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
+                    }
+                    int rows = Math.round(fetchLimit / clippingFactor);
+                    if (rows > 0) {
+                        solrQuery.setRows(rows);
+                    }
+                    QueryResponse response = executeSolrQuery(solrQuery);
+                    foundParts.add(response.getResults());
+                    clipped = clipped || rows > 0 && response.getResults().size() == rows;
                 }
-                if (fetchLimit > 0) {
-                    solrQuery.setRows(Math.round(fetchLimit / riddlingFactor));
+                for (ComplexQuery nested : nestedQueries) {
+                    foundParts.add(nested.execute(fetchLimit, query));
                 }
-                QueryResponse response = executeSolrQuery(solrQuery);
-                foundParts.add(response.getResults());
-            }
-            for (ComplexQuery nested : nestedQueries) {
-                foundParts.add(nested.execute(fetchLimit, query));
-            }
-            if (foundParts.size() == 1) {
-                return foundParts.get(0);
-            }
-            return combineResults(foundParts, combineOperation == CombiningFilter.AND
-                    ? new IntersectCombiner(foundParts.size()) : new UnionCombiner());
+                if (foundParts.size() == 1) {
+                    return foundParts.get(0);
+                }
+                result = combineResults(foundParts, combineOperation == CombiningFilter.AND
+                        ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
+                clippingFactor /= fetchLimit - result.size() + 1;
+            } while (clipped && result.size() < fetchLimit);
+            return result;
         }
     }
 
@@ -306,7 +318,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
         }
     }
 
-    private SolrDocumentList combineResults(Collection<SolrDocumentList> results, Combiner combiner) {
+    private SolrDocumentList combineResults(Collection<SolrDocumentList> results, Combiner combiner, int maxSize) {
         // Копия списка списков результатов - с фиксированными номерами
         HashMap<Integer, SolrDocumentList> lists = new HashMap<>(results.size());
         // Массив указателей на текущий документ в каждом списке
@@ -318,7 +330,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
         // Инициализация служебных структур
         int i = 0;
-        int totalSize = 0;
         for (SolrDocumentList list : results) {
             // Обрабатываем все непустые списки
             if (list.size() > 0) {
@@ -330,15 +341,15 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     scores.put(score, new LinkedList<Integer>());
                 }
                 scores.get(score).add(i);
-                totalSize += list.size();
-                i++;
+                ++i;
             }
         }
 
         // Соединение списков
         SolrDocumentList combined = new SolrDocumentList();
-        combined.ensureCapacity(totalSize);
+        combined.ensureCapacity(maxSize);
         combined.setMaxScore(scores.size() > 0 ? scores.lastKey() : 0.0f);
+        globalCycle:
         while (lists.size() > 0) {
             // Вытаскиваем список номеров списков, имеющих следующий элемент с наибольшим рейтингом
             Float maxScore = scores.lastKey();
@@ -348,7 +359,11 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 int listNum = listNums.remove();
                 int docNum = cursors.get(listNum);
                 SolrDocumentList list = lists.get(listNum);
-                combiner.add(list.get(docNum), combined);
+                boolean added = combiner.add(list.get(docNum), combined);
+                // Немедленно останавливаемся, если достигнут необходимый размер списка
+                if (added && combined.size() == maxSize) {
+                    break globalCycle;
+                }
                 // Продвигаем выбранный список на один элемент вперёд
                 docNum++;
                 if (list.size() > docNum) {
@@ -363,7 +378,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                 } else {
                     // Если дошли до последнего элемента в списке, удаляем его
                     lists.remove(listNum);
-                    // Курсор для списка остаётся, но использоваться не будет
+                    // Курсор для списка остаётся, но использоваться не будет. Удалять нельзя, т.к. изменятся номера
                 }
             }
             scores.remove(maxScore);
@@ -438,12 +453,14 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     @Value("${search.dump.file:search-index-dump.txt}")
     private String dumpFileName;
+    @Value("${search.dump.encoding:cp1251}")
+    private String dumpFileEncoding;
 
     @Override
     public void dumpAll() {
         PrintStream out = null;
         try {
-            out = new PrintStream(dumpFileName, "cp1251");
+            out = new PrintStream(dumpFileName, dumpFileEncoding);
             SolrQuery testQuery = new SolrQuery()
                     .setQuery("*:*")
                     .addField("*")

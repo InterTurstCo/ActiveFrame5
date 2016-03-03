@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.remoteclient.AssertExeption;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestPermission extends ClientBase {
@@ -190,8 +191,11 @@ public class TestPermission extends ClientBase {
             //Пытаемся удалить под сотрудником 5 карточку согласования, должны получить ошибку
             try{
                 deleteObject(negotiationCards.get(0), getEmployee("Сотрудник 7").getString("login"));
-                Assert.assertTrue("Не должно быть прав на удаление", false);
-            }catch(Exception ignoreEx){
+                assertTrue("Не должно быть прав на удаление", false);
+            }catch(AssertExeption assertException){
+                throw assertException;
+            }catch(Exception ignoreException){
+                //Ошибка должна быть, работает правильно
             }
 
             //Пытаемся удалить под пользователем 3 должно удалится, так как должен отработать мапинг прав
@@ -476,6 +480,69 @@ public class TestPermission extends ClientBase {
             
             getCrudService().delete(testType21.getId());
             log("Test delete DO with static group and context role: OK");
+            
+            //Проверка комбенированных прав (заимствованных на чтение и собственных на запись и удаление
+            DomainObject testType14 = notAdminCrudservice.createDomainObject("test_type_14");
+            testType14.setString("name", "Name-" + System.nanoTime());
+            testType14 = getCrudService().save(testType14);
+
+            DomainObject testType23 = getCrudService().createDomainObject("test_type_23");
+            testType23.setString("name", "name_" + System.currentTimeMillis());
+            testType23.setReference("author", getEmployeeId("Сотрудник 1"));
+            testType23.setReference("test_type_14", testType14.getId());
+            testType23 = getCrudService().save(testType23);
+
+            etalon = new EtalonPermissions();
+            for (Id personId : allPersons) {
+                etalon.addPermission(personId, Permission.Read);
+            }         
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
+            etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            checkPermissions(testType23.getId(), etalon, "Check combine permissions");            
+            
+            //Проверка метода find
+            testType23 = ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin")).find(testType23.getId());
+            assertTrue("Combine permission find", testType23 != null);
+            
+            //Проверка получение в коллекции
+            notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person5", "admin");
+            params.clear();
+            params.add(new ReferenceValue(testType23.getId()));
+            collection = notAdminCollectionService.findCollectionByQuery("select id from test_type_23 where id = {0}", params);
+            assertTrue("Combine permission query", collection.size() > 0);
+            
+            testType23.setString("name", "name-" + System.currentTimeMillis());
+            //Проверка на запись сначала у того у кого прав быть не должно
+            try{
+                ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person2", "admin")).save(testType23);
+                //Должна быть ошибка если нет то работает некорректно
+                assertTrue("person 2 Has permission on type_23", false);
+            }catch(AssertExeption assertException){
+                throw assertException;
+            }catch(Exception ignoreException){
+                //Ошибка должна быть, работает правильно
+            }
+            
+            //Теперь у кого есть права
+            ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).save(testType23);
+            
+            //Проверка на удаление сначала тем у кого не должно быть прав
+            try{
+                ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person2", "admin")).delete(testType23.getId());
+                //Должна быть ошибка если нет то работает некорректно
+                assertTrue("person 2 Has permission on type_23", false);
+            }catch(AssertExeption assertException){
+                throw assertException;
+            }catch(Exception ignoreException){
+                //Ошибка должна быть, работает правильно
+            }
+            
+            //А потом у кого они должны быть
+            ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).delete(testType23.getId());
+            
+            getCrudService().delete(testType14.getId());
+            log("Test combine permissions: OK");
+
             
             log("Test complete");
         } finally {

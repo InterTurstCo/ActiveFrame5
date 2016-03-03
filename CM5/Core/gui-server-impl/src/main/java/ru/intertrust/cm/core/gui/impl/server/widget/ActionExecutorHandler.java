@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ActionExecutorConfig;
+import ru.intertrust.cm.core.gui.api.server.ActionExecutorContextBuilder;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
@@ -62,14 +63,23 @@ public class ActionExecutorHandler extends LabelHandler {
                 final ActionHandler.Status actionStatus =
                         handler.getHandlerStatus(actionConfig.getRendered(), statusData);
                 if (ActionHandler.Status.APPLY == actionStatus) {
-                    actionContext = handler.getActionContext(actionConfig);
+                    if (actionExecutorConfig.getActionContextBuilderConfig() == null) {
+                        actionContext = handler.getActionContext(actionConfig);
+                    } else {
+                        /**
+                         * CMFIVE-5049 Построение URL в open.link.action при помощи кода
+                         */
+                        ActionExecutorContextBuilder contextBuilder = (ActionExecutorContextBuilder)applicationContext.
+                                getBean(actionExecutorConfig.getActionContextBuilderConfig().getBuilderComponent());
+                        actionContext = contextBuilder.getActionContext(rootObject.getId(),context,actionConfig);
+                    }
                 } else {
                     actionContext = null;
                 }
             } else {
                 actionContext = new ActionContext(actionConfig);
             }
-            if (actionContext!=null && context.getFormObjects().getRootDomainObject() != null)
+            if (actionContext != null && context.getFormObjects().getRootDomainObject() != null)
                 actionContext.setRootObjectId(context.getFormObjects().getRootDomainObject().getId());
             result.setActionContext(actionContext);
         }

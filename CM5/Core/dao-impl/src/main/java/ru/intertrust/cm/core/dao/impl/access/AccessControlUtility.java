@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.access;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
@@ -123,5 +124,9 @@ public class AccessControlUtility {
             result.addAll(getSubTypes(inheritor, directInheritors));
         }
         return result;
+    }
+    
+    public static boolean isCombineMatrixReference(AccessMatrixConfig accessMatrix){
+        return accessMatrix!= null && accessMatrix.getMatrixReference() != null && accessMatrix.getStatus() != null && accessMatrix.getStatus().size() > 0;
     }
 }

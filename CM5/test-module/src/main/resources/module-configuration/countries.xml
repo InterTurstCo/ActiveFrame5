@@ -487,6 +487,7 @@
                         </field-paths>
                     </date-format>
                 </formatting>
+                <action-context-builder component="sample.action.context.builder"/>
                 <act:action-ref name-ref="aOpenLink" rendered="not toggle-edit or (toggle-edit and preview)">
                     <act:action-params>
                         <act:action-param name="base-url" value="https://www.google.com.ua"/>

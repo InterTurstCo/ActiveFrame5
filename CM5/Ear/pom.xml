@@ -9,7 +9,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.18-2-SNAPSHOT</version>
+        <version>0.5.18-4-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -165,6 +165,37 @@
         </profile>
 
         <profile>
+            <id>deploy-wildfly</id>
+            <properties>
+                <ear.name>ear-${project.version}</ear.name>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>1.0.2.Final</version>
+                        <configuration>
+                            <filename>${ear.name}.ear</filename>
+                            <name>cm-sochi.ear</name>
+                            <skip>false</skip>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>deploy</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
             <id>deploy-jboss</id>
             <build>
                 <plugins>
@@ -216,6 +247,189 @@
                                 <goals>
                                     <goal>undeploy</goal>
                                 </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>config-wildfly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>1.0.2.Final</version>
+
+                        <executions>
+                            <execution>
+                                <id>deploy-driver</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>postgresql</groupId>
+                                    <artifactId>postgresql</artifactId>
+                                    <name>postgresql-jdbc4.jar</name>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-datasource</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <address>subsystem=datasources,data-source=CM5</address>
+                                    <resources>
+                                        <resource>
+                                            <properties>
+                                                <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
+                                                <connection-url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</connection-url>
+                                                <jndi-name>java:jboss/datasources/CM5</jndi-name>
+                                                <enabled>true</enabled>
+                                                <enable>true</enable>
+                                                <pool-name>CM5</pool-name>
+                                                <user-name>${db.user}</user-name>
+                                                <password>${db.password}</password>
+                                                <driver-name>postgresql-jdbc4.jar</driver-name>
+                                                <use-ccm>false</use-ccm>
+                                            </properties>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>add-security-domain</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <address>subsystem=security</address>
+                                    <force>true</force>
+                                    <resources>
+                                        <resource>
+                                            <address>security-domain=CM5</address>
+                                            <properties>
+                                                <cache-type>default</cache-type>
+                                            </properties>
+                                            <resources>
+                                                <resource>
+                                                    <address>authentication=classic</address>
+                                                    <properties>
+                                                        <login-modules>
+                                                            !![
+                                                            {"code"=&gt;"org.jboss.security.ClientLoginModule","flag"=&gt;"optional"},
+                                                            {"code"=&gt;"Remoting","flag"=&gt;"optional","module-options"=&gt;[("password-stacking"=&gt;"useFirstPass")]},
+                                                            {"code"=&gt;"Database","flag"=&gt;"required","module-options"=&gt;[("dsJndiName"=&gt;"java:jboss/datasources/CM5"),("principalsQuery"=&gt;"SELECT info.\"password\" from \"authentication_info\" info where info.\"user_uid\" = ?"),("rolesQuery"=&gt;"SELECT 'cm_user', 'Roles' from \"authentication_info\" where \"user_uid\" = ?"),("hashAlgorithm"=&gt;"MD5"),("hashEncoding"=&gt;"hex")]}
+                                                            ]
+                                                        </login-modules>
+                                                    </properties>
+                                                </resource>
+                                            </resources>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>change-application-realm</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <commands>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=properties:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=local:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:remove</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authentication=jaas:add(name="CM5")</command>
+                                            <command>/core-service=management/security-realm=ApplicationRealm/authorization=properties:remove</command>
+                                        </commands>
+                                    </execute-commands>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>set-server-config</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <commands>
+                                            <command>/system-property=server.properties.location:add(value=${server.properties.location})</command>
+                                            <command>/system-property=server.properties.location:write-attribute(name=value, value=${server.properties.location})</command>
+                                            <command>/system-property=spring.profiles.active:add(value="${spring.profiles.active}")</command>
+                                            <command>/system-property=spring.profiles.active:write-attribute(name=value, value="${spring.profiles.active}")</command>
+                                            <command>/system-property=solr.solr.home:add(value=${solr.solr.home})</command>
+                                            <command>/system-property=solr.solr.home:write-attribute(name=value, value=${solr.solr.home})</command>
+                                            <command>/system-property=org.apache.catalina.connector.URI_ENCODING:add(value=UTF-8)</command>
+                                            <command>/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)</command>
+                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=true)</command>
+                                            <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>
+                                            <command>/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=3600)</command>
+                                            <command>/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)</command>
+                                        </commands>
+                                    </execute-commands>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>config-jms</id>
+                                <phase>install</phase>
+                                <goals>
+                                    <goal>execute-commands</goal>
+                                </goals>
+                                <configuration>
+                                    <execute-commands>
+                                        <commands>
+                                            <command>
+                                                /extension=org.jboss.as.messaging:add
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="RemoteConnectionFactory")
+                                            </command>
+                                            <command>
+                                                /subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("socket-binding-group"=>"standard-sockets"),("socket-binding"=>"messaging")],"port"=>5445}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                <![CDATA[
+                                                /:composite(steps=[{"operation"=>"add","address"=>[("subsystem"=>"messaging")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default")],"persistence-enabled"=>"true","security-enabled"=>"false","journal-file-size"=>102400L,"journal-min-files"=>2},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("address-setting"=>"#")],"address-full-policy"=>"BLOCK","dead-letter-address"=>"jms.queue.DLQ","expiry-address"=>"jms.queue.ExpiryQueue","max-size-bytes"=>10485760,"message-counter-history-day-limit"=>10,"redelivery-delay"=>5000,"max-delivery-attempts"=>3},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("pooled-connection-factory"=>"RemoteConnectionFactory")],"connector"=>{"in-vm"=>undefined},"entries"=>["java:/RemoteConnectionFactory","java:jboss/exported/jms/RemoteConnectionFactory"],"transaction"=>"xa"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("connection-factory"=>"LocalConnectionFactory")],"connector"=>{"netty"=>undefined},"entries"=>["java:/LocalConnectionFactory","java:jboss/exported/jms/LocalConnectionFactory"]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-connector"=>"in-vm")],"server-id"=>0},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-connector"=>"netty")],"socket-binding"=>"messaging"},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#")]},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("security-setting"=>"#"),("role"=>"guest")],"consume"=>true,"create-durable-queue"=>false,"create-non-durable-queue"=>true,"delete-durable-queue"=>false,"delete-non-durable-queue"=>true,"manage"=>false,"send"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("in-vm-acceptor"=>"in-vm")],"server-id"=>0,"started"=>true},{"operation"=>"add","address"=>[("subsystem"=>"messaging"),("hornetq-server"=>"default"),("remote-acceptor"=>"netty")],"socket-binding"=>"messaging","started"=>true}])
+                                                ]]>
+                                            </command>
+                                            <command>
+                                                jms-topic add --topic-address=ConfigurationUpdateTopic --entries=topic/ConfigurationUpdateTopic
+                                            </command>
+                                        </commands>
+                                    </execute-commands>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                        <version>1.0-alpha-1</version>
+                        <executions>
+                            <execution>
+                                <phase>initialize</phase>
+                                <goals>
+                                    <goal>read-project-properties</goal>
+                                </goals>
+                                <configuration>
+                                    <files>
+                                        <file>${deploy.properties.path}</file>
+                                    </files>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
