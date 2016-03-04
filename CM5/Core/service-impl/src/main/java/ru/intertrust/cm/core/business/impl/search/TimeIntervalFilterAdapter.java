@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.business.impl.search;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,8 @@ import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilter> {
 
     private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss:SSS'Z'";
-    protected Logger log = LoggerFactory.getLogger(getClass());
+    private static final TimeZone UTC_TZ = TimeZone.getTimeZone("UTC");
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     @Autowired private SearchConfigHelper configHelper;
 
@@ -62,6 +64,6 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
         if (time == null) {
             return "*";
         }
-        return ThreadSafeDateFormat.format(time, DATE_PATTERN);
+        return ThreadSafeDateFormat.format(time, DATE_PATTERN, UTC_TZ);
     }
 }
