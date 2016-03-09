@@ -64,14 +64,12 @@ public class SqlQueryModifierTest {
                     "WHERE gm.\"person_id\" = :user_id) " +
                     "SELECT * FROM (SELECT employee.* FROM \"employee\" employee WHERE 1 = 1 AND " +
                     "EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "rt.\"id\" = employee.\"id\")) e, " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
+                    "r.\"object_id\" = employee.\"access_object_id\")) e, " +
                     "(SELECT department.* FROM \"department\" department WHERE 1 = 1 AND " +
                     "EXISTS (SELECT 1 FROM \"department_read\" r " +
-                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
-                    "AND rt.\"id\" = department.\"id\")) d";
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
+                    "AND r.\"object_id\" = department.\"access_object_id\")) d";
 
     private static final String PLAIN_SELECT_QUERY_WITH_ACL =
             "WITH cur_user_groups AS (" +
@@ -80,14 +78,12 @@ public class SqlQueryModifierTest {
                     "WHERE gm.\"person_id\" = :user_id) " +
                     "SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "rt.\"id\" = employee.\"id\")) e, " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
+                    "r.\"object_id\" = employee.\"access_object_id\")) e, " +
                     "(SELECT department.* FROM \"department\" department " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
-                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
-                    "AND rt.\"id\" = department.\"id\")) d " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
+                    "AND r.\"object_id\" = department.\"access_object_id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String PLAIN_SELECT_QUERY_WITH_WITH_ACL =
@@ -97,9 +93,8 @@ public class SqlQueryModifierTest {
                     "WHERE gm.\"person_id\" = :user_id) " +
                     "SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "rt.\"id\" = employee.\"id\")) e WHERE 1 = 1 AND e.\"id\" = 1";
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
+                    "r.\"object_id\" = employee.\"access_object_id\")) e WHERE 1 = 1 AND e.\"id\" = 1";
 
     private static final String UNION_QUERY_WITH_ACL =
             "WITH cur_user_groups AS (" +
@@ -108,25 +103,21 @@ public class SqlQueryModifierTest {
                     "WHERE gm.\"person_id\" = :user_id) " +
                     "(SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "rt.\"id\" = employee.\"id\")) e, " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
+                    "r.\"object_id\" = employee.\"access_object_id\")) e, " +
                     "(SELECT department.* FROM \"department\" department " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
-                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
-                    "AND rt.\"id\" = department.\"id\")) d " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
+                    "AND r.\"object_id\" = department.\"access_object_id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 1) UNION " +
                     "(SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
-                    "INNER JOIN \"employee\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
-                    "rt.\"id\" = employee.\"id\")) e, " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
+                    "r.\"object_id\" = employee.\"access_object_id\")) e, " +
                     "(SELECT department.* FROM \"department\" department WHERE 1 = 1 AND " +
                     "EXISTS (SELECT 1 FROM \"department_read\" r " +
-                    "INNER JOIN \"department\" rt ON r.\"object_id\" = rt.\"access_object_id\" " +
-                    "WHERE r.group_id IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
-                    "AND rt.\"id\" = department.\"id\")) d " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
+                    "AND r.\"object_id\" = department.\"access_object_id\")) d " +
                     "WHERE 1 = 1 AND e.\"id\" = 2)";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +

@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
@@ -26,9 +25,8 @@ import static org.mockito.Mockito.when;
 public class DomainObjectQueryHelperTest {
 
     private static final String ACCESS_RIGHTS_PART = " and exists (select 1 from \"person_read\" r " +
-            "inner join \"person\" rt on rt.\"access_object_id\" = r.\"object_id\" " +
             "where r.\"group_id\" in (select \"parent_group_id\" from cur_user_groups) and " +
-            "rt.\"id\" = :id)";
+            "r.\"object_id\" = person.\"access_object_id\")";
 
     private static final String WITH_PART = "with cur_user_groups as (select distinct gg.\"parent_group_id\" " +
             "from \"group_member\" gm inner join \"group_group\" gg on gg.\"child_group_id\" = gm.\"usergroup\" " +
