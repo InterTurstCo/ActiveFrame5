@@ -811,7 +811,8 @@ a.action-bar-button:hover {
     font-weight: normal;
 }
 
-.GAKMBIVIG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridHeader {
+.GAKMBIVIG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridHeader,
+.GJQETX4CIG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridHeader {
     border-top: 1px solid black !important;
     border-bottom: 1px solid black !important;
     font-weight: bold !important;
@@ -960,10 +961,11 @@ label.checkbox input[type="checkbox"]:checked + span {
     font-size: 15px;
 }
 /*style for row table*/
-.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow {
+.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow,
+.GJQETX4CDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow {
     background: #F5F5F5 !important;
     outline: 1px solid black;
-    box-shadow: none !important;
+    box-shadow: none !important
 }
 
 .GAKMBIVJD-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedRow {
@@ -1030,6 +1032,18 @@ label.checkbox input[type="checkbox"]:checked + span {
 }
 
 /*style for calendar*/
+
+/*style for slide block*/
+
+.left-div-visible {
+    padding: 20px 5px 0 0;
+    width: 170px;
+}
+
+.right-div {
+    margin-left: 175px;
+    padding: 17px 10px 20px 20px;
+}
 
 
 
