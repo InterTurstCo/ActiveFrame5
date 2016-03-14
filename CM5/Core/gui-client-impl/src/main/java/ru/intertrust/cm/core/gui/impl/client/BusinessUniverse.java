@@ -2,6 +2,8 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.MouseMoveEvent;
@@ -48,7 +50,9 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
 
@@ -76,7 +80,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel footer;
     private HeaderContainer headerContainer;
 
-
+    private static Map<String, Element> createdObjects;
 
     public void onModuleLoad() {
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
@@ -117,6 +121,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         centralDivPanel.setStyleName(CENTRAL_SECTION_STYLE);
         centralDivPanel.getElement().setId(ComponentHelper.DOMAIN_ID);
         centralDivPanel.add(right);
+
+        createdObjects = new HashMap<>();
 
         header.setStyleName(BusinessUniverseConstants.TOP_SECTION_STYLE);
         header.getElement().getStyle().clearDisplay();
@@ -227,26 +233,34 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             String actualUrl = null;
             if (outerLink.getUrlTypeConfig().isAbsolute()) {
                 actualUrl = outerLink.getUrl();
-            }
-            else if(!outerLink.getUrlTypeConfig().isAbsolute()
-                    && outerLink.getUrlTypeConfig().getPropertyWithBaseUrl()!=null){
-                String baseUrl = outerLink.getUrlTypeConfig().getPropertyWithBaseUrl().equals(BaseUrlPropertyTypeConfig.BASEURLONE.value())?
-                        event.getNavigationConfig().getBaseUrlOne():event.getNavigationConfig().getBaseUrlTwo();
-                baseUrl = baseUrl.replaceAll("\"","");
-                if(!baseUrl.endsWith("/")){
-                    baseUrl=baseUrl+"/";
+            } else if (!outerLink.getUrlTypeConfig().isAbsolute()
+                    && outerLink.getUrlTypeConfig().getPropertyWithBaseUrl() != null) {
+                String baseUrl = outerLink.getUrlTypeConfig().getPropertyWithBaseUrl().equals(BaseUrlPropertyTypeConfig.BASEURLONE.value()) ?
+                        event.getNavigationConfig().getBaseUrlOne() : event.getNavigationConfig().getBaseUrlTwo();
+                baseUrl = baseUrl.replaceAll("\"", "");
+                if (!baseUrl.endsWith("/")) {
+                    baseUrl = baseUrl + "/";
                 }
-                String relativeUrl = (outerLink.getUrl().startsWith("/"))?outerLink.getUrl().substring(1):outerLink.getUrl().substring(0);
+                String relativeUrl = (outerLink.getUrl().startsWith("/")) ? outerLink.getUrl().substring(1) : outerLink.getUrl().substring(0);
                 actualUrl = baseUrl.concat(relativeUrl);
             }
 
-            if(actualUrl!=null){
+            if (actualUrl != null) {
                 if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.TAB.value())) {
-                    Window.open(actualUrl, "_blank", "");
-                } else if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.WINDOW.value())){
-                    Window.open(actualUrl, "_blank", "enabled");
-                } else if(outerLink.getOpenPosition().equals(OpenPositionTypeConfig.CURRENT.value())){
-                    Window.open(actualUrl, "_self","");
+                    if (createdObjects.get(actualUrl) != null && isOpen(createdObjects.get(actualUrl))) {
+                        focus(createdObjects.get(actualUrl));
+                    } else {
+                        createdObjects.put(actualUrl, newWindow(actualUrl, "_blank", ""));
+                    }
+                } else if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.WINDOW.value())) {
+                    if (createdObjects.get(actualUrl) != null && isOpen(createdObjects.get(actualUrl))) {
+                        focus(createdObjects.get(actualUrl));
+                    } else {
+                        createdObjects.put(actualUrl, newWindow(actualUrl, "_blank", "enabled"));
+                    }
+                } else if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.CURRENT.value())) {
+                    createdObjects.put(actualUrl, newWindow(actualUrl, "_self", ""));
+
                 }
             }
 
@@ -271,6 +285,19 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             UserSettingsUtil.storeCurrentNavigationLink();
         }
     }
+
+    private static native Element newWindow(String url, String name, String features)/*-{
+        var window = $wnd.open(url, name, features);
+        return window;
+    }-*/;
+
+    private native boolean isOpen(Element win) /*-{
+        return !! (win && !win.closed);
+    }-*/;
+
+    private native void focus(Element win) /*-{
+        win.focus();
+    }-*/;
 
     private LinkConfig getLinkConfigByName(String linkName, List<LinkConfig> configs) {
         for (LinkConfig lConfig : configs) {
