@@ -232,20 +232,21 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                     && outerLink.getUrlTypeConfig().getPropertyWithBaseUrl()!=null){
                 String baseUrl = outerLink.getUrlTypeConfig().getPropertyWithBaseUrl().equals(BaseUrlPropertyTypeConfig.BASEURLONE.value())?
                         event.getNavigationConfig().getBaseUrlOne():event.getNavigationConfig().getBaseUrlTwo();
+                baseUrl = baseUrl.replaceAll("\"","");
                 if(!baseUrl.endsWith("/")){
-                    baseUrl=baseUrl.concat("/");
+                    baseUrl=baseUrl+"/";
                 }
-                String relativeUrl = (outerLink.getUrl().startsWith("/"))?outerLink.getUrl().substring(1):outerLink.getUrl();
-                actualUrl = new StringBuilder(baseUrl).append(relativeUrl).toString();
+                String relativeUrl = (outerLink.getUrl().startsWith("/"))?outerLink.getUrl().substring(1):outerLink.getUrl().substring(0);
+                actualUrl = baseUrl.concat(relativeUrl);
             }
 
             if(actualUrl!=null){
                 if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.TAB.value())) {
-                    Window.open(outerLink.getUrl(), "_blank", "");
+                    Window.open(actualUrl, "_blank", "");
                 } else if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.WINDOW.value())){
-                    Window.open(outerLink.getUrl(), "_blank", "enabled");
+                    Window.open(actualUrl, "_blank", "enabled");
                 } else if(outerLink.getOpenPosition().equals(OpenPositionTypeConfig.CURRENT.value())){
-                    Window.open(outerLink.getUrl(), "_self","");
+                    Window.open(actualUrl, "_self","");
                 }
             }
 
