@@ -53,6 +53,10 @@ public class NavigationConfig implements LocalizableConfig {
         return name;
     }
 
+    private String baseUrlOne;
+
+    private String baseUrlTwo;
+
     //Used for history and breadcrumbs support in hierarchical collections
     //Not shown in navigation tree.
     private List<LinkConfig> hierarchicalLinkList = new ArrayList<LinkConfig>();
@@ -139,6 +143,22 @@ public class NavigationConfig implements LocalizableConfig {
 
     public void setTextAutoCut(boolean textAutoCut) {
         this.textAutoCut = textAutoCut;
+    }
+
+    public String getBaseUrlOne() {
+        return baseUrlOne;
+    }
+
+    public void setBaseUrlOne(String baseUrlOne) {
+        this.baseUrlOne = baseUrlOne;
+    }
+
+    public String getBaseUrlTwo() {
+        return baseUrlTwo;
+    }
+
+    public void setBaseUrlTwo(String baseUrlTwo) {
+        this.baseUrlTwo = baseUrlTwo;
     }
 
     @Override

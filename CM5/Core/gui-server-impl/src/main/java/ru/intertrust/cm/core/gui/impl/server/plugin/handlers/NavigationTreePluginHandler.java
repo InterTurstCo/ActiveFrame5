@@ -26,6 +26,12 @@ public class NavigationTreePluginHandler extends PluginHandler {
     @Autowired
     private UserSettingsFetcher userSettingsFetcher;
 
+    @org.springframework.beans.factory.annotation.Value("${base.url.1:http://localhost:8080}")
+    private String baseUrlOne;
+
+    @org.springframework.beans.factory.annotation.Value("${base.url.2:http://localhost:8080}")
+    private String baseUrlTwo;
+
     @Override
     public PluginData initialize(Dto param) {
         NavigationConfig navigationConfig;
@@ -35,6 +41,8 @@ public class NavigationTreePluginHandler extends PluginHandler {
         } else {
              navigationConfig = guiService.getNavigationConfiguration();
         }
+        navigationConfig.setBaseUrlOne(baseUrlOne);
+        navigationConfig.setBaseUrlTwo(baseUrlTwo);
 
         NavigationTreePluginData navigationTreePluginData = new NavigationTreePluginData();
         navigationTreePluginData.setNavigationConfig(navigationConfig);

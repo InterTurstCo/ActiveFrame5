@@ -4,6 +4,8 @@
     <navigation name="panel" level2-panel-width="220px" level2-default-state="unpinned" margin-size="default"
                 text-auto-cut="false"
                 is-default="true"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+
+
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
             <child-links>
                 <link name="Calendar1" display-text="Календарь1">
@@ -38,6 +40,32 @@
                             </calendar-view>
                         </calendar>
                     </plugin>
+                </link>
+
+                <!--
+      Ссылка на внешний адрес. Адрес может быть в пределах текущего приложения
+      или полностью внешним как http://google.com
+      В случае абсолютного адреса свойство is-absolute должно быть true иначе, если адрес относительный
+      то это свойство должно быть false а также указано свойство property-with-base-url которое указывает
+      на имя property в файле server.properties в котором указан базовый url к примеру
+      http://somehost:8888/ при формировании полной ссылки к нему будет добавлено содержимое из свойства url
+      Например в свойстве url = "/cm5div6/app/cm6-base" получаем полный путь для ссылки
+      http://somehost:8888/cm5div6/app/cm6-base
+      При указании url необходимо учитывать контекст приложения и возможное наличие имени приложения из свойства
+      base-url файла global.xml Указание правильного пути, ответственность разработчика. Если в относительном пути
+      в начале нет слэша или в свфойстве base.url.1 (2) нет слэша в конце, они будут добавлены, двойные заменены на один соответственно
+      -->
+
+                <link name="googleLink" display-text="Google.com">
+                    <outer url="http://google.com" open-position="window">
+                        <url-configuration is-absolute="true"/>
+                    </outer>
+                </link>
+
+                <link name="localLink" display-text="Локальная панель GEO">
+                    <outer url="/cm-sochi/baseurl/geo" open-position="tab">
+                        <url-configuration is-absolute="false" property-with-base-url="base.url.1"/>
+                    </outer>
                 </link>
             </child-links>
         </link>

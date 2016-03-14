@@ -1064,6 +1064,8 @@
                             xmlns:con="https://cm5.intertrust.ru/config"/>
                 <xs:element type="con:defaultSearchAreasType" name="default-search-areas" minOccurs="0" maxOccurs="1"
                             xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element type="con:outerType" name="outer" minOccurs="0" maxOccurs="1"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:choice>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
@@ -1075,6 +1077,39 @@
         <xs:attribute type="xs:boolean" name="auto-cut" use="optional"/>
         <xs:attribute type="xs:string" name="tooltip" use="optional"/>
     </xs:complexType>
+
+    <!-- ###############  CMFIVE-4743 Внешние ссылки в навигационной панели ##### -->
+
+    <xs:complexType name="outerType">
+        <xs:sequence>
+            <xs:element type="con:urlConfig" name="url-configuration" minOccurs="1" maxOccurs="1"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="url" use="required"/>
+        <xs:attribute type="con:openPositionType" name="open-position" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="openPositionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="current"/>
+            <xs:enumeration value="tab"/>
+            <xs:enumeration value="window"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="baseUrlPropertyNameType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="base.url.1"/>
+            <xs:enumeration value="base.url.2"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <xs:complexType name="urlConfig">
+        <xs:attribute type="xs:boolean" name="is-absolute" use="required"/>
+        <xs:attribute type="con:baseUrlPropertyNameType" name="property-with-base-url" use="optional"/>
+    </xs:complexType>
+    <!-- ######################### CMFIVE-4743 ###################################-->
 
     <xs:simpleType name="counterType">
         <xs:restriction base="xs:string">

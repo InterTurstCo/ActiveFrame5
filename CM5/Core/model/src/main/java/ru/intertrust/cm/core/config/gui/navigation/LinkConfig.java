@@ -55,6 +55,9 @@ public class  LinkConfig implements Dto {
     @Element(name = "decorations", required = false)
     private DecorationsConfig decorationsConfig;
 
+    @Element(name = "outer", required = false)
+    private OuterTypeConfig outerTypeConfig;
+
     @Transient
     private transient LinkConfig parentLinkConfig;
     @Transient
@@ -106,6 +109,14 @@ public class  LinkConfig implements Dto {
 
     public void setDefaultSearchAreasConfig(DefaultSearchAreasConfig defaultSearchAreasConfig) {
         this.defaultSearchAreasConfig = defaultSearchAreasConfig;
+    }
+
+    public OuterTypeConfig getOuterTypeConfig() {
+        return outerTypeConfig;
+    }
+
+    public void setOuterTypeConfig(OuterTypeConfig outerTypeConfig) {
+        this.outerTypeConfig = outerTypeConfig;
     }
 
     public List<ChildLinksConfig> getChildLinksConfigList() {
@@ -184,6 +195,10 @@ public class  LinkConfig implements Dto {
                 : that.decorationsConfig != null) {
             return false;
         }
+        if (outerTypeConfig != null ? !outerTypeConfig.equals(that.outerTypeConfig)
+                : that.outerTypeConfig != null) {
+            return false;
+        }
         if (defaultSearchAreasConfig != null ? !defaultSearchAreasConfig.equals(that.defaultSearchAreasConfig)
                 : that.defaultSearchAreasConfig != null) {
             return false;
@@ -219,6 +234,7 @@ public class  LinkConfig implements Dto {
         result = 31 * result + (counterType != null ? counterType.hashCode() : 0);
         result = 31 * result + (childToOpen != null ? childToOpen.hashCode() : 0);
         result = 31 * result + (pluginDefinition != null ? pluginDefinition.hashCode() : 0);
+        result = 31 * result + (outerTypeConfig != null ? outerTypeConfig.hashCode() : 0);
         result = 31 * result + (defaultSearchAreasConfig != null ? defaultSearchAreasConfig.hashCode() : 0);
         result = 31 * result + (childLinksConfigList != null ? childLinksConfigList.hashCode() : 0);
         result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);

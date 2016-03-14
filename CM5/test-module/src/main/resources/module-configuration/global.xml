@@ -63,7 +63,7 @@
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>
-        <!--base-url value="/baseurl"/-->
+        <base-url value="baseurl"></base-url>
 
         <settings-popup>
             <themes>

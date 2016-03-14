@@ -19,12 +19,13 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.ThemesConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.BottomPanelConfig;
 import ru.intertrust.cm.core.config.gui.business.universe.RightPanelConfig;
-import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.gui.api.client.*;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryException;
 import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
@@ -46,6 +47,8 @@ import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
+
+import java.util.List;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.CENTRAL_SECTION_STYLE;
 
@@ -72,6 +75,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     private AbsolutePanel right;
     private AbsolutePanel footer;
     private HeaderContainer headerContainer;
+
+
 
     public void onModuleLoad() {
         final AsyncCallback<BusinessUniverseInitialization> callback = new AsyncCallback<BusinessUniverseInitialization>() {
@@ -146,7 +151,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         center.add(centralDivPanel);
         navigationTreePanel = new PluginPanel();
         NavigationTreePluginConfig navigationTreePluginConfig = new NavigationTreePluginConfig();
-        if(initializationInfo.getApplicationName()!=null){
+        if (initializationInfo.getApplicationName() != null) {
             navigationTreePluginConfig.setApplicationName(initializationInfo.getApplicationName());
             History.setApplication(initializationInfo.getApplicationName());
         }
@@ -214,23 +219,73 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
     @Override
     public void onNavigationTreeItemSelected(NavigationTreeItemSelectedEvent event) {
-        final HistoryManager manager = Application.getInstance().getHistoryManager();
-        if (manager.hasLink() || manager.getSelectedIds().isEmpty()) {
-            Application.getInstance().showLoadingIndicator();
-            PluginConfig pluginConfig = event.getPluginConfig();
-            String pluginName = pluginConfig.getComponentName();
-            final Plugin plugin = ComponentRegistry.instance.get(pluginName);
-            plugin.setConfig(pluginConfig);
-            manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
-                    .setLink(event.getLinkName());
-            plugin.setDisplayActionToolBar(true);
-            plugin.setNavigationConfig(event.getNavigationConfig());
-            navigationTreePlugin.setNavigationConfig(event.getNavigationConfig());
-            centralPluginPanel.open(plugin);
+        List<LinkConfig> configs = event.getNavigationConfig().getLinkConfigList();
+        String linkName = event.getLinkName();
+        LinkConfig selectedLinkConfig = getLinkConfigByName(linkName, configs);
+        if (selectedLinkConfig.getOuterTypeConfig() != null) {
+            OuterTypeConfig outerLink = selectedLinkConfig.getOuterTypeConfig();
+            String actualUrl = null;
+            if (outerLink.getUrlTypeConfig().isAbsolute()) {
+                actualUrl = outerLink.getUrl();
+            }
+            else if(!outerLink.getUrlTypeConfig().isAbsolute()
+                    && outerLink.getUrlTypeConfig().getPropertyWithBaseUrl()!=null){
+                String baseUrl = outerLink.getUrlTypeConfig().getPropertyWithBaseUrl().equals(BaseUrlPropertyTypeConfig.BASEURLONE.value())?
+                        event.getNavigationConfig().getBaseUrlOne():event.getNavigationConfig().getBaseUrlTwo();
+                if(!baseUrl.endsWith("/")){
+                    baseUrl=baseUrl.concat("/");
+                }
+                String relativeUrl = (outerLink.getUrl().startsWith("/"))?outerLink.getUrl().substring(1):outerLink.getUrl();
+                actualUrl = new StringBuilder(baseUrl).append(relativeUrl).toString();
+            }
+
+            if(actualUrl!=null){
+                if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.TAB.value())) {
+                    Window.open(outerLink.getUrl(), "_blank", "");
+                } else if (outerLink.getOpenPosition().equals(OpenPositionTypeConfig.WINDOW.value())){
+                    Window.open(outerLink.getUrl(), "_blank", "enabled");
+                } else if(outerLink.getOpenPosition().equals(OpenPositionTypeConfig.CURRENT.value())){
+                    Window.open(outerLink.getUrl(), "_self","");
+                }
+            }
+
         } else {
-            History.fireCurrentHistoryState();
+
+            final HistoryManager manager = Application.getInstance().getHistoryManager();
+            if (manager.hasLink() || manager.getSelectedIds().isEmpty()) {
+                Application.getInstance().showLoadingIndicator();
+                PluginConfig pluginConfig = event.getPluginConfig();
+                String pluginName = pluginConfig.getComponentName();
+                final Plugin plugin = ComponentRegistry.instance.get(pluginName);
+                plugin.setConfig(pluginConfig);
+                manager.setMode(HistoryManager.Mode.WRITE, plugin.getClass().getSimpleName())
+                        .setLink(event.getLinkName());
+                plugin.setDisplayActionToolBar(true);
+                plugin.setNavigationConfig(event.getNavigationConfig());
+                navigationTreePlugin.setNavigationConfig(event.getNavigationConfig());
+                centralPluginPanel.open(plugin);
+            } else {
+                History.fireCurrentHistoryState();
+            }
+            UserSettingsUtil.storeCurrentNavigationLink();
         }
-        UserSettingsUtil.storeCurrentNavigationLink();
+    }
+
+    private LinkConfig getLinkConfigByName(String linkName, List<LinkConfig> configs) {
+        for (LinkConfig lConfig : configs) {
+            if (lConfig.getName().equals(linkName)) {
+                return lConfig;
+            }
+            if (lConfig.getChildLinksConfigList() != null && lConfig.getChildLinksConfigList().size() > 0) {
+                for (ChildLinksConfig chConfig : lConfig.getChildLinksConfigList()) {
+                    LinkConfig internalConfig = getLinkConfigByName(linkName, chConfig.getLinkConfigList());
+                    if (internalConfig != null) {
+                        return internalConfig;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     // вывод результатов расширенного поиска

@@ -158,7 +158,8 @@ class NavigationTreeBuilder {
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_NAME, treeItemName);
         treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_ORIGINAL_TEXT, treeItem.getText());
         LinkPluginDefinition pluginDefinition = linkConfig.getPluginDefinition();
-        treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
+        if(pluginDefinition!=null)
+            treeUserObjects.put(BusinessUniverseConstants.TREE_ITEM_PLUGIN_CONFIG, pluginDefinition.getPluginConfig());
         treeItem.setUserObject(treeUserObjects);
 
         treeItem.addStyleName("tree-item-padding-style");
