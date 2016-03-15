@@ -296,7 +296,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }-*/;
 
     private native void focus(Element win) /*-{
-        win.focus();
+        win.blur();
+        setTimeout(function() { win.focus(); },500);
     }-*/;
 
     private LinkConfig getLinkConfigByName(String linkName, List<LinkConfig> configs) {
