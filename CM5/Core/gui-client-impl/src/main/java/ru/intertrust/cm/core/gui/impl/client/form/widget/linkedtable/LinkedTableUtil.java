@@ -300,7 +300,7 @@ public class LinkedTableUtil {
                         if ((className.contains(ACTION_IMAGE_SELECTOR) || className.contains(ACTION_TEXT_SELECTOR)) &&
                                 className.contains(componentName)) {
                             LinkedTableAction action = ComponentRegistry.instance.get(componentName);
-                            action.perform(columnContext.getObjectId(), context.getIndex()
+                            action.perform((columnContext.getObjectId()==null)?columnContext.getRowItem().getObjectId():columnContext.getObjectId(), context.getIndex()
                             );
                         }
                     }
