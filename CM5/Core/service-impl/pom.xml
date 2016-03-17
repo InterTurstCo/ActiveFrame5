@@ -87,8 +87,9 @@
         </dependency>
 
 		<dependency>
-			<groupId>net.sf.jasperreports</groupId>
-			<artifactId>jasperreports</artifactId>
+			<groupId>commons-javaflow</groupId>
+			<artifactId>commons-javaflow</artifactId>
+			<version>1.0.0</version>
 		</dependency>
 
         <dependency>

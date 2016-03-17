@@ -182,7 +182,7 @@
 
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
-                <artifactId>jasperreports</artifactId>
+                <artifactId>jasperreports-javaflow</artifactId>
                 <version>5.5.1</version>
                 <exclusions>
                     <exclusion>
