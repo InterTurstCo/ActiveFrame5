@@ -67,6 +67,11 @@
             <artifactId>postgresql</artifactId>
             <version>9.3-1103-jdbc41</version>
         </dependency>
+		<dependency>
+		    <groupId>org.apache.openejb</groupId>
+		    <artifactId>openejb-client</artifactId>
+		    <version>4.7.4</version>
+		</dependency>
 
     </dependencies>
     

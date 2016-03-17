@@ -15,6 +15,7 @@ import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.resource.NotSupportedException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -37,6 +38,11 @@ import org.jboss.ejb.client.remoting.ConfigBasedEJBClientContextSelector;
 public abstract class ClientBase {
     public static final String APP_NAME = "appName";
     public static final String MODULE_NAME = "moduleName";
+    public static final String CLIENT = "client";
+    public static final String CLIENT_JBOSS_NAMING = "jboss-naming";
+    public static final String CLIENT_JBOSS_REMOTE = "jboss-remote";
+    public static final String CLIENT_TOMEE = "tomee";
+    
     private CommandLine commandLine;
     private Properties properties = new Properties();
     private StringBuilder log = new StringBuilder();
@@ -144,6 +150,7 @@ public abstract class ClientBase {
      * @param remoteInterfaceClass
      * @return
      * @throws NamingException
+     * @throws NotSupportedException 
      */
     protected Object getService(String serviceName, Class remoteInterfaceClass) throws NamingException {
         return getService(serviceName, remoteInterfaceClass, this.user, this.password);
@@ -156,18 +163,36 @@ public abstract class ClientBase {
         }
         
         if (ctx == null) {
-            Properties jndiProps = new Properties();
-            /*jndiProps.put(Context.INITIAL_CONTEXT_FACTORY,
-                    "org.jboss.naming.remote.client.InitialContextFactory");
-            jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
-            jndiProps.put("jboss.naming.client.ejb.context", "true");
-            jndiProps
-                    .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
-                            "false");
-            jndiProps.put(Context.SECURITY_PRINCIPAL, login);
-            jndiProps.put(Context.SECURITY_CREDENTIALS, password);*/
+            Properties jndiProps = getJndiProperties(login, password);
+            ctx = new InitialContext(jndiProps);
+            ctxLogin = login;
+        }
+        Object service = ctx.lookup(getLookupString(serviceName, remoteInterfaceClass));
+        return service;
 
-            
+    }    
+
+    protected String getLookupString(String serviceName, Class remoteInterfaceClass){
+    	String result = null;
+    	String client = getParamerer(CLIENT);
+    	if (CLIENT_JBOSS_NAMING.equals(client)){
+    		result = "ejb:" + getAppName() + "/" + getModuleName() + "//" + serviceName + "!" + remoteInterfaceClass.getName();
+    	}else if (CLIENT_JBOSS_REMOTE.equals(client)){
+    		result = getAppName() + "/" + getModuleName() + "/" + serviceName + "!" + remoteInterfaceClass.getName();
+    	}else if (CLIENT_TOMEE.equals(client)){
+    		result = serviceName + "Remote";
+    	}else if ("".equals(client) || client == null){
+    		throw new NullPointerException("Client type need config");
+    	}else{
+    		throw new RuntimeException("Client " + client + "is not supported");
+    	}
+    	return result;
+    }
+    
+    protected Properties getJndiProperties(String login, String password){
+    	Properties jndiProps = new Properties();
+    	String client = getParamerer(CLIENT);
+    	if (CLIENT_JBOSS_NAMING.equals(client)){    		
             Properties clientProperties = new Properties();
             clientProperties.put("remote.connectionprovider.create.options.org.xnio.Options.SSL_ENABLED", "false");
             clientProperties.put("remote.connections", "default");
@@ -183,17 +208,27 @@ public abstract class ClientBase {
             EJBClientContext.setSelector(contextSelector);
 
             jndiProps.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-            
-            
-            ctx = new InitialContext(jndiProps);
-            ctxLogin = login;
-        }
-
-        //Object service = ctx.lookup("cm-sochi/web-app/" + serviceName + "!" + remoteInterfaceClass.getName());
-        Object service = ctx.lookup("ejb:" + getAppName() + "/" + getModuleName() + "//" + serviceName + "!" + remoteInterfaceClass.getName());
-        return service;
-
-    }    
+    	}else if (CLIENT_JBOSS_REMOTE.equals(client)){
+            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+		    jndiProps.put(Context.PROVIDER_URL, "remote://" + address);
+		    jndiProps.put("jboss.naming.client.ejb.context", "true");
+		    jndiProps
+		            .put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT",
+		                    "false");
+		    jndiProps.put(Context.SECURITY_PRINCIPAL, login);
+		    jndiProps.put(Context.SECURITY_CREDENTIALS, password);    		
+    	}else if (CLIENT_TOMEE.equals(client)){
+            jndiProps.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
+            jndiProps.put("java.naming.provider.url", "http://127.0.0.1:8080/tomee/ejb");
+            jndiProps.put("java.naming.security.principal", login);
+            jndiProps.put("java.naming.security.credentials", password);    		
+    	}else if ("".equals(client) || client == null){
+    		throw new NullPointerException("Client type need config");
+    	}else{
+    		throw new RuntimeException("Client " + client + "is not supported");
+    	}
+    	return jndiProps;
+    }
     
     protected String getAppName(){
         return getParamerer(APP_NAME);
