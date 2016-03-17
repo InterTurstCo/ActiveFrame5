@@ -218,6 +218,7 @@ public class LinkedTableUtil {
                 String styleName = type == null ? ACTION_IMAGE_SELECTOR : type.getStyleClassName();
                 actionImage.addStyleName(styleName);
                 actionImage.addStyleName("linkedTableActionImage");
+                actionImage.addStyleName(componentName);
                 Panel imageWrapper = new AbsolutePanel();
                 imageWrapper.add(actionImage);
                 imageWrapper.setStyleName("linkedTableActionImageWrapper");
@@ -228,7 +229,7 @@ public class LinkedTableUtil {
                 actionText.addStyleName(componentName);
                 String styleName = type == null ? ACTION_TEXT_SELECTOR : type.getStyleClassName();
                 actionText.addStyleName(styleName);
-                actionText.setStyleName("linkedTableActionLabel");
+                actionText.addStyleName("linkedTableActionLabel");
                 container.add(actionText);
             }
 
