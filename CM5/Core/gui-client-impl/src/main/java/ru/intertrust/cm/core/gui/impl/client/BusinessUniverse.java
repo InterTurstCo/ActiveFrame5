@@ -228,7 +228,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
         List<LinkConfig> configs = event.getNavigationConfig().getLinkConfigList();
         String linkName = event.getLinkName();
         LinkConfig selectedLinkConfig = getLinkConfigByName(linkName, configs);
-        if (selectedLinkConfig.getOuterTypeConfig() != null) {
+        if (selectedLinkConfig!=null && selectedLinkConfig.getOuterTypeConfig() != null) {
             OuterTypeConfig outerLink = selectedLinkConfig.getOuterTypeConfig();
             String actualUrl = null;
             if (outerLink.getUrlTypeConfig().isAbsolute()) {
