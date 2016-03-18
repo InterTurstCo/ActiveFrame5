@@ -61,7 +61,7 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
 @ComponentName("table-browser")
 public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler, OpenCollectionRequestEventHandler,
-        CheckBoxFieldUpdateEventHandler, ParentTabSelectedEventHandler{
+        CheckBoxFieldUpdateEventHandler, ParentTabSelectedEventHandler {
     private TableBrowserState currentState;
     private CollectionDialogBox dialogBox;
     private ViewHolder viewHolder;
@@ -82,7 +82,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     @Override
     public void setCurrentState(WidgetState state) {
         initialData = state;
-        currentState = (TableBrowserState)state;
+        currentState = (TableBrowserState) state;
         currentState.resetTemporaryState();
         viewHolder.setContent(state);
         initiallySelectedIds.clear();
@@ -162,7 +162,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         localEventBus.addHandler(OpenCollectionRequestEvent.TYPE, this);
-        if(currentState.isTableView()){
+        if (currentState.isTableView()) {
             eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
         }
 
@@ -220,20 +220,21 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return GuiUtil.createComplexFiltersParams(filterValue, filterName, container, widgetsIdsComponentNames);
 
     }
-    private boolean isDisplayChosenValues(Boolean displayOnlyIncludedIds, Boolean displayCheckBoxes){
+
+    private boolean isDisplayChosenValues(Boolean displayOnlyIncludedIds, Boolean displayCheckBoxes) {
         TableBrowserConfig config = currentState.getWidgetConfig();
         boolean displayChosenValuesFromConfig = config.getDisplayChosenValues() != null && config.getDisplayChosenValues().isDisplayChosenValues();
         boolean displayChosenValuesForWidgetPurposes = !displayOnlyIncludedIds && displayCheckBoxes != null && displayCheckBoxes;
-        return  displayChosenValuesForWidgetPurposes || displayChosenValuesFromConfig;
+        return displayChosenValuesForWidgetPurposes || displayChosenValuesFromConfig;
 
     }
 
     private void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
                                       PluginPanel pluginPanel) {
-
         collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
-        collectionPlugin.setConfig(collectionViewerConfig);
         collectionPlugin.setLocalEventBus(localEventBus);
+        collectionPlugin.setConfig(collectionViewerConfig);
+
         collectionPlugin.setNavigationConfig(navigationConfig);
         CollectionRefConfig collectionRefConfig = collectionViewerConfig.getCollectionRefConfig();
         collectionName = collectionRefConfig.getName();
@@ -246,7 +247,6 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
             }
         });
         pluginPanel.open(collectionPlugin);
-
     }
 
     private ConfiguredButton getCreateButton() {
@@ -355,13 +355,13 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
                 if (breadCrumbItems.isEmpty()) {
                     breadCrumbItems.add(new BreadCrumbItem("root", "Исходная коллекция", //we haven't display text
-                    // for the root
+                            // for the root
                             initialCollectionViewerConfig));
                 }
                 breadCrumbItems.add(new BreadCrumbItem(link.getName(), link.getDisplayText(), collectionViewerConfig));
                 PluginPanel pluginPanel = new TableBrowserViewsBuilder().withState(currentState)
                         .createDialogCollectionPluginPanel();
-                openCollectionPlugin(collectionViewerConfig, navigationConfig, pluginPanel);
+                openCollectionPlugin(collectionViewerConfig, navigationConfig, dialogBox.getPluginPanel());
             }
         });
     }
@@ -400,7 +400,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         currentState.getSelectedIds().add(id);
 
         fetchTableBrowserItems();
-        if(currentState.isTableView()){
+        if (currentState.isTableView()) {
             localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(id), true));
         }
     }
@@ -415,19 +415,19 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     @Override
     public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
-        if(currentState.isTableView()){
-            Id id= event.getId();
-            if(event.isDeselected()){
-            LinkedHashMap<Id, String> listValues = currentState.getListValues();
-            LinkedHashMap<Id, String> tooltipListValues = currentState.getTooltipValues();
-            LinkedHashMap<Id, String> common = new LinkedHashMap<Id, String>();
-            common.putAll(listValues);
-            if(isNotEmpty(tooltipListValues)){
-                common.putAll(tooltipListValues);
-            }
-            common.remove(id);
-            currentState.getSelectedIds().remove(id);
-            handleItems(common);
+        if (currentState.isTableView()) {
+            Id id = event.getId();
+            if (event.isDeselected()) {
+                LinkedHashMap<Id, String> listValues = currentState.getListValues();
+                LinkedHashMap<Id, String> tooltipListValues = currentState.getTooltipValues();
+                LinkedHashMap<Id, String> common = new LinkedHashMap<Id, String>();
+                common.putAll(listValues);
+                if (isNotEmpty(tooltipListValues)) {
+                    common.putAll(tooltipListValues);
+                }
+                common.remove(id);
+                currentState.getSelectedIds().remove(id);
+                handleItems(common);
             } else {
                 handlePossibleSingleChoice();
                 currentState.getSelectedIds().add(id);
@@ -437,10 +437,10 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         }
     }
 
-    private void handlePossibleSingleChoice(){
-        if(currentState.isSingleChoice()){
+    private void handlePossibleSingleChoice() {
+        if (currentState.isSingleChoice()) {
             Id idToRemove = currentState.getSelectedIds().isEmpty() ? null : currentState.getSelectedIds().iterator().next();
-            if(idToRemove != null){
+            if (idToRemove != null) {
                 currentState.getSelectedIds().clear();
                 localEventBus.fireEvent(new CollectionChangeSelectionEvent(Arrays.asList(idToRemove), false));
             }
@@ -454,7 +454,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         Node widgetNode = impl.getElement().getParentNode();
         boolean widgetIsChildOfSelectedTab = parentElement.isOrHasChild(widgetNode);
         boolean viewIsInitialized = collectionPlugin != null && collectionPlugin.getView() != null;
-        if(widgetIsChildOfSelectedTab && viewIsInitialized){
+        if (widgetIsChildOfSelectedTab && viewIsInitialized) {
             collectionPlugin.getView().onPluginPanelResize();
         }
     }
@@ -556,23 +556,23 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     private void putToCorrectContent() {
         int limit = getLimit(currentState.getTableBrowserConfig().getSelectionFiltersConfig());
-        if(limit > 0){
-        LinkedHashMap<Id, String> currentListValues = currentState.getListValues();
-        LinkedHashMap<Id, String> tooltipListValues = new LinkedHashMap<Id, String>();
+        if (limit > 0) {
+            LinkedHashMap<Id, String> currentListValues = currentState.getListValues();
+            LinkedHashMap<Id, String> tooltipListValues = new LinkedHashMap<Id, String>();
 
-        Iterator<Id> idIterator = currentListValues.keySet().iterator();
-        int count = 0;
-        while (idIterator.hasNext()) {
-            count++;
-            Id id = idIterator.next();
-            if(count > limit){
-            String representation = currentListValues.get(id);
-            tooltipListValues.put(id, representation);
-            idIterator.remove();
+            Iterator<Id> idIterator = currentListValues.keySet().iterator();
+            int count = 0;
+            while (idIterator.hasNext()) {
+                count++;
+                Id id = idIterator.next();
+                if (count > limit) {
+                    String representation = currentListValues.get(id);
+                    tooltipListValues.put(id, representation);
+                    idIterator.remove();
+                }
+
             }
-
-        }
-        currentState.setTooltipValues(tooltipListValues);
+            currentState.setTooltipValues(tooltipListValues);
         }
 
     }
@@ -598,7 +598,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
                 LinkedHashMap<Id, String> listValues = getUpdatedHyperlinks(id, representation, event.isTooltipContent());
                 HyperlinkDisplay hyperlinkDisplay = event.getHyperlinkDisplay();
                 hyperlinkDisplay.displayHyperlinks(listValues, !event.isTooltipContent() && shouldDrawTooltipButton(currentState));
-                if(currentState.isTableView()){
+                if (currentState.isTableView()) {
                     localEventBus.fireEvent(new UpdateCollectionEvent(id));
                 }
             }
@@ -658,7 +658,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         breadCrumbItems.subList(removeFrom, breadCrumbItems.size()).clear();
         if (config != null) {
             PluginPanel pluginPanel = new TableBrowserViewsBuilder().withState(currentState).createDialogCollectionPluginPanel();
-            openCollectionPlugin(config, new NavigationConfig(), pluginPanel);
+            openCollectionPlugin(config, new NavigationConfig(), dialogBox.getPluginPanel());
             //TODO: adding to history makes the rows to be highlighted. can we just check checkbox without highlighting?
             Application.getInstance().getHistoryManager().setSelectedIds(currentState.getTemporarySelectedIds().toArray(
                     new Id[currentState.getTemporarySelectedIds().size()]));
