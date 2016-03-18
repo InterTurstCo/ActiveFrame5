@@ -9,7 +9,9 @@ import java.util.Comparator;
  * Time: 16:10
  */
 public abstract class Value<T extends Value<T>> implements Dto, Comparable<T> {
-    /**
+	private static final long serialVersionUID = -6565138416908113065L;
+
+	/**
      * Создаёт значение поля доменного объекта
      */
     public Value() {

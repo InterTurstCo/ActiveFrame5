@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>0.5.19-2-SNAPSHOT</version>
+    <version>0.5.19-3-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -182,7 +182,7 @@
 
             <dependency>
                 <groupId>net.sf.jasperreports</groupId>
-                <artifactId>jasperreports</artifactId>
+                <artifactId>jasperreports-javaflow</artifactId>
                 <version>5.5.1</version>
                 <exclusions>
                     <exclusion>

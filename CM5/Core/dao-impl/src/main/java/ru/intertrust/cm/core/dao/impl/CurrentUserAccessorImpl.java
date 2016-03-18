@@ -67,12 +67,18 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
 
             if (Boolean.TRUE.equals(ejbContext.getContextData().get(INITIAL_DATA_LOADING))) {
                 return null;
-            } else {
-                //String principalName = ejbContext.getCallerPrincipal().getName();
+            } else {            	
+                String principalName = ejbContext.getCallerPrincipal().getName();
+                if (!(principalName.equals("guest") || principalName.equals("anonymous") || principalName.equals("system"))){
+                	result = principalName;
+                }
                 //if (principalName == null) {
-                    if (ejbContext.isCallerInRole("system")) {
-                        result = "admin";
-                    }
+                else if (ejbContext.isCallerInRole("system")) {
+                    result = "admin";
+                }
+                else if (principalName.equals("system")){
+                	result = "admin";
+                }
                 /*} else if (principalName.equals("anonymous")
                         || principalName.equals("guest")) {
                     // и JBoss 7, JBoss 6.x возвращают anonymous для @RunAs("system"); Apache TomEE возвращает guest.
