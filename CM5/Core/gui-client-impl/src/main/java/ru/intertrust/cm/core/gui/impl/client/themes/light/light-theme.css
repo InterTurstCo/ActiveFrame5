@@ -104,7 +104,7 @@ body, table td, select {
 
 .calendarScrollPanel {
     position: absolute !important;
-    background: #F6F6F6
+    background: #F6F6F6;
     top: 65px;
     right: 0;
     bottom: 0;
@@ -991,7 +991,6 @@ label.checkbox input[type="checkbox"]:checked + span {
     background: -moz-linear-gradient(left,  #fefeff 0%, #d4e1e9 13%); /* FF3.6-15 */
     background: -webkit-linear-gradient(left,  #fefeff 0%,#d4e1e9 13%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to right,  #fefeff 0%,#d4e1e9 13%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fefeff', endColorstr='#d4e1e9',GradientType=1 ); /* IE6-9 */
 }
 
 .left-div-visible {
