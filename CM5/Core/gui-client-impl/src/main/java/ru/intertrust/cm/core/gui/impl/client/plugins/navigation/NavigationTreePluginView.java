@@ -7,11 +7,13 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -25,6 +27,10 @@ import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEve
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
+import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
+import ru.intertrust.cm.core.gui.impl.client.themes.def.DefaultThemeBundle;
+import ru.intertrust.cm.core.gui.impl.client.themes.light.LightThemeBundle;
+import ru.intertrust.cm.core.gui.impl.client.themes.light.LightThemeCssResource;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
@@ -42,7 +48,7 @@ import java.util.Map;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
 
 
-public class NavigationTreePluginView extends PluginView {
+public class NavigationTreePluginView extends PluginView   {
     private static final String BUTTON_PINNED_STYLE = "icon pin-pressed";
     private static final String BUTTON_UNPINNED_STYLE = "icon pin-normal";
     public static final int FIRST_LEVEL_NAVIGATION_PANEL_WIDTH = 134;
@@ -69,10 +75,14 @@ public class NavigationTreePluginView extends PluginView {
     private boolean animatedTreePanelIsOpened; //is opened or is opening
     private ResizeTreeAnimation resizeTreeAnimation;
     private String endWidgetWidthInPx;
+    private Boolean autoOpen = true;
+    private String selectedRootNode;
 
     protected NavigationTreePluginView(Plugin plugin) {
         super(plugin);
     }
+
+
 
     interface MyTreeImages extends Tree.Resources {
         @Source("treeOpen.png")
@@ -139,12 +149,32 @@ public class NavigationTreePluginView extends PluginView {
             }
         });
 
+
         if (Application.getInstance().getCollectionCountersUpdatePeriod() > 0) {
             activateCollectionCountersUpdateTimer(Application.getInstance().getCollectionCountersUpdatePeriod());
         }
         if(navigationTreePluginData.isPinned()){
             changeState();
         }
+
+        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
+            public void onPreviewNativeEvent(final Event.NativePreviewEvent event) {
+                final int eventType = event.getTypeInt();
+                switch (eventType) {
+
+                    case Event.ONCLICK:
+                        final int eventX = event.getNativeEvent().getClientX();
+                        if (animatedTreePanelIsOpened && (eventX > navigationTreeContainer.getOffsetWidth()) && !pinButtonPressed && !autoOpen) {
+                            animatedTreePanelIsOpened = false;
+                            hideTreePanel();
+                        }
+                        break;
+                    default:
+                        // not interested in other events
+                }
+            }
+        });
+
         return navigationTreeContainer;
     }
     public void changeSecondLevelNavigationPanelHeight(){
@@ -193,7 +223,7 @@ public class NavigationTreePluginView extends PluginView {
     }
 
     void onLeavingLeftPanel() {
-        if (animatedTreePanelIsOpened && !pinButtonPressed) {
+        if (animatedTreePanelIsOpened && !pinButtonPressed && autoOpen) {
             if (mouseHoldTimer != null) {
                 mouseHoldTimer.cancel();
                 mouseHoldTimer = null;
@@ -489,7 +519,13 @@ public class NavigationTreePluginView extends PluginView {
             navigationTreeContainer.addDomHandler(new MouseMoveHandler() {
                 @Override
                 public void onMouseMove(MouseMoveEvent mouseMoveEvent) {
-                    if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < START_SIDEBAR_WIDTH) && !pinButtonPressed) {
+
+                   if(GlobalThemesManager.getCurrentTheme() instanceof LightThemeBundle){
+                       autoOpen = Boolean.parseBoolean(
+                               ((LightThemeBundle)GlobalThemesManager.getCurrentTheme()).lightCss().autoOpenNavigationPanel()
+                       );
+                   }
+                    if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < START_SIDEBAR_WIDTH) && !pinButtonPressed && autoOpen) {
                         animatedTreePanelIsOpened = true;
                         openTreePanel();
                     }
@@ -541,11 +577,23 @@ public class NavigationTreePluginView extends PluginView {
     private class RootNodeButtonClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
+
+            if (!animatedTreePanelIsOpened && !pinButtonPressed && !autoOpen) {
+                animatedTreePanelIsOpened = true;
+                openTreePanel();
+            } else if(animatedTreePanelIsOpened && !pinButtonPressed && !autoOpen){
+                if(selectedRootNode.equals(((RootNodeButton) event.getSource()).getName())){
+                    animatedTreePanelIsOpened = false;
+                    hideTreePanel();
+                }
+            }
+
             RootNodeButton source = (RootNodeButton) event.getSource();
             Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
                     .getName()), plugin);
             clearSelectedButton();
             source.setSelected(true);
+            selectedRootNode = source.getName();
         }
     }
 

@@ -1045,5 +1045,6 @@ label.checkbox input[type="checkbox"]:checked + span {
     padding: 17px 10px 20px 20px;
 }
 
-
+/* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
+@def autoOpenNavigationPanel false;
 

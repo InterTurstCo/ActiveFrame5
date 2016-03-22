@@ -38,4 +38,9 @@ public interface DefaultThemeBundle extends ThemeBundle{
 
     @Source("ru/intertrust/cm/core/gui/impl/images/confirmDialogDefIm.png")
     ImageResource confirmDialogIm();
+
+    @Source("custom-theme.css")
+    @CssResource.NotStrict
+    public DefThemeCssResource defCss();
+
 }

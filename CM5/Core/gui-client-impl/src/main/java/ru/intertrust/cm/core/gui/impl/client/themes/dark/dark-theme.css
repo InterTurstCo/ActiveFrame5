@@ -744,3 +744,6 @@ a.action-bar-button:hover {
     	border-width:1;
     	border-color: GRAY;
 }
+
+/* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
+@def autoOpenNavigationPanel true;
