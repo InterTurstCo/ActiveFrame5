@@ -849,3 +849,6 @@ a.action-bar-button:hover {
     background: linear-gradient(to bottom,  #90b5a4 0%,#669492 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#90b5a4', endColorstr='#669492',GradientType=0 ); /* IE6-9 */
 }
+
+/* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
+@def autoOpenNavigationPanel false;
