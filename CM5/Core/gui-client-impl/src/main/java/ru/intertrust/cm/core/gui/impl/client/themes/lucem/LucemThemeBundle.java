@@ -38,4 +38,8 @@ public interface LucemThemeBundle extends ThemeBundle{
 
     @Source("ru/intertrust/cm/core/gui/impl/images/confirmDialogDefIm.png")
     ImageResource confirmDialogWindowIm();
+
+    @Source("lucem-theme.css")
+    @CssResource.NotStrict
+    public LucemThemeCssResource lucemCss();
 }

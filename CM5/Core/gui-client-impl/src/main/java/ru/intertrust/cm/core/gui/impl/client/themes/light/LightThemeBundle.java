@@ -27,4 +27,8 @@ public interface LightThemeBundle extends DefaultThemeBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/confirmDialogDefIm.png")
     ImageResource confirmDialogWindowIm();
 
+    @Source("light-theme.css")
+    @CssResource.NotStrict
+    public LightThemeCssResource lightCss();
+
 }

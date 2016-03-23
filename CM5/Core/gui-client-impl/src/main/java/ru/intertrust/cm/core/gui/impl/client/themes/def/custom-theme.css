@@ -463,3 +463,6 @@ div.gwt-Good-Label {
     	border-style: solid;
     	border-color: GRAY;
 }
+
+/* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
+@def autoOpenNavigationPanel true;

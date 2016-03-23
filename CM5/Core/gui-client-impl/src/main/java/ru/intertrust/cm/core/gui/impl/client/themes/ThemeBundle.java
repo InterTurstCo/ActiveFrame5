@@ -128,4 +128,5 @@ public interface ThemeBundle extends ClientBundle {
 	
     @Source("common.css")
     public CommonCssResource commonCss();
+
 }
