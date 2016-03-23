@@ -677,6 +677,7 @@ div.gwt-Good-Label {
 
 .srch-corner {
     background: url(images/bubble_arrow-dark-theme.png);
+    right: 10%;
 }
 
 .theme-popup {
@@ -848,4 +849,29 @@ a.action-bar-button:hover {
     background: -webkit-linear-gradient(top,  #90b5a4 0%,#669492 100%); /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to bottom,  #90b5a4 0%,#669492 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#90b5a4', endColorstr='#669492',GradientType=0 ); /* IE6-9 */
+}
+
+.type-popup {
+    background: #669492; /* Old browsers */
+    background: -moz-linear-gradient(top,  #669492 0%, #90b5a4 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  #669492 0%,#90b5a4 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  #669492 0%,#90b5a4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#669492', endColorstr='#90b5a4',GradientType=0 ); /* IE6-9 */
+}
+
+.gwt-PopupPanelGlass {
+    z-index: 999;
+}
+
+.settings-popup .srch-corner {
+    right: 33%;
+}
+
+.popupWrapper .srch-corner {
+    right: 41%;
+}
+
+.dataGridHeaderRow {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
 }
