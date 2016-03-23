@@ -811,8 +811,7 @@ a.action-bar-button:hover {
     font-weight: normal;
 }
 
-.GAKMBIVIG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridHeader,
-.GJQETX4CIG-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridHeader {
+.dataGridHeaderRow th {
     border-top: 1px solid black !important;
     border-bottom: 1px solid black !important;
     font-weight: bold !important;
