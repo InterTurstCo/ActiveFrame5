@@ -960,26 +960,33 @@ label.checkbox input[type="checkbox"]:checked + span {
     font-size: 15px;
 }
 /*style for row table*/
-.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow,
-.GJQETX4CDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow {
+
+/*.GAKMBIVDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow,*/
+/*.GJQETX4CDH-com-google-gwt-user-cellview-client-DataGrid-Style-dataGridSelectedRow {*/
+    /*background: #F5F5F5 !important;*/
+    /*outline: 1px solid black;*/
+    /*box-shadow: none !important*/
+/*}*/
+
+tr[class\*="dataGridSelectedRow"] {
     background: #F5F5F5 !important;
     outline: 1px solid black;
     box-shadow: none !important
 }
 
-.GAKMBIVJD-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedRow {
+[class\*="cellTableKeyboardSelectedRow"] {
     background: #FFF0CD !important;
 }
 
-.GAKMBIVKD-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedRowCell {
+[class\*="cellTableKeyboardSelectedRowCell"] {
     border: 2px solid #FFF0CD !important;
 }
 
-.GAKMBIVID-com-google-gwt-user-cellview-client-CellTable-Style-cellTableKeyboardSelectedCell {
+[class\*="cellTableKeyboardSelectedCell"] {
     border: 2px solid #d7dde8 !important;
 }
 
-.GAKMBIVGE-com-google-gwt-user-cellview-client-CellTable-Style-cellTableWidget {
+[class\*="cellTableWidget"] {
     border-collapse: separate !important;
 }
 
@@ -1041,6 +1048,14 @@ label.checkbox input[type="checkbox"]:checked + span {
 .right-div {
     margin-left: 175px;
     padding: 17px 10px 20px 20px;
+}
+
+.gwt-PopupPanelGlass {
+    z-index: 999;
+}
+
+.srch-root-ext-search-panel .srch-corner {
+    right: 12%;
 }
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */

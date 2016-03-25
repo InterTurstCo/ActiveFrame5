@@ -827,5 +827,21 @@ a.action-bar-button:hover {
     border-bottom: 1px solid #000;
 }
 
+[class\*="cellTableKeyboardSelectedRow"] {
+    background: #FFF0CD !important;
+}
+
+[class\*="cellTableKeyboardSelectedRowCell"] {
+    border: 2px solid #FFF0CD !important;
+}
+
+[class\*="cellTableKeyboardSelectedCell"] {
+    border: 2px solid #d7dde8 !important;
+}
+
+[class\*="cellTableWidget"] {
+    border-collapse: separate !important;
+}
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
