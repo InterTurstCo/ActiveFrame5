@@ -1064,8 +1064,8 @@ a[href='#login']:hover {
     height: 16px;
     position: absolute;
     top: 50%;
-    right: 10px;
-    margin-top: -9.5px;
+    right: 9px;
+    margin-top: -7.5px;
     width: 16px;
 }
 
@@ -1117,6 +1117,16 @@ a[href='#login']:hover {
     display: inline-block;
     border-radius: 5px;
     border: 1px solid #f1f1f1;
+}
+
+.suggest-container-input .facebook-label {
+    background: none;
+    border: none;
+}
+
+.facebook-label:empty {
+    background: none;
+    border: none;
 }
 
 .highlightedFacebookElement {

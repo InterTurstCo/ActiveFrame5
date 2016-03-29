@@ -827,5 +827,32 @@ a.action-bar-button:hover {
     border-bottom: 1px solid #000;
 }
 
+[class\*="cellTableKeyboardSelectedRow"] {
+    background: #FFF0CD !important;
+}
+
+[class\*="cellTableKeyboardSelectedRowCell"] {
+    border: 2px solid #FFF0CD !important;
+}
+
+[class\*="cellTableKeyboardSelectedCell"] {
+    border: 2px solid #d7dde8 !important;
+}
+
+[class\*="cellTableWidget"] {
+    border-collapse: separate !important;
+}
+
+.popupWindow {
+    background: #669492; /* Old browsers */
+    background: -moz-linear-gradient(top,  #669492 0%, #90b5a4 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top,  #669492 0%,#90b5a4 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom,  #669492 0%,#90b5a4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
+.popupWindow .Caption{
+    background: #669492;
+}
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
