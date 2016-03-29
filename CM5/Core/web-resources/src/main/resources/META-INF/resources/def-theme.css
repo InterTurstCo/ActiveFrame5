@@ -1124,6 +1124,11 @@ a[href='#login']:hover {
     border: none;
 }
 
+.facebook-label:empty {
+    background: none;
+    border: none;
+}
+
 .highlightedFacebookElement {
     display: inline-block;
     position: relative;
