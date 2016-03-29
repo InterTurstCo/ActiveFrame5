@@ -55,7 +55,8 @@ import java.util.*;
  */
 public final class GuiUtil {
 
-    private GuiUtil(){}
+    private GuiUtil() {
+    }
 
     public static boolean isChildClicked(ClickEvent event, String id) {
         NodeList<Element> checkBoxes = Document.get().getElementById(id).getElementsByTagName("input");
@@ -121,8 +122,8 @@ public final class GuiUtil {
     }
 
     public static FormPluginConfig createNewFormPluginConfig(String domainObjectType, LinkedFormMappingConfig mappingConfig,
-                                                    WidgetsContainer container,
-                                                    Map<String, Collection<String>> parentWidgetIdsForNewFormMap){
+                                                             WidgetsContainer container,
+                                                             Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
         FormPluginConfig config = GuiUtil.createFormPluginConfig(mappingConfig, domainObjectType);
         Collection<String> widgetIds = parentWidgetIdsForNewFormMap.get(domainObjectType.toLowerCase());
         config.setParentFormState(GuiUtil.createParentFormStatesHierarchy(container, widgetIds));
@@ -143,7 +144,7 @@ public final class GuiUtil {
     }
 
     public static ComplexFiltersParams createComplexFiltersParams(String filterValue, String filterName, WidgetsContainer container,
-                                                                  Collection<WidgetIdComponentName> widgetsIds){
+                                                                  Collection<WidgetIdComponentName> widgetsIds) {
         ComplexFiltersParams params = createComplexFiltersParams(container);
         params.setInputFilterName(filterName);
         params.setInputFilterValue(filterValue);
@@ -152,19 +153,20 @@ public final class GuiUtil {
     }
 
     public static ComplexFiltersParams createComplexFiltersParams(WidgetsContainer container,
-                                                                  Collection<WidgetIdComponentName> widgetsIds){
+                                                                  Collection<WidgetIdComponentName> widgetsIds) {
         return createComplexFiltersParams(null, null, container, widgetsIds);
     }
 
-    public static ComplexFiltersParams createComplexFiltersParams(WidgetsContainer container){
+    public static ComplexFiltersParams createComplexFiltersParams(WidgetsContainer container) {
         ComplexFiltersParams params = new ComplexFiltersParams();
         params.setRootId(getParentId(container));
         return params;
     }
-    public static Id getParentId(WidgetsContainer container){
+
+    public static Id getParentId(WidgetsContainer container) {
         Id id = null;
         Plugin plugin = container == null ? null : container.getPlugin();
-        if (plugin != null ) {
+        if (plugin != null) {
             FormPluginData pluginData = plugin.getInitialData();
             id = pluginData.getFormDisplayData().getFormState().getObjects().getRootNode().getDomainObject().getId();
         }
@@ -172,8 +174,8 @@ public final class GuiUtil {
     }
 
     private static Map<WidgetIdComponentName, WidgetState> getOtherWidgetsValues(WidgetsContainer container,
-                                                                                 Collection<WidgetIdComponentName> widgetsIds){
-        if(WidgetUtil.isEmpty(widgetsIds)){
+                                                                                 Collection<WidgetIdComponentName> widgetsIds) {
+        if (WidgetUtil.isEmpty(widgetsIds)) {
             return null;
         }
         Map<WidgetIdComponentName, WidgetState> result = new HashMap<WidgetIdComponentName, WidgetState>();
@@ -223,10 +225,10 @@ public final class GuiUtil {
         return result;
     }
 
-    public static<T> List<T> filter(List<T> collection, Predicate<T> predicate){
+    public static <T> List<T> filter(List<T> collection, Predicate<T> predicate) {
         List<T> result = new ArrayList<T>();
         for (T t : collection) {
-            if(predicate.evaluate(t)){
+            if (predicate.evaluate(t)) {
                 result.add(t);
             }
         }
@@ -234,9 +236,9 @@ public final class GuiUtil {
 
     }
 
-    public static<T> T find(List<T> collection, Predicate<T> predicate){
+    public static <T> T find(List<T> collection, Predicate<T> predicate) {
         for (T t : collection) {
-            if(predicate.evaluate(t)){
+            if (predicate.evaluate(t)) {
                 return t;
             }
         }
@@ -272,7 +274,7 @@ public final class GuiUtil {
     }
 
     public static String getModalWidth(String domainObjectType, LinkedFormMappingConfig linkedFormMappingConfig,
-                                LinkedFormConfig lowPriorityLinkedFormConfig) {
+                                       LinkedFormConfig lowPriorityLinkedFormConfig) {
         LinkedFormConfig linkedFormConfig = null;
         if (domainObjectType != null) {
             linkedFormConfig = getLinkedFormConfig(domainObjectType, linkedFormMappingConfig);
@@ -287,6 +289,7 @@ public final class GuiUtil {
 
         return null;
     }
+
     public static String getModalHeight(String domainObjectType, LinkedDomainObjectsTableConfig config) {
         LinkedFormMappingConfig linkedFormMappingConfig = config.getLinkedFormMappingConfig();
         LinkedFormConfig linkedFormConfig = config.getLinkedFormConfig();
@@ -294,6 +297,7 @@ public final class GuiUtil {
 
         return modalHeight == null ? config.getModalHeight() : modalHeight;
     }
+
     public static String getModalWidth(String domainObjectType, LinkedDomainObjectsTableConfig config) {
         LinkedFormMappingConfig linkedFormMappingConfig = config.getLinkedFormMappingConfig();
         LinkedFormConfig linkedFormConfig = config.getLinkedFormConfig();
@@ -314,18 +318,19 @@ public final class GuiUtil {
     }
 
     public static boolean isFormResizable(String domainObjectType, LinkedFormMappingConfig linkedFormMappingConfig,
-                                          LinkedFormConfig lowPriorityLinkedFormConfig){
+                                          LinkedFormConfig lowPriorityLinkedFormConfig) {
         boolean result = false;
         LinkedFormConfig linkedFormConfig = getLinkedFormConfig(domainObjectType, linkedFormMappingConfig);
-        if(linkedFormConfig == null){
+        if (linkedFormConfig == null) {
             result = lowPriorityLinkedFormConfig != null && lowPriorityLinkedFormConfig.isResizable();
         } else {
             result = linkedFormConfig.isResizable();
         }
         return result;
     }
-    public static FormState createParentFormStatesHierarchy(WidgetsContainer container, Collection<String> widgetsIds){
-        if(WidgetUtil.isEmpty(widgetsIds)){
+
+    public static FormState createParentFormStatesHierarchy(WidgetsContainer container, Collection<String> widgetsIds) {
+        if (WidgetUtil.isEmpty(widgetsIds)) {
             return null;
         }
         FormState formState = createParentFormState(container, widgetsIds);
@@ -333,41 +338,43 @@ public final class GuiUtil {
         return formState;
     }
 
-    private static void fillFormStateWithParentsFormStates(FormState formState, WidgetsContainer container){
+    private static void fillFormStateWithParentsFormStates(FormState formState, WidgetsContainer container) {
         FormState nestedFormState = formState;
         WidgetsContainer parentWidgetContainer = container;
         do {
             parentWidgetContainer = parentWidgetContainer.getParentWidgetsContainer();
             FormState parentFormState = createParentFormState(parentWidgetContainer);
             Id parentId = getParentId(parentWidgetContainer);
-            if(parentFormState != null){
+            if (parentFormState != null) {
                 parentFormState.setParentId(parentId);
                 nestedFormState.setParentState(parentFormState);
                 nestedFormState = parentFormState;
             }
         }
-        while(parentWidgetContainer != null);
+        while (parentWidgetContainer != null);
     }
 
-    private static FormState createParentFormState(WidgetsContainer container, Collection<String> widgetsIds){
+    private static FormState createParentFormState(WidgetsContainer container, Collection<String> widgetsIds) {
         Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
         for (String widgetId : widgetsIds) {
             BaseWidget widget = container.getWidget(widgetId);
-            WidgetState widgetState = widget.getCurrentState();
-            widgetStateMap.put(widgetId, widgetState);
+            if (widget != null) {
+                WidgetState widgetState = widget.getCurrentState();
+                widgetStateMap.put(widgetId, widgetState);
+            }
         }
         FormState formState = new FormState();
         formState.setWidgetStateMap(widgetStateMap);
         return formState;
     }
 
-    private static FormState createParentFormState(WidgetsContainer container){
-        if(container == null){
+    private static FormState createParentFormState(WidgetsContainer container) {
+        if (container == null) {
             return null;
         }
         Map<String, WidgetState> widgetStateMap = new HashMap<String, WidgetState>();
         for (BaseWidget widget : container.getWidgets()) {
-            if(widget.isEditable()){
+            if (widget.isEditable()) {
                 WidgetState widgetState = widget.getCurrentState();
                 widgetStateMap.put(widget.getDisplayConfig().getId(), widgetState);
             }
@@ -377,16 +384,16 @@ public final class GuiUtil {
         return formState;
     }
 
-    public static boolean isDialogWindowResizable(DialogWindowConfig dialogWindowConfig){
-       return dialogWindowConfig != null && dialogWindowConfig.isResizable();
+    public static boolean isDialogWindowResizable(DialogWindowConfig dialogWindowConfig) {
+        return dialogWindowConfig != null && dialogWindowConfig.isResizable();
     }
 
     public static List<LinkedFormConfig> getLinkedFormConfigs(LinkedFormConfig linkedFormConfig,
-                                                              LinkedFormMappingConfig linkedFormMappingConfig){
+                                                              LinkedFormMappingConfig linkedFormMappingConfig) {
         List<LinkedFormConfig> result = null;
         if (linkedFormMappingConfig != null) {
             result = linkedFormMappingConfig.getLinkedFormConfigs();
-        } else if(linkedFormConfig != null){
+        } else if (linkedFormConfig != null) {
             result = Arrays.asList(linkedFormConfig);
         }
         return result;
