@@ -29,6 +29,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
+import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.Browser;
@@ -335,6 +336,9 @@ public final class GuiUtil {
         }
         FormState formState = createParentFormState(container, widgetsIds);
         fillFormStateWithParentsFormStates(formState, container);
+        if(container instanceof FormPanel && formState.getName()==null){
+            formState.setName(((FormPanel)container).getFormIdentifier());
+        }
         return formState;
     }
 

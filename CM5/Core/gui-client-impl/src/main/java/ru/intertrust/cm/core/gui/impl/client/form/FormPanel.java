@@ -406,7 +406,7 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
         return result;
     }
 
-    private String getFormIdentifier() {
+    public String getFormIdentifier() {
         return formDisplayData.getFormState().getName();
     }
 }
