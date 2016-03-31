@@ -41,6 +41,7 @@ public abstract class ClientBase {
     public static final String CLIENT = "client";
     public static final String CLIENT_JBOSS_NAMING = "jboss-naming";
     public static final String CLIENT_JBOSS_REMOTE = "jboss-remote";
+    public static final String CLIENT_WILDFLY_REMOTE_HTTP = "wildfly-http-remote";
     public static final String CLIENT_TOMEE = "tomee";
     
     private CommandLine commandLine;
@@ -179,6 +180,8 @@ public abstract class ClientBase {
     		result = "ejb:" + getAppName() + "/" + getModuleName() + "//" + serviceName + "!" + remoteInterfaceClass.getName();
     	}else if (CLIENT_JBOSS_REMOTE.equals(client)){
     		result = getAppName() + "/" + getModuleName() + "/" + serviceName + "!" + remoteInterfaceClass.getName();
+        }else if (CLIENT_WILDFLY_REMOTE_HTTP.equals(client)){
+            result = getAppName() + "/" + getModuleName() + "/" + serviceName + "!" + remoteInterfaceClass.getName();
     	}else if (CLIENT_TOMEE.equals(client)){
     		result = serviceName + "Remote";
     	}else if ("".equals(client) || client == null){
@@ -217,6 +220,14 @@ public abstract class ClientBase {
 		                    "false");
 		    jndiProps.put(Context.SECURITY_PRINCIPAL, login);
 		    jndiProps.put(Context.SECURITY_CREDENTIALS, password);    		
+        }else if (CLIENT_WILDFLY_REMOTE_HTTP.equals(client)){
+            jndiProps.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+            jndiProps.put("jboss.naming.client.ejb.context", "true");
+            jndiProps.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOANONYMOUS", "false");
+            jndiProps.put("jboss.naming.client.connect.options.org.xnio.Options.SASL_POLICY_NOPLAINTEXT", "false");
+            jndiProps.put(Context.PROVIDER_URL, "http-remoting://" + address);
+            jndiProps.put(Context.SECURITY_PRINCIPAL, login);
+            jndiProps.put(Context.SECURITY_CREDENTIALS, password);          
     	}else if (CLIENT_TOMEE.equals(client)){
             jndiProps.put("java.naming.factory.initial", "org.apache.openejb.client.RemoteInitialContextFactory");
             jndiProps.put("java.naming.provider.url", "http://127.0.0.1:8080/tomee/ejb");

@@ -36,14 +36,15 @@ public class ConfigurationUpdateHandler implements MessageListener {
             return;
         }
 
-        try {
+        try {            
             ObjectMessage objMessage = (ObjectMessage) message;
             Object object = objMessage.getObject();
 
             if (!(object instanceof TopLevelConfig)) {
                 return;
             }
-
+            logger.info("Receive update config message. Config: " + object);
+            
             TopLevelConfig config = (TopLevelConfig) object;
             configurationExplorer.updateConfig(config);
         } catch (JMSException e) {
