@@ -54,6 +54,9 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "rows-selection", required = false)
     private RowsSelectionConfig rowsSelectionConfig;
 
+    @Element(name = "collection-extra-filters",required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
     private TableBrowserParams tableBrowserParams;
 
     private boolean isEmbedded;
@@ -81,6 +84,14 @@ public class CollectionViewerConfig extends PluginConfig {
             defaultSortCriteriaConfig = new DefaultSortCriteriaConfig();
         }
         return defaultSortCriteriaConfig;
+    }
+
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
+    }
+
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {

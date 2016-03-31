@@ -918,17 +918,20 @@
                 </mapping>
             </enumeration-box>
             <table-viewer id="table-viewer">
-                <collection-ref name="Organizations"/>
-                <collection-view-ref name="organizations_default_view"/>
-                <default-sort-criteria column-field="name" order="desc"/>
-                <collection-extra-filters>
-                    <extra-filter name="byNames" >
-                        <param name="0" value="Организация 1" type="string"/>
-                        <param name="1" value="Организация 2" type="string"/>
-                        <param name="2" value="Организация 3" type="string"/>
-                        <param name="3" value="Организация 4" type="string"/>
-                    </extra-filter>
-                </collection-extra-filters>
+                <collection-viewer>
+                    <collection-ref name="Organizations"/>
+                    <collection-view-ref name="organizations_default_view"/>
+                    <default-sort-criteria column-field="name" order="desc"/>
+                    <collection-extra-filters>
+                        <extra-filter name="byNames" >
+                            <param name="0" value="Организация 1" type="string"/>
+                            <param name="1" value="Организация 2" type="string"/>
+                            <param name="2" value="Организация 3" type="string"/>
+                            <param name="3" value="Организация 4" type="string"/>
+                        </extra-filter>
+                    </collection-extra-filters>
+                </collection-viewer>
+
                 <collection-table-buttons display-all-possible="false"/>
             </table-viewer>
         </widget-config>

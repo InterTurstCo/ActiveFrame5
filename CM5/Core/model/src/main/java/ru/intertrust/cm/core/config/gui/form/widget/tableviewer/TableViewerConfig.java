@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButto
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 
 /**
@@ -17,39 +18,57 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "table-viewer")
 public class TableViewerConfig extends WidgetConfig {
-    @NotNullLogicalValidation
+    @Deprecated
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
 
+    @Deprecated
     @Element(name = "collection-ref", required = false)
     private CollectionRefConfig collectionRefConfig;
 
     @Element(name = "page-size", required = false)
     private Integer pageSize;
 
+    @Deprecated
     @Element(name = "default-sort-criteria", required = false)
     private DefaultSortCriteriaConfig defaultSortCriteriaConfig;
 
+    @Deprecated
     @Element(name = "collection-extra-filters", required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
     @Element(name = "collection-table-buttons", required = false)
     private CollectionTableButtonsConfig collectionTableButtonsConfig;
 
+    @Element(name = "collection-viewer",required = false)
+    private CollectionViewerConfig collectionViewerConfig;
+
+    @Deprecated
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
     }
 
+    @Deprecated
     public void setCollectionViewRefConfig(CollectionViewRefConfig collectionViewRefConfig) {
         this.collectionViewRefConfig = collectionViewRefConfig;
     }
 
+    @Deprecated
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
     }
 
+    @Deprecated
     public void setCollectionRefConfig(CollectionRefConfig collectionRefConfig) {
         this.collectionRefConfig = collectionRefConfig;
+    }
+
+    public CollectionViewerConfig getCollectionViewerConfig() {
+        return collectionViewerConfig;
+    }
+
+    public void setCollectionViewerConfig(CollectionViewerConfig collectionViewerConfig) {
+        this.collectionViewerConfig = collectionViewerConfig;
     }
 
     public Integer getPageSize() {
@@ -60,18 +79,22 @@ public class TableViewerConfig extends WidgetConfig {
         this.pageSize = pageSize;
     }
 
+    @Deprecated
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
         return defaultSortCriteriaConfig;
     }
 
+    @Deprecated
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
 
+    @Deprecated
     public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
         return collectionExtraFiltersConfig;
     }
 
+    @Deprecated
     public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
@@ -107,6 +130,10 @@ public class TableViewerConfig extends WidgetConfig {
                 : that.collectionViewRefConfig != null) {
             return false;
         }
+        if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig)
+                : that.collectionViewerConfig != null) {
+            return false;
+        }
         if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig)
                 : that.defaultSortCriteriaConfig != null) {
             return false;
@@ -126,6 +153,7 @@ public class TableViewerConfig extends WidgetConfig {
     public int hashCode() {
         int result = collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0;
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
+        result = 31 * result + (collectionViewerConfig != null ? collectionViewerConfig.hashCode() : 0);
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);

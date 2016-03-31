@@ -64,10 +64,11 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     protected Widget asEditableWidget(WidgetState state) {
-       return initView();
+        return initView();
 
     }
-    private Widget initView(){
+
+    private Widget initView() {
         WidgetDisplayConfig displayConfig = getDisplayConfig();
         Panel pluginWrapper = new AbsolutePanel();
         pluginPanel = new PluginPanel();
@@ -77,7 +78,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginWrapper.setHeight(height);
         String width = displayConfig.getWidth() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH : displayConfig.getWidth();
         pluginWrapper.setWidth(width);
-        int tableWidth =  Integer.parseInt(width.replaceAll("\\D+", ""));
+        int tableWidth = Integer.parseInt(width.replaceAll("\\D+", ""));
         pluginPanel.setVisibleWidth(tableWidth);
         pluginWrapper.add(pluginPanel);
         eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
@@ -98,24 +99,33 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private CollectionViewerConfig initCollectionConfig(TableViewerState state) {
-        CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
-        CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         TableViewerConfig config = state.getTableViewerConfig();
         TableBrowserParams tableBrowserParams = createTableBrowserParams(config);
-        collectionViewerConfig.setTableBrowserParams(tableBrowserParams);
-        collectionViewRefConfig.setName(config.getCollectionViewRefConfig().getName());
-        CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
-        collectionRefConfig.setName(config.getCollectionRefConfig().getName());
-        DefaultSortCriteriaConfig defaultSortCriteriaConfig = config.getDefaultSortCriteriaConfig();
-        collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
-        collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
-        collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
-        collectionViewerConfig.setEmbedded(true);
-        return collectionViewerConfig;
+
+        if (config.getCollectionViewerConfig() == null) {
+            CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
+            CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
+            collectionViewerConfig.setTableBrowserParams(tableBrowserParams);
+            collectionViewRefConfig.setName(config.getCollectionViewRefConfig().getName());
+            CollectionRefConfig collectionRefConfig = new CollectionRefConfig();
+            collectionRefConfig.setName(config.getCollectionRefConfig().getName());
+            DefaultSortCriteriaConfig defaultSortCriteriaConfig = config.getDefaultSortCriteriaConfig();
+            collectionViewerConfig.setDefaultSortCriteriaConfig(defaultSortCriteriaConfig);
+            collectionViewerConfig.setCollectionRefConfig(collectionRefConfig);
+            collectionViewerConfig.setCollectionViewRefConfig(collectionViewRefConfig);
+            collectionViewerConfig.setEmbedded(true);
+            return collectionViewerConfig;
+        } else {
+            config.getCollectionViewerConfig().setTableBrowserParams(tableBrowserParams);
+            config.getCollectionViewerConfig().setEmbedded(true);
+            return  config.getCollectionViewerConfig();
+        }
     }
 
     private TableBrowserParams createTableBrowserParams(TableViewerConfig config) {
         ComplexFiltersParams filtersParams = GuiUtil.createComplexFiltersParams(getContainer());
+
+
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
                 .setComplexFiltersParams(filtersParams)
                 .setIds(new ArrayList<Id>())
@@ -123,7 +133,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 .setDisplayCheckBoxes(false)
                 .setDisplayChosenValues(true)
                 .setPageSize(config.getPageSize())
-                .setCollectionExtraFiltersConfig(config.getCollectionExtraFiltersConfig())
+                .setCollectionExtraFiltersConfig((config.getCollectionViewerConfig() != null) ? config.getCollectionViewerConfig().getCollectionExtraFiltersConfig() :
+                        config.getCollectionExtraFiltersConfig())
                 .setHasColumnButtons(config.getCollectionTableButtonsConfig() == null ? true
                         : config.getCollectionTableButtonsConfig().isDisplayAllPossible());
         return tableBrowserParams;
@@ -135,8 +146,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         Node widgetNode = pluginPanel.asWidget().getElement().getParentNode();
         boolean widgetIsChildOfSelectedTab = parentElement.isOrHasChild(widgetNode);
         boolean viewIsInitialized = pluginPanel.getCurrentPlugin() != null && pluginPanel.getCurrentPlugin().getView() != null;
-        if(widgetIsChildOfSelectedTab && viewIsInitialized){
-        pluginPanel.getCurrentPlugin().getView().onPluginPanelResize();
+        if (widgetIsChildOfSelectedTab && viewIsInitialized) {
+            pluginPanel.getCurrentPlugin().getView().onPluginPanelResize();
         }
     }
 
