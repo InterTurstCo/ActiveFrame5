@@ -255,7 +255,7 @@
         </profile>
 
         <profile>
-            <id>config-wildfly</id>
+            <id>config-wildfly-9</id>
             <build>
                 <plugins>
                     <plugin>
@@ -286,8 +286,8 @@
                                     <address>subsystem=datasources,data-source=CM5</address>
                                     <resources>
                                         <resource>
-                                            <properties>
-                                                <datasource-class>org.postgresql.xa.PGXADataSource</datasource-class>
+                                            <properties>thdth
+                                                <driver-class>org.postgresql.Driver</driver-class>
                                                 <connection-url>jdbc:postgresql://${db.host}:${db.port}/${db.name}</connection-url>
                                                 <jndi-name>java:jboss/datasources/CM5</jndi-name>
                                                 <enabled>true</enabled>
@@ -372,6 +372,7 @@
                                             <command>/system-property=org.apache.catalina.connector.URI_ENCODING:write-attribute(name=value, value=UTF-8)</command>
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:add(value=true)</command>
                                             <command>/system-property=org.apache.catalina.connector.USE_BODY_ENCODING_FOR_QUERY_STRING:write-attribute(name=value, value=true)</command>
+                                            <command>/system-property=jboss.as.management.blocking.timeout:add(value=1000)</command>
                                             <command>/subsystem=deployment-scanner/scanner=default:write-attribute(name=deployment-timeout, value=3600)</command>
                                             <command>/subsystem=ejb3:write-attribute(name=default-missing-method-permissions-deny-access, value=false)</command>
                                         </commands>
