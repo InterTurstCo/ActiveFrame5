@@ -1215,8 +1215,16 @@
 
             <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:userSettingsType" name="user-settings" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
+
+    <xs:complexType name="userSettingsType">
+        <xs:attribute type="xs:boolean" name="save" use="required"/>
+    </xs:complexType>
+
 
     <xs:element type="con:childCollectionType" name="child-collection"/>
 

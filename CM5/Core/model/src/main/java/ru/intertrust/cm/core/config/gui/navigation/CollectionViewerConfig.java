@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
+import ru.intertrust.cm.core.config.gui.form.widget.UserSettingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.counters.NonReadElementsDefinitionConfig;
@@ -57,6 +58,10 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "collection-extra-filters",required = false)
     private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
+    @Element(name = "user-settings",required = false)
+    private UserSettingsConfig userSettingsConfig;
+
+
     private TableBrowserParams tableBrowserParams;
 
     private boolean isEmbedded;
@@ -92,6 +97,14 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
         this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+    }
+
+    public UserSettingsConfig getUserSettingsConfig() {
+        return userSettingsConfig;
+    }
+
+    public void setUserSettingsConfig(UserSettingsConfig userSettingsConfig) {
+        this.userSettingsConfig = userSettingsConfig;
     }
 
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
@@ -243,6 +256,11 @@ public class CollectionViewerConfig extends PluginConfig {
             return false;
         }
 
+        if (userSettingsConfig != null ? !userSettingsConfig.equals(that.getUserSettingsConfig()) : that.
+                getUserSettingsConfig() != null) {
+            return false;
+        }
+
         if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.
                 getCollectionViewRefConfig() != null) {
             return false;
@@ -282,6 +300,7 @@ public class CollectionViewerConfig extends PluginConfig {
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (childCollectionConfig != null ? childCollectionConfig.hashCode() : 0);
+        result = 31 * result + (userSettingsConfig != null ? userSettingsConfig.hashCode() : 0);
         result = 31 * result + (filterPanelConfig != null ? filterPanelConfig.hashCode() : 0);
         return result;
     }

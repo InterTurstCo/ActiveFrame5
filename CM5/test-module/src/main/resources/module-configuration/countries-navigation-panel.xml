@@ -200,6 +200,7 @@
                                 <search-collection-ref name="Countries"/>
                                 <filter-panel panel-state="open"/>
                                 <rows-selection default-state="empty"/>
+                                <user-settings save="true"/>
                             </collection-viewer>
                             <!--form-viewer form-mapping-component="custom.mapping.component"/-->
                             <form-viewer>
