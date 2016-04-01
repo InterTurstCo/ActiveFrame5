@@ -15,4 +15,12 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 public class UserSettingsConfig implements Dto {
     @Attribute(name = "save", required = true)
     private boolean save = true;
+
+    public boolean isSave() {
+        return save;
+    }
+
+    public void setSave(boolean save) {
+        this.save = save;
+    }
 }
