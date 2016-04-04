@@ -1129,6 +1129,10 @@ a[href='#login']:hover {
     border: none;
 }
 
+.facebook-main-box:empty {
+    background: none;
+}
+
 .highlightedFacebookElement {
     display: inline-block;
     position: relative;
