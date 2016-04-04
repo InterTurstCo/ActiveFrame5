@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
     <collection name="Employees" idField="id">
         <prototype>
             <![CDATA[
@@ -425,7 +425,9 @@
     
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
-            <column field="id" name="id" type="integer" sortable="false"/>
+            <column field="id" name="id" type="integer" sortable="false">
+                <act:action-ref name-ref="aDigitalSignature"/>
+            </column>
             <column field="name" name="Название организации" editable="false" type="string" sortable="true">
                 <!-- если ID типа Organization, то вызывается данная коллекция -->
                 <!-- если for-domain-object-type не указан, то данная коллекция используется "в последнюю очередь".

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
@@ -43,6 +44,7 @@ public class CollectionColumnProperties implements Dto {
     private HashMap<String, Object> properties = new HashMap<String, Object>();
     private RendererConfig rendererConfig;
     private ImageMappingsConfig imageMappingsConfig;
+    private ActionRefConfig actionRefConfig;
 
     public AscSortCriteriaConfig getAscSortCriteriaConfig() {
         return ascSortCriteriaConfig;
@@ -83,6 +85,14 @@ public class CollectionColumnProperties implements Dto {
             properties.remove(name);
         }
         return this;
+    }
+
+    public ActionRefConfig getActionRefConfig() {
+        return actionRefConfig;
+    }
+
+    public void setActionRefConfig(ActionRefConfig actionRefConfig) {
+        this.actionRefConfig = actionRefConfig;
     }
 
     public Object getProperty(final String name) {

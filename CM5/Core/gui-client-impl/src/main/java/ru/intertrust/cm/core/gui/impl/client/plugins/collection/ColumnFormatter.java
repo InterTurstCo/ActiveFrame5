@@ -42,7 +42,15 @@ public class ColumnFormatter {
             collectionColumn = renderer.getImageColumn(mappingsConfig);
             collectionColumn.setFieldName(field);
             collectionColumn.setResizable(resizable);
-        } else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG) != null) {
+        }
+        else if(rendererConfig == null && columnProperties.getActionRefConfig()!=null){
+            DefaultActionCellRenderer actionCellRenderer = ComponentRegistry.instance.get(DefaultActionCellRenderer.ACT_CELL_RENDERER_COMPONENT);
+            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            collectionColumn = actionCellRenderer.getActionColumn(field, eventBus,resizable, converter,columnProperties.getActionRefConfig());
+        }
+        else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG) != null) {
             List<ChildCollectionViewerConfig> childCollectionsConfig =
                     (List<ChildCollectionViewerConfig>) columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);

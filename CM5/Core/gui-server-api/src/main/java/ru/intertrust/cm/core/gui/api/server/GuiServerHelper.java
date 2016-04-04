@@ -92,6 +92,7 @@ public final class GuiServerHelper {
         properties.setDescSortCriteriaConfig(config.getDescSortCriteriaConfig());
         properties.setImageMappingsConfig(config.getImageMappingsConfig());
         properties.setRendererConfig(config.getRendererConfig());
+        properties.setActionRefConfig(config.getActionRefConfig());
         return properties;
     }
 

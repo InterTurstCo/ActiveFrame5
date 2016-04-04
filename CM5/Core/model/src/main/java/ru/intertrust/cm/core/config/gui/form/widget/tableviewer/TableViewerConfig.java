@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
+import ru.intertrust.cm.core.config.gui.form.widget.IgnoreFormReadOnlyStateConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -43,6 +44,9 @@ public class TableViewerConfig extends WidgetConfig {
     @Element(name = "collection-viewer",required = false)
     private CollectionViewerConfig collectionViewerConfig;
 
+    @Element(name = "ignore-form-read-only-state",required = false)
+    private IgnoreFormReadOnlyStateConfig ignoreFormReadOnlyStateConfig;
+
     @Deprecated
     public CollectionViewRefConfig getCollectionViewRefConfig() {
         return collectionViewRefConfig;
@@ -77,6 +81,14 @@ public class TableViewerConfig extends WidgetConfig {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public IgnoreFormReadOnlyStateConfig getIgnoreFormReadOnlyStateConfig() {
+        return ignoreFormReadOnlyStateConfig;
+    }
+
+    public void setIgnoreFormReadOnlyStateConfig(IgnoreFormReadOnlyStateConfig ignoreFormReadOnlyStateConfig) {
+        this.ignoreFormReadOnlyStateConfig = ignoreFormReadOnlyStateConfig;
     }
 
     @Deprecated
@@ -145,7 +157,10 @@ public class TableViewerConfig extends WidgetConfig {
                 : that.collectionTableButtonsConfig != null) {
             return false;
         }
-
+        if (ignoreFormReadOnlyStateConfig != null ? !ignoreFormReadOnlyStateConfig.equals(that.ignoreFormReadOnlyStateConfig)
+                : that.ignoreFormReadOnlyStateConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -157,6 +172,7 @@ public class TableViewerConfig extends WidgetConfig {
         result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
+        result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
         return result;
     }
 

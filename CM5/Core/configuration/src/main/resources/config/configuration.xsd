@@ -2912,6 +2912,7 @@
             <xs:element type="con:uiRendererType" name="renderer" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:childCollectionViewerType" name="child-collection-viewer" minOccurs="0"
                         maxOccurs="unbounded"/>
+            <xs:element ref="act:action-ref" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="field" use="required"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
@@ -3563,10 +3564,16 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionViewerType" name="collection-viewer" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:ignoreFormreadOnlyStateType" name="ignore-form-read-only-state" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ignoreFormreadOnlyStateType">
+        <xs:attribute type="xs:boolean" name="value"/>
     </xs:complexType>
 
 
