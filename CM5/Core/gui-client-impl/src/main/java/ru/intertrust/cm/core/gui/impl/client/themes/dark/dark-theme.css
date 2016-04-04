@@ -854,5 +854,83 @@ a.action-bar-button:hover {
     background: #669492;
 }
 
+.decorated-action-link .actionBar-refresh {
+    background: url("css/icons/reload_icon.png") no-repeat;
+    background-size: 17px 15px;
+    background-position: 8px 9px;
+}
+
+.decorated-action-link .actionBar-create {
+    background: url("css/icons/create_icon.png") no-repeat;
+    background-size: 17px 17px;
+    background-position: 8px 8px;
+}
+
+.decorated-action-link .actionBar-edit {
+    background: url("css/icons/edit_icon.png") no-repeat;
+    background-size: 20px 17px;
+    background-position: 7px 8px;
+}
+
+.decorated-action-link .actionBar-delete {
+    background: url("css/icons/delete_icon.png") no-repeat;
+    background-size: 17px 17px;
+    background-position: 8px 8px;
+}
+
+.decorated-action-link .actionBar-csvUpload {
+    background: url("css/icons/exel_icon.png") no-repeat;
+    background-size: 17px 17px;
+    background-position: 8px 8px;
+}
+
+.decorated-action-link .actionBar-close {
+    background: url("css/icons/close_icon.png") no-repeat;
+    background-size: 17px 17px;
+    background-position: 8px 8px;
+}
+
+.decorated-action-link .actionBar-save {
+    background: url("css/icons/save_icon.png") no-repeat;
+    background-size: 17px 17px;
+    background-position: 8px 8px;
+}
+
+.gwt-MenuItem:active .actionBar-edit {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-refresh {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-create {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-csvUpload {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-close {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-save {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+.gwt-MenuItem:active .actionBar-delete {
+    -webkit-filter: drop-shadow(1px 1px 2px black);
+    filter: drop-shadow(1px 1px 2px black);
+}
+
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;

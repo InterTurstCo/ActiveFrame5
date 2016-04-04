@@ -1129,6 +1129,10 @@ a[href='#login']:hover {
     border: none;
 }
 
+.facebook-main-box:empty {
+    background: none;
+}
+
 .highlightedFacebookElement {
     display: inline-block;
     position: relative;
@@ -3249,6 +3253,10 @@ a:active .icon.back {
     top: -2px;
     height: 20px;
     padding: 6px 0 6px 10px;
+}
+
+.childRowUnderline:hover {
+    text-decoration: underline;
 }
 
 .collectionCellWrapper div:first-child {
