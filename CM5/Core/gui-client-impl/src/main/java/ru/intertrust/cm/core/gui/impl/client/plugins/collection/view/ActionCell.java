@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.collection.view;
 
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,5 +20,12 @@ public class ActionCell extends AbstractTextCell {
     @Override
     public void render(Context context, String s, SafeHtmlBuilder safeHtmlBuilder) {
 
+    }
+
+    @Override
+    protected void addClassName(CollectionRowItem item, SafeHtmlBuilder sb) {
+        if (item.getParentId() != null) {
+            sb.append(SafeHtmlUtils.fromTrustedString(" class=\"childRow\" "));
+        }
     }
 }
