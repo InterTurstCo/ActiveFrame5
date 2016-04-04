@@ -3255,6 +3255,10 @@ a:active .icon.back {
     padding: 6px 0 6px 10px;
 }
 
+.childRowUnderline:hover {
+    text-decoration: underline;
+}
+
 .collectionCellWrapper div:first-child {
     /*margin-left: 0;*/
 }
