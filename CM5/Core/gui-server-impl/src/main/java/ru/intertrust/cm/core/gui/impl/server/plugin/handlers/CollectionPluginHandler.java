@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -76,7 +77,6 @@ public class CollectionPluginHandler extends ActivePluginHandler {
     private boolean expandable; //dummy for testing
 
 
-
     public CollectionPluginData initialize(Dto param) {
         CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) param;
         final String link = collectionViewerConfig.getHistoryValue(UserSettingsHelper.LINK_KEY);
@@ -107,6 +107,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 CollectionPluginHelper.getFieldColumnPropertiesMap(collectionViewConfig, sortCriteriaConfig,
                         initialFiltersConfig, GuiContext.getUserLocale());
         pluginData.setDomainObjectFieldPropertiesMap(columnPropertyMap);
+
+        for (String key : pluginData.getDomainObjectFieldPropertiesMap().keySet()) {
+            if (pluginData.getDomainObjectFieldPropertiesMap().get(key).getActionRefConfig() != null) {
+                ActionConfig actionConfig = actionConfigBuilder.resolveActionReference(pluginData.getDomainObjectFieldPropertiesMap().get(key).getActionRefConfig());
+
+                pluginData.getDomainObjectFieldPropertiesMap().get(key).setActionContext(actionConfigBuilder.getContextForConfig(actionConfig,new HashMap<String, Object>()));
+            }
+        }
+
         List<Filter> filters = new ArrayList<>();
         TableBrowserParams tableBrowserParams = collectionViewerConfig.getTableBrowserParams();
         prepareTableBrowserFilters(tableBrowserParams, filters);
@@ -133,10 +142,10 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
 
         List<String> expandableTypes;
-        if(collectionViewerConfig.getChildCollectionConfig()!=null){
+        if (collectionViewerConfig.getChildCollectionConfig() != null) {
             final List<ExpandableObjectConfig> expandableObjects = collectionViewerConfig.getChildCollectionConfig().getExpandableObjectsConfig().getExpandableObjects();
             expandableTypes = new ArrayList<>(expandableObjects.size());
-            for(ExpandableObjectConfig expandableObjectConfig : expandableObjects){
+            for (ExpandableObjectConfig expandableObjectConfig : expandableObjects) {
                 expandableTypes.add(expandableObjectConfig.getObjectName());
             }
         } else {
@@ -298,7 +307,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         InitialFiltersParams filtersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
 
-        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit,request.getExpandableTypes());
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit, request.getExpandableTypes());
 
         collectionRowsResponse.setCollectionRows(result);
 
@@ -307,7 +316,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
     public CollectionRowsResponse refreshCollection(Dto dto) {
         final CollectionRowsRequest request = ((CollectionRefreshRequest) dto).getCollectionRowsRequest();
-        if(request.getExpandableTypes()==null){
+        if (request.getExpandableTypes() == null) {
             request.setExpandableTypes(new ArrayList<String>());
         }
         LinkedHashMap<String, CollectionColumnProperties> properties = request.getColumnProperties();
@@ -325,11 +334,11 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         if (!includedIds.isEmpty()) {
             filterBuilder.prepareIncludedIdsFilter(includedIds, filters);
         }
-        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit,request.getExpandableTypes());
+        ArrayList<CollectionRowItem> result = generateRowItems(request, properties, filters, offset, limit, request.getExpandableTypes());
         final Id idToFindIfAbsent = ((CollectionRefreshRequest) dto).getIdToFindIfAbsent();
         if (idToFindIfAbsent != null && CollectionPluginHelper.doesNotContainSelectedId(idToFindIfAbsent, result)) {
             int additionalOffset = limit;
-            List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200,request.getExpandableTypes());
+            List<CollectionRowItem> additionalItems = generateRowItems(request, properties, filters, additionalOffset, 200, request.getExpandableTypes());
             result.addAll(additionalItems);
         }
         CollectionRowsResponse collectionRowsResponse = new CollectionRowsResponse();
@@ -346,15 +355,15 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         String collectionName = request.getCollectionName();
         if (request.isSortable()) {
             SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
-            list = getRows(collectionName, offset, limit, filters, sortOrder, properties,expandableTypes);
+            list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
         } else {
             if (request.getSimpleSearchQuery().length() > 0) {
                 list = getSimpleSearchRows(collectionName, offset, limit, filters,
                         request.getSimpleSearchQuery(), request.getSearchArea(),
-                        properties,request.getExpandableTypes());
+                        properties, request.getExpandableTypes());
             } else {
                 SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
-                list = getRows(collectionName, offset, limit, filters, sortOrder, properties,expandableTypes);
+                list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
 
             }
 
@@ -362,12 +371,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return list;
 
     }
-    private boolean hasConfiguredFilters(Map<String, CollectionColumnProperties> columnPropertyMap){
+
+    private boolean hasConfiguredFilters(Map<String, CollectionColumnProperties> columnPropertyMap) {
         boolean result = false;
         for (CollectionColumnProperties collectionColumnProperties : columnPropertyMap.values()) {
             String filterName = (String) collectionColumnProperties.getProperty(CollectionColumnProperties.SEARCH_FILTER_KEY);
             boolean hidden = (boolean) collectionColumnProperties.getProperty(CollectionColumnProperties.HIDDEN);
-            if(filterName != null && !hidden){
+            if (filterName != null && !hidden) {
                 result = true;
                 break;
             }
@@ -375,7 +385,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return result;
     }
 
-    public CollectionRowsResponse getChildrenForExpanding(Dto request){
+    public CollectionRowsResponse getChildrenForExpanding(Dto request) {
         CollectionRowsRequest rowsRequest = (CollectionRowsRequest) request;
 
         String collectionName = rowsRequest.getCollectionName();
@@ -384,16 +394,16 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Map<String, List<String>> filtersMap = rowsRequest.getFiltersMap();
         List<Filter> filters = new ArrayList<Filter>();
 
-        if(rowsRequest.getDefaultSortCriteriaConfig()==null){
+        if (rowsRequest.getDefaultSortCriteriaConfig() == null) {
             sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
         } else {
-            sortOrder = sortOrderHelper.buildSortOrder(collectionName,rowsRequest.getDefaultSortCriteriaConfig());
+            sortOrder = sortOrderHelper.buildSortOrder(collectionName, rowsRequest.getDefaultSortCriteriaConfig());
         }
 
         filterBuilder.prepareExtraFilters(rowsRequest.getHierarchicalFiltersConfig(), new ComplexFiltersParams(rowsRequest.getParentId()), filters);
 
         IdentifiableObjectCollection collection = collectionsService.
-                findCollection(collectionName, sortOrder, filters,rowsRequest.getOffset(), rowsRequest.getLimit());
+                findCollection(collectionName, sortOrder, filters, rowsRequest.getOffset(), rowsRequest.getLimit());
         ArrayList<CollectionRowItem> items = new ArrayList<>();
         boolean notMoreItems = rowsRequest.getOffset() == 0;
 
@@ -410,12 +420,12 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Map<String, Map<Value, ImagePathValue>> fieldMappings = defaultImageMapper.getImageMaps(rowsRequest.getColumnProperties());
         for (IdentifiableObject identifiableObject : collection) {
             Boolean typeIsExpandable = ((CollectionRowsRequest) request).getExpandableTypes().contains(crudService.getDomainObjectType(identifiableObject.getId()));
-            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings,typeIsExpandable);
+            CollectionRowItem item = generateCollectionRowItem(identifiableObject, rowsRequest.getColumnProperties(), fieldMappings, typeIsExpandable);
             item.setParentId(parentId);
-            item.setNestingLevel(rowsRequest.getCurrentNestingLevel()+1);
+            item.setNestingLevel(rowsRequest.getCurrentNestingLevel() + 1);
             items.add(item);
         }
-        if(notMoreItems){
+        if (notMoreItems) {
             CollectionRowItem moreItems = new CollectionRowItem();
             moreItems.setParentId(parentId);
             moreItems.setRowType(CollectionRowItem.RowType.BUTTON);
@@ -429,8 +439,9 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         return response;
 
     }
+
     private List<Filter> prepareFilters(Id parentId, LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
-                                        Map<String, List<String>> filtersMap){
+                                        Map<String, List<String>> filtersMap) {
         List<Filter> filters = new ArrayList<>();
         filterBuilder.prepareExcludedIdsFilter(Arrays.asList(parentId), filters);
 
@@ -442,12 +453,13 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         filterBuilder.prepareInitialFilters(initialFiltersConfig, filtersParams, filters);
         return filters;
     }
+
     private InitialFiltersConfig prepareInitialFiltersConfig(LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap,
-                                                             Map<String, List<String>> filtersMap){
+                                                             Map<String, List<String>> filtersMap) {
         InitialFiltersConfig initialFiltersConfig = new InitialFiltersConfig();
         List<InitialFilterConfig> initialFilterList = new ArrayList<>();
         initialFiltersConfig.setFilterConfigs(initialFilterList);
-        if(filtersMap != null){
+        if (filtersMap != null) {
             for (Map.Entry<String, List<String>> entry : filtersMap.entrySet()) {
                 InitialFilterConfig filterConfig = new InitialFilterConfig();
                 CollectionColumnProperties properties = columnPropertiesMap.get(entry.getKey());
@@ -457,7 +469,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                 List<String> filterValues = entry.getValue();
                 List<InitialParamConfig> paramConfigs = new ArrayList<>();
                 for (int i = 0; i < filterValues.size(); i++) {
-                    String s =  filterValues.get(i);
+                    String s = filterValues.get(i);
                     InitialParamConfig paramConfig = new InitialParamConfig();
                     paramConfig.setName(i);
                     paramConfig.setType(type);

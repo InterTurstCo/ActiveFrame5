@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.api.server;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;

@@ -3255,8 +3255,9 @@ a:active .icon.back {
     padding: 6px 0 6px 10px;
 }
 
-.childRowUnderline:hover {
+.actionCollectionColumn:hover {
     text-decoration: underline;
+    cursor: pointer;	
 }
 
 .collectionCellWrapper div:first-child {

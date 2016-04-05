@@ -130,7 +130,7 @@ public class ActionConfigBuilder {
         }
     }
 
-    private ActionContext getContextForConfig(AbstractActionConfig config, final Map<String, Object> params) {
+    public ActionContext getContextForConfig(AbstractActionConfig config, final Map<String, Object> params) {
         final DomainObject domainObject = (DomainObject) params.get(PluginHandlerHelper.DOMAIN_OBJECT_KEY);
         final ActionConfig actionConfig = PluginHandlerHelper.cloneActionConfig((ActionConfig) config);
         ActionHandler actionHandler = new FakeActionHandler();
@@ -192,7 +192,7 @@ public class ActionConfigBuilder {
         return null;
     }
 
-    private ActionConfig resolveActionReference(final ActionRefConfig actionRefConfig) {
+    public  ActionConfig resolveActionReference(final ActionRefConfig actionRefConfig) {
         ActionConfig config = referenceMap.get(actionRefConfig.getNameRef());
         if (config == null) {
             config = actionService.getActionConfig(actionRefConfig.getNameRef(),ActionConfig.class);
