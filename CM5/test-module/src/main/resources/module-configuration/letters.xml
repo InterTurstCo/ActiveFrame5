@@ -931,9 +931,14 @@
                             <param name="3" value="Организация 4" type="string"/>
                         </extra-filter>
                     </collection-extra-filters>
-                </collection-viewer>
 
+                </collection-viewer>
                 <collection-table-buttons display-all-possible="false"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px" resizable="true"/>
+                    <linked-form name="department_form" domain-object-type="Department" modal-height="400px" modal-width="600px"/>
+                    <linked-form name="employee_form" domain-object-type="Employee" modal-height="400px" modal-width="600px"/>
+                </linked-form-mapping>
             </table-viewer>
         </widget-config>
     </form>

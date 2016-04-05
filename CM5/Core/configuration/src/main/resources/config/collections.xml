@@ -425,9 +425,8 @@
     
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
-            <column field="id" name="id" type="integer" sortable="false">
-                <act:action-ref name-ref="aDigitalSignature"/>
-            </column>
+            <column field="id" name="id" type="integer" sortable="false"/>
+
             <column field="name" name="Название организации" editable="false" type="string" sortable="true">
                 <!-- если ID типа Organization, то вызывается данная коллекция -->
                 <!-- если for-domain-object-type не указан, то данная коллекция используется "в последнюю очередь".

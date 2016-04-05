@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.IgnoreFormReadOnlyStateConfi
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
@@ -41,6 +42,9 @@ public class TableViewerConfig extends WidgetConfig {
     @Element(name = "collection-table-buttons", required = false)
     private CollectionTableButtonsConfig collectionTableButtonsConfig;
 
+    @Element(name = "linked-form-mapping", required = false)
+    private LinkedFormMappingConfig linkedFormMappingConfig;
+
     @Element(name = "collection-viewer",required = false)
     private CollectionViewerConfig collectionViewerConfig;
 
@@ -73,6 +77,14 @@ public class TableViewerConfig extends WidgetConfig {
 
     public void setCollectionViewerConfig(CollectionViewerConfig collectionViewerConfig) {
         this.collectionViewerConfig = collectionViewerConfig;
+    }
+
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return linkedFormMappingConfig;
+    }
+
+    public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
+        this.linkedFormMappingConfig = linkedFormMappingConfig;
     }
 
     public Integer getPageSize() {
@@ -161,6 +173,10 @@ public class TableViewerConfig extends WidgetConfig {
                 : that.ignoreFormReadOnlyStateConfig != null) {
             return false;
         }
+        if (linkedFormMappingConfig != null ? !linkedFormMappingConfig.equals(that.linkedFormMappingConfig)
+                : that.linkedFormMappingConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -173,6 +189,7 @@ public class TableViewerConfig extends WidgetConfig {
         result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
+        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         return result;
     }
 

@@ -45,6 +45,7 @@ public class CollectionWidgetHelper {
         breadCrumbItems = new ArrayList<BreadCrumbItem>();
     }
 
+
     public void handleHierarchyEvent(HierarchicalCollectionEvent event, final CollectionViewerConfig initialCollectionViewerConfig, final PluginPanel pluginPanel) {
         String currentCollectionName = initialCollectionViewerConfig.getCollectionRefConfig().getName();
         ExpandHierarchicalCollectionData data = new ExpandHierarchicalCollectionData(
@@ -77,6 +78,8 @@ public class CollectionWidgetHelper {
             }
         });
     }
+
+
     public void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
                                       final PluginPanel pluginPanel) {
         final CollectionPlugin collectionPlugin = ComponentRegistry.instance.get("collection.plugin");

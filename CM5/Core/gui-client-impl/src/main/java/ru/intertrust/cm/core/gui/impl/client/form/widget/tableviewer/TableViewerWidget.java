@@ -3,36 +3,56 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tableviewer;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
-import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
+import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
+import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWidgetHelper;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.ColumnContext;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
+import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSource;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.STATE_KEY;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -40,10 +60,12 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  *         Time: 20:34
  */
 @ComponentName("table-viewer")
-public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler {
+public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
+        OpenDomainObjectFormEventHandler, HasLinkedFormMappings {
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
+    private TableViewerConfig config;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -70,7 +92,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     private Widget initView() {
         WidgetDisplayConfig displayConfig = getDisplayConfig();
-        Panel pluginWrapper = new AbsolutePanel();
+        final Panel pluginWrapper = new AbsolutePanel();
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
 
@@ -84,7 +106,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         eventBus.addHandler(ParentTabSelectedEvent.TYPE, this);
         collectionWidgetHelper = new CollectionWidgetHelper(localEventBus);
         localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
-
+        localEventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
+        eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
+            @Override
+            public void updateCollection(UpdateCollectionEvent event) {
+                    pluginPanel.getCurrentPlugin().refresh();
+            }
+        });
         return pluginWrapper;
     }
 
@@ -99,7 +127,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private CollectionViewerConfig initCollectionConfig(TableViewerState state) {
-        TableViewerConfig config = state.getTableViewerConfig();
+        config = state.getTableViewerConfig();
         TableBrowserParams tableBrowserParams = createTableBrowserParams(config);
 
         if (config.getCollectionViewerConfig() == null) {
@@ -118,7 +146,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         } else {
             config.getCollectionViewerConfig().setTableBrowserParams(tableBrowserParams);
             config.getCollectionViewerConfig().setEmbedded(true);
-            return  config.getCollectionViewerConfig();
+            return config.getCollectionViewerConfig();
         }
     }
 
@@ -156,4 +184,28 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionViewerConfig config = initCollectionConfig(this.<TableViewerState>getInitialData());
         collectionWidgetHelper.handleHierarchyEvent(event, config, pluginPanel);
     }
+
+    @Override
+    public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
+
+        if (getLinkedFormMappingConfig() != null) {
+            HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
+                    eventBus, false, null, this, false).withModalWindow(true);
+            clickHandler.processClick();
+        }
+
+    }
+
+
+    @Override
+    public LinkedFormMappingConfig getLinkedFormMappingConfig() {
+        return config.getLinkedFormMappingConfig();
+    }
+
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return null;
+    }
+
+
 }

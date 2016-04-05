@@ -29,12 +29,19 @@ import java.util.Map;
 public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     private HyperlinkDisplay hyperlinkDisplay;
     private HasLinkedFormMappings widget;
+    private Boolean readOnly = false;
 
     public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
                                  Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget) {
         super(id, eventBus, tooltipContent, typeTitleMap);
         this.hyperlinkDisplay = hyperlinkDisplay;
         this.widget = widget;
+    }
+
+    public HyperlinkClickHandler(Id id, HyperlinkDisplay hyperlinkDisplay, EventBus eventBus, boolean tooltipContent,
+                                 Map<String, PopupTitlesHolder> typeTitleMap, HasLinkedFormMappings widget, Boolean readOnly) {
+        this(id, hyperlinkDisplay, eventBus, tooltipContent, typeTitleMap, widget);
+        this.readOnly = readOnly;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         if (modalWindow) {
             init(widget);
         } else {
-           openInFullWindow(true);
+            openInFullWindow(true);
 
         }
     }
@@ -61,7 +68,10 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
     }
 
     protected void noEditableOnChangeButtonClick(FormPlugin formPlugin, FormDialogBox dialogBox) {
-        createEditableFormDialogBox(dialogBox, widget);
+        if (!readOnly) {
+            createEditableFormDialogBox(dialogBox, widget);
+        }
+
     }
 
     protected void editableOnCancelClick(FormPlugin formPlugin, final FormDialogBox dialogBox) {
@@ -93,7 +103,7 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         action.perform();
     }
 
-    private void openInFullWindow(boolean editable){
+    private void openInFullWindow(boolean editable) {
         openInFullWindow(null, editable);
     }
 
@@ -107,8 +117,8 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         List<LinkedFormConfig> linkedFormConfigs = GuiUtil.getLinkedFormConfigs(widget.getLinkedFormConfig(), widget.getLinkedFormMappingConfig());
         Application.getInstance().getEventBus().fireEvent(new OpenHyperlinkInSurferEvent(id, linkedFormConfigs,
                 pluginCloseListener, editable));
-        if(dialogBox != null){
-        dialogBox.hide();
+        if (dialogBox != null) {
+            dialogBox.hide();
         }
     }
 
