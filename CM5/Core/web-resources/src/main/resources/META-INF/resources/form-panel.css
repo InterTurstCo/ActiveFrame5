@@ -523,3 +523,11 @@
     background: url("resources/defaulttheme/images/icons/calendar_icon_day.png") no-repeat 0 0;
     margin: 4px 5px;
 }
+
+.table-viewer-wrapper>div:nth-of-type(1) {
+    position: absolute;
+    top: 35px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}

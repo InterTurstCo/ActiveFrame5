@@ -93,6 +93,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private Widget initView() {
         WidgetDisplayConfig displayConfig = getDisplayConfig();
         final Panel pluginWrapper = new AbsolutePanel();
+        pluginWrapper.addStyleName("table-viewer-wrapper");
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
 
