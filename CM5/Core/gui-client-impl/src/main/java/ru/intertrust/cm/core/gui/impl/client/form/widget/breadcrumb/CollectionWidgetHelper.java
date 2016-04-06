@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.navigation.NavigationConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.event.BreadCrumbNavigationEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.HierarchicalCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginViewCreatedEventListener;
@@ -127,6 +128,7 @@ public class CollectionWidgetHelper {
             openCollectionPlugin(config, new NavigationConfig(), pluginPanel);
 
         }
+        eventBus.fireEvent(new BreadCrumbNavigationEvent());
     }
 
 }

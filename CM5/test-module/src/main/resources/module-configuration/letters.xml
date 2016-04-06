@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
     <domain-object-type name="letter" initial-status="Active">
         <fields>
             <string name="subject" length="128"/>
@@ -931,7 +931,7 @@
                             <param name="3" value="Организация 4" type="string"/>
                         </extra-filter>
                     </collection-extra-filters>
-
+                    <act:tool-bar useDefault="true"/>
                 </collection-viewer>
                 <collection-table-buttons display-all-possible="false"/>
                 <linked-form-mapping>

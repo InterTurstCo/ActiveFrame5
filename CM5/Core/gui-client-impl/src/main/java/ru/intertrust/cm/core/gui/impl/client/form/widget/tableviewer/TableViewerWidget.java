@@ -2,8 +2,9 @@ package ru.intertrust.cm.core.gui.impl.client.form.widget.tableviewer;
 
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -14,13 +15,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
-import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
-import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
-import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
-import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
-import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
-import ru.intertrust.cm.core.gui.impl.client.IWidgetStateFilter;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
@@ -30,28 +25,16 @@ import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHa
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWidgetHelper;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.ColumnContext;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
-import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
-import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
-import ru.intertrust.cm.core.gui.model.form.FormState;
-import ru.intertrust.cm.core.gui.model.form.widget.RowItem;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSource;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 
 import java.util.ArrayList;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.GUI_EXCEPTION_FILE_IS_UPLOADING_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.STATE_KEY;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -60,13 +43,14 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
-        OpenDomainObjectFormEventHandler, HasLinkedFormMappings {
+        OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler {
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
     private TableViewerConfig config;
     private HorizontalPanel toolbarPanel;
-    private ToggleButton editButton;
+    private Id selectedId;
+
     @Override
     public void setCurrentState(WidgetState currentState) {
         TableViewerState state = (TableViewerState) currentState;
@@ -97,11 +81,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
 
-        toolbarPanel = new HorizontalPanel();
-        editButton = new ToggleButton();
-        editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
-        toolbarPanel.add(editButton);
-        pluginWrapper.add(toolbarPanel);
+        pluginWrapper.add(buildToolbarPanel());
 
         String height = displayConfig.getHeight() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT : displayConfig.getHeight();
         pluginWrapper.setHeight(height);
@@ -114,13 +94,43 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         collectionWidgetHelper = new CollectionWidgetHelper(localEventBus);
         localEventBus.addHandler(HierarchicalCollectionEvent.TYPE, this);
         localEventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
+        localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
+        localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                    pluginPanel.getCurrentPlugin().refresh();
+                pluginPanel.getCurrentPlugin().refresh();
             }
         });
         return pluginWrapper;
+    }
+
+    private Widget buildToolbarPanel() {
+        ToggleButton editButton;
+        ToggleButton createButton;
+        toolbarPanel = new HorizontalPanel();
+        editButton = new ToggleButton();
+        createButton = new ToggleButton();
+        editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
+        editButton.setTitle("Редактировать");
+        createButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        createButton.setTitle("Создать");
+
+        editButton.addClickHandler(new ClickHandler() {
+                                       @Override
+                                       public void onClick(ClickEvent event) {
+                                           if (selectedId != null) {
+                                               localEventBus.fireEvent(new OpenDomainObjectFormEvent(selectedId));
+                                           }
+                                       }
+                                   }
+        );
+
+        toolbarPanel.add(editButton);
+        toolbarPanel.add(createButton);
+
+
+        return toolbarPanel;
     }
 
     @Override
@@ -134,8 +144,17 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private CollectionViewerConfig initCollectionConfig(TableViewerState state) {
+        selectedId = null;
         config = state.getTableViewerConfig();
         TableBrowserParams tableBrowserParams = createTableBrowserParams(config);
+
+        if (config.getCollectionViewerConfig() != null &&
+                config.getCollectionViewerConfig().getToolBarConfig() != null &&
+                config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) {
+            toolbarPanel.setVisible(true);
+        } else {
+            toolbarPanel.setVisible(false);
+        }
 
         if (config.getCollectionViewerConfig() == null) {
             CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
@@ -215,4 +234,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
 
+    @Override
+    public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
+        selectedId = event.getId();
+    }
+
+    @Override
+    public void onNavigation(BreadCrumbNavigationEvent event) {
+        selectedId = null;
+    }
 }
