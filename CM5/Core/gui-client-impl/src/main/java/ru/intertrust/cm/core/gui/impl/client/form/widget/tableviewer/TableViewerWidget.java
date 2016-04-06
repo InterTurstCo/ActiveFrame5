@@ -4,9 +4,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.AbsolutePanel;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
@@ -36,6 +34,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.ColumnConte
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
@@ -66,7 +65,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
     private TableViewerConfig config;
-
+    private HorizontalPanel toolbarPanel;
+    private ToggleButton editButton;
     @Override
     public void setCurrentState(WidgetState currentState) {
         TableViewerState state = (TableViewerState) currentState;
@@ -95,6 +95,12 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         final Panel pluginWrapper = new AbsolutePanel();
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
+
+        toolbarPanel = new HorizontalPanel();
+        editButton = new ToggleButton();
+        editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().filterOpenBtn());
+        toolbarPanel.add(editButton);
+        pluginWrapper.add(toolbarPanel);
 
         String height = displayConfig.getHeight() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT : displayConfig.getHeight();
         pluginWrapper.setHeight(height);
