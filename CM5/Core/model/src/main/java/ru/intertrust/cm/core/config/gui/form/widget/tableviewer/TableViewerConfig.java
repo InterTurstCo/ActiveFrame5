@@ -3,10 +3,13 @@ package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.IgnoreFormReadOnlyStateConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
@@ -19,7 +22,7 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  *         Time: 20:12
  */
 @Root(name = "table-viewer")
-public class TableViewerConfig extends WidgetConfig {
+public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMappings {
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
@@ -50,6 +53,9 @@ public class TableViewerConfig extends WidgetConfig {
 
     @Element(name = "ignore-form-read-only-state",required = false)
     private IgnoreFormReadOnlyStateConfig ignoreFormReadOnlyStateConfig;
+
+    @Element(name = "created-objects",required = false)
+    private CreatedObjectsConfig createdObjectsConfig;
 
     @Deprecated
     public CollectionViewRefConfig getCollectionViewRefConfig() {
@@ -83,8 +89,21 @@ public class TableViewerConfig extends WidgetConfig {
         return linkedFormMappingConfig;
     }
 
+    @Override
+    public LinkedFormConfig getLinkedFormConfig() {
+        return null;
+    }
+
     public void setLinkedFormMappingConfig(LinkedFormMappingConfig linkedFormMappingConfig) {
         this.linkedFormMappingConfig = linkedFormMappingConfig;
+    }
+
+    public CreatedObjectsConfig getCreatedObjectsConfig() {
+        return createdObjectsConfig;
+    }
+
+    public void setCreatedObjectsConfig(CreatedObjectsConfig createdObjectsConfig) {
+        this.createdObjectsConfig = createdObjectsConfig;
     }
 
     public Integer getPageSize() {
@@ -177,6 +196,10 @@ public class TableViewerConfig extends WidgetConfig {
                 : that.linkedFormMappingConfig != null) {
             return false;
         }
+        if (createdObjectsConfig != null ? !createdObjectsConfig.equals(that.createdObjectsConfig)
+                : that.createdObjectsConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -190,6 +213,7 @@ public class TableViewerConfig extends WidgetConfig {
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
         result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
+        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
         return result;
     }
 

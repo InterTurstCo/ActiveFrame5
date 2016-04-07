@@ -939,6 +939,11 @@
                     <linked-form name="department_form" domain-object-type="Department" modal-height="400px" modal-width="600px"/>
                     <linked-form name="employee_form" domain-object-type="Employee" modal-height="400px" modal-width="600px"/>
                 </linked-form-mapping>
+                <created-objects>
+                    <created-object domain-object-type="Organization" text="Организация"/>
+                    <created-object domain-object-type="Department" text="Подразделение"/>
+                    <created-object domain-object-type="Employee" text="Сотрудник"/>
+                </created-objects>
             </table-viewer>
         </widget-config>
     </form>

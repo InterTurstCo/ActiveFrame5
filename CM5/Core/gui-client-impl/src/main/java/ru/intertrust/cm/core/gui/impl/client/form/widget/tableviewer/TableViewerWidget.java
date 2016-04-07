@@ -7,16 +7,26 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
-import ru.intertrust.cm.core.config.gui.navigation.*;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
+import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
@@ -25,16 +35,20 @@ import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHa
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWidgetHelper;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
 
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.*;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -50,12 +64,28 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private TableViewerConfig config;
     private HorizontalPanel toolbarPanel;
     private Id selectedId;
+    private HandlerRegistration addButtonHandlerRegistration;
+    private ToggleButton editButton;
+    private Button addButton;
+    private TableViewerState state;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
-        TableViewerState state = (TableViewerState) currentState;
+        state = (TableViewerState) currentState;
         CollectionViewerConfig config = initCollectionConfig(state);
         collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel);
+
+        if (addButton != null) {
+            if (state.hasAllowedCreationDoTypes()) {
+                if (addButtonHandlerRegistration != null) {
+                    addButtonHandlerRegistration.removeHandler();
+                }
+                addButtonHandlerRegistration = addHandlersToAddButton(addButton);
+
+            } else {
+                addButton.removeFromParent();
+            }
+        }
     }
 
     @Override
@@ -96,6 +126,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
+
         eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
@@ -106,15 +137,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     }
 
     private Widget buildToolbarPanel() {
-        ToggleButton editButton;
-        ToggleButton createButton;
         toolbarPanel = new HorizontalPanel();
         editButton = new ToggleButton();
-        createButton = new ToggleButton();
+        addButton = new Button();
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         editButton.setTitle("Редактировать");
-        createButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
-        createButton.setTitle("Создать");
+        addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        addButton.setTitle("Создать");
 
         editButton.addClickHandler(new ClickHandler() {
                                        @Override
@@ -127,7 +156,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         );
 
         toolbarPanel.add(editButton);
-        toolbarPanel.add(createButton);
+        toolbarPanel.add(addButton);
 
 
         return toolbarPanel;
@@ -242,5 +271,116 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     public void onNavigation(BreadCrumbNavigationEvent event) {
         selectedId = null;
+    }
+
+    private HandlerRegistration addHandlersToAddButton(Button button) {
+        final CreatedObjectsConfig createdObjectsConfig = state.getRestrictedCreatedObjectsConfig();
+        if (createdObjectsConfig != null && !createdObjectsConfig.getCreateObjectConfigs().isEmpty()) {
+            if (createdObjectsConfig.getCreateObjectConfigs().size() == 1) {
+                String domainObjectType = createdObjectsConfig.getCreateObjectConfigs().get(0).getDomainObjectType();
+                return button.addClickHandler(new OpenFormClickHandler(domainObjectType, null));
+            } else {
+                return button.addClickHandler(new ClickHandler() {
+                    @Override
+                    public void onClick(ClickEvent event) {
+                        SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
+                        selectDomainObjectTypePopup.show();
+                    }
+                });
+            }
+        }
+        return null;
+    }
+
+
+    class OpenFormClickHandler implements ClickHandler {
+        private String domainObjectType;
+        private PopupPanel sourcePopup;
+
+        OpenFormClickHandler(String domainObjectType, PopupPanel sourcePopup) {
+            this.domainObjectType = domainObjectType;
+            this.sourcePopup = sourcePopup;
+        }
+
+        @Override
+        public void onClick(ClickEvent event) {
+            showNewForm(domainObjectType);
+            if (sourcePopup != null) {
+                sourcePopup.hide();
+            }
+        }
+    }
+
+    class SelectDomainObjectTypePopup extends PopupPanel {
+        SelectDomainObjectTypePopup(CreatedObjectsConfig createdObjectsConfig) {
+            super(true, false);
+            this.setPopupPosition(addButton.getAbsoluteLeft() - 48, addButton.getAbsoluteTop() + 40);
+            AbsolutePanel header = new AbsolutePanel();
+            header.setStyleName("srch-corner");
+            final VerticalPanel body = new VerticalPanel();
+            AbsolutePanel container = new AbsolutePanel();
+            container.setStyleName("settings-popup");
+            container.getElement().getStyle().clearOverflow();
+
+            for (CreatedObjectConfig createdObjectConfig : createdObjectsConfig.getCreateObjectConfigs()) {
+                final AbsolutePanel menuItemContainer = new AbsolutePanel();
+                menuItemContainer.setStyleName("settingsItem");
+                menuItemContainer.add(new Label(createdObjectConfig.getText()));
+                menuItemContainer.addDomHandler(new OpenFormClickHandler(createdObjectConfig.getDomainObjectType(), this), ClickEvent.getType());
+                body.add(menuItemContainer);
+            }
+            container.add(header);
+            container.add(body);
+            this.add(container);
+        }
+    }
+
+
+    protected void showNewForm(final String domainObjectType) {
+        LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
+
+        DialogBoxAction saveAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                SaveAction action = getSaveAction(formPlugin, null);
+                action.perform();
+            }
+        };
+
+
+        DialogBoxAction cancelAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                // no op
+            }
+        };
+        LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
+                .setSaveAction(saveAction)
+                .setCancelAction(cancelAction)
+                .withHeight(GuiUtil.getModalHeight(domainObjectType, state.getTableViewerConfig().getLinkedFormMappingConfig(),null))
+                .withWidth(GuiUtil.getModalWidth(domainObjectType,state.getTableViewerConfig().getLinkedFormMappingConfig(),null))
+                .withObjectType(domainObjectType)
+                .withLinkedFormMapping(state.getTableViewerConfig().getLinkedFormMappingConfig())
+                .withPopupTitlesHolder(null)
+                .withParentWidgetIds(null)
+                .withWidgetsContainer(getContainer())
+                .withTypeTitleMap(null)
+                .withFormResizable(false)
+                .buildDialogBox();
+        lfb.display();
+
+    }
+
+    protected SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        //saveActionContext.setRootObjectId(rootObjectId);
+        formPlugin.setLocalEventBus(eventBus);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        actionConfig.setDirtySensitivity(false);
+        saveActionContext.setActionConfig(actionConfig);
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 }

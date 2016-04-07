@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -9,6 +13,8 @@ import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfi
  */
 public class TableViewerState extends WidgetState {
     private TableViewerConfig tableViewerConfig;
+    private CreatedObjectsConfig restrictedCreatedObjectsConfig;
+    private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
 
     public TableViewerState() {
     }
@@ -21,4 +27,23 @@ public class TableViewerState extends WidgetState {
         return tableViewerConfig;
     }
 
+    public CreatedObjectsConfig getRestrictedCreatedObjectsConfig() {
+        return restrictedCreatedObjectsConfig;
+    }
+
+    public void setRestrictedCreatedObjectsConfig(CreatedObjectsConfig restrictedCreatedObjectsConfig) {
+        this.restrictedCreatedObjectsConfig = restrictedCreatedObjectsConfig;
+    }
+
+    public boolean hasAllowedCreationDoTypes(){
+        return !restrictedCreatedObjectsConfig.getCreateObjectConfigs().isEmpty();
+    }
+
+    public Map<String, Collection<String>> getParentWidgetIdsForNewFormMap() {
+        return parentWidgetIdsForNewFormMap;
+    }
+
+    public void setParentWidgetIdsForNewFormMap(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
+        this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
+    }
 }
