@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFo
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.form.ParentTabSelectedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.form.WidgetsContainer;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWidgetHelper;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
@@ -68,6 +69,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private ToggleButton editButton;
     private Button addButton;
     private TableViewerState state;
+    private Boolean editableState = true;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -133,6 +135,10 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 pluginPanel.getCurrentPlugin().refresh();
             }
         });
+        WidgetsContainer wc = getContainer();
+        if(wc.getPlugin() instanceof FormPlugin){
+            editableState = ((FormPlugin)wc.getPlugin()).getInitialVisualState().isEditable();
+        }
         return pluginWrapper;
     }
 
@@ -159,8 +165,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         toolbarPanel.add(editButton);
         toolbarPanel.add(addButton);
-
-
         return toolbarPanel;
     }
 
@@ -179,9 +183,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         config = state.getTableViewerConfig();
         TableBrowserParams tableBrowserParams = createTableBrowserParams(config);
 
-        if (config.getCollectionViewerConfig() != null &&
+        if ((config.getCollectionViewerConfig() != null &&
                 config.getCollectionViewerConfig().getToolBarConfig() != null &&
-                config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) {
+                config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) && editableState) {
             toolbarPanel.setVisible(true);
         } else {
             toolbarPanel.setVisible(false);
@@ -245,7 +249,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
 
-        if (getLinkedFormMappingConfig() != null) {
+        if (getLinkedFormMappingConfig() != null && editableState) {
             HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
                     eventBus, false, null, this, false).withModalWindow(true);
             clickHandler.processClick();
