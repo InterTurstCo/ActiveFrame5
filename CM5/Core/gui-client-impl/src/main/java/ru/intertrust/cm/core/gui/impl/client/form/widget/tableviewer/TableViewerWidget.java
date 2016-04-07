@@ -141,8 +141,10 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         editButton = new ToggleButton();
         addButton = new Button();
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
+        editButton.addStyleName("edit-btn-table-viewer");
         editButton.setTitle("Редактировать");
         addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        addButton.addStyleName("add-btn-table-viewer");
         addButton.setTitle("Создать");
 
         editButton.addClickHandler(new ClickHandler() {

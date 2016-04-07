@@ -526,8 +526,29 @@
 
 .table-viewer-wrapper>div:nth-of-type(1) {
     position: absolute;
-    top: 35px;
+    top: 39px;
     bottom: 0;
     left: 0;
     right: 0;
+}
+
+button.add-btn-table-viewer {
+    margin: 5px;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #dfe2e5;
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+}
+
+.add-btn-table-viewer:active {
+    box-shadow: none;
+}
+
+div.edit-btn-table-viewer {
+    box-shadow: 1px 1px 2px rgba(0,0,0,0.4);
+    cursor: pointer;
+}
+
+.edit-btn-table-viewer:active {
+    box-shadow: none;
 }
