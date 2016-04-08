@@ -552,3 +552,11 @@ div.edit-btn-table-viewer {
 .edit-btn-table-viewer:active {
     box-shadow: none;
 }
+
+.panel-show {
+    display: block;
+}
+
+.panel-hide {
+    display: none;
+}
