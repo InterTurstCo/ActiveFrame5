@@ -33,6 +33,7 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
     public TableViewerState getInitialState(WidgetContext context) {
         TableViewerConfig widgetConfig = (TableViewerConfig) context.getWidgetConfig();
         TableViewerState initialState = new TableViewerState(widgetConfig);
+        initialState.setRootObject(context.getFormObjects().getRootNode().getDomainObject());
         if (widgetConfig.getLinkedFormMappingConfig() != null &&
                 widgetConfig.getCreatedObjectsConfig() != null) {
             initialState.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,

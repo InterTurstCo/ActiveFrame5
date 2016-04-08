@@ -1087,8 +1087,8 @@
         </widget-config>
     </form>
 
-    <form name="department_form" domain-object-type="Department" is-default="true">
-        <default-value-setter>
+    <form name="department_form" domain-object-type="Department" is-default="true" default-value-setter="department.form.value.setter">
+        <default-value-setter component="department.form.value.setter">
             <widget-states>
                 <editable/>
             </widget-states>

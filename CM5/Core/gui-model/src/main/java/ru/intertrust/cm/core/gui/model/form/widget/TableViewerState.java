@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
 
@@ -15,6 +16,7 @@ public class TableViewerState extends WidgetState {
     private TableViewerConfig tableViewerConfig;
     private CreatedObjectsConfig restrictedCreatedObjectsConfig;
     private Map<String, Collection<String>> parentWidgetIdsForNewFormMap;
+    private DomainObject rootObject;
 
     public TableViewerState() {
     }
@@ -45,5 +47,13 @@ public class TableViewerState extends WidgetState {
 
     public void setParentWidgetIdsForNewFormMap(Map<String, Collection<String>> parentWidgetIdsForNewFormMap) {
         this.parentWidgetIdsForNewFormMap = parentWidgetIdsForNewFormMap;
+    }
+
+    public DomainObject getRootObject() {
+        return rootObject;
+    }
+
+    public void setRootObject(DomainObject rootObject) {
+        this.rootObject = rootObject;
     }
 }
