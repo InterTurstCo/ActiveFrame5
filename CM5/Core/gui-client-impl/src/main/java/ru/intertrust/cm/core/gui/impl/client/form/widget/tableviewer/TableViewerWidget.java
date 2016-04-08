@@ -77,7 +77,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionViewerConfig config = initCollectionConfig(state);
         collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel);
 
-        if (addButton != null) {
+        if (addButton != null && state.getTableViewerConfig().getLinkedFormMappingConfig() != null &&
+                state.getTableViewerConfig().getCreatedObjectsConfig() != null) {
             if (state.hasAllowedCreationDoTypes()) {
                 if (addButtonHandlerRegistration != null) {
                     addButtonHandlerRegistration.removeHandler();

@@ -33,11 +33,14 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
     public TableViewerState getInitialState(WidgetContext context) {
         TableViewerConfig widgetConfig = (TableViewerConfig) context.getWidgetConfig();
         TableViewerState initialState = new TableViewerState(widgetConfig);
-        initialState.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
-                context.getWidgetConfigsById().values()));
-        DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
-        CreatedObjectsConfig restrictedCreatedObjectsConfig = createRestrictedCreateObjectsConfig(root, widgetConfig);
-        initialState.setRestrictedCreatedObjectsConfig(restrictedCreatedObjectsConfig);
+        if (widgetConfig.getLinkedFormMappingConfig() != null &&
+                widgetConfig.getCreatedObjectsConfig() != null) {
+            initialState.setParentWidgetIdsForNewFormMap(createParentWidgetIdsForNewFormMap(widgetConfig,
+                    context.getWidgetConfigsById().values()));
+            DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+            CreatedObjectsConfig restrictedCreatedObjectsConfig = createRestrictedCreateObjectsConfig(root, widgetConfig);
+            initialState.setRestrictedCreatedObjectsConfig(restrictedCreatedObjectsConfig);
+        }
         return initialState;
     }
 
@@ -84,7 +87,7 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
             if (linkedFormName != null && !linkedFormName.isEmpty()) {
                 FormConfig defaultFormConfig = configurationService.getConfig(FormConfig.class, linkedFormName);
                 String domainObjectType = defaultFormConfig.getDomainObjectType();
-                if(accessVerificationService.isCreatePermitted(domainObjectType)){
+                if (accessVerificationService.isCreatePermitted(domainObjectType)) {
                     CreatedObjectConfig createdObjectConfig = new CreatedObjectConfig();
                     createdObjectConfig.setDomainObjectType(domainObjectType);
                     createdObjectConfig.setText(domainObjectType);
