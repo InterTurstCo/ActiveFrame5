@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
@@ -46,6 +47,7 @@ import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -137,12 +139,20 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                //if (lastUpdatedDate != event.getIdentifiableObject().getTimestamp("updated_date") ||
-                  //      lastUpdatedObject != event.getIdentifiableObject().getId()) {
-                   // lastUpdatedDate = event.getIdentifiableObject().getTimestamp("updated_date");
-                   // lastUpdatedObject = event.getIdentifiableObject().getId();
-                    pluginPanel.getCurrentPlugin().refresh();
-               // }
+  /*
+                if(((TableViewerState)initialData).getRootObject()!=null){
+                    if(config.getCollectionViewerConfig().getTableBrowserParams()!=null){
+                        Dto filterParams = config.getCollectionViewerConfig().getTableBrowserParams().getComplexFiltersParams();
+                        if(filterParams!=null){
+                            ((ComplexFiltersParams)((CollectionPluginData)pluginPanel.getCurrentPlugin().getCurrentState()).getTableBrowserParams().getComplexFiltersParams())
+                                    .setRootId(((TableViewerState)initialData).getRootObject().getId());
+                        }
+                    }
+
+                }
+
+                pluginPanel.getCurrentPlugin().refresh();
+*/
             }
         });
         WidgetsContainer wc = getContainer();
