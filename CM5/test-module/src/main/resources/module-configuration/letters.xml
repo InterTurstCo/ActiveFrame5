@@ -925,11 +925,14 @@
                     <collection-view-ref name="organizations_default_view"/>
                     <default-sort-criteria column-field="name" order="desc"/>
                     <collection-extra-filters>
-                        <extra-filter name="byNames" >
+                        <extra-filter name="byNames" null-value-filter-name="nullValueFilter">
+                            <param name="0" set-base-object="true"/>
+                            <!--
                             <param name="0" value="Организация 1" type="string"/>
                             <param name="1" value="Организация 2" type="string"/>
                             <param name="2" value="Организация 3" type="string"/>
                             <param name="3" value="Организация 4" type="string"/>
+                            -->
                         </extra-filter>
                     </collection-extra-filters>
                     <act:tool-bar useDefault="true"/>
@@ -1244,6 +1247,14 @@
                     </tr>
                     <tr>
                         <td>
+                            <widget id="description_label"/>
+                        </td>
+                        <td>
+                            <widget id="description"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             <widget id="boss_label"/>
                         </td>
                         <td>
@@ -1396,6 +1407,12 @@
                 </selection-sort-criteria>
 
             </suggest-box>
+            <label id="description_label">
+                <text>Описание:</text>
+            </label>
+            <text-box id="description">
+                <field-path value="description"/>
+            </text-box>
             <label id="boss_label">
                 <text>Начальник:</text>
             </label>

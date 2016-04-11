@@ -329,7 +329,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         Map<String, CollectionColumnProperties> filterNameColumnPropertiesMap = CollectionPluginHelper.getFilterNameColumnPropertiesMap(properties, initialFiltersConfig);
         InitialFiltersParams initialFiltersParams = new InitialFiltersParams(filterNameColumnPropertiesMap);
         filterBuilder.prepareInitialFilters(initialFiltersConfig, initialFiltersParams, filters);
-        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), new ComplexFiltersParams(), filters);
+        filterBuilder.prepareExtraFilters(request.getHierarchicalFiltersConfig(), (ComplexFiltersParams)((CollectionRefreshRequest) dto).getFiltersParams(), filters);
         Set<Id> includedIds = request.getIncludedIds();
         if (!includedIds.isEmpty()) {
             filterBuilder.prepareIncludedIdsFilter(includedIds, filters);

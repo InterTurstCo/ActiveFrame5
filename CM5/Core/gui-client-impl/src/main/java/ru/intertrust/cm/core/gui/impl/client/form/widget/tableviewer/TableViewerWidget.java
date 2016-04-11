@@ -8,6 +8,7 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
@@ -47,6 +48,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
@@ -70,6 +72,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private Button addButton;
     private TableViewerState state;
     private Boolean editableState = true;
+    private Date lastUpdatedDate;
+    private Id lastUpdatedObject;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -130,15 +134,20 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
 
-        eventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
+        localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-                pluginPanel.getCurrentPlugin().refresh();
+                //if (lastUpdatedDate != event.getIdentifiableObject().getTimestamp("updated_date") ||
+                  //      lastUpdatedObject != event.getIdentifiableObject().getId()) {
+                   // lastUpdatedDate = event.getIdentifiableObject().getTimestamp("updated_date");
+                   // lastUpdatedObject = event.getIdentifiableObject().getId();
+                    pluginPanel.getCurrentPlugin().refresh();
+               // }
             }
         });
         WidgetsContainer wc = getContainer();
-        if(wc.getPlugin() instanceof FormPlugin){
-            editableState = ((FormPlugin)wc.getPlugin()).getInitialVisualState().isEditable();
+        if (wc.getPlugin() instanceof FormPlugin) {
+            editableState = ((FormPlugin) wc.getPlugin()).getInitialVisualState().isEditable();
         }
         return pluginWrapper;
     }
@@ -252,7 +261,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         if (getLinkedFormMappingConfig() != null && editableState) {
             HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
-                    eventBus, false, null, this, false).withModalWindow(true);
+                    localEventBus, false, null, this, false).withModalWindow(true);
             clickHandler.processClick();
         }
 
@@ -364,8 +373,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
                 .setSaveAction(saveAction)
                 .setCancelAction(cancelAction)
-                .withHeight(GuiUtil.getModalHeight(domainObjectType, state.getTableViewerConfig().getLinkedFormMappingConfig(),null))
-                .withWidth(GuiUtil.getModalWidth(domainObjectType,state.getTableViewerConfig().getLinkedFormMappingConfig(),null))
+                .withHeight(GuiUtil.getModalHeight(domainObjectType, state.getTableViewerConfig().getLinkedFormMappingConfig(), null))
+                .withWidth(GuiUtil.getModalWidth(domainObjectType, state.getTableViewerConfig().getLinkedFormMappingConfig(), null))
                 .withObjectType(domainObjectType)
                 .withLinkedFormMapping(state.getTableViewerConfig().getLinkedFormMappingConfig())
                 .withPopupTitlesHolder(null)
@@ -381,7 +390,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     protected SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
         SaveActionContext saveActionContext = new SaveActionContext();
         //saveActionContext.setRootObjectId(rootObjectId);
-        formPlugin.setLocalEventBus(eventBus);
+        formPlugin.setLocalEventBus(localEventBus);
         final ActionConfig actionConfig = new ActionConfig("save.action");
         actionConfig.setDirtySensitivity(false);
         saveActionContext.setActionConfig(actionConfig);

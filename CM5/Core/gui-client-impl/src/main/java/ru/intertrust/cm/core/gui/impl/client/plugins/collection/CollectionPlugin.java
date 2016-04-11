@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSu
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
@@ -101,6 +102,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
         final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
         final Id selectedId = (selectedIds == null || selectedIds.size() == 0) ? null : selectedIds.get(0);
+
         List<String> expandableTypes = new ArrayList<String>();
         if (((CollectionViewerConfig) getConfig()).getChildCollectionConfig() != null) {
 
@@ -110,12 +112,14 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             }
         }
         rowsRequest.setExpandableTypes(expandableTypes);
+        Dto filtersParams = null;
         if (getPluginData().getTableBrowserParams() != null && getPluginData().getTableBrowserParams().getCollectionExtraFiltersConfig()!=null) {
             rowsRequest.setHierarchicalFiltersConfig(getPluginData().getTableBrowserParams().getCollectionExtraFiltersConfig());
+            filtersParams = getPluginData().getTableBrowserParams().getComplexFiltersParams();
         }
 
         final Command command = new Command("refreshCollection", "collection.plugin",
-                new CollectionRefreshRequest(rowsRequest, selectedId));
+                new CollectionRefreshRequest(rowsRequest, selectedId, filtersParams));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {

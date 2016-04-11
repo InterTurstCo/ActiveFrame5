@@ -138,7 +138,7 @@
         <prototype>
             <![CDATA[
                     select
-                        o.id, o.name, o.created_date, o.created_by, o.boss as boss, s.name as status_name, e.name as boss_name
+                        o.id, o.name, o.created_date, o.created_by, o.boss as boss, s.name as status_name, e.name as boss_name,o.description
                     from
                         Organization o
                     left join employee e
@@ -159,6 +159,7 @@
                 ]]>
             </criteria>
         </filter>
+        <!--
         <filter name="byNames">
             <criteria placeholder="where-clause">
                 <![CDATA[
@@ -166,6 +167,24 @@
                 ]]>
             </criteria>
         </filter>
+        -->
+        <filter name="byNames">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.name = 'Организация 1'
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="nullValueFilter">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    o.description is not null
+                ]]>
+            </criteria>
+        </filter>
+
+
         <filter name="byCreator">
             <criteria placeholder="where-clause">
                 <![CDATA[
