@@ -30,6 +30,7 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     private Map<String, Integer> temporaryCountOfType;
     private int recursiveDeepness;
     private Collection<WidgetIdComponentName> widgetIdComponentNames;
+
     public HierarchyBrowserConfig getHierarchyBrowserConfig() {
         return hierarchyBrowserConfig;
     }
@@ -205,19 +206,30 @@ public class HierarchyBrowserWidgetState extends LinkEditingWidgetState {
     }
 
     public void handleCommonSingleChoice(HierarchyBrowserItem item) {
-        Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
-        while (iterator.hasNext()){
-            HierarchyBrowserItem chosenItem = iterator.next();
-            iterator.remove();
-            postTempItemRemove(chosenItem);
+        if (temporaryChosenItems == null){
+            temporaryChosenItems = chosenItems;
         }
+        if(temporarySelectedIds == null){
+            temporarySelectedIds = selectedIds;
+        }
+        if(temporaryCountOfType == null){
+            temporaryCountOfType = HierarchyBrowserUtil.createTemporaryCountOfType(collectionNameNodeMap);
+        }
+
+            Iterator<HierarchyBrowserItem> iterator = temporaryChosenItems.iterator();
+            while (iterator.hasNext()) {
+                HierarchyBrowserItem chosenItem = iterator.next();
+                iterator.remove();
+                postTempItemRemove(chosenItem);
+            }
+
         if (item.isChosen()) {
             handleAddingToTempSate(item);
 
         }
     }
 
-    private void postTempItemRemove(HierarchyBrowserItem item){
+    private void postTempItemRemove(HierarchyBrowserItem item) {
         temporarySelectedIds.remove(item.getId());
         decrementTempCountOfType(item.getNodeCollectionName());
 
