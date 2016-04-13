@@ -523,3 +523,53 @@
     background: url("resources/defaulttheme/images/icons/calendar_icon_day.png") no-repeat 0 0;
     margin: 4px 5px;
 }
+
+.table-viewer-wrapper>div:nth-of-type(1) {
+    position: absolute;
+    top: 39px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+button.add-btn-table-viewer {
+    margin: 5px;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #dfe2e5;
+}
+
+.add-btn-table-viewer:hover {
+    border: 1px solid #d6d9dc;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+}
+
+.add-btn-table-viewer:active {
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+}
+
+div.edit-btn-table-viewer {
+    cursor: pointer;
+}
+
+.edit-btn-table-viewer:hover {
+    border: 1px solid #d6d9dc;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+}
+
+.edit-btn-table-viewer:active {
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+}
+
+
+.panel-show {
+    display: block;
+}
+
+.panel-hide {
+    display: none;
+}

@@ -67,7 +67,9 @@ public class AccessControlUtility {
         List<Id> parentIds = new ArrayList<>(refFields.size());
         for (ReferenceFieldConfig fieldConfig : refFields) {
             Id parentObject = domainObject.getReference(fieldConfig.getName());
-            parentIds.add(parentObject);
+            if (parentObject != null) {
+                parentIds.add(parentObject);
+            }
         }
         return parentIds;
     }

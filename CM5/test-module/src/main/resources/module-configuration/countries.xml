@@ -1481,7 +1481,9 @@
             <column field="description" name="Описание" type="string" editable="false" sortable="true"
                     search-filter="byDescription"/>
             <column field="square" name="Площадь" type="string" editable="false" sortable="true"
-                    search-filter="bySquare"/>
+                    search-filter="bySquare">
+                <act:action-ref name-ref="aCreate"/>
+            </column>
         </display>
     </collection-view>
 

@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.gui.model;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.AscSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.DescSortCriteriaConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.ImageMappingsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 import java.util.HashMap;
 
@@ -43,6 +46,8 @@ public class CollectionColumnProperties implements Dto {
     private HashMap<String, Object> properties = new HashMap<String, Object>();
     private RendererConfig rendererConfig;
     private ImageMappingsConfig imageMappingsConfig;
+    private ActionRefConfig actionRefConfig;
+    private ActionContext actionContext;
 
     public AscSortCriteriaConfig getAscSortCriteriaConfig() {
         return ascSortCriteriaConfig;
@@ -85,11 +90,28 @@ public class CollectionColumnProperties implements Dto {
         return this;
     }
 
+    public ActionRefConfig getActionRefConfig() {
+        return actionRefConfig;
+    }
+
+    public void setActionRefConfig(ActionRefConfig actionRefConfig) {
+        this.actionRefConfig = actionRefConfig;
+    }
+
+
     public Object getProperty(final String name) {
         return properties.get(name);
     }
 
     public HashMap<String, Object> getProperties() {
         return new HashMap<String, Object>(properties);
+    }
+
+    public ActionContext getActionContext() {
+        return actionContext;
+    }
+
+    public void setActionContext(ActionContext actionContext) {
+        this.actionContext = actionContext;
     }
 }

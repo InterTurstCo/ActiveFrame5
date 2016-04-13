@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.base.Localizable;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 
 import java.util.ArrayList;
@@ -90,6 +91,9 @@ public class CollectionColumnConfig implements Dto {
     @ElementList(inline = true, required = false)
     private List<ChildCollectionViewerConfig> childCollectionViewerConfigList = new ArrayList<>();
 
+    @Element(name = "action-ref", required = false)
+    private ActionRefConfig actionRefConfig;
+
     public String getField() {
         return field;
     }
@@ -160,6 +164,14 @@ public class CollectionColumnConfig implements Dto {
 
     public void setAscSortCriteriaConfig(AscSortCriteriaConfig ascSortCriteriaConfig) {
         this.ascSortCriteriaConfig = ascSortCriteriaConfig;
+    }
+
+    public ActionRefConfig getActionRefConfig() {
+        return actionRefConfig;
+    }
+
+    public void setActionRefConfig(ActionRefConfig actionRefConfig) {
+        this.actionRefConfig = actionRefConfig;
     }
 
     public DescSortCriteriaConfig getDescSortCriteriaConfig() {
@@ -348,6 +360,9 @@ public class CollectionColumnConfig implements Dto {
         if (drillDownStyle != null ? !drillDownStyle.equals(that.drillDownStyle) : that.drillDownStyle != null) {
             return false;
         }
+        if (actionRefConfig != null ? !actionRefConfig.equals(that.actionRefConfig) : that.actionRefConfig != null) {
+            return false;
+        }
         if (expandable != that.expandable) {
             return false;
         }
@@ -378,6 +393,7 @@ public class CollectionColumnConfig implements Dto {
         result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
         result = 31 * result + (childCollectionViewerConfigList != null ? childCollectionViewerConfigList.hashCode() : 0);
         result = 31 * result + (drillDownStyle != null ? drillDownStyle.hashCode() : 0);
+        result = 31 * result + (actionRefConfig != null ? actionRefConfig.hashCode() : 0);
         return result;
     }
 }

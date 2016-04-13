@@ -5,9 +5,8 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.util.ModelConstants;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.*;
 import ru.intertrust.cm.core.config.gui.form.widget.SearchAreaRefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.SearchCollectionRefConfig;
-import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.navigation.counters.NonReadElementsDefinitionConfig;
@@ -54,6 +53,15 @@ public class CollectionViewerConfig extends PluginConfig {
     @Element(name = "rows-selection", required = false)
     private RowsSelectionConfig rowsSelectionConfig;
 
+    @Element(name = "collection-extra-filters",required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
+
+    @Element(name = "user-settings",required = false)
+    private UserSettingsConfig userSettingsConfig;
+
+    @Element(name = "current-row-change",required = false)
+    private CurrentRowChangeConfig currentRowChangeConfig;
+
     private TableBrowserParams tableBrowserParams;
 
     private boolean isEmbedded;
@@ -83,6 +91,22 @@ public class CollectionViewerConfig extends PluginConfig {
         return defaultSortCriteriaConfig;
     }
 
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
+    }
+
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
+    }
+
+    public UserSettingsConfig getUserSettingsConfig() {
+        return userSettingsConfig;
+    }
+
+    public void setUserSettingsConfig(UserSettingsConfig userSettingsConfig) {
+        this.userSettingsConfig = userSettingsConfig;
+    }
+
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
     }
@@ -93,6 +117,14 @@ public class CollectionViewerConfig extends PluginConfig {
 
     public void setCollectionViewRefConfig(CollectionViewRefConfig collectionViewRefConfig) {
         this.collectionViewRefConfig = collectionViewRefConfig;
+    }
+
+    public CurrentRowChangeConfig getCurrentRowChangeConfig() {
+        return currentRowChangeConfig;
+    }
+
+    public void setCurrentRowChangeConfig(CurrentRowChangeConfig currentRowChangeConfig) {
+        this.currentRowChangeConfig = currentRowChangeConfig;
     }
 
     public SearchAreaRefConfig getSearchAreaRefConfig() {
@@ -232,6 +264,11 @@ public class CollectionViewerConfig extends PluginConfig {
             return false;
         }
 
+        if (userSettingsConfig != null ? !userSettingsConfig.equals(that.getUserSettingsConfig()) : that.
+                getUserSettingsConfig() != null) {
+            return false;
+        }
+
         if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.
                 getCollectionViewRefConfig() != null) {
             return false;
@@ -258,7 +295,9 @@ public class CollectionViewerConfig extends PluginConfig {
         if (rowsSelectionConfig != null ? !rowsSelectionConfig.equals(that.rowsSelectionConfig) : that.rowsSelectionConfig != null) {
             return false;
         }
-
+        if (currentRowChangeConfig != null ? !currentRowChangeConfig.equals(that.currentRowChangeConfig) : that.currentRowChangeConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -271,7 +310,9 @@ public class CollectionViewerConfig extends PluginConfig {
         result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
         result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
         result = 31 * result + (childCollectionConfig != null ? childCollectionConfig.hashCode() : 0);
+        result = 31 * result + (userSettingsConfig != null ? userSettingsConfig.hashCode() : 0);
         result = 31 * result + (filterPanelConfig != null ? filterPanelConfig.hashCode() : 0);
+        result = 31 * result + (currentRowChangeConfig != null ? currentRowChangeConfig.hashCode() : 0);
         return result;
     }
 

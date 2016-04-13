@@ -27,6 +27,7 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSu
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
@@ -53,6 +54,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     protected DomainObjectSurferPlugin containingDomainObjectSurferPlugin;
     private Map<Id, ExpandedRowState> rowStates = new HashMap<Id, ExpandedRowState>();
     private Map<Id, Boolean> changedRowsSelection = new HashMap<Id, Boolean>();
+
     // установка локальной шины событий плагину
     public void setLocalEventBus(EventBus eventBus) {
         this.eventBus = eventBus;
@@ -99,19 +101,25 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     public void refresh() {
         final CollectionRowsRequest rowsRequest = getCollectionRowRequest();
         final List<Id> selectedIds = ((CollectionPluginView) getView()).getSelectedIds();
-        final Id selectedId = (selectedIds == null || selectedIds.size()==0) ? null : selectedIds.get(0);
-        List<String> expandableTypes = new ArrayList<String>();
-        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
+        final Id selectedId = (selectedIds == null || selectedIds.size() == 0) ? null : selectedIds.get(0);
 
-            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
-                    getExpandableObjectsConfig().getExpandableObjects()){
+        List<String> expandableTypes = new ArrayList<String>();
+        if (((CollectionViewerConfig) getConfig()).getChildCollectionConfig() != null) {
+
+            for (ExpandableObjectConfig expandableObjectConfig : ((CollectionViewerConfig) getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()) {
                 expandableTypes.add(expandableObjectConfig.getObjectName());
             }
         }
         rowsRequest.setExpandableTypes(expandableTypes);
+        Dto filtersParams = null;
+        if (getPluginData().getTableBrowserParams() != null && getPluginData().getTableBrowserParams().getCollectionExtraFiltersConfig()!=null) {
+            rowsRequest.setHierarchicalFiltersConfig(getPluginData().getTableBrowserParams().getCollectionExtraFiltersConfig());
+            filtersParams = getPluginData().getTableBrowserParams().getComplexFiltersParams();
+        }
 
         final Command command = new Command("refreshCollection", "collection.plugin",
-                new CollectionRefreshRequest(rowsRequest, selectedId));
+                new CollectionRefreshRequest(rowsRequest, selectedId, filtersParams));
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -153,8 +161,8 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     @Override
     public void sideBarFixPositionEvent(SideBarResizeEvent event) {
         CollectionPluginView collectionPluginView = (CollectionPluginView) getView();
-        if(collectionPluginView != null){
-                collectionPluginView.sideBarFixPositionEvent(event);
+        if (collectionPluginView != null) {
+            collectionPluginView.sideBarFixPositionEvent(event);
         }
     }
 
@@ -175,7 +183,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             ExpandedRowState rowState = new ExpandedRowState();
             rowStates.put(effectedId, rowState);
             int index = items.indexOf(effectedRowItem) + 1;
-           fetchAndHandleItems(index, effectedRowItem, rowState);
+            fetchAndHandleItems(index, effectedRowItem, rowState);
         } else {
             ExpandedRowState rowState = rowStates.get(effectedId);
             removeItems(items, rowState.getItems());
@@ -190,6 +198,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         }
 
     }
+
     @Override
     public void onCollectionRowFilteredEvent(CollectionRowFilteredEvent event) {
         final CollectionRowItem effectedRowItem = event.getEffectedRowItem();
@@ -223,21 +232,21 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         fetchAndHandleItems(index, effectedRowItem, rowState);
     }
 
-    public Map<Id, Boolean> getChangedRowsState(){
-          return changedRowsSelection;
+    public Map<Id, Boolean> getChangedRowsState() {
+        return changedRowsSelection;
     }
 
-    public Boolean getCheckBoxDefaultState(){
-       RowsSelectionConfig rowsSelectionConfig = getPluginData().getRowsSelectionConfig();
-       return rowsSelectionConfig == null ? null : RowsSelectionDefaultState.SELECTED.equals(rowsSelectionConfig.getDefaultState());
+    public Boolean getCheckBoxDefaultState() {
+        RowsSelectionConfig rowsSelectionConfig = getPluginData().getRowsSelectionConfig();
+        return rowsSelectionConfig == null ? null : RowsSelectionDefaultState.SELECTED.equals(rowsSelectionConfig.getDefaultState());
 
     }
 
-    private void removeItems(List<CollectionRowItem> items, List<CollectionRowItem> itemsToRemove){
+    private void removeItems(List<CollectionRowItem> items, List<CollectionRowItem> itemsToRemove) {
         for (CollectionRowItem collectionRowItem : itemsToRemove) {
             items.remove(collectionRowItem);
             ExpandedRowState rowState = rowStates.get(collectionRowItem.getId());
-            if(rowState != null){
+            if (rowState != null) {
                 removeItems(items, rowState.getItems());
             }
         }
@@ -247,29 +256,29 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         return getInitialData();
     }
 
-    private void fetchAndHandleItems(int itemIndex, CollectionRowItem effectedItem, ExpandedRowState rowState){
+    private void fetchAndHandleItems(int itemIndex, CollectionRowItem effectedItem, ExpandedRowState rowState) {
         fetchAndHandleItems(itemIndex, effectedItem, rowState, null);
     }
 
-    private void fetchAndHandleItems(final int itemIndex, CollectionRowItem effectedItem, final ExpandedRowState rowState, final CommandCallBack commandCallBack){
+    private void fetchAndHandleItems(final int itemIndex, CollectionRowItem effectedItem, final ExpandedRowState rowState, final CommandCallBack commandCallBack) {
         CollectionRowsRequest collectionRowsRequest = createRequest(effectedItem, rowState);
         List<String> expandableTypes = new ArrayList<String>();
 
-        if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig()!=null){
+        if (((CollectionViewerConfig) getConfig()).getChildCollectionConfig() != null) {
 
-            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)getConfig()).getChildCollectionConfig().
-                    getExpandableObjectsConfig().getExpandableObjects()){
+            for (ExpandableObjectConfig expandableObjectConfig : ((CollectionViewerConfig) getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()) {
                 expandableTypes.add(expandableObjectConfig.getObjectName());
             }
-            if(((CollectionViewerConfig)getConfig()).getChildCollectionConfig().getDefaultSortCriteriaConfig()!=null){
-                collectionRowsRequest.setDefaultSortCriteriaConfig(((CollectionViewerConfig)getConfig()).
+            if (((CollectionViewerConfig) getConfig()).getChildCollectionConfig().getDefaultSortCriteriaConfig() != null) {
+                collectionRowsRequest.setDefaultSortCriteriaConfig(((CollectionViewerConfig) getConfig()).
                         getChildCollectionConfig().getDefaultSortCriteriaConfig());
             }
         }
         collectionRowsRequest.setExpandableTypes(expandableTypes);
 
-        CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig)getConfig();
-        if(collectionViewerConfig.getChildCollectionConfig()!=null){
+        CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) getConfig();
+        if (collectionViewerConfig.getChildCollectionConfig() != null) {
             collectionRowsRequest.setCollectionName(collectionViewerConfig.getChildCollectionConfig().getName());
             collectionRowsRequest.setHierarchicalFiltersConfig(collectionViewerConfig.getChildCollectionConfig().getCollectionExtraFiltersConfig());
             Command command = new Command("getChildrenForExpanding", "collection.plugin", collectionRowsRequest);
@@ -293,7 +302,8 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
 
     }
-    private CollectionRowsRequest createRequest(CollectionRowItem effectedItem, ExpandedRowState rowState){
+
+    private CollectionRowsRequest createRequest(CollectionRowItem effectedItem, ExpandedRowState rowState) {
         CollectionRowsRequest collectionRowsRequest = new CollectionRowsRequest();
         collectionRowsRequest.setCollectionName(getPluginData().getCollectionName());
         collectionRowsRequest.setColumnProperties(getPluginData().getDomainObjectFieldPropertiesMap());
@@ -307,8 +317,8 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
     }
 
     private void handleItems(int itemIndex, CollectionRowsResponse collectionRowsResponse, ExpandedRowState rowState,
-                             CommandCallBack commandCallBack){
-        if(commandCallBack != null){
+                             CommandCallBack commandCallBack) {
+        if (commandCallBack != null) {
             commandCallBack.execute();
         }
         List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
@@ -320,7 +330,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         tableBody.setRowData(items);
         tableBody.getRowElement(itemIndex).addClassName("collectionRowExpanded");
         tableBody.redraw();
-        if(collectionRowItems.isEmpty()){
+        if (collectionRowItems.isEmpty()) {
             ApplicationWindow.infoAlert(LocalizeUtil.get(LocalizationKeys.NO_ITEMS_FETCHED));
         }
 
@@ -328,9 +338,9 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     @Override
     public void onCollectionAddGroup(CollectionAddGroupEvent event) {
-        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig)getConfig()).getChildCollectionConfig();
-        if(childCollectionConfig.getGroupObjectType() != null){
-            createObjectAction(childCollectionConfig.getGroupObjectType(),event.getEffectedRowItem().getId());
+        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig) getConfig()).getChildCollectionConfig();
+        if (childCollectionConfig.getGroupObjectType() != null) {
+            createObjectAction(childCollectionConfig.getGroupObjectType(), event.getEffectedRowItem().getId());
         } else {
             Window.alert("Не указан аттрибут group-object-type элемента child-collection");
         }
@@ -338,20 +348,20 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
 
     @Override
     public void onCollectionAddElement(CollectionAddElementEvent event) {
-        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig)getConfig()).getChildCollectionConfig();
-        if(childCollectionConfig.getElementObjectType() != null){
-            createObjectAction(childCollectionConfig.getElementObjectType(),event.getEffectedRowItem().getId());
+        ChildCollectionConfig childCollectionConfig = ((CollectionViewerConfig) getConfig()).getChildCollectionConfig();
+        if (childCollectionConfig.getElementObjectType() != null) {
+            createObjectAction(childCollectionConfig.getElementObjectType(), event.getEffectedRowItem().getId());
         } else {
             Window.alert("Не указан аттрибут element-object-type элемента child-collection");
         }
     }
 
-    private void createObjectAction(String objectType, Id rootObjectId){
+    private void createObjectAction(String objectType, Id rootObjectId) {
         CreateNewObjectAction action = ComponentRegistry.instance.get("create.new.object.action");
         ActionContext actionContext = new ActionContext();
         actionContext.setRootObjectId(rootObjectId);
         ActionConfig actionConfig = new ActionConfig();
-        actionConfig.getProperties().put("create.object.type",objectType);
+        actionConfig.getProperties().put("create.object.type", objectType);
         actionConfig.setText("collection-row-button-action");
         actionContext.setActionConfig(actionConfig);
         action.setInitialContext(actionContext);

@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.RendererConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverter;
 import ru.intertrust.cm.core.gui.impl.client.converter.ValueConverterFactory;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ActionCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.ControlExpandableCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.EditableTextCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.HierarchicalCell;
@@ -42,7 +43,16 @@ public class ColumnFormatter {
             collectionColumn = renderer.getImageColumn(mappingsConfig);
             collectionColumn.setFieldName(field);
             collectionColumn.setResizable(resizable);
-        } else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG) != null) {
+        }
+        else if(rendererConfig == null && columnProperties.getActionRefConfig()!=null){
+            DefaultActionCellRenderer actionCellRenderer = ComponentRegistry.instance.get(DefaultActionCellRenderer.ACT_CELL_RENDERER_COMPONENT);
+            String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);
+            ValueConverter converter = ValueConverterFactory.getConverter(fieldType);
+            converter.init(columnProperties.getProperties());
+            ActionCell actionCell = new ActionCell(getCssStyleForText(textBreakStyle), field);
+            collectionColumn = actionCellRenderer.getActionColumn(actionCell,field, eventBus,resizable, converter,columnProperties.getActionContext());
+        }
+        else  if (columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG) != null) {
             List<ChildCollectionViewerConfig> childCollectionsConfig =
                     (List<ChildCollectionViewerConfig>) columnProperties.getProperty(CollectionColumnProperties.CHILD_COLLECTIONS_CONFIG);
             String fieldType = (String) columnProperties.getProperty(CollectionColumnProperties.TYPE_KEY);

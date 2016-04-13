@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<configuration xmlns="https://cm5.intertrust.ru/config">
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
     <domain-object-type name="letter" initial-status="Active">
         <fields>
             <string name="subject" length="128"/>
@@ -918,6 +918,38 @@
                 </mapping>
             </enumeration-box>
             <table-viewer id="table-viewer">
+
+                <ignore-form-read-only-state value="false"/>
+                <collection-viewer>
+                    <collection-ref name="Organizations"/>
+                    <collection-view-ref name="organizations_default_view"/>
+                    <default-sort-criteria column-field="name" order="desc"/>
+                    <collection-extra-filters>
+                        <extra-filter name="byNames" null-value-filter-name="nullValueFilter">
+                            <param name="0" set-base-object="true"/>
+
+                            <param name="0" value="Организация 1" type="string"/>
+                            <param name="1" value="Организация 2" type="string"/>
+                            <param name="2" value="Организация 3" type="string"/>
+                            <param name="3" value="Организация 4" type="string"/>
+
+                        </extra-filter>
+                    </collection-extra-filters>
+                    <act:tool-bar useDefault="true"/>
+                </collection-viewer>
+                <collection-table-buttons display-all-possible="false"/>
+                <linked-form-mapping>
+                    <linked-form name="organization_form" domain-object-type="Organization" modal-height="400px" modal-width="800px" resizable="true"/>
+                    <linked-form name="department_form" domain-object-type="Department" modal-height="400px" modal-width="600px"/>
+                    <linked-form name="employee_form" domain-object-type="Employee" modal-height="400px" modal-width="600px"/>
+                </linked-form-mapping>
+                <created-objects>
+                    <created-object domain-object-type="Organization" text="Организация"/>
+                    <created-object domain-object-type="Department" text="Подразделение"/>
+                    <created-object domain-object-type="Employee" text="Сотрудник"/>
+                </created-objects>
+
+<!--
                 <collection-ref name="Organizations"/>
                 <collection-view-ref name="organizations_default_view"/>
                 <default-sort-criteria column-field="name" order="desc"/>
@@ -930,6 +962,7 @@
                     </extra-filter>
                 </collection-extra-filters>
                 <collection-table-buttons display-all-possible="false"/>
+-->
             </table-viewer>
         </widget-config>
     </form>
@@ -1057,8 +1090,8 @@
         </widget-config>
     </form>
 
-    <form name="department_form" domain-object-type="Department" is-default="true">
-        <default-value-setter>
+    <form name="department_form" domain-object-type="Department" is-default="true" default-value-setter="department.form.value.setter">
+        <default-value-setter component="department.form.value.setter">
             <widget-states>
                 <editable/>
             </widget-states>
@@ -1210,6 +1243,14 @@
                         </td>
                         <td>
                             <widget id="status"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <widget id="description_label"/>
+                        </td>
+                        <td>
+                            <widget id="description"/>
                         </td>
                     </tr>
                     <tr>
@@ -1366,6 +1407,12 @@
                 </selection-sort-criteria>
 
             </suggest-box>
+            <label id="description_label">
+                <text>Описание:</text>
+            </label>
+            <text-box id="description">
+                <field-path value="description"/>
+            </text-box>
             <label id="boss_label">
                 <text>Начальник:</text>
             </label>

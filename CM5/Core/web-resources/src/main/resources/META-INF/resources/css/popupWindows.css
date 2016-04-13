@@ -215,6 +215,10 @@
     background: url(images/bubble_arrow.png);
 }
 
+.gwt-PopupPanel div.srch-corner {
+    right: 53%;
+}
+
 .applicationVersionWindows .gwt-Label {
     text-decoration: none;
     cursor: default;

@@ -185,9 +185,9 @@ public class CollectionDataGrid extends DataGrid<CollectionRowItem> {
 
         public void performOnDoubleClickAction(Id id) {
             final CollectionViewerConfig collectionViewerConfig = (CollectionViewerConfig) plugin.getConfig();
-            if (collectionViewerConfig.getTableBrowserParams() == null) {
+            //if (collectionViewerConfig.getTableBrowserParams() == null) {
                 eventBus.fireEvent(new OpenDomainObjectFormEvent(id));
-            }
+            //}
         }
 
         private boolean checkDirtiness() {

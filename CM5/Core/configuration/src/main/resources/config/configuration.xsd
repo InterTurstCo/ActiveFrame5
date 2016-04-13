@@ -1212,8 +1212,26 @@
                         xmlns:con="https://cm5.intertrust.ru/config"
                         minOccurs="0"/>
             <xs:element type="con:rowsSelectionType" name="rows-selection"/>
+
+            <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:userSettingsType" name="user-settings" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
+
+            <xs:element type="con:currentRowChangeType" name="current-row-change" minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
     </xs:complexType>
+
+    <xs:complexType name="userSettingsType">
+        <xs:attribute type="xs:boolean" name="save" use="required"/>
+    </xs:complexType>
+
+    <xs:complexType name="currentRowChangeType">
+        <xs:attribute type="xs:string" name="component" use="required"/>
+    </xs:complexType>
+
 
     <xs:element type="con:childCollectionType" name="child-collection"/>
 
@@ -1249,6 +1267,8 @@
 
     <xs:complexType name="rowsSelectionType">
         <xs:attribute name="default-state" use="optional" type="con:rowsSelectionDefaultStateType"/>
+        <xs:attribute name="multi-selection" use="optional" type="xs:boolean"/>
+        <xs:attribute name="on-selection-change-component" use="optional" type="xs:string"/>
     </xs:complexType>
 
     <xs:simpleType name="rowsSelectionDefaultStateType">
@@ -2892,6 +2912,7 @@
             <xs:element type="con:uiRendererType" name="renderer" xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element type="con:childCollectionViewerType" name="child-collection-viewer" minOccurs="0"
                         maxOccurs="unbounded"/>
+            <xs:element ref="act:action-ref" minOccurs="0" maxOccurs="1"/>
         </xs:choice>
         <xs:attribute type="xs:string" name="field" use="required"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
@@ -3530,21 +3551,33 @@
             <xs:extension base="con:abstractWidgetType">
                 <xs:choice maxOccurs="unbounded">
                     <xs:element type="con:collectionRefType" name="collection-ref"
-                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:collectionViewRefType" name="collection-view-ref"
-                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="xs:integer" name="page-size" nillable="false"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:defaultSortCriteriaType" name="default-sort-criteria"
-                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                     <xs:element type="con:collectionExtraFiltersType" name="collection-extra-filters" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionTableButtonsType" name="collection-table-buttons" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionViewerType" name="collection-viewer" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:ignoreFormreadOnlyStateType" name="ignore-form-read-only-state" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="core:linkedFormMappingType" name="linked-form-mapping"
+                                xmlns:core="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                    <xs:element type="con:createdObjectsType" name="created-objects"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ignoreFormreadOnlyStateType">
+        <xs:attribute type="xs:boolean" name="value"/>
     </xs:complexType>
 
 

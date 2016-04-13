@@ -130,7 +130,9 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
             else if(element.getClassName().startsWith("createGroup")){
                 eventBus.fireEvent(new CollectionAddGroupEvent(rowItem, false));
             }
-
+            else if(element.getClassName().startsWith("actionCollectionColumn")){
+                performAction(context);
+            }
             else {
                 super.onBrowserEvent(context, target, rowItem, event);
             }
@@ -148,6 +150,8 @@ public abstract class CollectionColumn<T> extends Column<CollectionRowItem, T> {
     private InputElement getInputElement(Element parent) {
         return parent.<InputElement> cast();
     }
+
+    protected void performAction(Cell.Context context){}
 
     @Override
     public boolean equals(Object o) {
