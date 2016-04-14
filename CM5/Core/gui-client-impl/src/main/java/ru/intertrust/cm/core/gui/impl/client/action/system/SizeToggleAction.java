@@ -70,6 +70,7 @@ public class SizeToggleAction extends ToggleAction {
                 center.addClassName(CENTRAL_SECTION_ACTIVE_STYLE);
                 center.getStyle().setMarginLeft(Application.getInstance().getCompactModeState().getFullNavigationPanelWidth(),
                         Style.Unit.PX);
+                center.removeClassName(CENTRAL_SECTION_STYLE);
             }
         } else {
             if (Application.getInstance().getCompactModeState().isNavigationTreePanelExpanded()) {

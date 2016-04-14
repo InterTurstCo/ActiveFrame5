@@ -475,12 +475,12 @@ public class FormRetriever extends FormProcessor {
             fieldName = fieldPath.getPath(); // fieldPath.getFieldName(); //TODO: looks like fieldPath.isOneToOneReference() works incorrectly
             doTypeName = context.getFormObjects().getRootNode().getType();
         } else if (fieldPath.isOneToManyReference())   {
-//            fieldName = fieldPath.getReferenceName();
-//            doTypeName = fieldPath.getLinkedObjectType();
+            //fieldName = fieldPath.getReferenceName();
+            //doTypeName = fieldPath.getLinkedObjectType();
             return constraints; /* back-reference -> ignore constraints */
         } else /* ManyToMany */ {
-//            fieldName = fieldPath.getReferenceName();
-//            doTypeName = fieldPath.getLinkingObjectType();
+            //fieldName = fieldPath.getReferenceName();
+            //doTypeName = fieldPath.getLinkingObjectType();
             return constraints; /* back-reference -> ignore constraints */
         }
         FieldConfig fieldConfig = configurationExplorer.getFieldConfig(doTypeName, fieldName);
