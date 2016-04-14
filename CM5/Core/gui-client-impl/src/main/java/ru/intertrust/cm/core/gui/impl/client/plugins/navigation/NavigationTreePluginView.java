@@ -56,7 +56,7 @@ public class NavigationTreePluginView extends PluginView   {
     private static final int LEVELS_INTERSECTION = 20;
     private static final int LINK_TEXT_MARGIN = 55;
     private static final double ONE_CHAR_WIDTH = 6.6D;
-    private final int DURATION = 500;
+    private int DURATION = 500;
     private static final int DEFAULT_SECOND_LEVEL_NAVIGATION_PANEL_WIDTH = 220;
     private static final int TOP_MARGIN = 80;
     private int START_WIDGET_WIDTH = 0;
@@ -524,6 +524,7 @@ public class NavigationTreePluginView extends PluginView   {
                        autoOpen = Boolean.parseBoolean(
                                ((LightThemeBundle)GlobalThemesManager.getCurrentTheme()).lightCss().autoOpenNavigationPanel()
                        );
+                       DURATION = 0;
                    }
                     if (!animatedTreePanelIsOpened && (mouseMoveEvent.getClientX() < START_SIDEBAR_WIDTH) && !pinButtonPressed && autoOpen) {
                         animatedTreePanelIsOpened = true;
