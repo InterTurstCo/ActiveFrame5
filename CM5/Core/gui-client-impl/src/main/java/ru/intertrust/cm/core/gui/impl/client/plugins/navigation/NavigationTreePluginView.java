@@ -13,7 +13,6 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
-import com.google.web.bindery.event.shared.SimpleEventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.*;
@@ -27,10 +26,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.NavigationTreeItemSelectedEve
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.panel.SidebarView;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
-import ru.intertrust.cm.core.gui.impl.client.themes.ThemeBundle;
-import ru.intertrust.cm.core.gui.impl.client.themes.def.DefaultThemeBundle;
 import ru.intertrust.cm.core.gui.impl.client.themes.light.LightThemeBundle;
-import ru.intertrust.cm.core.gui.impl.client.themes.light.LightThemeCssResource;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.counters.CollectionCountersRequest;
@@ -590,12 +586,17 @@ public class NavigationTreePluginView extends PluginView   {
             }
 
             RootNodeButton source = (RootNodeButton) event.getSource();
-            Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
-                    .getName()), plugin);
-            clearSelectedButton();
-            source.setSelected(true);
-            selectedRootNode = source.getName();
+
+            if(autoOpen || selectedRootNode==null ||
+                    (!autoOpen && animatedTreePanelIsOpened && (selectedRootNode!=null && !selectedRootNode.equals(source.getName())))) {
+                Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
+                        .getName()), plugin);
+                clearSelectedButton();
+                source.setSelected(true);
+                selectedRootNode = source.getName();
+            }
         }
     }
+
 
 }

@@ -68,10 +68,12 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     public void onRootNodeSelected(RootLinkSelectedEvent event) {
-       openPluginAndRedrawNavigationTree(event.getSelectedRootLinkName(), null);
+            openPluginAndRedrawNavigationTree(event.getSelectedRootLinkName(), null);
 
     }
     private void openPluginAndRedrawNavigationTree(String linkName, String childToOpen){
+        NavigationTreePluginView pluginView = (NavigationTreePluginView) getView();
+
         NavigationTreePluginData pluginData = getInitialData();
         LinkConfig linkConfig = findLinkConfig(linkName, pluginData.getNavigationConfig().getLinkConfigList());
         if (linkConfig == null) {
@@ -83,7 +85,7 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
             Application.getInstance().getEventBus().fireEventFromSource(event, NavigationTreePlugin.this);
 
         } else {
-            NavigationTreePluginView pluginView = (NavigationTreePluginView) getView();
+            pluginView = (NavigationTreePluginView) getView();
             pluginView.repaintNavigationTrees(linkConfig, childToOpen);
         }
     }
