@@ -311,4 +311,11 @@ public class LocalizationKeys {
     public static final String ATTACHMENT_UNAVAILABLE_KEY = "AttachmentUnavailable";
     public static final String MORE_ITEMS_KEY = "MoreItems";
     public static final String NO_ITEMS_FETCHED = "NoItemsFetched";
+
+    public static final String ACL_SERVICE_NO_PERMISSIONS_FOR_DO = "dao-impl.exception.AccessControlServiceImpl.noPermissionsForDo";
+    public static final String ACL_SERVICE_NO_PERMISSIONS_FOR_CHILD = "dao-impl.exception.AccessControlServiceImpl.noPermissionsForChild";
+    public static final String ACL_SERVICE_NO_PERMISSIONS_CR_NOT_ALWD = "dao-impl.exception.AccessControlServiceImpl.creationNotAllowed";
+    public static final String ACL_SERVICE_WRONG_ACCESS_TOKEN = "dao-impl.exception.AccessControlServiceImpl.wrongAccessToken";
+    public static final String ACL_SERVICE_WRONG_SYSTEM_ACCESS_TOKEN = "dao-impl.exception.AccessControlServiceImpl.wrongSystemAccessToken";
+    public static final String ACL_SERVICE_READ_PERMISSIONS_DENIED = "dao-impl.exception.AccessControlServiceImpl.readPermissionsDenied";
 }

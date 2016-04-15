@@ -8,11 +8,14 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.Configuration;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
+import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.EventLogService;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.model.AccessException;
 
 import java.util.Arrays;
@@ -123,7 +126,10 @@ public class AccessControlServiceImpl implements AccessControlService {
                 if (log) {
                     eventLogService.logAccessDomainObjectEvent(objectId, EventLogService.ACCESS_OBJECT_WRITE, false);
                 }
-                throw new AccessException("Person " + login + " doesn't have " + type + " permissioms to domain object " + objectId);
+                String message = String.format(
+                        MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
+                        login,type,objectId);
+                throw new AccessException(message);
             }
         }
 
@@ -197,8 +203,10 @@ public class AccessControlServiceImpl implements AccessControlService {
             AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
             return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
         }
-
-        throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
+        String message = String.format(
+                MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_CR_NOT_ALWD, GuiContext.getUserLocale()),
+                objectType,login);
+        throw new AccessException(message);
    }
 
     /**
@@ -245,8 +253,11 @@ public class AccessControlServiceImpl implements AccessControlService {
             AccessType accessType = new CreateObjectAccessType(objectType, parentTypes);
             return new SimpleAccessToken(new UserSubject(personIdInt), null, accessType, false);
         }
+        String message = String.format(
+                MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_CR_NOT_ALWD, GuiContext.getUserLocale()),
+                objectType,login);
 
-        throw new AccessException("Creation of object " + objectType + " is not allowed for " + login);
+        throw new AccessException(message);
 
     }
 
@@ -301,11 +312,15 @@ public class AccessControlServiceImpl implements AccessControlService {
         } else {
             ids = databaseAgent.checkMultiDomainObjectAccess(personIdInt, objectIds, type);
             if (requireAll ? ids.length < objectIds.length : ids.length == 0) {
-                String message = "Person " + login + " doesn't have + " + type + "permission for domain objects " + objectIds;
+                String message = String.format(
+                        MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
+                        login,type,objectIds.toString());
                 String childType = "";
                 if (type instanceof CreateChildAccessType) {
                     childType = ((CreateChildAccessType) type).getChildType();
-                    message = "Person " + login + " doesn't have + " + type + "permission to create child domain objects of type " + childType;
+                    message = String.format(
+                            MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_CHILD, GuiContext.getUserLocale()),
+                            login,type,childType);
                 }
                 throw new AccessException(message);
             }
@@ -350,7 +365,7 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
 
         if (!trustedToken.allowsAccess(objectId, type)) {
-            throw new AccessException("Wrong access token");
+            throw new AccessException(MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_WRONG_ACCESS_TOKEN, GuiContext.getUserLocale()));
         }
     }
 
@@ -368,7 +383,7 @@ public class AccessControlServiceImpl implements AccessControlService {
             throw new AccessException("Fake access token");
         }
         if (accessToken == null || !accessToken.getClass().equals(UniversalAccessToken.class)) {
-            throw new AccessException("Not valid system access token");
+            throw new AccessException(MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_WRONG_SYSTEM_ACCESS_TOKEN, GuiContext.getUserLocale()));
         }
 
     }
@@ -807,7 +822,10 @@ public class AccessControlServiceImpl implements AccessControlService {
                 String doType = domainObjectTypeIdCache.getName(objectId);
                 if (!configurationExplorer.isReadPermittedToEverybody(doType) &&
                         !databaseAgent.checkDomainObjectReadAccess(personIdInt, objectId)) {
-                    throw new AccessException("Read permission to " + objectId + " is denied for user " + personId);
+                    String message = String.format(
+                            MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_READ_PERMISSIONS_DENIED, GuiContext.getUserLocale()),
+                            objectId,personId);
+                    throw new AccessException(message);
                 }
 
             }
