@@ -25,6 +25,12 @@
 
         <dependency>
             <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>gui-server-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
             <artifactId>configuration</artifactId>
             <version>${project.version}</version>
         </dependency>
