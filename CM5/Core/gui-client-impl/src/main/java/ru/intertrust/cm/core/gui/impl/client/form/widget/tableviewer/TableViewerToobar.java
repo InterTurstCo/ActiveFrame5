@@ -64,7 +64,7 @@ public class TableViewerToobar {
 
         actionsMenu = new MenuBar();
         fooMenu = new MenuBar(true);
-        actionsMenu.setStyleName("buttonApprovalEdit");
+        actionsMenu.setStyleName("button-table-viewer");
         fooMenu.setStyleName("wrapApproval");
 
         //for (ActionContext actionContext : model.getAvailableActions()) {
@@ -72,7 +72,7 @@ public class TableViewerToobar {
         //}
 
         //if (model.getAvailableActions() != null && model.getAvailableActions().size() > 0) {
-        actionsMenu.addItem("Действия", fooMenu);
+        actionsMenu.addItem("", fooMenu);
         toolbarPanel.add(actionsMenu);
         actionsMenu.setVisible(false);
         //}
