@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.form.widget.tableviewer;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -12,6 +16,7 @@ import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
@@ -42,12 +47,16 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAc
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
+import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -74,8 +83,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private Button addButton;
     private TableViewerState state;
     private Boolean editableState = true;
-    private Date lastUpdatedDate;
-    private Id lastUpdatedObject;
+    private Boolean singleSelectionMode = true;
+    private MenuBar actionsMenu;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -185,6 +194,23 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         toolbarPanel.add(editButton);
         toolbarPanel.add(addButton);
+
+
+        actionsMenu = new MenuBar();
+        MenuBar fooMenu = new MenuBar(true);
+        //actionsMenu.setStyleName("buttonApprovalEdit");
+        //fooMenu.setStyleName("wrapApproval");
+
+        //for (ActionContext actionContext : model.getAvailableActions()) {
+        //    fooMenu.addItem(buildActionButton(actionContext));
+        //}
+
+        //if (model.getAvailableActions() != null && model.getAvailableActions().size() > 0) {
+        actionsMenu.addItem("Действия", fooMenu);
+        toolbarPanel.add(actionsMenu);
+        actionsMenu.setVisible(false);
+        //}
+
         return toolbarPanel;
     }
 
@@ -291,7 +317,10 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        selectedId = event.getId();
+        if (singleSelectionMode) {
+            selectedId = event.getId();
+            actionsMenu.setVisible(true);
+        }
     }
 
     @Override
@@ -408,5 +437,34 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         action.setInitialContext(saveActionContext);
         action.setPlugin(formPlugin);
         return action;
+    }
+
+    private MenuItem buildActionButton(final ActionContext context) {
+        SimpleActionContext simpleActionContext = (SimpleActionContext) context;
+        SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
+
+        Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
+            public void execute() {
+                Command command = new Command("executeAction", "approval.generic.workflow.action", context);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        GWT.log("something was going wrong while obtaining details for stage ");
+                        Window.alert("Ошибка выполнения. " + caught.getMessage());
+                        caught.printStackTrace();
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        /**
+                         * После выполнения снять выделение
+                         */
+                    }
+                });
+            }
+        };
+        MenuItem menuItem = new MenuItem(simpleActionConfig.getText(), menuItemCommand);
+
+        return menuItem;
     }
 }
