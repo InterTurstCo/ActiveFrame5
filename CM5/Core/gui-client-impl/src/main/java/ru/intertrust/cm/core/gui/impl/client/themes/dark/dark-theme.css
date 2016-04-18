@@ -989,10 +989,24 @@ div.dialogBoxBody .widget-wrapper {
     padding: 5px 10px;
 }
 
-.suggest-container-input {
-    border: none;
-    outline: 1px solid #ccc;
-    outline-offset: -2px;
+/*.suggest-container-input {*/
+    /*border: none;*/
+    /*outline: 1px solid #ccc;*/
+    /*outline-offset: -2px;*/
+/*}*/
+
+.suggest-container-input
+.facebook-element
+.facebook-label {
+    margin: 3px;
+}
+
+.suggest-container-block tr {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: flex;
 }
 
 .facebook-main-box {
