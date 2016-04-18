@@ -236,7 +236,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         collectionWidgetHelper.handleHierarchyEvent(event, config, pluginPanel);
         selectedId = null;
         toolbar.setSelectedId(selectedId);
-        toolbar.getActionsMenu().setVisible(false);
     }
 
     @Override
@@ -267,7 +266,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if (singleSelectionMode) {
             selectedId = event.getId();
             toolbar.setSelectedId(selectedId);
-            toolbar.getActionsMenu().setVisible(true);
         }
     }
 
@@ -275,7 +273,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     public void onNavigation(BreadCrumbNavigationEvent event) {
         selectedId = null;
         toolbar.setSelectedId(selectedId);
-        toolbar.getActionsMenu().setVisible(false);
     }
 
     private HandlerRegistration addHandlersToAddButton(Button button) {
