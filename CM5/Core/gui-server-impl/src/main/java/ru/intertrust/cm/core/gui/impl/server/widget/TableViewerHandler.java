@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -11,12 +14,14 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
+import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetConfigUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
@@ -29,6 +34,10 @@ import java.util.*;
  */
 @ComponentName("table-viewer")
 public class TableViewerHandler extends LinkEditingWidgetHandler implements SelfManagingWidgetHandler {
+
+    @Autowired
+    ActionService actionService;
+
     @Override
     public TableViewerState getInitialState(WidgetContext context) {
         TableViewerConfig widgetConfig = (TableViewerConfig) context.getWidgetConfig();
@@ -97,5 +106,12 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
             }
         }
         return restrictedCreatedObjectsConfig;
+    }
+
+    public Dto getActionsById(Dto request){
+        Id id = (Id)request;
+        TableViewerData data = new TableViewerData();
+        data.setAvailableActions(actionService.getActions(id));
+        return data;
     }
 }
