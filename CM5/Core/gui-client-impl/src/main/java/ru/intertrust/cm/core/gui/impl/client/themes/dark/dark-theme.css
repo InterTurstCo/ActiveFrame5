@@ -957,6 +957,68 @@ a.action-bar-button:hover {
     display: none;
 }
 
+/*style form blocks*/
+
+.left-div-visible {
+    padding: 10px 5px 0 6px;
+    width: 139px;
+}
+
+.right-div {
+    margin-left: 150px;
+}
+
+.gwt-DateBox.date-text-box {
+    min-height: 15px;
+}
+
+.date-box-button {
+    top: 7px;
+}
+
+.decorated-right-div div.widget-wrapper {
+    padding: 5px 0px;
+    margin-right: 10px;
+}
+
+table.form-panel-header .widget-wrapper {
+    padding: 0;
+}
+
+div.dialogBoxBody .widget-wrapper {
+    padding: 5px 10px;
+}
+
+.suggest-container-input {
+    border: none;
+    outline: 1px solid #ccc;
+    outline-offset: -2px;
+}
+
+.facebook-main-box {
+    margin: 0;
+}
+
+.group-tree {
+    margin-left: -20px;
+}
+
+.group-tree>div:nth-child\(2\) table {
+    margin-left: 20px !important;
+}
+
+.bookmarks-link-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bookmarks-link-non-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
