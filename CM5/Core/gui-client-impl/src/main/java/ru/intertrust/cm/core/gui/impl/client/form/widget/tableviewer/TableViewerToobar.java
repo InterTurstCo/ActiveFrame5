@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
@@ -16,6 +17,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
+import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 /**
@@ -25,15 +27,16 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
  * Time: 11:03
  * To change this template use File | Settings | File and Code Templates.
  */
-public class TableViewerToobar  {
+public class TableViewerToobar {
     private HorizontalPanel toolbarPanel;
     private ToggleButton editButton;
     private Button addButton;
     private MenuBar actionsMenu;
+    private MenuBar fooMenu;
     private Id selectedId;
     private EventBus eventBus;
 
-    public TableViewerToobar(EventBus localEventBus){
+    public TableViewerToobar(EventBus localEventBus) {
         this.eventBus = localEventBus;
         toolbarPanel = new HorizontalPanel();
         editButton = new ToggleButton();
@@ -60,8 +63,8 @@ public class TableViewerToobar  {
 
 
         actionsMenu = new MenuBar();
-        MenuBar fooMenu = new MenuBar(true);
-        actionsMenu.setStyleName("button-table-viewer");
+        fooMenu = new MenuBar(true);
+        actionsMenu.setStyleName("buttonApprovalEdit");
         fooMenu.setStyleName("wrapApproval");
 
         //for (ActionContext actionContext : model.getAvailableActions()) {
@@ -69,7 +72,7 @@ public class TableViewerToobar  {
         //}
 
         //if (model.getAvailableActions() != null && model.getAvailableActions().size() > 0) {
-        actionsMenu.addItem("", fooMenu);
+        actionsMenu.addItem("Действия", fooMenu);
         toolbarPanel.add(actionsMenu);
         actionsMenu.setVisible(false);
         //}
@@ -111,10 +114,19 @@ public class TableViewerToobar  {
         return selectedId;
     }
 
-    public void setSelectedId(Id selectedId) {
-        this.selectedId = selectedId;
+    public void setSelectedId(Id id) {
+        this.selectedId = id;
+        if (selectedId == null) {
+            actionsMenu.setVisible(false);
+        } else {
+            getActionsById(selectedId);
+        }
     }
 
+    /**
+     * При множественном выборе чекбоксами
+     */
+    //public void setSelectedIds(List<Id> checkedIds){}
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
         SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
@@ -142,5 +154,32 @@ public class TableViewerToobar  {
         MenuItem menuItem = new MenuItem(simpleActionConfig.getText(), menuItemCommand);
 
         return menuItem;
+    }
+
+    public void getActionsById(final Id id) {
+        Command command = new Command("getActionsById", "table-viewer", id);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while saving approval as template " + id);
+                actionsMenu.setVisible(false);
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                TableViewerData data = (TableViewerData)result;
+                fooMenu.clearItems();
+                if(data.getAvailableActions().size() == 0){
+                   fooMenu.addItem(new MenuItem(SafeHtmlUtils.fromString("Нет доступных действий")));
+                } else {
+                    for (ActionContext actionContext : data.getAvailableActions()) {
+                            fooMenu.addItem(buildActionButton(actionContext));
+                        }
+                }
+                actionsMenu.setVisible(true);
+            }
+        });
+
     }
 }
