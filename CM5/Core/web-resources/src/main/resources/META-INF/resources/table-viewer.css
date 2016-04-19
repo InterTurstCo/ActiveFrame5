@@ -742,7 +742,7 @@ div.button-table-viewer {
 .button-table-viewerPopup .wrapApproval:before, .button-table-viewerPopup .wrapApproval:after {
     content: '';
     position: absolute;
-    left: 12%;
+    left: 4%;
     top: -24px;
     border: 10px solid transparent;
     border-bottom: 12px solid #fff;
@@ -755,6 +755,7 @@ div.button-table-viewer {
 .button-table-viewerPopup .wrapApproval {
     position: absolute;
     top: 16px;
+    left: -6px;
     border: 3px solid #fafafa;
     background: #356a9e;
     padding: 5px;
@@ -781,3 +782,20 @@ div.button-table-viewer {
     z-index: 100;
 }
 
+.button-table-viewerPopup .gwt-MenuItem {
+    white-space: nowrap;
+}
+
+.item-disable {
+    background: #ddd;
+    opacity: 0.8;
+    color: #000;
+    cursor: default;
+}
+
+td.item-disable.gwt-MenuItem-selected {
+    background: #ddd !important;
+    opacity: 0.8;
+    color: #000;
+    cursor: default;
+}

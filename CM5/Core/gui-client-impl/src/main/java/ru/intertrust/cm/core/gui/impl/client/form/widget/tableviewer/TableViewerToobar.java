@@ -168,7 +168,7 @@ public class TableViewerToobar {
                 fooMenu.clearItems();
                 if(data.getAvailableActions().size() == 0){
                     SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-                    fooMenu.addItem(new MenuItem(noActionsMenu)).setStyleName("FAKE_STYLE");
+                    fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
                 } else {
                     for (ActionContext actionContext : data.getAvailableActions()) {
                             fooMenu.addItem(buildActionButton(actionContext));
