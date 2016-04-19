@@ -16,6 +16,7 @@ import ru.intertrust.cm.core.dao.api.extension.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
+import ru.intertrust.cm.core.dao.impl.access.ImmutableFieldData;
 import ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService;
 import ru.intertrust.cm.core.dao.impl.utils.*;
 import ru.intertrust.cm.core.model.FatalException;
@@ -2048,12 +2049,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void verifyAccessTokenOnCreate(AccessToken accessToken, GenericDomainObject domainObject) {
         String domainObjectType = domainObject.getTypeName();
-        List<Id> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
-
+        List<ImmutableFieldData> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        
         if (parentIds != null && parentIds.size() > 0) {
-            AccessType accessType = new CreateChildAccessType(domainObjectType);
             String currentUser = currentUserAccessor.getCurrentUser();
-            for (Id parentId : parentIds) {
+            for (ImmutableFieldData immutableFieldDataList : parentIds) {
+                Id parentId = immutableFieldDataList.getValue();
+                //При формирование CreateChildAccessType нужно передавать имя того типа, reference на который указан в настройке поля. 
+                //Непосредственно domainObjectType передавать нельзя, так как зачастую нужно передать имя родительского типа
+                AccessType accessType = new CreateChildAccessType(immutableFieldDataList.getTypeName());
+                
                 AccessToken linkAccessToken = accessControlService.createAccessToken(currentUser, parentId, accessType);
                 accessControlService.verifyAccessToken(linkAccessToken, parentId, accessType);
             }
