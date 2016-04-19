@@ -142,7 +142,8 @@ public class TableViewerToobar {
 
                     @Override
                     public void onSuccess(Dto result) {
-                        eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()) );
+                        eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
+                        setSelectedId(context.getRootObjectId());
                     }
                 });
             }
