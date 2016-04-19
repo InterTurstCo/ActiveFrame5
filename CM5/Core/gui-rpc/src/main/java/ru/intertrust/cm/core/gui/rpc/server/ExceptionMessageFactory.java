@@ -39,6 +39,7 @@ public final class ExceptionMessageFactory {
 
     public static Pair<String, Boolean> getMessage(final Command command, Throwable ex, String currentLocale) {
         SystemException cause = ex instanceof SystemException ? (SystemException) ex : null;
+        StringBuilder msgBuilder = new StringBuilder();
         while (ex.getCause() != null) {
             ex = ex.getCause();
             if (ex instanceof SystemException) {
@@ -56,11 +57,15 @@ public final class ExceptionMessageFactory {
         }
         if (message == null) {
             message = MessageResourceProvider.getMessage(LocalizationKeys.SYSTEM_EXCEPTION,
-                    "Системная ошибка при выполнении ${commandName}, обратитесь к администратору.", currentLocale);
+                    currentLocale,"Системная ошибка при выполнении ${commandName}, обратитесь к администратору.");
         }
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put(COMMAND_NAME_PLACEHOLDER, command.getName());
         message = PlaceholderResolver.substitute(message, placeholders);
-        return new Pair<>(message, !NOT_LOGGED_EXCEPTIONS.contains(exceptionKey));
+        msgBuilder.append(message);
+        if(cause.getMessage()!=null){
+            msgBuilder.append(System.getProperty("line.separator")).append(cause.getMessage());
+        }
+        return new Pair<>(msgBuilder.toString(), !NOT_LOGGED_EXCEPTIONS.contains(exceptionKey));
    }
 }

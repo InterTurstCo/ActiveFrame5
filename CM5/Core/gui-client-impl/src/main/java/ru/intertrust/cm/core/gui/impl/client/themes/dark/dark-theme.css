@@ -931,6 +931,94 @@ a.action-bar-button:hover {
     filter: drop-shadow(1px 1px 2px black);
 }
 
+.dataGridHeaderRow th {
+    border-top: 1px solid black !important;
+    border-bottom: 1px solid black !important;
+    font-weight: bold !important;
+    background-color: #b0bdce !important;
+    color: #fff !important;
+}
+
+.widget-wrapper th {
+    padding: 7px 15px 7px 15px;
+    background: #ebf5fe;
+    border-right: 2px solid white;
+    border-bottom: none;
+    min-width: 120px;
+}
+
+/*style for full table panel  */
+
+.central-div-panel-test-full {
+    margin: 11px !important;
+}
+
+.left-sectionNone {
+    display: none;
+}
+
+/*style form blocks*/
+
+.left-div-visible {
+    padding: 10px 5px 0 6px;
+    width: 139px;
+}
+
+.right-div {
+    margin-left: 150px;
+}
+
+.gwt-DateBox.date-text-box {
+    min-height: 15px;
+}
+
+.date-box-button {
+    top: 7px;
+}
+
+.decorated-right-div div.widget-wrapper {
+    padding: 5px 0px;
+    margin-right: 10px;
+}
+
+table.form-panel-header .widget-wrapper {
+    padding: 0;
+}
+
+div.dialogBoxBody .widget-wrapper {
+    padding: 5px 10px;
+}
+
+.suggest-container-input {
+    border: none;
+    outline: 1px solid #ccc;
+    outline-offset: -2px;
+}
+
+.facebook-main-box {
+    margin: 0;
+}
+
+.group-tree {
+    margin-left: -20px;
+}
+
+.group-tree>div:nth-child\(2\) table {
+    margin-left: 20px !important;
+}
+
+.bookmarks-link-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bookmarks-link-non-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;

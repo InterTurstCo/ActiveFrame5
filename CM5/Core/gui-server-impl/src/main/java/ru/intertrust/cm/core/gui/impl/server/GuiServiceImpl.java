@@ -109,19 +109,19 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
         } catch (NoSuchMethodException e) {
             log.error(e.getMessage(), e);
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_NOT_FOUND,
-                    "Команда ${commandName} не найдена", GuiContext.getUserLocale()));
+                    GuiContext.getUserLocale(),"Команда ${commandName} не найдена"));
         } catch (InvocationTargetException e) {
 //            if (e.getCause() instanceof ValidationException) {
 //                log.error(e.getTargetException().getMessage(), e.getTargetException());
 //                throw (ValidationException)e.getTargetException();
 //            }
             log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL,
-                    "Ошибка вызова команды: ", GuiContext.getUserLocale()) + e.getMessage(), e);
+                    GuiContext.getUserLocale(), "Ошибка вызова команды: ") + e.getMessage(), e);
             throw new GuiException(e.getTargetException());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION,
-                    "Команда не может быть выполнена: ", GuiContext.getUserLocale())
+                    GuiContext.getUserLocale(), "Команда не может быть выполнена: ")
                     + command.getName(), e);
         }
     }
@@ -288,7 +288,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
     }
 
     private String buildMessage(String message, String defaultValue) {
-        return MessageResourceProvider.getMessage(message, defaultValue, GuiContext.getUserLocale());
+        return MessageResourceProvider.getMessage(message, GuiContext.getUserLocale(),defaultValue);
     }
 
     @Override
