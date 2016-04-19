@@ -4,6 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -141,8 +142,7 @@ public class TableViewerToobar {
 
                     @Override
                     public void onSuccess(Dto result) {
-                        Window.alert("Действие выполнено");
-                        parentEventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()) );
+                        eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()) );
                     }
                 });
             }
@@ -167,7 +167,8 @@ public class TableViewerToobar {
                 TableViewerData data = (TableViewerData)result;
                 fooMenu.clearItems();
                 if(data.getAvailableActions().size() == 0){
-                   fooMenu.addItem(new MenuItem(SafeHtmlUtils.fromString("Нет доступных действий")));
+                    SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
+                    fooMenu.addItem(new MenuItem(noActionsMenu)).setStyleName("FAKE_STYLE");
                 } else {
                     for (ActionContext actionContext : data.getAvailableActions()) {
                             fooMenu.addItem(buildActionButton(actionContext));
