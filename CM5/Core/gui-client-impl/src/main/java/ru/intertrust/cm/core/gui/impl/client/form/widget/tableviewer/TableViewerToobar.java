@@ -12,6 +12,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -35,9 +36,11 @@ public class TableViewerToobar {
     private MenuBar fooMenu;
     private Id selectedId;
     private EventBus eventBus;
+    private EventBus parentEventBus;
 
-    public TableViewerToobar(EventBus localEventBus) {
+    public TableViewerToobar(EventBus localEventBus, EventBus parentEventBus) {
         this.eventBus = localEventBus;
+        this.parentEventBus = parentEventBus;
         toolbarPanel = new HorizontalPanel();
         editButton = new ToggleButton();
         addButton = new Button();
@@ -66,16 +69,9 @@ public class TableViewerToobar {
         fooMenu = new MenuBar(true);
         actionsMenu.setStyleName("button-table-viewer");
         fooMenu.setStyleName("wrapApproval");
-
-        //for (ActionContext actionContext : model.getAvailableActions()) {
-        //    fooMenu.addItem(buildActionButton(actionContext));
-        //}
-
-        //if (model.getAvailableActions() != null && model.getAvailableActions().size() > 0) {
         actionsMenu.addItem("", fooMenu);
         toolbarPanel.add(actionsMenu);
         actionsMenu.setVisible(false);
-        //}
     }
 
     public HorizontalPanel getToolbarPanel() {
@@ -117,7 +113,7 @@ public class TableViewerToobar {
     public void setSelectedId(Id id) {
         this.selectedId = id;
         if (selectedId == null) {
-            actionsMenu.setVisible(false);
+            fooMenu.clearItems();
         } else {
             getActionsById(selectedId);
         }
@@ -127,13 +123,14 @@ public class TableViewerToobar {
      * При множественном выборе чекбоксами
      */
     //public void setSelectedIds(List<Id> checkedIds){}
+
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
         SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
 
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
-                Command command = new Command("executeAction", "approval.generic.workflow.action", context);
+                Command command = new Command("executeAction", "generic.workflow.action", context);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onFailure(Throwable caught) {
@@ -144,9 +141,8 @@ public class TableViewerToobar {
 
                     @Override
                     public void onSuccess(Dto result) {
-                        /**
-                         * После выполнения снять выделение
-                         */
+                        Window.alert("Действие выполнено");
+                        parentEventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()) );
                     }
                 });
             }

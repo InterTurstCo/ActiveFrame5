@@ -111,7 +111,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginWrapper.addStyleName("table-viewer-wrapper");
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
-        toolbar = new TableViewerToobar(localEventBus);
+        toolbar = new TableViewerToobar(localEventBus, eventBus);
 
 
 
