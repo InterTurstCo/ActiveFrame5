@@ -5,6 +5,7 @@ import com.google.gwt.dom.client.Node;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
@@ -46,6 +47,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
@@ -57,7 +59,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
-        OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler {
+        OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler {
+
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
@@ -68,6 +71,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private TableViewerState state;
     private Boolean editableState = true;
     private Boolean singleSelectionMode = true;
+    private List<Id> selectedIds;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -112,8 +116,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
         toolbar = new TableViewerToobar(localEventBus, eventBus);
-
-
+        selectedIds = new ArrayList<>();
 
         pluginWrapper.add(toolbar.getToolbarPanel());
 
@@ -130,7 +133,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(OpenDomainObjectFormEvent.TYPE, this);
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
-
+        localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, this);
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
@@ -263,7 +266,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        if (singleSelectionMode) {
+        if (selectedIds.size()<=0) {
             selectedId = event.getId();
             toolbar.setSelectedId(selectedId);
         }
@@ -292,6 +295,17 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             }
         }
         return null;
+    }
+
+    @Override
+    public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
+        if(!event.isDeselected()){
+            selectedIds.add(event.getId());
+            toolbar.setSelectedIds(selectedIds);
+        } else {
+            selectedIds.remove(event.getId());
+            toolbar.setSelectedIds(selectedIds);
+        }
     }
 
 

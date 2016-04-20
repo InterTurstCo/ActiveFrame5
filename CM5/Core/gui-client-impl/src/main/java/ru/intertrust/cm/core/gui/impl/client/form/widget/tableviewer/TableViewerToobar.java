@@ -22,6 +22,8 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * Developer: Ravil Abdulkhairov
@@ -179,5 +181,17 @@ public class TableViewerToobar {
             }
         });
 
+    }
+
+    public void setSelectedIds(List<Id> selectedIds){
+        fooMenu.clearItems();
+        if(selectedIds.size()<=0){
+            SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
+            fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+        } else {
+            SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
+            fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+        }
+        actionsMenu.setVisible(true);
     }
 }

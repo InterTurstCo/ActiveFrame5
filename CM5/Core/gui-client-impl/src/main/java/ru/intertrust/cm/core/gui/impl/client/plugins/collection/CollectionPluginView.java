@@ -680,6 +680,7 @@ public class CollectionPluginView extends PluginView {
             public void update(int index, CollectionRowItem object, Boolean value) {
                 Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
                 Id id = object.getId();
+                eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 changedRowsSelection.put(id, value);
                 tableBody.redraw();
             }
