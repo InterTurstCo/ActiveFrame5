@@ -459,3 +459,13 @@ table.hierarh-browser-inline td {
 .verifySignaturePopup {
     z-index: 105;
 }
+
+.hierarh-browser-wrapper td:nth-child(1) {
+    width: 94%;
+}
+.hierarh-browser-wrapper td:nth-child(2) {
+    width: 2%;
+}
+.hierarh-browser-wrapper td:nth-child(3) {
+    width: 2%;
+}
