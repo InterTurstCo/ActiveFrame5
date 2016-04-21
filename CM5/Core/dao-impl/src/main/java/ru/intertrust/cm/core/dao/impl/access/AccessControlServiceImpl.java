@@ -846,4 +846,30 @@ public class AccessControlServiceImpl implements AccessControlService {
         }
         return subject;
     }
+
+    @Override
+    public void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject) {
+        String domainObjectType = domainObject.getTypeName();
+        List<ImmutableFieldData> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        
+        if (parentIds != null && parentIds.size() > 0) {
+            //Не проверяем систмный и админский токен
+            if (!(token instanceof UniversalAccessToken || token instanceof SuperUserAccessToken)){
+                String currentUser = currentUserAccessor.getCurrentUser();
+                for (ImmutableFieldData immutableFieldDataList : parentIds) {
+                    Id parentId = immutableFieldDataList.getValue();
+                    //При формирование CreateChildAccessType нужно передавать имя того типа, reference на который указан в настройке поля. 
+                    //Непосредственно domainObjectType передавать нельзя, так как зачастую нужно передать имя родительского типа
+                    AccessType accessType = new CreateChildAccessType(immutableFieldDataList.getTypeName());
+                    
+                    AccessToken linkAccessToken = createAccessToken(currentUser, parentId, accessType);
+                    verifyAccessToken(linkAccessToken, parentId, accessType);
+                }
+            }
+        } else {
+
+            AccessType accessType = new CreateObjectAccessType(domainObjectType, null);
+            verifyAccessToken(token, null, accessType);
+        }        
+    }
 }

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.access;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.model.AccessException;
 
@@ -177,5 +178,12 @@ public interface AccessControlService {
 
     AccessToken createDomainObjectCreateToken(String login, String objectType, Id[] parentObjects)
             throws AccessException;
+    
+    /**
+     * Проверка маркера доступа при создание ДО.
+     * @param token Маркер доступа
+     * @param domainObject Создаваемый ДО
+     */
+    void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject);
 
 }

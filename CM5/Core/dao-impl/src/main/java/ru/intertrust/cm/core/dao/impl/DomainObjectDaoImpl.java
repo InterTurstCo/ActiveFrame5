@@ -2015,7 +2015,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (int i = 0; i < updatedObjects.length; i++) {
 
             GenericDomainObject domainObject = updatedObjects[i];
-            verifyAccessTokenOnCreate(accessToken, domainObject);
+            accessControlService.verifyAccessTokenOnCreate(accessToken, domainObject);
 
             Object id;
             if (parentDOs != null) {
@@ -2045,28 +2045,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         return updatedObjects;
-    }
-
-    private void verifyAccessTokenOnCreate(AccessToken accessToken, GenericDomainObject domainObject) {
-        String domainObjectType = domainObject.getTypeName();
-        List<ImmutableFieldData> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
-        
-        if (parentIds != null && parentIds.size() > 0) {
-            String currentUser = currentUserAccessor.getCurrentUser();
-            for (ImmutableFieldData immutableFieldDataList : parentIds) {
-                Id parentId = immutableFieldDataList.getValue();
-                //При формирование CreateChildAccessType нужно передавать имя того типа, reference на который указан в настройке поля. 
-                //Непосредственно domainObjectType передавать нельзя, так как зачастую нужно передать имя родительского типа
-                AccessType accessType = new CreateChildAccessType(immutableFieldDataList.getTypeName());
-                
-                AccessToken linkAccessToken = accessControlService.createAccessToken(currentUser, parentId, accessType);
-                accessControlService.verifyAccessToken(linkAccessToken, parentId, accessType);
-            }
-        } else {
-
-            AccessType accessType = new CreateObjectAccessType(domainObjectType, null);
-            accessControlService.verifyAccessToken(accessToken, null, accessType);
-        }
     }
 
     /**
