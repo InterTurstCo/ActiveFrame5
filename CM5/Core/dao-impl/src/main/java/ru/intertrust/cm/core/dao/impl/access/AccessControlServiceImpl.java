@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.model.AccessException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -229,8 +230,12 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
-
-        List<Id> immutableParentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+        //TODO метод не корректно работает для CreateChildAccessType, нужно учитывать наследование, но работать не мешает, подозреваю что этот AccessToken и не проверяется далее
+        List<ImmutableFieldData> immutableFieldDataList = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer); 
+        List<Id> immutableParentIds = new ArrayList<Id>();
+        for (ImmutableFieldData immutableFieldData : immutableFieldDataList) {
+            immutableParentIds.add(immutableFieldData.getValue());
+        }
         Id[] parentObjects = immutableParentIds.toArray(new Id[immutableParentIds.size()]);
         String objectType = domainObject.getTypeName();
         Id personId = getUserIdByLogin(login);

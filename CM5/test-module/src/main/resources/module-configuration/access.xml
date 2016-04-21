@@ -420,5 +420,39 @@
         </groups>
         
     </context-role>    
+
+    <access-matrix type="test_type_24">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                 <permit-role name="test_type_24_author" />
+            </read>
+            <write>
+                <permit-role name="test_type_24_author" />
+            </write>
+            <delete>
+                <permit-role name="test_type_24_author" />
+            </delete>
+            <create-child type="test_type_25">
+                <permit-role name="test_type_24_author" />
+            </create-child>
+        </status>
+    </access-matrix>
+
+    <context-role name="test_type_24_author">
+        <context>
+            <domain-object type="test_type_24"/>
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+        
+    </context-role>   
     
 </configuration>

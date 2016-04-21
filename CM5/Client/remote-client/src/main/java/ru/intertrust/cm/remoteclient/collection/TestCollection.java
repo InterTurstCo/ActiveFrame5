@@ -244,6 +244,11 @@ public class TestCollection extends ClientBase {
             params.add(new StringValue(null));
             executeQuery(query, 1, params);
             
+            //Тест запроса класса
+            sortOrder = new SortOrder();
+            sortOrder.add(new SortCriterion("name", SortCriterion.Order.ASCENDING));
+            filters = new ArrayList<Filter>();
+            executeCollection("EmployeesGenerator", 3, sortOrder, filters);
             
         } finally {
             writeLog();

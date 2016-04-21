@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,15 +49,15 @@ public class ServerComponentServiceImpl implements ServerComponentService {
 
     @Override
     public ServerComponentHandler getServerComponent(String componentName) {
-        Set<String> componentPackages = getServerComponentsPackages();
-
-        if (!initContexts.contains(ExtensionService.PLATFORM_CONTEXT)) {
-            initServerComponents(ExtensionService.PLATFORM_CONTEXT, localApplicationContext, componentPackages);
-
-        }
         return (ServerComponentHandler) localApplicationContext.getBean(componentName);
     }
-        
+
+    @PostConstruct
+    public void init(){
+        Set<String> componentPackages = getServerComponentsPackages();
+        initServerComponents(ExtensionService.PLATFORM_CONTEXT, localApplicationContext, componentPackages);
+    }
+    
     /**
      * Инициализация серверных компонентов, путем сканирования всех классов, аннотированых ServerComponent аннотацией.
      * Создаются соответсвующие спринг бины для серверных компонентов.

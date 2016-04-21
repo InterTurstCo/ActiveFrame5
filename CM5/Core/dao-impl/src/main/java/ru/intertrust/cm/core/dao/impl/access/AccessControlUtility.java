@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -61,14 +62,25 @@ public class AccessControlUtility {
      * @param domainObject
      * @return
      */
-    public static List<Id> getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
+    public static List<ImmutableFieldData> getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
         String domainObjectType = domainObject.getTypeName();
         Set<ReferenceFieldConfig> refFields = configurationExplorer.getImmutableReferenceFieldConfigs(domainObjectType);
-        List<Id> parentIds = new ArrayList<>(refFields.size());
-        for (ReferenceFieldConfig fieldConfig : refFields) {
-            Id parentObject = domainObject.getReference(fieldConfig.getName());
-            if (parentObject != null) {
-                parentIds.add(parentObject);
+        List<ImmutableFieldData> parentIds = new ArrayList<ImmutableFieldData>(refFields.size());
+        
+        //Кроме тимени поля нужна информация еще в каком непосредственно типе оно объявлено
+        //TODO возможно надо оптимизировать, вынести этот код в configurationExplorer и закэшировать
+        String[] types = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectType);
+        for (String type : types) {
+            for (ReferenceFieldConfig fieldConfig : refFields) {
+                FieldConfig typeFieldConfig = configurationExplorer.getFieldConfig(type, fieldConfig.getName(), false);
+                if (typeFieldConfig != null){
+                    Id parentObject = domainObject.getReference(fieldConfig.getName());
+                    ImmutableFieldData immutableFieldData = new ImmutableFieldData();
+                    immutableFieldData.setValue(parentObject);
+                    immutableFieldData.setСonfig(fieldConfig);
+                    immutableFieldData.setTypeName(type);
+                    parentIds.add(immutableFieldData);
+                }
             }
         }
         return parentIds;

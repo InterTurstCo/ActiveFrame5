@@ -543,6 +543,27 @@ public class TestPermission extends ClientBase {
             getCrudService().delete(testType14.getId());
             log("Test combine permissions: OK");
 
+            //Тест CREATE-CHILD для наследников CMFIVE-5338
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            DomainObject test24 = notAdminCrudservice.createDomainObject("test_type_24");
+            test24.setString("name", "_" + System.currentTimeMillis());
+            test24.setReference("author", getPersonId("person1"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            test24 = notAdminCrudservice.save(test24);
+            
+            DomainObject test25 = notAdminCrudservice.createDomainObject("test_type_25");
+            test25.setString("name", "_" + System.currentTimeMillis());
+            test25.setReference("test_type_24", test24.getId());
+            notAdminCrudservice.save(test25);
+            
+            DomainObject test26 = notAdminCrudservice.createDomainObject("test_type_26");
+            test26.setString("name", "_" + System.currentTimeMillis());
+            test26.setString("description", "_" + System.currentTimeMillis());
+            test26.setReference("test_type_24", test24.getId());
+            notAdminCrudservice.save(test26);
+            
+            
+            
             
             log("Test complete");
         } finally {

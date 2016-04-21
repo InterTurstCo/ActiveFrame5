@@ -8,8 +8,6 @@ import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
@@ -40,17 +38,14 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWi
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
-import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
@@ -67,15 +62,12 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private EventBus localEventBus;
     private CollectionWidgetHelper collectionWidgetHelper;
     private TableViewerConfig config;
-    private HorizontalPanel toolbarPanel;
+    private TableViewerToobar toolbar;
     private Id selectedId;
     private HandlerRegistration addButtonHandlerRegistration;
-    private ToggleButton editButton;
-    private Button addButton;
     private TableViewerState state;
     private Boolean editableState = true;
-    private Date lastUpdatedDate;
-    private Id lastUpdatedObject;
+    private Boolean singleSelectionMode = true;
 
     @Override
     public void setCurrentState(WidgetState currentState) {
@@ -83,16 +75,16 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionViewerConfig config = initCollectionConfig(state);
         collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel);
 
-        if (addButton != null && state.getTableViewerConfig().getLinkedFormMappingConfig() != null &&
+        if (toolbar.getAddButton() != null && state.getTableViewerConfig().getLinkedFormMappingConfig() != null &&
                 state.getTableViewerConfig().getCreatedObjectsConfig() != null) {
             if (state.hasAllowedCreationDoTypes()) {
                 if (addButtonHandlerRegistration != null) {
                     addButtonHandlerRegistration.removeHandler();
                 }
-                addButtonHandlerRegistration = addHandlersToAddButton(addButton);
+                addButtonHandlerRegistration = addHandlersToAddButton(toolbar.getAddButton());
 
             } else {
-                addButton.removeFromParent();
+                toolbar.getAddButton().removeFromParent();
             }
         }
     }
@@ -119,8 +111,11 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginWrapper.addStyleName("table-viewer-wrapper");
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
+        toolbar = new TableViewerToobar(localEventBus, eventBus);
 
-        pluginWrapper.add(buildToolbarPanel());
+
+
+        pluginWrapper.add(toolbar.getToolbarPanel());
 
         String height = displayConfig.getHeight() == null ? DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT : displayConfig.getHeight();
         pluginWrapper.setHeight(height);
@@ -162,31 +157,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         return pluginWrapper;
     }
 
-    private Widget buildToolbarPanel() {
-        toolbarPanel = new HorizontalPanel();
-        editButton = new ToggleButton();
-        addButton = new Button();
-        editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
-        editButton.addStyleName("edit-btn-table-viewer");
-        editButton.setTitle("Редактировать");
-        addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
-        addButton.addStyleName("add-btn-table-viewer");
-        addButton.setTitle("Создать");
-
-        editButton.addClickHandler(new ClickHandler() {
-                                       @Override
-                                       public void onClick(ClickEvent event) {
-                                           if (selectedId != null) {
-                                               localEventBus.fireEvent(new OpenDomainObjectFormEvent(selectedId));
-                                           }
-                                       }
-                                   }
-        );
-
-        toolbarPanel.add(editButton);
-        toolbarPanel.add(addButton);
-        return toolbarPanel;
-    }
 
     @Override
     protected Widget asNonEditableWidget(WidgetState state) {
@@ -206,9 +176,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if ((config.getCollectionViewerConfig() != null &&
                 config.getCollectionViewerConfig().getToolBarConfig() != null &&
                 config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) && editableState) {
-            toolbarPanel.setVisible(true);
+            toolbar.getToolbarPanel().setVisible(true);
         } else {
-            toolbarPanel.setVisible(false);
+            toolbar.getToolbarPanel().setVisible(false);
         }
 
         if (config.getCollectionViewerConfig() == null) {
@@ -264,6 +234,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     public void onExpandHierarchyEvent(HierarchicalCollectionEvent event) {
         CollectionViewerConfig config = initCollectionConfig(this.<TableViewerState>getInitialData());
         collectionWidgetHelper.handleHierarchyEvent(event, config, pluginPanel);
+        selectedId = null;
+        toolbar.setSelectedId(selectedId);
     }
 
     @Override
@@ -291,12 +263,16 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        selectedId = event.getId();
+        if (singleSelectionMode) {
+            selectedId = event.getId();
+            toolbar.setSelectedId(selectedId);
+        }
     }
 
     @Override
     public void onNavigation(BreadCrumbNavigationEvent event) {
         selectedId = null;
+        toolbar.setSelectedId(selectedId);
     }
 
     private HandlerRegistration addHandlersToAddButton(Button button) {
@@ -340,7 +316,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     class SelectDomainObjectTypePopup extends PopupPanel {
         SelectDomainObjectTypePopup(CreatedObjectsConfig createdObjectsConfig) {
             super(true, false);
-            this.setPopupPosition(addButton.getAbsoluteLeft() - 48, addButton.getAbsoluteTop() + 40);
+            this.setPopupPosition(toolbar.getAddButton().getAbsoluteLeft() - 48, toolbar.getAddButton().getAbsoluteTop() + 40);
             AbsolutePanel header = new AbsolutePanel();
             header.setStyleName("srch-corner");
             final VerticalPanel body = new VerticalPanel();
@@ -409,4 +385,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         action.setPlugin(formPlugin);
         return action;
     }
+
+
 }
