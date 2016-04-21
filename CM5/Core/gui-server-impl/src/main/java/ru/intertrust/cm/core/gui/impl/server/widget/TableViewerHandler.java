@@ -120,20 +120,21 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
 
     public Dto getActionsByIds(Dto request) {
         TableViewerData data = (TableViewerData) request;
+        Map<String, Map> tmpHolder = new HashMap<>();
 /**
  *  #1 Выбираем все доступные действия формируя структуру Имя действия - список Id и контекстов.
  */
         for (final Id id : data.getSelectedIds()) {
             for (final ActionContext aContext : actionService.getActions(id)) {
                 SimpleActionContext simpleActionContext = (SimpleActionContext) aContext;
-                if (data.getIdsActions().size() == 0 ||
-                        !data.getIdsActions().containsKey(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText())
+                if (tmpHolder.size() == 0 ||
+                        !tmpHolder.containsKey(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText())
                         ) {
-                    data.getIdsActions().put(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText(), new HashMap() {{
+                    tmpHolder.put(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText(), new HashMap() {{
                         put(id, aContext);
                     }});
                 } else {
-                    data.getIdsActions().get(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText()).put(id,aContext);
+                    tmpHolder.get(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText()).put(id, aContext);
                 }
             }
         }
@@ -142,6 +143,35 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
  *  быть разные (если они одинаковы по имени но не по логике) но для одних и техже айтемов будет одинаковый список меню.
  */
 
+        Iterator<Map.Entry<String, Map>> iter = tmpHolder.entrySet().iterator();
+        while (iter.hasNext()) {
+            Map.Entry<String, Map> entry = iter.next();
+            for (Id id : data.getSelectedIds()) {
+                if (!entry.getValue().containsKey(id)) {
+                    iter.remove();
+                    break;
+                }
+            }
+        }
+
+        Iterator<Map.Entry<String, Map>> iterOut = tmpHolder.entrySet().iterator();
+        while (iterOut.hasNext()) {
+            Map.Entry<String, Map> record = iterOut.next();
+            data.getIdsActions().put(record.getKey(),getContextList(record.getValue()));
+        }
+
+
+
         return data;
+    }
+
+    private List<ActionContext> getContextList(Map container){
+        List<ActionContext> result = new ArrayList<>();
+        Iterator<Map.Entry<Id, ActionContext>> iterator = container.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<Id,ActionContext > entry = iterator.next();
+            result.add(entry.getValue());
+        }
+        return result;
     }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
 public class TableViewerData implements Dto {
     private List<ActionContext> availableActions;
 
-    private Map<String,Map> idsActions;
+    private Map<String,List<ActionContext>> idsActions;
 
     private List<Id> selectedIds;
 
@@ -41,11 +41,11 @@ public class TableViewerData implements Dto {
         return "Available actions: "+availableActions.size()+" available multiple actions: "+idsActions.size();
     }
 
-    public Map<String, Map> getIdsActions() {
+    public Map<String, List<ActionContext>> getIdsActions() {
         return idsActions;
     }
 
-    public void setIdsActions(Map<String, Map> idsActions) {
+    public void setIdsActions(Map<String, List<ActionContext>> idsActions) {
         this.idsActions = idsActions;
     }
 

@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -40,6 +41,7 @@ public class TableViewerToobar {
     private Id selectedId;
     private EventBus eventBus;
     private EventBus parentEventBus;
+    private TableViewerData actionsData;
 
     public TableViewerToobar(EventBus localEventBus, EventBus parentEventBus) {
         this.eventBus = localEventBus;
@@ -123,10 +125,7 @@ public class TableViewerToobar {
         }
     }
 
-    /**
-     * При множественном выборе чекбоксами
-     */
-    //public void setSelectedIds(List<Id> checkedIds){}
+
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
         SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
@@ -189,9 +188,9 @@ public class TableViewerToobar {
     }
 
     public void getActionsByIds(List<Id> selectedIds) {
-        TableViewerData data = new TableViewerData();
-        data.setSelectedIds(selectedIds);
-        Command command = new Command("getActionsByIds", "table-viewer", data);
+        actionsData = new TableViewerData();
+        actionsData.setSelectedIds(selectedIds);
+        Command command = new Command("getActionsByIds", "table-viewer", actionsData);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -201,15 +200,33 @@ public class TableViewerToobar {
 
             @Override
             public void onSuccess(Dto result) {
-                TableViewerData resultData = (TableViewerData) result;
-
+                actionsData = (TableViewerData) result;
+                fooMenu.clearItems();
+                if (actionsData.getIdsActions().size() > 0) {
+                    for (String menuName : actionsData.getIdsActions().keySet()) {
+                        fooMenu.addItem(addMultiItem(menuName));
+                    }
+                } else {
+                    initMenu();
+                }
             }
         });
     }
 
-    private void initMenu(){
+    private void initMenu() {
         fooMenu.clearItems();
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
         fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
     }
+
+    private MenuItem addMultiItem(final String itemName) {
+        Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
+            public void execute() {
+                Window.alert("Execute command for " + actionsData.getIdsActions().get(itemName));
+            }
+        };
+        MenuItem menuItem = new MenuItem(itemName, menuItemCommand);
+        return menuItem;
+    }
+
 }
