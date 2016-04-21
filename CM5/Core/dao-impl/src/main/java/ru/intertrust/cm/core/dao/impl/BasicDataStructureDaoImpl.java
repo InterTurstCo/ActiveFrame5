@@ -140,8 +140,10 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     @Override    
     public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, List<IndexConfig> indexConfigsToDelete){
-        if (domainObjectTypeConfig.getName() == null || ((indexConfigsToDelete == null || indexConfigsToDelete.isEmpty()))) {
+        if (domainObjectTypeConfig.getName() == null || indexConfigsToDelete == null) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }else if (indexConfigsToDelete.isEmpty()){
+            return;
         }
         getQueryHelper().skipAutoIndices(domainObjectTypeConfig, indexConfigsToDelete);
 
@@ -176,8 +178,10 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     @Override
     public void deleteIndices(DomainObjectTypeConfig domainObjectTypeConfig, Set<String> indicesToDelete){
-        if (domainObjectTypeConfig.getName() == null || ((indicesToDelete == null || indicesToDelete.isEmpty()))) {
+        if (domainObjectTypeConfig.getName() == null || indicesToDelete == null) {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
+        }else if (indicesToDelete.isEmpty()){
+            return;
         }
 
         String deleteIndexesQuery = getQueryHelper().generateDeleteExplicitIndexesQuery(indicesToDelete);
