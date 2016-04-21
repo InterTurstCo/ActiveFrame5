@@ -1,10 +1,13 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,6 +19,10 @@ import java.util.List;
 public class TableViewerData implements Dto {
     private List<ActionContext> availableActions;
 
+    private Map<String,Map> idsActions;
+
+    private List<Id> selectedIds;
+
     public List<ActionContext> getAvailableActions() {
         return availableActions;
     }
@@ -26,10 +33,27 @@ public class TableViewerData implements Dto {
 
     public TableViewerData(){
         availableActions = new ArrayList<>();
+        idsActions = new HashMap<>();
     }
 
     @Override
     public String toString(){
-        return "Available actions: "+availableActions.size();
+        return "Available actions: "+availableActions.size()+" available multiple actions: "+idsActions.size();
+    }
+
+    public Map<String, Map> getIdsActions() {
+        return idsActions;
+    }
+
+    public void setIdsActions(Map<String, Map> idsActions) {
+        this.idsActions = idsActions;
+    }
+
+    public List<Id> getSelectedIds() {
+        return selectedIds;
+    }
+
+    public void setSelectedIds(List<Id> selectedIds) {
+        this.selectedIds = selectedIds;
     }
 }

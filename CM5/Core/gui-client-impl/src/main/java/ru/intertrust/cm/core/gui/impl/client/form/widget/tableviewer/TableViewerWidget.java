@@ -299,12 +299,14 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
-        if(!event.isDeselected()){
-            selectedIds.add(event.getId());
-            toolbar.setSelectedIds(selectedIds);
-        } else {
-            selectedIds.remove(event.getId());
-            toolbar.setSelectedIds(selectedIds);
+        if(toolbar.getToolbarPanel().isVisible()) {
+            if (!event.isDeselected()) {
+                selectedIds.add(event.getId());
+                toolbar.setSelectedIds(selectedIds);
+            } else {
+                selectedIds.remove(event.getId());
+                toolbar.setSelectedIds(selectedIds);
+            }
         }
     }
 

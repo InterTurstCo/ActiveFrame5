@@ -73,8 +73,9 @@ public class TableViewerToobar {
         actionsMenu.setStyleName("button-table-viewer");
         fooMenu.setStyleName("wrapApproval");
         actionsMenu.addItem("", fooMenu);
+        initMenu();
         toolbarPanel.add(actionsMenu);
-        actionsMenu.setVisible(false);
+        actionsMenu.setVisible(true);
     }
 
     public HorizontalPanel getToolbarPanel() {
@@ -126,7 +127,6 @@ public class TableViewerToobar {
      * При множественном выборе чекбоксами
      */
     //public void setSelectedIds(List<Id> checkedIds){}
-
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
         SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
@@ -160,38 +160,56 @@ public class TableViewerToobar {
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("something was going wrong while saving approval as template " + id);
-                actionsMenu.setVisible(false);
+                GWT.log("something was going wrong while getting actions for id  " + id);
                 caught.printStackTrace();
             }
 
             @Override
             public void onSuccess(Dto result) {
-                TableViewerData data = (TableViewerData)result;
+                TableViewerData data = (TableViewerData) result;
                 fooMenu.clearItems();
-                if(data.getAvailableActions().size() == 0){
-                    SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-                    fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+                if (data.getAvailableActions().size() == 0) {
+                    initMenu();
                 } else {
                     for (ActionContext actionContext : data.getAvailableActions()) {
-                            fooMenu.addItem(buildActionButton(actionContext));
-                        }
+                        fooMenu.addItem(buildActionButton(actionContext));
+                    }
                 }
-                actionsMenu.setVisible(true);
             }
         });
 
     }
 
-    public void setSelectedIds(List<Id> selectedIds){
-        fooMenu.clearItems();
-        if(selectedIds.size()<=0){
-            SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-            fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
-        } else {
-            SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-            fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+    public void setSelectedIds(List<Id> selectedIds) {
+        initMenu();
+        if (selectedIds.size() > 0) {
+            getActionsByIds(selectedIds);
         }
-        actionsMenu.setVisible(true);
+
+    }
+
+    public void getActionsByIds(List<Id> selectedIds) {
+        TableViewerData data = new TableViewerData();
+        data.setSelectedIds(selectedIds);
+        Command command = new Command("getActionsByIds", "table-viewer", data);
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+            @Override
+            public void onFailure(Throwable caught) {
+                GWT.log("something was going wrong while getting multiple actions for Ids");
+                caught.printStackTrace();
+            }
+
+            @Override
+            public void onSuccess(Dto result) {
+                TableViewerData resultData = (TableViewerData) result;
+
+            }
+        });
+    }
+
+    private void initMenu(){
+        fooMenu.clearItems();
+        SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
+        fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
     }
 }

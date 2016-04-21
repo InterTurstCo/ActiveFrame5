@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedDomainObjectsTableConfig;
@@ -21,6 +22,8 @@ import ru.intertrust.cm.core.gui.api.server.widget.WidgetContext;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.widget.util.WidgetConfigUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
@@ -108,10 +111,37 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
         return restrictedCreatedObjectsConfig;
     }
 
-    public Dto getActionsById(Dto request){
-        Id id = (Id)request;
+    public Dto getActionsById(Dto request) {
+        Id id = (Id) request;
         TableViewerData data = new TableViewerData();
         data.setAvailableActions(actionService.getActions(id));
+        return data;
+    }
+
+    public Dto getActionsByIds(Dto request) {
+        TableViewerData data = (TableViewerData) request;
+/**
+ *  #1 Выбираем все доступные действия формируя структуру Имя действия - список Id и контекстов.
+ */
+        for (final Id id : data.getSelectedIds()) {
+            for (final ActionContext aContext : actionService.getActions(id)) {
+                SimpleActionContext simpleActionContext = (SimpleActionContext) aContext;
+                if (data.getIdsActions().size() == 0 ||
+                        !data.getIdsActions().containsKey(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText())
+                        ) {
+                    data.getIdsActions().put(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText(), new HashMap() {{
+                        put(id, aContext);
+                    }});
+                } else {
+                    data.getIdsActions().get(((SimpleActionConfig) simpleActionContext.getActionConfig()).getText()).put(id,aContext);
+                }
+            }
+        }
+/**
+ *  #2 Оставляем только те связки у которых одинаковые наборы Id в парах Id - контекст. Т.е. в итоге, действия могут
+ *  быть разные (если они одинаковы по имени но не по логике) но для одних и техже айтемов будет одинаковый список меню.
+ */
+
         return data;
     }
 }
