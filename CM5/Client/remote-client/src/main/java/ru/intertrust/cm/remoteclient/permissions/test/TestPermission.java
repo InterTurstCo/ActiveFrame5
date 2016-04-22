@@ -544,11 +544,11 @@ public class TestPermission extends ClientBase {
             log("Test combine permissions: OK");
 
             //Тест CREATE-CHILD для наследников CMFIVE-5338
-            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             DomainObject test24 = notAdminCrudservice.createDomainObject("test_type_24");
             test24.setString("name", "_" + System.currentTimeMillis());
-            test24.setReference("author", getPersonId("person1"));
-            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            test24.setReference("author", getPersonId("person5"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             test24 = notAdminCrudservice.save(test24);
             
             DomainObject test25 = notAdminCrudservice.createDomainObject("test_type_25");
@@ -563,19 +563,31 @@ public class TestPermission extends ClientBase {
             notAdminCrudservice.save(test26);
             log("Test CMFIVE-5338: OK");
             
-            //CMFIVE-5381 Проверка создания ДО с immutable полями под системным аккаунтом
-            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            //CMFIVE-5381 Проверка создания ДО с immutable полями под системным токеном из точки расширения
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             test24 = notAdminCrudservice.createDomainObject("test_type_24");
             //Флаг точке расширения, что надо создать дочерний test_type_25
             test24.setString("name", "test-5381");
             //Автора надо указать другого пользователя, отличного от создателя
             test24.setReference("author", getPersonId("person2"));
-            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             test24 = notAdminCrudservice.save(test24);
                         
             log("Test CMFIVE-5381: OK");
             
+            //Проверка создания ДО с имутабле полями в дочернем типе  CMFIVE-5397 
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.createDomainObject("test_type_24");
+            test24.setString("name", "_" + System.currentTimeMillis());
+            test24.setReference("author", getPersonId("person5"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.save(test24);
             
+            DomainObject test28 = notAdminCrudservice.createDomainObject("test_type_28");
+            test28.setString("name", "_" + System.currentTimeMillis());
+            test28.setReference("test_type_24", test24.getId());
+            notAdminCrudservice.save(test28);
+            log("Test  CMFIVE-5397: OK");            
             
             log("Test complete");
         } finally {
