@@ -360,6 +360,7 @@ public class GlobalCacheImpl implements GlobalCache {
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // for new objects there's a chance that they may not get to linked objects list
             for (DomainObject created : modification.getCreatedDomainObjects()) {
                 doTypeLastChangeTime.setLastModificationTime(created.getTypeName(), System.currentTimeMillis(), created.getModifiedDate().getTime());
+                // todo? clearUsersFullRetrieval(String type)
             }
         }
 
@@ -435,6 +436,15 @@ public class GlobalCacheImpl implements GlobalCache {
                 }
             }
         }
+    }
+
+    public void notifyClusterNodeModification(CacheInvalidation invalidation) {
+        // todo:
+        // 1) clear ids
+        // 2) clear collections
+        // 3) clear users full retrieval for the types.
+        // 4) possibly -> clear full access log + all user collections (not implemented yet)
+        // 5) clear full retrieval for created objects
     }
 
     private static int __count;
