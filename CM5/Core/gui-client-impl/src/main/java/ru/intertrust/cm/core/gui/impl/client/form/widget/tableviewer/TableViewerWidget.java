@@ -70,7 +70,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     private HandlerRegistration addButtonHandlerRegistration;
     private TableViewerState state;
     private Boolean editableState = true;
-    private Boolean singleSelectionMode = true;
     private List<Id> selectedIds;
 
     @Override
@@ -115,8 +114,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         pluginWrapper.addStyleName("table-viewer-wrapper");
         pluginPanel = new PluginPanel();
         localEventBus = new SimpleEventBus();
-        toolbar = new TableViewerToobar(localEventBus, eventBus);
+
         selectedIds = new ArrayList<>();
+        toolbar = new TableViewerToobar(localEventBus, selectedIds);
 
         pluginWrapper.add(toolbar.getToolbarPanel());
 

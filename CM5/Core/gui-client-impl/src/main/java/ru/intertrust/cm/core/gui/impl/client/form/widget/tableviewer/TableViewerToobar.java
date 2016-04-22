@@ -40,12 +40,13 @@ public class TableViewerToobar {
     private MenuBar fooMenu;
     private Id selectedId;
     private EventBus eventBus;
-    private EventBus parentEventBus;
     private TableViewerData actionsData;
+    private Integer multiContextToExecute = 0;
+    private List<Id> selectedIds;
 
-    public TableViewerToobar(EventBus localEventBus, EventBus parentEventBus) {
+    public TableViewerToobar(EventBus localEventBus, List<Id> selectedIds) {
         this.eventBus = localEventBus;
-        this.parentEventBus = parentEventBus;
+        this.selectedIds = selectedIds;
         toolbarPanel = new HorizontalPanel();
         editButton = new ToggleButton();
         addButton = new Button();
@@ -129,7 +130,11 @@ public class TableViewerToobar {
     private MenuItem buildActionButton(final ActionContext context) {
         SimpleActionContext simpleActionContext = (SimpleActionContext) context;
         SimpleActionConfig simpleActionConfig = simpleActionContext.getActionConfig();
+        MenuItem menuItem = new MenuItem(simpleActionConfig.getText(), getCommandForContext(context));
+        return menuItem;
+    }
 
+    private Scheduler.ScheduledCommand getCommandForContext(final ActionContext context){
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
                 Command command = new Command("executeAction", "generic.workflow.action", context);
@@ -149,10 +154,36 @@ public class TableViewerToobar {
                 });
             }
         };
-        MenuItem menuItem = new MenuItem(simpleActionConfig.getText(), menuItemCommand);
-
-        return menuItem;
+        return menuItemCommand;
     }
+
+    private Scheduler.ScheduledCommand getCommandForMultipleContext(final ActionContext context){
+        Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
+            public void execute() {
+                Command command = new Command("executeAction", "generic.workflow.action", context);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        GWT.log("something was going wrong while obtaining details for stage ");
+                        Window.alert("Ошибка выполнения. " + caught.getMessage());
+                        caught.printStackTrace();
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
+                        multiContextToExecute--;
+                        if(multiContextToExecute<=0){
+                            multiContextToExecute = 0;
+                            setSelectedIds(selectedIds);
+                        }
+                    }
+                });
+            }
+        };
+        return menuItemCommand;
+    }
+
 
     public void getActionsById(final Id id) {
         Command command = new Command("getActionsById", "table-viewer", id);
@@ -222,7 +253,11 @@ public class TableViewerToobar {
     private MenuItem addMultiItem(final String itemName) {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
-                Window.alert("Execute command for " + actionsData.getIdsActions().get(itemName));
+                multiContextToExecute = actionsData.getIdsActions().size();
+                for(ActionContext aContext : actionsData.getIdsActions().get(itemName)){
+                    Scheduler.ScheduledCommand cmd = getCommandForMultipleContext(aContext);
+                    cmd.execute();
+                }
             }
         };
         MenuItem menuItem = new MenuItem(itemName, menuItemCommand);
