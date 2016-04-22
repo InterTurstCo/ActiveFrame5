@@ -26,9 +26,9 @@ public class HierarchyBrowserUtil {
     }
 
     public static boolean isDisplayingHyperlinks(HierarchyBrowserWidgetState state) {
-        DisplayValuesAsLinksConfig displayValuesAsLinksConfig = state.getHierarchyBrowserConfig()
-                .getDisplayValuesAsLinksConfig();
-        return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
+            DisplayValuesAsLinksConfig displayValuesAsLinksConfig = state.getHierarchyBrowserConfig()
+                    .getDisplayValuesAsLinksConfig();
+            return displayValuesAsLinksConfig != null && displayValuesAsLinksConfig.isValue();
     }
 
     public static ArrayList<HierarchyBrowserItem> getCopyOfChosenItems(ArrayList<HierarchyBrowserItem> itemsToCopy) {
@@ -39,42 +39,43 @@ public class HierarchyBrowserUtil {
         return copyOfItems;
     }
 
-    public static boolean shouldInitializeTooltip(HierarchyBrowserWidgetState state, int delta){
-        if(state.getTooltipChosenItems() != null){
+    public static boolean shouldInitializeTooltip(HierarchyBrowserWidgetState state, int delta) {
+        if (state.getTooltipChosenItems() != null) {
             return false;
         }
         return state.isTooltipAvailable(delta);
 
     }
 
-    public static void preHandleAddingItemToTempState(HierarchyBrowserItem item, HierarchyBrowserWidgetState state){
-       if(!state.isTooltipAvailable(1)){
-           return;
-       }
+    public static void preHandleAddingItemToTempState(HierarchyBrowserItem item, HierarchyBrowserWidgetState state) {
+        if (!state.isTooltipAvailable(1)) {
+            return;
+        }
         List<HierarchyBrowserItem> temporaryTooltipItems = state.getTooltipChosenItems();
         List<HierarchyBrowserItem> temporaryChosenItems = state.getTemporaryChosenItems();
         String collectionName = item.getNodeCollectionName();
         SelectionFiltersConfig selectionFiltersConfig = state.getCollectionNameNodeMap()
                 .get(collectionName).getSelectionFiltersConfig();
         Integer expected = WidgetUtil.getLimit(selectionFiltersConfig);
-        List<HierarchyBrowserItem > listOfParticularCollection = getListOfParticularCollection(temporaryChosenItems,
+        List<HierarchyBrowserItem> listOfParticularCollection = getListOfParticularCollection(temporaryChosenItems,
                 collectionName);
         int actual = listOfParticularCollection.size();
-        if(expected == null || expected < actual){
+        if (expected == null || expected < actual) {
             return;
         }
         HierarchyBrowserItem itemForTooltip = removeSameCollectionItem(item, temporaryChosenItems);
-        if(itemForTooltip != null){
+        if (itemForTooltip != null) {
             temporaryTooltipItems.add(itemForTooltip);
 
         }
 
     }
-    private static HierarchyBrowserItem removeSameCollectionItem(HierarchyBrowserItem item, Collection<HierarchyBrowserItem> items){
-       Iterator<HierarchyBrowserItem> iterator = items.iterator();
-        while (iterator.hasNext()){
+
+    private static HierarchyBrowserItem removeSameCollectionItem(HierarchyBrowserItem item, Collection<HierarchyBrowserItem> items) {
+        Iterator<HierarchyBrowserItem> iterator = items.iterator();
+        while (iterator.hasNext()) {
             HierarchyBrowserItem currentItem = iterator.next();
-            if(currentItem.getNodeCollectionName().equalsIgnoreCase(item.getNodeCollectionName())){
+            if (currentItem.getNodeCollectionName().equalsIgnoreCase(item.getNodeCollectionName())) {
                 iterator.remove();
                 return currentItem;
             }
@@ -82,21 +83,21 @@ public class HierarchyBrowserUtil {
         return null;
     }
 
-    public static void preHandleRemovingItem(HierarchyBrowserItem item, HierarchyBrowserWidgetState state){
-        if(!state.isTooltipAvailable()){
+    public static void preHandleRemovingItem(HierarchyBrowserItem item, HierarchyBrowserWidgetState state) {
+        if (!state.isTooltipAvailable()) {
             return;
         }
         List<HierarchyBrowserItem> content = state.getCurrentItems();
-       if(content.contains(item)){
-        List<HierarchyBrowserItem> tooltipItems = state.getTooltipChosenItems();
-        HierarchyBrowserItem itemToContent = tooltipItems.remove(0);
+        if (content.contains(item)) {
+            List<HierarchyBrowserItem> tooltipItems = state.getTooltipChosenItems();
+            HierarchyBrowserItem itemToContent = tooltipItems.remove(0);
 
-        content.add(itemToContent);
-       }
+            content.add(itemToContent);
+        }
 
     }
 
-    
+
     private static List<HierarchyBrowserItem> getListOfParticularCollection(List<HierarchyBrowserItem> items, String collectionName) {
         List<HierarchyBrowserItem> result = new ArrayList<HierarchyBrowserItem>();
         for (HierarchyBrowserItem item : items) {
@@ -108,7 +109,7 @@ public class HierarchyBrowserUtil {
     }
 
     public static boolean handleUpdateChosenItem(HierarchyBrowserItem updatedItem, List<HierarchyBrowserItem> chosenItems) {
-        if(chosenItems == null || chosenItems.isEmpty()){
+        if (chosenItems == null || chosenItems.isEmpty()) {
             return false;
         }
         HierarchyBrowserItem itemToRefresh = findHierarchyBrowserItem(updatedItem.getId(), chosenItems);
@@ -128,7 +129,7 @@ public class HierarchyBrowserUtil {
         return null;
     }
 
-    public static Map<String, Integer> createTemporaryCountOfType(Map<String, NodeCollectionDefConfig> defConfigMap){
+    public static Map<String, Integer> createTemporaryCountOfType(Map<String, NodeCollectionDefConfig> defConfigMap) {
         Map<String, Integer> result = new HashMap<String, Integer>();
         Set<String> collectionNames = defConfigMap.keySet();
         for (String collectionName : collectionNames) {
@@ -138,7 +139,7 @@ public class HierarchyBrowserUtil {
         return result;
     }
 
-    public static void updateCountOfType(Map<String, Integer> countMap, Map<String, NodeCollectionDefConfig> defConfigMap){
+    public static void updateCountOfType(Map<String, Integer> countMap, Map<String, NodeCollectionDefConfig> defConfigMap) {
         Set<String> collectionNames = defConfigMap.keySet();
         for (String collectionName : collectionNames) {
             NodeCollectionDefConfig config = defConfigMap.get(collectionName);
@@ -146,23 +147,25 @@ public class HierarchyBrowserUtil {
             config.setElementsCount(count);
         }
     }
+
     @Deprecated
     public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith,
-                                                  boolean commonSingleChoice){
-        return  item.getId() != compareWith.getId()
+                                                  boolean commonSingleChoice) {
+        return item.getId() != compareWith.getId()
                 && ((item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
-                && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId())))
-                ||(commonSingleChoice && (item.isSingleChoice() == null || item.isSingleChoice())));
+                && (item.getParentId() == null || item.getParentId().equals(compareWith.getParentId())))
+                || (commonSingleChoice && (item.isSingleChoice() == null || item.isSingleChoice())));
     }
 
-    public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith){
-        return  item.getId() != compareWith.getId()
+    public static boolean isOtherItemSingleChoice(HierarchyBrowserItem item, HierarchyBrowserItem compareWith) {
+        return item.getId() != compareWith.getId()
                 && ((item.getNodeCollectionName().equalsIgnoreCase(compareWith.getNodeCollectionName())
-                && (item.getParentId() == null  || item.getParentId().equals(compareWith.getParentId()))));
+                && (item.getParentId() == null || item.getParentId().equals(compareWith.getParentId()))));
 
     }
+
     public static boolean isModalWindow(DisplayValuesAsLinksConfig commonDisplayValuesAsLinks,
-                                      DisplayValuesAsLinksConfig nodeDisplayValuesAsLinks){
+                                        DisplayValuesAsLinksConfig nodeDisplayValuesAsLinks) {
         return nodeDisplayValuesAsLinks == null
                 ? (commonDisplayValuesAsLinks == null || commonDisplayValuesAsLinks.isModalWindow())
                 : nodeDisplayValuesAsLinks.isModalWindow();

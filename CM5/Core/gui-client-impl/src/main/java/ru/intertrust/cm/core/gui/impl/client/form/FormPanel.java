@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.FormState;
+import ru.intertrust.cm.core.gui.model.form.widget.HierarchyBrowserWidgetState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
 import ru.intertrust.cm.core.gui.model.util.StringUtil;
@@ -85,6 +86,10 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
             WidgetState newState = formState.getWidgetState(widget.getDisplayConfig().getId());
             WidgetState currentState = widget.getCurrentState();
             if(newState == null) { //for LinkedTable
+                continue;
+            }
+            if(newState instanceof HierarchyBrowserWidgetState
+                    && ((HierarchyBrowserWidgetState)newState).getHierarchyBrowserConfig()==null) { //for Hierarchy Browser
                 continue;
             }
             if (!newState.equals(currentState)) {
