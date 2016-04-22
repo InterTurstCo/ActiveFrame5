@@ -302,6 +302,12 @@ public class FormPanel extends WidgetsContainer implements IsWidget {
     private IsWidget buildTable(LayoutConfig layout) {
         TableLayoutConfig tableLayout = (TableLayoutConfig) layout;
         FlexTable table = new FlexTable();
+        if (tableLayout.getWidth() != null) {
+            table.setWidth(tableLayout.getWidth());
+        }
+        if (tableLayout.getHeight() != null) {
+            table.setHeight(tableLayout.getHeight());
+        }
 
         if (formDisplayData.isDebug()) {
             table.getElement().addClassName("debug");
