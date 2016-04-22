@@ -453,6 +453,11 @@
         <fields>
             <string name="description" length="128" />
         </fields>
+        <indices>
+            <index>
+                <field name="description"/>
+            </index>
+        </indices>
     </domain-object-type>    
 
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->

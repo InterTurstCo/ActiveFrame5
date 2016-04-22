@@ -36,6 +36,7 @@ public class HierarchyBrowserView extends Composite implements HierarchyBrowserD
         this.selectionStyleConfig = selectionStyleConfig;
         this.displayAsHyperlinks = displayAsHyperlinks;
         widgetContainer = new HorizontalPanel();
+        widgetContainer.addStyleName("hierarh-browser-wrapper");
 
         initWidget(widgetContainer);
     }

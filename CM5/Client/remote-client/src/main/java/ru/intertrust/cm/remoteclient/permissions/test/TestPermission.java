@@ -561,7 +561,19 @@ public class TestPermission extends ClientBase {
             test26.setString("description", "_" + System.currentTimeMillis());
             test26.setReference("test_type_24", test24.getId());
             notAdminCrudservice.save(test26);
+            log("Test CMFIVE-5338: OK");
             
+            //CMFIVE-5381 Проверка создания ДО с immutable полями под системным аккаунтом
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            test24 = notAdminCrudservice.createDomainObject("test_type_24");
+            //Флаг точке расширения, что надо создать дочерний test_type_25
+            test24.setString("name", "test-5381");
+            //Автора надо указать другого пользователя, отличного от создателя
+            test24.setReference("author", getPersonId("person2"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin");
+            test24 = notAdminCrudservice.save(test24);
+                        
+            log("Test CMFIVE-5381: OK");
             
             
             
