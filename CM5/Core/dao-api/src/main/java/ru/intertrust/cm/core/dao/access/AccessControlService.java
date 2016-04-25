@@ -83,6 +83,17 @@ public interface AccessControlService {
             throws AccessException;
 
     /**
+     * Формирует маркер доступа к нескольким доменным объектам и соответствующим им разным типам доступа
+     * @param login
+     * @param objectIds
+     * @param types
+     * @param requireAll
+     * @return
+     * @throws AccessException
+     */
+    AccessToken createAccessToken(String login, Id[] objectIds, AccessType[] types, boolean requireAll) throws AccessException;    
+    
+    /**
      * Формирует маркер доступа на несколько типов доступа к одному объекту для заданного пользователя.
      * Сформированный маркер не может быть отложенным, т.е. проверка доступа производится непосредственно
      * при вызове метода.
@@ -183,7 +194,8 @@ public interface AccessControlService {
      * Проверка маркера доступа при создание ДО.
      * @param token Маркер доступа
      * @param domainObject Создаваемый ДО
+     * @param type Тип доменного объекта
      */
-    void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject);
+    void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject, Integer type);
 
 }

@@ -2015,7 +2015,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         for (int i = 0; i < updatedObjects.length; i++) {
 
             GenericDomainObject domainObject = updatedObjects[i];
-            accessControlService.verifyAccessTokenOnCreate(accessToken, domainObject);
+            accessControlService.verifyAccessTokenOnCreate(accessToken, domainObject, type);
 
             Object id;
             if (parentDOs != null) {

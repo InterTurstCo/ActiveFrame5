@@ -230,13 +230,7 @@ public class AccessControlServiceImpl implements AccessControlService {
     @Override
     public AccessToken createDomainObjectCreateToken(String login, DomainObject domainObject)
             throws AccessException {
-        //TODO метод не корректно работает для CreateChildAccessType, нужно учитывать наследование, но работать не мешает, подозреваю что этот AccessToken и не проверяется далее
-        List<ImmutableFieldData> immutableFieldDataList = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer); 
-        List<Id> immutableParentIds = new ArrayList<Id>();
-        for (ImmutableFieldData immutableFieldData : immutableFieldDataList) {
-            immutableParentIds.add(immutableFieldData.getValue());
-        }
-        Id[] parentObjects = immutableParentIds.toArray(new Id[immutableParentIds.size()]);
+        List<ImmutableFieldData> immutableFieldDataList = AccessControlUtility.getImmutableParentIds(domainObject, domainObject.getTypeName(), configurationExplorer); 
         String objectType = domainObject.getTypeName();
         Id personId = getUserIdByLogin(login);
         Integer personIdInt = (int) ((RdbmsId) personId).getId();
@@ -247,9 +241,15 @@ public class AccessControlServiceImpl implements AccessControlService {
             return new SuperUserAccessToken(new UserSubject(personIdInt));
         }
 
-        if (parentObjects != null && parentObjects.length > 0) {
-            AccessType accessType = new CreateChildAccessType(objectType);
-            return createAccessToken(login, parentObjects, accessType, true);
+        if (immutableFieldDataList != null && immutableFieldDataList.size() > 0) {
+            Id[] parentObjects = new Id[immutableFieldDataList.size()];
+            AccessType[] types = new AccessType[immutableFieldDataList.size()]; 
+            for (int i=0; i<immutableFieldDataList.size(); i++) {
+                parentObjects[i] = immutableFieldDataList.get(i).getValue();
+                types[i] = new CreateChildAccessType(immutableFieldDataList.get(i).getTypeName());                 
+            }
+            
+            return createAccessToken(login, parentObjects, types, true);
         }
 
         if (isAllowedToCreateByStaticGroups(personId, domainObject)) {
@@ -335,6 +335,55 @@ public class AccessControlServiceImpl implements AccessControlService {
         return token;
     }
 
+    @Override
+    public AccessToken createAccessToken(String login, Id[] objectIds, AccessType[] types, boolean requireAll)
+            throws AccessException {
+        Id personId = getUserIdByLogin(login);
+        Integer personIdInt = (int) ((RdbmsId) personId).getId();
+        boolean isSuperUser = isPersonSuperUser(personId);
+
+        if (isSuperUser ) {
+            return new SuperUserAccessToken(new UserSubject(personIdInt));
+        }
+
+        List<Id> ids = new ArrayList<Id>();
+        List<AccessType> accessTypes = new ArrayList<AccessType>();
+        boolean deferred = false;
+        AccessToken token;
+        
+        for (int i=0; i<objectIds.length; i++) {
+            if (databaseAgent.checkDomainObjectAccess(personIdInt, objectIds[i], types[i])){
+                ids.add(objectIds[i]);
+                accessTypes.add(types[i]);
+            }            
+        }
+        
+        if (requireAll ? ids.size() < objectIds.length : ids.size() == 0) {
+            String message = String.format(
+                    MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_DO, GuiContext.getUserLocale()),
+                    login, types.toString(), objectIds.toString());
+            String childType = "";
+            if (types[0] instanceof CreateChildAccessType) {
+                for (AccessType type : types) {
+                    childType += ((CreateChildAccessType) type).getChildType() + ", ";
+                }
+                
+                message = String.format(
+                        MessageResourceProvider.getMessage(LocalizationKeys.ACL_SERVICE_NO_PERMISSIONS_FOR_CHILD, GuiContext.getUserLocale()),
+                        login,types[0],childType);
+            }
+            throw new AccessException(message);
+        }
+        token = new MultyTypeMultiObjectAccessToken(
+                new UserSubject(personIdInt), 
+                ids.toArray(new Id[ids.size()]), 
+                accessTypes.toArray(new AccessType[accessTypes.size()]), 
+                deferred);   
+
+        return token;
+    }
+    
+    
     @Override
     public AccessToken createAccessToken(String login, Id objectId, AccessType[] types, boolean requireAll)
             throws AccessException {
@@ -629,6 +678,100 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     /**
+     * Маркер доступа к набору доменных объектов. Задаёт разрешение разные типы доступа
+     * сразу к множеству объектов. Не может быть отложенным.
+     */
+    private final class MultyTypeMultiObjectAccessToken extends AccessTokenBase {
+
+        private final UserSubject subject;
+        private final Set<Id> objectIds;
+        private final Set<AccessType> types;
+        private final boolean deferred;
+
+        MultyTypeMultiObjectAccessToken(UserSubject subject, Id[] objectIds, AccessType[] types, boolean deferred) {
+            this.subject = subject;
+            this.objectIds = new HashSet<>((int) (objectIds.length / 0.75 + 1));
+            this.objectIds.addAll(Arrays.asList(objectIds));
+            this.types = new HashSet<AccessType>();
+            this.types.addAll(Arrays.asList(types));
+            this.deferred = deferred;
+        }
+
+        @Override
+        public Subject getSubject() {
+            return subject;
+        }
+
+        @Override
+        public boolean isDeferred() {
+            return deferred;
+        }
+
+        @Override
+        boolean allowsAccess(Id objectId, AccessType type) {
+            return this.objectIds.contains(objectId) && this.types.contains(type);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            MultyTypeMultiObjectAccessToken that = (MultyTypeMultiObjectAccessToken) o;
+
+            if (deferred != that.deferred) return false;
+
+            if (objectIds != null) {
+                if (that.objectIds == null) {
+                    return false;
+                } else if (objectIds.size() != that.objectIds.size() || !objectIds.containsAll(that.objectIds)) {
+                    return false;
+                }
+            } else if (that.objectIds != null) {
+                return false;
+            }
+
+            if (types != null) {
+                if (that.types == null) {
+                    return false;
+                } else if (types.size() != that.types.size() || !types.containsAll(that.types)) {
+                    return false;
+                }
+            } else if (that.types != null) {
+                return false;
+            }
+            
+            if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = subject != null ? subject.hashCode() : 0;
+
+            if (objectIds != null) {
+                for (Id id : objectIds) {
+                    if (id != null) {
+                        result = result + id.hashCode();
+                    }
+                }
+            }
+            if (types != null) {
+                for (AccessType type : types) {
+                    if (type != null) {
+                        result = result + type.hashCode();
+                    }
+                }
+            }
+
+            result = 31 * result + (deferred ? 1 : 0);
+            return result;
+        }
+    }
+    
+    
+    /**
      * Маркер множественных типов доступа к доменному объекту.
      * Не может быть отложенным.
      */
@@ -848,9 +991,9 @@ public class AccessControlServiceImpl implements AccessControlService {
     }
 
     @Override
-    public void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject) {
-        String domainObjectType = domainObject.getTypeName();
-        List<ImmutableFieldData> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, configurationExplorer);
+    public void verifyAccessTokenOnCreate(AccessToken token, DomainObject domainObject, Integer type) {
+        String domainObjectType = domainObjectTypeIdCache.getName(type);
+        List<ImmutableFieldData> parentIds = AccessControlUtility.getImmutableParentIds(domainObject, domainObjectType, configurationExplorer);
         
         if (parentIds != null && parentIds.size() > 0) {
             //Не проверяем систмный и админский токен

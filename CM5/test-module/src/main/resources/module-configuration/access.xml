@@ -438,6 +438,9 @@
             <create-child type="test_type_25">
                 <permit-role name="test_type_24_author" />
             </create-child>
+            <create-child type="test_type_28">
+                <permit-role name="test_type_24_author" />
+            </create-child>
         </status>
     </access-matrix>
 

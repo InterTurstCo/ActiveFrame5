@@ -460,6 +460,18 @@
         </indices>
     </domain-object-type>    
 
+    <domain-object-type name="test_type_27" initial-status="Active">
+        <fields>
+            <string name="name" length="128" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_28" extends="test_type_27" initial-status="Active">
+        <fields>
+            <reference name="test_type_24" type="test_type_24" not-null="true" immutable="true"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->

@@ -62,8 +62,8 @@ public class AccessControlUtility {
      * @param domainObject
      * @return
      */
-    public static List<ImmutableFieldData> getImmutableParentIds(DomainObject domainObject, ConfigurationExplorer configurationExplorer) {
-        String domainObjectType = domainObject.getTypeName();
+    public static List<ImmutableFieldData> getImmutableParentIds(DomainObject domainObject, String typeName, ConfigurationExplorer configurationExplorer) {
+        String domainObjectType = typeName;
         Set<ReferenceFieldConfig> refFields = configurationExplorer.getImmutableReferenceFieldConfigs(domainObjectType);
         List<ImmutableFieldData> parentIds = new ArrayList<ImmutableFieldData>(refFields.size());
         
