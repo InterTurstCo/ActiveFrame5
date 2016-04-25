@@ -34,6 +34,7 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     private final MethodStatistics NOTIFY_LINKED_OBJECTS_IDS_READ = new MethodStatistics("Notify Linked Objects Ids Read");
     private final MethodStatistics NOTIFY_COLLECTION_READ = new MethodStatistics("Notify Collection Read");
     private final MethodStatistics NOTIFY_COLLECTION_BY_QUERY_READ = new MethodStatistics("Notify Collection By Query Read");
+    private final MethodStatistics INVALIDATE = new MethodStatistics("Invalidate");
     private final MethodStatistics NOTIFY_COMMIT = new MethodStatistics("Notify Commit");
     private final MethodStatistics NOTIFY_ROLLBACK = new MethodStatistics("Notify Rollback");
     private final MethodStatistics NOTIFY_ACL_CREATED = new MethodStatistics("Notify ACL Created");
@@ -200,6 +201,14 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
         delegate.notifyCollectionRead(query, paramValues, offset, limit, collection, time, accessToken);
         final long executionTime = System.nanoTime() - t1;
         NOTIFY_COLLECTION_BY_QUERY_READ.log(executionTime, false);
+    }
+
+    @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) {
+        final long t1 = System.nanoTime();
+        delegate.invalidate(cacheInvalidation);
+        final long executionTime = System.nanoTime() - t1;
+        INVALIDATE.log(executionTime, false);
     }
 
     @Override

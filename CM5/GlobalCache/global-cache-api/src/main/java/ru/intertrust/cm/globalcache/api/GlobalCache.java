@@ -48,6 +48,8 @@ public interface GlobalCache {
     void notifyCollectionRead(String transactionId, String query, Set<String> domainObjectTypes, List<? extends Value> paramValues, int offset, int limit,
                               IdentifiableObjectCollection collection, long time, AccessToken accessToken);
 
+    void invalidate(CacheInvalidation cacheInvalidation);
+
     void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges);
 
     DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken);

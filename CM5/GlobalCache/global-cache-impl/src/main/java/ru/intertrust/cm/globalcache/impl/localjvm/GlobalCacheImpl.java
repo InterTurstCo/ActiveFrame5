@@ -356,6 +356,22 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) {
+        HashSet<String> typesAffected = new HashSet<>();
+        for (Id id : cacheInvalidation.getIdsToInvalidate()) {
+            deleteObjectAndCorrespondingEntries(id);
+            typesAffected.add(domainObjectTypeIdCache.getName(id));
+        }
+        final long time = System.currentTimeMillis();
+        for (String type : typesAffected) {
+            doTypeLastChangeTime.setLastModificationTime(type, time, time);
+        }
+        if (cacheInvalidation.isClearFullAccessLog()) {
+            clearAccessLog();
+        }
+    }
+
+    @Override
     public void notifyCommit(DomainObjectsModification modification, AccessChanges accessChanges) {
         synchronized (READ_EXOTIC_VS_COMMIT_LOCK) { // for new objects there's a chance that they may not get to linked objects list
             for (DomainObject created : modification.getCreatedDomainObjects()) {
@@ -401,8 +417,7 @@ public class GlobalCacheImpl implements GlobalCache {
             }
         }
         if (personAccessChanges.clearFullAccessLog()) {
-            userObjectAccess.getSize().detachFromTotal();
-            userObjectAccess = new UserObjectAccess(16, size);
+            clearAccessLog();
             return;
         }
         final HashMap<Id, HashMap<Id, Boolean>> personAccessByObject = personAccessChanges.getPersonAccessByObject();
@@ -438,13 +453,13 @@ public class GlobalCacheImpl implements GlobalCache {
         }
     }
 
-    public void notifyClusterNodeModification(CacheInvalidation invalidation) {
-        // todo:
-        // 1) clear ids
-        // 2) clear collections
-        // 3) clear users full retrieval for the types.
-        // 4) possibly -> clear full access log + all user collections (not implemented yet)
-        // 5) clear full retrieval for created objects
+    protected void clearAccessLog() {
+        userObjectAccess.getSize().detachFromTotal();
+        userObjectAccess = new UserObjectAccess(16, size);
+    }
+
+    protected void deleteObjectAndCorrespondingEntries(Id id) {
+        cleaner.deleteDomainObject(id);
     }
 
     private static int __count;
@@ -1157,7 +1172,7 @@ public class GlobalCacheImpl implements GlobalCache {
             }
         }
 
-        private void deleteDomainObject(Id id) {
+        public void deleteDomainObject(Id id) {
             deleteObjectAndItsAccessEntires(id, null, null, true);
         }
 

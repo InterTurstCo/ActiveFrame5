@@ -118,6 +118,11 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) {
+        impl.invalidate(cacheInvalidation);
+    }
+
+    @Override
     public void notifyCommit(DomainObjectsModification modification) {
         impl.notifyCommit(modification);
     }

@@ -16,7 +16,6 @@ import ru.intertrust.cm.core.dao.api.extension.*;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
-import ru.intertrust.cm.core.dao.impl.access.ImmutableFieldData;
 import ru.intertrust.cm.core.dao.impl.extension.AfterCommitExtensionPointService;
 import ru.intertrust.cm.core.dao.impl.utils.*;
 import ru.intertrust.cm.core.model.FatalException;
@@ -492,6 +491,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                     if (!isDerived(domainObjectTypeConfig)) {
                         if (count[j][i] == 0) {
+                            globalCacheClient.invalidate(new CacheInvalidation(Collections.singleton(updatedObjects[n].getId()), false));
                             throw new OptimisticLockException(updatedObjects[n]);
                         }
                     }

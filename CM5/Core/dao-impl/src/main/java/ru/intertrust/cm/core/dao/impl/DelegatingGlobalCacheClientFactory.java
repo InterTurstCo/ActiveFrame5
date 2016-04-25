@@ -177,5 +177,5 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
                     logger.warn(statistics.toString());
                 }
             }
-        }, 60, 60, TimeUnit.SECONDS);    }
+        }, 120, 120, TimeUnit.SECONDS);    }
 }

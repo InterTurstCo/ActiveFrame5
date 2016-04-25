@@ -1,10 +1,7 @@
-package ru.intertrust.cm.globalcache.api;
+package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-
-import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * @author Denis Mitavskiy
@@ -15,23 +12,25 @@ public class CacheInvalidation implements Dto {
     public static final long NODE_ID = new Random().nextLong();
 
     private long nodeId;
-    private HashSet<Id> idsToInvalidate;
+    private Set<Id> idsToInvalidate;
     private boolean clearFullAccessLog;
+    private long receiveTime;
 
     public CacheInvalidation() {
     }
 
-    public CacheInvalidation(HashSet<Id> idsToInvalidate, boolean clearFullAccessLog) {
+    public CacheInvalidation(Set<Id> idsToInvalidate, boolean clearFullAccessLog) {
         this.nodeId = NODE_ID;
         this.idsToInvalidate = idsToInvalidate;
         this.clearFullAccessLog = clearFullAccessLog;
+        this.receiveTime = receiveTime;
     }
 
     public long getNodeId() {
         return nodeId;
     }
 
-    public HashSet<Id> getIdsToInvalidate() {
+    public Set<Id> getIdsToInvalidate() {
         return idsToInvalidate;
     }
 
@@ -41,6 +40,14 @@ public class CacheInvalidation implements Dto {
 
     public boolean fromThisNode() {
         return this.nodeId == NODE_ID;
+    }
+
+    public void setReceiveTime(long receiveTime) {
+        this.receiveTime = receiveTime;
+    }
+
+    public long getReceiveTime() {
+        return receiveTime;
     }
 
     @Override

@@ -3,9 +3,9 @@ package ru.intertrust.cm.globalcacheclient.cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import ru.intertrust.cm.core.business.api.dto.CacheInvalidation;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.globalcache.api.CacheInvalidation;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 
 import javax.ejb.*;
@@ -30,7 +30,6 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void notifyCommit(DomainObjectsModification modification, GroupAccessChanges groupAccessChanges) {
-        long t1 = System.nanoTime();
         final boolean clearFullAccessLog = groupAccessChanges.clearFullAccessLog();
         final HashMap<Id, HashMap<Id, Boolean>> groupAccessByObject = groupAccessChanges.getGroupAccessByObject();
         final Set<Id> changedAccessIds = groupAccessByObject == null ? null : groupAccessByObject.keySet();
@@ -43,8 +42,6 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
         ids.addAll(savedAndChangedStatusIds);
         ids.addAll(deletedIds);
 
-        GlobalCacheJmsSender.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog));
-        long t2 = System.nanoTime();
-        logger.warn("Message sent in: " + (t2 - t1) / 1000000.0 + "ms");
+        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog));
     }
 }
