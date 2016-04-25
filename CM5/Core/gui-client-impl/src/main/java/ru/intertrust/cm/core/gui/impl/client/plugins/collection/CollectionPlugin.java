@@ -20,6 +20,7 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.CreateNewObjectAction;
 import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.CollectionRowSelectedEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.SideBarResizeEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.*;
@@ -47,7 +48,8 @@ import java.util.Map;
  */
 @ComponentName("collection.plugin")
 public class CollectionPlugin extends Plugin implements SideBarResizeEventHandler, CollectionRowStateChangedEventHandler,
-        CollectionRowFilteredEventHandler, CollectionRowMoreItemsEventHandler, CollectionAddGroupEventHandler, CollectionAddElementEventHandler {
+        CollectionRowFilteredEventHandler, CollectionRowMoreItemsEventHandler, CollectionAddGroupEventHandler, CollectionAddElementEventHandler,
+        CollectionRowSelectedEventHandler {
 
     // поле для локальной шины событий
     protected EventBus eventBus;
@@ -89,6 +91,7 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         eventBus.addHandler(CollectionRowMoreItemsEvent.TYPE, this);
         eventBus.addHandler(CollectionAddGroupEvent.TYPE, this);
         eventBus.addHandler(CollectionAddElementEvent.TYPE, this);
+        eventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         return new CollectionPluginView(this);
 
     }
@@ -367,6 +370,17 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
         action.setInitialContext(actionContext);
         action.setPlugin(getContainingDomainObjectSurferPlugin());
         action.perform();
+    }
+
+    @Override
+    public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
+        CollectionViewerConfig cfg = (CollectionViewerConfig)getConfig();
+        if(cfg.getCurrentRowChangeConfig()!=null){
+            CurrentRowChangeListener rowChangeComponent = ComponentRegistry.instance.get(cfg.getCurrentRowChangeConfig().getComponent());
+            if(rowChangeComponent!=null){
+                rowChangeComponent.onRowChange(this,getOwner().asWidget().getParent(),event.getId(),true);
+            }
+        }
     }
 
     private interface CommandCallBack {

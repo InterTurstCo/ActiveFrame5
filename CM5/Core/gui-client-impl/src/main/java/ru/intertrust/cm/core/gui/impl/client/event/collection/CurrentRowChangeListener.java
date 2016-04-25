@@ -12,5 +12,5 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
  * To change this template use File | Settings | File and Code Templates.
  */
 public interface CurrentRowChangeListener {
-    void onRowChange(Plugin plugin, Widget widget, Id id, boolean highlighted);
+    void onRowChange(Plugin plugin, Widget widget, Id id, boolean isUserAction);
 }
