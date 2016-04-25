@@ -19,24 +19,30 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -149,6 +155,98 @@ public class NamedCollectionRetrieverTest {
                 assertThat((IdsIncludedFilter) filter, new IdsFilterMatcher(id2, id3));
             }
         }
+    }
+
+    // CMFIVE-5387 workaround tests
+    @Test
+    public void testPartialFetch_DeficientIds() {
+        testALotOfIds(5555, 5000);
+    }
+
+    @Test
+    public void testPartialFetch_ExcessIds() {
+        testALotOfIds(5432, 1500);
+    }
+
+    @Test
+    public void testPartialFetch_ExactSplit() {
+        testALotOfIds(5000, NamedCollectionRetriever.MAX_IDS_PER_QUERY);
+    }
+
+    private void testALotOfIds(int idCount, int maxResults) {
+        SolrDocument doc = mock(SolrDocument.class);
+        when(doc.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenAnswer(new Answer<Object>() {
+            int seqNum = 0;
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                return Integer.toString(++seqNum);
+            }
+        });
+        SolrDocumentList docList = new SolrDocumentList();
+        for (int i = 0; i < idCount; ++i) {
+            docList.add(doc);
+        }
+
+        when(idService.createId(anyString())).thenAnswer(new Answer<Id>() {
+            @Override
+            public Id answer(InvocationOnMock invocation) throws Throwable {
+                String id = invocation.getArgumentAt(0, String.class);
+                return new RdbmsId(55, Integer.valueOf(id));
+            }
+        });
+
+        int expectedResults = Math.min(idCount / 2, maxResults);
+        final int expectedCalls = expectedResults + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1
+                / NamedCollectionRetriever.MAX_IDS_PER_QUERY;
+        final int[] expectedFilterSize = new int[expectedCalls];
+        final int[] expectedMaxResults = new int[expectedCalls];
+        for (int i = 0; i < expectedCalls; ++i) {
+            expectedFilterSize[i] = Math.min(NamedCollectionRetriever.MAX_IDS_PER_QUERY,
+                    idCount - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY);
+            expectedMaxResults[i] = maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
+        }
+
+        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyList(), anyInt(), anyInt()))
+                .thenAnswer(new Answer<IdentifiableObjectCollection>() {
+                    int callNum = 0;
+                    @Override
+                    public IdentifiableObjectCollection answer(InvocationOnMock invocation) throws Throwable {
+                        List<?> filters = invocation.getArgumentAt(2, List.class);
+                        assertEquals(1, filters.size());
+                        assertEquals(filters.get(0).getClass(), IdsIncludedFilter.class);
+                        IdsIncludedFilter filter = (IdsIncludedFilter) filters.get(0);
+                        int maxResults = invocation.getArgumentAt(4, Integer.class);
+
+                        assertThat(callNum, Matchers.lessThan(expectedCalls));
+                        assertEquals(expectedFilterSize[callNum], filter.getCriterionKeys().size());
+                        assertEquals(expectedMaxResults[callNum], maxResults);
+                        ++callNum;
+
+                        IdentifiableObjectCollection coll = new GenericIdentifiableObjectCollection();
+                        //coll.setFieldsConfiguration(null);
+                        for (int i = 0; i < filter.getCriterionKeys().size(); ++i) {
+                            try {
+                                RdbmsId id = (RdbmsId) filter.getCriterion(i).get();
+                                if (id.getId() % 2 == 0) {
+                                    coll.setId(coll.size(), id);
+                                    if (coll.size() == maxResults) {
+                                        break;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                System.err.println("Error processing iteration #" + i);
+                                e.printStackTrace();
+                            }
+                        }
+                        return coll;
+                    }
+                });
+
+        NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection");
+        initRetriever(retriever);
+        IdentifiableObjectCollection result = retriever.queryCollection(docList, maxResults);
+
+        assertEquals(expectedResults, result.size());
     }
 
     private void initRetriever(NamedCollectionRetriever retriever) {
