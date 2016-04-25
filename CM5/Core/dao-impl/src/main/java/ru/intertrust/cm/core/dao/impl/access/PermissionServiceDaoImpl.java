@@ -887,9 +887,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 .append(" r ").
                 append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (r.")
                 .append(DaoUtils.wrap("group_id")).
-                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
+                append(" = gg.").append(DaoUtils.wrap("parent_group_id")).append(") inner join ")
                 .append(DaoUtils.wrap("group_member")).
-                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
+                append(" gm on gg.").append(DaoUtils.wrap("child_group_id")).append(" = gm.")
                 .append(DaoUtils.wrap("usergroup")).
                 //обавляем в связи с появлением функциональности замещения прав
                 append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.")
@@ -906,9 +906,9 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                 .append(DaoUtils.wrap(tableNameAcl)).append(" a ").
                 append("inner join ").append(DaoUtils.wrap("group_group")).append(" gg on (a.")
                 .append(DaoUtils.wrap("group_id")).
-                append(" = gg.").append(DaoUtils.wrap("child_group_id")).append(") inner join ")
+                append(" = gg.").append(DaoUtils.wrap("parent_group_id")).append(") inner join ")
                 .append(DaoUtils.wrap("group_member")).
-                append(" gm on gg.").append(DaoUtils.wrap("parent_group_id")).append(" = gm.")
+                append(" gm on gg.").append(DaoUtils.wrap("child_group_id")).append(" = gm.")
                 .append(DaoUtils.wrap("usergroup")).
                 //обавляем в связи с появлением функциональности замещения прав
                 append("inner join ").append(DaoUtils.wrap(domainObjectBaseTable)).append(" o on (o.");
