@@ -379,6 +379,8 @@ public class CollectionPlugin extends Plugin implements SideBarResizeEventHandle
             CurrentRowChangeListener rowChangeComponent = ComponentRegistry.instance.get(cfg.getCurrentRowChangeConfig().getComponent());
             if(rowChangeComponent!=null){
                 rowChangeComponent.onRowChange(this,getOwner().asWidget().getParent(),event.getId(),true);
+            } else {
+                Window.alert("Component "+cfg.getCurrentRowChangeConfig().getComponent()+" not found.");
             }
         }
     }
