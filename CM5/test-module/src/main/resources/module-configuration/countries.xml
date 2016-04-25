@@ -161,7 +161,8 @@
     </act:simple-action>
 
     <form name="country_form" domain-object-type="country" is-default="true" debug="false" min-width="900px">
-        <act:tool-bar useDefault="true">
+        <act:tool-bar useDefault="false">
+            <!--
             <act:action-ref name-ref="aCreate" text="Создать город">
                 <act:action-params>
                     <act:action-param name="create.object.type" value="city"/>
@@ -194,19 +195,15 @@
                 <act:after-execution>
                     <act:on-success-message text="Country '{name}' saved"/>
                 </act:after-execution>
-                <!--act:validators>
-                    <act:validator class-name="ru.intertrust.cm.core.gui.impl.server.validation.validators.custom.CapitalValidator" widget-id="8a"/>
-                </act:validators-->
+
             </act:simple-action>
             <act:action-ref name-ref="aSimpleAction2"/>
             <act:action-ref name-ref="aDigitalSignature"/>
             <act:action-ref name-ref="aVerifyDigitalSignature"/>
-            <!--act:action-group name="testGroup" text="Группа действий" merged="false" imageClass="actionBar-create">
-                <act:action-group-ref name-ref="testGroup"/>
-            </act:action-group-->
             <act:action-group name="testGroup2" text="Вторая группа действий" merged="false" imageClass="actionBar-create">
                 <act:action-group-ref name-ref="create.visual.parameters.objects"/>
             </act:action-group>
+            -->
         </act:tool-bar>
         <markup>
             <header>

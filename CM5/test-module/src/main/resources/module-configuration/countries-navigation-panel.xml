@@ -194,6 +194,28 @@
                         <!--domain-object-type-to-create="country" - temp solution - remove later-->
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh" order="10"/>
+                                    <act:action-separator order="20"/>
+
+                                    <act:action-group name="create.visual.parameters.objects" text="Новые обьекты" order="30" merged="true" imageClass="actionBar-create">
+                                        <act:action-ref name-ref="aCreate" text="Поле">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="Department" />
+                                                <act:action-param name="create.object.form" value="department_form2" />
+                                            </act:action-params>
+                                        </act:action-ref>
+                                    </act:action-group>
+
+                                    <act:action-separator order="40"/>
+
+                                    <act:action-ref name-ref="aToggleEditOn" text="Редактировать" order="50"/>
+
+                                    <act:action-ref name-ref="aDelete" text="Удалить" order="60"/>
+
+                                    <act:action componentName="save-csv.action" order="70"
+                                                text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
+                                </act:tool-bar>
                                 <collection-ref name="Countries"/>
                                 <default-sort-criteria column-field="name" order="desc"/>
                                 <search-area-ref name="Countries-Search-Area"/>
