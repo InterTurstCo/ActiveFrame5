@@ -52,7 +52,7 @@ public class TableViewerToobar {
         addButton = new Button();
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         //editButton.addStyleName("edit-btn-table-viewer");
-        editButton.addStyleName(".edit-btn-table-viewer-disable");
+        editButton.addStyleName("edit-btn-table-viewer-disable");
         editButton.setTitle("Редактировать");
         addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
         addButton.addStyleName("add-btn-table-viewer");
@@ -120,8 +120,12 @@ public class TableViewerToobar {
 
     public void setSelectedId(Id id) {
         this.selectedId = id;
+        editButton.addStyleName("edit-btn-table-viewer");
+        editButton.removeStyleName("edit-btn-table-viewer-disable");
         if (selectedId == null) {
             fooMenu.clearItems();
+            editButton.addStyleName("edit-btn-table-viewer-disable");
+            editButton.removeStyleName("edit-btn-table-viewer");
         } else {
             getActionsById(selectedId);
         }
