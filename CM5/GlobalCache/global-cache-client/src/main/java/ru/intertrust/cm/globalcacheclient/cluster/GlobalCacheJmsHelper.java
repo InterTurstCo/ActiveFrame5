@@ -20,8 +20,8 @@ import java.util.List;
 public class GlobalCacheJmsHelper {
     final static Logger logger = LoggerFactory.getLogger(GlobalCacheJmsHelper.class);
 
-    public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "RemoteConnectionFactory";
-    public static final String DELAY_QUEUE_CONNECTION_FACTORY = "LocalConnectionFactory";
+    public static final String CLUSTER_NOTIFICATION_CONNECTION_FACTORY = "GlobalCacheClusteredConnectionFactory";
+    public static final String DELAY_QUEUE_CONNECTION_FACTORY = "GlobalCacheLocalConnectionFactory";
     public static final String NOTIFICATION_TOPIC = "topic/ClusterNotificationTopic";
     public static final String DELAY_QUEUE = "queue/ClusterNotificationDelayQueue";
 
