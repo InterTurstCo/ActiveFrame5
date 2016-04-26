@@ -799,3 +799,14 @@ td.item-disable.gwt-MenuItem-selected {
     color: #000;
     cursor: default;
 }
+
+div.edit-btn-table-viewer-disable {
+    cursor: default;
+    background-image: url(css/icons/icon-edit-disable.png);
+    background-position: center;
+}
+
+div.edit-btn-table-viewer-disable:hover {
+    box-shadow: none;
+    border: 1px solid #dfe2e5;
+}
