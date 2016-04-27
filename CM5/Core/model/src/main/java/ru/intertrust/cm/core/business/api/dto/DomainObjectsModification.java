@@ -25,8 +25,20 @@ public class DomainObjectsModification implements Dto {
         return transactionId;
     }
 
+    public boolean isEmpty() {
+        return createdDomainObjects.isEmpty() && deletedDomainObjects.isEmpty() && savedAndChangedStatusDomainObjects.isEmpty();
+    }
+
     public List<DomainObject> getCreatedDomainObjects() {
         return createdDomainObjects;
+    }
+
+    public List<Id> getCreatedIds() {
+        ArrayList<Id> created = new ArrayList<>(createdDomainObjects.size());
+        for (DomainObject object : createdDomainObjects) {
+            created.add(object.getId());
+        }
+        return created;
     }
 
     public List<Id> getChangeStatusDomainObjectIds() {
@@ -45,8 +57,16 @@ public class DomainObjectsModification implements Dto {
         return savedAndChangedStatusDomainObjects.values();
     }
 
+    public Set<Id> getSavedAndChangedStatusIds() {
+        return savedAndChangedStatusDomainObjects.keySet();
+    }
+
     public Collection<DomainObject> getDeletedDomainObjects() {
         return deletedDomainObjects.values();
+    }
+
+    public Set<Id> getDeletedIds() {
+        return deletedDomainObjects.keySet();
     }
 
     public void addCreatedDomainObject(DomainObject domainObject) {

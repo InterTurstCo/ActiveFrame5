@@ -54,6 +54,8 @@ public interface GlobalCacheClient {
     void notifyCollectionRead(String query, List<? extends Value> paramValues, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken);
 
+    void invalidate(CacheInvalidation cacheInvalidation);
+
     void notifyCommit(DomainObjectsModification modification);
 
     void notifyRollback(String transactionId);

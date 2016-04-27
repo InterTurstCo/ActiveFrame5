@@ -51,6 +51,12 @@ public class GlobalCacheSettings implements Dto {
     @Value("${global.cache.max.size:#{null}}")
     private volatile String sizeLimit;
 
+    @Value("${global.cache.cluster.synchronization.seconds:#{0}}")
+    private volatile long clusterSynchronizationSeconds;
+
+    @Value("${global.cache.cluster.mode:#{false}}")
+    private volatile boolean inCluster;
+
     private volatile Long sizeLimitBytes = null;
 
     public Mode getMode() {
@@ -59,6 +65,22 @@ public class GlobalCacheSettings implements Dto {
 
     public void setMode(Mode mode) {
         this.mode = mode.toString();
+    }
+
+    public boolean isInCluster() {
+        return inCluster;
+    }
+
+    public long getClusterSynchronizationSeconds() {
+        return clusterSynchronizationSeconds;
+    }
+
+    public long getClusterSynchronizationMillies() {
+        return clusterSynchronizationSeconds * 1000;
+    }
+
+    public void setClusterSynchronizationSeconds(Long clusterSynchronizationSeconds) {
+        this.clusterSynchronizationSeconds = clusterSynchronizationSeconds;
     }
 
     public void setSizeLimitBytes(long bytes) {

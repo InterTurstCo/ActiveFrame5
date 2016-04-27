@@ -88,6 +88,26 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
+    protected void clearAccessLog() {
+        writeLock.lock();
+        try {
+            super.clearAccessLog();
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
+    protected void deleteObjectAndCorrespondingEntries(Id id) {
+        writeLock.lock();
+        try {
+            super.deleteObjectAndCorrespondingEntries(id);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
+    @Override
     public void notifyReadByUniqueKey(String transactionId, String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
         writeLock.lock();
         try {
@@ -135,6 +155,11 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) { // do NOT sync - it's synchronized inside
+        super.invalidate(cacheInvalidation);
     }
 
     @Override

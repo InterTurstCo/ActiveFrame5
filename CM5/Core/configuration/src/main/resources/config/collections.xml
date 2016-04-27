@@ -894,7 +894,8 @@
                 from
                     Person_Task t
                     inner join assignee_group ag on (t.id = ag.persontask)
-                    inner join group_member gm on (ag.usergroup = gm.usergroup)
+					inner join group_group gg on (ag.usergroup = gg.parent_group_id)
+					inner join group_member gm on (gg.child_group_id = gm.usergroup)
                     inner join Status s on (t.status = s.id)
                      ::from-clause
                 where

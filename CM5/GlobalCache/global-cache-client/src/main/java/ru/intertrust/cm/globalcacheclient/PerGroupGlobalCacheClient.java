@@ -96,6 +96,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         final HashMap<String, Serializable> settings = new HashMap<>();
         settings.put("global.cache.mode", globalCacheSettings.getMode().toString());
         settings.put("global.cache.max.size", globalCacheSettings.getSizeLimitBytes());
+        settings.put("global.cache.cluster.mode", globalCacheSettings.isInCluster());
         return settings;
     }
 
@@ -258,6 +259,11 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
             return;
         }
         globalCache.notifyCollectionRead(null, query, doTypes, paramValues, offset, limit, collection, time, accessToken);
+    }
+
+    @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) {
+        globalCache.invalidate(cacheInvalidation);
     }
 
     @Override

@@ -92,6 +92,10 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void invalidate(CacheInvalidation cacheInvalidation) {
+    }
+
+    @Override
     public void notifyCommit(DomainObjectsModification modification) {
     }
 
