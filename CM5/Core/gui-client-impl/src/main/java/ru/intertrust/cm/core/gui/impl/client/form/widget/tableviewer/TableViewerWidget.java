@@ -137,20 +137,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
-  /*
-                if(((TableViewerState)initialData).getRootObject()!=null){
-                    if(config.getCollectionViewerConfig().getTableBrowserParams()!=null){
-                        Dto filterParams = config.getCollectionViewerConfig().getTableBrowserParams().getComplexFiltersParams();
-                        if(filterParams!=null){
-                            ((ComplexFiltersParams)((CollectionPluginData)pluginPanel.getCurrentPlugin().getCurrentState()).getTableBrowserParams().getComplexFiltersParams())
-                                    .setRootId(((TableViewerState)initialData).getRootObject().getId());
-                        }
-                    }
 
-                }
-
-                pluginPanel.getCurrentPlugin().refresh();
-*/
             }
         });
         WidgetsContainer wc = getContainer();

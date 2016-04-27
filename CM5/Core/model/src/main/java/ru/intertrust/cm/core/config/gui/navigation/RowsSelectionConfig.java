@@ -16,7 +16,7 @@ public class RowsSelectionConfig implements Dto {
     private String defaultState;
 
     @Attribute(name = "multi-selection", required = false)
-    private Boolean multiSelection;
+    private Boolean multiSelection = true;
 
     @Attribute(name = "on-selection-change-component", required = false)
     private String component;

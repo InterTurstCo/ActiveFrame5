@@ -2133,11 +2133,18 @@
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                     <xs:element type="con:collectionTableButtonsType" name="collection-table-buttons" minOccurs="0"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:collectionRetrieverType" name="collection-retriever" minOccurs="0"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
                 <xs:attribute type="xs:string" name="id"/>
                 <xs:attribute type="xs:boolean" name="resizable"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="collectionRetrieverType">
+        <xs:attribute type="xs:string" name="widget-id" use="required"/>
+        <xs:attribute type="xs:string" name="component-name" use="required"/>
     </xs:complexType>
 
     <xs:element type="con:enumBoxType" name="enumeration-box" substitutionGroup="con:widget"/>

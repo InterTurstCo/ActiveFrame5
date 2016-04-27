@@ -4,6 +4,8 @@ import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.NodeList;
+import com.google.gwt.dom.client.TableRowElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.ScrollEvent;
@@ -105,7 +107,6 @@ public class CollectionPluginView extends PluginView {
         tableWidth = plugin.getOwner().getVisibleWidth();
         columnHeaderController =
                 new CollectionColumnHeaderController(getCollectionIdentifier(), tableBody, tableWidth, eventBus);
-
     }
 
     private void updateSizes() {
@@ -671,9 +672,9 @@ public class CollectionPluginView extends PluginView {
                         CollectionPlugin collectionPlugin = getPlugin();
                         Boolean changedState = collectionPlugin.getChangedRowsState().get(object.getId());
                         return changedState == null ? collectionPlugin.getCheckBoxDefaultState() : changedState;
-
                     }
                 };
+
 
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
@@ -687,6 +688,8 @@ public class CollectionPluginView extends PluginView {
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
     }
+
+
 
     private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
         ColumnFormatter.formatCheckBoxColumn(checkBoxColumn);
@@ -965,6 +968,8 @@ public class CollectionPluginView extends PluginView {
             columnHeaderController.sideBarFixPositionEvent(event);
         }
     }
+
+
 
 
     private class ScrollLazyLoadHandler implements ScrollHandler {

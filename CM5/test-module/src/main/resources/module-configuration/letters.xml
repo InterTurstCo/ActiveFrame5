@@ -936,6 +936,7 @@
                         </extra-filter>
                     </collection-extra-filters>
                     <act:tool-bar useDefault="true"/>
+                    <rows-selection default-state="empty" multi-selection="false"/>
                 </collection-viewer>
                 <collection-table-buttons display-all-possible="false"/>
                 <linked-form-mapping>
