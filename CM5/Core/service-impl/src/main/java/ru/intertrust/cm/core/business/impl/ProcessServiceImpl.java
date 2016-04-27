@@ -1,6 +1,26 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.activiti.engine.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
+import org.activiti.engine.FormService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RepositoryService;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.runtime.Execution;
@@ -11,7 +31,15 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ProcessService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ProcessVariable;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -20,19 +48,10 @@ import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProcessException;
+import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 import ru.intertrust.cm.core.tools.Session;
-
-import javax.annotation.Resource;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
-import java.nio.charset.Charset;
-import java.util.*;
 
 @Stateless(name = "ProcessService")
 @Local(ProcessService.class)
@@ -108,6 +127,8 @@ public class ProcessServiceImpl implements ProcessService {
             idProcess = runtimeService.startProcessInstanceByKey(processName,
                     variablesHM).getId();
             return idProcess;
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in startProcess", ex);
             throw new UnexpectedException("ProcessService", "startProcess",
@@ -139,6 +160,8 @@ public class ProcessServiceImpl implements ProcessService {
     public void terminateProcess(String processId) {
         try {
             runtimeService.deleteProcessInstance(processId, null);
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in terminateProcess", ex);
             throw new UnexpectedException("ProcessService", "terminateProcess",
@@ -158,6 +181,8 @@ public class ProcessServiceImpl implements ProcessService {
             db.name(processName);
             Deployment depl = db.deploy();
             return depl.getId();
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in deployProcess", ex);
             throw new ProcessException("Error on deploy process", ex);
@@ -168,6 +193,8 @@ public class ProcessServiceImpl implements ProcessService {
     public void undeployProcess(String processDefinitionId, boolean cascade) {
         try {
             repositoryService.deleteDeployment(processDefinitionId, cascade);
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in undeployProcess", ex);
             throw new UnexpectedException("ProcessService", "undeployProcess",
@@ -183,6 +210,8 @@ public class ProcessServiceImpl implements ProcessService {
             Id personId = personService.findPersonByLogin(personLogin).getId();
             result = getUserTasks(personId);
             return result;
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getUserTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserTasks", "", ex);
@@ -201,6 +230,8 @@ public class ProcessServiceImpl implements ProcessService {
                 result = getUserDomainObjectTasks(attachedObjectId, personId);
             }
             return result;
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);
             throw new UnexpectedException("ProcessService", "getUserDomainObjectTasks",
@@ -252,7 +283,7 @@ public class ProcessServiceImpl implements ProcessService {
             formService.submitTaskFormData(taskId, params);
 
             // taskService.complete(taskId, createHashMap(variables));
-        } catch (ProcessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in completeTask", ex);
@@ -278,6 +309,8 @@ public class ProcessServiceImpl implements ProcessService {
                 result.add(resItem);
             }
             return result;
+        } catch (SystemException ex) {
+            throw ex;            
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getDeployedProcesses", ex);
             throw new UnexpectedException("ProcessService", "getDeployedProcesses", "", ex);
@@ -322,7 +355,7 @@ public class ProcessServiceImpl implements ProcessService {
                 result.add(task);
             }
             return result;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getUserTasks", ex);
@@ -384,7 +417,7 @@ public class ProcessServiceImpl implements ProcessService {
                 }
             }
             return result;
-        } catch (AccessException ex) {
+        } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.error("Unexpected exception caught in getUserDomainObjectTasks", ex);

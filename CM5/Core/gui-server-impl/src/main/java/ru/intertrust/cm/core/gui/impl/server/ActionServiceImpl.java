@@ -74,7 +74,6 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
     public List<ActionContext> getActions(Id domainObjectId) {
         try {
             List<ActionContext> list = new ArrayList<ActionContext>();
-            HashMap<String, Id> statusIdByName = new HashMap<>();
             if (domainObjectId != null) {
                 DomainObject domainObject = crudservice.find(domainObjectId);
 
@@ -268,67 +267,17 @@ public class ActionServiceImpl implements ActionService, ActionService.Remote {
         AccessMatrixStatusConfig matrix =
                 configurationExplorer.getAccessMatrixByObjectTypeAndStatus(domainObject.getTypeName(), statusDao.getStatusNameById(domainObject.getStatus()));
         boolean result = false;
-        for (BaseOperationPermitConfig permission : matrix.getPermissions()) {
-            if (permission instanceof ExecuteActionConfig) {
-                ExecuteActionConfig executeActionConfig = (ExecuteActionConfig) permission;
-                if (executeActionConfig.getName().equals(action)) {
-                    result = true;
-                    break;
+        if (matrix != null){
+            for (BaseOperationPermitConfig permission : matrix.getPermissions()) {
+                if (permission instanceof ExecuteActionConfig) {
+                    ExecuteActionConfig executeActionConfig = (ExecuteActionConfig) permission;
+                    if (executeActionConfig.getName().equals(action)) {
+                        result = true;
+                        break;
+                    }
                 }
             }
         }
-        return result;
-    }
-
-    private Set<Id> getStatusIds(List<String> statusNames, Map<String, Id> statusIdByName) {
-        final int size = statusNames.size();
-        HashSet<Id> result = new HashSet<>(size);
-        ArrayList<String> toRetrieveFromDb = new ArrayList<>();
-        for (String name : statusNames) {
-            final Id id = statusIdByName.get(name);
-            if (id != null) {
-                result.add(id);
-            } else {
-                toRetrieveFromDb.add(name);
-            }
-        }
-        if (toRetrieveFromDb.isEmpty()) {
-            return result;
-        }
-        final List<Id> statusIds = getStatusIds(toRetrieveFromDb);
-        for (int i = 0; i < toRetrieveFromDb.size(); ++i) {
-            String name = toRetrieveFromDb.get(i);
-            final Id id = statusIds.get(i);
-            statusIdByName.put(name, id);
-            result.add(id);
-        }
-        return result;
-    }
-
-    private List<Id> getStatusIds(List<String> statuses) {
-        String query = "select t.id from " + GenericDomainObject.STATUS_DO + " t where t.name in (";
-
-        boolean first = true;
-        for (String statusName : statuses) {
-            if (first) {
-                first = false;
-            } else {
-                query += ",";
-            }
-            query += "'" + statusName + "'";
-        }
-
-        query += ")";
-
-        IdentifiableObjectCollection collection = collectionService.findCollectionByQuery(query);
-
-        List<Id> result = new ArrayList<Id>();
-
-        for (IdentifiableObject item : collection) {
-            result.add(item.getId());
-
-        }
-
         return result;
     }
 
