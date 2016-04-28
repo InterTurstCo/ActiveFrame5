@@ -1033,6 +1033,15 @@ div.dialogBoxBody .widget-wrapper {
     text-overflow: ellipsis;
 }
 
+td.gwt-TabLayoutPanel-wrapper .gwt-TabPanelBottom div.widget-wrapper {
+    padding: 5px 0;
+    margin-right: 10px;
+}
+
+.gwt-Red-Label {
+    padding-left: 10px;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
