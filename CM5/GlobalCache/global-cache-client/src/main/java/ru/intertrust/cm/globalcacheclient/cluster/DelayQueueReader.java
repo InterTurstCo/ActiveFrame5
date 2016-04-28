@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DelayQueueReader {
     final static Logger logger = LoggerFactory.getLogger(DelayQueueReader.class);
     public static final int MESSAGES_PROCESS_BATCH_SIZE = 100;
+    public static final int MAX_ITERATIONS = 10000;
     public static final int ID_INVALIDATION_BATCH_SIZE = 1000000;
 
     @Autowired
@@ -64,15 +65,24 @@ public class DelayQueueReader {
             final long start = System.currentTimeMillis();
             HashSet<Id> toInvalidate = new HashSet<>(128);
             boolean clearFullAccessLog = false;
-            while (true) {
+            boolean clearCache = false;
+
+            outer:
+            for (int i = 0; i < MAX_ITERATIONS; ++i) {
                 final List<CacheInvalidation> messages = GlobalCacheJmsHelper.readFromDelayQueue(MESSAGES_PROCESS_BATCH_SIZE);
 
-                boolean messageReceivedAfterProcessStarted = false;
                 if (messages.isEmpty()) {
                     break;
                 }
-
+                if (clearCache) { // ignore everything in this case, just consume as much messages as possible
+                    continue;
+                }
+                boolean messageReceivedAfterProcessStarted = false;
                 for (CacheInvalidation message : messages) {
+                    if (message.isClearCache()) {
+                        clearCache = true;
+                        continue outer;
+                    }
                     if (message.getReceiveTime() > start) {
                         messageReceivedAfterProcessStarted = true;
                     }
@@ -92,6 +102,9 @@ public class DelayQueueReader {
                     break;
                 }
             }
+            if (clearCache) {
+                cacheClient.clearCurrentNode();
+            }
             invalidateCacheEntries(cacheClient, toInvalidate, clearFullAccessLog);
         } finally {
             processing = false;
@@ -99,9 +112,9 @@ public class DelayQueueReader {
     }
 
     private void invalidateCacheEntries(GlobalCacheClient cacheClient, HashSet<Id> toInvalidate, boolean clearFullAccessLog) {
-        if (toInvalidate.isEmpty()) {
+        if (toInvalidate.isEmpty() && !clearFullAccessLog) {
             return;
         }
-        cacheClient.invalidate(new CacheInvalidation(toInvalidate, clearFullAccessLog));
+        cacheClient.invalidateCurrentNode(new CacheInvalidation(toInvalidate, clearFullAccessLog));
     }
 }

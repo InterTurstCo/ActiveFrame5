@@ -58,6 +58,11 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void clearCurrentNode() {
+        impl.clearCurrentNode();
+    }
+
+    @Override
     public void notifyCreate(DomainObject obj, AccessToken accessToken) {
         impl.notifyCreate(obj, accessToken);
     }
@@ -118,8 +123,8 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void invalidate(CacheInvalidation cacheInvalidation) {
-        impl.invalidate(cacheInvalidation);
+    public void invalidateCurrentNode(CacheInvalidation cacheInvalidation) {
+        impl.invalidateCurrentNode(cacheInvalidation);
     }
 
     @Override

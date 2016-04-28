@@ -14,9 +14,14 @@ public class CacheInvalidation implements Dto {
     private long senderId;
     private Set<Id> idsToInvalidate;
     private boolean clearFullAccessLog;
+    private boolean clearCache;
     private long receiveTime;
 
     public CacheInvalidation() {
+    }
+
+    public CacheInvalidation(boolean clearCache) {
+        this.clearCache = clearCache;
     }
 
     public CacheInvalidation(Set<Id> idsToInvalidate, boolean clearFullAccessLog) {
@@ -34,6 +39,10 @@ public class CacheInvalidation implements Dto {
 
     public Set<Id> getIdsToInvalidate() {
         return idsToInvalidate;
+    }
+
+    public boolean isClearCache() {
+        return clearCache;
     }
 
     public boolean isClearFullAccessLog() {

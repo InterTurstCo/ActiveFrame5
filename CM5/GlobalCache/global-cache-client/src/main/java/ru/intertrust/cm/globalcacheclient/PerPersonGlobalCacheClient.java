@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectsModification;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.PersonAccessChanges;
-import ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer;
 
 /**
  * @author Denis Mitavskiy
@@ -14,9 +13,6 @@ import ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer;
 public class PerPersonGlobalCacheClient extends PerGroupGlobalCacheClient {
     @Autowired
     private PersonAccessHelper personAccessHelper;
-
-    @Autowired
-    private ClusteredCacheSynchronizer clusterSynchronizer;
 
     @Autowired
     private GlobalCacheSettings settings;

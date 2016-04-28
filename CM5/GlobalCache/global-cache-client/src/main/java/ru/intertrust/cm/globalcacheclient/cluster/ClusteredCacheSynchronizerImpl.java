@@ -44,4 +44,10 @@ public class ClusteredCacheSynchronizerImpl implements ClusteredCacheSynchronize
 
         GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(ids, clearFullAccessLog));
     }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void notifyClear() {
+        GlobalCacheJmsHelper.sendClusterNotification(new CacheInvalidation(true));
+    }
 }
