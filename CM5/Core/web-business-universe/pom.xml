@@ -7,7 +7,7 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>0.5.20-4-SNAPSHOT</version>
+        <version>0.5.20-4</version>
     </parent>
 
     <dependencies>
