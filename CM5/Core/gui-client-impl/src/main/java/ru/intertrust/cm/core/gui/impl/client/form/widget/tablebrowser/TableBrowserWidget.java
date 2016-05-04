@@ -62,8 +62,8 @@ import static ru.intertrust.cm.core.gui.model.util.WidgetUtil.*;
 public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemRemoveEventHandler,
         HyperlinkStateChangedEventHandler, HierarchicalCollectionEventHandler, OpenCollectionRequestEventHandler,
         CheckBoxFieldUpdateEventHandler, ParentTabSelectedEventHandler {
-    private TableBrowserState currentState;
-    private CollectionDialogBox dialogBox;
+
+    protected CollectionDialogBox dialogBox;
     private ViewHolder viewHolder;
     private List<BreadCrumbItem> breadCrumbItems = new ArrayList<>();
 
@@ -72,8 +72,9 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     private HandlerRegistration rowSelectedRegistration;
     private CollectionPlugin collectionPlugin;
     private String collectionName;
-    private CollectionViewerConfig initialCollectionViewerConfig;
+    protected CollectionViewerConfig initialCollectionViewerConfig;
     private Set<Id> initiallySelectedIds = new HashSet<>();
+    protected TableBrowserState currentState;
 
     public TableBrowserWidget() {
         super();
@@ -174,7 +175,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
     }
 
 
-    private CollectionViewerConfig initCollectionConfig(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
+    protected CollectionViewerConfig initCollectionConfig(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         CollectionViewRefConfig collectionViewRefConfig = new CollectionViewRefConfig();
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
@@ -195,7 +196,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return collectionViewerConfig;
     }
 
-    private TableBrowserParams createTableBrowserParams(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
+    protected TableBrowserParams createTableBrowserParams(Boolean displayOnlyChosenIds, Boolean displayCheckBoxes) {
         TableBrowserConfig tableBrowserConfig = currentState.getTableBrowserConfig();
         TableBrowserParams tableBrowserParams = new TableBrowserParams()
                 .setComplexFiltersParams(createFiltersParams())
@@ -229,7 +230,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     }
 
-    private void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
+    protected void openCollectionPlugin(CollectionViewerConfig collectionViewerConfig, NavigationConfig navigationConfig,
                                       PluginPanel pluginPanel) {
         collectionPlugin = ComponentRegistry.instance.get("collection.plugin");
         collectionPlugin.setLocalEventBus(localEventBus);
@@ -262,7 +263,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return createButton;
     }
 
-    private void initDialogView() {
+    protected void initDialogView() {
         dialogBox = new TableBrowserViewsBuilder().withState(currentState).buildCollectionDialogBox();
         if (currentState.isSingleChoice()) {
             addClickHandlersForSingleChoice(dialogBox);
@@ -464,7 +465,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         return currentState.getSelectedIds();
     }
 
-    private class OpenCollectionClickHandler implements ClickHandler {
+    protected class OpenCollectionClickHandler implements ClickHandler {
         @Override
         public void onClick(ClickEvent event) {
             // temporaryStateOfSelectedIds.clear();
@@ -477,7 +478,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
         }
     }
 
-    private void addClickHandlersForMultiplyChoice(final CollectionDialogBox dialogBox) {
+    protected void addClickHandlersForMultiplyChoice(final CollectionDialogBox dialogBox) {
         addCommonClickHandlers(dialogBox);
         checkBoxRegistration = localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, new CheckBoxFieldUpdateEventHandler() {
             @Override
@@ -494,7 +495,7 @@ public class TableBrowserWidget extends LinkCreatorWidget implements WidgetItemR
 
     }
 
-    private void addClickHandlersForSingleChoice(final CollectionDialogBox dialogBox) {
+    protected void addClickHandlersForSingleChoice(final CollectionDialogBox dialogBox) {
         addCommonClickHandlers(dialogBox);
         rowSelectedRegistration = localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, new CollectionRowSelectedEventHandler() {
             @Override
