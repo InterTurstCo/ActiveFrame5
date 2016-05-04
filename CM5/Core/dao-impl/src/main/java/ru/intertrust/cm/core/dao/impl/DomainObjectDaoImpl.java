@@ -491,7 +491,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                     if (!isDerived(domainObjectTypeConfig)) {
                         if (count[j][i] == 0) {
-                            globalCacheClient.invalidate(new CacheInvalidation(Collections.singleton(updatedObjects[n].getId()), false));
+                            globalCacheClient.invalidateCurrentNode(new CacheInvalidation(Collections.singleton(updatedObjects[n].getId()), false));
                             throw new OptimisticLockException(updatedObjects[n]);
                         }
                     }

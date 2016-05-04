@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.TransactionChanges;
+import ru.intertrust.cm.globalcacheclient.cluster.ClusteredCacheSynchronizer;
 
 import java.io.Serializable;
 import java.util.*;
@@ -42,6 +43,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Autowired
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
+
+    @Autowired
+    protected ClusteredCacheSynchronizer clusterSynchronizer;
 
     private CollectionsDao collectionsDao;
 
@@ -101,6 +105,12 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     public void clear() {
+        clearCurrentNode();
+        clusterSynchronizer.notifyClear();
+    }
+
+    @Override
+    public void clearCurrentNode() {
         globalCache.clear();
     }
 
@@ -262,7 +272,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     @Override
-    public void invalidate(CacheInvalidation cacheInvalidation) {
+    public void invalidateCurrentNode(CacheInvalidation cacheInvalidation) {
         globalCache.invalidate(cacheInvalidation);
     }
 

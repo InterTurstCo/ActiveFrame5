@@ -10,4 +10,6 @@ import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
  */
 public interface ClusteredCacheSynchronizer {
     void notifyCommit(DomainObjectsModification modification, GroupAccessChanges groupAccessChanges);
+
+    void notifyClear();
 }

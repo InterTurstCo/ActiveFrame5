@@ -108,6 +108,11 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
+    public void clearCurrentNode() {
+        delegate.clearCurrentNode();
+    }
+
+    @Override
     public void notifyCreate(DomainObject obj, AccessToken accessToken) {
         final long t1 = System.nanoTime();
         delegate.notifyCreate(obj, accessToken);
@@ -204,9 +209,9 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
-    public void invalidate(CacheInvalidation cacheInvalidation) {
+    public void invalidateCurrentNode(CacheInvalidation cacheInvalidation) {
         final long t1 = System.nanoTime();
-        delegate.invalidate(cacheInvalidation);
+        delegate.invalidateCurrentNode(cacheInvalidation);
         final long executionTime = System.nanoTime() - t1;
         INVALIDATE.log(executionTime, false);
     }

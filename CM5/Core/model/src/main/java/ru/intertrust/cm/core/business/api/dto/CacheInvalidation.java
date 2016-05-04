@@ -11,27 +11,38 @@ import java.util.Set;
 public class CacheInvalidation implements Dto {
     public static final long NODE_ID = new Random().nextLong();
 
-    private long nodeId;
+    private long senderId;
     private Set<Id> idsToInvalidate;
     private boolean clearFullAccessLog;
+    private boolean clearCache;
     private long receiveTime;
 
     public CacheInvalidation() {
     }
 
-    public CacheInvalidation(Set<Id> idsToInvalidate, boolean clearFullAccessLog) {
-        this.nodeId = NODE_ID;
-        this.idsToInvalidate = idsToInvalidate;
-        this.clearFullAccessLog = clearFullAccessLog;
-        this.receiveTime = receiveTime;
+    public CacheInvalidation(boolean clearCache) {
+        this.clearCache = clearCache;
     }
 
-    public long getNodeId() {
-        return nodeId;
+    public CacheInvalidation(Set<Id> idsToInvalidate, boolean clearFullAccessLog) {
+        this.idsToInvalidate = idsToInvalidate;
+        this.clearFullAccessLog = clearFullAccessLog;
+    }
+
+    public long getSenderId() {
+        return senderId;
+    }
+
+    public long setSenderId() {
+        return senderId = NODE_ID;
     }
 
     public Set<Id> getIdsToInvalidate() {
         return idsToInvalidate;
+    }
+
+    public boolean isClearCache() {
+        return clearCache;
     }
 
     public boolean isClearFullAccessLog() {
@@ -39,7 +50,7 @@ public class CacheInvalidation implements Dto {
     }
 
     public boolean fromThisNode() {
-        return this.nodeId == NODE_ID;
+        return this.senderId == NODE_ID;
     }
 
     public void setReceiveTime(long receiveTime) {
@@ -53,7 +64,7 @@ public class CacheInvalidation implements Dto {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("CacheInvalidation{");
-        sb.append("nodeId=").append(nodeId);
+        sb.append("nodeId=").append(senderId);
         sb.append(", fromThisNode=").append(fromThisNode());
         sb.append(", idsToInvalidate=").append(idsToInvalidate);
         sb.append(", clearFullAccessLog=").append(clearFullAccessLog);
