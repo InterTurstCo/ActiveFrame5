@@ -46,6 +46,7 @@ public class TableBrowserHandler extends LinkEditingWidgetHandler {
         state.setSelectedIds(selectedIdsSet);
         LinkedHashMap<Id, String> listValues = null;
         DomainObject root = context.getFormObjects().getRootNode().getDomainObject();
+        state.setRootObject(root);
         fillTypeTitleMap(root, widgetConfig.getLinkedFormMappingConfig(), state);
 
         abandonAccessed(root, widgetConfig.getCreatedObjectsConfig(), null);

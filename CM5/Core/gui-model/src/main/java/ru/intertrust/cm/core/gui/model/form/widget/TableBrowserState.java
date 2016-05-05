@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.form.widget;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserConfig;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
@@ -21,6 +22,7 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
     private Set<Id> selectedIds;
     private ArrayList<Id> temporarySelectedIds = new ArrayList<Id>();
     private boolean isTemporaryState;
+    private DomainObject rootObject;
 
     public TableBrowserConfig getTableBrowserConfig() {
         return tableBrowserConfig;
@@ -28,6 +30,14 @@ public class TableBrowserState extends TooltipWidgetState<TableBrowserConfig> {
 
     public void setTableBrowserConfig(TableBrowserConfig tableBrowserConfig) {
         this.tableBrowserConfig = tableBrowserConfig;
+    }
+
+    public DomainObject getRootObject() {
+        return rootObject;
+    }
+
+    public void setRootObject(DomainObject rootObject) {
+        this.rootObject = rootObject;
     }
 
     public LinkedHashMap<String, String> getDomainFieldOnColumnNameMap() {
