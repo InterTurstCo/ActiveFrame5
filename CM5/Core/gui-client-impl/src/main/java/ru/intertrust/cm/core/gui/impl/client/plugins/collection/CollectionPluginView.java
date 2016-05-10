@@ -654,7 +654,6 @@ public class CollectionPluginView extends PluginView {
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
-                checkForMultiSelectionEnabled();
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 Collection<Id> chosenIds = getPluginData().getChosenIds();
@@ -682,12 +681,13 @@ public class CollectionPluginView extends PluginView {
         }
     }
 
-    private void checkForMultiSelectionEnabled(){
+    private void checkForMultiSelectionEnabled(Boolean selected){
         CollectionViewerConfig config = (CollectionViewerConfig)plugin.getConfig();
-        if(config.getRowsSelectionConfig()!=null &&
+        if(selected && config.getRowsSelectionConfig()!=null &&
                 !config.getRowsSelectionConfig().isMultiSelection()){
-            Window.alert("Multi disabled");
-            //tableBody.getSelectionModel().setSelected(items.get())
+            for(CollectionRowItem item : items){
+                tableBody.getSelectionModel().setSelected(item,false);
+            }
         }
     }
 
@@ -706,7 +706,6 @@ public class CollectionPluginView extends PluginView {
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
-                checkForMultiSelectionEnabled();
                 Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
