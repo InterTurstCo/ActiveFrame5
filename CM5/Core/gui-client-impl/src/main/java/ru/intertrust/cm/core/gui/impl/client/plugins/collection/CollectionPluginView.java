@@ -235,10 +235,9 @@ public class CollectionPluginView extends PluginView {
         CollectionPluginData pluginData = getPluginData();
         if (embeddedDisplayCheckBoxes) {
             createEmbeddedTableColumnsWithCheckBoxes(columnHeaderBlocks);
-        }else if(pluginData.isDisplayCheckBoxes()){
+        } else if (pluginData.isDisplayCheckBoxes()) {
             createTableColumnsWithCheckBoxes(columnHeaderBlocks);
-        }
-        else {
+        } else {
             createTableColumnsWithoutCheckBoxes(columnHeaderBlocks);
         }
     }
@@ -273,7 +272,7 @@ public class CollectionPluginView extends PluginView {
                  * иеррахический плагин коллекций это временный фикс. Для обычных коллекций это
                  * не происходит.
                  */
-                if(((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig()!=null){
+                if (((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig() != null) {
                     getPlugin().refresh();
                 }
                 if (event.getId() == null) {
@@ -662,31 +661,36 @@ public class CollectionPluginView extends PluginView {
                 } else {
                     chosenIds.remove(id);
                 }
-                fireCollectionRowCheckListener(object.getId(),value);
+                fireCollectionRowCheckListener(object.getId(), value);
             }
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
     }
 
-    private void fireCollectionRowCheckListener(Id objectId, Boolean value){
-        CollectionViewerConfig config = (CollectionViewerConfig)plugin.getConfig();
-        if(config.getRowsSelectionConfig()!=null &&
-                config.getRowsSelectionConfig().getComponent()!=null){
+    private void fireCollectionRowCheckListener(Id objectId, Boolean value) {
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
+        if (config.getRowsSelectionConfig() != null &&
+                config.getRowsSelectionConfig().getComponent() != null) {
             CollectionSelectionChangeListener checkBoxChangeListener = ComponentRegistry.instance.get(config.getRowsSelectionConfig().getComponent());
-            if(checkBoxChangeListener!=null){
-                checkBoxChangeListener.onSelectionChange(plugin,plugin.getOwner().asWidget().getParent(),objectId,value);
+            if (checkBoxChangeListener != null) {
+                checkBoxChangeListener.onSelectionChange(plugin, plugin.getOwner().asWidget().getParent(), objectId, value);
             } else {
-                throw new GuiException("Component "+config.getRowsSelectionConfig().getComponent()+" not found.");
+                throw new GuiException("Component " + config.getRowsSelectionConfig().getComponent() + " not found.");
             }
         }
     }
 
-    private void checkForMultiSelectionEnabled(Boolean selected){
-        CollectionViewerConfig config = (CollectionViewerConfig)plugin.getConfig();
-        if(selected && config.getRowsSelectionConfig()!=null &&
-                !config.getRowsSelectionConfig().isMultiSelection()){
-            for(CollectionRowItem item : items){
-                tableBody.getSelectionModel().setSelected(item,false);
+    private void checkForMultiSelectionEnabled(Boolean selected, Id selectedId) {
+        CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
+        if (selected && config.getRowsSelectionConfig() != null &&
+                !config.getRowsSelectionConfig().isMultiSelection()) {
+        int ind = 0;
+            for (CollectionRowItem item : items) {
+                if (!item.getId().equals(selectedId)) {
+                    ((FieldUpdater<CollectionRowItem, Boolean>)(tableBody.getColumn(0).getFieldUpdater())).update(ind,item, false);
+                    ind++;
+                }
+                tableBody.getSelectionModel().setSelected(item, false);
             }
         }
     }
@@ -702,22 +706,21 @@ public class CollectionPluginView extends PluginView {
                     }
                 };
 
-
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
+                checkForMultiSelectionEnabled(value, object.getId());
                 Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 changedRowsSelection.put(id, value);
                 tableBody.redraw();
-                fireCollectionRowCheckListener(object.getId(),value);
+                fireCollectionRowCheckListener(object.getId(), value);
 
             }
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
     }
-
 
 
     private void createTableColumnsWithCheckBoxes(CollectionColumn checkBoxColumn, List<ColumnHeaderBlock> columnHeaderBlocks) {
@@ -874,10 +877,10 @@ public class CollectionPluginView extends PluginView {
         //(CollectionViewerConfig) plugin.getConfig();
 
         List<String> expandableTypes = new ArrayList<String>();
-        if(((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig()!=null){
+        if (((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig() != null) {
 
-            for(ExpandableObjectConfig expandableObjectConfig :((CollectionViewerConfig)plugin.getConfig()).getChildCollectionConfig().
-                    getExpandableObjectsConfig().getExpandableObjects()){
+            for (ExpandableObjectConfig expandableObjectConfig : ((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig().
+                    getExpandableObjectsConfig().getExpandableObjects()) {
                 expandableTypes.add(expandableObjectConfig.getObjectName());
             }
         }
@@ -999,8 +1002,6 @@ public class CollectionPluginView extends PluginView {
     }
 
 
-
-
     private class ScrollLazyLoadHandler implements ScrollHandler {
         private ScrollPanel scroll;
 
@@ -1087,7 +1088,7 @@ public class CollectionPluginView extends PluginView {
         tableBody.getScrollPanel().getParent().getElement().getStyle().clearHeight();
     }
 
-    private CollectionPlugin getPlugin(){
+    private CollectionPlugin getPlugin() {
         return (CollectionPlugin) plugin;
     }
 
