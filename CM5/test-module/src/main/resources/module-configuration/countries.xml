@@ -796,6 +796,7 @@
 
                 <collection-view-ref name="cities_default_view"/>
 
+                <!--collection-retriever widget-id="listBox" component-name="component.name"/-->
                 <!-- паттерн отображения уже выбранных значений -->
                 <selection-pattern value="{name} {population} {year_of_foundation}"/>
 
