@@ -1035,11 +1035,16 @@ div.dialogBoxBody .widget-wrapper {
 
 td.gwt-TabLayoutPanel-wrapper .gwt-TabPanelBottom div.widget-wrapper {
     padding: 5px 0;
-    margin-right: 10px;
+    margin: 0 5px;
 }
 
 .gwt-Red-Label {
     padding-left: 10px;
+}
+
+table.form-panel-header .facebook-label {
+    margin-left: 0;
+    padding-left: 0;
 }
 
 

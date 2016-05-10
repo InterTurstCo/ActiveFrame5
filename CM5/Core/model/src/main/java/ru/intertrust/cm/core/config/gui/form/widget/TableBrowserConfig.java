@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.gui.form.widget;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.CollectionRetrieverConfig;
 import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.buttons.CollectionTableButtonsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.SelectionFiltersConfig;
@@ -45,9 +44,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
 
     @Element(name = "display-chosen-values", required = false)
     private DisplayChosenValuesConfig displayChosenValues;
-
-    @Element(name = "collection-retriever", required = false)
-    private CollectionRetrieverConfig collectionRetrieverConfig;
 
     @Element(name = "selection-style", required = false)
     private SelectionStyleConfig selectionStyleConfig;
@@ -177,14 +173,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
 
     public void setDefaultSortCriteriaConfig(DefaultSortCriteriaConfig defaultSortCriteriaConfig) {
         this.defaultSortCriteriaConfig = defaultSortCriteriaConfig;
-    }
-
-    public CollectionRetrieverConfig getCollectionRetrieverConfig() {
-        return collectionRetrieverConfig;
-    }
-
-    public void setCollectionRetrieverConfig(CollectionRetrieverConfig collectionRetrieverConfig) {
-        this.collectionRetrieverConfig = collectionRetrieverConfig;
     }
 
     public DialogWindowConfig getDialogWindowConfig() {
@@ -364,10 +352,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
                 : that.collectionTableButtonsConfig != null) {
             return false;
         }
-        if (collectionRetrieverConfig != null ? !collectionRetrieverConfig.equals(that.collectionRetrieverConfig)
-                : that.collectionRetrieverConfig != null) {
-            return false;
-        }
+
 
         return true;
     }
@@ -394,7 +379,6 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
         result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
         result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 0);
-        result = 31 * result + (collectionRetrieverConfig != null ? collectionRetrieverConfig.hashCode() : 0);
         result = 31 * result + (resizable ? 1 : 0);
         return result;
     }
