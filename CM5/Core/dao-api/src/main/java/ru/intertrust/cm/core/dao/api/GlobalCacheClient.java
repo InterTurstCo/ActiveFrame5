@@ -26,6 +26,8 @@ public interface GlobalCacheClient {
 
     void clear();
 
+    void clearCurrentNode();
+
     void notifyCreate(DomainObject obj, AccessToken accessToken);
 
     void notifyUpdate(DomainObject obj, AccessToken accessToken);
@@ -54,7 +56,7 @@ public interface GlobalCacheClient {
     void notifyCollectionRead(String query, List<? extends Value> paramValues, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken);
 
-    void invalidate(CacheInvalidation cacheInvalidation);
+    void invalidateCurrentNode(CacheInvalidation cacheInvalidation);
 
     void notifyCommit(DomainObjectsModification modification);
 

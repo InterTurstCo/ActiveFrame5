@@ -19,9 +19,6 @@ import javax.jms.MessageListener;
 @MessageDriven(activationConfig = {
         @ActivationConfigProperty(propertyName="destinationType", propertyValue="javax.jms.Topic"),
         @ActivationConfigProperty(propertyName="destination", propertyValue= GlobalCacheJmsHelper.NOTIFICATION_TOPIC),
-        @ActivationConfigProperty(propertyName="subscriptionDurability", propertyValue="Durable"),
-        @ActivationConfigProperty(propertyName="clientId", propertyValue="ClusterNotificationReceiver"),
-        @ActivationConfigProperty(propertyName="subscriptionName", propertyValue="clusterNotifications")
 })
 public class ClusterNotificationReceiver implements MessageListener {
     final static Logger logger = LoggerFactory.getLogger(ClusterNotificationReceiver.class);

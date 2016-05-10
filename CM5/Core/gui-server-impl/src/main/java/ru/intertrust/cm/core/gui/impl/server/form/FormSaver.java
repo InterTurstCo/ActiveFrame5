@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 import ru.intertrust.cm.core.config.gui.form.FormSaveExtensionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.EnumBoxConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
 import ru.intertrust.cm.core.gui.api.server.form.FieldPathHelper;
@@ -92,6 +93,13 @@ public class FormSaver extends FormProcessor {
         ArrayList<WidgetContext> multiBackReferenceContexts = new ArrayList<>();
         ArrayList<WidgetContext> directReferenceContexts = new ArrayList<>();
         for (WidgetConfig widgetConfig : widgetConfigs) {
+
+
+                if(!widgetConfig.isPersist()){
+                    continue;
+                }
+
+
             WidgetState widgetState = formState.getWidgetState(widgetConfig.getId());
             if (widgetState.mayContainNestedFormStates()) {
                 // process nested form states of already created objects which has been edited

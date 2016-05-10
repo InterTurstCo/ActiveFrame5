@@ -39,6 +39,10 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void clearCurrentNode() {
+    }
+
+    @Override
     public void notifyCreate(DomainObject obj, AccessToken accessToken) {
     }
 
@@ -92,7 +96,7 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
-    public void invalidate(CacheInvalidation cacheInvalidation) {
+    public void invalidateCurrentNode(CacheInvalidation cacheInvalidation) {
     }
 
     @Override

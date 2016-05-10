@@ -77,6 +77,8 @@ public class GlobalCacheJmsHelper {
 
     private static void send(CacheInvalidation message, boolean appendNodeId, String factory, String destination) {
         try {
+            message.setSenderId(); // make sure this node id is set in the message
+
             InitialContext initialContext = new InitialContext();
 
             ConnectionFactory tcf = (ConnectionFactory)initialContext.lookup(factory);
@@ -88,7 +90,7 @@ public class GlobalCacheJmsHelper {
 
             BytesMessage bm = session.createBytesMessage();
             if (appendNodeId) {
-                bm.writeLong(message.getNodeId());
+                bm.writeLong(CacheInvalidation.NODE_ID);
             }
             bm.writeBytes(ObjectCloner.getInstance().toBytesWithClassInfo(message));
             publisher.send(bm);

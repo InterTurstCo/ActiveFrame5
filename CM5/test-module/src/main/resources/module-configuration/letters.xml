@@ -611,7 +611,7 @@
                         </param>
                     </extra-filter>&ndash;&gt;
                 </collection-extra-filters>-->
-                 <collection-table-buttons display-all-possible="true"/>
+                 <!--collection-table-buttons display-all-possible="true"/-->
             </table-browser>
 
             <linked-domain-object-hyperlink id="l_hyperlink" modal-window="true">

@@ -25,9 +25,11 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     protected String maxTooltipWidth;
     @Attribute(name = "max-tooltip-height", required = false)
     protected String maxTooltipHeight;
+    @Attribute(name = "persist", required = false)
+    protected Boolean persist;
 
     //TODO: "questionlist","solutionslist" should be removed after hierarchywidget implementation		
-    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer","coordination","questionlist","solutionslist","hierarchywidget","cases-widget"})
+    @NotNullLogicalValidation(skippedComponentNames = {"label", "table-viewer", "coordination", "questionlist", "solutionslist", "hierarchywidget", "cases-widget"})
     @Element(name = "field-path", required = false)
     protected FieldPathConfig fieldPathConfig;
 
@@ -67,6 +69,19 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         return maxTooltipWidth == null ? MAX_DEFAULT_TOOLTIP_WIDTH : maxTooltipWidth;
     }
 
+    public Boolean isPersist() {
+        if (persist == null) {
+            persist = true;
+            return persist;
+        } else {
+            return persist;
+        }
+    }
+
+    public void setPersist(Boolean persist) {
+        this.persist = persist;
+    }
+
     public void setMaxTooltipWidth(String maxTooltipWidth) {
         this.maxTooltipWidth = maxTooltipWidth;
     }
@@ -90,7 +105,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
 
         WidgetConfig that = (WidgetConfig) o;
 
-        if (readOnly!= null ? !readOnly.equals(that.readOnly) : that.readOnly != null) {
+        if (readOnly != null ? !readOnly.equals(that.readOnly) : that.readOnly != null) {
             return false;
         }
         if (fieldPathConfig != null ? !fieldPathConfig.equals(that.fieldPathConfig) : that.fieldPathConfig != null) {
@@ -105,10 +120,12 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         if (maxTooltipWidth != null ? !maxTooltipWidth.equals(that.maxTooltipWidth) : that.maxTooltipWidth != null) {
             return false;
         }
-        if (maxTooltipHeight != null ? !id.equals(that.maxTooltipHeight) : that.maxTooltipHeight != null) {
+        if (maxTooltipHeight != null ? !maxTooltipHeight.equals(that.maxTooltipHeight) : that.maxTooltipHeight != null) {
             return false;
         }
-
+        if (persist != null ? !persist.equals(that.persist) : that.persist != null) {
+            return false;
+        }
         return true;
     }
 
@@ -117,6 +134,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (readOnly != null ? readOnly.hashCode() : 0);
         result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
+        result = 31 * result + (persist != null ? persist.hashCode() : 0);
         return result;
     }
 
