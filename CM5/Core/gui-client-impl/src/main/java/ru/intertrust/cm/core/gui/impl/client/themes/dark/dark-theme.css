@@ -1042,6 +1042,11 @@ td.gwt-TabLayoutPanel-wrapper .gwt-TabPanelBottom div.widget-wrapper {
     padding-left: 10px;
 }
 
+table.form-panel-header .facebook-label {
+    margin-left: 0;
+    padding-left: 0;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
