@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.ColumnSortList;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -653,6 +654,7 @@ public class CollectionPluginView extends PluginView {
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
+                checkForMultiSelectionEnabled();
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 Collection<Id> chosenIds = getPluginData().getChosenIds();
@@ -680,6 +682,15 @@ public class CollectionPluginView extends PluginView {
         }
     }
 
+    private void checkForMultiSelectionEnabled(){
+        CollectionViewerConfig config = (CollectionViewerConfig)plugin.getConfig();
+        if(config.getRowsSelectionConfig()!=null &&
+                !config.getRowsSelectionConfig().isMultiSelection()){
+            Window.alert("Multi disabled");
+            //tableBody.getSelectionModel().setSelected(items.get())
+        }
+    }
+
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
         final CollectionColumn<Boolean> checkBoxColumn =
                 new CollectionColumn<Boolean>(new LabledCheckboxCell(false, false)) {
@@ -695,12 +706,14 @@ public class CollectionPluginView extends PluginView {
         checkBoxColumn.setFieldUpdater(new FieldUpdater<CollectionRowItem, Boolean>() {
             @Override
             public void update(int index, CollectionRowItem object, Boolean value) {
+                checkForMultiSelectionEnabled();
                 Map<Id, Boolean> changedRowsSelection = getPlugin().getChangedRowsState();
                 Id id = object.getId();
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 changedRowsSelection.put(id, value);
                 tableBody.redraw();
                 fireCollectionRowCheckListener(object.getId(),value);
+
             }
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
