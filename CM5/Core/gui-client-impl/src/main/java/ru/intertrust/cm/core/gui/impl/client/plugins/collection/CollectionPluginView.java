@@ -40,6 +40,7 @@ import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionChangeSelectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.CollectionSelectionChangeListener;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.ColumnHeaderBlock;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.panel.header.CollectionColumnHeader;
@@ -53,6 +54,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
@@ -659,9 +661,23 @@ public class CollectionPluginView extends PluginView {
                 } else {
                     chosenIds.remove(id);
                 }
+                fireCollectionRowCheckListener(object.getId(),value);
             }
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
+    }
+
+    private void fireCollectionRowCheckListener(Id objectId, Boolean value){
+        CollectionViewerConfig config = (CollectionViewerConfig)plugin.getConfig();
+        if(config.getRowsSelectionConfig()!=null &&
+                config.getRowsSelectionConfig().getComponent()!=null){
+            CollectionSelectionChangeListener checkBoxChangeListener = ComponentRegistry.instance.get(config.getRowsSelectionConfig().getComponent());
+            if(checkBoxChangeListener!=null){
+                checkBoxChangeListener.onSelectionChange(plugin,plugin.getOwner().asWidget().getParent(),objectId,value);
+            } else {
+                throw new GuiException("Component "+config.getRowsSelectionConfig().getComponent()+" not found.");
+            }
+        }
     }
 
     private void createTableColumnsWithCheckBoxes(List<ColumnHeaderBlock> columnHeaderBlocks) {
@@ -684,6 +700,7 @@ public class CollectionPluginView extends PluginView {
                 eventBus.fireEvent(new CheckBoxFieldUpdateEvent(object.getId(), !value));
                 changedRowsSelection.put(id, value);
                 tableBody.redraw();
+                fireCollectionRowCheckListener(object.getId(),value);
             }
         });
         createTableColumnsWithCheckBoxes(checkBoxColumn, columnHeaderBlocks);
