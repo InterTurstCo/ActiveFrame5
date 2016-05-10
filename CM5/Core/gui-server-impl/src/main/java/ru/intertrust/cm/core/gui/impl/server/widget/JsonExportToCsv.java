@@ -144,7 +144,7 @@ public class JsonExportToCsv {
                 Value value = rowValues.get(field);
 
                 writer.append("\"");
-                if (value.get() == null) {
+                if (value == null || value.get() == null) {
                     writer.append(" ");
                 } else {
                     writer.append(value.get().toString().replaceAll("\"", "\"\""));
