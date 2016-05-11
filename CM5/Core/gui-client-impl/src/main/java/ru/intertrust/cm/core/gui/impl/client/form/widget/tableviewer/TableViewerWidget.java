@@ -165,7 +165,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         if ((config.getCollectionViewerConfig() != null &&
                 config.getCollectionViewerConfig().getToolBarConfig() != null &&
-                config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) && editableState) {
+                config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) &&
+                (editableState ||
+                        (config.getIgnoreFormReadOnlyStateConfig()!=null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
             toolbar.getToolbarPanel().setVisible(true);
         } else {
             toolbar.getToolbarPanel().setVisible(false);
@@ -231,7 +233,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
 
-        if (getLinkedFormMappingConfig() != null && editableState) {
+        if (getLinkedFormMappingConfig() != null && (editableState ||
+                (config.getIgnoreFormReadOnlyStateConfig()!=null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
             HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
                     localEventBus, false, null, this, false).withModalWindow(true);
             clickHandler.processClick();
