@@ -1117,7 +1117,6 @@ a[href='#login']:hover {
     display: inline-block;
     border-radius: 5px;
     border: 1px solid #f1f1f1;
-    white-space: nowrap;
 }
 
 .suggest-container-input .facebook-label {
