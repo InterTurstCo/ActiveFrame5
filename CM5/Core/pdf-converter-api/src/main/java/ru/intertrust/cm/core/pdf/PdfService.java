@@ -1,4 +1,4 @@
-package ru.intertrust.cm.pdf;
+package ru.intertrust.cm.core.pdf;
 
 import java.io.InputStream;
 
@@ -10,5 +10,8 @@ import java.io.InputStream;
  * To change this template use File | Settings | File and Code Templates.
  */
 public interface PdfService {
+    public interface Remote extends PdfService {
+    }
+
     InputStream getPdf(InputStream source);
 }

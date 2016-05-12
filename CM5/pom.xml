@@ -19,6 +19,7 @@
         <module>test-module</module>
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>
+        <module>pdf-cnv-loffice-impl</module>
         <module>ItTests</module>
     </modules>
 
