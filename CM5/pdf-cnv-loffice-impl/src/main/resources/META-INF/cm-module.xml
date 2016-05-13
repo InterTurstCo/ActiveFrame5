@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+    <name>pdf-cnv-loffice-impl</name>
+    <description>Реализация конвертера на базе библиотек OpenOffice/LibreOffice</description>
+    <depends>
+        <depend>core</depend>
+    </depends>
+    <server-components-packages>
+        <server-components-package>ru/intertrust/cm/loffice/impl</server-components-package>
+    </server-components-packages>
+</module>

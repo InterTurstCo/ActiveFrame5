@@ -17,5 +17,6 @@
     <jee:local-slsb id="pdfService"
                     jndi-name="java:module/PdfServiceImpl!ru.intertrust.cm.core.pdf.PdfService"
                     business-interface="ru.intertrust.cm.core.pdf.PdfService"/>
- 
+
+   
 </beans>

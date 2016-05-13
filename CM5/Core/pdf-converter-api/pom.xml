@@ -7,11 +7,17 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>core</artifactId>
-        <version>0.5.20-9-SNAPSHOT</version>
+        <version>0.5.20-10-SNAPSHOT</version>
     </parent>
 
     <properties>
         <root.basedir>${project.parent.parent.basedir}</root.basedir>
     </properties>
-
+    <dependencies>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>dao-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
