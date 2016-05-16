@@ -1047,6 +1047,26 @@ table.form-panel-header .facebook-label {
     padding-left: 0;
 }
 
+table.form-panel-header .widget-wrapper {
+    padding: 0;
+    margin: 0 5px 0 0;
+}
+
+table.form-panel-header .gwt-Red-Label {
+    padding: 0 5px;
+}
+
+.form-panel-header .gwt-Good-Label {
+    margin: 0;
+}
+
+ .selected li img {
+     -webkit-filter: none !important;
+ }
+ #sidebar li img {
+     margin-bottom: -2px;
+     -webkit-filter: grayscale(100%);
+ }
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
