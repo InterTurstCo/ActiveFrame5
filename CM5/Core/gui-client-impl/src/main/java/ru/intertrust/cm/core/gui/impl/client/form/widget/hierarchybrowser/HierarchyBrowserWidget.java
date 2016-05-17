@@ -60,9 +60,9 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
         HierarchyBrowserHyperlinkStateUpdatedEventHandler, HierarchyBrowserCloseDialogEventHandler,
         HierarchyBrowserShowTooltipEventHandler {
     public static final String COMPONENT_NAME = "hierarchy-browser";
-    private HierarchyBrowserWidgetState currentState;
+    protected HierarchyBrowserWidgetState currentState;
     private HierarchyBrowserMainPopup mainPopup;
-    private ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus());
+    protected ResettableEventBus localEventBus = new ResettableEventBus(new SimpleEventBus());
     private HandlerRegistration handlerRegistration;
     private Set<Id> initiallySelectedIds = new HashSet<>();
 
@@ -218,7 +218,7 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     }
 
-    private void registerEventsHandling() {
+    protected void registerEventsHandling() {
         localEventBus.addHandler(HierarchyBrowserCheckBoxUpdateEvent.TYPE, this);
         localEventBus.addHandler(HierarchyBrowserNodeClickEvent.TYPE, this);
         localEventBus.addHandler(HierarchyBrowserRefreshClickEvent.TYPE, this);

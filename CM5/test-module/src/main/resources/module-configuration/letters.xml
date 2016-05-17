@@ -330,7 +330,7 @@
                 <field-path/>
                 <text>Приоритет:</text>
             </label>
-            <linked-domain-objects-table id="l_linkedtable">
+            <linked-domain-objects-table id="l_linkedtable" one-row-only="true">
                 <field-path
                         value="organization_addressee^letter.organization, department_addressee^letter.department, employee_addressee^letter.employee"/>
                 <linked-form name="organization_form" inline="true"/>

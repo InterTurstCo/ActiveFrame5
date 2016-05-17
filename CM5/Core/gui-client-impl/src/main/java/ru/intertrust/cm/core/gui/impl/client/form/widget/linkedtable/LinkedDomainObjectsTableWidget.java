@@ -100,6 +100,17 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             } else {
                 addButton.removeFromParent();
             }
+            onlyOneCheck();
+        }
+    }
+
+    private void onlyOneCheck() {
+        if (currentState.getLinkedDomainObjectsTableConfig().getOneRowOnly()) {
+            if ((currentState.getRowItems().size() > 0 && model.getList().size() > 0) || (model.getList().size() > 0)) {
+                addButton.setVisible(false);
+            } else {
+                addButton.setVisible(true);
+            }
         }
     }
 
@@ -321,7 +332,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         } else {
             model.getList().add(rowItem);
         }
-
+        onlyOneCheck();
     }
 
     private void drawTooltipButtonIfRequired() {
@@ -481,7 +492,7 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
         currentState.decrementFilteredItemsNumber();
 
-
+        onlyOneCheck();
     }
 
     private void removeFromTooltipContent(RowItem rowItem) {
