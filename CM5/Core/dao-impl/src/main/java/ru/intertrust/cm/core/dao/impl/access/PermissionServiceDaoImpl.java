@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
@@ -50,6 +52,8 @@ import java.util.*;
 public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implements PermissionServiceDao,
         ApplicationContextAware,
         OnLoadConfigurationExtensionHandler {
+    private static final Logger logger = LoggerFactory.getLogger(PermissionServiceDaoImpl.class);
+    
     @Resource
     private TransactionSynchronizationRegistry txReg;
 
@@ -407,7 +411,13 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             ContextRoleCollector collector, AccessType accessType) {
         List<AclInfo> result = new ArrayList<>();
         for (Id groupId : collector.getMembers(invalidContextId)) {
-            result.add(new AclInfo(accessType, groupId));
+            if (groupId != null){
+                result.add(new AclInfo(accessType, groupId));
+            }else{
+                logger.warn("ContextRoleCollector " + collector.getClass() + 
+                        " for type " + domainObjectTypeIdCache.getName(invalidContextId) + 
+                        " return null group id");
+            }
         }
         return result;
     }
