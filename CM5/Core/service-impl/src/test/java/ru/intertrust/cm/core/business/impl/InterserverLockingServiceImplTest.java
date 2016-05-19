@@ -1,17 +1,29 @@
 package ru.intertrust.cm.core.business.impl;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.security.RunAs;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.Local;
+import javax.ejb.Singleton;
+import javax.interceptor.Interceptors;
 
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.InterserverLockingService;
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
 
 public class InterserverLockingServiceImplTest {
@@ -43,18 +55,11 @@ public class InterserverLockingServiceImplTest {
 
     public static class FakeInterserverLockingDao implements InterserverLockingDao {
 
-        private final static HashMap<String, Date> locks = new HashMap<>();
+        private final static ConcurrentHashMap<String, Date> locks = new ConcurrentHashMap<>();
 
         @Override
-        public void lock(String resourceId, Date date) {
-            locks.put(resourceId, date);
-            System.out.println(resourceId + " is locked at " + date.getTime());
-        }
-
-        @Override
-        public boolean wasLockedAfter(String resourceId, Date deadline) {
-            Date date = locks.get(resourceId);
-            return date != null && date.after(deadline);
+        public boolean lock(String resourceId, Date date) {
+            return locks.putIfAbsent(resourceId, date) == null;
         }
 
         @Override
@@ -66,6 +71,16 @@ public class InterserverLockingServiceImplTest {
         @Override
         public Date getLastLockTime(String resourceId) {
             return locks.get(resourceId);
+        }
+
+        @Override
+        public void updateLock(String resourceId, Date lockTime) {
+            lock(resourceId, lockTime);
+        }
+
+        @Override
+        public boolean unlock(String resourceId, Date lockTime) {
+            return locks.remove(resourceId, lockTime);
         }
 
     }
@@ -102,20 +117,8 @@ public class InterserverLockingServiceImplTest {
 
     @Test
     public void testCantLockLocked() {
-        thrown.expect(RuntimeException.class);
         first.lock("abc");
-        second.lock("abc");
-    }
-
-    @Test
-    public void testTryLockFailure() {
-        first.lock("abc");
-        assertFalse(second.tryLock("abc"));
-    }
-
-    @Test
-    public void testTryLockSuccess() {
-        assertTrue(first.tryLock("abc"));
+        assertFalse(second.lock("abc"));
     }
 
     @Test
@@ -125,8 +128,36 @@ public class InterserverLockingServiceImplTest {
         first.lock("abc");
         first.getExecutorService().shutdownNow();
         first.getExecutorService().awaitTermination(5, TimeUnit.SECONDS);
-        Thread.sleep(200);
+        Thread.sleep(400);
         second.lock("abc");
+    }
+
+    @Test
+    public void testSystemEjbAnnotations() {
+        assertNotNull(InterserverLockingServiceImpl.class.getAnnotation(Singleton.class));
+        assertEquals(ConcurrencyManagementType.BEAN, InterserverLockingServiceImpl.class.getAnnotation(ConcurrencyManagement.class).value());
+        assertArrayEquals(new Class[] {InterserverLockingService.class }, InterserverLockingServiceImpl.class.getAnnotation(Local.class).value());
+        assertEquals("system", InterserverLockingServiceImpl.class.getAnnotation(RunAs.class).value());
+        assertArrayEquals(new Class[] {SpringBeanAutowiringInterceptor.class }, InterserverLockingServiceImpl.class.getAnnotation(Interceptors.class).value());
+    }
+
+    @Test
+    public void testWaitUntilNotLocked() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                first.unlock("abc");
+            }
+        };
+        first.lock("abc");
+        thread.start();
+        second.waitUntilNotLocked("abc");
+        assertFalse(second.isLocked("abc"));
     }
 
 }
