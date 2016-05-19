@@ -75,6 +75,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private int lastScrollPos;
     private SuggestBoxState currentState;
     private Set<Id> initiallySelectedIds = new HashSet<>();
+    private SuggestPresenter presenter;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -213,12 +214,20 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         presenter.drawItemFromTooltipContent();
     }
 
+    protected Element getAddButton(){
+        if(presenter!=null){
+            return presenter.getCreateButtonElement();
+        } else {
+            return null;
+        }
+    }
+
     @Override
     protected Widget asEditableWidget(final WidgetState state) {
         localEventBus.addHandler(HyperlinkStateChangedEvent.TYPE, this);
         localEventBus.addHandler(ShowTooltipEvent.TYPE, this);
         localEventBus.addHandler(WidgetItemRemoveEvent.TYPE, this);
-        final SuggestPresenter presenter = new SuggestPresenter((LinkCreatorWidgetState) state);
+        presenter = new SuggestPresenter((LinkCreatorWidgetState) state);
         MultiWordSuggestOracle oracle = new Cm5MultiWordSuggestOracle();
         final SuggestBoxDisplay display = new SuggestBoxDisplay();
         TextBox suggestTextBox = new SuggestTextBox();
@@ -423,7 +432,12 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         private Element container;
         private Element arrowBtn;
         private Element clearAllButton;
+        private Element createButton;
         private SuggestBox suggestBox;
+
+        public Element getCreateButtonElement() {
+            return createButton;
+        }
 
         private SuggestPresenter(LinkCreatorWidgetState state) {
             Element row = DOM.createTR();
@@ -462,7 +476,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
 
         }
 
-        private void addCreateButton(LinkCreatorWidgetState state, Element row) {
+        protected void addCreateButton(LinkCreatorWidgetState state, Element row) {
             final ConfiguredButton button = getCreateButton(state);
             if (button != null) {
                 Element createButtonContainer = DOM.createTD();
@@ -476,7 +490,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
                         getClickAction().perform();
                     }
                 });
-
+                createButton = createButtonElement;
             }
         }
 

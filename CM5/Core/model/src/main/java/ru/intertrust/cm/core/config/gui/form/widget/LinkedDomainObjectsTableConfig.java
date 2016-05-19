@@ -24,8 +24,6 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig implements HasL
     private String modalHeight;
     @Attribute(name = "delete-linked-objects",required = false)
     private Boolean deleteLinkedObjects;
-    @Attribute(name = "one-row-only",required = false)
-    private Boolean oneRowOnly = false;
 
     @Element(name = "linked-form", required = false)
     private LinkedFormConfig linkedFormConfig;
@@ -92,14 +90,6 @@ public class LinkedDomainObjectsTableConfig extends WidgetConfig implements HasL
 
     public Boolean isDeleteLinkedObjects() {
         return deleteLinkedObjects;
-    }
-
-    public Boolean getOneRowOnly() {
-        return oneRowOnly;
-    }
-
-    public void setOneRowOnly(Boolean oneRowOnly) {
-        this.oneRowOnly = oneRowOnly;
     }
 
     public void setDeleteLinkedObjects(Boolean deleteLinkedObjects) {

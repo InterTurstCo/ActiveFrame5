@@ -19,8 +19,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationContext;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -74,7 +72,6 @@ public class DoelResolverTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEvaluation() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
@@ -94,7 +91,6 @@ public class DoelResolverTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEvaluationWithCache() {
         GenericDomainObject comm1 = new GenericDomainObject();
         comm1.setId(comm1Id);
@@ -122,7 +118,6 @@ public class DoelResolverTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEvaluationWithInheritedField() {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department.Name");
@@ -143,7 +138,6 @@ public class DoelResolverTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEvaluationWithExtendedField() {
         DoelExpression expr = DoelExpression.parse("parent.Addressee.Name");
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
@@ -160,7 +154,6 @@ public class DoelResolverTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testEvaluationWithWildcardReference() {
         DoelExpression expr = DoelExpression.parse("from.Name");
 

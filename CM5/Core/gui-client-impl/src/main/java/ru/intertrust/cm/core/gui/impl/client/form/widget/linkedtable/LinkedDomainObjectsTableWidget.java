@@ -100,19 +100,9 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
             } else {
                 addButton.removeFromParent();
             }
-            onlyOneCheck();
         }
     }
 
-    private void onlyOneCheck() {
-        if (currentState.getLinkedDomainObjectsTableConfig().getOneRowOnly()) {
-            if ((currentState.getRowItems().size() > 0 && model.getList().size() > 0) || (model.getList().size() > 0)) {
-                addButton.setVisible(false);
-            } else {
-                addButton.setVisible(true);
-            }
-        }
-    }
 
     private void fetchItemsForNewStates() {
         if (!currentState.getNewFormStates().isEmpty()) {
@@ -278,7 +268,8 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
                 if (currentState.isSingleChoice() && model.getList().size() >= 1) {
                     currentState.clearPreviousStates();
                     model.getList().clear();
-
+                    currentState.getIds().clear();
+                    currentState.getRowItems().clear();
                 }
                 FormState formState = formPlugin.getFormState(new IWidgetStateFilter() {
                     @Override
@@ -332,7 +323,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         } else {
             model.getList().add(rowItem);
         }
-        onlyOneCheck();
     }
 
     private void drawTooltipButtonIfRequired() {
@@ -492,7 +482,6 @@ public class LinkedDomainObjectsTableWidget extends LinkEditingWidget implements
         }
         currentState.decrementFilteredItemsNumber();
 
-        onlyOneCheck();
     }
 
     private void removeFromTooltipContent(RowItem rowItem) {
