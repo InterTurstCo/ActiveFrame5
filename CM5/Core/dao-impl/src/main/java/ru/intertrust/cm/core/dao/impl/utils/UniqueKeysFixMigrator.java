@@ -1,21 +1,24 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import ru.intertrust.cm.core.business.api.MigrationComponent;
-import ru.intertrust.cm.core.business.api.Migrator;
-import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.SchemaCache;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.business.api.MigrationComponent;
+import ru.intertrust.cm.core.business.api.Migrator;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.SchemaCache;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 /**
  * Миграционный класс для исправления уникальных ключей, содержащих ссылочное поле
@@ -84,10 +87,16 @@ public class UniqueKeysFixMigrator implements Migrator {
         return null;
     }
 
-    private static List<String> getUniqueKeyFields(DomainObjectTypeConfig config, UniqueKeyConfig uniqueKeyConfig) {
+    private List<String> getUniqueKeyFields(DomainObjectTypeConfig config, UniqueKeyConfig uniqueKeyConfig) {
         List<String> uniqueKeyFields = new ArrayList<>(uniqueKeyConfig.getUniqueKeyFieldConfigs().size());
         for (UniqueKeyFieldConfig uniqueKeyFieldConfig : uniqueKeyConfig.getUniqueKeyFieldConfigs()) {
             uniqueKeyFields.add(getSqlName(uniqueKeyFieldConfig.getName()));
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(config.getName(), uniqueKeyFieldConfig.getName());
+            if (fieldConfig instanceof ReferenceFieldConfig){
+                uniqueKeyFields.add(getSqlName(uniqueKeyFieldConfig.getName() + "_type"));
+            }else if(fieldConfig instanceof DateTimeWithTimeZoneFieldConfig){
+                uniqueKeyFields.add(getSqlName(uniqueKeyFieldConfig.getName() + "_tz"));
+            }
         }
 
         return uniqueKeyFields;
