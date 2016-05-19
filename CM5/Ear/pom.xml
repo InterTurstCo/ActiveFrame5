@@ -9,7 +9,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.20-11</version>
+        <version>0.5.20-12-SNAPSHOT</version>
     </parent>
 
     <properties>
