@@ -1,15 +1,11 @@
 package ru.intertrust.cm.core.dao.impl.doel;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
-import javax.sql.DataSource;
 
 import net.sf.jsqlparser.expression.Alias;
 import net.sf.jsqlparser.expression.Expression;
@@ -24,8 +20,6 @@ import net.sf.jsqlparser.statement.select.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.RowMapper;
 
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -37,18 +31,11 @@ import ru.intertrust.cm.core.config.doel.DoelValidator;
 import ru.intertrust.cm.core.config.doel.DoelValidator.DoelTypes;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.access.SystemSubject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.impl.DomainObjectCacheServiceImpl;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
-import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
-import ru.intertrust.cm.core.dao.impl.sqlparser.WrapAndLowerCaseSelectVisitor;
-import ru.intertrust.cm.core.dao.impl.utils.BasicRowMapper;
-import ru.intertrust.cm.core.dao.impl.utils.ValueReader;
 import ru.intertrust.cm.core.model.DoelException;
-
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 public class DoelResolver implements DoelEvaluator {
@@ -101,12 +88,17 @@ public class DoelResolver implements DoelEvaluator {
     }
 
     @Override
-    public List<Value> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
+    @SuppressWarnings("rawtypes")
+    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken) {
         return evaluateInternal(expression, sourceObjectId, accessToken);
     }
 
-    public List<Value> evaluateInternal(DoelExpression expression, Id sourceObjectId,
+    @SuppressWarnings("rawtypes")
+    public <T extends Value> List<T> evaluateInternal(DoelExpression expression, Id sourceObjectId,
             AccessToken accessToken) {
+        if (sourceObjectId == null) {
+            return Collections.emptyList();
+        }
         try {
             RdbmsId id = (RdbmsId) sourceObjectId;
             DoelValidator.DoelTypes check =
@@ -114,7 +106,7 @@ public class DoelResolver implements DoelEvaluator {
             if (!check.isCorrect()) {
                 return Collections.emptyList();
             }
-            ArrayList<Value> result = new ArrayList<>();
+            ArrayList<T> result = new ArrayList<>();
             for (DoelValidator.DoelTypes.Link type : check.getTypeChains()) {
                 evaluateBranch(expression, type, Collections.singletonList(id), result, accessToken);
             }
@@ -149,9 +141,9 @@ public class DoelResolver implements DoelEvaluator {
      * @param result
      *            Выходной параметр - список, в который заносятся вычисленные значения выражения
      */
-    @SuppressWarnings("unchecked")
-    private void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
-            List<RdbmsId> sourceIds, List<Value> result, AccessToken accessToken) {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private <T extends Value> void evaluateBranch(DoelExpression expr, DoelTypes.Link branch,
+            List<RdbmsId> sourceIds, List<T> result, AccessToken accessToken) {
         //String type = branch.getType();
 
         ArrayList<RdbmsId> nextIds = new ArrayList<>();
@@ -187,9 +179,9 @@ public class DoelResolver implements DoelEvaluator {
                             result.add((T) value);
                         }*/
                         if (fieldElem.getName().equalsIgnoreCase(DomainObjectDao.ID_COLUMN)) {
-                            result.add(new ReferenceValue(obj.getId()));
+                            result.add((T) new ReferenceValue(obj.getId()));
                         } else {
-                            Value value = obj.getValue(fieldElem.getName());
+                            T value = obj.getValue(fieldElem.getName());
                             if (value != null) {
                                 result.add(value);
                             }
@@ -228,7 +220,7 @@ public class DoelResolver implements DoelEvaluator {
                     } else {
                         for (DomainObject child : children) {
                             if (lastStep) {
-                                result.add(new ReferenceValue(child.getId()));
+                                result.add((T) new ReferenceValue(child.getId()));
                             } else {
                                 nextIds.add((RdbmsId) child.getId());
                             }
@@ -356,20 +348,10 @@ public class DoelResolver implements DoelEvaluator {
             fields.add(item);
         }
         plainSelect.setSelectItems(fields);
-        plainSelect.accept(new WrapAndLowerCaseSelectVisitor());
-        applyAcl(select, accessToken);
+        //plainSelect.accept(new WrapAndLowerCaseSelectVisitor());
+        //applyAcl(select, accessToken);
 
-        String query = select.toString();
-        IdentifiableObjectCollection collectionValues = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
-
-        if (collectionValues == null || collectionValues.size() == 0) {
-            return;
-        }
-
-        List<Value> values = new ArrayList<>(collectionValues.size());
-        for (int i = 0; i < collectionValues.size(); i ++) {
-            values.add(collectionValues.get(0, i));
-        }
+        List<Value> values = executeQuery(select.toString(), accessToken);
 
         Function[] functions = expr.getElements()[step - 1].getFunctions();
         if (functions != null) {
@@ -396,10 +378,23 @@ public class DoelResolver implements DoelEvaluator {
                 }
             }
         } else {
-            result.addAll(values);
+            result.addAll((List<T>) values);
         }
     }
 
+    @SuppressWarnings("rawtypes")
+    private List<Value> executeQuery(String query, AccessToken accessToken) {
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
+        if (collection == null || collection.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<Value> values = new ArrayList<>(collection.size());
+        for (int i = 0; i < collection.size(); ++i) {
+            values.add(collection.get(0, i));
+        }
+        return values;
+    }
+/*
     private boolean isSystemAccessToken(AccessToken accessToken) {
         return accessToken.getSubject() instanceof SystemSubject;
     }
@@ -415,12 +410,6 @@ public class DoelResolver implements DoelEvaluator {
         }
     }
 
-    /**
-     * Добавляет проверки ACL, если маркер доступа не системный
-     * @param select изначальный запрос
-     * @param accessToken маркер доступа
-     * @return измененный SQL запрос
-     */
     private void applyAcl(Select select, AccessToken accessToken) {
         SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
 
@@ -433,7 +422,7 @@ public class DoelResolver implements DoelEvaluator {
     private SqlQueryModifier createSqlQueryModifier() {
         return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
     }
-
+*/
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {
         HashSet<String> typeSet = new HashSet<>();
         for (DoelTypes.Link link : types) {
@@ -551,7 +540,7 @@ public class DoelResolver implements DoelEvaluator {
     public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }
-
+/*
     private class DoelResolverRowMapper<T extends Value> extends ValueReader implements RowMapper<T> {
 
         private FieldConfig fieldConfig;
@@ -576,4 +565,5 @@ public class DoelResolver implements DoelEvaluator {
             return (T) readValue(rs, columnModel.getColumns(), 0, fieldConfig);
         }
     }
+*/
 }

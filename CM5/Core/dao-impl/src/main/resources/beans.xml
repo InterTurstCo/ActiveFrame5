@@ -164,6 +164,8 @@
     <bean id="fieldConfigDbValidator" class="ru.intertrust.cm.core.dao.impl.FieldConfigDbValidatorImpl" />
 
     <bean id="configurationDbValidator" class="ru.intertrust.cm.core.dao.impl.ConfigurationDbValidatorImpl" />
+    
+    <bean id="interserverLockingDao"  class="ru.intertrust.cm.core.dao.impl.InterserverLockingDaoImpl"/>
 
     <jee:local-slsb id="eventLogService"
                     jndi-name="java:module/EventLogServiceImpl!ru.intertrust.cm.core.dao.api.EventLogService"

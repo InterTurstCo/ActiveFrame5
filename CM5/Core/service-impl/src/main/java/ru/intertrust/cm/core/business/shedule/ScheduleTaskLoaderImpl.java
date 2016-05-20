@@ -17,6 +17,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.*;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
@@ -97,6 +98,19 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
                 if (taskDo == null) {
                     createTaskDomainObject(item);
                 }
+            }
+        }
+        
+        //Деактивируем все задачи что есть в базе, если их нет в реестре (удалили класс или модуль)
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, task_class, name from schedule where active = 1", 0, 0, accessToken);
+        for (IdentifiableObject row : collection) {
+            SheduleTaskReestrItem item = reestr.get(row.getString("task_class"));
+            if (item == null){
+                DomainObject taskDo = domainObjectDao.find(row.getId(), accessToken);
+                taskDo.setBoolean("active", false);
+                domainObjectDao.save(taskDo, accessToken);
+                logger.warn("Schedule service not found class " + row.getString("task_class") + ". Deactivate schedule task " + row.getString("name"));
             }
         }
     }
