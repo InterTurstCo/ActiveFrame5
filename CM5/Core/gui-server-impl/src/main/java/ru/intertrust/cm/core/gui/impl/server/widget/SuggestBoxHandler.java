@@ -21,6 +21,7 @@ import ru.intertrust.cm.core.gui.impl.server.util.FilterBuilderUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.WidgetServerUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
+import ru.intertrust.cm.core.gui.model.form.FieldPath;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 
@@ -52,6 +53,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
     @Override
     public SuggestBoxState getInitialState(WidgetContext context) {
         SuggestBoxState state = new SuggestBoxState();
+        state.setWidgetConfigs(context.getWidgetConfigsById());
         SuggestBoxConfig widgetConfig = ObjectCloner.getInstance().cloneObject(context.getWidgetConfig(), SuggestBoxConfig.class);
         state.setSuggestBoxConfig(widgetConfig);
         ArrayList<Id> selectedIds = context.getAllObjectIds();
@@ -62,6 +64,7 @@ public class SuggestBoxHandler extends ListWidgetHandler {
         state.setPopupTitlesHolder(popupTitlesHolder);
         LinkedHashMap<Id, String> objects = new LinkedHashMap<Id, String>();
         state.setSelectedIds(new LinkedHashSet<>(selectedIds));
+        state.setRootObject(root);
         if (!selectedIds.isEmpty()) {
             SelectionSortCriteriaConfig sortCriteriaConfig = widgetConfig.getSelectionSortCriteriaConfig();
             String collectionName = widgetConfig.getCollectionRefConfig().getName();

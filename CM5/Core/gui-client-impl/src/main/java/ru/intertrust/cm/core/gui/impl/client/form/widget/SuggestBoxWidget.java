@@ -477,7 +477,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         }
 
         protected void addCreateButton(LinkCreatorWidgetState state, Element row) {
-            final ConfiguredButton button = getCreateButton(state);
+            ConfiguredButton button = getCreateButton(state);
             if (button != null) {
                 Element createButtonContainer = DOM.createTD();
                 Element createButtonElement = button.getElement();

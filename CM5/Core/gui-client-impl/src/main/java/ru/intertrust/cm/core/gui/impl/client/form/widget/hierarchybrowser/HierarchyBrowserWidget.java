@@ -101,62 +101,64 @@ public class HierarchyBrowserWidget extends BaseWidget implements HierarchyBrows
 
     private void setCurrentStateForEditableWidget() {
         final HierarchyBrowserView view = (HierarchyBrowserView) impl;
-        view.clear();
-        final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
+        if(view!=null) {
+            view.clear();
+            final HierarchyBrowserConfig config = currentState.getHierarchyBrowserConfig();
 
-        final WidgetDisplayConfig displayConfig = getDisplayConfig();
-        view.initWidgetContent(config, new ClearButtonClickHandler());
+            final WidgetDisplayConfig displayConfig = getDisplayConfig();
+            view.initWidgetContent(config, new ClearButtonClickHandler());
 
-        view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight(), currentState.getChosenItems(),
-                currentState.isTooltipAvailable());
-        if (handlerRegistration != null) {
-            handlerRegistration.removeHandler();
-        }
-        handlerRegistration = view.addButtonClickHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                currentState.initTemporaryState();
-                mainPopup = new HierarchyBrowserMainPopup(localEventBus, currentState);
-                mainPopup.createAndShowPopup(currentState.getTemporaryChosenItems());
-                mainPopup.addOkClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        currentState.applyChanges();
-                        view.displayChosenItems(currentState.getChosenItems(), currentState.isTooltipAvailable());
-                        disposeOfMainPopup();
-
-                    }
-                });
-                mainPopup.addCancelClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        disposeOfMainPopup();
-                    }
-                });
-                mainPopup.addCancelListener(new EventListener() {
-                    @Override
-                    public void onBrowserEvent(Event event) {
-                        disposeOfMainPopup();
-                    }
-                });
-                final NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
-                        .withConfig(config)
-                        .withMainPopup(mainPopup)
-                        .withChosenIds(currentState.getIds())
-                        .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
-                        .withWidgetsContainer(getContainer())
-                        .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
-                        .buildFirstNodeContentManager();
-                mainPopup.addLinkClickHandler(new ClickHandler() {
-                    @Override
-                    public void onClick(ClickEvent event) {
-                        nodeContentManager.fetchNodeContent();
-                    }
-                });
-
-                nodeContentManager.fetchNodeContent();
+            view.displayBaseWidget(displayConfig.getWidth(), displayConfig.getHeight(), currentState.getChosenItems(),
+                    currentState.isTooltipAvailable());
+            if (handlerRegistration != null) {
+                handlerRegistration.removeHandler();
             }
-        });
+            handlerRegistration = view.addButtonClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    currentState.initTemporaryState();
+                    mainPopup = new HierarchyBrowserMainPopup(localEventBus, currentState);
+                    mainPopup.createAndShowPopup(currentState.getTemporaryChosenItems());
+                    mainPopup.addOkClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            currentState.applyChanges();
+                            view.displayChosenItems(currentState.getChosenItems(), currentState.isTooltipAvailable());
+                            disposeOfMainPopup();
+
+                        }
+                    });
+                    mainPopup.addCancelClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            disposeOfMainPopup();
+                        }
+                    });
+                    mainPopup.addCancelListener(new EventListener() {
+                        @Override
+                        public void onBrowserEvent(Event event) {
+                            disposeOfMainPopup();
+                        }
+                    });
+                    final NodeContentManager nodeContentManager = new NodeContentManagerBuilder()
+                            .withConfig(config)
+                            .withMainPopup(mainPopup)
+                            .withChosenIds(currentState.getIds())
+                            .withCollectionNameNodeMap(currentState.getCollectionNameNodeMap())
+                            .withWidgetsContainer(getContainer())
+                            .withWidgetIdComponentNames(currentState.getWidgetIdComponentNames())
+                            .buildFirstNodeContentManager();
+                    mainPopup.addLinkClickHandler(new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            nodeContentManager.fetchNodeContent();
+                        }
+                    });
+
+                    nodeContentManager.fetchNodeContent();
+                }
+            });
+        }
     }
 
     private void setCurrentStateForNoneEditableWidget() {
