@@ -587,8 +587,13 @@ public class NavigationTreePluginView extends PluginView   {
 
             RootNodeButton source = (RootNodeButton) event.getSource();
 
+            /*
+             if(autoOpen || selectedRootNode==null ||
+                    (!autoOpen && animatedTreePanelIsOpened && (selectedRootNode!=null && !selectedRootNode.equals(source.getName()))))
+             */
+
             if(autoOpen || selectedRootNode==null ||
-                    (!autoOpen && animatedTreePanelIsOpened && (selectedRootNode!=null && !selectedRootNode.equals(source.getName())))) {
+                    (!autoOpen && (selectedRootNode!=null && !selectedRootNode.equals(source.getName())))) {
                 Application.getInstance().getEventBus().fireEventFromSource(new RootLinkSelectedEvent(source
                         .getName()), plugin);
                 clearSelectedButton();
