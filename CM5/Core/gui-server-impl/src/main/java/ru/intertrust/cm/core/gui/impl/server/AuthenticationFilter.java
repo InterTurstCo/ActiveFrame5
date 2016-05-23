@@ -109,7 +109,7 @@ public class AuthenticationFilter implements Filter {
 
     private boolean isLogoutRequired(HttpServletRequest request) {
         return request.getUserPrincipal() != null
-                && JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.JBOSS;
+                && (JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.JBOSS || JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.WILDFLY);
     }
 
     private boolean isLoginPageRequest(String requestUri) {
