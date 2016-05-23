@@ -9,7 +9,9 @@ public enum JeeServerFamily {
 
     JBOSS,
     TOMEE,
-    UNKNOWN;
+    UNKNOWN,
+    WILDFLY
+    ;
 
     // Suppose that the server's family can't change while application runs :)
     private static JeeServerFamily cached = null;
@@ -22,6 +24,8 @@ public enum JeeServerFamily {
                 cached = JBOSS;
             } else if (info.contains("TomEE")) {
                 cached = TOMEE;
+            } else if (info.contains("WildFly")) {
+                cached = WILDFLY;
             } else {
                 cached = UNKNOWN;
             }
