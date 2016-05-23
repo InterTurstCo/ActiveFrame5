@@ -68,7 +68,6 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private static final int SUGGESTIONS_MARGIN = 5;
     private static final int HORIZONTAL_SCROLL_HEIGHT = 15;
     private static final int MINIMAL_SUGGEST_INPUT_WIDTH = 25;
-    private SuggestBox suggestBox;
     private List<MultiWordIdentifiableSuggestion> suggestions = new ArrayList<MultiWordIdentifiableSuggestion>();
     private SuggestBoxConfig suggestBoxConfig;
     private LazyLoadState lazyLoadState;
@@ -76,6 +75,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
     private SuggestBoxState currentState;
     private Set<Id> initiallySelectedIds = new HashSet<>();
     private SuggestPresenter presenter;
+    protected SuggestBox suggestBox;
 
     @Override
     public void setCurrentState(WidgetState state) {
@@ -266,7 +266,7 @@ public class SuggestBoxWidget extends LinkCreatorWidget implements HyperlinkStat
         return presenter;
     }
 
-    private void insertItem(Id id, String representation) {
+    protected void insertItem(Id id, String representation) {
         SuggestPresenter presenter = (SuggestPresenter) impl;
         if (shouldDrawTooltipButton(currentState, 1)) {
             insertInTooltipContent(id, representation);
