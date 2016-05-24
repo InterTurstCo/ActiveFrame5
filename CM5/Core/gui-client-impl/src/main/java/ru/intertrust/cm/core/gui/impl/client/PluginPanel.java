@@ -180,4 +180,11 @@ public class PluginPanel implements IsWidget {
             removeCurrentPluginLeavingViewDisplayed();
         }
     }
+
+    public int getPluginsCount(){
+        if(plugins!=null){
+            return plugins.size();
+        } else
+            return 0;
+    }
 }

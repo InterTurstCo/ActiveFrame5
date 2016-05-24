@@ -265,9 +265,11 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             }
 
         } else {
-
+//(!manager.hasLink() && !manager.getSelectedIds().isEmpty())
             final HistoryManager manager = Application.getInstance().getHistoryManager();
-            if (manager.hasLink() || manager.getSelectedIds().isEmpty()) {
+            if (manager.hasLink() || manager.getSelectedIds().isEmpty() ||
+                    (!manager.hasLink() && !manager.getSelectedIds().isEmpty() && centralPluginPanel.getCurrentPlugin() instanceof FormPlugin &&
+                            centralPluginPanel.getPluginsCount()==1)) {
                 Application.getInstance().showLoadingIndicator();
                 PluginConfig pluginConfig = event.getPluginConfig();
                 String pluginName = pluginConfig.getComponentName();
@@ -282,6 +284,7 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
             } else {
                 History.fireCurrentHistoryState();
             }
+
             UserSettingsUtil.storeCurrentNavigationLink();
         }
     }
