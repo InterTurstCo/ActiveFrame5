@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.migration;
 import org.simpleframework.xml.ElementList;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +34,9 @@ public class AutoMigrationEventConfig implements Dto {
 
     @ElementList(entry="delete-fields", inline=true, required = false)
     private List<DeleteFieldsConfig> deleteFieldsConfigs = new ArrayList<>();
+
+    @ElementList(entry="unextend-types", inline=true, required = false)
+    private List<UnextendTypesConfig> unextendTypesConfigs = new ArrayList<>();
 
     public List<RenameFieldConfig> getRenameFieldConfigs() {
         return renameFieldConfigs;
@@ -117,6 +119,18 @@ public class AutoMigrationEventConfig implements Dto {
             this.deleteTypesConfigs.clear();
         } else {
             this.deleteTypesConfigs = deleteTypesConfigs;
+        }
+    }
+
+    public List<UnextendTypesConfig> getUnextendTypesConfigs() {
+        return unextendTypesConfigs;
+    }
+
+    public void setUnextendTypesConfigs(List<UnextendTypesConfig> unextendTypesConfigs) {
+        if (unextendTypesConfigs == null) {
+            this.unextendTypesConfigs.clear();
+        } else {
+            this.unextendTypesConfigs = unextendTypesConfigs;
         }
     }
 

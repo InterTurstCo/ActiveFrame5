@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.model.FatalException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import static ru.intertrust.cm.core.config.DomainObjectTypeUtility.getSourceDomainObjectType;
@@ -79,7 +80,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             return;
         }
 
-        if (!configurationExplorer.isAuditLogType(config.getName())) {
+        if (!configurationExplorer.isAuditLogType(config.getName()) && !config.isTemplate() && isParentObject(config, configurationExplorer)) {
             List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
@@ -95,6 +96,18 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                     if (schemaCache.getForeignKeyName(config, (ReferenceFieldConfig) fieldConfig) == null) {
                         newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
                     }
+                }
+            }
+
+            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
+                if (!(fieldConfig instanceof ReferenceFieldConfig)
+                        || ((ReferenceFieldConfig) fieldConfig).getType() == null
+                        || fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
+                    continue;
+                }
+
+                if (schemaCache.getForeignKeyName(config, (ReferenceFieldConfig) fieldConfig) == null) {
+                    newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
                 }
             }
 
@@ -188,19 +201,20 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             }
         }
 
-        List<FieldConfig> newFieldConfigs = new ArrayList<>();
+        LinkedHashSet<FieldConfig> newFieldConfigs = new LinkedHashSet<>();
 
         if (isParent) {
             for (FieldConfig fieldConfig : domainObjectTypeConfig.getSystemFieldConfigs()) {
                 ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, fieldConfig);
                 if (columnInfo == null) {
+                    if (fieldConfig.getName().equals(DomainObjectDao.ACCESS_OBJECT_ID) && fieldConfig instanceof ReferenceFieldConfig) {
+                        fieldConfig = createAccessObjectIdConfig();
+                    }
                     newFieldConfigs.add(fieldConfig);
                 }
             }
 
-            ReferenceFieldConfig accessObjectIdConfig = new ReferenceFieldConfig();
-            accessObjectIdConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);
-
+            FieldConfig accessObjectIdConfig = createAccessObjectIdConfig();
             ColumnInfo columnInfo = schemaCache.getColumnInfo(domainObjectTypeConfig, accessObjectIdConfig);
             if (columnInfo == null) {
                 newFieldConfigs.add(accessObjectIdConfig);
@@ -226,9 +240,9 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
 
         if (!newFieldConfigs.isEmpty()) {
             if (isAl) {
-                dataStructureDao.updateTableStructure(sourceDomainObjectTypeConfig, newFieldConfigs, true, isParent);
+                dataStructureDao.updateTableStructure(sourceDomainObjectTypeConfig, new ArrayList<>(newFieldConfigs), true, isParent);
             } else {
-                dataStructureDao.updateTableStructure(domainObjectTypeConfig, newFieldConfigs, false, isParent);
+                dataStructureDao.updateTableStructure(domainObjectTypeConfig, new ArrayList<>(newFieldConfigs), false, isParent);
             }
             setSchemaUpdateDone();
         }
@@ -258,6 +272,12 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             setSchemaUpdateDone();
         }
 
+    }
+
+    private static FieldConfig createAccessObjectIdConfig() {
+        LongFieldConfig fieldConfig = new LongFieldConfig();
+        fieldConfig.setName(DomainObjectDao.ACCESS_OBJECT_ID);
+        return fieldConfig;
     }
 
     private void processDeletedConfigurations() {
@@ -299,10 +319,28 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
         String extendsAttributeValue = domainObjectTypeConfig.getExtendsAttribute();
         String oldExtendsAttributeValue = oldDomainObjectTypeConfig.getExtendsAttribute();
 
-        if ((extendsAttributeValue == null && oldExtendsAttributeValue != null) ||
-                (extendsAttributeValue != null && !extendsAttributeValue.equals(oldExtendsAttributeValue))) {
-            throw new ConfigurationException("Configuration loading aborted: 'extends' attribute was changed " +
-                    "for '" + domainObjectTypeConfig.getName() + ". " + COMMON_ERROR_MESSAGE);
+        final boolean unextendDone = (extendsAttributeValue == null || extendsAttributeValue.isEmpty()) && oldExtendsAttributeValue != null && !oldExtendsAttributeValue.isEmpty();
+        if (unextendDone) { // validate that foreign key is dropped
+            final String oldForeignKey = schemaCache.getParentTypeForeignKeyName(oldDomainObjectTypeConfig);
+            if (oldForeignKey != null) {
+                throw new ConfigurationException("Configuration loading aborted: 'extends' attribute was removed " +
+                        "for '" + domainObjectTypeConfig.getName() + ", but foreign key to parent table still exists. Use <unextend> migration script to remove it ");
+            } else {
+                return;
+            }
+        }
+        final boolean extendDone = extendsAttributeValue != null && !extendsAttributeValue.equals(oldExtendsAttributeValue);
+        if (extendDone) {
+            throw new ConfigurationException("Configuration loading aborted: 'extends' attribute was added " +
+                    "for '" + domainObjectTypeConfig.getName() + ". Scenario is not supported yet");
+        }
+
+        if (extendsAttributeValue != null && !extendsAttributeValue.isEmpty()) {
+            final String parentTypeFK = schemaCache.getParentTypeForeignKeyName(oldDomainObjectTypeConfig);
+            if (parentTypeFK == null) {
+                throw new ConfigurationException("Configuration loading aborted: " + domainObjectTypeConfig.getName()
+                        + " extends " + extendsAttributeValue + ", but foreign key to parent table does not exist.");
+            }
         }
     }
 }

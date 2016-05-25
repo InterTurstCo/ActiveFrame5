@@ -2,21 +2,22 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.SingleColumnRowMapper;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.impl.utils.ForeignKeysRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.IndexesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.SchemaTablesRowMapper;
 import ru.intertrust.cm.core.dao.impl.utils.UniqueKeysRowMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
@@ -198,7 +199,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
             throw new IllegalArgumentException("Invalid (null or empty) arguments");
         }
 
-        int index = countForeignKeys(config.getName());
+        int index = getNextForeignKeyIndex(config.getName());
         for (ReferenceFieldConfig fieldConfig : fieldConfigList) {
             String query = getQueryHelper().generateCreateForeignKeyConstraintQuery(config, fieldConfig, index);
             if (query != null) {
@@ -377,6 +378,22 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
                 new Object[] {getSqlName(domainObjectConfigName)}, Integer.class);
     }
 
+    private int getNextForeignKeyIndex(String domainObjectConfigName) {
+        List<String> keyNames = jdbcTemplate.query(generateSelectTableForeignKeys(),
+                new Object[] {getSqlName(domainObjectConfigName)}, new SingleColumnRowMapper<String>());
+        if (keyNames == null || keyNames.isEmpty()) {
+            return 0;
+        }
+        int maxIndex = 0;
+        for (String keyName : keyNames) {
+            int keyIndex = Integer.parseInt(keyName.substring(keyName.lastIndexOf('_') + 1));
+            if (keyIndex > maxIndex) {
+                maxIndex = keyIndex;
+            }
+        }
+        return maxIndex + 1;
+    }
+
     private int countUniqueKeys(String domainObjectConfigName) {
         return jdbcTemplate.queryForObject(generateCountTableUniqueKeys(),
                 new Object[] {getSqlName(domainObjectConfigName)}, Integer.class);
@@ -400,17 +417,31 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
     private void createAutoIndices(DomainObjectTypeConfig config, List<FieldConfig> fieldConfigs, boolean isAl, boolean update, boolean isParentType) {
 
-        if (fieldConfigs == null || fieldConfigs.isEmpty()) {
-            return;
+        if (fieldConfigs == null) {
+            fieldConfigs = Collections.emptyList(); // we shouldn't return here as system fields' indexes should be created
         }
 
         int index = update ? countIndexes(config, isAl) : 0;
 
+        HashSet<String> fieldsIndexesCreatedFor = new HashSet<>();
         for (FieldConfig fieldConfig : fieldConfigs) {
-            if (!(fieldConfig instanceof ReferenceFieldConfig)) {
+            final boolean isAccessObjectId = fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID);
+            final boolean refField = fieldConfig instanceof ReferenceFieldConfig;
+            if (!isAccessObjectId && !refField) {
                 continue;
             }
-            jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig)fieldConfig, index, isAl));
+            final String fieldName = fieldConfig.getName().toLowerCase();
+            if (fieldsIndexesCreatedFor.contains(fieldName)) {
+                continue;
+            }
+            if (isAccessObjectId) {
+                ReferenceFieldConfig stubRefField = new ReferenceFieldConfig();
+                stubRefField.setName(DomainObjectDao.ACCESS_OBJECT_ID);
+                jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, stubRefField, index, isAl));
+            } else if (refField) {
+                jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig) fieldConfig, index, isAl));
+            }
+            fieldsIndexesCreatedFor.add(fieldName);
             index++;
         }
 
@@ -418,10 +449,15 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         if (isParentType) {
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
-                    if (SystemField.id.name().equals(fieldConfig.getName())) {
+                    final String fieldName = fieldConfig.getName().toLowerCase();
+                    if (SystemField.id.name().equals(fieldName)) {
+                        continue;
+                    }
+                    if (fieldsIndexesCreatedFor.contains(fieldName)) {
                         continue;
                     }
                     jdbcTemplate.update(getQueryHelper().generateCreateAutoIndexQuery(config, (ReferenceFieldConfig) fieldConfig, index, isAl));
+
                     index++;
                 }
             }
@@ -436,4 +472,6 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     protected abstract String generateCountTableUniqueKeys();
 
     protected abstract String generateCountTableForeignKeys();
+
+    protected abstract String generateSelectTableForeignKeys();
 }

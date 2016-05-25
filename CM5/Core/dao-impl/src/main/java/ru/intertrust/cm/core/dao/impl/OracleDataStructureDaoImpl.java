@@ -2,10 +2,8 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.CallableStatementCreator;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
@@ -68,6 +66,11 @@ public class OracleDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     @Override
     protected String generateCountTableForeignKeys() {
         return "select count(distinct uc.constraint_name) as foreign_keys_count from user_constraints uc " +
+                "where uc.constraint_type = 'R' and uc.table_name = ?";
+    }
+
+    protected String generateSelectTableForeignKeys() {
+        return "select distinct uc.constraint_name as foreign_key_name from user_constraints uc " +
                 "where uc.constraint_type = 'R' and uc.table_name = ?";
     }
 }
