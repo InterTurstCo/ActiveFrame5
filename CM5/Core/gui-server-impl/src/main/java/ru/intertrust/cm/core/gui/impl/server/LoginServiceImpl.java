@@ -28,10 +28,10 @@ public class LoginServiceImpl implements LoginService {
         try {
             request.login(userUid, password);
             request.getSession().setAttribute(USER_CREDENTIALS_SESSION_ATTRIBUTE, credentials);
+            getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), true);
             if (JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.JBOSS || JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.WILDFLY) {
                 request.logout();
             }
-            getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), true);
         } catch (ServletException e) {
             getEventLogService().logLogInEvent(userUid, request.getRemoteAddr(), false);
             throw new AuthenticationException(e);

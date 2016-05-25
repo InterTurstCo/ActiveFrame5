@@ -86,7 +86,11 @@ public class NotificationSenderAsyncImpl extends NotificationSenderBase implemen
     @Override
     @Asynchronous
     public void sendNotifications(DomainObject domainObject, EventType eventType, List<FieldModification> changedFields) {
-        doSendNotification(domainObject, eventType, changedFields);
+        try {
+            doSendNotification(domainObject, eventType, changedFields);
+        } catch (Throwable throwable) {
+            logger.error("Notification failed", throwable);
+        }
     }
 
     public ConfigurationExplorer getConfigurationExplorer() {
