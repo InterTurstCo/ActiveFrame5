@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Server GWT Compiled" type="JBossConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="JBoss 7.1.1.Final" ALTERNATIVE_JRE_ENABLED="false" ALTERNATIVE_JRE_PATH="">
+  <configuration default="false" name="Server GWT Compiled" type="JBossConfiguration" factoryName="Local" APPLICATION_SERVER_NAME="JBoss 10.0.10.Final" ALTERNATIVE_JRE_ENABLED="true" ALTERNATIVE_JRE_PATH="1.8">
     <option name="OPEN_IN_BROWSER" value="false" />
     <option name="COMMON_VM_ARGUMENTS" value="-Xms512m -Xmx2048m -XX:MaxPermSize=350m -Djboss.modules.system.pkgs=org.netbeans.lib.profiler.server -Xshare:off -Dorg.osgi.framework.bootdelegation=org.netbeans.lib.profiler.server,org.netbeans.lib.profiler.server.*" />
     <deployment>

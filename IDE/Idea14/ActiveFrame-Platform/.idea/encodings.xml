@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+  <component name="Encoding">
     <file url="file://$PROJECT_DIR$/../../../CM5" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Client" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Client/remote-client" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/bootstrap" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/configuration" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../../../CM5/Core/configuration/src/main/java/ru/intertrust/cm/core/util/Sizer.java" charset="windows-1251" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/dao-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/dao-impl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/file-net-adapter" charset="UTF-8" />
@@ -17,9 +16,9 @@
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/gui-rpc" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/gui-server-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/gui-server-impl" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../../../CM5/Core/gui-server-impl/src/main/java/ru/intertrust/cm/core/gui/impl/server/plugin/handlers/ConfigurationDeployerHandler.java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/jdbc" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/model" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../CM5/Core/pdf-converter-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/service-api" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/service-impl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/Core/web-app" charset="UTF-8" />
@@ -40,9 +39,7 @@
     <file url="file://$PROJECT_DIR$/../../../CM5/Workstation" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/bouncycastle-crypto-service" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/crypto-pro-service" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../CM5/pdf-cnv-loffice-impl" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/../../../CM5/test-module" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/../../../CM5/test-module/src/main/resources/importdata/import-country.csv" charset="windows-1251" />
-    <file url="file://$PROJECT_DIR$/web-resources.iml" charset="UTF-8" />
-    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

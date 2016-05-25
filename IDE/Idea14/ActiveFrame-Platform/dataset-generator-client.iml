@@ -24,7 +24,7 @@
     <orderEntry type="library" name="Maven: aopalliance:aopalliance:1.0" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-beans:4.1.5.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework:spring-expression:4.1.5.RELEASE" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.jasperreports:jasperreports:5.5.1" level="project" />
+    <orderEntry type="library" name="Maven: net.sf.jasperreports:jasperreports-javaflow:5.5.1" level="project" />
     <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.8.0" level="project" />
     <orderEntry type="library" name="Maven: commons-collections:commons-collections:2.1" level="project" />
     <orderEntry type="library" name="Maven: commons-digester:commons-digester:2.1" level="project" />
@@ -60,7 +60,7 @@
     <orderEntry type="library" name="Maven: org.jboss.xnio:xnio-api:3.0.3.GA" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.xnio:xnio-nio:3.0.3.GA" level="project" />
     <orderEntry type="library" name="Maven: org.jboss.as:jboss-as-build-config:7.1.1.Final" level="project" />
-    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.2" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.2" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:jcl-over-slf4j:1.7.2" level="project" />
   </component>
 </module>

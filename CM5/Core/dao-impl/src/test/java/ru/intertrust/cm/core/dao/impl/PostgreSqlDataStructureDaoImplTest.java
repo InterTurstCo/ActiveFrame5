@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,9 +59,9 @@ public class PostgreSqlDataStructureDaoImplTest {
     public void testCreateTable() throws Exception {
         when(domainObjectTypeIdDao.insert(domainObjectTypeConfig)).thenReturn(7); // ID
         // конфигурации доменного объекта
-        dataStructureDao.createTable(domainObjectTypeConfig, true);
+        dataStructureDao.createTable(domainObjectTypeConfig, false);
 
-        verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig, true));
+        verify(jdbcTemplate).update(queryHelper.generateCreateTableQuery(domainObjectTypeConfig, false));
 
         int index = 0;
         for (FieldConfig fieldConfig : domainObjectTypeConfig.getFieldConfigs()) {
@@ -107,7 +108,7 @@ public class PostgreSqlDataStructureDaoImplTest {
 
         when(jdbcTemplate.queryForObject(anyString(), any(Object[].class), any(Class.class))).thenReturn(0);
 
-        dataStructureDao.updateTableStructure(domainObjectTypeConfig, newColumns, false, true);
+        dataStructureDao.updateTableStructure(domainObjectTypeConfig, newColumns, false, false);
 
         verify(jdbcTemplate).update(queryHelper.generateAddColumnsQuery(domainObjectTypeConfig.getName(), newColumns));
 

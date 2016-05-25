@@ -25,10 +25,13 @@
       <module fileurl="file://$PROJECT_DIR$/gui-rpc.iml" filepath="$PROJECT_DIR$/gui-rpc.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-server-api.iml" filepath="$PROJECT_DIR$/gui-server-api.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/gui-server-impl.iml" filepath="$PROJECT_DIR$/gui-server-impl.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/gwt-rpc-proxy.iml" filepath="$PROJECT_DIR$/gwt-rpc-proxy.iml" group="performance and modules" />
       <module fileurl="file://$PROJECT_DIR$/it-test.iml" filepath="$PROJECT_DIR$/it-test.iml" />
       <module fileurl="file://$PROJECT_DIR$/jdbc.iml" filepath="$PROJECT_DIR$/jdbc.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/jmeter-tools.iml" filepath="$PROJECT_DIR$/jmeter-tools.iml" group="performance and modules" />
       <module fileurl="file://$PROJECT_DIR$/model.iml" filepath="$PROJECT_DIR$/model.iml" group="core and modules" />
+      <module fileurl="file://$PROJECT_DIR$/pdf-cnv-loffice-impl.iml" filepath="$PROJECT_DIR$/pdf-cnv-loffice-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pdf-converter-api.iml" filepath="$PROJECT_DIR$/pdf-converter-api.iml" group="core and modules" />
       <module fileurl="file://$PROJECT_DIR$/performance.iml" filepath="$PROJECT_DIR$/performance.iml" group="performance and modules" />
       <module fileurl="file://$PROJECT_DIR$/remote-client.iml" filepath="$PROJECT_DIR$/remote-client.iml" group="client and modules" />
       <module fileurl="file://$PROJECT_DIR$/service-api.iml" filepath="$PROJECT_DIR$/service-api.iml" group="core and modules" />

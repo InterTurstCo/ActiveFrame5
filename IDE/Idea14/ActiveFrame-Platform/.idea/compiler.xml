@@ -44,7 +44,10 @@
         <module name="gwt-rpc-proxy" />
         <module name="it-test" />
         <module name="jdbc" />
+        <module name="jmeter-tools" />
         <module name="model" />
+        <module name="pdf-cnv-loffice-impl" />
+        <module name="pdf-converter-api" />
         <module name="remote-client" />
         <module name="service-api" />
         <module name="service-impl" />
@@ -54,12 +57,6 @@
         <module name="web-login-page" />
         <module name="web-resources" />
         <module name="workstation" />
-      </profile>
-      <profile default="false" name="Annotation profile for jmeter-tools" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="true" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -92,6 +89,8 @@
       <module name="jdbc" target="1.7" />
       <module name="jmeter-tools" target="1.7" />
       <module name="model" target="1.7" />
+      <module name="pdf-cnv-loffice-impl" target="1.7" />
+      <module name="pdf-converter-api" target="1.7" />
       <module name="performance" target="1.7" />
       <module name="remote-client" target="1.7" />
       <module name="service-api" target="1.7" />
