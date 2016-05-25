@@ -394,12 +394,13 @@ public class MigrationService {
         }
     }
 
-    private void unextendType(DomainObjectTypeConfig domainObjectTypeConfig) {
-        final String parentTypeForeignKeyName = schemaCache.getParentTypeForeignKeyName(domainObjectTypeConfig);
+    private void unextendType(DomainObjectTypeConfig oldDomainObjectTypeConfig) {
+        final String parentTypeForeignKeyName = schemaCache.getParentTypeForeignKeyName(oldDomainObjectTypeConfig);
         if (parentTypeForeignKeyName == null) {
-            throw new ConfigurationException("Failed to unextend DO type " + domainObjectTypeConfig.getName() + " as there's no foreign key to parent type");
+            throw new ConfigurationException("Failed to unextend DO type " + oldDomainObjectTypeConfig.getName() + " as there's no foreign key to parent type");
         }
-        this.dataStructureDao.dropConstraint(domainObjectTypeConfig, parentTypeForeignKeyName);
+        this.dataStructureDao.dropConstraint(oldDomainObjectTypeConfig, parentTypeForeignKeyName);
+        this.dataStructureDao.createSequence(configurationExplorer.getDomainObjectTypeConfig(oldDomainObjectTypeConfig.getName()));
     }
 
     private void processMigrationComponents(AutoMigrationEventConfig autoMigrationEventConfig) {
