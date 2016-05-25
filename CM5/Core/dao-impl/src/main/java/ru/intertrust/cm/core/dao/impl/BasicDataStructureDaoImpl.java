@@ -280,6 +280,11 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
         return jdbcTemplate.query(getQueryHelper().generateGetIndexesQuery(), new IndexesRowMapper());
     }
 
+    @Override
+    public Map<String, Map<String, IndexInfo>> getIndexes(DomainObjectTypeConfig config) {
+        return jdbcTemplate.query(getQueryHelper().generateGetIndexesByTableQuery(), new Object[] {getSqlName(config)}, new IndexesRowMapper());
+    }
+
     /**
      * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#setColumnNotNull(ru.intertrust.cm.core.config.DomainObjectTypeConfig, ru.intertrust.cm.core.config.FieldConfig, boolean)}
      */
@@ -447,6 +452,15 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
 
         // Создание индексов для системных полей.
         if (isParentType) {
+            Map<String, IndexInfo> indexes = getIndexes(config).get(getSqlName(config));
+            if (indexes != null) {
+                for (IndexInfo indexInfo : indexes.values()) {
+                    final List<String> columnNames = indexInfo.getColumnNames();
+                    if (columnNames != null && columnNames.size() == 1) {
+                        fieldsIndexesCreatedFor.add(columnNames.get(0).toLowerCase());
+                    }
+                }
+            }
             for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     final String fieldName = fieldConfig.getName().toLowerCase();

@@ -1,60 +1,30 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONFIGURATION_TABLE;
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.CONTENT_COLUMN;
-import static ru.intertrust.cm.core.dao.api.ConfigurationDao.LOADED_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
-import static ru.intertrust.cm.core.dao.api.DataStructureDao.USER_UID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.COMPONENT_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.CREATED_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.DOMAIN_OBJECT_ID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.INFO_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.IP_ADDRESS_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.OPERATION_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TYPE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.UPDATED_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
-import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
-import static ru.intertrust.cm.core.dao.api.InitializationLockDao.INITIALIZATION_LOCK_TABLE;
-import static ru.intertrust.cm.core.dao.api.InitializationLockDao.SERVER_ID_COLUMN;
-import static ru.intertrust.cm.core.dao.api.InitializationLockDao.START_DATE_COLUMN;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.unwrap;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
+import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.dao.api.MD5Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.config.BaseIndexExpressionConfig;
-import ru.intertrust.cm.core.config.BooleanFieldConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeFieldConfig;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DecimalFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.IndexConfig;
-import ru.intertrust.cm.core.config.IndexExpressionConfig;
-import ru.intertrust.cm.core.config.IndexFieldConfig;
-import ru.intertrust.cm.core.config.LongFieldConfig;
-import ru.intertrust.cm.core.config.PasswordFieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.StringFieldConfig;
-import ru.intertrust.cm.core.config.TextFieldConfig;
-import ru.intertrust.cm.core.config.TimelessDateFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.InitializationLockDao;
-import ru.intertrust.cm.core.dao.api.MD5Service;
+import static ru.intertrust.cm.core.dao.api.ConfigurationDao.*;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.AUTHENTICATION_INFO_TABLE;
+import static ru.intertrust.cm.core.dao.api.DataStructureDao.USER_UID_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.*;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.ID_COLUMN;
+import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.DOMAIN_OBJECT_TYPE_ID_TABLE;
+import static ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao.NAME_COLUMN;
+import static ru.intertrust.cm.core.dao.api.InitializationLockDao.*;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.unwrap;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Класс для генерации sql запросов для {@link ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl}
@@ -94,6 +64,8 @@ public abstract class BasicQueryHelper {
     public abstract String generateGetUniqueKeysQuery();
 
     public abstract String generateGetIndexesQuery();
+
+    public abstract String generateGetIndexesByTableQuery();
 
     public abstract String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull);
 
