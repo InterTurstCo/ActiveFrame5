@@ -7,9 +7,11 @@ import ru.intertrust.cm.core.business.api.Migrator;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 
 import java.util.*;
@@ -36,6 +38,9 @@ public class MigrationService {
 
     @Autowired
     private SqlLoggerEnforcer sqlLoggerEnforcer;
+
+    @Autowired
+    private SchemaCache schemaCache;
 
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
@@ -145,6 +150,7 @@ public class MigrationService {
         processRenameFields(autoMigrationEventConfig);
         processDeleteFields(autoMigrationEventConfig, oldConfigurationExplorer);
         processDeleteDOTypes(autoMigrationEventConfig, oldConfigurationExplorer);
+        processUnextendDOTypes(autoMigrationEventConfig, oldConfigurationExplorer);
     }
 
     private void processChangeFieldTypes(AutoMigrationEventConfig autoMigrationEventConfig,
@@ -359,6 +365,41 @@ public class MigrationService {
                 dataStructureDao.deleteTable(domainObjectTypeConfig);
             }
         }
+    }
+
+    private void processUnextendDOTypes(AutoMigrationEventConfig autoMigrationEventConfig, ConfigurationExplorer oldConfigurationExplorer) {
+        final List<UnextendTypesConfig> unextendTypesConfigs = autoMigrationEventConfig.getUnextendTypesConfigs();
+        if (unextendTypesConfigs == null || unextendTypesConfigs.isEmpty()) {
+            return;
+        }
+
+        schemaCache.reset();
+        for (UnextendTypesConfig unextendTypesConfig : unextendTypesConfigs) {
+            if (unextendTypesConfig.getTypes() == null) {
+                continue;
+            }
+
+            for (UnextendTypesTypeConfig unextendTypesTypeConfig : unextendTypesConfig.getTypes()) {
+                final String typeName = unextendTypesTypeConfig.getName();
+                DomainObjectTypeConfig domainObjectTypeConfig = oldConfigurationExplorer.getDomainObjectTypeConfig(typeName);
+                if (domainObjectTypeConfig == null) {
+                    throw new ConfigurationException("Failed to unextend DO type " + typeName + " because it doesn't exist");
+                }
+                if (oldConfigurationExplorer.isAuditLogType(typeName)) {
+                    throw new ConfigurationException("Failed to unextend DO type: " + typeName + ". Audit log types are unextended automatically. Use base-type in migration script config");
+                }
+                unextendType(domainObjectTypeConfig);
+                unextendType(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + Configuration.AUDIT_LOG_SUFFIX));
+            }
+        }
+    }
+
+    private void unextendType(DomainObjectTypeConfig domainObjectTypeConfig) {
+        final String parentTypeForeignKeyName = schemaCache.getParentTypeForeignKeyName(domainObjectTypeConfig);
+        if (parentTypeForeignKeyName == null) {
+            throw new ConfigurationException("Failed to unextend DO type " + domainObjectTypeConfig.getName() + " as there's no foreign key to parent type");
+        }
+        this.dataStructureDao.dropConstraint(domainObjectTypeConfig, parentTypeForeignKeyName);
     }
 
     private void processMigrationComponents(AutoMigrationEventConfig autoMigrationEventConfig) {

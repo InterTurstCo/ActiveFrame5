@@ -4,11 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.IndexConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.*;
 
 import java.util.List;
 import java.util.Map;
@@ -136,6 +132,12 @@ public interface DataStructureDao {
      * @return метаданные схемы о индексах
      */
     Map<String, Map<String, IndexInfo>> getIndexes();
+
+    /**
+     * Извлекает метаданные схемы о индексах
+     * @return метаданные схемы о индексах
+     */
+    Map<String, Map<String, IndexInfo>> getIndexes(DomainObjectTypeConfig config);
 
     /**
      * Устанавливает/снимает с колонки not-null ограничение

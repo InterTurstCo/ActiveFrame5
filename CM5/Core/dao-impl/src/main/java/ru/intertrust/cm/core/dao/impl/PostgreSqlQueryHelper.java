@@ -1,18 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.util.List;
-
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+
+import java.util.List;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Класс для генерации sql запросов для {@link PostgreSqlDataStructureDaoImpl}
@@ -55,6 +53,18 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
                     "where table_class.relkind = 'r' and " +
                         "index_class.relname like 'i%' and " +
                         "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
+                    "order by table_class.relname, index_class.relname;";
+
+    private static final String INDEXES_QUERY_BY_TABLE =
+            "select table_class.relname as table_name, index_class.relname as index_name, attr.attname as column_name " +
+                    "from pg_index join pg_class table_class on table_class.oid = pg_index.indrelid " +
+                        "join pg_class index_class on index_class.oid = pg_index.indexrelid " +
+                        "left join pg_attribute attr on (attr.attrelid = table_class.oid and attr.attnum = ANY(pg_index.indkey)) " +
+                        "join pg_tables tables on table_class.relname = tables.tablename " +
+                    "where table_class.relkind = 'r' and " +
+                        "index_class.relname like 'i%' and " +
+                        "tables.schemaname !~ '^pg_' and tables.schemaname != 'information_schema' " +
+                        "and lower(table_class.relname) = ? " +
                     "order by table_class.relname, index_class.relname;";
 
     private static final String STATISTICS_QUERY = "analyze";
@@ -154,6 +164,11 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
     @Override
     public String generateGetIndexesQuery() {
         return INDEXES_QUERY;
+    }
+
+    @Override
+    public String generateGetIndexesByTableQuery() {
+        return INDEXES_QUERY_BY_TABLE;
     }
 
     @Override

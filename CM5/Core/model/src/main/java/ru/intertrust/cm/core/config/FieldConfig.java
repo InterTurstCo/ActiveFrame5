@@ -66,34 +66,25 @@ public abstract class FieldConfig implements Serializable {
 
     public abstract FieldType getFieldType();
 
+    @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         FieldConfig that = (FieldConfig) o;
 
-        if (notNull != that.notNull) {
+        if (notNull != that.notNull) return false;
+        if (immutable != that.immutable) return false;
+        if (constraintsConfig != null ? !constraintsConfig.equals(that.constraintsConfig) : that.constraintsConfig != null)
             return false;
-        }
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
+        if (!name.equals(that.name)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = constraintsConfig != null ? constraintsConfig.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        result = 31 * result + (notNull ? 1 : 0);
-        result = 31 * result + (immutable ? 1 : 0);
-        return result;
+        return name.hashCode();
     }
 
     public List<Constraint> getConstraints() {

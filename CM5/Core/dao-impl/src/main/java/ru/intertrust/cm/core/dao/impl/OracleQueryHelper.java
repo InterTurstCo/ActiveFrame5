@@ -1,18 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
-
-import java.util.List;
-
 import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
+
+import java.util.List;
+
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Класс для генерации sql запросов для {@link ru.intertrust.cm.core.dao.impl.PostgreSqlDataStructureDaoImpl}
@@ -44,6 +42,12 @@ public class OracleQueryHelper extends BasicQueryHelper {
     private static final String INDEXES_QUERY =
             "select columns.table_name, columns.index_name, columns.column_name " +
                     "from all_ind_columns columns join all_indexes indexes on columns.index_name = indexes.index_name " +
+                    "order by columns.table_name, columns.index_name, columns.column_position";
+
+    private static final String INDEXES_QUERY_BY_TABLE =
+            "select columns.table_name, columns.index_name, columns.column_name " +
+                    "from all_ind_columns columns join all_indexes indexes on columns.index_name = indexes.index_name " +
+                    "where columns.table_name = ? " +
                     "order by columns.table_name, columns.index_name, columns.column_position";
 
     private static final String STATISTICS_QUERY = "{call dbms_stats.gather_schema_stats(user(), cascade=>TRUE)}";
@@ -141,6 +145,11 @@ public class OracleQueryHelper extends BasicQueryHelper {
 
     @Override
     public String generateGetIndexesQuery() {
+        return INDEXES_QUERY;
+    }
+
+    @Override
+    public String generateGetIndexesByTableQuery() {
         return INDEXES_QUERY;
     }
 
