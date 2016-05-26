@@ -14,11 +14,11 @@ import ru.intertrust.cm.core.business.api.ProfileService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.config.localization.MessageResourceProvider;
 import ru.intertrust.cm.core.config.search.IndexedFieldConfig;
 import ru.intertrust.cm.core.config.search.SearchAreaConfig;
 import ru.intertrust.cm.core.config.search.TargetDomainObjectConfig;
-import ru.intertrust.cm.core.gui.api.client.History;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.GuiService;
 import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
@@ -160,14 +160,28 @@ public class BusinessUniverseServiceImpl extends BaseService implements Business
 
 
     private GuiException handleEjbException(Command command, RuntimeException e) {
-        final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
-                GuiContext.getUserLocale());
-        final String message = messageInfo.getFirst();
-        final Boolean toLog = messageInfo.getSecond();
-        if (toLog) {
-            log.error(message, e);
+        try {
+            final Pair<String, Boolean> messageInfo = ExceptionMessageFactory.getMessage(command, e instanceof EJBException ? e.getCause() : e,
+                    GuiContext.getUserLocale());
+            final String message = messageInfo.getFirst();
+            final Boolean toLog = messageInfo.getSecond();
+            if (toLog) {
+                log.error(message, e);
+            }
+            return new GuiException(message, e);
+        } catch (Throwable throwable){
+            log.error("Exception when handling exception...");
+            log.error("Original exception", e);
+            log.error("Exception while handling", throwable);
+            String message;
+            try {
+                message = MessageResourceProvider.getMessage(LocalizationKeys.SYSTEM_EXCEPTION,
+                        GuiContext.getUserLocale(), "Системная ошибка при выполнении, обратитесь к администратору.");
+            } catch (Throwable throwable1) {
+                message = "Системная ошибка при выполнении, обратитесь к администратору.";
+            }
+            return new GuiException(message, e);
         }
-        return new GuiException(message, e);
     }
 
     @Override
