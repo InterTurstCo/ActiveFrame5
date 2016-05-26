@@ -34,11 +34,12 @@ public class GlobalCacheJmsHelper {
     }
 
     public static List<CacheInvalidation> readFromDelayQueue(int messages) {
+        Connection con = null;
         try {
             InitialContext initialContext = new InitialContext();
 
             ConnectionFactory tcf = (ConnectionFactory)initialContext.lookup(DELAY_QUEUE_CONNECTION_FACTORY);
-            Connection con = tcf.createConnection();
+            con = tcf.createConnection();
             Destination dest = (Destination) initialContext.lookup(DELAY_QUEUE);
             Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
             MessageConsumer consumer = session.createConsumer(dest);
@@ -63,28 +64,25 @@ public class GlobalCacheJmsHelper {
                 final CacheInvalidation invalidation = ObjectCloner.getInstance().fromBytes(bytes);
                 result.add(invalidation);
             }
-            try {
-                con.stop();
-            } catch (Throwable e) { // a dirty hack to work with JavaEE 7. This method is not supported there
-            }
-            consumer.close();
-            con.close();
             return result;
         } catch (NamingException | JMSException e) {
             throw new UnexpectedException(e);
+        } finally {
+            close(con);
         }
     }
 
     private static void send(CacheInvalidation message, boolean appendNodeId, String factory, String destination) {
+        Connection con = null;
         try {
             message.setSenderId(); // make sure this node id is set in the message
 
             InitialContext initialContext = new InitialContext();
 
             ConnectionFactory tcf = (ConnectionFactory)initialContext.lookup(factory);
-            Connection topicConn = tcf.createConnection();
+            con = tcf.createConnection();
             Destination dest = (Destination) initialContext.lookup(destination);
-            Session session = topicConn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Session session = con.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             MessageProducer publisher = session.createProducer(dest);
 
@@ -94,10 +92,23 @@ public class GlobalCacheJmsHelper {
             }
             bm.writeBytes(ObjectCloner.getInstance().toBytesWithClassInfo(message));
             publisher.send(bm);
-            publisher.close();
-            topicConn.close();
         } catch (NamingException | JMSException e) {
             throw new UnexpectedException(e);
+        } finally {
+            close(con);
+        }
+    }
+
+    private static void close(Connection con) {
+        if (con != null) {
+            try {
+                con.stop();
+            } catch (Throwable ignored) { // a dirty hack to work with JavaEE 7. This method is not supported there
+            }
+            try {
+                con.close();
+            } catch (Throwable ignored) {
+            }
         }
     }
 }
