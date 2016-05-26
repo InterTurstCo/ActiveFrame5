@@ -15,7 +15,10 @@ import javax.ejb.Local;
 import javax.ejb.Singleton;
 import javax.interceptor.Interceptors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,8 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
     private static final long LOCK_OVERDUE_MS = 10000;
     private static final long LOCK_REFRESH_PERIOD_MS = 3000;
 
+    private static final Logger logger = LoggerFactory.getLogger(InterserverLockingServiceImpl.class);
+
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     @Autowired
@@ -41,6 +46,31 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
 
     @Override
     public synchronized boolean lock(final String resourceId) {
+        try {
+            if (!transactionalLock(resourceId)) {
+                return false;
+            }
+        } catch (DuplicateKeyException ex) {
+            return false;
+        }
+        ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
+            @Override
+            @Transactional
+            public void run() {
+                try {
+                    getInterserverLockingDao().updateLock(resourceId, new Date());
+                } catch (Exception ex) {
+                    heldLocks.remove(resourceId);
+                    logger.error("Error while updating lock on resource " + resourceId + ". Lock released.", ex);
+                }
+            }
+        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
+        heldLocks.put(resourceId, future);
+        return true;
+    }
+
+    @Transactional
+    private boolean transactionalLock(final String resourceId) {
         Date overdue = new Date(System.currentTimeMillis() - getLockMaxOverdue());
         Date lockTime = getInterserverLockingDao().getLastLockTime(resourceId);
         if (lockTime == null) {
@@ -55,18 +85,6 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         if (!getInterserverLockingDao().lock(resourceId, new Date())) {
             return false;
         }
-        ScheduledFuture<?> future = getExecutorService().scheduleWithFixedDelay(new Runnable() {
-            @Override
-            @Transactional
-            public void run() {
-                try {
-                    getInterserverLockingDao().updateLock(resourceId, new Date());
-                } finally {
-                    heldLocks.remove(resourceId);
-                }
-            }
-        }, LOCK_REFRESH_PERIOD_MS, LOCK_REFRESH_PERIOD_MS, TimeUnit.MILLISECONDS);
-        heldLocks.put(resourceId, future);
         return true;
     }
 
@@ -98,6 +116,10 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
         return LOCK_OVERDUE_MS;
     }
 
+    protected long getLockRefreshPeriod() {
+        return LOCK_REFRESH_PERIOD_MS;
+    }
+
     protected ScheduledExecutorService getExecutorService() {
         return executorService;
     }
@@ -112,7 +134,7 @@ public class InterserverLockingServiceImpl implements InterserverLockingService 
                     semaphore.release();
                 }
             }
-        }, LOCK_REFRESH_PERIOD_MS, LOCK_REFRESH_PERIOD_MS, TimeUnit.MILLISECONDS);
+        }, getLockRefreshPeriod(), getLockRefreshPeriod(), TimeUnit.MILLISECONDS);
         try {
             semaphore.acquire();
         } catch (InterruptedException e) {
