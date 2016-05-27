@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.InterserverLockingService;
@@ -47,6 +48,25 @@ public class InterserverLockingServiceImplTest {
         };
     }
 
+    private InterserverLockingServiceImpl testInstance(final long overdue, final long refresh) {
+        return new InterserverLockingServiceImpl() {
+            @Override
+            protected InterserverLockingDao getInterserverLockingDao() {
+                return new FakeInterserverLockingDao();
+            }
+
+            @Override
+            protected long getLockMaxOverdue() {
+                return overdue > 0 ? overdue : super.getLockMaxOverdue();
+            }
+
+            @Override
+            protected long getLockRefreshPeriod() {
+                return refresh;
+            }
+        };
+    }
+
     private InterserverLockingServiceImpl testInstance() {
         return testInstance(0);
     }
@@ -59,7 +79,11 @@ public class InterserverLockingServiceImplTest {
 
         @Override
         public boolean lock(String resourceId, Date date) {
-            return locks.putIfAbsent(resourceId, date) == null;
+            Date previous = locks.putIfAbsent(resourceId, date);
+            if (previous != null) {
+                throw new DuplicateKeyException(resourceId);
+            }
+            return true;
         }
 
         @Override
@@ -75,7 +99,7 @@ public class InterserverLockingServiceImplTest {
 
         @Override
         public void updateLock(String resourceId, Date lockTime) {
-            lock(resourceId, lockTime);
+            locks.put(resourceId, lockTime);
         }
 
         @Override
@@ -106,6 +130,14 @@ public class InterserverLockingServiceImplTest {
         first.lock("abc");
         first.unlock("abc");
         assertFalse(second.isLocked("abc"));
+    }
+
+    @Test
+    public void testUnlockAfterRelock() throws InterruptedException {
+        first = testInstance(1000, 300);
+        first.lock("abc");
+        Thread.sleep(1000);
+        first.unlock("abc");
     }
 
     @Test
@@ -143,6 +175,8 @@ public class InterserverLockingServiceImplTest {
 
     @Test
     public void testWaitUntilNotLocked() {
+        first = testInstance(1000, 300);
+        second = testInstance(1000, 300);
         Thread thread = new Thread() {
             @Override
             public void run() {

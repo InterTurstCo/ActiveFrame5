@@ -805,8 +805,7 @@ a.action-bar-button:hover {
 }
 
 .widget-wrapper .gwt-Good-Label.labelWidgetDefault {
-    min-width: 97px;
-    white-space: normal;
+    /*white-space: normal;*/
     color: rgb(103, 103, 103);
     font-weight: normal;
 }
@@ -1057,6 +1056,49 @@ tr[class\*="dataGridSelectedRow"] {
 .srch-root-ext-search-panel .srch-corner {
     right: 12%;
 }
+
+table.form-panel-header .widget-wrapper {
+    padding: 0;
+}
+
+.form-panel-header .gwt-Good-Label {
+    margin: 0;
+}
+table.form-panel-header .gwt-Red-Label {
+    padding: 0 5px;
+}
+
+.group-tree {
+    margin-left: -20px;
+}
+
+.group-tree>div:nth-child\(2\) table {
+    margin-left: 20px !important;
+}
+
+/*style form blocks*/
+
+.left-div-visible {
+    padding: 10px 5px 0 6px;
+    width: 139px;
+}
+
+.right-div {
+    margin-left: 150px;
+}
+
+.bookmarks-link-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bookmarks-link-non-active a {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;

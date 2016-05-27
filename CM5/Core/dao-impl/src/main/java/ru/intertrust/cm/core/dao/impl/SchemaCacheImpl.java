@@ -1,20 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.business.api.dto.ForeignKeyInfo;
 import ru.intertrust.cm.core.business.api.dto.IndexInfo;
 import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
 import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 
 import java.util.*;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getReferenceTypeColumnName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getUniqueKeyFields;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.SchemaCache}
@@ -153,6 +151,25 @@ public class SchemaCacheImpl implements SchemaCache {
             }
         }
 
+        return null;
+    }
+
+    public String getParentTypeForeignKeyName(DomainObjectTypeConfig config) {
+        final String parentName = config.getExtendsAttribute();
+        if (parentName == null || parentName.isEmpty()) {
+            return null;
+        }
+        final Map<String, ForeignKeyInfo> fks = foreignKeys.get(getSqlName(config.getName()));
+        for (Map.Entry<String, ForeignKeyInfo> entry : fks.entrySet()) {
+            final ForeignKeyInfo fkInfo = entry.getValue();
+            if (fkInfo.getReferencedTableName().equalsIgnoreCase(parentName)) {
+                final Map<String, String> columnNames = fkInfo.getColumnNames();
+                if (columnNames != null && columnNames.size() == 1
+                        && columnNames.keySet().iterator().next().equalsIgnoreCase("id") && columnNames.values().iterator().next().equalsIgnoreCase("id")) {
+                        return entry.getKey();
+                }
+            }
+        }
         return null;
     }
 

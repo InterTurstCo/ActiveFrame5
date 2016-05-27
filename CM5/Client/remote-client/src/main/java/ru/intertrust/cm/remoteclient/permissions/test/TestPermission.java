@@ -5,10 +5,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import javax.naming.NamingException;
 
-import junit.framework.Assert;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.PermissionService;
@@ -27,7 +27,8 @@ import ru.intertrust.cm.remoteclient.AssertExeption;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestPermission extends ClientBase {
-
+    private Random random = new Random();
+    
     public static void main(String[] args) {
         try {
             TestPermission test = new TestPermission();
@@ -100,6 +101,9 @@ public class TestPermission extends ClientBase {
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
             etalon.addPermission(getEmployeeId("Сотрудник 4"), Permission.Read);
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "StartProcessAction");
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "ChangeStatusAction");
+            etalon.addActionPermission(getEmployeeId("Сотрудник 3"), "start-internal-document-process");            
             for (Id negotiationId  : negotiationCards) {
                 checkPermissions(negotiationId, etalon, "Status Draft");
             }
@@ -308,6 +312,7 @@ public class TestPermission extends ClientBase {
                 etalon.addPermission(personId, Permission.Read);
                 etalon.addPermission(personId, Permission.Write);
                 etalon.addPermission(personId, Permission.Delete);
+                etalon.addActionPermission(personId, "action1");                
             }            
             checkPermissions(testEmployee.getId(), etalon, "test_employee");
             
@@ -486,11 +491,18 @@ public class TestPermission extends ClientBase {
             testType14.setString("name", "Name-" + System.nanoTime());
             testType14 = getCrudService().save(testType14);
 
-            DomainObject testType23 = getCrudService().createDomainObject("test_type_23");
-            testType23.setString("name", "name_" + System.currentTimeMillis());
-            testType23.setReference("author", getEmployeeId("Сотрудник 1"));
-            testType23.setReference("test_type_14", testType14.getId());
-            testType23 = getCrudService().save(testType23);
+            DomainObject testType23 = null;
+            
+            //Создаем случайное количество type_23 объектов, чтоб сдвинулись идентификаторы друг относительно друга
+            List<Id> test23Ids = new ArrayList<Id>();
+            for (int i=0; i< 1+random.nextInt(10); i++) {
+                testType23 = getCrudService().createDomainObject("test_type_23");
+                testType23.setString("name", "name_" + System.currentTimeMillis());
+                testType23.setReference("author", getEmployeeId("Сотрудник 1"));
+                testType23.setReference("test_type_14", testType14.getId());
+                testType23 = getCrudService().save(testType23);
+                test23Ids.add(testType23.getId());
+            }
 
             etalon = new EtalonPermissions();
             for (Id personId : allPersons) {
@@ -498,6 +510,7 @@ public class TestPermission extends ClientBase {
             }         
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Write);
             etalon.addPermission(getEmployeeId("Сотрудник 1"), Permission.Delete);
+            etalon.addActionPermission(getEmployeeId("Сотрудник 1"), "test_action_permission");            
             checkPermissions(testType23.getId(), etalon, "Check combine permissions");            
             
             //Проверка метода find
@@ -525,6 +538,18 @@ public class TestPermission extends ClientBase {
             
             //Теперь у кого есть права
             ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).save(testType23);
+
+            
+            //Проверяем право на выполнение действий под тем у кого прав не должно быть
+            notAdminActionService = (ActionService)getService("ActionServiceImpl", ActionService.Remote.class, "person2", "admin");
+            List<ActionContext> type23Actions = notAdminActionService.getActions(testType23.getId());
+            assertTrue("Actions on type_23", type23Actions.size() == 0);
+            
+            //Проверяем право на выполнение действий под тем у кого должны быть права 
+            notAdminActionService = (ActionService)getService("ActionServiceImpl", ActionService.Remote.class, "person1", "admin");
+            type23Actions = notAdminActionService.getActions(testType23.getId());
+            assertTrue("Actions on type_23", type23Actions.size() == 1);
+            
             
             //Проверка на удаление сначала тем у кого не должно быть прав
             try{
@@ -537,11 +562,12 @@ public class TestPermission extends ClientBase {
                 //Ошибка должна быть, работает правильно
             }
             
-            //А потом у кого они должны быть
-            ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).delete(testType23.getId());
+            //А потом у кого они должны быть            
+            ((CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person1", "admin")).delete(test23Ids);
             
             getCrudService().delete(testType14.getId());
             log("Test combine permissions: OK");
+            
 
             //Тест CREATE-CHILD для наследников CMFIVE-5338
             notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");

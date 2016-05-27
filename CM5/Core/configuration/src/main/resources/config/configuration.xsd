@@ -3639,6 +3639,13 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
+    <xs:complexType name="unextend-typesTypeType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:string" name="name" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <xs:complexType name="change-field-classType">
         <xs:sequence>
             <xs:element type="con:change-field-classFieldType" name="field" maxOccurs="unbounded" minOccurs="0"/>
@@ -3648,6 +3655,11 @@
     <xs:complexType name="delete-typesType">
         <xs:sequence>
             <xs:element type="con:delete-typesTypeType" name="type" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="unextend-typesType">
+        <xs:sequence>
+            <xs:element type="con:unextend-typesTypeType" name="type" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="executeType">
@@ -3673,6 +3685,7 @@
             <xs:element type="con:create-unique-keyType" name="create-unique-key" minOccurs="0"/>
             <xs:element type="con:make-not-nullType" name="make-not-null" minOccurs="0"/>
             <xs:element type="con:delete-typesType" name="delete-types" minOccurs="0"/>
+            <xs:element type="con:unextend-typesType" name="unextend-types" minOccurs="0"/>
             <xs:element type="con:delete-fieldsType" name="delete-fields" minOccurs="0"/>
         </xs:choice>
     </xs:complexType>

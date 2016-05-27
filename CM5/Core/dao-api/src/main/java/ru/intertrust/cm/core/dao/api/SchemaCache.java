@@ -89,6 +89,8 @@ public interface SchemaCache {
      */
     String getForeignKeyName(DomainObjectTypeConfig config, ReferenceFieldConfig fieldConfig);
 
+    String getParentTypeForeignKeyName(DomainObjectTypeConfig config);
+
     /**
      * Возвращает все уникальные ключи типа доменного объекта
      * @param config конфигурация типа ДО

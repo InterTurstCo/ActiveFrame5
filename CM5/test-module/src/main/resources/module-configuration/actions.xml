@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<configuration xmlns="https://cm5.intertrust.ru/config"
+               xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <act:simple-action name="test_action_permission" componentName="simple.action"
+                action-handler="simple.action" text="Тест комбинированных прав на действие" image="images/icons/control.png" merged="true">
+    </act:simple-action>
+
+    <act:action-context name="test_action_permission">
+        <act:domain-object-context>
+            <act:type>test_type_23</act:type>
+        </act:domain-object-context>
+        <act:action name="test_action_permission"/>
+    </act:action-context>
+               
+</configuration>

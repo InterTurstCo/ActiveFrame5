@@ -10,15 +10,10 @@
     <parent>
         <artifactId>core</artifactId>
         <groupId>ru.intertrust.cm-sochi</groupId>
-        <version>0.5.20-17-SNAPSHOT</version>
+        <version>0.5.20-20-SNAPSHOT</version>
     </parent>
 
     <dependencies>
-        <!-- dependency>
-            <groupId>ru.intertrust.cm-sochi</groupId>
-            <artifactId>gui-client-impl</artifactId>
-            <version>${project.version}</version>
-        </dependency -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -27,6 +22,15 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-engine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ru.intertrust.cm-sochi</groupId>
+            <artifactId>configuration</artifactId>
+            <version>${project.version}</version>
+        </dependency>                
     </dependencies>
    
 </project>

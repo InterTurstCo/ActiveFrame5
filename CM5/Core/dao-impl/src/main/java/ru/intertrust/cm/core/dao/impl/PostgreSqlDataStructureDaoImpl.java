@@ -2,9 +2,7 @@ package ru.intertrust.cm.core.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
@@ -59,6 +57,12 @@ public class PostgreSqlDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     @Override
     protected String generateCountTableForeignKeys() {
         return "select count(tc.constraint_name) foreign_keys_count from information_schema.table_constraints tc " +
+                "where constraint_type = 'FOREIGN KEY' and tc.table_name = ?";
+    }
+
+    @Override
+    protected String generateSelectTableForeignKeys() {
+        return "select tc.constraint_name foreign_key_name from information_schema.table_constraints tc " +
                 "where constraint_type = 'FOREIGN KEY' and tc.table_name = ?";
     }
 }
