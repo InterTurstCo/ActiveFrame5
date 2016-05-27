@@ -52,4 +52,22 @@ public class UserUidWithPassword implements UserCredentials {
     public void setClientTimeZone(String clientTimeZone) {
         this.clientTimeZone = clientTimeZone;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserUidWithPassword that = (UserUidWithPassword) o;
+
+        if (userUid != null ? !userUid.equals(that.userUid) : that.userUid != null) return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return userUid != null ? userUid.hashCode() : 0;
+    }
 }

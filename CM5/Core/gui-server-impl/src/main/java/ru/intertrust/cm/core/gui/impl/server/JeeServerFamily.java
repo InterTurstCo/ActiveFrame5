@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
-import javax.servlet.ServletContext;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 public enum JeeServerFamily {
 
@@ -38,5 +39,9 @@ public enum JeeServerFamily {
             }
         }
         return cached;
+    }
+
+    public static boolean isLogoutRequired(HttpServletRequest request) {
+        return request.getUserPrincipal() != null && determine(request.getServletContext()).equals(JeeServerFamily.JBOSS);
     }
 }

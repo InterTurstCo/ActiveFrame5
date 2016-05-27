@@ -1,31 +1,22 @@
 package ru.intertrust.cm.core.gui.impl.server;
 
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.intertrust.cm.core.business.api.dto.UserCredentials;
-import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
-
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
+import ru.intertrust.cm.core.business.api.dto.UserCredentials;
+import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * Фильтр HTTP запросов, осуществляющий аутентификацию пользователей
@@ -93,7 +84,7 @@ public class AuthenticationFilter implements Filter {
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {
-            if (isLogoutRequired(request)) {
+            if (JeeServerFamily.isLogoutRequired(request)) {
                 try {
                     request.logout();
                     //System.out.println(Thread.currentThread().getId() + " => log out");
@@ -105,11 +96,6 @@ public class AuthenticationFilter implements Filter {
             }
         }
 
-    }
-
-    private boolean isLogoutRequired(HttpServletRequest request) {
-        return request.getUserPrincipal() != null
-                && (JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.JBOSS || JeeServerFamily.determine(request.getServletContext()) == JeeServerFamily.WILDFLY);
     }
 
     private boolean isLoginPageRequest(String requestUri) {
