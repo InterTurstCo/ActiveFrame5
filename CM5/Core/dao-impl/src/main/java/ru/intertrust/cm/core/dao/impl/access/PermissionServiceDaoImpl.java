@@ -1012,6 +1012,8 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
                             }
                         }
                     }
+                }else{
+                    personPermission.getActions().add(action);
                 }
             }
 

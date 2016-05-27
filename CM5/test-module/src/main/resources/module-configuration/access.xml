@@ -403,7 +403,10 @@
             </write>
             <delete>
                 <permit-role name="test_type_23_author" />
-            </delete>    
+            </delete>
+            <execute-action name="test_action_permission">
+                <permit-role name="test_type_23_author" />
+            </execute-action>    
         </status>
     </access-matrix>
     
