@@ -7,7 +7,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
-import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.sql.ResultSet;
@@ -27,6 +26,9 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
     protected static final String INSERT_QUERY =
             "insert into " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + "(" + wrap(ID_COLUMN) + ", " +
                     wrap(NAME_COLUMN) + ") values (?, ?)";
+
+    protected static final String DELETE_QUERY =
+            "delete from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where name = ?";
 
     protected static final String SELECT_ID_BY_NAME_QUERY =
             "select " + wrap(ID_COLUMN) + " from " + wrap(DOMAIN_OBJECT_TYPE_ID_TABLE) + " where " +
@@ -87,6 +89,16 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
             } else {
                 throw new FatalException("Failed to create domain object type id with id " + config.getDbId());
             }
+        }
+    }
+
+    @Override
+    public Integer delete(DomainObjectTypeConfig config) {
+        int rowsDeleted = jdbcTemplate.update(DELETE_QUERY, config.getName());
+        if (rowsDeleted > 0) {
+            return rowsDeleted;
+        } else {
+            throw new FatalException("Failed to delete domain object type with name: " + config.getName());
         }
     }
 

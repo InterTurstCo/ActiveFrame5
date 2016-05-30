@@ -642,6 +642,14 @@ public abstract class BasicQueryHelper {
         return query.toString();
     }
 
+    public String generateDeleteTableQuery(String name) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("drop table ").append(wrap(getSqlName(name)));
+
+        return query.toString();
+    }
+
     protected abstract String generateIsTableExistQuery();
 
     protected abstract String generateGetSchemaTablesQuery();

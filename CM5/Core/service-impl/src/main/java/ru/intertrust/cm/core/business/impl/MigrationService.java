@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 
@@ -29,6 +30,9 @@ public class MigrationService {
 
     @Autowired
     private DataStructureDao dataStructureDao;
+
+    @Autowired
+    private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     @Autowired
     private CollectionsService collectionsService;
@@ -362,7 +366,9 @@ public class MigrationService {
                             " because it doesn't exist");
                 }
 
-                dataStructureDao.deleteTable(domainObjectTypeConfig);
+                dataStructureDao.deleteTypeTables(domainObjectTypeConfig);
+                domainObjectTypeIdDao.delete(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + "_al"));
+                domainObjectTypeIdDao.delete(domainObjectTypeConfig);
             }
         }
     }
