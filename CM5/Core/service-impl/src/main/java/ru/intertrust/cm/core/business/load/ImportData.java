@@ -1,67 +1,14 @@
 package ru.intertrust.cm.core.business.load;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.TimeZone;
-
-import javax.annotation.PostConstruct;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.Transaction;
-import javax.transaction.UserTransaction;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.ImportDataService;
-import ru.intertrust.cm.core.business.api.dto.BooleanValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
-import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
-import ru.intertrust.cm.core.business.api.dto.DecimalValue;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.FieldType;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
-import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.TimelessDate;
-import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.config.AttachmentTypeConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.doel.DoelExpression;
 import ru.intertrust.cm.core.config.importcsv.BeforeImportConfig;
 import ru.intertrust.cm.core.config.importcsv.DeleteAllConfig;
@@ -69,14 +16,20 @@ import ru.intertrust.cm.core.config.importcsv.ImportSettingsConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
-import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
-import ru.intertrust.cm.core.dao.api.DoelEvaluator;
-import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.model.FatalException;
+
+import javax.annotation.PostConstruct;
+import javax.transaction.*;
+import java.io.*;
+import java.math.BigDecimal;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.ParseException;
+import java.util.*;
 
 /**
  * Класс импортирования одного файла
@@ -898,8 +851,6 @@ public class ImportData {
 
     private DomainObject saveAttachment(InputStream inputStream, DomainObject attachmentDomainObject, long contentLength) {
 
-        StringValue newFilePathValue = null;
-        DomainObject savedDoaminObject = null;
         try {
             String fileName = attachmentDomainObject.getString(BaseAttachmentService.NAME);
             AttachmentInfo attachmentInfo = attachmentContentDao.saveContent(inputStream, fileName);
@@ -907,28 +858,13 @@ public class ImportData {
             if (newFilePath == null || newFilePath.isEmpty()) {
                 throw new DaoException("File isn't created");
             }
-            newFilePathValue = new StringValue(newFilePath);
-            StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(BaseAttachmentService.PATH);
             attachmentDomainObject.setValue(BaseAttachmentService.PATH, new StringValue(newFilePath));
 
             attachmentDomainObject.setLong(BaseAttachmentService.CONTENT_LENGTH, attachmentInfo.getContentLength());
             attachmentDomainObject.setString(BaseAttachmentService.MIME_TYPE, attachmentInfo.getMimeType());
             
-            savedDoaminObject = domainObjectDao.save(attachmentDomainObject, getWriteAccessToken(attachmentDomainObject));
-
-            //предыдущий файл удаляем
-            if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
-                //файл может быть и не удален, в случае если заблокирован
-                attachmentDomainObject.setValue(BaseAttachmentService.PATH, oldFilePathValue);
-                attachmentContentDao.deleteContent(attachmentDomainObject);
-            }
-            savedDoaminObject.setValue("path", newFilePathValue);
-            return savedDoaminObject;
+            return domainObjectDao.save(attachmentDomainObject, getWriteAccessToken(attachmentDomainObject));
         } catch (Exception ex) {
-            if (newFilePathValue != null && !newFilePathValue.isEmpty()) {
-                attachmentDomainObject.setValue(BaseAttachmentService.PATH, newFilePathValue);
-                attachmentContentDao.deleteContent(attachmentDomainObject);
-            }
             throw new FatalException("Error save attachment", ex);
         }
     }
