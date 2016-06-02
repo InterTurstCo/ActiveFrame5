@@ -183,6 +183,12 @@ public interface DataStructureDao {
     void deleteTable(DomainObjectTypeConfig config);
 
     /**
+     * Физически удаляет тип ДО и его таблицы-спутники: *_al, *_acl, *_read
+     * @param config конфигурация типа доменного объекта
+     */
+    void deleteTypeTables(DomainObjectTypeConfig config);
+
+    /**
      * Выполняет произвольный sql-запрос
      * @param sqlQuery sql-запрос
      */

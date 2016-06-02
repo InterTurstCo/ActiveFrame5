@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
@@ -26,6 +28,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
  * @author vmatsukevich Date: 5/15/13 Time: 4:27 PM
  */
 public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
+    private static final Logger logger = LoggerFactory.getLogger(BasicDataStructureDaoImpl.class);
 
     @Autowired
     protected JdbcOperations jdbcTemplate;
@@ -346,6 +349,20 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void deleteTable(DomainObjectTypeConfig config) {
+        jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(config));
+    }
+
+    /**
+     * Смотри {@link ru.intertrust.cm.core.dao.api.DataStructureDao#deleteTable(ru.intertrust.cm.core.config.DomainObjectTypeConfig)}
+     */
+    @Override
+    public void deleteTypeTables(DomainObjectTypeConfig config) {
+        String aclTableName = getSqlName(config) + BasicQueryHelper.ACL_TABLE_SUFFIX;
+        String readTableName = getSqlName(config) + BasicQueryHelper.READ_TABLE_SUFFIX;
+        String alTableName = getSqlName(config) + "_al";
+        jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(aclTableName));
+        jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(readTableName));
+        jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(alTableName));
         jdbcTemplate.update(getQueryHelper().generateDeleteTableQuery(config));
     }
 

@@ -30,6 +30,13 @@ public interface DomainObjectTypeIdDao {
      */
     public Integer insert(DomainObjectTypeConfig domainObjectTypeConfig);
 
+    /**
+     * Удаляет идентификатор типа доменного объекта
+     * @param domainObjectTypeConfig
+     * @return
+     */
+    public Integer delete(DomainObjectTypeConfig config);
+
 
     /**
      * Возвращает идентификатор типа доменного объекта по имени

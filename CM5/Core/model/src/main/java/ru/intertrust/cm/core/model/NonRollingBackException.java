@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.model;
 
-import javax.ejb.ApplicationException;
-
-
-@ApplicationException(rollback = false, inherited = true)
+// НЕЛЬЗЯ ВЫНОСИТЬ в import javax.ejb - GWT Dev Mode на проектах, использующих платформу перестаёт запускаться
+@javax.ejb.ApplicationException(rollback = false, inherited = true)
 public class NonRollingBackException extends SystemException {
 
     protected NonRollingBackException() {

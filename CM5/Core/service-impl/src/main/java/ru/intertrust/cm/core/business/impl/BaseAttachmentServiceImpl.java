@@ -2,10 +2,8 @@ package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import ru.intertrust.cm.core.business.api.BaseAttachmentService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -18,7 +16,10 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.DomainObjectAccessType;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.SystemException;
@@ -119,22 +120,10 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
         if (newFilePath == null || newFilePath.isEmpty()) {
             throw new UnexpectedException("File isn't created. DO:" + attachmentDomainObject.getId());
         }
-        StringValue newFilePathValue = new StringValue(newFilePath);
-        StringValue oldFilePathValue = (StringValue) attachmentDomainObject.getValue(PATH);
         attachmentDomainObject.setValue(PATH, new StringValue(newFilePath));
         AccessToken accessToken = createSystemAccessToken();
 
-        DomainObject savedDoaminObject = domainObjectDao.save(attachmentDomainObject, accessToken);
-
-        //предыдущий файл удаляем
-        if (oldFilePathValue != null && !oldFilePathValue.isEmpty()) {
-            //файл может быть и не удален, в случае если заблокирован
-            //TODO Реализовать удаление в конце транзакции - на случай отката
-            attachmentDomainObject.setValue(PATH, oldFilePathValue);
-            attachmentContentDao.deleteContent(attachmentDomainObject);
-        }
-        savedDoaminObject.setValue(PATH, newFilePathValue);
-        return savedDoaminObject;
+        return domainObjectDao.save(attachmentDomainObject, accessToken);
     }
 
     private AccessToken createSystemAccessToken() {
@@ -162,14 +151,7 @@ public abstract class BaseAttachmentServiceImpl implements BaseAttachmentService
     @Override
     public void deleteAttachment(Id attachmentDomainObjectId) {
         try {
-            AccessToken accessToken = createSystemAccessToken();
-            // [CMFIVE-705, 02/04/14] crudService.find(..) replaced with domainObjectDao.find(..) as crudService refers
-            // to EjbContext which is unavailable at reports deployment time
-            //DomainObject attachmentDomainObject = crudService.find(attachmentDomainObjectId);
-            DomainObject attachmentDomainObject = domainObjectDao.find(attachmentDomainObjectId, accessToken);
-            attachmentContentDao.deleteContent(attachmentDomainObject);
-            //файл может быть и не удален
-            domainObjectDao.delete(attachmentDomainObjectId, accessToken);
+            domainObjectDao.delete(attachmentDomainObjectId, createSystemAccessToken());
         } catch (SystemException e) {
             throw e;
         } catch (Exception ex) {
