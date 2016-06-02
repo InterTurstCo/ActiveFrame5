@@ -47,7 +47,7 @@ public class ConfigurationExplorerImplTest {
     @Before
     public void setUp() throws Exception {
 
-        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH);
+        ConfigurationSerializer configurationSerializer = createConfigurationSerializer(DOMAIN_OBJECTS_CONFIG_PATH, ACCESS_CONFIG_PATH);
 
         config = configurationSerializer.deserializeConfiguration();
         configExplorer = new ConfigurationExplorerImpl(config);
@@ -85,7 +85,7 @@ public class ConfigurationExplorerImplTest {
                 configExplorer.getConfigs(DomainObjectTypeConfig.class);
 
         assertNotNull(domainObjectTypeConfigs);
-        assertEquals(17, domainObjectTypeConfigs.size());
+        assertEquals(15, domainObjectTypeConfigs.size());
 
         List<String> domainObjectNames = new ArrayList<>();
         List<String> tables = Arrays.asList("Outgoing_Document", PERSON_CONFIG_NAME, "Employee", "Assignment",
@@ -278,16 +278,16 @@ public class ConfigurationExplorerImplTest {
         assertTrue(result4.contains("ref_do_3_2"));
     }
 
-    private ConfigurationSerializer createConfigurationSerializer(String configPath) throws Exception {
+    private ConfigurationSerializer createConfigurationSerializer(String ... configPaths) throws Exception {
         ConfigurationClassesCache.getInstance().build(); // Инициализируем кэш конфигурации тэг-класс
 
         ConfigurationSerializer configurationSerializer = new ConfigurationSerializer();
-        configurationSerializer.setModuleService(createModuleService(configPath));
+        configurationSerializer.setModuleService(createModuleService(configPaths));
 
         return configurationSerializer;
     }
 
-    private ModuleService createModuleService(String configPath) throws MalformedURLException {
+    private ModuleService createModuleService(String ... configPaths) throws MalformedURLException {
         URL moduleUrl = getClass().getClassLoader().getResource(".");
 
         ModuleService result = new ModuleService();
@@ -295,11 +295,12 @@ public class ConfigurationExplorerImplTest {
         confCore.setName("core");
         result.getModuleList().add(confCore);
         confCore.setConfigurationPaths(new ArrayList<String>());
-        confCore.getConfigurationPaths().add(configPath);
+        for (String configPath : configPaths) {
+            confCore.getConfigurationPaths().add(configPath);            
+        }
         confCore.getConfigurationPaths().add(COLLECTIONS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(SYSTEM_DOMAIN_OBJECTS_CONFIG_PATH);
         confCore.getConfigurationPaths().add(GLOBAL_XML_PATH);
-        confCore.getConfigurationPaths().add(ACCESS_CONFIG_PATH);
         confCore.setConfigurationSchemaPath(CONFIGURATION_SCHEMA_PATH);
         confCore.setModuleUrl(moduleUrl);
 
