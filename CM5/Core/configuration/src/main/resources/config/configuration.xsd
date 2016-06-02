@@ -984,6 +984,7 @@
         <xs:attribute name="type" type="xs:string" use="required"/>
         <xs:attribute name="read-everybody" type="xs:boolean" use="optional"/>
         <xs:attribute name="matrix-reference-field" type="xs:string" use="optional"/>
+        <xs:attribute name="borrow-permissisons" type="con:BorrowPermissisonsEnum" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="matrixReferenceMapping">
@@ -3629,6 +3630,14 @@
             <xs:enumeration value="delete"/>
             <xs:enumeration value="view"/>
             <xs:enumeration value="view_or_edit"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="BorrowPermissisonsEnum">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="none"/>
+            <xs:enumeration value="read"/>
+            <xs:enumeration value="all"/>
         </xs:restriction>
     </xs:simpleType>
 

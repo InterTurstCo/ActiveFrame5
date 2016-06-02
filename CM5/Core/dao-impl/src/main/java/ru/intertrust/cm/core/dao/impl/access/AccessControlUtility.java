@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
+import ru.intertrust.cm.core.config.AccessMatrixConfig.BorrowPermissisonsMode;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -141,6 +142,9 @@ public class AccessControlUtility {
     }
     
     public static boolean isCombineMatrixReference(AccessMatrixConfig accessMatrix){
-        return accessMatrix!= null && accessMatrix.getMatrixReference() != null && accessMatrix.getStatus() != null && accessMatrix.getStatus().size() > 0;
+        return accessMatrix!= null 
+                && accessMatrix.getMatrixReference() != null 
+                && accessMatrix.getBorrowPermissisons() != null 
+                && accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.read;
     }
 }

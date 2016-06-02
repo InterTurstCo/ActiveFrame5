@@ -18,7 +18,9 @@ import java.util.List;
  */
 @Root(name = "access-matrix")
 @Order(elements={"create", "status", "matrix-reference-mapping"})
-public class AccessMatrixConfig implements TopLevelConfig {
+public class AccessMatrixConfig implements TopLevelConfig {    
+
+    private static final long serialVersionUID = -5099056815437308778L;
 
     @Attribute(required = true)
     private String type;
@@ -32,11 +34,21 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Attribute(name= "matrix-reference-field", required = false)
     private String matrixReference;
 
+    @Attribute(name= "borrow-permissisons", required = false)
+    private BorrowPermissisonsMode borrowPermissisons;
+    
     @Element(name = "create", required = false)
     private AccessMatrixCreateConfig accessMatrixCreateConfig;
 
     @Element(name = "matrix-reference-mapping", required = false)
     private MatrixReferenceMappingConfig matrixReferenceMappingConfig;
+
+    
+    public static enum BorrowPermissisonsMode{
+        none,
+        read,
+        all
+    }
     
     public String getType() {
         return type;
@@ -91,6 +103,9 @@ public class AccessMatrixConfig implements TopLevelConfig {
         if (type != null ? !type.equals(that.type) : that.type != null) {
             return false;
         }
+        if (borrowPermissisons != null ? !borrowPermissisons.equals(that.borrowPermissisons) : that.borrowPermissisons != null) {
+            return false;
+        }
 
         if (accessMatrixCreateConfig != null ? !accessMatrixCreateConfig.equals(that.accessMatrixCreateConfig)
                 : that.accessMatrixCreateConfig != null) {
@@ -104,6 +119,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
         int result = type != null ? type.hashCode() : 0;
         result = 31 * result + (readEverybody != null ? readEverybody.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (borrowPermissisons != null ? borrowPermissisons.hashCode() : 0);        
         return result;
     }
 
@@ -127,6 +143,16 @@ public class AccessMatrixConfig implements TopLevelConfig {
     public void setMatrixReferenceMappingConfig(MatrixReferenceMappingConfig matrixReferenceMappingConfig) {
         this.matrixReferenceMappingConfig = matrixReferenceMappingConfig;
     }
+
+    public BorrowPermissisonsMode getBorrowPermissisons() {
+        return borrowPermissisons;
+    }
+
+    public void setBorrowPermissisons(BorrowPermissisonsMode borrowPermissisons) {
+        this.borrowPermissisons = borrowPermissisons;
+    }
+    
+    
     
     
 }
