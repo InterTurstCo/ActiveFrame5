@@ -459,6 +459,108 @@
             </track-domain-objects>
         </groups>
         
-    </context-role>   
+    </context-role>  
+     
+    <access-matrix type="letter">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
+            </read>
+            <write>
+                <permit-group name="Administrators" />
+            </write>
+            <delete>
+                <permit-group name="Administrators" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="Administrators" />
+            </execute-action>
+        </status>
+    </access-matrix>
     
+    <access-matrix type="country">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
+            </read>
+            <write>
+                <permit-group name="Administrators" />
+            </write>
+            <delete>
+                <permit-group name="Administrators" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="Administrators" />
+            </execute-action>
+        </status>
+    </access-matrix>
+    
+    <access-matrix type="country_union">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
+            </read>
+            <write>
+                <permit-group name="Administrators" />
+            </write>
+            <delete>
+                <permit-group name="Administrators" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="Administrators" />
+            </execute-action>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="city" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <!--status name="*"> <read permit-everybody="true"> </read> </status -->
+        <status name="Active">
+            <!--read> <permit-group name="AllPersons" /> </read -->
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="AllPersons" />
+            </execute-action>
+        </status>
+    </access-matrix>
+    
+    <access-matrix type="country_attachment">
+        <create>
+            <permit-group name="Administrators" />
+            <permit-group name="test-group-1" />
+        </create>
+        <status name="*">
+            <read>
+                <permit-group name="Administrators" />
+                <permit-group name="Administrators_Read_Only" />
+            </read>
+            <write>
+                <permit-group name="Administrators" />
+            </write>
+            <delete>
+                <permit-group name="Administrators" />
+            </delete>
+        </status>
+
+    </access-matrix>
+                
 </configuration>
