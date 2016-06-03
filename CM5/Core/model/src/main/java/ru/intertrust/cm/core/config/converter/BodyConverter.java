@@ -50,7 +50,7 @@ public class BodyConverter implements Converter<BodyConfig> {
 
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        serializer.write(configuration.isDisplaySingleTab(), outputNode);
+        outputNode.setAttribute("display-single-tab", Boolean.valueOf(configuration.isDisplaySingleTab()).toString());
         for(TabConfig configItem : configuration.getTabs()) {
             serializer.write(configItem, outputNode);
         }

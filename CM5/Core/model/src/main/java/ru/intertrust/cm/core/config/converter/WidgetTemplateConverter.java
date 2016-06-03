@@ -42,9 +42,10 @@ public class WidgetTemplateConverter implements Converter<WidgetTemplateConfig> 
             return;
         }
 
+        outputNode.setAttribute("name", configuration.getName());
+        
         Strategy strategy = new AnnotationStrategy();
         Serializer serializer = new Persister(strategy);
-        serializer.write(configuration.getName(), outputNode);
         serializer.write(configuration.getWidgetConfig(), outputNode);
     }
 
