@@ -831,10 +831,6 @@
 
     <access-matrix type="profile_value" matrix-reference-field="profile"/>
 
-    <access-matrix type="email_messages" read-everybody="true"/>
-    
-    <access-matrix type="email_messages_attachments" read-everybody="true"/>
-
     <access-matrix type="country_attachment">
         <create>
             <permit-group name="Administrators" />

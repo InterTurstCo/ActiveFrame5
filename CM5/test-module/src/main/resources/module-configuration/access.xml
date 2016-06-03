@@ -393,7 +393,7 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="test_type_23" matrix-reference-field="test_type_14">
+    <access-matrix type="test_type_23" matrix-reference-field="test_type_14" borrow-permissisons="read">
         <create>
             <permit-group name="AllPersons" />
         </create>

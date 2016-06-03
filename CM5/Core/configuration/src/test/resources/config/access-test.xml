@@ -306,59 +306,6 @@
         </status>
     </access-matrix>
 
-    <!-- Внутренний документ -->
-    <access-matrix type="Internal_Document">
-        <status name="Draft">
-            <read>
-                <permit-role name="Author" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-            </write>
-            <delete>
-                <permit-role name="Author" />
-            </delete>
-            <execute-action name="StartProcessAction">
-                <permit-role name="Author" />
-            </execute-action>
-            <execute-action name="ChangeStatusAction">
-                <permit-role name="Author" />
-            </execute-action>
-        </status>
-        <status name="Negotiation">
-            <read>
-                <permit-role name="Negotiator" />
-                <permit-group name="AllPersons" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-            </write>
-        </status>
-        <status name="Registration">
-            <read>
-                <permit-role name="Negotiator" />
-                <permit-group name="AllPersons" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-                <permit-role name="Registrator" />
-            </write>
-        </status>
-        <status name="Registred">
-            <read>
-                <permit-group name="AllPersons" />
-            </read>
-        </status>
-        <status name="OnRevision">
-            <read>
-                <permit-group name="AllPersons" />
-            </read>
-            <write>
-                <permit-role name="Author" />
-            </write>
-        </status>
-    </access-matrix>
-
     <access-matrix type="Test_DO_2" matrix-reference-field="Ref_DO_1" />
 
     <access-matrix type="Test_DO_3" read-everybody="false" matrix-reference-field="Ref_DO_3_1" />
@@ -380,12 +327,6 @@
     <access-matrix type="Test_type_4" read-everybody="true" />
 
     <access-matrix type="Test_type_5" read-everybody="true" />
-
-    <access-matrix type="digital_signature" read-everybody="true">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
 
 </configuration>
 
