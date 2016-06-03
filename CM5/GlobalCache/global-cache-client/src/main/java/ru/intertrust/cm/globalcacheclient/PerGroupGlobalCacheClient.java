@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+import ru.intertrust.cm.globalcache.api.AbsentDomainObject;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.TransactionChanges;
@@ -307,6 +308,10 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (isReactivationUndergoing()) {
             return null;
         }
+        if (isChangedInTransaction(id)) {
+            // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
+            return AbsentDomainObject.INSTANCE;
+        }
         return logHit(globalCache.getDomainObject(null, id, accessToken));
     }
 
@@ -316,7 +321,12 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (isReactivationUndergoing()) {
             return null;
         }
-        return logHit(globalCache.getDomainObject(null, type, uniqueKey, accessToken));
+        final DomainObject domainObject = globalCache.getDomainObject(null, type, uniqueKey, accessToken);
+        if (domainObject != null && !domainObject.isAbsent() && isChangedInTransaction(domainObject.getId())) {
+            // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
+            return AbsentDomainObject.INSTANCE;
+        }
+        return logHit(domainObject);
     }
 
     @Override
@@ -325,7 +335,15 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (isReactivationUndergoing()) {
             return null;
         }
-        return logHit(globalCache.getDomainObjects(null, ids, accessToken));
+        final ArrayList<DomainObject> domainObjects = globalCache.getDomainObjects(null, ids, accessToken);
+        for (int i = 0; i < domainObjects.size(); i++) {
+            DomainObject domainObject = domainObjects.get(i);
+            if (domainObject != null && !domainObject.isAbsent() && isChangedInTransaction(domainObject.getId())) {
+                // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
+                domainObjects.set(i, AbsentDomainObject.INSTANCE);
+            }
+        }
+        return logHit(domainObjects);
     }
 
     @Override
