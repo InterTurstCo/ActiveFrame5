@@ -459,8 +459,8 @@
             </track-domain-objects>
         </groups>
         
-    </context-role>  
-     
+    </context-role>
+
     <access-matrix type="letter">
         <create>
             <permit-group name="AllPersons" />
@@ -481,7 +481,7 @@
             </execute-action>
         </status>
     </access-matrix>
-    
+
     <access-matrix type="country">
         <create>
             <permit-group name="AllPersons" />
@@ -502,7 +502,7 @@
             </execute-action>
         </status>
     </access-matrix>
-    
+
     <access-matrix type="country_union">
         <create>
             <permit-group name="AllPersons" />
@@ -542,7 +542,7 @@
             </execute-action>
         </status>
     </access-matrix>
-    
+
     <access-matrix type="country_attachment">
         <create>
             <permit-group name="Administrators" />
@@ -562,5 +562,5 @@
         </status>
 
     </access-matrix>
-                
+
 </configuration>
