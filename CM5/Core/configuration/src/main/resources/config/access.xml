@@ -468,7 +468,6 @@
             </execute-action>
         </status>
     </access-matrix>
-    
 
     <!-- Внутренний документ -->
     <access-matrix type="Internal_Document">

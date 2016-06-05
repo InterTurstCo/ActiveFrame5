@@ -3,7 +3,7 @@
 <module>
 
     <inherits name='com.google.gwt.user.User'/>
-    <inherits name="ru.intertrust.cm.core.Model"/>
+    <inherits name="ru.intertrust.cm.core.config.Configuration"/>
 
     <source path="client"/>
 
