@@ -1852,7 +1852,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private void initializeDomainParameter(FieldConfig fieldConfig, Value value, Map<String, Object> parameters) {
         if (value != null && !value.getClass().equals(fieldConfig.getFieldType().getValueClass())) {
-            throw new DaoException("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType());
+            // todo: later change to exception throwing
+            //throw new DaoException("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType());
+            logger.error("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType(), new DaoException());
         }
 
         String columnName = getSqlName(fieldConfig.getName());
