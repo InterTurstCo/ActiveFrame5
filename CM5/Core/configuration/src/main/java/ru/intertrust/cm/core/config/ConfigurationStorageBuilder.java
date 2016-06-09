@@ -932,12 +932,16 @@ public class ConfigurationStorageBuilder {
 
     private void fillFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
         List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
-
+        LinkedHashMap<String, FieldConfig> mutableFieldsConfig = new LinkedHashMap<>(allFieldsConfig.size());
         for (FieldConfig fieldConfig : allFieldsConfig) {
             FieldConfigKey fieldConfigKey =
                     new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
+            if (!fieldConfig.isImmutable()) {
+                mutableFieldsConfig.put(fieldConfig.getName().toLowerCase(), fieldConfig);
+            }
         }
+        configurationStorage.mutableFieldsNoInheritanceMap.put(domainObjectTypeConfig.getName(), new ArrayList<>(mutableFieldsConfig.values()));
         fillSystemFields(domainObjectTypeConfig);
     }
 

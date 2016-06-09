@@ -121,6 +121,14 @@ public interface ConfigurationExplorer {
     FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig);
 
     /**
+     * Возвращает список изменяемых полей типа доменного объекта
+     * @param doType название типа доменного объекта
+     * @param includeInherited включать ли унаследованные поля
+     * @return список изменяемых полей типа доменного объекта
+     */
+    List<FieldConfig> getDomainObjectTypeMutableFields(String doType, boolean includeInherited);
+
+    /**
      * Находит в иерархии типов ДО тип, содержащий заданное поле
      * @param doType имя типа ДО
      * @param fieldName имя поля

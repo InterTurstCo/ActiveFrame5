@@ -301,6 +301,22 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         return convertNull(configurationStorageBuilder.fillFieldConfigMap(domainObjectConfigName, fieldConfigName, returnInheritedConfig));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<FieldConfig> getDomainObjectTypeMutableFields(String doType, boolean includeInherited)  {
+        if (includeInherited) {
+            throw new UnsupportedOperationException("Not implemented");
+        }
+        lock();
+        try {
+            return configStorage.mutableFieldsNoInheritanceMap.get(doType);
+        } finally {
+            unlock();
+        }
+    }
+
     @Override
     public String getFromHierarchyDomainObjectTypeHavingField(String doType, String fieldName) {
         lock();

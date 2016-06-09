@@ -1498,10 +1498,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         String tableName = getSqlName(domainObjectTypeConfig);
 
-        List<FieldConfig> fieldConfigs = domainObjectTypeConfig
-                .getDomainObjectFieldsConfig().getFieldConfigs();
-
-        fieldConfigs = removeImmutableFields(fieldConfigs);
+        List<FieldConfig> fieldConfigs = configurationExplorer.getDomainObjectTypeMutableFields(domainObjectTypeConfig.getName(), false);
 
         List<String> columnNames = DataStructureNamingHelper
                 .getColumnNames(fieldConfigs);
@@ -1546,14 +1543,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.setQuery(queryBuilder.toString());
         return query;
 
-    }
-
-    private List<FieldConfig> removeImmutableFields(List<FieldConfig> fieldConfigs) {
-        List<FieldConfig> ret = new ArrayList<>(fieldConfigs.size());
-        for (FieldConfig fieldConfig : fieldConfigs) {
-            if (!fieldConfig.isImmutable()) ret.add(fieldConfig);
-        }
-        return ret;
     }
 
     /**
