@@ -13,6 +13,7 @@ import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.*;
+import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.exception.InvalidIdException;
 import ru.intertrust.cm.core.dao.exception.OptimisticLockException;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
@@ -1850,6 +1851,12 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void initializeDomainParameter(FieldConfig fieldConfig, Value value, Map<String, Object> parameters) {
+        if (value != null && !value.getClass().equals(fieldConfig.getFieldType().getValueClass())) {
+            // todo: later change to exception throwing
+            //throw new DaoException("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType());
+            logger.error("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType(), new DaoException());
+        }
+
         String columnName = getSqlName(fieldConfig.getName());
         String parameterName = generateParameter(columnName);
 
