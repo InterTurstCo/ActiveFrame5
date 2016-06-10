@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="ear" name="ear:ear">
     <output-path>$PROJECT_DIR$/../../../CM5/Ear/target</output-path>
-    <root id="archive" name="cm-sochi-solr-0.5.20-17-SNAPSHOT.ear">
+    <root id="archive" name="cm-sochi-solr-0.5.20-21-SNAPSHOT.ear">
       <element id="artifact" artifact-name="ear:ear exploded" />
     </root>
   </artifact>

@@ -1,7 +1,7 @@
 <component name="ArtifactManager">
   <artifact type="war" name="web-app:war">
     <output-path>$PROJECT_DIR$/../../../CM5/Core/web-app/target</output-path>
-    <root id="archive" name="web-app-0.5.20-17-SNAPSHOT.war">
+    <root id="archive" name="web-app-0.5.20-21-SNAPSHOT.war">
       <element id="artifact" artifact-name="web-app:war exploded" />
     </root>
   </artifact>
