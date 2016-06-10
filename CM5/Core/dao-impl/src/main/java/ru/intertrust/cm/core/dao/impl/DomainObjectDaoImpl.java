@@ -171,7 +171,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         DomainObject domainObject = find(objectId, accessToken);
         ((GenericDomainObject) domainObject).setStatus(status);
         List<FieldModification>[] fieldModification = new ArrayList[1];
-        fieldModification[0] = new ArrayList<FieldModification>();
+        fieldModification[0] = new ArrayList<>();
 
         List<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
 
@@ -232,7 +232,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private List<Id> convertToIds(DomainObject[] createdObjects) {
-        List<Id> idsList = new ArrayList<>();
+        List<Id> idsList = new ArrayList<>(createdObjects.length);
 
         for (DomainObject domainObject : createdObjects) {
             idsList.add((RdbmsId) domainObject.getId());
@@ -401,7 +401,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public List<DomainObject> save(List<DomainObject> domainObjects, AccessToken accessToken) {
 
-        List<DomainObject> result = new ArrayList<>();
+        List<DomainObject> result = new ArrayList<>(domainObjects.size());
 
         List<List<DomainObject>> groupObjectsByType = groupObjectsByType(domainObjects);
         for (List<DomainObject> groupObjects : groupObjectsByType) {
@@ -832,6 +832,13 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (domainObjectCacheService.get(id, systemAccessToken) != null) {
             return true;
         }
+        DomainObject existingObject = globalCacheClient.getDomainObject(id, systemAccessToken);
+        validateCachedById(id, systemAccessToken, existingObject);
+        if (GenericDomainObject.isAbsent(existingObject)) {
+            return false;
+        } else if (existingObject != null) {
+            return true;
+        }
 
         RdbmsId rdbmsId = (RdbmsId) id;
         validateIdType(id);
@@ -972,7 +979,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     @Override
     public List<DomainObject> find(List<Id> ids, AccessToken accessToken) {
         if (ids == null || ids.size() == 0) {
-            return new ArrayList<>();
+            return new ArrayList<>(0);
         }
         List<DomainObject> allDomainObjects = new ArrayList<>(ids.size());
 
@@ -1569,7 +1576,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObjectTypeConfig domainObjectTypeConfig, AccessToken accessToken, Date currentDate,
             boolean isUpdateStatus) {
 
-        Map<String, Object> parameters = new HashMap<String, Object>();
+        List<FieldConfig> fieldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+        Map<String, Object> parameters = new HashMap<>(fieldConfigs.size() * 2 + 7);
 
         RdbmsId rdbmsId = (RdbmsId) domainObject.getId();
 
@@ -1590,8 +1598,6 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             parameters.put("status", ((RdbmsId) domainObject.getStatus()).getId());
             parameters.put("status_type", ((RdbmsId) domainObject.getStatus()).getTypeId());
         }
-        List<FieldConfig> fieldConfigs = domainObjectTypeConfig
-                .getDomainObjectFieldsConfig().getFieldConfigs();
 
         initializeDomainParameters(domainObject, fieldConfigs, parameters);
 
@@ -1804,12 +1810,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
      * @return карту объектов содержащую имя параметра и его значение
      */
     protected Map<String, Object> initializeExistsParameters(Id id) {
-
-        RdbmsId rdbmsId = (RdbmsId) id;
-        Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("id", rdbmsId.getId());
-
-        return parameters;
+        return Collections.<String, Object>singletonMap("id", ((RdbmsId) id).getId());
     }
 
     /**
@@ -2069,11 +2070,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private DomainObject getStatusByName(String statusName) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-
-        Map<String, Value> uniqueKeyValuesByName = new HashMap<>();
-        uniqueKeyValuesByName.put("name", new StringValue(statusName));
-
-        return findByUniqueKey(STATUS_DO, uniqueKeyValuesByName, accessToken);
+        return findByUniqueKey(STATUS_DO, Collections.<String, Value>singletonMap("name", new StringValue(statusName)), accessToken);
     }
 
     /**
@@ -2136,7 +2133,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                 String query = generateCreateAuditLogQuery(domainObjectTypeConfig);
 
-                Map<String, Object> parameters = new HashMap<String, Object>();
+                List<FieldConfig> fieldConfigs = domainObjectTypeConfig.getDomainObjectFieldsConfig().getFieldConfigs();
+                Map<String, Object> parameters = new HashMap<>(fieldConfigs.size() * 2 + 20);
                 parameters.put(DomainObjectDao.ID_COLUMN, id);
                 parameters.put(DomainObjectDao.TYPE_COLUMN, auditLogType);
 
@@ -2188,13 +2186,11 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
                 }
 
-                List<FieldConfig> feldConfigs = domainObjectTypeConfig
-                        .getDomainObjectFieldsConfig().getFieldConfigs();
 
                 if (operation == DomainObjectVersion.AuditLogOperation.DELETE) {
-                    initializeDomainParameters(null, feldConfigs, parameters);
+                    initializeDomainParameters(null, fieldConfigs, parameters);
                 } else {
-                    initializeDomainParameters(domainObject, feldConfigs,
+                    initializeDomainParameters(domainObject, fieldConfigs,
                             parameters);
                 }
 
@@ -2388,7 +2384,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
     private List<Id> extractIds(List<DomainObject> domainObjectList) {
         if (domainObjectList == null || domainObjectList.isEmpty()) {
-            return new ArrayList<>();
+            return new ArrayList<>(0);
         }
 
         List<Id> result = new ArrayList<>(domainObjectList.size());
