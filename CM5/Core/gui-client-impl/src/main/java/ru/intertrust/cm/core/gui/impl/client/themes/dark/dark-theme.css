@@ -1068,5 +1068,64 @@ table.form-panel-header .gwt-Red-Label {
      -webkit-filter: grayscale(100%);
  }
 
+/*coordination widget style*/
+
+.buttonSaveTemplate>.coordinationWidgetButton,
+.buttonAddStage>.coordinationWidgetButton,
+.buttonAddMember>.coordinationWidgetButton,
+.approvalActionButton>.coordinationWidgetButton{
+    border-radius: 3px;
+    box-shadow: none;
+    border: 1px solid #669492;
+    background: #669492;
+    background: -moz-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: -webkit-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: linear-gradient(to bottom, #669492 0, #90b5a4 100%);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.buttonSaveTemplate>.coordinationWidgetButton:hover,
+.buttonAddStage>.coordinationWidgetButton:hover,
+.buttonAddMember>.coordinationWidgetButton:hover,
+.approvalActionButton>.coordinationWidgetButton:hover {
+    border: 1px solid #669492;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+    color: #fff;
+    text-shadow: none;
+}
+
+.buttonSaveTemplate>.coordinationWidgetButton:active,
+.buttonAddStage>.coordinationWidgetButton:active,
+.buttonAddMember>.coordinationWidgetButton:active,
+.approvalActionButton>.coordinationWidgetButton:active {
+    background: linear-gradient(to bottom, #669492 0, #689681 100%);
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.15) !important;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.buttonSaveTemplate>.coordinationWidgetButton {
+    border: none;
+    text-shadow: none;
+}
+
+.buttonSaveTemplate>.coordinationWidgetButton:hover {
+    border: none;
+}
+
+.coordinationWidgetHeader {
+    background: #DDE9E3;
+}
+
+.performerRow {
+    background: none repeat scroll 0 0 #DDE9E3;
+    border: 1px solid #82AF6F;
+}
+
+.coordinationWidgetStageDetailsWrapper {
+    border: 1px solid #82AF6F;
+}
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
