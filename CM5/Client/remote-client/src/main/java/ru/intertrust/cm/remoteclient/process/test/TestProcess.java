@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,6 +17,8 @@ import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
@@ -218,6 +221,20 @@ public class TestProcess extends ClientBase {
                 }
             }
 
+            //Проверка наличия уведомления у пользователя person1
+            List<Value> params = new ArrayList<Value>();
+            params.add(new ReferenceValue(attachment.getId()));
+            
+            //Пауза чтоб отправились асинхронные уведомления
+            Thread.currentThread().sleep(2000);
+            
+            IdentifiableObjectCollection collection = getCollectionService().findCollectionByQuery("select n.id from notification n where n.context_object = {0}", params);
+            assertTrue("Send message", collection.size() == 1);
+            //Корректность текста
+            DomainObject notification = crudService.find(collection.get(0).getId());
+            assertTrue("Send message text", notification.getString("body").indexOf(attachment.getId().toStringRepresentation()) > 0);
+            
+            
             //Проверка на то что попали и ждем в signalintermediatecatchevent1
             attachment = crudService.find(attachment.getId());
             assertFalse("White in signalintermediatecatchevent1 1", attachment.getString("test_text").endsWith("Получили уведомление."));

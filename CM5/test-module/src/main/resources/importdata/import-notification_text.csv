@@ -30,3 +30,7 @@ TEST_MULTY_ATTACH;body;"name=""RU""";MailNotificationChannel;Уведомление с неско
 TEST_MULTY_ATTACH;attachment;"name=""RU""";MailNotificationChannel;"ATTACH_NAME;${attach.getIdAsString()};.*"
 TEST_MULTY_ATTACH;subject;"name=""RU""";InboxNotificationChannel;Уведомление с несколькими вложениями
 TEST_MULTY_ATTACH;body;"name=""RU""";InboxNotificationChannel;Уведомление с несколькими вложениями
+WORKFLOW_MESSAGE;subject;"name=""RU""";MailNotificationChannel;Уведомление из процесса
+WORKFLOW_MESSAGE;body;"name=""RU""";MailNotificationChannel;Уведомление из процесса
+WORKFLOW_MESSAGE;subject;"name=""RU""";InboxNotificationChannel;Уведомление из процесса
+WORKFLOW_MESSAGE;body;"name=""RU""";InboxNotificationChannel;Уведомление из процесса по объекту ${document.getIdAsString()}
