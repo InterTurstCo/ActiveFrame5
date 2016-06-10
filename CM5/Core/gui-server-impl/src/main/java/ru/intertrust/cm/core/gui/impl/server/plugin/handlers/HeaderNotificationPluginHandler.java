@@ -38,9 +38,10 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     private static final String FIELD_ID = "id";
     private static final String ASC_CRITERION = "asc";
 
-    private final String collectionName = "NewNotifications";
-    private final String subjectColumnName = "subject";
-    private final String bodyColumnName = "body";
+    private final static String COLLECTION_NAME = "NewNotifications";
+    private final static String SUBJECT_COLUMN_NAME = "subject";
+    private final static String BODY_COLUMN_NAME = "body";
+    private final static String CONTEXT_OBJECT_COLUMN_NAME = "context_object";
 
     @Override
     public PluginData initialize(Dto param) {
@@ -48,8 +49,8 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
         HeaderNotificationPluginData pluginData = new HeaderNotificationPluginData();
         ArrayList<HeaderNotificationItem> collItems  = getNotificationList();
         pluginData.setCollection(collItems);
-        pluginData.setSubjectColumnName(subjectColumnName);
-        pluginData.setBodyColumnName(bodyColumnName);
+        pluginData.setSubjectColumnName(SUBJECT_COLUMN_NAME);
+        pluginData.setBodyColumnName(BODY_COLUMN_NAME);
 
         return pluginData;
     }
@@ -86,14 +87,16 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
         Filter filter = new Filter();
         filter.setFilter("byRecipient");
 
-        Id id = currentUserAccessor.getCurrentUserId();
-        filter.addReferenceCriterion(0, id);
-        IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder,
+        Id userId = currentUserAccessor.getCurrentUserId();
+        filter.addReferenceCriterion(0, userId);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
                 Collections.singletonList(filter));
         for (int i =0; i < collection.size(); i++){
-            IdentifiableObject identifiableObject = collection.get(i);
-            collItems.add(new HeaderNotificationItem(identifiableObject.getId(),
-                    identifiableObject.getString(subjectColumnName), identifiableObject.getString(bodyColumnName)));
+            final IdentifiableObject identifiableObject = collection.get(i);
+            final Id id = identifiableObject.getId();
+            final Id contextObjectId = identifiableObject.getReference(CONTEXT_OBJECT_COLUMN_NAME);
+            collItems.add(new HeaderNotificationItem(contextObjectId == null ? id : contextObjectId,
+                    identifiableObject.getString(SUBJECT_COLUMN_NAME), identifiableObject.getString(BODY_COLUMN_NAME)));
 
         }
 
