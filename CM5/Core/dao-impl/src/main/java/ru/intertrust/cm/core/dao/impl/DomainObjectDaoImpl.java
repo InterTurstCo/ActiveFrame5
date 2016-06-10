@@ -314,7 +314,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldModification> [] changedFields = new List[domainObjects.length];
 
         for (int i = 0; i < domainObjects.length; i++) {
-            changedFields[i] = getModifiedFieldNames(domainObjects[i]);
+            changedFields[i] = getModifiedFieldsAndValidate(domainObjects[i]);
         }
 
 
@@ -525,14 +525,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
 
-    private List<FieldModification> getModifiedFieldNames(
-            DomainObject domainObject) {
-
-        List<FieldModification> modifiedFieldNames = new ArrayList<FieldModification>();
-
+    private List<FieldModification> getModifiedFieldsAndValidate(DomainObject domainObject) {
         //Для нового объекта все поля отличные от null попадают в список измененных
+        final String domainObjectTypeName = domainObject.getTypeName();
+        final ArrayList<String> fields = domainObject.getFields();
+        final List<FieldModification> modifiedFieldNames = new ArrayList<>(fields.size());
         if (domainObject.isNew()) {
-            for (String fieldName : domainObject.getFields()) {
+            for (String fieldName : fields) {
+                final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectTypeName, fieldName);
+                if (fieldConfig == null) {
+                    logger.error("Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName, new FatalException());
+                }
                 Value<?> newValue = domainObject.getValue(fieldName);
                 if (newValue != null && newValue.get() != null){
                     modifiedFieldNames.add(new FieldModificationImpl(fieldName, null, newValue));
@@ -544,10 +547,17 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             DomainObject originalDomainObject = find(domainObject.getId(),
                     accessToken);
 
-            for (String fieldName : domainObject.getFields()) {
+            for (String fieldName : fields) {
+                final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectTypeName, fieldName);
+                if (fieldConfig == null) {
+                    logger.error("Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName, new FatalException());
+                }
                 Value originalValue = originalDomainObject.getValue(fieldName);
                 Value newValue = domainObject.getValue(fieldName);
                 if (isValueChanged(originalValue, newValue)) {
+                    if (fieldConfig.isImmutable()) {
+                        throw new FatalException("Trying to modify immutable field. Type: " + domainObjectTypeName + ", field: " + fieldName + ", original value: " + originalValue + ", new value: " + newValue);
+                    }
                     modifiedFieldNames.add(new FieldModificationImpl(fieldName,
                             originalValue, newValue));
                 }
