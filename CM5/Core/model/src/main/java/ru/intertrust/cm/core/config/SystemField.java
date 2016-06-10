@@ -42,11 +42,11 @@ public enum SystemField {
      * @return true, если поле системное
      */
     public static boolean isSystemField(String fieldName) {
-        for (SystemField sysField : values()) {
-            if (sysField.name().equalsIgnoreCase(fieldName)) {
-                return true;
-            }
+        try {
+            SystemField.valueOf(fieldName.toLowerCase());
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return false;
     }
 }
