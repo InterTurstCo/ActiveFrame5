@@ -222,6 +222,10 @@
             <string name="group_name" length="64" not-null="true" />
             <reference name="object_id" type="*" not-null="false"/>
         </fields>
+        <uniqueKey>
+            <field name="group_name"/>
+            <field name="object_id"/>
+        </uniqueKey>
     </domain-object-type>
 
     <domain-object-type name="Group_Member" initial-status = "Active">
