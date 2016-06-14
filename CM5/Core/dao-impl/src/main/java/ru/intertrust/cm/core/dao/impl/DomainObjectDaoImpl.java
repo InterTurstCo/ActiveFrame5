@@ -551,15 +551,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectTypeName, fieldName);
                 if (fieldConfig == null) {
                     logger.error("Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName, new FatalException());
-                }
-                Value originalValue = originalDomainObject.getValue(fieldName);
-                Value newValue = domainObject.getValue(fieldName);
-                if (isValueChanged(originalValue, newValue)) {
-                    if (fieldConfig.isImmutable()) {
-                        throw new FatalException("Trying to modify immutable field. Type: " + domainObjectTypeName + ", field: " + fieldName + ", original value: " + originalValue + ", new value: " + newValue);
+                }else{
+                    Value originalValue = originalDomainObject.getValue(fieldName);
+                    Value newValue = domainObject.getValue(fieldName);
+                    if (isValueChanged(originalValue, newValue)) {
+                        if (fieldConfig.isImmutable()) {
+                            throw new FatalException("Trying to modify immutable field. Type: " + domainObjectTypeName + ", field: " + fieldName + ", original value: " + originalValue + ", new value: " + newValue);
+                        }
+                        modifiedFieldNames.add(new FieldModificationImpl(fieldName,
+                                originalValue, newValue));
                     }
-                    modifiedFieldNames.add(new FieldModificationImpl(fieldName,
-                            originalValue, newValue));
                 }
 
             }
