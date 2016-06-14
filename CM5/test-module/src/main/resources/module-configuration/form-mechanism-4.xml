@@ -106,7 +106,7 @@
             </label>
             <date-box id="my_date">
                 <field-path value="my_date"/>
-                <pattern>dd.MM.yyyy HH:mm:ss"</pattern>
+                <pattern>dd.MM.yyyy HH:mm:ss</pattern>
                 <display-time-zone-choice>true</display-time-zone-choice>
             </date-box>
 
