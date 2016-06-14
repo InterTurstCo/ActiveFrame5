@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.api.server;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
@@ -36,7 +35,7 @@ public final class GuiServerHelper {
         calendar.set(Calendar.YEAR, timelessDate.getYear());
         calendar.set(Calendar.MONTH, timelessDate.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, timelessDate.getDayOfMonth());
-        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
@@ -49,7 +48,7 @@ public final class GuiServerHelper {
         calendar.set(Calendar.YEAR, dateTime.getYear());
         calendar.set(Calendar.MONTH, dateTime.getMonth());
         calendar.set(Calendar.DAY_OF_MONTH, dateTime.getDayOfMonth());
-        calendar.set(Calendar.HOUR, dateTime.getHours());
+        calendar.set(Calendar.HOUR_OF_DAY, dateTime.getHours());
         calendar.set(Calendar.MINUTE, dateTime.getMinutes());
         calendar.set(Calendar.SECOND, dateTime.getSeconds());
         calendar.set(Calendar.MILLISECOND, dateTime.getMilliseconds());

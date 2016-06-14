@@ -6,7 +6,8 @@
         <fields>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
-            <reference name="b4" type="b4" not-null="true"/>
+            <reference name="b4" type="b4"/>
+            <dateTimeWithTimeZone name="my_date"/>
         </fields>
         <uniqueKey>
             <field name="name1"/>
@@ -70,6 +71,14 @@
                                         <widget id="b4_table"/>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="my_date_label"/>
+                                    </td>
+                                    <td>
+                                        <widget id="my_date"/>
+                                    </td>
+                                </tr>
                             </table>
                         </tab-group>
                     </single-entry-group>
@@ -91,6 +100,15 @@
             <text-box id="a_name2">
                 <field-path value="name2"/>
             </text-box>
+            <label id="my_date_label">
+                <field-path/>
+                <text>Date TZ:</text>
+            </label>
+            <date-box id="my_date">
+                <field-path value="my_date"/>
+                <pattern>dd.MM.yyyy HH:mm:ss"</pattern>
+                <display-time-zone-choice>true</display-time-zone-choice>
+            </date-box>
 
             <label id="b4_table_label">
                 <field-path/>
@@ -335,7 +353,7 @@
     <collection name="a4_collection" idField="id">
         <prototype>
             <![CDATA[
-                select a4.id, a4.name1 a_name1, a4.name2 a_name2, b4.name1 b_name1, b4.name2 b_name2, b4_1.custom_b4_1 b_custom1, b4_2.custom_b4_2 b_custom2
+                select a4.id, a4.name1 a_name1, a4.name2 a_name2, b4.name1 b_name1, b4.name2 b_name2, b4_1.custom_b4_1 b_custom1, b4_2.custom_b4_2 b_custom2, my_date, my_date_tz
                 from a4
                 left outer join b4 on a4.b4 = b4.id
                 left outer join b4_1 on b4.id = b4_1.id
@@ -360,6 +378,7 @@
             <column field="b_name2" name="b_name2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
             <column field="b_custom1" name="b_custom1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
             <column field="b_custom2" name="b_custom2" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>
+            <column field="my_date" name="my_date" editable="false" type="dateTimeWithTimeZone" date-pattern="yyyy-MM-dd" time-pattern="HH:mm:ss" sortable="true" min-width="50px" text-break-style="cut"/>
         </display>
     </collection-view>
 
