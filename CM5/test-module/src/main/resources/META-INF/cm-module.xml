@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module>
+<module xmlns="https://cm5.intertrust.ru/config/module"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <name>test-sed</name>
     <description>Тестовый модуль системы электронного документооборота</description>
     <depends>

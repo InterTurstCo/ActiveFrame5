@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.module;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -11,36 +12,41 @@ import java.util.Stack;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import ru.intertrust.cm.core.config.ConfigurationSchemaValidator;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
- * Сервис управления модулями. Сервис при старте просматривает все файлы cm.module.xml и создает реестр модулей в
- * системе
+ * Сервис управления модулями. Сервис при старте просматривает все файлы
+ * cm.module.xml и создает реестр модулей в системе
  * @author larin
  * 
  */
 public class ModuleService {
 
+    private static final String MODULE_XSD = "config/module.xsd";
     private ModuleGraf fileGraf;
     private List<ModuleConfiguration> moduleList = new ArrayList<ModuleConfiguration>();
 
     public void init() {
         try {
             fileGraf = new ModuleGraf();
-            //Получение ресурсов описания модулей и добавление их в граф для сортировки с учетом зависимостей
+            // Получение ресурсов описания модулей и добавление их в граф для
+            // сортировки с учетом зависимостей
             Enumeration<URL> urlEnum =
                     this.getClass().getClassLoader().getResources("META-INF/cm-module.xml");
             while (urlEnum.hasMoreElements()) {
-                URL url = (URL) urlEnum.nextElement();
+                URL url = urlEnum.nextElement();
+                validateSchema(url); // Проверка на соответствие XML Schema в
+                                     // module.xsd
                 ModuleConfiguration config = loadModule(url);
                 config.setModuleUrl(new URL(url.toString().substring(0, url.toString().indexOf("META-INF"))));
                 fileGraf.addModuleConfiguration(config, config.getDepends());
             }
 
-            //Проверка на зацикливание
+            // Проверка на зацикливание
             fileGraf.check();
 
-            //Обход графа модулей с учетом зависимостей
+            // Обход графа модулей с учетом зависимостей
             while (fileGraf.hasMoreElements()) {
                 ModuleNode moduleNode = fileGraf.nextElement();
                 moduleList.add(moduleNode.getModuleConfiguration());
@@ -49,6 +55,14 @@ public class ModuleService {
         } catch (Exception ex) {
             throw new FatalException("Can not load cm modules.", ex);
         }
+    }
+
+    private void validateSchema(URL url) throws IOException {
+        try (InputStream stream = url.openStream()) {
+            ConfigurationSchemaValidator validator = new ConfigurationSchemaValidator(stream, MODULE_XSD);
+            validator.validate();
+        }
+
     }
 
     public List<ModuleConfiguration> getModuleList() {
@@ -137,15 +151,16 @@ public class ModuleService {
          * Проверка на зацикливание
          */
         public void check() {
-            //Цикл по элементам графа
+            // Цикл по элементам графа
             for (ModuleNode node : importFilesGraf.values()) {
-                //Проверка каждого элемента графа
+                // Проверка каждого элемента графа
                 check(node, new Stack<String>());
             }
         }
 
         /**
-         * Рекурсивная функция проверки зависимости импортируемых файлов на зацикливание зависимостей
+         * Рекурсивная функция проверки зависимости импортируемых файлов на
+         * зацикливание зависимостей
          * @param node
          * @param stack
          */
@@ -164,7 +179,7 @@ public class ModuleService {
 
         @Override
         public boolean hasMoreElements() {
-            //Поиск хотя бы одного не импортированного
+            // Поиск хотя бы одного не импортированного
             for (ModuleNode node : importFilesGraf.values()) {
                 if (!node.isLoad) {
                     return true;
@@ -179,7 +194,8 @@ public class ModuleService {
             // Поиск первого не импортированного
             for (ModuleNode node : importFilesGraf.values()) {
                 if (!node.isLoad) {
-                    //Нашли не импортированного, получаем по цепочке зависимостей ближайший не импортированный
+                    // Нашли не импортированного, получаем по цепочке
+                    // зависимостей ближайший не импортированный
                     result = getDependOn(node);
                     break;
                 }
@@ -189,20 +205,22 @@ public class ModuleService {
         }
 
         /**
-         * Поднимаемся по ветке зависимых файлов и ищем наиболее верхние не загруженные
+         * Поднимаемся по ветке зависимых файлов и ищем наиболее верхние не
+         * загруженные
          * @param node
          * @return
          */
         private ModuleNode getDependOn(ModuleNode node) {
             ModuleNode result = null;
-            //Элемент верхнего уровня, который не от кого не зависит
+            // Элемент верхнего уровня, который не от кого не зависит
             if (node.dependOn.size() == 0) {
-                //Проверяем его на загруженность
+                // Проверяем его на загруженность
                 if (!node.isLoad) {
                     result = node;
                 }
             } else {
-                //Элемент не верхнего уровня, проверяем загруженность элементов верхнего уровня
+                // Элемент не верхнего уровня, проверяем загруженность элементов
+                // верхнего уровня
                 for (String dependOn : node.dependOn) {
                     result = getDependOn(importFilesGraf.get(dependOn));
                     if (result == null) {

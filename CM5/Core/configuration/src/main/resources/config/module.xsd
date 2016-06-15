@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="https://cm5.intertrust.ru/config/module"
+     xmlns:module="https://cm5.intertrust.ru/config/module" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="module" type="module:module" />
+
+    <xs:complexType name="module">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" />
+            <xs:element name="description" type="xs:string" />
+            <xs:element name="depends" type="module:depends" minOccurs="0"/>
+            <xs:element name="extension-points-packages" type="module:extensionPointsPackages" minOccurs="0"/>
+            <xs:element name="configuration-elements-packages" type="module:configurationElementsPackages" minOccurs="0"/>
+            <xs:element name="gui-components-packages" type="module:guiComponentsPackages" minOccurs="0"/>
+            <xs:element name="server-components-packages" type="module:serverComponentsPackages" minOccurs="0"/>                      
+            <xs:element name="configuration-schema-path" type="xs:string" minOccurs="0"/>
+            <xs:element name="configuration-paths" type="module:configurationPaths" minOccurs="0"/>
+            <xs:sequence minOccurs="0">
+                <xs:element name="import-files" type="module:importFiles" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:element name="import-reports" type="module:importReports" minOccurs="0"/>
+            <xs:element name="deploy-processes" type="module:deployProcesses" minOccurs="0"/>
+            <xs:element name="localization-files" type="module:localizationFiles" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="depends">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="depend" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="extensionPointsPackages">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="extension-points-package" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="configurationElementsPackages">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="configuration-elements-package" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="guiComponentsPackages">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="gui-components-package" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="serverComponentsPackages">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="server-components-package" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="importFiles">       
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="import-file" type="module:importFile" />
+        </xs:sequence>
+        <xs:attribute name="csv-encoding" type="xs:string" use="optional" />
+        <xs:attribute name="on-clean-base-by-type" type="xs:string" use="optional" />
+        <xs:attribute name="rewrite" type="xs:boolean" use="optional" />
+    </xs:complexType>
+
+    <xs:complexType name="importFile">       
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="rewrite" type="xs:boolean" use="optional" />
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="configurationPaths">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="configuration-path" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="importReports">
+        <xs:sequence>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="report-template-dir" type="module:reportTemplateDir" />
+            </xs:sequence>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="report-template" type="module:reportTemplate" />
+            </xs:sequence>
+            <xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="font-dir" type="xs:string" />
+            </xs:sequence>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="reportTemplateDir">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="reportTemplate">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="template-file" type="module:templateFile" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="templateFile">
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="deployProcesses">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="process-definition" type="xs:string" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="localizationFiles">
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="localization-file" type="module:localizationFile" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="localizationFile">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="locale" type="xs:string" use="required" />
+            </xs:extension>
+        </xs:simpleContent>                  
+    </xs:complexType>
+
+</xs:schema>
