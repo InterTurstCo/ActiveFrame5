@@ -426,7 +426,7 @@
         <prototype>
             <![CDATA[
                 select
-                   n.id, n."from", n.subject, n.body
+                   n.id, n."from", n.subject, n.body, n."context_object"
                 from
                     notification n
                     ::from-clause
