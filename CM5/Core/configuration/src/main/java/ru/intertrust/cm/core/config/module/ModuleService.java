@@ -28,6 +28,7 @@ public class ModuleService {
     private List<ModuleConfiguration> moduleList = new ArrayList<ModuleConfiguration>();
 
     public void init() {
+        URL url = null;
         try {
             fileGraf = new ModuleGraf();
             // Получение ресурсов описания модулей и добавление их в граф для
@@ -35,7 +36,7 @@ public class ModuleService {
             Enumeration<URL> urlEnum =
                     this.getClass().getClassLoader().getResources("META-INF/cm-module.xml");
             while (urlEnum.hasMoreElements()) {
-                URL url = urlEnum.nextElement();
+                url = urlEnum.nextElement();
                 validateSchema(url); // Проверка на соответствие XML Schema в
                                      // module.xsd
                 ModuleConfiguration config = loadModule(url);
@@ -53,7 +54,7 @@ public class ModuleService {
             }
 
         } catch (Exception ex) {
-            throw new FatalException("Can not load cm modules.", ex);
+            throw new FatalException("Cannot load module: " + url.toString(), ex);
         }
     }
 
