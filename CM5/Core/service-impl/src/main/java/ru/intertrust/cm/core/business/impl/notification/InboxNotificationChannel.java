@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationContext;
 import ru.intertrust.cm.core.business.api.dto.notification.NotificationPriority;
@@ -48,8 +49,13 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
                 notificationTextFormer.format(notificationType, BODY_INBOX_PART, addresseeId, locale,
                         INBOX_NOTIFICATION_CHANNEL,
                         context);
-
         DomainObject notification = createNotification(senderId, addresseeId, subject, body, priority);
+        
+        //Смотрим есть ли контекст с именем документ
+        Dto document = context.getContextObject("document");
+        if (document != null && document instanceof Id){
+            notification.setReference("context_object", (Id)document);
+        }
 
         notification = domainObjectDao.save(notification, systemAccessToken);
 

@@ -23,7 +23,6 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -165,7 +164,12 @@ public class TableViewerToobar {
     private Scheduler.ScheduledCommand getCommandForMultipleContext(final ActionContext context){
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
-                Command command = new Command("executeAction", "generic.workflow.action", context);
+                SimpleActionConfig actionConfig = context.getActionConfig();
+                String actionHandler = actionConfig.getActionHandler();
+                if (actionHandler == null) {
+                    actionHandler = "generic.workflow.action";
+                }
+                Command command = new Command("executeAction", actionHandler, context);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onFailure(Throwable caught) {

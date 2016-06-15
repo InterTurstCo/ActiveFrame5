@@ -383,7 +383,7 @@
         <prototype>
             <![CDATA[
                 select
-                    n.id, n.subject, n.body, n.new, n."from", n."to",
+                    n.id, n.subject, n.body, n.new, n."from", n."to", n."context_object",
                     sender.firstname as sender, addressee.firstname as addressee
                 from
                     notification n

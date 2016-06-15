@@ -334,7 +334,7 @@ public class FilterBuilderUtil {
 
     }
     private static boolean isUserWithoutTimePattern(Calendar calendar){
-        return calendar.get(Calendar.HOUR) == 0
+        return calendar.get(Calendar.HOUR_OF_DAY) == 0
                 && calendar.get(Calendar.MINUTE) == 0
                 && calendar.get(Calendar.SECOND) == 0;
     }

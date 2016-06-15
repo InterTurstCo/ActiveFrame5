@@ -28,9 +28,12 @@ public class DateUtil {
             case ModelUtil.LOCAL_TIME_ZONE_ID:
             case ModelUtil.DEFAULT_TIME_ZONE_ID:
             case ModelUtil.ORIGINAL_TIME_ZONE_ID:
+            case "По умолчанию":
+            case "Локальная":
+            case "Оригинальная":
                 return GuiContext.get().getUserInfo().getTimeZoneId();
         }
-        return timeZoneId;
+        return TimeZone.getTimeZone(timeZoneId).getID();
     }
 
     public static TimeZone prepareTimeZone(String rawTimeZone) {

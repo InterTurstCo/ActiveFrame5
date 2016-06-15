@@ -41,6 +41,7 @@
             <string name="Body" length="1024" />
             <string name="Priority" length="128" />            
             <boolean name="New" />            
+            <reference name="context_object" type="*" not-null="false" />
         </fields>
         <attachment-types>
             <attachment-type name="Notification_Content" />

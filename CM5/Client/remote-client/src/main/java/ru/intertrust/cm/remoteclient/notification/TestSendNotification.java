@@ -84,6 +84,7 @@ public class TestSendNotification extends ClientBase {
             notificationService.sendNow("TEST_MULTY_ATTACH", getPersonId("admin"), 
                     addressee,
                     NotificationPriority.HIGH, context);
+            
             System.out.println("Test End");
         } finally {
             writeLog();

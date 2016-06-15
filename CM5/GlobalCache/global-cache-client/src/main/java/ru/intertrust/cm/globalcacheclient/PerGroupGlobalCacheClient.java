@@ -12,7 +12,6 @@ import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
-import ru.intertrust.cm.globalcache.api.AbsentDomainObject;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
 import ru.intertrust.cm.globalcache.api.GroupAccessChanges;
 import ru.intertrust.cm.globalcache.api.TransactionChanges;
@@ -308,11 +307,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         if (isReactivationUndergoing()) {
             return null;
         }
-        if (isChangedInTransaction(id)) {
-            // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
-            return AbsentDomainObject.INSTANCE;
-        }
-        return logHit(globalCache.getDomainObject(null, id, accessToken));
+        return logHit(isChangedInTransaction(id) ? null : globalCache.getDomainObject(null, id, accessToken));
     }
 
     @Override
@@ -323,8 +318,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         }
         final DomainObject domainObject = globalCache.getDomainObject(null, type, uniqueKey, accessToken);
         if (domainObject != null && !domainObject.isAbsent() && isChangedInTransaction(domainObject.getId())) {
-            // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
-            return AbsentDomainObject.INSTANCE;
+            return logHit(null);
         }
         return logHit(domainObject);
     }
@@ -339,8 +333,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         for (int i = 0; i < domainObjects.size(); i++) {
             DomainObject domainObject = domainObjects.get(i);
             if (domainObject != null && !domainObject.isAbsent() && isChangedInTransaction(domainObject.getId())) {
-                // the only possibility to get here is to get Domain Object deleted. if object's changed, Transaction-level cache will reflect this
-                domainObjects.set(i, AbsentDomainObject.INSTANCE);
+                domainObjects.set(i, null);
             }
         }
         return logHit(domainObjects);
