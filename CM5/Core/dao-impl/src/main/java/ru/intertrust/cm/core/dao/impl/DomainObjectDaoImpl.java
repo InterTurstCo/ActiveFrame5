@@ -534,7 +534,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             for (String fieldName : fields) {
                 final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectTypeName, fieldName);
                 if (fieldConfig == null) {
-                    logger.warn("Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName, new DaoException());
+                    final String msg = "Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName;
+                    logger.warn(msg);
+                    logger.debug(msg, new DaoException());
                 }
                 Value<?> newValue = domainObject.getValue(fieldName);
                 if (newValue != null && newValue.get() != null){
@@ -550,7 +552,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             for (String fieldName : fields) {
                 final FieldConfig fieldConfig = configurationExplorer.getFieldConfig(domainObjectTypeName, fieldName);
                 if (fieldConfig == null) {
-                    logger.warn("Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName, new DaoException());
+                    final String msg = "Trying to save non-existing field. Type: " + domainObjectTypeName + ", field: " + fieldName;
+                    logger.warn(msg);
+                    logger.debug(msg, new DaoException());
                 }else{
                     Value originalValue = originalDomainObject.getValue(fieldName);
                     Value newValue = domainObject.getValue(fieldName);
@@ -1855,7 +1859,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         if (value != null && !value.getClass().equals(fieldConfig.getFieldType().getValueClass())) {
             // todo: later change to exception throwing
             //throw new DaoException("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType());
-            logger.warn("Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType(), new DaoException());
+            final String msg = "Trying to assign value: " + value + " to Field of type: " + fieldConfig.getFieldType();
+            logger.warn(msg);
+            logger.debug(msg, new DaoException());
         }
 
         String columnName = getSqlName(fieldConfig.getName());
