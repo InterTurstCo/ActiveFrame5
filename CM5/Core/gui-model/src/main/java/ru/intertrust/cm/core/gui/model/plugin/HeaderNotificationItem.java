@@ -9,6 +9,7 @@ import ru.intertrust.cm.core.business.api.dto.Id;
 public class HeaderNotificationItem implements Dto {
 
     private Id id;
+    private Id contextObjectId;
     private String subject;
     private String body;
 
@@ -16,8 +17,9 @@ public class HeaderNotificationItem implements Dto {
 
     }
 
-    public HeaderNotificationItem(Id id, String subject, String body) {
-        this.id = id;
+    public HeaderNotificationItem(Id notificationId, Id contextObjectId, String subject, String body) {
+        this.id = notificationId;
+        this.contextObjectId = contextObjectId;
         this.subject = subject;
         this.body = body;
     }
@@ -28,6 +30,14 @@ public class HeaderNotificationItem implements Dto {
 
     public void setId(Id id) {
         this.id = id;
+    }
+
+    public Id getContextObjectId() {
+        return contextObjectId;
+    }
+
+    public void setContextObjectId(Id contextObjectId) {
+        this.contextObjectId = contextObjectId;
     }
 
     public String getSubject() {
@@ -55,6 +65,7 @@ public class HeaderNotificationItem implements Dto {
 
         if (body != null ? !body.equals(that.body) : that.body != null) return false;
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (contextObjectId != null ? !contextObjectId.equals(that.contextObjectId) : that.contextObjectId != null) return false;
         if (subject != null ? !subject.equals(that.subject) : that.subject != null) return false;
 
         return true;
@@ -62,9 +73,6 @@ public class HeaderNotificationItem implements Dto {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (subject != null ? subject.hashCode() : 0);
-        result = 31 * result + (body != null ? body.hashCode() : 0);
-        return result;
+        return id != null ? id.hashCode() : 0;
     }
 }

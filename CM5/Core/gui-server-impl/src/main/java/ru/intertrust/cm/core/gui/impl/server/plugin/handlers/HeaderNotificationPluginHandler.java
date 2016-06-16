@@ -93,9 +93,7 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
                 Collections.singletonList(filter));
         for (int i =0; i < collection.size(); i++){
             final IdentifiableObject identifiableObject = collection.get(i);
-            final Id id = identifiableObject.getId();
-            final Id contextObjectId = identifiableObject.getReference(CONTEXT_OBJECT_COLUMN_NAME);
-            collItems.add(new HeaderNotificationItem(contextObjectId == null ? id : contextObjectId,
+            collItems.add(new HeaderNotificationItem(identifiableObject.getId(), identifiableObject.getReference(CONTEXT_OBJECT_COLUMN_NAME),
                     identifiableObject.getString(SUBJECT_COLUMN_NAME), identifiableObject.getString(BODY_COLUMN_NAME)));
 
         }
