@@ -80,7 +80,7 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
             return;
         }
 
-        if (!configurationExplorer.isAuditLogType(config.getName()) && !config.isTemplate() && isParentObject(config, configurationExplorer)) {
+        if (!configurationExplorer.isAuditLogType(config.getName())) {
             List<ReferenceFieldConfig> newReferenceFieldConfigs = new ArrayList<>();
             List<UniqueKeyConfig> newUniqueKeyConfigs = new ArrayList<>();
 
@@ -99,15 +99,17 @@ public class RecursiveConfigurationMerger extends AbstractRecursiveConfiguration
                 }
             }
 
-            for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
-                if (!(fieldConfig instanceof ReferenceFieldConfig)
-                        || ((ReferenceFieldConfig) fieldConfig).getType() == null
-                        || fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
-                    continue;
-                }
+            if (!config.isTemplate() && isParentObject(config, configurationExplorer)) {
+                for (FieldConfig fieldConfig : config.getSystemFieldConfigs()) {
+                    if (!(fieldConfig instanceof ReferenceFieldConfig)
+                            || ((ReferenceFieldConfig) fieldConfig).getType() == null
+                            || fieldConfig.getName().equalsIgnoreCase(DomainObjectDao.ACCESS_OBJECT_ID)) {
+                        continue;
+                    }
 
-                if (schemaCache.getForeignKeyName(config, (ReferenceFieldConfig) fieldConfig) == null) {
-                    newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                    if (schemaCache.getForeignKeyName(config, (ReferenceFieldConfig) fieldConfig) == null) {
+                        newReferenceFieldConfigs.add((ReferenceFieldConfig) fieldConfig);
+                    }
                 }
             }
 
