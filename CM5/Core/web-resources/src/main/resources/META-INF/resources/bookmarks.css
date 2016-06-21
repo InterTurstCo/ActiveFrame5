@@ -92,10 +92,11 @@ ins {
 
 .right-button {
     background: scroll rgba(255, 255, 255, 0.8) none 0 0 no-repeat;
-    -moz-transform: rotate(-90deg);
-    -webkit-transform: rotate(-90deg);
-    -o-transform: rotate(-90deg);
-    -ms-transform: rotate(-90deg);
+    transform-origin: 0 0;
+    -moz-transform: rotate(-90deg) translateX(-100%);
+    -webkit-transform: rotate(-90deg) translateX(-100%);
+    -o-transform: rotate(-90deg) translateX(-100%);
+    -ms-transform: rotate(-90deg) translateX(-100%);
     border-bottom: 1px solid;
     border-left: 1px solid;
     border-right: 1px solid;
@@ -104,8 +105,8 @@ ins {
     position: absolute;
     z-index: 1;
     outline: none;
-    top: 57px;
-    left: -44px;
+    top: 25px;
+    left: 0px;
     min-width: 105px;
     text-align: center;
 }

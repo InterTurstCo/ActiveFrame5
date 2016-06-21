@@ -1029,6 +1029,7 @@ tr[class\*="dataGridSelectedRow"] {
     box-shadow: -3px -1px 3px 1px #C0C0C0;
     cursor: pointer;
     height: 41px;
+    left: -10px;
 }
 
 .right-button .inside-vertical-tab-text {
