@@ -51,10 +51,16 @@ public class TableViewerToobar {
         editButton = new ToggleButton();
         deleteButton = new ToggleButton();
         addButton = new Button();
+
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         //editButton.addStyleName("edit-btn-table-viewer");
         editButton.addStyleName("edit-btn-table-viewer-disable");
         editButton.setTitle("Редактировать");
+
+        deleteButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
+        deleteButton.addStyleName("delete-btn-table-viewer-disable");
+        deleteButton.setTitle("Удалить");
+
         addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
         addButton.addStyleName("add-btn-table-viewer");
         addButton.setTitle("Создать");
@@ -70,6 +76,7 @@ public class TableViewerToobar {
         );
 
         toolbarPanel.add(editButton);
+        toolbarPanel.add(deleteButton);
         toolbarPanel.add(addButton);
 
 
@@ -99,6 +106,14 @@ public class TableViewerToobar {
         this.editButton = editButton;
     }
 
+    public ToggleButton getDeleteButton() {
+        return deleteButton;
+    }
+
+    public void setDeleteButton(ToggleButton deleteButton) {
+        this.deleteButton = deleteButton;
+    }
+
     public Button getAddButton() {
         return addButton;
     }
@@ -123,10 +138,14 @@ public class TableViewerToobar {
         this.selectedId = id;
         editButton.addStyleName("edit-btn-table-viewer");
         editButton.removeStyleName("edit-btn-table-viewer-disable");
+        deleteButton.addStyleName("delete-btn-table-viewer");
+        deleteButton.removeStyleName("delete-btn-table-viewer-disable");
         if (selectedId == null) {
             fooMenu.clearItems();
             editButton.addStyleName("edit-btn-table-viewer-disable");
             editButton.removeStyleName("edit-btn-table-viewer");
+            deleteButton.addStyleName("delete-btn-table-viewer-disable");
+            deleteButton.removeStyleName("delete-btn-table-viewer");
         } else {
             getActionsById(selectedId);
         }
