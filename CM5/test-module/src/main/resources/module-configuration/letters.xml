@@ -917,7 +917,7 @@
 
                 </mapping>
             </enumeration-box>
-            <table-viewer id="table-viewer">
+            <table-viewer id="table-viewer" delete-component="smart.delete">
 
                 <ignore-form-read-only-state value="false"/>
                 <collection-viewer>

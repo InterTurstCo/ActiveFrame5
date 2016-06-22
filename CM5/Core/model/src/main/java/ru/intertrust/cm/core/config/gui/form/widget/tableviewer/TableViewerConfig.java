@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
@@ -23,6 +24,9 @@ import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
  */
 @Root(name = "table-viewer")
 public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMappings {
+    @Attribute(name = "delete-component",required = false)
+    private String deleteComponent;
+
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
@@ -148,6 +152,14 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
 
     public void setCollectionTableButtonsConfig(CollectionTableButtonsConfig collectionTableButtonsConfig) {
         this.collectionTableButtonsConfig = collectionTableButtonsConfig;
+    }
+
+    public String getDeleteComponent() {
+        return deleteComponent;
+    }
+
+    public void setDeleteComponent(String deleteComponent) {
+        this.deleteComponent = deleteComponent;
     }
 
     @Override

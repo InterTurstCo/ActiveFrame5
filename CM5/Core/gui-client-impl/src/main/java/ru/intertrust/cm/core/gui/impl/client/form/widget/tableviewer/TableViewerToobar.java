@@ -34,6 +34,7 @@ import java.util.List;
 public class TableViewerToobar {
     private HorizontalPanel toolbarPanel;
     private ToggleButton editButton;
+    private ToggleButton deleteButton;
     private Button addButton;
     private MenuBar actionsMenu;
     private MenuBar fooMenu;
@@ -48,6 +49,7 @@ public class TableViewerToobar {
         this.selectedIds = selectedIds;
         toolbarPanel = new HorizontalPanel();
         editButton = new ToggleButton();
+        deleteButton = new ToggleButton();
         addButton = new Button();
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         //editButton.addStyleName("edit-btn-table-viewer");
