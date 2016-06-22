@@ -814,7 +814,7 @@ div.edit-btn-table-viewer-disable:hover {
 div.delete-btn-table-viewer-disable {
     cursor: default;
     background-image: url(css/icons/icon-delete-disabled.png);
-    background-position: center;
+    background-position: 1px center;
 }
 
 div.delete-btn-table-viewer-disable:hover {

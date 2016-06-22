@@ -567,6 +567,8 @@ div.edit-btn-table-viewer {
 
 div.delete-btn-table-viewer {
     cursor: pointer;
+    background-image: url(css/icons/icon-delete-widget.png);
+    background-position: 1px center;
 }
 
 .delete-btn-table-viewer:hover {
