@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.api.client;
 
+import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
@@ -12,5 +13,5 @@ import ru.intertrust.cm.core.business.api.dto.Id;
  */
 public interface CustomDelete {
 
-    void delete(Id id);
+    void delete(Id id, EventBus eventBus);
 }

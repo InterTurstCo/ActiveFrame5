@@ -13,6 +13,9 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.CustomDelete;
 import ru.intertrust.cm.core.gui.impl.client.event.UpdateCollectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -43,8 +46,9 @@ public class TableViewerToobar {
     private TableViewerData actionsData;
     private Integer multiContextToExecute = 0;
     private List<Id> selectedIds;
+    private TableViewerConfig config;
 
-    public TableViewerToobar(EventBus localEventBus, List<Id> selectedIds) {
+    public TableViewerToobar(EventBus localEventBus, final List<Id> selectedIds) {
         this.eventBus = localEventBus;
         this.selectedIds = selectedIds;
         toolbarPanel = new HorizontalPanel();
@@ -68,11 +72,33 @@ public class TableViewerToobar {
         editButton.addClickHandler(new ClickHandler() {
                                        @Override
                                        public void onClick(ClickEvent event) {
-                                           if (selectedId != null) {
+                                           if (selectedId != null && selectedIds.size() == 0) {
                                                eventBus.fireEvent(new OpenDomainObjectFormEvent(selectedId));
                                            }
                                        }
                                    }
+        );
+
+        deleteButton.addClickHandler(new ClickHandler() {
+                                         @Override
+                                         public void onClick(ClickEvent event) {
+                                             CustomDelete deleteComponent;
+                                             if (selectedId != null && selectedIds.size() == 0) {
+                                                 if (config != null && config.getDeleteComponent() != null) {
+                                                      deleteComponent = ComponentRegistry.instance.get(config.getDeleteComponent());
+                                                 } else {
+                                                      deleteComponent = ComponentRegistry.instance.get("default.custom.delete.component");
+                                                 }
+
+                                                 if (deleteComponent != null) {
+                                                     deleteComponent.delete(selectedId, eventBus);
+                                                 } else {
+                                                     Window.alert("Невозможно получить компонент для удаления:"+config.getDeleteComponent());
+                                                 }
+                                             }
+
+                                         }
+                                     }
         );
 
         toolbarPanel.add(editButton);
@@ -136,16 +162,10 @@ public class TableViewerToobar {
 
     public void setSelectedId(Id id) {
         this.selectedId = id;
-        editButton.addStyleName("edit-btn-table-viewer");
-        editButton.removeStyleName("edit-btn-table-viewer-disable");
-        deleteButton.addStyleName("delete-btn-table-viewer");
-        deleteButton.removeStyleName("delete-btn-table-viewer-disable");
+        activateSingleRowAction();
         if (selectedId == null) {
             fooMenu.clearItems();
-            editButton.addStyleName("edit-btn-table-viewer-disable");
-            editButton.removeStyleName("edit-btn-table-viewer");
-            deleteButton.addStyleName("delete-btn-table-viewer-disable");
-            deleteButton.removeStyleName("delete-btn-table-viewer");
+            deactivateSingleRowAction();
         } else {
             getActionsById(selectedId);
         }
@@ -159,7 +179,7 @@ public class TableViewerToobar {
         return menuItem;
     }
 
-    private Scheduler.ScheduledCommand getCommandForContext(final ActionContext context){
+    private Scheduler.ScheduledCommand getCommandForContext(final ActionContext context) {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
                 Command command = new Command("executeAction", "generic.workflow.action", context);
@@ -182,7 +202,7 @@ public class TableViewerToobar {
         return menuItemCommand;
     }
 
-    private Scheduler.ScheduledCommand getCommandForMultipleContext(final ActionContext context){
+    private Scheduler.ScheduledCommand getCommandForMultipleContext(final ActionContext context) {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
                 SimpleActionConfig actionConfig = context.getActionConfig();
@@ -203,7 +223,7 @@ public class TableViewerToobar {
                     public void onSuccess(Dto result) {
                         eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
                         multiContextToExecute--;
-                        if(multiContextToExecute<=0){
+                        if (multiContextToExecute <= 0) {
                             multiContextToExecute = 0;
                             setSelectedIds(selectedIds);
                         }
@@ -284,7 +304,7 @@ public class TableViewerToobar {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
                 multiContextToExecute = actionsData.getIdsActions().size();
-                for(ActionContext aContext : actionsData.getIdsActions().get(itemName)){
+                for (ActionContext aContext : actionsData.getIdsActions().get(itemName)) {
                     Scheduler.ScheduledCommand cmd = getCommandForMultipleContext(aContext);
                     cmd.execute();
                 }
@@ -294,4 +314,21 @@ public class TableViewerToobar {
         return menuItem;
     }
 
+    public void deactivateSingleRowAction() {
+        editButton.addStyleName("edit-btn-table-viewer-disable");
+        editButton.removeStyleName("edit-btn-table-viewer");
+        deleteButton.addStyleName("delete-btn-table-viewer-disable");
+        deleteButton.removeStyleName("delete-btn-table-viewer");
+    }
+
+    public void activateSingleRowAction() {
+        editButton.addStyleName("edit-btn-table-viewer");
+        editButton.removeStyleName("edit-btn-table-viewer-disable");
+        deleteButton.addStyleName("delete-btn-table-viewer");
+        deleteButton.removeStyleName("delete-btn-table-viewer-disable");
+    }
+
+    public void setConfig(TableViewerConfig config) {
+        this.config = config;
+    }
 }

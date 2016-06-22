@@ -41,8 +41,11 @@ import ru.intertrust.cm.core.gui.impl.client.form.widget.breadcrumb.CollectionWi
 import ru.intertrust.cm.core.gui.impl.client.form.widget.hyperlink.HyperlinkClickHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
@@ -80,7 +83,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         state = (TableViewerState) currentState;
         CollectionViewerConfig config = initCollectionConfig(state);
         collectionWidgetHelper.openCollectionPlugin(config, null, pluginPanel);
-
+        toolbar.setConfig(this.config);
         if (toolbar.getAddButton() != null && state.getTableViewerConfig().getLinkedFormMappingConfig() != null &&
                 state.getTableViewerConfig().getCreatedObjectsConfig() != null) {
             if (state.hasAllowedCreationDoTypes()) {
@@ -301,12 +304,21 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 selectedIds.remove(event.getId());
                 toolbar.setSelectedIds(selectedIds);
             }
+            toolbar.deactivateSingleRowAction();
         }
+        toolbar.setSelectedId(null);
     }
 
     @Override
     public void onDelete(CustomDeleteEvent event) {
-        Window.alert("Результат удаления: "+event.getStatus()+" Message: "+event.getMessage());
+        if(event.getStatus().equals(DeleteStatus.ERROR)){
+            Window.alert("Ошибка удаления обьекта : " + event.getMessage());
+        } else {
+            CollectionPlugin coPlugin = (CollectionPlugin)pluginPanel.getCurrentPlugin();
+            CollectionPluginView cpView = (CollectionPluginView)coPlugin.getView();
+            cpView.delCollectionRow(event.getDeletedObject());
+        }
+
     }
 
 
