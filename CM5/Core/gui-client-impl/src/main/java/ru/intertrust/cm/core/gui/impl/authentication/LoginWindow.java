@@ -6,7 +6,6 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.storage.client.Storage;
 import com.google.gwt.user.client.DOM;
-import ru.intertrust.cm.core.gui.api.client.History;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -16,6 +15,7 @@ import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.ProductTitleConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
+import ru.intertrust.cm.core.gui.api.client.History;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
@@ -23,7 +23,6 @@ import ru.intertrust.cm.core.model.AuthenticationException;
 
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 
@@ -56,8 +55,6 @@ public class LoginWindow implements Component {
     private Label titleLogin;
     private Label labelCheckBox;
     private Label titleClearUserSettings;
-
-    private static Logger log = Logger.getLogger("LoginWindow logger");
 
     public String getVersion() {
         return coreVersion;
@@ -319,7 +316,6 @@ public class LoginWindow implements Component {
                 } else if (caught instanceof StatusCodeException) {
                     message.setText(get(AUTHORIZATION_CONNECTION_ERROR_KEY, "Ошибка авторизации. Невозможно подключиться к серверу."));
                 } else {
-                    log.info("Login exception: " + caught);
                     message.setText(get(AUTHORIZATION_ERROR_KEY, "Ошибка авторизации. ") + caught.getMessage());
                 }
             }

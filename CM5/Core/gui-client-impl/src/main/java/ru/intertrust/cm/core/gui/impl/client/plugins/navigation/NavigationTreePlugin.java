@@ -177,7 +177,10 @@ public class NavigationTreePlugin extends Plugin implements RootNodeSelectedEven
 
     @Override
     public void onLeavingLeftPanel(LeaveLeftPanelEvent event) {
-        ((NavigationTreePluginView) (getView())).onLeavingLeftPanel();
+        final PluginView view = getView();
+        if (view != null) { // LeveLeftPanelEvent event thrown from ru.intertrust.cm.core.gui.impl.client.BusinessUniverse.initialize() when views aren't initialized yet
+            ((NavigationTreePluginView) view).onLeavingLeftPanel();
+        }
     }
 
     private LinkConfig findLinkConfig(final String linkName, List<LinkConfig> linkConfigs) {
