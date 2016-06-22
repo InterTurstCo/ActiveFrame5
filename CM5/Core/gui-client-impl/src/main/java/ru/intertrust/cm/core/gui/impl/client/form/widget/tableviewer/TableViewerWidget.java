@@ -25,6 +25,8 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEvent;
+import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
@@ -59,7 +61,8 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
  */
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
-        OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler {
+        OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
+        CustomDeleteEventHandler {
 
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
@@ -134,6 +137,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(CollectionRowSelectedEvent.TYPE, this);
         localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
         localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, this);
+        localEventBus.addHandler(CustomDeleteEvent.TYPE, this);
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
@@ -298,6 +302,11 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 toolbar.setSelectedIds(selectedIds);
             }
         }
+    }
+
+    @Override
+    public void onDelete(CustomDeleteEvent event) {
+        Window.alert("Результат удаления: "+event.getStatus()+" Message: "+event.getMessage());
     }
 
 

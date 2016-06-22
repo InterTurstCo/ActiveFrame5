@@ -14,7 +14,7 @@ import com.google.gwt.event.shared.GwtEvent;
  */
 public class CustomDeleteEvent extends GwtEvent<CustomDeleteEventHandler> {
 
-    private static final Type<CustomDeleteEventHandler> TYPE = new Type<CustomDeleteEventHandler>();
+    public  static final Type<CustomDeleteEventHandler> TYPE = new Type<CustomDeleteEventHandler>();
     private CustomDeleteEventHandler.DeleteStatus status;
     private String message;
 
@@ -34,5 +34,21 @@ public class CustomDeleteEvent extends GwtEvent<CustomDeleteEventHandler> {
     @Override
     protected void dispatch(CustomDeleteEventHandler handler) {
         handler.onDelete(this);
+    }
+
+    public CustomDeleteEventHandler.DeleteStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(CustomDeleteEventHandler.DeleteStatus status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
