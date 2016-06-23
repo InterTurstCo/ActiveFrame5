@@ -737,10 +737,18 @@ a.action-bar-button:hover {
 
 .darkButton {
     border: 1px solid #669492;
-    background: #669492; /* Old browsers */
-    background: -moz-linear-gradient(top,  #669492 0%, #90b5a4 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top,  #669492 0%,#90b5a4 100%); /* Chrome10-25,Safari5.1-6 */
-    background: linear-gradient(to bottom,  #669492 0%,#90b5a4 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    background: #669492;
+    background: -moz-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: -webkit-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: linear-gradient(to bottom, #669492 0, #90b5a4 100%);
+    color: #f1f1f1;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.lightButton {
+    background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
+    border: 1px solid #B4AEA3;
+    color: #3e3434;
 }
 
 .darkButton:hover {
@@ -751,11 +759,24 @@ a.action-bar-button:hover {
     text-shadow: none;
 }
 
+.lightButton:hover {
+    background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
+    border: 1px solid #B4AEA3;
+    color: #3e3434;
+}
+
+
 .darkButton:active {
     background: #669492;
     -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     color: rgba(255, 255, 255, 0.8);
+}
+
+.lightButton:active {
+    background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
+    border: 1px solid #B4AEA3;
+    color: #3e3434;
 }
 
 .popup-body {
