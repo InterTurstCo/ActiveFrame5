@@ -25,6 +25,7 @@ import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
@@ -204,6 +205,61 @@ public class CollectionPluginView extends PluginView {
         return selectedIds;
     }
 
+    public void setSelectedRow(final Id objectId) {
+        CollectionRowItem item = getRowItem(objectId);
+        if (item != null) {
+            selectionModel.setSelected(item, true);
+            tableBody.getRowElement(items.indexOf(item)).scrollIntoView();
+        } else {
+            final Boolean originalResetState = sortCollectionState.isResetCollection();
+            sortCollectionState.setResetCollection(false);
+            final CollectionRowsRequest request = createRequest();
+            request.setLimit(0);
+            request.setOffset(0);
+            Set<Id> searchId = new HashSet<>();
+            searchId.add(objectId);
+            request.setIncludedIds(searchId);
+            List<String> expandableTypes = new ArrayList<String>();
+            if (((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig() != null) {
+
+                for (ExpandableObjectConfig expandableObjectConfig : ((CollectionViewerConfig) plugin.getConfig()).getChildCollectionConfig().
+                        getExpandableObjectsConfig().getExpandableObjects()) {
+                    expandableTypes.add(expandableObjectConfig.getObjectName());
+                }
+            }
+            request.setExpandableTypes(expandableTypes);
+
+            Command command = new Command("generateCollectionRowItems", "collection.plugin", request);
+            BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                @Override
+                public void onFailure(Throwable caught) {
+                    GWT.log("something was going wrong while obtaining item by ID ");
+                    caught.printStackTrace();
+                }
+
+                @Override
+                public void onSuccess(Dto result) {
+                    CollectionRowsResponse collectionRowsResponse = (CollectionRowsResponse) result;
+                    List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRows();
+                    if (collectionRowItems.size() != 0) {
+                        handleCollectionRowsResponse(collectionRowItems, false);
+                        selectionModel.setSelected(getRowItem(request.getIncludedIds().iterator().next()), true);
+                        tableBody.getRowElement(items.indexOf(getRowItem(request.getIncludedIds().iterator().next()))).scrollIntoView();
+                        sortCollectionState.setResetCollection(originalResetState);
+                    }
+                }
+            });
+        }
+    }
+
+    private CollectionRowItem getRowItem(Id objectId) {
+        for (CollectionRowItem item : items) {
+            if (item.getId().equals(objectId)) {
+                return item;
+            }
+        }
+        return null;
+    }
 
     public boolean restoreHistory() {
         final HistoryManager manager = Application.getInstance().getHistoryManager();
@@ -684,10 +740,10 @@ public class CollectionPluginView extends PluginView {
         CollectionViewerConfig config = (CollectionViewerConfig) plugin.getConfig();
         if (selected && config.getRowsSelectionConfig() != null &&
                 !config.getRowsSelectionConfig().isMultiSelection()) {
-        int ind = 0;
+            int ind = 0;
             for (CollectionRowItem item : items) {
                 if (!item.getId().equals(selectedId)) {
-                    ((FieldUpdater<CollectionRowItem, Boolean>)(tableBody.getColumn(0).getFieldUpdater())).update(ind,item, false);
+                    ((FieldUpdater<CollectionRowItem, Boolean>) (tableBody.getColumn(0).getFieldUpdater())).update(ind, item, false);
                     ind++;
                 }
                 tableBody.getSelectionModel().setSelected(item, false);
@@ -797,10 +853,29 @@ public class CollectionPluginView extends PluginView {
     }
 
     private void insertMoreRows(List<CollectionRowItem> list) {
-        items.addAll(list);
+        items.addAll(removeDuplicate(list));
         tableBody.setRowData(items);
         listCount = items.size();
 
+    }
+
+    /**
+     * Этот метод нужен для того чтобы у нас была возможность произвольно
+     * добавлять строки, по одной, при поиске Id через апи, без подтяжки нескольких
+     * страниц, и затем когда при скролле подтянется коллекция с этим Id чтобы
+     * не было дублирования
+     *
+     * @param list
+     * @return
+     */
+    private List<CollectionRowItem> removeDuplicate(List<CollectionRowItem> list) {
+        for (Iterator<CollectionRowItem> iterator = list.iterator(); iterator.hasNext(); ) {
+            CollectionRowItem newItem = iterator.next();
+            if (items.contains(newItem)) {
+                iterator.remove();
+            }
+        }
+        return list;
     }
 
     private void applySelectionModel() {

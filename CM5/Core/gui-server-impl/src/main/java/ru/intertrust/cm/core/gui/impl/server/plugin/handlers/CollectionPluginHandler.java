@@ -311,6 +311,17 @@ public class CollectionPluginHandler extends ActivePluginHandler {
 
         collectionRowsResponse.setCollectionRows(result);
 
+        if(request.getOffset()==0 && request.getLimit()==0 && request.getIncludedIds()!=null){
+            for(Id objectId : request.getIncludedIds()){
+               for( Iterator<CollectionRowItem> iterator = collectionRowsResponse.getCollectionRows().iterator();iterator.hasNext();){
+                   CollectionRowItem newItem = iterator.next();
+                   if(!newItem.getId().equals(objectId)){
+                       iterator.remove();
+                   }
+               }
+            }
+        }
+
         return collectionRowsResponse;
     }
 

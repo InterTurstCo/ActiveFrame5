@@ -924,7 +924,8 @@
                     <collection-ref name="Organizations"/>
                     <collection-view-ref name="organizations_default_view"/>
                     <default-sort-criteria column-field="name" order="desc"/>
-                    <collection-extra-filters>
+
+                    <!--collection-extra-filters>
                         <extra-filter name="byNames" null-value-filter-name="nullValueFilter">
                             <param name="0" set-base-object="true"/>
 
@@ -934,7 +935,8 @@
                             <param name="3" value="Организация 4" type="string"/>
 
                         </extra-filter>
-                    </collection-extra-filters>
+                    </collection-extra-filters-->
+
                     <act:tool-bar useDefault="true"/>
                     <rows-selection default-state="empty" multi-selection="true"/>
                 </collection-viewer>

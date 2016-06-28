@@ -10,6 +10,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -65,7 +66,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
         OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
-        CustomDeleteEventHandler {
+        CustomDeleteEventHandler, CollectionRemoteManagement {
 
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
@@ -267,6 +268,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             selectedId = event.getId();
             toolbar.setSelectedId(selectedId);
         }
+
     }
 
     @Override
@@ -319,6 +321,19 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             cpView.delCollectionRow(event.getDeletedObject());
         }
 
+    }
+
+    /**
+     * Выделить строку с нужным Id обьекта.
+     * Если строки нет в текущем списке, догрузить список.
+     * @param objectId
+     * @return false - если строка не найдена иначе true
+     */
+    @Override
+    public void SelectRowById(Id objectId) {
+        CollectionPlugin coPlugin = (CollectionPlugin)pluginPanel.getCurrentPlugin();
+        CollectionPluginView cpView = (CollectionPluginView)coPlugin.getView();
+        cpView.setSelectedRow(objectId);
     }
 
 
