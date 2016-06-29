@@ -625,6 +625,17 @@ public class TestPermission extends ClientBase {
             test28.setReference("test_type_24", test24.getId());
             notAdminCrudservice.save(test28);
             log("Test  CMFIVE-5397: OK");            
+
+            //Лишние update, здесь только вызовы, анализ производится в файле логов
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.createDomainObject("test_type_24");
+            test24.setString("name", "_" + System.currentTimeMillis());
+            test24.setReference("author", getPersonId("person5"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.save(test24); 
+            //Повторный save, права не меняются, update в таблице acl не должно быть
+            test24.setString("name", "_" + System.currentTimeMillis());
+            test24 = notAdminCrudservice.save(test24);
             
             log("Test complete");
         } finally {

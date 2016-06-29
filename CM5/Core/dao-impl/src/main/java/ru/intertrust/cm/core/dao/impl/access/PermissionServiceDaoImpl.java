@@ -211,21 +211,26 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         executeExtensionPoint(aclDataList, invalidContextId);
 
         //Получение текущего состава acl из базы
-        List<AclInfo> oldAclInfos = getCurrentAclInfo(invalidContextId);
+        Set<AclInfo> oldAclInfos = getCurrentAclInfo(invalidContextId);
 
-        //Получение разницы в составе acl
-        //Получаем новые элементы в acl
+        //Вычисление изменения между новыми и старыми элементами
         Set<AclInfo> addAclInfo = new HashSet<>();
-        if (newAclInfos != null) {
-            addAclInfo.addAll(newAclInfos);
-        }
-
-        //Получаем те элементы acl которые надо удалить
         Set<AclInfo> deleteAclInfo = new HashSet<AclInfo>();
-        if (oldAclInfos != null) {
-            deleteAclInfo.addAll(oldAclInfos);
+
+        //Проверка на то что есть в новых но нет в старых
+        for (AclInfo aclInfo : newAclInfos) {
+            if (!oldAclInfos.contains(aclInfo)){
+                addAclInfo.add(aclInfo);
+            }
         }
 
+        //Проверка на то что есть в старых но нет в новых
+        for (AclInfo aclInfo : oldAclInfos) {
+            if (!newAclInfos.contains(aclInfo)){
+                deleteAclInfo.add(aclInfo);
+            }
+        }        
+        
         //Непосредственно удаление или добавление в базу
         deleteAclRecords(invalidContextId, deleteAclInfo, notifyCache);
         insertAclRecords(invalidContextId, addAclInfo, notifyCache);
@@ -272,7 +277,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
      * @param invalidContextId
      * @return
      */
-    private List<AclInfo> getCurrentAclInfo(Id invalidContextId) {
+    private Set<AclInfo> getCurrentAclInfo(Id invalidContextId) {
 
         RdbmsId rdbmsObjectId = (RdbmsId) invalidContextId;
 
@@ -295,11 +300,11 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("object_id", rdbmsObjectId.getId());
 
-        return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<List<AclInfo>>() {
+        return switchableNamedParameterJdbcTemplate.query(query.toString(), parameters, new ResultSetExtractor<Set<AclInfo>>() {
 
             @Override
-            public List<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
-                List<AclInfo> result = new ArrayList<>();
+            public Set<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
+                Set<AclInfo> result = new HashSet<AclInfo>();
                 while (rs.next()) {
                     AccessType accessType = null;
                     String operstion = rs.getString("operation");
