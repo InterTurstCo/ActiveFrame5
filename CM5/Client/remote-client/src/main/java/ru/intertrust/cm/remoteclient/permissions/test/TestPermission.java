@@ -592,14 +592,25 @@ public class TestPermission extends ClientBase {
             //CMFIVE-5381 Проверка создания ДО с immutable полями под системным токеном из точки расширения
             notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             test24 = notAdminCrudservice.createDomainObject("test_type_24");
-            //Флаг точке расширения, что надо создать дочерний test_type_25
-            test24.setString("name", "test-5381");
+            //Флаг точке расширения, что надо создать дочерние test_type_25
+            test24.setString("name", "create-test25-by-system");
             //Автора надо указать другого пользователя, отличного от создателя
             test24.setReference("author", getPersonId("person2"));
             notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
             test24 = notAdminCrudservice.save(test24);
-                        
             log("Test CMFIVE-5381: OK");
+            
+            //CMFIVE-5892 Проверка наличия прав на создание связанного под пользовательскими правами в одной транзакции
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.createDomainObject("test_type_24");
+            //Флаг точке расширения, что надо создать дочерние test_type_25
+            test24.setString("name", "create-test25-by-person");
+            //Автора надо указать person5, под кем выполняется сохранение
+            test24.setReference("author", getPersonId("person5"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test24 = notAdminCrudservice.save(test24);
+                        
+            log("Test CMFIVE-5892: OK");
             
             //Проверка создания ДО с имутабле полями в дочернем типе  CMFIVE-5397 
             notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");

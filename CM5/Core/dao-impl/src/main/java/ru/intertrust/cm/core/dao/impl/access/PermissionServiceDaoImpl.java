@@ -148,8 +148,26 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
     }
 
     @Override
+    public void refreshAclIfMarked(Set<Id> invalidContextIds) {
+        //не обрабатываем вне транзакции
+        if (getTxReg().getTransactionKey() == null) {
+            return;
+        }
+        //Получаем все невалидные контексты и вызываем для них перерасчет ACL
+        RecalcAclSynchronization recalcGroupSynchronization = userTransactionService.getListener(RecalcAclSynchronization.class);
+        
+        if (recalcGroupSynchronization != null) {
+            for (Id contextId : recalcGroupSynchronization.getInvalidContexts()) {
+                if (invalidContextIds == null || invalidContextIds.contains(contextId)){
+                    refreshAclFor(contextId);
+                }
+            }
+        }
+    }    
+    
+    @Override
     public void refreshAclFor(Id invalidContextId) {
-        refreshAclFor(invalidContextId, false);
+        refreshAclFor(invalidContextId, true);
     }
 
     private void refreshAclFor(Id invalidContextId, boolean notifyCache) {
@@ -1338,18 +1356,7 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
 
     @Override
     public void refreshAcls() {
-        //Не работаем вне транзакции
-        if (getTxReg().getTransactionKey() == null) {
-            return;
-        }
-        //Получаем все невалидные контексты и вызываем для них перерасчет ACL
-        RecalcAclSynchronization recalcGroupSynchronization =
-                (RecalcAclSynchronization) getTxReg().getResource(RecalcAclSynchronization.class);
-        if (recalcGroupSynchronization != null) {
-            for (Id contextId : recalcGroupSynchronization.getInvalidContexts()) {
-                refreshAclFor(contextId);
-            }
-        }
+        refreshAclIfMarked(null);
     }
 
     @Override

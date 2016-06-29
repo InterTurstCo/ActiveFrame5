@@ -249,7 +249,24 @@ public class AccessControlServiceImpl implements AccessControlService {
                 types[i] = new CreateChildAccessType(immutableFieldDataList.get(i).getTypeName());                 
             }
             
-            return createAccessToken(login, parentObjects, types, true);
+            AccessToken result = null;
+            // CMFIVE-5892 В большинстве случаев права мы получим при первом же вызове, но если нет прав 
+            // то получим ошибку затем пересчитываем права у тех ДО к которым устанавливаем связь и еще раз пробуем получить токен
+            try{
+                //Первая попытка получить accessTocken
+                result = createAccessToken(login, parentObjects, types, true);
+            }catch(AccessException ex){
+                //Может не быть прав на создание, потому что еще не пересчитаны права на ДО куда ссылаются immutable поля
+                Set<Id> idsForRecalc = new HashSet<Id>();
+                for (Id parentObjectId : parentObjects) {
+                    idsForRecalc.add(parentObjectId);
+                }
+                permissionServiceDao.refreshAclIfMarked(idsForRecalc);
+                //Повторная попытка получить accessTocken
+                result = createAccessToken(login, parentObjects, types, true);
+            }
+                        
+            return result;
         }
 
         if (isAllowedToCreateByStaticGroups(personId, domainObject)) {
