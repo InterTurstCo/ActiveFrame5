@@ -2,6 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
+import com.google.gwt.user.client.EventPreview;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -25,10 +29,7 @@ import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.FAVORITE_ACTION_TOOLTIP_KEY;
@@ -154,6 +155,27 @@ public abstract class PluginView implements IsWidget {
             rightMenuBar.addActionItem(context);
         }
         actionToolBar.add(rightMenuBar);
+
+        /**
+         * Горячие клавиши. Пока только Alt+S для сохранения
+         */
+
+        DOM.addEventPreview(new EventPreview() {
+            @Override
+            public boolean onEventPreview(Event event) {
+                switch (DOM.eventGetType(event)) {
+                    case Event.ONKEYPRESS:
+                        if (event.getAltKey() && (event.getCharCode() == 115 || event.getCharCode() == 1099)) {
+                            if(leftMenuBar.availableItems.containsKey("aSave")){
+                                leftMenuBar.availableItems.get("aSave").getScheduledCommand().execute();
+                            }
+                        event.preventDefault();
+                        }
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
     /**
@@ -250,6 +272,8 @@ public abstract class PluginView implements IsWidget {
 
     private class MenuBarExt extends MenuBar {
 
+        public Map<String,MenuItem> availableItems = new HashMap<>();
+
         public void addActionItem(final ActionContext context) {
             final AbstractActionConfig config = context.getActionConfig();
             if (config instanceof ActionSeparatorConfig) {
@@ -262,6 +286,7 @@ public abstract class PluginView implements IsWidget {
                 updateByConfig(menuItem, config);
                 menuItem.setTitle(((ActionConfig) config).getTooltip());
                 addItem(menuItem);
+                availableItems.put(((ActionConfig) config).getName(),menuItem);
             } else if (config instanceof ActionGroupConfig) {
                 MenuItem menuItem = addSubmenu(context, false);
                 if (menuItem != null)
