@@ -19,11 +19,19 @@ public class CustomDeleteEvent extends GwtEvent<CustomDeleteEventHandler> {
     private CustomDeleteEventHandler.DeleteStatus status;
     private String message;
     private Id deletedObject;
+    private Boolean refreshRequired = false;
 
     public CustomDeleteEvent(Id doToDelete, CustomDeleteEventHandler.DeleteStatus status, String message){
         this.deletedObject = doToDelete;
         this.status = status;
         this.message = message;
+    }
+
+    public CustomDeleteEvent(Id doToDelete, CustomDeleteEventHandler.DeleteStatus status, String message, Boolean refresh){
+        this.deletedObject = doToDelete;
+        this.status = status;
+        this.message = message;
+        this.refreshRequired = refresh;
     }
 
     public CustomDeleteEvent(CustomDeleteEventHandler.DeleteStatus status){
@@ -61,5 +69,13 @@ public class CustomDeleteEvent extends GwtEvent<CustomDeleteEventHandler> {
 
     public void setDeletedObject(Id deletedObject) {
         this.deletedObject = deletedObject;
+    }
+
+    public Boolean isRefreshRequired() {
+        return refreshRequired;
+    }
+
+    public void setRefreshRequired(Boolean refreshRequired) {
+        this.refreshRequired = refreshRequired;
     }
 }

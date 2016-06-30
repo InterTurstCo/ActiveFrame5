@@ -319,6 +319,9 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             CollectionPlugin coPlugin = (CollectionPlugin)pluginPanel.getCurrentPlugin();
             CollectionPluginView cpView = (CollectionPluginView)coPlugin.getView();
             cpView.delCollectionRow(event.getDeletedObject());
+            if(event.isRefreshRequired()){
+                coPlugin.refresh();
+            }
         }
 
     }
