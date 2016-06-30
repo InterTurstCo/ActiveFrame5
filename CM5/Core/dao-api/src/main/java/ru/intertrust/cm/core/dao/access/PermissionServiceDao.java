@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.access;
 
 import java.util.List;
+import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
@@ -112,4 +113,12 @@ public interface PermissionServiceDao {
      * @param domainObject
      */
     void notifyDomainObjectChangeStatus(DomainObject domainObject);
+
+    /**
+     * Обновление прав доступа к доменным объектам не дожидаясь конца транзакции.
+     * Пересчет произведется только если ДО с переданными идентификаторами помечены для пересчета в конце транзакции.
+     * Если в качестве параметра передан null то пересчитаются все права у ДО, которые помечены для пересчета в текущей транзакции
+     * @param invalidContextIds
+     */
+    void refreshAclIfMarked(Set<Id> invalidContextIds);
 }

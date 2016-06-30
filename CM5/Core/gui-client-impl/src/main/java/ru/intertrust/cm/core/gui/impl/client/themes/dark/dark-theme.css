@@ -745,7 +745,7 @@ a.action-bar-button:hover {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-.lightButton {
+.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\) {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;
@@ -759,7 +759,7 @@ a.action-bar-button:hover {
     text-shadow: none;
 }
 
-.lightButton:hover {
+.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\):hover {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;
@@ -773,7 +773,7 @@ a.action-bar-button:hover {
     color: rgba(255, 255, 255, 0.8);
 }
 
-.lightButton:active {
+.lightButton:not\(\.ldotCreate\):not\(\.selectionButton\):not\(\.uploadButton\):active {
     background: linear-gradient(to bottom, #f0e5d1 0, #F8F1E6 100%);
     border: 1px solid #B4AEA3;
     color: #3e3434;

@@ -307,6 +307,23 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             throws InvalidIdException, ObjectNotFoundException,
             OptimisticLockException {
 
+        //Трассировка сохранения со стеком вызова. Нужна для поиска OptimisticLockException
+        if (logger.isTraceEnabled()){
+            String message = "Save domain objects:\n";
+            for (int i = 0; i < domainObjects.length; i++) {
+                message +="DomainObject-" + i + ": " + domainObjects[i].toString();
+            }
+            message += "\nCall stack:\n";
+            StackTraceElement[] stackElements = Thread.currentThread().getStackTrace();
+            //Начинать надо с первого, так как нулевой это метод getStackTrace()
+            for (int i = 1; i < stackElements.length; i++) {
+                StackTraceElement stackTraceElement = stackElements[i];
+                message += "\t" + stackTraceElement.toString() + "\n";
+            }
+            
+            logger.trace(message);
+        }
+        
         checkIfAuditLog(domainObjects);
         DomainObject result[] = null;
 
