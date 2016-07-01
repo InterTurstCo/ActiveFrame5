@@ -182,7 +182,12 @@ public class TableViewerToobar {
     private Scheduler.ScheduledCommand getCommandForContext(final ActionContext context) {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
-                Command command = new Command("executeAction", "generic.workflow.action", context);
+                SimpleActionConfig actionConfig = context.getActionConfig();
+                String actionHandler = actionConfig.getActionHandler();
+                if (actionHandler == null) {
+                    actionHandler = "generic.workflow.action";
+                }
+                Command command = new Command("executeAction", actionHandler, context);
                 BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
                     @Override
                     public void onFailure(Throwable caught) {
