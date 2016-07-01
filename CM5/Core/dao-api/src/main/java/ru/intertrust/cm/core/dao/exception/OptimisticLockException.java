@@ -22,5 +22,10 @@ public class OptimisticLockException extends DaoException {
     public DomainObject getObject() {
         return object;
     }
+    
+    @Override
+    public String getMessage(){
+        return "OptimisticLockException on object " + object;
+    }
 
 }
