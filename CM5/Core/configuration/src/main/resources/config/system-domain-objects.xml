@@ -76,6 +76,7 @@
             <string name="theme" length="128"/>
             <long name="splitter_orientation"/>
             <long name="splitter_position"/>
+            <long name="custom_splitter_position"/>
             <string name="nav_link" length="2048"/>
             <boolean name="nav_panel_level2_pinned" not-null="false"/>
             <string name="application" length="128"/>

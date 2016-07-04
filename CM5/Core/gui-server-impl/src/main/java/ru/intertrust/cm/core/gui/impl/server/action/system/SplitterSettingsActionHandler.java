@@ -22,6 +22,10 @@ public class SplitterSettingsActionHandler extends ActionHandler<SplitterSetting
     @Override
     public ActionData executeAction(SplitterSettingsActionContext context) {
         final DomainObject domainObject = userSettingsFetcher.getUserSettingsDomainObject(true);
+        if(context.isCustomDrag()) {
+            domainObject.setLong(UserSettingsHelper.DO_CUSTOM_SPLITTER_POSITION_FIELD_KEY, context.getPosition());
+        }
+
         domainObject.setLong(UserSettingsHelper.DO_SPLITTER_POSITION_FIELD_KEY, context.getPosition());
         domainObject.setLong(UserSettingsHelper.DO_SPLITTER_ORIENTATION_FIELD_KEY, context.getOrientation());
         crudService.save(domainObject);

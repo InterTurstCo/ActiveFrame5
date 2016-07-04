@@ -24,7 +24,7 @@ public class SplitterEx extends DockLayoutPanel {
     protected boolean splitType;
     protected int sizeFromInsert;
 
-    class HSplitter extends Splitter  {
+    class HSplitter extends Splitter {
         public HSplitter(Widget target, boolean reverse, int size) {
             super(target, reverse);
 
@@ -34,7 +34,7 @@ public class SplitterEx extends DockLayoutPanel {
             centralDummy.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelVertDots());
             changeModeButton.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeVertButton());
             splitType = true;
-            if (size == 0){
+            if (size == 0) {
                 changeFullLeftPosition();
                 rightArrowVisible(false);
             } else if (size == target.getParent().getParent().getOffsetWidth() - splitterSize) {
@@ -97,20 +97,20 @@ public class SplitterEx extends DockLayoutPanel {
 
     }
 
-    abstract class Splitter extends FlowPanel  {
+    abstract class Splitter extends FlowPanel {
 
-        protected final FlowPanel                  leftArrow            = new FlowPanel();
-        protected final FlowPanel                  rightArrow           = new FlowPanel();
+        protected final FlowPanel leftArrow = new FlowPanel();
+        protected final FlowPanel rightArrow = new FlowPanel();
 
-        protected final FlowPanel                  centralPanel         = new FlowPanel();
-        protected final FlowPanel                  changeModePanel      = new FlowPanel();
-        protected final FlowPanel                  changeModeButton     = new FlowPanel();
+        protected final FlowPanel centralPanel = new FlowPanel();
+        protected final FlowPanel changeModePanel = new FlowPanel();
+        protected final FlowPanel changeModeButton = new FlowPanel();
 
-        protected final FlowPanel                  centralDummy         = new FlowPanel();
-        private FlowPanel                          dummyLeftPanel       = new FlowPanel();
-        private FlowPanel                          dummySplitter        = new FlowPanel();
-        private FlowPanel                          dummyLeftButton      = new FlowPanel();
-        private FlowPanel                          dummyRightButton     = new FlowPanel();
+        protected final FlowPanel centralDummy = new FlowPanel();
+        private FlowPanel dummyLeftPanel = new FlowPanel();
+        private FlowPanel dummySplitter = new FlowPanel();
+        private FlowPanel dummyLeftButton = new FlowPanel();
+        private FlowPanel dummyRightButton = new FlowPanel();
 
         protected final Widget target;
 
@@ -161,32 +161,50 @@ public class SplitterEx extends DockLayoutPanel {
 
             getElement().setId("gwt-splitter");
             sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEUP | Event.ONMOUSEMOVE
-                    | Event.ONDBLCLICK | Event.ONMOUSEOVER  | Event.ONMOUSEOUT);
+                    | Event.ONDBLCLICK | Event.ONMOUSEOVER | Event.ONMOUSEOUT);
 
             buttonEvent();
 
         }
 
-        protected void buttonEvent(){
-            //правая кнопка
+        private void invertFullSize() {
+            if (fullSize)
+                fullSize = false;
+            else
+                fullSize = true;
+        }
+
+        protected void buttonEvent() {
+            //правая кнопка (вниз)
             leftArrow.addDomHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
+
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     //TODO DELETE FOREIGN CODE
-                    eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth() - splitterSize ,
-                           0,  target.getParent().getOffsetHeight(), 0, splitType, true ));
+
+                    eventBus.fireEvent(new SplitterWidgetResizerEvent(target.getParent().getParent().getOffsetWidth() - splitterSize,
+                            0,
+                            (fullSize) ? customSize : target.getParent().getOffsetHeight(),
+                            0, splitType, true));
+                    invertFullSize();
+
                 }
             }, ClickEvent.getType());
 
-            //на самом деле это левая кнопка (Тим)
-           rightArrow.addDomHandler(new ClickHandler() {
+            //на самом деле это левая кнопка (Тим) (вверх)
+            rightArrow.addDomHandler(new ClickHandler() {
 
                 @Override
                 public void onClick(ClickEvent event) {
+
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(0, 0,
-                           /*верхняя точка сплитер панели*/ splitterSize, target.getParent().getOffsetHeight(), splitType, true ));
+                            (fullSize)?customSize:splitterSize,
+                            target.getParent().getOffsetHeight(),
+                            splitType, true));
+
+                    invertFullSize();
                 }
             }, ClickEvent.getType());
 
@@ -194,36 +212,34 @@ public class SplitterEx extends DockLayoutPanel {
                 @Override
                 public void onClick(ClickEvent event) {
                     eventBus.fireEvent(new CollectionPluginResizeBySplitterEvent());
-                    int firstWidgetWidth = target.getParent().getParent().getOffsetWidth()/2 -DEFAULT_SPLITTER_SIZE;
-                    if (splitType){
+                    int firstWidgetWidth = target.getParent().getParent().getOffsetWidth() / 2 - DEFAULT_SPLITTER_SIZE;
+                    if (splitType) {
                         splitType = false;
 
                     } else {
                         splitType = true;
-                        if (sizeFromInsert != target.getParent().getParent().getOffsetWidth()/2 && sizeFromInsert>0 )  {
-                        firstWidgetWidth = sizeFromInsert-DEFAULT_SPLITTER_SIZE;
+                        if (sizeFromInsert != target.getParent().getParent().getOffsetWidth() / 2 && sizeFromInsert > 0) {
+                            firstWidgetWidth = sizeFromInsert - DEFAULT_SPLITTER_SIZE;
                         }
                     }
 
 
                     eventBus.fireEvent(new SplitterWidgetResizerEvent(firstWidgetWidth, 0,
-                            target.getParent().getParent().getOffsetHeight()/2, target.getParent().getParent().getOffsetHeight(), splitType, false ));
+                            target.getParent().getParent().getOffsetHeight() / 2, target.getParent().getParent().getOffsetHeight(), splitType, false));
 
                 }
             }, ClickEvent.getType());
 
         }
 
-        protected  void rightArrowVisible(boolean b){
+        protected void rightArrowVisible(boolean b) {
             rightArrow.setVisible(b);
 
         }
 
-        protected void leftArrowVisible(boolean b){
+        protected void leftArrowVisible(boolean b) {
             leftArrow.setVisible(b);
         }
-
-
 
 
         @Override
@@ -275,33 +291,33 @@ public class SplitterEx extends DockLayoutPanel {
                     if (mouseDown) {
 
 
-                        if (splitType == true)   {
-                            if (target.getOffsetWidth() == 0){
+                        if (splitType == true) {
+                            if (target.getOffsetWidth() == 0) {
                                 this.changeFullLeftPosition();
                                 rightArrowVisible(false);
 
-                            }  else if (target.getOffsetWidth() <
-                                    (getElement().getParentElement().getParentElement().getOffsetWidth()-this.getOffsetWidth())){
+                            } else if (target.getOffsetWidth() <
+                                    (getElement().getParentElement().getParentElement().getOffsetWidth() - this.getOffsetWidth())) {
                                 this.changeCentralPanel();
                                 leftArrowVisible(true);
                                 rightArrowVisible(true);
-                            }  else {
-                                     this.changeFullRightPosition();
-                                     leftArrowVisible(false);
+                            } else {
+                                this.changeFullRightPosition();
+                                leftArrowVisible(false);
                             }
-                        }  else {
-                                if (target.getOffsetHeight() == 0){
-                                    this.changeFullLeftPosition();
-                                    rightArrowVisible(false);
-                                } else if (target.getOffsetHeight() <
-                                        (getElement().getParentElement().getParentElement().getOffsetHeight()-this.getOffsetHeight())){
-                                    this.changeCentralPanel();
-                                    leftArrowVisible(true);
-                                    rightArrowVisible(true);
-                                } else {
-                                    this.changeFullRightPosition();
-                                    leftArrowVisible(false);
-                                }
+                        } else {
+                            if (target.getOffsetHeight() == 0) {
+                                this.changeFullLeftPosition();
+                                rightArrowVisible(false);
+                            } else if (target.getOffsetHeight() <
+                                    (getElement().getParentElement().getParentElement().getOffsetHeight() - this.getOffsetHeight())) {
+                                this.changeCentralPanel();
+                                leftArrowVisible(true);
+                                rightArrowVisible(true);
+                            } else {
+                                this.changeFullRightPosition();
+                                leftArrowVisible(false);
+                            }
 
                         }
 
@@ -333,19 +349,17 @@ public class SplitterEx extends DockLayoutPanel {
 
         }
 
-        public void panelOnMouseEvent(Boolean b){
-            if (b == true){
+        public void panelOnMouseEvent(Boolean b) {
+            if (b == true) {
                 centralPanel.getElement().getStyle().setVisibility(Style.Visibility.VISIBLE);
                 changeModePanel.getElement().getStyle().setVisibility(Style.Visibility.VISIBLE);
                 //
-            }
-            else {
+            } else {
                 centralPanel.getElement().getStyle().setVisibility(Style.Visibility.HIDDEN);
                 changeModePanel.getElement().getStyle().setVisibility(Style.Visibility.HIDDEN);
             }
 
         }
-
 
 
         public void setMinSize(int minSize) {
@@ -440,16 +454,14 @@ public class SplitterEx extends DockLayoutPanel {
             centralDummy.setStyleName(GlobalThemesManager.getSplitterStyles().centralPanelHorizDots());
             changeModeButton.setStyleName(GlobalThemesManager.getSplitterStyles().changeModeHorizButton());
             splitType = false;
-            if (size == (0/*-splitterSize*/)){
+            if (size == (0/*-splitterSize*/)) {
                 changeFullLeftPosition();
                 rightArrowVisible(false);
-            }
-            else if (size == target.getParent().getOffsetHeight() - splitterSize
+            } else if (size == target.getParent().getOffsetHeight() - splitterSize
                     || Window.getClientHeight() == size + CENTRAL_PANEL_TOP_MARGIN + TOOLBAR_HEIGHT + splitterSize) {
                 changeFullRightPosition();
                 leftArrowVisible(false);
-            }
-            else {
+            } else {
                 changeCentralPanel();
 
             }
@@ -516,13 +528,14 @@ public class SplitterEx extends DockLayoutPanel {
      */
     private static Element glassElem = null;
 
-    private final int splitterSize ;
+    private final int splitterSize;
+    private int customSize;
+    private boolean fullSize = false;
 
     public SplitterEx(int splitterSize, EventBus eventBus) {
         super(Style.Unit.PX);
         this.splitterSize = splitterSize;
         this.eventBus = eventBus;
-
         if (glassElem == null) {
             glassElem = Document.get().createDivElement();
             glassElem.getStyle().setPosition(Style.Position.ABSOLUTE);
@@ -545,13 +558,19 @@ public class SplitterEx extends DockLayoutPanel {
         return splitterSize;
     }
 
+    public int getCustomSize() {
+        return customSize;
+    }
 
+    public void setCustomSize(int customSize) {
+        this.customSize = customSize;
+    }
 
     @Override
     public void insert(Widget child, Direction direction, double size, Widget before) {
         super.insert(child, direction, size, before);
         if (direction != Direction.CENTER) {
-            insertSplitter(child, before , (int)size);
+            insertSplitter(child, before, (int) size);
         }
 
     }
@@ -585,18 +604,18 @@ public class SplitterEx extends DockLayoutPanel {
 
     /**
      * Sets the minimum allowable size for the given widget.
-     *
+     * <p/>
      * <p>
      * Its associated splitter cannot be dragged to a position that would make it
      * smaller than this size. This method has no effect for the
      * {@link com.google.gwt.user.client.ui.DockLayoutPanel.Direction#CENTER} widget.
      * </p>
      *
-     * @param child the child whose minimum size will be set
+     * @param child   the child whose minimum size will be set
      * @param minSize the minimum size for this widget
      */
     public void setWidgetMinSize(Widget child, int minSize) {
-       // assertIsChild(child);
+        // assertIsChild(child);
         Splitter splitter = getAssociatedSplitter(child);
         // The splitter is null for the center element.
         if (splitter != null) {
@@ -609,18 +628,18 @@ public class SplitterEx extends DockLayoutPanel {
      * in conjunction with {@link #setWidgetMinSize} to provide a speed-bump
      * effect where the slider will stick to a preferred minimum size before
      * closing completely.
-     *
+     * <p/>
      * <p>
      * This method has no effect for the {@link com.google.gwt.user.client.ui.DockLayoutPanel.Direction#CENTER}
      * widget.
      * </p>
      *
-     * @param child the child whose slider should snap closed
+     * @param child          the child whose slider should snap closed
      * @param snapClosedSize the width below which the widget will close or
-     *        -1 to disable.
+     *                       -1 to disable.
      */
     public void setWidgetSnapClosedSize(Widget child, int snapClosedSize) {
-      //  assertIsChild(child);
+        //  assertIsChild(child);
         Splitter splitter = getAssociatedSplitter(child);
         // The splitter is null for the center element.
         if (splitter != null) {
@@ -632,11 +651,11 @@ public class SplitterEx extends DockLayoutPanel {
      * Sets whether or not double-clicking on the splitter should toggle the
      * display of the widget.
      *
-     * @param child the child whose display toggling will be allowed or not.
+     * @param child   the child whose display toggling will be allowed or not.
      * @param allowed whether or not display toggling is allowed for this widget
      */
     public void setWidgetToggleDisplayAllowed(Widget child, boolean allowed) {
-      //  assertIsChild(child);
+        //  assertIsChild(child);
         Splitter splitter = getAssociatedSplitter(child);
         // The splitter is null for the center element.
         if (splitter != null) {
@@ -672,7 +691,7 @@ public class SplitterEx extends DockLayoutPanel {
                 splitter = new HSplitter(widget, true, size);
                 break;
             case NORTH:
-                splitter = new VSplitter(widget, false, size );
+                splitter = new VSplitter(widget, false, size);
                 break;
             case SOUTH:
                 splitter = new VSplitter(widget, true, size);

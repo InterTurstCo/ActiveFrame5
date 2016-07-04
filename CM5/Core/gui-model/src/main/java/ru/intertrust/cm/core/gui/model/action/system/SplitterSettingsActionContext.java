@@ -16,6 +16,8 @@ public class SplitterSettingsActionContext extends ActionContext {
 
     private Long position;
 
+    private Boolean customDrag = false;
+
     public Long getOrientation() {
         return orientation;
     }
@@ -30,5 +32,13 @@ public class SplitterSettingsActionContext extends ActionContext {
 
     public void setPosition(Long position) {
         this.position = position;
+    }
+
+    public Boolean isCustomDrag() {
+        return customDrag;
+    }
+
+    public void setCustomDrag(Boolean customDrag) {
+        this.customDrag = customDrag;
     }
 }

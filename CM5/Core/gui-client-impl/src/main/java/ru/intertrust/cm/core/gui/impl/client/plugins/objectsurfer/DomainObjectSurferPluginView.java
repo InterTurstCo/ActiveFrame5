@@ -51,6 +51,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         sourthRootWidget.getElement().getStyle().setOverflow(Style.Overflow.AUTO);
         eventBus = domainObjectSurferPlugin.getLocalEventBus();
         addSplitterWidgetResizeHandler();
+
     }
 
     private void initSplitter() {
@@ -61,10 +62,12 @@ public class DomainObjectSurferPluginView extends PluginView {
                 final int splitterSize;
                 if (dockLayoutPanel.isSplitType()) {
                     verticalSplitterSavedSize = splitterSize = northRootWidget.getOffsetWidth();
+                    setCustomSize(verticalSplitterSavedSize);
                 } else {
                     horizontalSplitterSavedSize = splitterSize = northRootWidget.getOffsetHeight() + dockLayoutPanel.getSplitterSize();
+                    setCustomSize(horizontalSplitterSavedSize);
                 }
-                storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize);
+                storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize, true);
             }
         };
     }
@@ -93,7 +96,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                 checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
-                storeSplitterSettings(event.isType(), size);
+                storeSplitterSettings(event.isType(), size, event.isArrowsPress() ? false : true);
             }
         });
     }
@@ -142,6 +145,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         final DomainObjectSurferPluginData initialData = plugin.getInitialData();
         final boolean isVertical = Integer.valueOf(1).equals(initialData.getSplitterOrientation());
         final Integer splitterSize = initialData.getSplitterPosition();
+
         if (isVertical) {
             dockLayoutPanel.addWest(northRootWidget, splitterSize == null ? surferWidth / 2 : splitterSize);
         } else {
@@ -149,7 +153,9 @@ public class DomainObjectSurferPluginView extends PluginView {
         }
         dockLayoutPanel.add(sourthRootWidget);
         splitterSetSize();
-
+        if (splitterSize != null) {
+            dockLayoutPanel.setCustomSize(splitterSize);
+        }
         final DomainObjectSurferConfig config = (DomainObjectSurferConfig) domainObjectSurferPlugin.getConfig();
         domainObjectSurferPlugin.getCollectionPlugin().setNavigationConfig(domainObjectSurferPlugin.getNavigationConfig());
 
@@ -177,12 +183,12 @@ public class DomainObjectSurferPluginView extends PluginView {
         return rootSurferPanel;
     }
 
-    private void storeSplitterSettings(final boolean vertical, final int size) {
+    private void storeSplitterSettings(final boolean vertical, final int size, final Boolean customDrag) {
         if (timeoutTimer == null) {
-            timeoutTimer = new SplitterSettingsTimeoutTimer(vertical, size);
+            timeoutTimer = new SplitterSettingsTimeoutTimer(vertical, size, customDrag);
         } else {
             timeoutTimer.cancel();
-            timeoutTimer.setParameters(vertical, size);
+            timeoutTimer.setParameters(vertical, size, customDrag);
         }
         timeoutTimer.schedule(SCHEDULE_TIMEOUT);
     }
@@ -190,15 +196,16 @@ public class DomainObjectSurferPluginView extends PluginView {
     private class SplitterSettingsTimeoutTimer extends Timer {
         private Long orientation;
         private Long size;
+        private Boolean customDrag = false;
 
-        private SplitterSettingsTimeoutTimer(boolean vertical, int size) {
-            setParameters(vertical, size);
+        private SplitterSettingsTimeoutTimer(boolean vertical, int size, Boolean customDrag) {
+            setParameters(vertical, size, customDrag);
         }
 
-        public void setParameters(boolean vertical, int size) {
+        public void setParameters(boolean vertical, int size, Boolean customDrag) {
             this.orientation = vertical ? Long.valueOf(1) : Long.valueOf(0);
             this.size = Long.valueOf(size);
-
+            this.customDrag = customDrag;
         }
 
         @Override
@@ -211,6 +218,7 @@ public class DomainObjectSurferPluginView extends PluginView {
             final SplitterSettingsActionContext actionContext = new SplitterSettingsActionContext();
             actionContext.setOrientation(orientation);
             actionContext.setPosition(size);
+            actionContext.setCustomDrag(customDrag);
             actionContext.setActionConfig(actionConfig);
             final Action action = ComponentRegistry.instance.get(SplitterSettingsActionContext.COMPONENT_NAME);
             action.setInitialContext(actionContext);
