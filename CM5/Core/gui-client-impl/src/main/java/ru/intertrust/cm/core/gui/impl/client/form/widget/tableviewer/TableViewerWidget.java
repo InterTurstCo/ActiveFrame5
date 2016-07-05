@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.config.gui.navigation.CollectionViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.DefaultSortCriteriaConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.CustomEdit;
 import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEvent;
 import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
@@ -175,7 +176,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 config.getCollectionViewerConfig().getToolBarConfig() != null &&
                 config.getCollectionViewerConfig().getToolBarConfig().isUseDefault()) &&
                 (editableState ||
-                        (config.getIgnoreFormReadOnlyStateConfig()!=null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
+                        (config.getIgnoreFormReadOnlyStateConfig() != null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
             toolbar.getToolbarPanel().setVisible(true);
         } else {
             toolbar.getToolbarPanel().setVisible(false);
@@ -241,13 +242,22 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     @Override
     public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
 
-        if (getLinkedFormMappingConfig() != null && (editableState ||
-                (config.getIgnoreFormReadOnlyStateConfig()!=null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
-            HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
-                    localEventBus, false, null, this, false).withModalWindow(true);
-            clickHandler.processClick();
-        }
+        if (config.getEditComponent() != null) {
+            CustomEdit editComponent = ComponentRegistry.instance.get(config.getEditComponent());
+            if (editComponent != null) {
+                editComponent.edit(event.getId());
+            } else {
+                Window.alert("Не найден компонент для редактирования: " + config.getEditComponent());
+            }
 
+        } else {
+            if (getLinkedFormMappingConfig() != null && (editableState ||
+                    (config.getIgnoreFormReadOnlyStateConfig() != null && config.getIgnoreFormReadOnlyStateConfig().isValue()))) {
+                HyperlinkClickHandler clickHandler = new HyperlinkClickHandler(event.getId(), null,
+                        localEventBus, false, null, this, false).withModalWindow(true);
+                clickHandler.processClick();
+            }
+        }
     }
 
 
@@ -264,7 +274,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCollectionRowSelect(CollectionRowSelectedEvent event) {
-        if (selectedIds.size()<=0) {
+        if (selectedIds.size() <= 0) {
             selectedId = event.getId();
             toolbar.setSelectedId(selectedId);
         }
@@ -298,7 +308,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onCheckBoxFieldUpdate(CheckBoxFieldUpdateEvent event) {
-        if(toolbar.getToolbarPanel().isVisible()) {
+        if (toolbar.getToolbarPanel().isVisible()) {
             if (!event.isDeselected()) {
                 selectedIds.add(event.getId());
                 toolbar.setSelectedIds(selectedIds);
@@ -313,13 +323,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     @Override
     public void onDelete(CustomDeleteEvent event) {
-        if(event.getStatus().equals(DeleteStatus.ERROR)){
+        if (event.getStatus().equals(DeleteStatus.ERROR)) {
             Window.alert("Ошибка удаления обьекта : " + event.getMessage());
         } else {
-            CollectionPlugin coPlugin = (CollectionPlugin)pluginPanel.getCurrentPlugin();
-            CollectionPluginView cpView = (CollectionPluginView)coPlugin.getView();
+            CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+            CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
             cpView.delCollectionRow(event.getDeletedObject());
-            if(event.isRefreshRequired()){
+            if (event.isRefreshRequired()) {
                 coPlugin.refresh();
             }
         }
@@ -329,13 +339,14 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     /**
      * Выделить строку с нужным Id обьекта.
      * Если строки нет в текущем списке, догрузить список.
+     *
      * @param objectId
      * @return false - если строка не найдена иначе true
      */
     @Override
     public void SelectRowById(Id objectId) {
-        CollectionPlugin coPlugin = (CollectionPlugin)pluginPanel.getCurrentPlugin();
-        CollectionPluginView cpView = (CollectionPluginView)coPlugin.getView();
+        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+        CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
         cpView.setSelectedRow(objectId);
     }
 

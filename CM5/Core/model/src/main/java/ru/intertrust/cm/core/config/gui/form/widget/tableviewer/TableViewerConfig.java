@@ -27,6 +27,9 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     @Attribute(name = "delete-component",required = false)
     private String deleteComponent;
 
+    @Attribute(name = "edit-component",required = false)
+    private String editComponent;
+
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
@@ -126,6 +129,14 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
         this.ignoreFormReadOnlyStateConfig = ignoreFormReadOnlyStateConfig;
     }
 
+    public String getEditComponent() {
+        return editComponent;
+    }
+
+    public void setEditComponent(String editComponent) {
+        this.editComponent = editComponent;
+    }
+
     @Deprecated
     public DefaultSortCriteriaConfig getDefaultSortCriteriaConfig() {
         return defaultSortCriteriaConfig;
@@ -212,6 +223,10 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
                 : that.createdObjectsConfig != null) {
             return false;
         }
+        if (editComponent != null ? !editComponent.equals(that.editComponent)
+                : that.editComponent != null) {
+            return false;
+        }
         return true;
     }
 
@@ -226,6 +241,7 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
         result = 31 * result + (ignoreFormReadOnlyStateConfig != null ? ignoreFormReadOnlyStateConfig.hashCode() : 0);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
+        result = 31 * result + (editComponent != null ? editComponent.hashCode() : 0);
         return result;
     }
 
