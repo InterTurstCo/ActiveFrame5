@@ -248,7 +248,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if (config.getEditComponent() != null) {
             CustomEdit editComponent = ComponentRegistry.instance.get(config.getEditComponent());
             if (editComponent != null) {
-                editComponent.edit(event.getId(),config,localEventBus);
+                editComponent.edit(event.getId(),this,localEventBus);
             } else {
                 Window.alert("Не найден компонент для редактирования: " + config.getEditComponent());
             }

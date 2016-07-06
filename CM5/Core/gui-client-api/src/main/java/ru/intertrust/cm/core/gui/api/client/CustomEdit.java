@@ -2,7 +2,7 @@ package ru.intertrust.cm.core.gui.api.client;
 
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,5 +12,5 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
  * To change this template use File | Settings | File and Code Templates.
  */
 public interface CustomEdit {
-    void edit(Id id, WidgetConfig config, EventBus eventBus);
+    void edit(Id id, HasLinkedFormMappings widget, EventBus eventBus);
 }
