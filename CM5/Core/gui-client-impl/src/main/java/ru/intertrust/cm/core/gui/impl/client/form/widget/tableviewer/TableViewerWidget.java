@@ -29,6 +29,8 @@ import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.api.client.CustomEdit;
 import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEvent;
 import ru.intertrust.cm.core.gui.api.client.event.CustomDeleteEventHandler;
+import ru.intertrust.cm.core.gui.api.client.event.CustomEditEvent;
+import ru.intertrust.cm.core.gui.api.client.event.CustomEditEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
@@ -67,7 +69,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
         OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
-        CustomDeleteEventHandler, CollectionRemoteManagement {
+        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement {
 
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
@@ -143,6 +145,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         localEventBus.addHandler(BreadCrumbNavigationEvent.TYPE, this);
         localEventBus.addHandler(CheckBoxFieldUpdateEvent.TYPE, this);
         localEventBus.addHandler(CustomDeleteEvent.TYPE, this);
+        localEventBus.addHandler(CustomEditEvent.TYPE, this);
         localEventBus.addHandler(UpdateCollectionEvent.TYPE, new UpdateCollectionEventHandler() {
             @Override
             public void updateCollection(UpdateCollectionEvent event) {
@@ -245,7 +248,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         if (config.getEditComponent() != null) {
             CustomEdit editComponent = ComponentRegistry.instance.get(config.getEditComponent());
             if (editComponent != null) {
-                editComponent.edit(event.getId());
+                editComponent.edit(event.getId(),(getLinkedFormMappingConfig() != null)?getLinkedFormMappingConfig():null,localEventBus);
             } else {
                 Window.alert("Не найден компонент для редактирования: " + config.getEditComponent());
             }
@@ -336,6 +339,12 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
     }
 
+
+    @Override
+    public void onEdit(CustomEditEvent event) {
+        CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
+        coPlugin.refresh();
+    }
     /**
      * Выделить строку с нужным Id обьекта.
      * Если строки нет в текущем списке, догрузить список.
@@ -349,6 +358,8 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
         cpView.setSelectedRow(objectId);
     }
+
+
 
 
     class OpenFormClickHandler implements ClickHandler {
