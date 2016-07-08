@@ -3,10 +3,10 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.crypto.CryptoSettingsConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
+import ru.intertrust.cm.core.config.migration.MigrationModuleConfig;
 import ru.intertrust.cm.core.config.search.SearchLanguageConfig;
 
 import java.util.List;
@@ -36,6 +36,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     @Element(name = "development-mode", required = false)
     private DevelopmentModeConfig developmentMode;
+
+    @ElementList(name = "migration-modules", entry = "module", required = false)
+    private List<MigrationModuleConfig> migrationModules;
 
     @Element(name = "event-logs", required = false)
     private EventLogsConfig eventLogsConfig;
@@ -86,6 +89,10 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
     public List<SearchLanguageConfig> getSearchLanguages() {
         return searchLanguages;
+    }
+
+    public List<MigrationModuleConfig> getMigrationModules() {
+        return migrationModules;
     }
 
     public ProductTitle getProductTitle() {
@@ -174,6 +181,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
             return false;
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
             return false;
+        if (migrationModules != null ? !migrationModules.equals(that.migrationModules) : that.migrationModules != null)
+            return false;
         if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
             return false;
         if (cryptoSettingsConfig != null ? !cryptoSettingsConfig.equals(that.cryptoSettingsConfig) : that.cryptoSettingsConfig != null)
@@ -187,15 +196,6 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Override
     public int hashCode() {
         int result = productTitle != null ? productTitle.hashCode() : 0;
-        result = 31 * result + (productVersion != null ? productVersion.hashCode() : 0);
-        result = 31 * result + (auditLog != null ? auditLog.hashCode() : 0);
-        result = 31 * result + (transactionTrace != null ? transactionTrace.hashCode() : 0);
-        result = 31 * result + (searchLanguages != null ? searchLanguages.hashCode() : 0);
-        result = 31 * result + (developmentMode != null ? developmentMode.hashCode() : 0);
-        result = 31 * result + (eventLogsConfig != null ? eventLogsConfig.hashCode() : 0);
-        result = 31 * result + (applicationHelpConfig != null ? applicationHelpConfig.hashCode() : 0);
-        result = 31 * result + (cryptoSettingsConfig != null ? cryptoSettingsConfig.hashCode() : 0);
-        result = 31 * result + (defaultLocaleConfig != null ? defaultLocaleConfig.hashCode() : 0);
         return result;
     }
 

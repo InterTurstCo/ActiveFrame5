@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -21,7 +23,7 @@ import java.util.*;
  * Выполняет скриптовую миграцию
  */
 public class MigrationService {
-
+    private final static Logger logger = LoggerFactory.getLogger(MigrationService.class);
     private static final String MIGRATION_LOG_DO_TYPE_NAME = "migration_log";
     private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequence_number";
 
@@ -110,9 +112,11 @@ public class MigrationService {
 
     private boolean executeScriptMigration(ConfigurationExplorer oldConfigurationExplorer, boolean beforeAutoMigration) {
         Collection<MigrationScriptConfig> migrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
-        if (migrationConfigs == null) {
+        if (migrationConfigs == null || migrationConfigs.size() == 0) {
+            logger.warn("No " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts to execute");
             return false;
         }
+        logger.warn("Starting " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
 
         List<MigrationScriptConfig> migrationScriptConfigList = new ArrayList<>(migrationConfigs);
         Collections.sort(migrationScriptConfigList, new MigrationScriptSequenceComparator());
@@ -128,24 +132,27 @@ public class MigrationService {
             }
 
             if (beforeAutoMigration) {
-                executeAutoMigrationEvent(migrationScriptConfig.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
+                executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
             } else {
-                executeAutoMigrationEvent(migrationScriptConfig.getAfterAutoMigrationConfig(), oldConfigurationExplorer);
+                executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getAfterAutoMigrationConfig(), oldConfigurationExplorer);
             }
 
             migrationDone = true;
         }
 
         sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
+        logger.warn("Done " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
         return migrationDone;
     }
 
-    private void executeAutoMigrationEvent(AutoMigrationEventConfig autoMigrationEventConfig,
+    private void executeAutoMigrationEvent(int sequenceNumber, AutoMigrationEventConfig autoMigrationEventConfig,
                                            ConfigurationExplorer oldConfigurationExplorer) {
         if (autoMigrationEventConfig == null) {
             return;
         }
-
+        if (logger.isWarnEnabled()) {
+            logger.warn("Executing script: " + sequenceNumber);
+        }
         processMakeNotNull(autoMigrationEventConfig);
         processChangeFieldTypes(autoMigrationEventConfig, oldConfigurationExplorer);
         processMigrationComponents(autoMigrationEventConfig);
