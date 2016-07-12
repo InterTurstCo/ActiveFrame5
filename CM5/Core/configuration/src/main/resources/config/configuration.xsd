@@ -564,128 +564,142 @@
     </xs:complexType>
     <!-- Global Config-->
     <xs:complexType name="globalConfigType">
-        <xs:sequence>
-            <xs:element name="product" minOccurs="0">
-                <xs:complexType>
-                    <xs:attribute name="title" use="required" type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
+        <xs:sequence minOccurs="0" maxOccurs="unbounded">
+            <xs:choice>
+                <xs:element name="product" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="title" use="required" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="product-version" minOccurs="0">
-                <xs:complexType>
-                    <xs:attribute name="archive" use="required" type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="product-version" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="archive" use="required" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="audit-log">
-                <xs:complexType>
-                    <xs:attribute name="enable" use="optional" type="xs:boolean"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="audit-log">
+                    <xs:complexType>
+                        <xs:attribute name="enable" use="optional" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="transaction-trace" minOccurs="0">
-                <xs:complexType>
-                    <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                    <xs:attribute name="minTime" use="optional" type="xs:integer"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="transaction-trace" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                        <xs:attribute name="minTime" use="optional" type="xs:integer"/>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="search-languages" minOccurs="0">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="language" minOccurs="0" maxOccurs="unbounded">
-                            <xs:complexType>
-                                <xs:attribute name="id" use="required" type="xs:string"/>
-                                <xs:attribute name="weight" use="optional" type="xs:positiveInteger"/>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="search-languages" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="language" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="id" use="required" type="xs:string"/>
+                                    <xs:attribute name="weight" use="optional" type="xs:positiveInteger"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="default-locale" minOccurs="0">
-                <xs:complexType>
-                    <xs:attribute name="name" use="required" type="xs:string"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="default-locale" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="name" use="required" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="development-mode" minOccurs="0">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="logical-validation" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:attribute name="access-matrices" use="optional" type="xs:boolean"/>
-                                <xs:attribute name="indirect-permissions" use="optional" type="xs:boolean"/>
-                                <xs:attribute name="gui" use="optional" type="xs:boolean"/>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="development-mode" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="logical-validation" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="access-matrices" use="optional" type="xs:boolean"/>
+                                    <xs:attribute name="indirect-permissions" use="optional" type="xs:boolean"/>
+                                    <xs:attribute name="gui" use="optional" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="event-logs" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="login" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                            </xs:complexType>
-                        </xs:element>
-                        <xs:element name="logout" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                            </xs:complexType>
-                        </xs:element>
-                        <xs:element name="download-attachment" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                            </xs:complexType>
-                        </xs:element>
-                        <xs:element name="domain-object-access" minOccurs="0" maxOccurs="1">
-                            <xs:complexType>
-                                <xs:sequence>
-                                    <xs:element name="log" maxOccurs="unbounded">
-                                        <xs:complexType>
-                                            <xs:sequence>
-                                                <xs:element name="domain-object-type" maxOccurs="unbounded"
-                                                            minOccurs="1">
-                                                    <xs:complexType>
-                                                        <xs:attribute name="name" use="required"
-                                                                      type="con:typeNameType"/>
-                                                    </xs:complexType>
-                                                </xs:element>
-                                            </xs:sequence>
-                                            <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                                            <xs:attribute name="accessType" use="required" type="xs:string"/>
-                                            <xs:attribute name="accessWasGranted" use="required" type="xs:string"/>
-                                        </xs:complexType>
-                                    </xs:element>
-                                </xs:sequence>
-                                <xs:attribute name="enable" use="required" type="xs:boolean"/>
-                            </xs:complexType>
-                        </xs:element>
-                    </xs:sequence>
-                </xs:complexType>
-            </xs:element>
-            <xs:element name="application-help" type="con:applicationHelpType" maxOccurs="1" minOccurs="0"
-                        xmlns:con="https://cm5.intertrust.ru/config"/>
-            <xs:element name="crypto-settings" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:sequence>
-                        <xs:element name="provider-settings" minOccurs="0" maxOccurs="1"
-                                    type="con:typeSettingsExtension"/>
-                    </xs:sequence>
-                    <xs:attribute name="gui-component-name" use="required" type="xs:string"/>
-                    <xs:attribute name="server-component-name" use="required" type="xs:string"/>
-                    <xs:attribute name="hash-on-server" type="xs:boolean" use="optional"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="migration-modules" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="module" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="name" use="required" type="xs:string"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
 
-            <xs:element name="collection-query-cache" minOccurs="0" maxOccurs="1">
-                <xs:complexType>
-                    <xs:attribute name="max-size" use="required" type="xs:integer"/>
-                </xs:complexType>
-            </xs:element>
+                <xs:element name="event-logs" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="login" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="logout" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="download-attachment" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="domain-object-access" minOccurs="0" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="log" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="domain-object-type" maxOccurs="unbounded"
+                                                                minOccurs="1">
+                                                        <xs:complexType>
+                                                            <xs:attribute name="name" use="required"
+                                                                          type="con:typeNameType"/>
+                                                        </xs:complexType>
+                                                    </xs:element>
+                                                </xs:sequence>
+                                                <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                                <xs:attribute name="accessType" use="required" type="xs:string"/>
+                                                <xs:attribute name="accessWasGranted" use="required" type="xs:string"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="enable" use="required" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="application-help" type="con:applicationHelpType" maxOccurs="1" minOccurs="0"
+                            xmlns:con="https://cm5.intertrust.ru/config"/>
+                <xs:element name="crypto-settings" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="provider-settings" minOccurs="0" maxOccurs="1"
+                                        type="con:typeSettingsExtension"/>
+                        </xs:sequence>
+                        <xs:attribute name="gui-component-name" use="required" type="xs:string"/>
+                        <xs:attribute name="server-component-name" use="required" type="xs:string"/>
+                        <xs:attribute name="hash-on-server" type="xs:boolean" use="optional"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="collection-query-cache" minOccurs="0" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:attribute name="max-size" use="required" type="xs:integer"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
         </xs:sequence>
     </xs:complexType>
 
