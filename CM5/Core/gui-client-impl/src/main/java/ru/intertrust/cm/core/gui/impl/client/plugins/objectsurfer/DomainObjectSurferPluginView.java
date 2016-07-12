@@ -58,6 +58,7 @@ public class DomainObjectSurferPluginView extends PluginView {
         dockLayoutPanel = new SplitterEx(8, domainObjectSurferPlugin.getLocalEventBus()) {
             @Override
             public void onResize() {
+
                 super.onResize();
                 final int splitterSize;
                 if (dockLayoutPanel.isSplitType()) {
@@ -68,6 +69,7 @@ public class DomainObjectSurferPluginView extends PluginView {
                     setCustomSize(horizontalSplitterSavedSize);
                 }
                 storeSplitterSettings(dockLayoutPanel.isSplitType(), splitterSize, true);
+
             }
         };
     }
@@ -93,10 +95,12 @@ public class DomainObjectSurferPluginView extends PluginView {
         eventBus.addHandler(SplitterWidgetResizerEvent.TYPE, new SplitterWidgetResizerEventHandler() {
             @Override
             public void setWidgetSize(SplitterWidgetResizerEvent event) {
+
                 checkLastSplitterPosition(event.isType(), event.getFirstWidgetWidth(), event.getFirstWidgetHeight(),
                         event.isArrowsPress());
                 final int size = event.isType() ? event.getFirstWidgetWidth() : event.getFirstWidgetHeight();
                 storeSplitterSettings(event.isType(), size, event.isArrowsPress() ? false : true);
+
             }
         });
     }

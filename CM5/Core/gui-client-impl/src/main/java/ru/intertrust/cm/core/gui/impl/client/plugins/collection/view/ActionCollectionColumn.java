@@ -37,7 +37,8 @@ public class ActionCollectionColumn extends CollectionParameterizedColumn {
         super(cell, fieldName, eventBus, resizable);
         this.converter = converter;
         this.actionContext = actionContext;
-        this.actionComponentName = ((ActionConfig)actionContext.getActionConfig()).getComponentName();
+        if(actionContext!=null){
+            this.actionComponentName = ((ActionConfig)actionContext.getActionConfig()).getComponentName();}
     }
 
     @Override

@@ -399,9 +399,10 @@ public class CollectionPluginView extends PluginView {
             @Override
             public void onFilterEvent(FilterEvent event) {
                 boolean filterCanceled = event.isFilterCanceled();
+                boolean remote = event.isRemote();
                 if (filterCanceled) {
                     onKeyEscapePressed();
-                } else {
+                } else if(!filterCanceled && !remote){
                     onKeyEnterPressed();
                 }
                 updateFilterConfig();
@@ -1167,5 +1168,16 @@ public class CollectionPluginView extends PluginView {
         return (CollectionPlugin) plugin;
     }
 
+    public Map<String, List<String>> getFiltersMap() {
+        return filtersMap;
+    }
+
+    public void setFiltersMap(Map<String, List<String>> filtersMap) {
+        this.filtersMap = filtersMap;
+    }
+
+    public EventBus getEventBus() {
+        return eventBus;
+    }
 }
 

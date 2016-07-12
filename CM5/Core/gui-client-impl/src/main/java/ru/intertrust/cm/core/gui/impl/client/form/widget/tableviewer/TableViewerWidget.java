@@ -10,12 +10,14 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.TableBrowserParams;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
@@ -49,14 +51,16 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPlugin
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.CollectionPluginView;
 import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
 import ru.intertrust.cm.core.gui.model.ComponentName;
-import ru.intertrust.cm.core.gui.model.action.DeleteActionData;
 import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_HEIGHT;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.DEFAULT_EMBEDDED_COLLECTION_TABLE_WIDTH;
@@ -69,7 +73,7 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 @ComponentName("table-viewer")
 public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEventHandler, HierarchicalCollectionEventHandler,
         OpenDomainObjectFormEventHandler, HasLinkedFormMappings, CollectionRowSelectedEventHandler, BreadCrumbNavigationEventHandler, CheckBoxFieldUpdateEventHandler,
-        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement {
+        CustomDeleteEventHandler, CustomEditEventHandler, CollectionRemoteManagement, FiltersRemoteManagement {
 
     private PluginPanel pluginPanel;
     private EventBus localEventBus;
@@ -116,6 +120,10 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
     protected Widget asEditableWidget(WidgetState state) {
         return initView();
 
+    }
+
+    private CollectionPlugin getCollectionPlugin() {
+        return (CollectionPlugin) pluginPanel.getCurrentPlugin();
     }
 
     private Widget initView() {
@@ -263,6 +271,42 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         }
     }
 
+    @Override
+    public CollectionExtraFiltersConfig getCollectionExtraFilters() {
+        CollectionPlugin coPlugin = getCollectionPlugin();
+        if (((CollectionPluginData) coPlugin.getInitialData()).getTableBrowserParams() != null) {
+            return ((CollectionPluginData) coPlugin.getInitialData()).getTableBrowserParams().getCollectionExtraFiltersConfig();
+        } else
+            return null;
+    }
+
+    @Override
+    public void applyCollectionExtraFilters(CollectionExtraFiltersConfig config) {
+        CollectionPlugin coPlugin = getCollectionPlugin();
+        ((CollectionPluginData) coPlugin.getInitialData()).getTableBrowserParams().setCollectionExtraFiltersConfig(config);
+        refresh();
+    }
+
+    @Override
+    public void resetColumnFilters() {
+        CollectionPlugin coPlugin = getCollectionPlugin();
+        ((CollectionPluginView) coPlugin.getView()).getEventBus().fireEvent(new FilterEvent(true));
+    }
+
+    @Override
+    public Map<String, List<String>> getColumnFiltersMap() {
+        CollectionPlugin coPlugin = getCollectionPlugin();
+        CollectionPluginView copV = (CollectionPluginView) coPlugin.getView();
+        return copV.getFiltersMap();
+    }
+
+    @Override
+    public void applyColumnFilters(Map<String, List<String>> filtersMap) {
+        CollectionPlugin coPlugin = getCollectionPlugin();
+        CollectionPluginView copV = (CollectionPluginView) coPlugin.getView();
+        copV.setFiltersMap(filtersMap);
+        ((CollectionPluginView) coPlugin.getView()).getEventBus().fireEvent(new FilterEvent(false,true));
+    }
 
     @Override
     public LinkedFormMappingConfig getLinkedFormMappingConfig() {
@@ -333,18 +377,22 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
             CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
             cpView.delCollectionRow(event.getDeletedObject());
             if (event.isRefreshRequired()) {
-                coPlugin.refresh();
+                refresh();
             }
         }
 
     }
 
-
-    @Override
-    public void onEdit(CustomEditEvent event) {
+    private void refresh() {
         CollectionPlugin coPlugin = (CollectionPlugin) pluginPanel.getCurrentPlugin();
         coPlugin.refresh();
     }
+
+    @Override
+    public void onEdit(CustomEditEvent event) {
+        refresh();
+    }
+
     /**
      * Выделить строку с нужным Id обьекта.
      * Если строки нет в текущем списке, догрузить список.
@@ -358,8 +406,6 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
         CollectionPluginView cpView = (CollectionPluginView) coPlugin.getView();
         cpView.setSelectedRow(objectId);
     }
-
-
 
 
     class OpenFormClickHandler implements ClickHandler {

@@ -11,9 +11,15 @@ import com.google.gwt.event.shared.GwtEvent;
 public class FilterEvent extends GwtEvent<FilterEventHandler> {
     public static final Type<FilterEventHandler> TYPE = new Type<FilterEventHandler>();
     private boolean filterCanceled;
+    private boolean remote;
 
     public FilterEvent(boolean filterCanceled) {
         this.filterCanceled = filterCanceled;
+    }
+
+    public FilterEvent(boolean filterCanceled, boolean remote) {
+        this.filterCanceled = filterCanceled;
+        this.remote = remote;
     }
 
     @Override
@@ -29,4 +35,9 @@ public class FilterEvent extends GwtEvent<FilterEventHandler> {
     public boolean isFilterCanceled() {
         return filterCanceled;
     }
+
+    public boolean isRemote() {
+        return remote;
+    }
+
 }
