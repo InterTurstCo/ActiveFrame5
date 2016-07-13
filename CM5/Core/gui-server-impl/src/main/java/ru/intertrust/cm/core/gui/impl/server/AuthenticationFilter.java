@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.business.api.dto.UserUidWithPassword;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.gui.api.server.LoginService;
 import ru.intertrust.cm.core.gui.api.server.extension.AuthenticationExtentionHandler;
+import ru.intertrust.cm.core.gui.model.Client;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -65,7 +66,10 @@ public class AuthenticationFilter implements Filter {
             return;
         }
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
-        
+
+
+        Client client = (Client) session.getAttribute("_CLIENT_INFO");
+
         //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
         //Например для использования в SSO 
         authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
