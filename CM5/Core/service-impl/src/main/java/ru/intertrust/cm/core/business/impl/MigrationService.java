@@ -153,257 +153,227 @@ public class MigrationService {
         if (logger.isWarnEnabled()) {
             logger.warn("Executing script: " + sequenceNumber);
         }
-        processMakeNotNull(autoMigrationEventConfig);
-        processChangeFieldTypes(autoMigrationEventConfig, oldConfigurationExplorer);
-        processMigrationComponents(autoMigrationEventConfig);
-        processNativeCommands(autoMigrationEventConfig);
-        processCreateUniqueKeys(autoMigrationEventConfig);
-        processRenameFields(autoMigrationEventConfig);
-        processDeleteFields(autoMigrationEventConfig, oldConfigurationExplorer);
-        processDeleteDOTypes(autoMigrationEventConfig, oldConfigurationExplorer);
-        processUnextendDOTypes(autoMigrationEventConfig, oldConfigurationExplorer);
-    }
-
-    private void processChangeFieldTypes(AutoMigrationEventConfig autoMigrationEventConfig,
-                                         ConfigurationExplorer oldConfigurationExplorer) {
-        if (autoMigrationEventConfig.getChangeFieldClassConfigs() == null) {
-            return;
-        }
-
-        for (ChangeFieldClassConfig changeFieldClassConfig : autoMigrationEventConfig.getChangeFieldClassConfigs()) {
-            if (changeFieldClassConfig.getFields() == null) {
-                continue;
+        for (MigrationScenarioConfig scenario : autoMigrationEventConfig.getMigrationScenarioConfigs()) {
+            if (scenario instanceof MakeNotNullConfig) {
+                processMakeNotNull((MakeNotNullConfig) scenario);
+            } else if (scenario instanceof ChangeFieldClassConfig) {
+                processChangeFieldsTypes((ChangeFieldClassConfig) scenario, oldConfigurationExplorer);
+            } else if (scenario instanceof ExecuteConfig) {
+                processMigrationComponent((ExecuteConfig) scenario);
+            } else if (scenario instanceof NativeCommandConfig) {
+                processNativeCommand((NativeCommandConfig) scenario);
+            } else if (scenario instanceof CreateUniqueKeyConfig) {
+                processCreateUniqueKey((CreateUniqueKeyConfig) scenario);
+            } else if (scenario instanceof RenameFieldConfig) {
+                processRenameFields((RenameFieldConfig) scenario);
+            } else if (scenario instanceof DeleteFieldsConfig) {
+                processDeleteFields((DeleteFieldsConfig) scenario, oldConfigurationExplorer);
+            } else if (scenario instanceof DeleteTypesConfig) {
+                processDeleteDOTypes((DeleteTypesConfig) scenario, oldConfigurationExplorer);
+            } else if (scenario instanceof UnextendTypesConfig) {
+                processUnextendDOTypes((UnextendTypesConfig) scenario, oldConfigurationExplorer);
             }
 
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getDomainObjectTypeConfig(changeFieldClassConfig.getType());
-
-            if (domainObjectTypeConfig == null) {
-                throw new ConfigurationException("Failed to change field of DO type " +
-                        domainObjectTypeConfig.getName() + " because it doesn't exist");
-            }
-
-            for (ChangeFieldClassFieldConfig changeFieldClassFieldConfig : changeFieldClassConfig.getFields()) {
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(changeFieldClassConfig.getType(),
-                        changeFieldClassFieldConfig.getName());
-                FieldConfig oldFieldConfig = oldConfigurationExplorer.getFieldConfig(changeFieldClassConfig.getType(),
-                        changeFieldClassFieldConfig.getName());
-
-                if (fieldConfig == null) {
-                    throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
-                            "." + changeFieldClassFieldConfig.getName() + " type because it is not found in " +
-                            "configuration");
-                }
-
-                if (oldFieldConfig == null) {
-                    throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
-                            "." + changeFieldClassFieldConfig.getName() + " type because it doesn't exist");
-                }
-
-                if (!fieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
-                        !((fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
-                        (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  TextFieldConfig) ||
-                        (fieldConfig instanceof TextFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
-                        (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  BooleanFieldConfig) ||
-                        (fieldConfig instanceof BooleanFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
-                        (fieldConfig instanceof LongFieldConfig && oldFieldConfig instanceof  DecimalFieldConfig) ||
-                        (fieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof  LongFieldConfig))) {
-                    throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
-                            "." + changeFieldClassFieldConfig.getName() + " type because conversion from " +
-                            oldFieldConfig.getClass().getName() + " to " + fieldConfig.getClass().getName() +
-                            " is not supported");
-                }
-
-                dataStructureDao.updateColumnType(domainObjectTypeConfig, fieldConfig);
-            }
         }
     }
 
-    private void processMakeNotNull(AutoMigrationEventConfig autoMigrationEventConfig) {
-        if (autoMigrationEventConfig.getMakeNotNullConfigs() == null) {
+    private void processChangeFieldsTypes(ChangeFieldClassConfig changeFieldClassConfig,
+                                          ConfigurationExplorer oldConfigurationExplorer) {
+        if (changeFieldClassConfig.getFields() == null) {
             return;
         }
 
-        for (MakeNotNullConfig makeNotNullConfig : autoMigrationEventConfig.getMakeNotNullConfigs()) {
-            if (makeNotNullConfig.getFields() == null) {
-                continue;
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(changeFieldClassConfig.getType());
+
+        if (domainObjectTypeConfig == null) {
+            throw new ConfigurationException("Failed to change field of DO type " +
+                    domainObjectTypeConfig.getName() + " because it doesn't exist");
+        }
+
+        for (ChangeFieldClassFieldConfig changeFieldClassFieldConfig : changeFieldClassConfig.getFields()) {
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(changeFieldClassConfig.getType(),
+                    changeFieldClassFieldConfig.getName());
+            FieldConfig oldFieldConfig = oldConfigurationExplorer.getFieldConfig(changeFieldClassConfig.getType(),
+                    changeFieldClassFieldConfig.getName());
+
+            if (fieldConfig == null) {
+                throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
+                        "." + changeFieldClassFieldConfig.getName() + " type because it is not found in " +
+                        "configuration");
             }
 
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getDomainObjectTypeConfig(makeNotNullConfig.getType());
-
-            if (domainObjectTypeConfig == null) {
-                throw new ConfigurationException("Failed to make not null field of DO type " +
-                        makeNotNullConfig.getType() + " because it doesn't exist");
+            if (oldFieldConfig == null) {
+                throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
+                        "." + changeFieldClassFieldConfig.getName() + " type because it doesn't exist");
             }
 
-            for (MakeNotNullFieldConfig makeNotNullFieldConfig : makeNotNullConfig.getFields()) {
-                FieldConfig fieldConfig = configurationExplorer.getFieldConfig(makeNotNullConfig.getType(),
-                        makeNotNullFieldConfig.getName());
-
-                if (fieldConfig == null) {
-                    throw new ConfigurationException("Failed to make not null field " +
-                            makeNotNullConfig.getType() + "." + makeNotNullFieldConfig.getName() + " because it doesn't exist");
-                }
-
-                dataStructureDao.setColumnNotNull(domainObjectTypeConfig, fieldConfig, true);
+            if (!fieldConfig.getClass().equals(oldFieldConfig.getClass()) &&
+                    !((fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
+                            (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  TextFieldConfig) ||
+                            (fieldConfig instanceof TextFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
+                            (fieldConfig instanceof StringFieldConfig && oldFieldConfig instanceof  BooleanFieldConfig) ||
+                            (fieldConfig instanceof BooleanFieldConfig && oldFieldConfig instanceof  StringFieldConfig) ||
+                            (fieldConfig instanceof LongFieldConfig && oldFieldConfig instanceof  DecimalFieldConfig) ||
+                            (fieldConfig instanceof DecimalFieldConfig && oldFieldConfig instanceof  LongFieldConfig))) {
+                throw new ConfigurationException("Failed to change field " + domainObjectTypeConfig.getName() +
+                        "." + changeFieldClassFieldConfig.getName() + " type because conversion from " +
+                        oldFieldConfig.getClass().getName() + " to " + fieldConfig.getClass().getName() +
+                        " is not supported");
             }
+
+            dataStructureDao.updateColumnType(domainObjectTypeConfig, fieldConfig);
         }
     }
 
-    private void processCreateUniqueKeys(AutoMigrationEventConfig autoMigrationEventConfig) {
-        if (autoMigrationEventConfig.getCreateUniqueKeyConfigs() == null) {
+    private void processMakeNotNull(MakeNotNullConfig makeNotNullConfig) {
+        if (makeNotNullConfig.getFields() == null) {
             return;
         }
 
-        for (CreateUniqueKeyConfig createUniqueKeyConfig : autoMigrationEventConfig.getCreateUniqueKeyConfigs()) {
-            if (createUniqueKeyConfig.getFields() == null) {
-                continue;
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(makeNotNullConfig.getType());
+
+        if (domainObjectTypeConfig == null) {
+            throw new ConfigurationException("Failed to make not null field of DO type " +
+                    makeNotNullConfig.getType() + " because it doesn't exist");
+        }
+
+        for (MakeNotNullFieldConfig makeNotNullFieldConfig : makeNotNullConfig.getFields()) {
+            FieldConfig fieldConfig = configurationExplorer.getFieldConfig(makeNotNullConfig.getType(),
+                    makeNotNullFieldConfig.getName());
+
+            if (fieldConfig == null) {
+                throw new ConfigurationException("Failed to make not null field " +
+                        makeNotNullConfig.getType() + "." + makeNotNullFieldConfig.getName() + " because it doesn't exist");
             }
 
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getDomainObjectTypeConfig(createUniqueKeyConfig.getType());
+            dataStructureDao.setColumnNotNull(domainObjectTypeConfig, fieldConfig, true);
+        }
+    }
 
-            if (domainObjectTypeConfig == null) {
+    private void processCreateUniqueKey(CreateUniqueKeyConfig createUniqueKeyConfig) {
+        if (createUniqueKeyConfig.getFields() == null) {
+            return;
+        }
+
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(createUniqueKeyConfig.getType());
+
+        if (domainObjectTypeConfig == null) {
+            throw new ConfigurationException("Failed to create unique keys for DO type " +
+                    createUniqueKeyConfig.getType() + " because it doesn't exist");
+        }
+
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        for (CreateUniqueKeyFieldConfig createUniqueKeyFieldConfig : createUniqueKeyConfig.getFields()) {
+            if (configurationExplorer.getFieldConfig(createUniqueKeyConfig.getType(),
+                    createUniqueKeyFieldConfig.getName()) == null) {
                 throw new ConfigurationException("Failed to create unique keys for DO type " +
-                        createUniqueKeyConfig.getType() + " because it doesn't exist");
+                        createUniqueKeyConfig.getType() + "." + createUniqueKeyFieldConfig.getName() +
+                        " because it doesn't exist");
             }
 
-            UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-            for (CreateUniqueKeyFieldConfig createUniqueKeyFieldConfig : createUniqueKeyConfig.getFields()) {
-                if (configurationExplorer.getFieldConfig(createUniqueKeyConfig.getType(),
-                        createUniqueKeyFieldConfig.getName()) == null) {
-                    throw new ConfigurationException("Failed to create unique keys for DO type " +
-                            createUniqueKeyConfig.getType() + "." + createUniqueKeyFieldConfig.getName() +
-                            " because it doesn't exist");
-                }
-
-                UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
-                uniqueKeyFieldConfig.setName(createUniqueKeyFieldConfig.getName());
-                uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
-            }
-
-            dataStructureDao.createForeignKeyAndUniqueConstraints(domainObjectTypeConfig,
-                    new ArrayList<ReferenceFieldConfig>(), Collections.singletonList(uniqueKeyConfig));
+            UniqueKeyFieldConfig uniqueKeyFieldConfig = new UniqueKeyFieldConfig();
+            uniqueKeyFieldConfig.setName(createUniqueKeyFieldConfig.getName());
+            uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig);
         }
+
+        dataStructureDao.createForeignKeyAndUniqueConstraints(domainObjectTypeConfig,
+                new ArrayList<ReferenceFieldConfig>(), Collections.singletonList(uniqueKeyConfig));
     }
 
-    private void processDeleteFields(AutoMigrationEventConfig autoMigrationEventConfig,
+    private void processDeleteFields(DeleteFieldsConfig deleteFieldsConfig,
                                      ConfigurationExplorer oldConfigurationExplorer) {
-        if (autoMigrationEventConfig.getDeleteFieldsConfigs() == null) {
+        if (deleteFieldsConfig.getFields() == null) {
             return;
         }
 
-        for (DeleteFieldsConfig deleteFieldsConfig : autoMigrationEventConfig.getDeleteFieldsConfigs()) {
-            if (deleteFieldsConfig.getFields() == null) {
-                continue;
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                oldConfigurationExplorer.getDomainObjectTypeConfig(deleteFieldsConfig.getType());
+
+        if (domainObjectTypeConfig == null) {
+            throw new ConfigurationException("Failed to delete fields of DO type " + deleteFieldsConfig.getType() +
+                    " because it doesn't exist");
+        }
+
+        for (DeleteFieldsFieldConfig deleteFieldsFieldConfig : deleteFieldsConfig.getFields()) {
+            FieldConfig fieldConfig =
+                    oldConfigurationExplorer.getFieldConfig(deleteFieldsConfig.getType(), deleteFieldsFieldConfig.getName());
+
+            if (fieldConfig == null) {
+                throw new ConfigurationException("Failed to delete DO type field " + deleteFieldsConfig.getType() +
+                        "." + deleteFieldsFieldConfig.getName() + " because it doesn't exist");
             }
 
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    oldConfigurationExplorer.getDomainObjectTypeConfig(deleteFieldsConfig.getType());
-
-            if (domainObjectTypeConfig == null) {
-                throw new ConfigurationException("Failed to delete fields of DO type " + deleteFieldsConfig.getType() +
-                        " because it doesn't exist");
-            }
-
-            for (DeleteFieldsFieldConfig deleteFieldsFieldConfig : deleteFieldsConfig.getFields()) {
-                FieldConfig fieldConfig =
-                        oldConfigurationExplorer.getFieldConfig(deleteFieldsConfig.getType(), deleteFieldsFieldConfig.getName());
-
-                if (fieldConfig == null) {
-                    throw new ConfigurationException("Failed to delete DO type field " + deleteFieldsConfig.getType() +
-                            "." + deleteFieldsFieldConfig.getName() + " because it doesn't exist");
-                }
-
-                dataStructureDao.deleteColumn(domainObjectTypeConfig, fieldConfig);
-            }
+            dataStructureDao.deleteColumn(domainObjectTypeConfig, fieldConfig);
         }
     }
 
-    private void processRenameFields(AutoMigrationEventConfig autoMigrationEventConfig) {
-        if (autoMigrationEventConfig.getRenameFieldConfigs() == null) {
+    private void processRenameFields(RenameFieldConfig renameFieldConfig) {
+        if (renameFieldConfig.getFields() == null) {
             return;
         }
 
-        for (RenameFieldConfig renameFieldConfig : autoMigrationEventConfig.getRenameFieldConfigs()) {
-            if (renameFieldConfig.getFields() == null) {
-                continue;
+        DomainObjectTypeConfig domainObjectTypeConfig =
+                configurationExplorer.getDomainObjectTypeConfig(renameFieldConfig.getType());
+
+        if (domainObjectTypeConfig == null) {
+            throw new ConfigurationException("Failed to rename fields of DO type " + renameFieldConfig.getType() +
+                    " because it doesn't exist");
+        }
+
+        for (RenameFieldFieldConfig renameFieldFieldConfig : renameFieldConfig.getFields()) {
+            FieldConfig fieldConfig =
+                    configurationExplorer.getFieldConfig(renameFieldConfig.getType(), renameFieldFieldConfig.getNewName());
+
+            if (fieldConfig == null) {
+                throw new ConfigurationException("Failed to rename field " + renameFieldConfig.getType() +
+                        "." + renameFieldFieldConfig.getNewName() + " because it doesn't exist");
             }
 
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getDomainObjectTypeConfig(renameFieldConfig.getType());
-
-            if (domainObjectTypeConfig == null) {
-                throw new ConfigurationException("Failed to rename fields of DO type " + renameFieldConfig.getType() +
-                        " because it doesn't exist");
-            }
-
-            for (RenameFieldFieldConfig renameFieldFieldConfig : renameFieldConfig.getFields()) {
-                FieldConfig fieldConfig =
-                        configurationExplorer.getFieldConfig(renameFieldConfig.getType(), renameFieldFieldConfig.getNewName());
-
-                if (fieldConfig == null) {
-                    throw new ConfigurationException("Failed to rename field " + renameFieldConfig.getType() +
-                            "." + renameFieldFieldConfig.getNewName() + " because it doesn't exist");
-                }
-
-                dataStructureDao.renameColumn(domainObjectTypeConfig, renameFieldFieldConfig.getName(), fieldConfig);
-            }
+            dataStructureDao.renameColumn(domainObjectTypeConfig, renameFieldFieldConfig.getName(), fieldConfig);
         }
     }
 
-    private void processDeleteDOTypes(AutoMigrationEventConfig autoMigrationEventConfig,
+    private void processDeleteDOTypes(DeleteTypesConfig deleteTypesConfig,
                                       ConfigurationExplorer oldConfigurationExplorer) {
-        if (autoMigrationEventConfig.getDeleteTypesConfigs() == null) {
+        if (deleteTypesConfig.getTypes() == null) {
             return;
         }
 
-        for (DeleteTypesConfig deleteTypesConfig : autoMigrationEventConfig.getDeleteTypesConfigs()) {
-            if (deleteTypesConfig.getTypes() == null) {
-                continue;
+        for (DeleteTypesTypeConfig deleteTypesTypeConfig : deleteTypesConfig.getTypes()) {
+            DomainObjectTypeConfig domainObjectTypeConfig =
+                    oldConfigurationExplorer.getDomainObjectTypeConfig(deleteTypesTypeConfig.getName());
+
+            if (domainObjectTypeConfig == null) {
+                throw new ConfigurationException("Failed to delete DO type " + deleteTypesTypeConfig.getName() +
+                        " because it doesn't exist");
             }
 
-            for (DeleteTypesTypeConfig deleteTypesTypeConfig : deleteTypesConfig.getTypes()) {
-                DomainObjectTypeConfig domainObjectTypeConfig =
-                        oldConfigurationExplorer.getDomainObjectTypeConfig(deleteTypesTypeConfig.getName());
-
-                if (domainObjectTypeConfig == null) {
-                    throw new ConfigurationException("Failed to delete DO type " + deleteTypesTypeConfig.getName() +
-                            " because it doesn't exist");
-                }
-
-                dataStructureDao.deleteTypeTables(domainObjectTypeConfig);
-                domainObjectTypeIdDao.delete(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + "_al"));
-                domainObjectTypeIdDao.delete(domainObjectTypeConfig);
-            }
+            dataStructureDao.deleteTypeTables(domainObjectTypeConfig);
+            domainObjectTypeIdDao.delete(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + "_al"));
+            domainObjectTypeIdDao.delete(domainObjectTypeConfig);
         }
     }
 
-    private void processUnextendDOTypes(AutoMigrationEventConfig autoMigrationEventConfig, ConfigurationExplorer oldConfigurationExplorer) {
-        final List<UnextendTypesConfig> unextendTypesConfigs = autoMigrationEventConfig.getUnextendTypesConfigs();
-        if (unextendTypesConfigs == null || unextendTypesConfigs.isEmpty()) {
+    private void processUnextendDOTypes(UnextendTypesConfig unextendTypesConfig, ConfigurationExplorer oldConfigurationExplorer) {
+        schemaCache.reset();
+        if (unextendTypesConfig.getTypes() == null) {
             return;
         }
 
-        schemaCache.reset();
-        for (UnextendTypesConfig unextendTypesConfig : unextendTypesConfigs) {
-            if (unextendTypesConfig.getTypes() == null) {
-                continue;
+        for (UnextendTypesTypeConfig unextendTypesTypeConfig : unextendTypesConfig.getTypes()) {
+            final String typeName = unextendTypesTypeConfig.getName();
+            DomainObjectTypeConfig domainObjectTypeConfig = oldConfigurationExplorer.getDomainObjectTypeConfig(typeName);
+            if (domainObjectTypeConfig == null) {
+                throw new ConfigurationException("Failed to unextend DO type " + typeName + " because it doesn't exist");
             }
-
-            for (UnextendTypesTypeConfig unextendTypesTypeConfig : unextendTypesConfig.getTypes()) {
-                final String typeName = unextendTypesTypeConfig.getName();
-                DomainObjectTypeConfig domainObjectTypeConfig = oldConfigurationExplorer.getDomainObjectTypeConfig(typeName);
-                if (domainObjectTypeConfig == null) {
-                    throw new ConfigurationException("Failed to unextend DO type " + typeName + " because it doesn't exist");
-                }
-                if (oldConfigurationExplorer.isAuditLogType(typeName)) {
-                    throw new ConfigurationException("Failed to unextend DO type: " + typeName + ". Audit log types are unextended automatically. Use base-type in migration script config");
-                }
-                unextendType(domainObjectTypeConfig);
-                unextendType(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + Configuration.AUDIT_LOG_SUFFIX));
+            if (oldConfigurationExplorer.isAuditLogType(typeName)) {
+                throw new ConfigurationException("Failed to unextend DO type: " + typeName + ". Audit log types are unextended automatically. Use base-type in migration script config");
             }
+            unextendType(domainObjectTypeConfig);
+            unextendType(oldConfigurationExplorer.getDomainObjectTypeConfig(domainObjectTypeConfig.getName() + Configuration.AUDIT_LOG_SUFFIX));
         }
     }
 
@@ -416,45 +386,33 @@ public class MigrationService {
         this.dataStructureDao.createSequence(configurationExplorer.getDomainObjectTypeConfig(oldDomainObjectTypeConfig.getName()));
     }
 
-    private void processMigrationComponents(AutoMigrationEventConfig autoMigrationEventConfig) {
-        if (autoMigrationEventConfig.getExecuteConfigs() == null) {
-            return;
-        }
-
+    private void processMigrationComponent(ExecuteConfig executeConfig) {
         ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
 
-        for (ExecuteConfig executeConfig : autoMigrationEventConfig.getExecuteConfigs()) {
-            Class clazz = configurationClassesCache.getClassByMigrationComponentName(executeConfig.getComponentName());
+        Class clazz = configurationClassesCache.getClassByMigrationComponentName(executeConfig.getComponentName());
 
-            if (clazz == null) {
+        if (clazz == null) {
+            throw new ConfigurationException("Failed to execute migration component " +
+                    executeConfig.getComponentName() + " because it doesn't exist");
+        }
+
+        try {
+            Object migrationComponentInstance = clazz.newInstance();
+            if (!(migrationComponentInstance instanceof Migrator)) {
                 throw new ConfigurationException("Failed to execute migration component " +
-                        executeConfig.getComponentName() + " because it doesn't exist");
+                        executeConfig.getComponentName() + " because it doesn't implement Migrator interface");
             }
 
-            try {
-                Object migrationComponentInstance = clazz.newInstance();
-                if (!(migrationComponentInstance instanceof Migrator)) {
-                    throw new ConfigurationException("Failed to execute migration component " +
-                            executeConfig.getComponentName() + " because it doesn't implement Migrator interface");
-                }
-
-                ((Migrator) migrationComponentInstance).execute();
-            } catch (InstantiationException|IllegalAccessException e) {
-                throw new ConfigurationException("Failed to execute migration component " +
-                        executeConfig.getComponentName(), e);
-            }
+            ((Migrator) migrationComponentInstance).execute();
+        } catch (InstantiationException|IllegalAccessException e) {
+            throw new ConfigurationException("Failed to execute migration component " +
+                    executeConfig.getComponentName(), e);
         }
     }
 
-    private void processNativeCommands(AutoMigrationEventConfig autoMigrationEventConfig) {
-        if (autoMigrationEventConfig.getNativeCommandConfigs() == null) {
-            return;
-        }
-
-        for (NativeCommandConfig nativeCommandConfig : autoMigrationEventConfig.getNativeCommandConfigs()) {
-            if (nativeCommandConfig.getValue() != null && !nativeCommandConfig.getValue().trim().isEmpty()) {
-                dataStructureDao.executeSqlQuery(nativeCommandConfig.getValue());
-            }
+    private void processNativeCommand(NativeCommandConfig nativeCommandConfig) {
+        if (nativeCommandConfig.getValue() != null && !nativeCommandConfig.getValue().trim().isEmpty()) {
+            dataStructureDao.executeSqlQuery(nativeCommandConfig.getValue());
         }
     }
 
