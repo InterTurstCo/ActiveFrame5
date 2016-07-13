@@ -133,7 +133,7 @@ public class CollectionPluginView extends PluginView {
                  * causes table shift AFVTBCNT-161
                  * tableBody.setFocus(true);
                  */
-                if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody)) {
+                if (CollectionDataGridUtils.isTableVerticalScrollNotVisible(tableBody) && tableBody.getRowCount()>0) {
                     if (sortCollectionState != null) {
                         sortCollectionState.setResetCollection(false);
                     }
