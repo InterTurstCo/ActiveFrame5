@@ -56,7 +56,7 @@ public class AuthenticationFilter implements Filter {
         //Вызов точки расширения до аутентификации. Точка расширения может проставить атрибут LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE
         //И вызов диалога аутентификации не произойдет
         AuthenticationExtentionHandler authExtHandler = extensionService.getExtentionPoint(AuthenticationExtentionHandler.class, null);
-        authExtHandler.onBeforeAuthentication(request, response);        
+        authExtHandler.onBeforeAuthentication(request, response);
         
         UserCredentials credentials = (UserCredentials) session.getAttribute(
                 LoginService.USER_CREDENTIALS_SESSION_ATTRIBUTE);
@@ -68,11 +68,10 @@ public class AuthenticationFilter implements Filter {
         UserUidWithPassword userUidWithPassword = (UserUidWithPassword) credentials;
 
 
-        Client client = (Client) session.getAttribute("_CLIENT_INFO");
 
         //Вызов точки расширения после аутентификации. Точки расширения могут сохранить данные аутентификации для каких то последующих их использования
         //Например для использования в SSO 
-        authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
+        //authExtHandler.onAfterAuthentication(request, response, userUidWithPassword);
 
         if (request.getUserPrincipal() == null) { // just in case parallel thread logged in, but not logged out yet
             try {
