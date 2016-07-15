@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.config.migration;
 
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
@@ -9,7 +10,8 @@ import java.util.List;
 /**
  * Java модель конфигурации удаляемых при миграции типов
  */
-public class UnextendTypesConfig implements Dto {
+@Root(name = "unextend-types")
+public class UnextendTypesConfig extends MigrationScenarioConfig implements Dto {
 
     @ElementList(entry="type", inline=true)
     private List<UnextendTypesTypeConfig> types = new ArrayList<>();

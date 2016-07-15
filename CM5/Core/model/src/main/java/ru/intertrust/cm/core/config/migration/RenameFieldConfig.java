@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.config.migration;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
+import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 import java.util.ArrayList;
@@ -10,7 +11,8 @@ import java.util.List;
 /**
  * Java модель конфигурации переименования поля при миграции
  */
-public class RenameFieldConfig implements Dto {
+@Root(name = "rename-field")
+public class RenameFieldConfig extends MigrationScenarioConfig implements Dto {
 
     @Attribute
     private String type;

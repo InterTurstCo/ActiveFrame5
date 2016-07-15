@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config.migration;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
+import org.simpleframework.xml.convert.AnnotationStrategy;
+import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
@@ -47,5 +49,14 @@ public class MigrationScriptConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return String.valueOf(sequenceNumber);
+    }
+
+    public static void main(String[] args) {
+        String str = "";
+        try {
+            new Persister(new AnnotationStrategy()).read(MigrationScriptConfig.class, str);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
