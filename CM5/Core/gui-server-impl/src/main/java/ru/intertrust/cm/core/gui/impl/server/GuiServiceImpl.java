@@ -117,7 +117,7 @@ public class GuiServiceImpl extends AbstractGuiServiceImpl implements GuiService
 //            }
             log.error(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_CALL,
                     GuiContext.getUserLocale(), "Ошибка вызова команды: ") + e.getMessage(), e);
-            throw new GuiException(e.getTargetException());
+            throw new GuiException((e.getTargetException()==null)?e.getMessage():e.getTargetException().getMessage());
         } catch (Throwable e) {
             log.error(e.getMessage(), e);
             throw new GuiException(MessageResourceProvider.getMessage(LocalizationKeys.GUI_EXCEPTION_COMMAND_EXECUTION,
