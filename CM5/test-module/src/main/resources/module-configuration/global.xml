@@ -44,6 +44,7 @@
             </provider-settings>
         </crypto-settings>
        <collection-query-cache max-size="1000" />
+        <migration-modules><module name="core"/></migration-modules>
     </global-settings>
 
     <business-universe>

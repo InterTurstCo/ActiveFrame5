@@ -25,9 +25,9 @@
             <custom:test-field name="Role"/>
             <custom:test-field name="Authentication_Info"/>
         </custom:test-fields>
-        <custom:test-uniqueKey>
+        <!--<custom:test-uniqueKey>
             <custom:field name="Role"/>
-        </custom:test-uniqueKey>
+        </custom:test-uniqueKey>-->
     </custom:test-type>
 
 </custom:configuration>
