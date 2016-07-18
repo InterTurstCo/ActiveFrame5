@@ -44,7 +44,7 @@
     <xs:complexType name="test-typeType">
         <xs:sequence>
             <xs:element type="custom:test-fieldsType" name="test-fields"/>
-            <xs:element type="custom:test-uniqueKeyType" name="test-uniqueKey"/>
+            <xs:element type="custom:test-uniqueKeyType" name="test-uniqueKey" minOccurs="0"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
     </xs:complexType>
