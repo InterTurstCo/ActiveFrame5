@@ -23,7 +23,7 @@ public class TestTypeConfig implements TopLevelConfig {
     @Namespace(reference="https://cm5.intertrust.ru/custom-config")
     private TestFieldsConfig testFieldsConfig;
 
-    @Element(name="test-uniqueKey")
+    @Element(name="test-uniqueKey", required = false)
     @Namespace(reference="https://cm5.intertrust.ru/custom-config")
     private TestUniqueKeyConfig testUniqueKeyConfig;
 

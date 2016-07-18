@@ -8,7 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../CM5/Core/gui-model/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../../CM5/Core/gui-model/target" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="1.8" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="model" />
     <orderEntry type="library" name="Maven: org.springframework:spring-core:4.1.5.RELEASE" level="project" />
