@@ -1,16 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Node;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventPreview;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -56,6 +51,7 @@ public abstract class PluginView implements IsWidget {
 
     private AbsolutePanel actionToolBar;
     private VerticalPanel viewWidget;
+    private MenuBarExt leftMenuBar;
 
     /**
      * Основной конструктор
@@ -148,7 +144,7 @@ public abstract class PluginView implements IsWidget {
         rightContexts.addAll(getDefaultSystemContexts());
 
         toolbarContext.sortActionContexts();
-        final MenuBarExt leftMenuBar = new MenuBarExt();
+        leftMenuBar = new MenuBarExt();
         leftMenuBar.setStyleName("decorated-action-link");
         for (ActionContext context : toolbarContext.getContexts(ToolbarContext.FacetName.LEFT)) {
             leftMenuBar.addActionItem(context);
@@ -161,58 +157,25 @@ public abstract class PluginView implements IsWidget {
         }
         actionToolBar.add(rightMenuBar);
 
-        /**
-         * Горячие клавиши. Пока только Alt+S для сохранения
-         */
-
-/*
-        DOM.addEventPreview(new EventPreview() {
-            @Override
-            public boolean onEventPreview(Event event) {
-                switch (DOM.eventGetType(event)) {
-                    case Event.ONKEYPRESS:
-                        Window.alert(event.getAltKey() + " "+event.getCharCode());
-                        if (event.getAltKey() && (event.getCharCode() == 115 || event.getCharCode() == 1099)) {
-                            if(leftMenuBar.availableItems.containsKey("aSave")){
-                                leftMenuBar.availableItems.get("aSave").getScheduledCommand().execute();
-                            }
-                        event.preventDefault();
-                        }
-                        break;
-                }
-                return true;
-            }
-        });
-*/
-
-
-        Event.addNativePreviewHandler(new Event.NativePreviewHandler() {
-                                          @Override
-                                          public void onPreviewNativeEvent(Event.NativePreviewEvent event) {
-                                              NativeEvent nativeEvent = event.getNativeEvent();
-
-                                              if (nativeEvent.getCtrlKey()) {
-
-                                                  if (nativeEvent.getCharCode() == 115 || nativeEvent.getCharCode() == 1099) {
-                                                      if (event.isFirstHandler()) {
-                                                          if (leftMenuBar.availableItems.containsKey("aSave")) {
-                                                              leftMenuBar.availableItems.get("aSave").getScheduledCommand().execute();
-                                                          }
-
-
-                                                      }
-                                                      nativeEvent.preventDefault();
-                                                  }
-                                              }
-                                          }
-
-
-                                      }
-
-        );
-
-
+        keyListener(this);
     }
+
+
+    private void doSaveAction(){
+        if (leftMenuBar.availableItems.containsKey("aSave")) {
+            leftMenuBar.availableItems.get("aSave").getScheduledCommand().execute();
+        }
+    }
+
+    private static native void keyListener(PluginView instance) /*-{
+        $doc.onkeyup=function(e){
+            var e = e || window.event; // for IE to cover IEs window event-object
+            if(e.altKey &&  e.which == 65 ) {
+                instance.@ru.intertrust.cm.core.gui.impl.client.PluginView::doSaveAction()();
+                return false;
+            }
+        }
+    }-*/;
 
     /**
      * Строит и возвращает представление (внешнее отображение) плагина
