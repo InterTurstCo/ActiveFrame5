@@ -122,7 +122,7 @@ public class TableViewerToobar {
         toolbarActionsMenu = new MenuBar();
         toolbarFooMenu = new MenuBar(true);
         toolbarActionsMenu.setStyleName("button-actions-viewer");
-        toolbarFooMenu.setStyleName("wrapApproval");
+        toolbarFooMenu.setStyleName("wrapActions");
         toolbarActionsMenu.addItem("", toolbarFooMenu);
 
         initMenu();

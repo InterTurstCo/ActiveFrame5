@@ -822,7 +822,7 @@ div.button-actions-viewer {
     height: 25px;
 }
 
-.button-actions-viewerPopup .wrapApproval:before, .button-actions-viewerPopup .wrapApproval:after {
+.button-actions-viewerPopup .wrapActions:before, .button-actions-viewerPopup .wrapActions:after {
     content: '';
     position: absolute;
     left: 4%;
@@ -831,11 +831,11 @@ div.button-actions-viewer {
     border-bottom: 12px solid #fff;
 }
 
-.button-actions-viewerPopup .wrapApproval:after {
+.button-actions-viewerPopup .wrapActions:after {
     border-bottom: 12px solid #34699D;
     top: -20px;
 }
-.button-actions-viewerPopup .wrapApproval {
+.button-actions-viewerPopup .wrapActions {
     position: absolute;
     top: 16px;
     left: -6px;
@@ -859,6 +859,14 @@ div.button-actions-viewer {
 .button-actions-viewerPopup .menuPopupMiddleRight,
 .button-actions-viewerPopup .menuPopupBottomCenter{
     background: none !important;
+}
+
+.button-actions-viewerPopup .gwt-MenuItem {
+    white-space: nowrap;
+}
+
+.button-actions-viewerPopup {
+    z-index: 100;
 }
 
 
