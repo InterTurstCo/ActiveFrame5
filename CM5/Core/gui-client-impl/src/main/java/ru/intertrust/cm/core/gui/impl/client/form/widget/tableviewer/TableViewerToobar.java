@@ -12,6 +12,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -39,8 +40,14 @@ public class TableViewerToobar {
     private ToggleButton editButton;
     private ToggleButton deleteButton;
     private Button addButton;
+    // меню для списка activiti
     private MenuBar actionsMenu;
     private MenuBar fooMenu;
+
+    // меню для обычных действий из toolbar
+    private MenuBar toolbarActionsMenu;
+    private MenuBar toolbarFooMenu;
+
     private Id selectedId;
     private EventBus eventBus;
     private TableViewerData actionsData;
@@ -85,15 +92,15 @@ public class TableViewerToobar {
                                              CustomDelete deleteComponent;
                                              if (selectedId != null && selectedIds.size() == 0) {
                                                  if (config != null && config.getDeleteComponent() != null) {
-                                                      deleteComponent = ComponentRegistry.instance.get(config.getDeleteComponent());
+                                                     deleteComponent = ComponentRegistry.instance.get(config.getDeleteComponent());
                                                  } else {
-                                                      deleteComponent = ComponentRegistry.instance.get("default.custom.delete.component");
+                                                     deleteComponent = ComponentRegistry.instance.get("default.custom.delete.component");
                                                  }
 
                                                  if (deleteComponent != null) {
                                                      deleteComponent.delete(selectedId, eventBus);
                                                  } else {
-                                                     Window.alert("Невозможно получить компонент для удаления:"+config.getDeleteComponent());
+                                                     Window.alert("Невозможно получить компонент для удаления:" + config.getDeleteComponent());
                                                  }
                                              }
 
@@ -111,9 +118,20 @@ public class TableViewerToobar {
         actionsMenu.setStyleName("button-table-viewer");
         fooMenu.setStyleName("wrapApproval");
         actionsMenu.addItem("", fooMenu);
+
+        toolbarActionsMenu = new MenuBar();
+        toolbarFooMenu = new MenuBar(true);
+        toolbarActionsMenu.setStyleName("button-actions-viewer");
+        toolbarFooMenu.setStyleName("wrapApproval");
+        toolbarActionsMenu.addItem("", toolbarFooMenu);
+
         initMenu();
+        initActionsMenu();
+
         toolbarPanel.add(actionsMenu);
+        toolbarPanel.add(toolbarActionsMenu);
         actionsMenu.setVisible(true);
+        toolbarActionsMenu.setVisible(true);
     }
 
     public HorizontalPanel getToolbarPanel() {
@@ -303,6 +321,24 @@ public class TableViewerToobar {
         fooMenu.clearItems();
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
         fooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+    }
+
+    private void initActionsMenu() {
+        toolbarFooMenu.clearItems();
+
+        SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
+        if (config == null || config.getCollectionViewerConfig().getToolBarConfig()==null ||
+                config.getCollectionViewerConfig().getToolBarConfig().getActions()==null ||
+                config.getCollectionViewerConfig().getToolBarConfig().getActions().size()==0) {
+            toolbarFooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
+        } else {
+            for(AbstractActionConfig aConfig : config.getCollectionViewerConfig().getToolBarConfig().getActions()){
+                SimpleActionContext aContext = new SimpleActionContext();
+                aContext.setActionConfig(aConfig);
+                toolbarFooMenu.addItem(buildActionButton(aContext));
+            }
+        }
+
     }
 
     private MenuItem addMultiItem(final String itemName) {
