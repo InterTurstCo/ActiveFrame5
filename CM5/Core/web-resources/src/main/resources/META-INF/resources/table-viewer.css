@@ -723,6 +723,19 @@ div.button-table-viewer {
     background-position: center center;
 }
 
+
+.button-table-viewer:hover {
+    border: 1px solid #d6d9dc;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+}
+
+
+.button-table-viewer:active {
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+}
+
 div.button-actions-viewer {
     margin: 5px;
     width: 25px;
@@ -732,15 +745,9 @@ div.button-actions-viewer {
     background-color: #f5f5f5;
     cursor: pointer;
     background-image: url(css/icons/icon_list-ol.png);
-    background-size: 17px 17px;
+    background-size: 18px 17px;
     background-repeat: no-repeat;
     background-position: center center;
-}
-
-.button-table-viewer:hover {
-    border: 1px solid #d6d9dc;
-    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
-    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
 }
 
 .button-actions-viewer:hover {
@@ -749,15 +756,12 @@ div.button-actions-viewer {
     box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
 }
 
-.button-table-viewer:active {
-    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
-    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
-}
-
 .button-actions-viewer:active {
     -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
 }
+
+/* popup .button-table-viewer */
 
 .button-table-viewer .gwt-MenuItem {
     width: 25px;
@@ -810,6 +814,53 @@ div.button-actions-viewer {
 .button-table-viewerPopup .gwt-MenuItem {
     white-space: nowrap;
 }
+
+/* popup .button-actions-viewer */
+
+.button-actions-viewer .gwt-MenuItem {
+    width: 25px;
+    height: 25px;
+}
+
+.button-actions-viewerPopup .wrapApproval:before, .button-actions-viewerPopup .wrapApproval:after {
+    content: '';
+    position: absolute;
+    left: 4%;
+    top: -24px;
+    border: 10px solid transparent;
+    border-bottom: 12px solid #fff;
+}
+
+.button-actions-viewerPopup .wrapApproval:after {
+    border-bottom: 12px solid #34699D;
+    top: -20px;
+}
+.button-actions-viewerPopup .wrapApproval {
+    position: absolute;
+    top: 16px;
+    left: -6px;
+    border: 3px solid #fafafa;
+    background: #356a9e;
+    padding: 5px;
+    background: -moz-linear-gradient(top, #356a9e 0%, #245483 40%, #1f2b5d 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #356a9e), color-stop(40%, #245483), color-stop(100%, #1f2b5d));
+    background: -webkit-linear-gradient(top, #356a9e 0%, #245483 40%, #1f2b5d 100%);
+    background: -o-linear-gradient(top, #356a9e 0%, #245483 40%, #1f2b5d 100%);
+    background: linear-gradient(top, #356a9e 0%, #245483 40%, #1f2b5d 100%);
+    box-shadow: 0 3px 10px #555;
+    color: #fafafa;
+}
+.button-actions-viewerPopup .menuPopupMiddleLeft,
+.button-actions-viewerPopup .menuPopupTopLeft,
+.button-actions-viewerPopup .menuPopupBottomLeft,
+.button-actions-viewerPopup .menuPopupBottomRight,
+.button-actions-viewerPopup .menuPopupTopRight,
+.button-actions-viewerPopup .menuPopupTopCenter,
+.button-actions-viewerPopup .menuPopupMiddleRight,
+.button-actions-viewerPopup .menuPopupBottomCenter{
+    background: none !important;
+}
+
 
 .item-disable {
     background: #ddd;
