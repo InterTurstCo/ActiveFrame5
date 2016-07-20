@@ -1062,9 +1062,6 @@ table.form-panel-header .widget-wrapper {
     padding: 0;
 }
 
-.form-panel-header .gwt-Good-Label {
-    margin: 0;
-}
 table.form-panel-header .gwt-Red-Label {
     padding: 0 5px;
 }
@@ -1096,6 +1093,12 @@ table.form-panel-header .gwt-Red-Label {
 
 .bookmarks-link-non-active a {
     max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.facebook-element .facebook-label {
+    max-width: 250px;
     overflow: hidden;
     text-overflow: ellipsis;
 }

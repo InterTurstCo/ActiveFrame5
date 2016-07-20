@@ -1148,5 +1148,12 @@ table.form-panel-header .gwt-Red-Label {
     border: 1px solid #82AF6F;
 }
 
+.facebook-element .facebook-label {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
