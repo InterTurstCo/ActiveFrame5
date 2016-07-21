@@ -13,6 +13,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
@@ -22,7 +23,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFo
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.ActionData;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
+import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -197,6 +200,13 @@ public class TableViewerToobar {
         return menuItem;
     }
 
+    private MenuItem buildToolbarActionButton(final ActionContext context, Boolean isSimpleAction) {
+        String actionText = (isSimpleAction) ?
+                ((SimpleActionConfig) ((SimpleActionContext) context).getActionConfig()).getText() :
+                ((ActionConfig) context.getActionConfig()).getText();
+        return new MenuItem(actionText, getCommandForToolbarAction(context));
+    }
+
     private Scheduler.ScheduledCommand getCommandForContext(final ActionContext context) {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             public void execute() {
@@ -218,6 +228,59 @@ public class TableViewerToobar {
                     public void onSuccess(Dto result) {
                         eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
                         setSelectedId(context.getRootObjectId());
+                    }
+                });
+            }
+        };
+        return menuItemCommand;
+    }
+
+    private Scheduler.ScheduledCommand getCommandForToolbarAction(final ActionContext context) {
+
+        Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
+            public void execute() {
+                String actionHandler = null;
+                String componentName = null;
+                if (selectedId == null && (selectedIds == null || selectedIds.size() == 0)) {
+                    Window.alert("Не выбрана строка");
+                    return;
+                }
+                if (context instanceof SimpleActionContext) {
+                    SimpleActionConfig actionConfig = context.getActionConfig();
+                    actionHandler = actionConfig.getActionHandler();
+                } else {
+                    ActionConfig actionConfig = context.getActionConfig();
+                    componentName = actionConfig.getComponentName();
+                }
+
+                if (selectedId != null && selectedIds.size() == 0) {
+                    context.setRootObjectId(selectedId);
+                } else if (selectedIds.size() > 0) {
+                    context.setObjectsIds(selectedIds);
+                }
+
+                Command command = new Command("executeAction", (actionHandler == null) ? componentName : actionHandler, context);
+                BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
+                    @Override
+                    public void onFailure(Throwable caught) {
+                        GWT.log("something was going wrong while obtaining details for stage ");
+                        Window.alert("Ошибка выполнения. " + caught.getMessage());
+                        caught.printStackTrace();
+                    }
+
+                    @Override
+                    public void onSuccess(Dto result) {
+                        if (((ActionData) result).getOnSuccessMessage() != null) {
+                            Window.alert(((ActionData) result).getOnSuccessMessage());
+                        }
+                        if (context.getRootObjectId() != null && context.getObjectsIds().size() == 0) {
+                            eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
+                            setSelectedId(context.getRootObjectId());
+                        } else if(context.getObjectsIds().size()>0){
+                            for(Id id : context.getObjectsIds()){
+                                eventBus.fireEvent(new UpdateCollectionEvent(id));
+                            }
+                        }
                     }
                 });
             }
@@ -327,15 +390,21 @@ public class TableViewerToobar {
         toolbarFooMenu.clearItems();
 
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-        if (config == null || config.getCollectionViewerConfig().getToolBarConfig()==null ||
-                config.getCollectionViewerConfig().getToolBarConfig().getActions()==null ||
-                config.getCollectionViewerConfig().getToolBarConfig().getActions().size()==0) {
+        if (config == null || config.getCollectionViewerConfig().getToolBarConfig() == null ||
+                config.getCollectionViewerConfig().getToolBarConfig().getActions() == null ||
+                config.getCollectionViewerConfig().getToolBarConfig().getActions().size() == 0) {
             toolbarFooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
         } else {
-            for(AbstractActionConfig aConfig : config.getCollectionViewerConfig().getToolBarConfig().getActions()){
-                SimpleActionContext aContext = new SimpleActionContext();
-                aContext.setActionConfig(aConfig);
-                toolbarFooMenu.addItem(buildActionButton(aContext));
+            for (AbstractActionConfig aConfig : config.getCollectionViewerConfig().getToolBarConfig().getActions()) {
+                if (aConfig instanceof SimpleActionConfig) {
+                    SimpleActionContext aContext = new SimpleActionContext();
+                    aContext.setActionConfig(aConfig);
+                    toolbarFooMenu.addItem(buildToolbarActionButton(aContext, true));
+                } else {
+                    ActionContext aContext = new ActionContext();
+                    aContext.setActionConfig(aConfig);
+                    toolbarFooMenu.addItem(buildToolbarActionButton(aContext, false));
+                }
             }
         }
 
@@ -371,5 +440,6 @@ public class TableViewerToobar {
 
     public void setConfig(TableViewerConfig config) {
         this.config = config;
+        initActionsMenu();
     }
 }

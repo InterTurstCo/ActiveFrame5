@@ -11,6 +11,8 @@ public class ActionData implements Dto {
 
     private String onSuccessMessage;
 
+    private String onFailureMessage;
+
     public String getOnSuccessMessage() {
         return onSuccessMessage;
     }
@@ -19,5 +21,11 @@ public class ActionData implements Dto {
         this.onSuccessMessage = onSuccessMessage;
     }
 
+    public String getOnFailureMessage() {
+        return onFailureMessage;
+    }
 
+    public void setOnFailureMessage(String onFailureMessage) {
+        this.onFailureMessage = onFailureMessage;
+    }
 }

@@ -22,6 +22,7 @@ public class ActionContext implements Dto {
 
     private List<ActionContext> innerContexts;
 
+    private List<Id> objectsIds;
     /**
      * Default constructor.
      */
@@ -59,6 +60,17 @@ public class ActionContext implements Dto {
         if(innerContexts==null)
             innerContexts = new ArrayList<>();
         return innerContexts;
+    }
+
+    public List<Id> getObjectsIds() {
+        if(objectsIds == null){
+            objectsIds = new ArrayList<>();
+        }
+        return objectsIds;
+    }
+
+    public void setObjectsIds(List<Id> objectsIds) {
+        this.objectsIds = objectsIds;
     }
 
     public void setInnerContexts(List<ActionContext> innerContexts) {

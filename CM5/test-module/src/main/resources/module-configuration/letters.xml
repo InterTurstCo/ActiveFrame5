@@ -939,7 +939,11 @@
 
 
 
-                    <act:tool-bar useDefault="true"/>
+                    <act:tool-bar useDefault="true">
+                        <act:action name="oAction" componentName="ordinary.action" text="Тест Ordinary Action"
+                                    />
+                        <act:simple-action componentName="simple.action" action-handler="test.simple.action" text="Тест SimpleAction"/>
+                    </act:tool-bar>
                     <rows-selection default-state="empty" multi-selection="true"/>
                 </collection-viewer>
                 <collection-table-buttons display-all-possible="false"/>
