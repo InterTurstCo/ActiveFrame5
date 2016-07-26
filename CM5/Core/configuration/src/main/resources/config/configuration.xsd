@@ -1185,23 +1185,23 @@
     </xs:complexType>
 
     <!-- CMFIVE-3914 -->
-    <xs:element type="con:hPluginType" name="h-plugin" substitutionGroup="con:pluginConfig"/>
-    <xs:complexType name="hPluginType">
+    <xs:element type="con:hierarchyPluginType" name="hierarchy-plugin" substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="hierarchyPluginType">
         <xs:complexContent>
             <xs:extension base="con:abstractPluginConfigType">
                 <xs:sequence>
-                    <xs:element type="con:hGroupType" name="h-group"
+                    <xs:element type="con:hierarchyGroupType" name="hierarchy-group"
                                 xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="1" minOccurs="1"/>
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="hGroupType">
+    <xs:complexType name="hierarchyGroupType">
         <xs:sequence>
-            <xs:element type="con:hGroupType" name="h-group"
+            <xs:element type="con:hierarchyGroupType" name="hierarchy-group"
                         xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element type="con:hCollectionType" name="h-collection"
+            <xs:element type="con:hierarchyCollectionType" name="hierarchy-collection"
                         xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="con:createdObjectsType" name="created-objects"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -1212,11 +1212,15 @@
         <xs:attribute type="xs:string" name="name" use="required"/>
     </xs:complexType>
 
-    <xs:complexType name="hCollectionType">
+    <xs:complexType name="hierarchyCollectionType">
         <xs:sequence>
-            <xs:element type="con:hGroupType" name="h-group"
+            <xs:element type="con:hierarchyCollectionViewType" name="hierarchy-collection-view"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="con:collectionRefType" name="collection-ref"
+                        xmlns:con="https://cm5.intertrust.ru/config" minOccurs="1" maxOccurs="1"/>
+            <xs:element type="con:hierarchyGroupType" name="hierarchy-group"
                         xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded" minOccurs="0"/>
-            <xs:element type="con:hCollectionType" name="h-collection"
+            <xs:element type="con:hierarchyCollectionType" name="hierarchy-collection"
                         xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded" minOccurs="0"/>
             <xs:element type="con:createdObjectsType" name="created-objects"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -1226,6 +1230,11 @@
         <xs:attribute type="xs:string" name="cid" use="required"/>
         <xs:attribute type="xs:string" name="up-link-field" use="optional"/>
         <xs:attribute type="xs:string" name="down-link-field" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="hierarchyCollectionViewType">
+        <xs:attribute type="xs:string" name="widget-implementation" use="optional"/>
+        <xs:attribute type="xs:string" name="collection-view" use="required"/>
     </xs:complexType>
 
 
