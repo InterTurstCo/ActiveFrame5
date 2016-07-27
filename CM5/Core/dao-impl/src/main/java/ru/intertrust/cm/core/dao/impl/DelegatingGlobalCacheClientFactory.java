@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
@@ -12,10 +10,6 @@ import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Denis Mitavskiy
@@ -154,28 +148,4 @@ public class DelegatingGlobalCacheClientFactory implements GlobalCacheClientFact
     public boolean isExtendedStatisticsEnabled() {
         return globalCacheExtendedStatisticsEnabled == Boolean.TRUE;
     }
-
-    // todo: it's just a temporary statistics printer
-    private static final Logger logger = LoggerFactory.getLogger(GlobalCacheManager.class);
-    private ScheduledExecutorService statisticsPrinter;
-    public DelegatingGlobalCacheClientFactory() {
-        statisticsPrinter = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
-            @Override
-            public Thread newThread(Runnable r) {
-                return new Thread(r) {
-                    {
-                        setDaemon(true);
-                    }
-                };
-            }
-        });
-        statisticsPrinter.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                final GlobalCacheStatistics statistics = getGlobalCacheClient().getStatistics();
-                if (statistics != null) {
-                    logger.warn(statistics.toString());
-                }
-            }
-        }, 120, 120, TimeUnit.SECONDS);    }
 }

@@ -465,7 +465,7 @@ public class GlobalCacheImpl implements GlobalCache {
     private static int __count;
     @Override
     public DomainObject getDomainObject(String transactionId, Id id, AccessToken accessToken) {
-        if (++__count % 1000 == 0) {
+        if (++__count % 10000 == 0) {
             logger.warn("------------------------------------------------- Cache size: " + new DecimalFormat("##########################0.00").format(((double) size.get()) / 1024 / 1024) + " MB");
         }
         return getClonedDomainObject(id, getUserSubject(accessToken));
@@ -1136,9 +1136,9 @@ public class GlobalCacheImpl implements GlobalCache {
         private static final int CLEAN_ATTEMPTS_WARN = 100;
 
         public void checkSize() {
-            logger.warn("Cache size: " + size.get());
+            //logger.warn("Cache size: " + size.get());
             if (size.get() > sizeLimit) {
-                logger.warn("OVER LIMIT: " + size.get());
+                logger.warn("Cache size OVER LIMIT: " + size.get());
             }
         }
 
