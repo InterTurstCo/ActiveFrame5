@@ -20,7 +20,7 @@ public class HierarchyGroupView extends Composite implements ExpandHierarchyEven
     private HierarchyGroupConfig groupConfig;
     private AbsolutePanel rootPanel;
     private HorizontalPanel headerPanel;
-    private HorizontalPanel childPanel;
+    private VerticalPanel childPanel;
     private HierarchyGuiElementsFactory guiElementsFactory;
     private HierarchyGuiFactory guiFactory;
     private Boolean expanded = false;
@@ -32,7 +32,7 @@ public class HierarchyGroupView extends Composite implements ExpandHierarchyEven
         localBus = new SimpleEventBus();
         rootPanel = new AbsolutePanel();
         headerPanel = new HorizontalPanel();
-        childPanel = new HorizontalPanel();
+        childPanel = new VerticalPanel();
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
