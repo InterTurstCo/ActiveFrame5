@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlConfig;
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyPluginConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -21,7 +22,8 @@ public class LinkPluginDefinition implements Dto {
             @Element(name = "domain-object-surfer", type = DomainObjectSurferConfig.class),
             @Element(name = "calendar", type = CalendarConfig.class),
             @Element(name = "report-plugin", type = ReportPluginConfig.class),
-            @Element(name = "global-cache-control", type = GlobalCacheControlConfig.class)
+            @Element(name = "global-cache-control", type = GlobalCacheControlConfig.class),
+            @Element(name = "hierarchy-plugin", type = HierarchyPluginConfig.class)
     })
     private PluginConfig pluginConfig;
 
