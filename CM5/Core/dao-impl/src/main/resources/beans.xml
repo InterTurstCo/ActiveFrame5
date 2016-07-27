@@ -179,6 +179,10 @@
                     jndi-name="java:module/PermissionAfterCommitImpl!ru.intertrust.cm.core.dao.impl.access.PermissionAfterCommit"
                     business-interface="ru.intertrust.cm.core.dao.impl.access.PermissionAfterCommit"/>
 
+    <jee:local-slsb id="statisticsGatherer"
+                    jndi-name="java:module/StatisticsGatherer!ru.intertrust.cm.core.dao.api.StatisticsGatherer"
+                    business-interface="ru.intertrust.cm.core.dao.api.StatisticsGatherer"/>
+
     <beans profile="default">
         <bean id="attachmentContentDao"
               class="ru.intertrust.cm.core.dao.impl.FileSystemAttachmentContentDaoImpl"/>
