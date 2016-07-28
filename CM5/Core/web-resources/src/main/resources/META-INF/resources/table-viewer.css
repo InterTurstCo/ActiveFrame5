@@ -927,6 +927,7 @@ div.delete-btn-table-viewer-disable:hover {
     margin: 5px 10px;
     width: 13px;
     height: auto;
+    cursor: pointer;
 }
 
 .wrapPanel .gwt-MenuBar-horizontal .gwt-MenuItem {
