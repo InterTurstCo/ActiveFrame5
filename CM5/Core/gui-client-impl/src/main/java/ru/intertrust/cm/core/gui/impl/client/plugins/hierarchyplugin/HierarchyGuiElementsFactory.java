@@ -7,6 +7,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 /**
@@ -38,12 +39,36 @@ public class HierarchyGuiElementsFactory {
         return image;
     }
 
+    public Widget buildActionButton(final EventBus anEventBus, final HierarchyPluginStaticData.Actions anAction){
+        final Image image;
+        switch(anAction){
+            case GROUPREFRESH:
+                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                break;
+            case GROUPSORT:
+                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                break;
+            case GROUPADD:
+                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                break;
+            default:
+                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+        }
+
+        image.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                    anEventBus.fireEvent(new HierarchyActionEvent(anAction));
+            }
+        });
+        image.setTitle(anAction.toString());
+        return image;
+    }
+
     public Scheduler.ScheduledCommand getACommand(){
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
-
             @Override
             public void execute() {
-
             }
         };
         return menuItemCommand;

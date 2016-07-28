@@ -1522,7 +1522,11 @@
                         <hierarchy-plugin>
                             <hierarchy-group gid="G1" name="Группа 1">
                                 <hierarchy-group gid="G1.1" name="Группа 1.1"/>
-                                <hierarchy-group gid="G1.2" name="Группа 1.2"/>
+                                <hierarchy-group gid="G1.2" name="Группа 1.2">
+                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.1"/>
+                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.2"/>
+                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.3"/>
+                                </hierarchy-group>
                                 <hierarchy-group gid="G1.3" name="Группа 1.3">
                                     <hierarchy-group gid="G1.3.1" name="Группа 1.3.1"/>
                                 </hierarchy-group>
