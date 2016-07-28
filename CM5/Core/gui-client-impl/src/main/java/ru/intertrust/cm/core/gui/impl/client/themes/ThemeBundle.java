@@ -117,6 +117,12 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/arrowPlus.png")
     ImageResource arrowPlus();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconMinus.png")
+    ImageResource iconMinus();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconPlus.png")
+    ImageResource iconPlus();
+
     @Source("ru/intertrust/cm/core/gui/impl/images/question.png")
     ImageResource question();
 

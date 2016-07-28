@@ -31,8 +31,11 @@ public class HierarchyGroupView extends Composite implements ExpandHierarchyEven
         guiFactory = new HierarchyGuiFactory();
         localBus = new SimpleEventBus();
         rootPanel = new AbsolutePanel();
+        rootPanel.addStyleName("parentPanel");
         headerPanel = new HorizontalPanel();
+        headerPanel.addStyleName("headerPanel");
         childPanel = new VerticalPanel();
+        childPanel.addStyleName("childPanel");
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
@@ -48,6 +51,7 @@ public class HierarchyGroupView extends Composite implements ExpandHierarchyEven
 
         //grid.addStyleName(CoordinationUtil.STYLE_ROW_DETAILS_GRID);
         //grid.addStyleName(CoordinationUtil.STYLE_ROW_GRID);
+        grid.addStyleName("wrapPanel");
 
         grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus));
 

@@ -30,6 +30,7 @@ public class HierarchyPluginView extends PluginView {
     @Override
     public IsWidget getViewWidget() {
         HorizontalPanel rootPanel = new HorizontalPanel();
+        rootPanel.addStyleName("wrapWidget");
         rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig()));
         return rootPanel;
     }

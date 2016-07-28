@@ -26,10 +26,10 @@ public class HierarchyGuiElementsFactory {
             public void onClick(ClickEvent event) {
 
                 if (ex) {
-                    image.setResource(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                    image.setResource(GlobalThemesManager.getCurrentTheme().iconPlus());
                     anEventBus.fireEvent(new ExpandHierarchyEvent(false));
                 } else {
-                    image.setResource(GlobalThemesManager.getCurrentTheme().arrowMinus());
+                    image.setResource(GlobalThemesManager.getCurrentTheme().iconMinus());
                     anEventBus.fireEvent(new ExpandHierarchyEvent(true));
                 }
                 ex = !ex;

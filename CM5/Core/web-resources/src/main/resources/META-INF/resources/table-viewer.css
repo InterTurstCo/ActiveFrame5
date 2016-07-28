@@ -905,3 +905,45 @@ div.delete-btn-table-viewer-disable:hover {
     box-shadow: none;
     border: 1px solid #dfe2e5;
 }
+
+/**
+*HierarchyPlugin
+**/
+
+.headerPanel {
+    background: #fbfbfb;
+    border: 1px solid;
+    border-color: #ddd;
+    border-radius: 3px;
+    width: 100%;
+}
+
+.childPanel {
+    margin: 10px 0 0 20px;
+    width: calc(100% - 20px);
+}
+
+.headerPanel img {
+    margin: 5px 10px;
+    width: 14px;
+    height: auto;
+}
+
+.wrapPanel .gwt-MenuBar-horizontal .gwt-MenuItem {
+    padding: 4px 10px;
+}
+
+.wrapPanel .gwt-MenuBar-horizontal  {
+    margin: 0px 10px;
+}
+
+table.wrapWidget {
+    background: #fff;
+    margin: 20px;
+    width: calc(100% - 40px);
+    border: 1px solid #ddd;
+}
+
+table.wrapWidget>tbody>tr>td>.parentPanel {
+    padding: 20px;
+}
