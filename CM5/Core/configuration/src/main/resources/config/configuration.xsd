@@ -1210,6 +1210,7 @@
         </xs:sequence>
         <xs:attribute type="xs:string" name="gid" use="required"/>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="xs:string" name="parent-collection-id" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="hierarchyCollectionType">

@@ -27,6 +27,9 @@ public class HierarchyGroupConfig implements Dto {
     @Attribute(name = "name", required = true)
     private String name;
 
+    @Attribute(name = "parent-collection-id", required = false)
+    private String parentCollectionId;
+
     @ElementList(entry = "hierarchy-group", required = false, inline=true)
     private List<HierarchyGroupConfig> hierarchyGroupConfigs = new ArrayList<>();
 
@@ -90,6 +93,14 @@ public class HierarchyGroupConfig implements Dto {
         this.hierarchyCollectionConfigs = hierarchyCollectionConfigs;
     }
 
+    public String getParentCollectionId() {
+        return parentCollectionId;
+    }
+
+    public void setParentCollectionId(String parentCollectionId) {
+        this.parentCollectionId = parentCollectionId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -129,7 +140,11 @@ public class HierarchyGroupConfig implements Dto {
                 : that.linkedFormMappingConfig != null) {
             return false;
         }
-
+        if (parentCollectionId != null
+                ? !parentCollectionId.equals(that.parentCollectionId)
+                : that.parentCollectionId != null) {
+            return false;
+        }
         return true;
     }
 
@@ -141,6 +156,7 @@ public class HierarchyGroupConfig implements Dto {
         result = 31 * result + (hierarchyCollectionConfigs != null ? hierarchyCollectionConfigs.hashCode() : 31);
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 31);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 31);
+        result = 31 * result + (parentCollectionId != null ? parentCollectionId.hashCode() : 31);
         return result;
     }
 }
