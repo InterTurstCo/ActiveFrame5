@@ -20,17 +20,17 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 public class HierarchyGuiElementsFactory {
 
     public Widget buildExpandCell(final EventBus anEventBus) {
-        final Image image = new Image(GlobalThemesManager.getCurrentTheme().iconPlus());
+        final Image image = new Image(GlobalThemesManager.getCurrentTheme().chevronRight());
         image.addClickHandler(new ClickHandler() {
             Boolean ex = false;
             @Override
             public void onClick(ClickEvent event) {
 
                 if (ex) {
-                    image.setResource(GlobalThemesManager.getCurrentTheme().iconPlus());
+                    image.setResource(GlobalThemesManager.getCurrentTheme().chevronRight());
                     anEventBus.fireEvent(new ExpandHierarchyEvent(false));
                 } else {
-                    image.setResource(GlobalThemesManager.getCurrentTheme().iconMinus());
+                    image.setResource(GlobalThemesManager.getCurrentTheme().chevronDown());
                     anEventBus.fireEvent(new ExpandHierarchyEvent(true));
                 }
                 ex = !ex;
@@ -43,13 +43,13 @@ public class HierarchyGuiElementsFactory {
         final Image image;
         switch(anAction){
             case GROUPREFRESH:
-                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                image = new Image(GlobalThemesManager.getCurrentTheme().iconRefresh());
                 break;
             case GROUPSORT:
-                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                image = new Image(GlobalThemesManager.getCurrentTheme().iconSort());
                 break;
             case GROUPADD:
-                image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+                image = new Image(GlobalThemesManager.getCurrentTheme().iconAdd());
                 break;
             default:
                 image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());

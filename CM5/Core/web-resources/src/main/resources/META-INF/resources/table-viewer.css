@@ -916,6 +916,7 @@ div.delete-btn-table-viewer-disable:hover {
     border-color: #ddd;
     border-radius: 3px;
     width: 100%;
+    margin: 3px 0;
 }
 
 .childPanel {
@@ -947,4 +948,8 @@ table.wrapWidget {
 
 table.wrapWidget>tbody>tr>td>.parentPanel {
     padding: 20px;
+}
+
+.groupName {
+    width: 100%;
 }

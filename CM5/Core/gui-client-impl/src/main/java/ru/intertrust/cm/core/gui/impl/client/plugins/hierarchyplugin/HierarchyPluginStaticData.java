@@ -14,6 +14,7 @@ public class HierarchyPluginStaticData {
     public static final String STYLE_PARENT_PANEL = "parentPanel";
     public static final String STYLE_HEADER_PANEL = "headerPanel";
     public static final String STYLE_CHILD_PANEL = "childPanel";
+    public static final String STYLE_GROUP_NAME = "groupName";
 
     public enum Actions {
         GROUPREFRESH("Обновить"),

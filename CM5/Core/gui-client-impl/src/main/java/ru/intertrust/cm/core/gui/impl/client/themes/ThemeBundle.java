@@ -123,6 +123,21 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/iconPlus.png")
     ImageResource iconPlus();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconRefresh.png")
+    ImageResource iconRefresh();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconSort.png")
+    ImageResource iconSort();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconAdd.png")
+    ImageResource iconAdd();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/chevronRight.png")
+    ImageResource chevronRight();
+
+    @Source("ru/intertrust/cm/core/gui/impl/images/chevronDown.png")
+    ImageResource chevronDown();
+
     @Source("ru/intertrust/cm/core/gui/impl/images/question.png")
     ImageResource question();
 

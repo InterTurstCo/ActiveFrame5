@@ -64,6 +64,7 @@ public class HierarchyGroupView extends Composite
         grid.setWidget(0, 2, guiElementsFactory.buildActionButton(localBus, HierarchyPluginStaticData.Actions.GROUPREFRESH));
         grid.setWidget(0, 3, guiElementsFactory.buildActionButton(localBus, HierarchyPluginStaticData.Actions.GROUPSORT));
         grid.setWidget(0, 4, guiElementsFactory.buildActionButton(localBus, HierarchyPluginStaticData.Actions.GROUPADD));
+        cellFormatter.setStyleName(0, 1, HierarchyPluginStaticData.STYLE_GROUP_NAME);
         container.add(grid);
     }
 
@@ -84,6 +85,6 @@ public class HierarchyGroupView extends Composite
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
-        Window.alert("Действие: "+event.getAction().toString());
+        Window.alert("Действие: " + event.getAction().toString());
     }
 }
