@@ -19,7 +19,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 public class HierarchyGuiElementsFactory {
 
     public Widget buildExpandCell(final EventBus anEventBus) {
-        final Image image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
+        final Image image = new Image(GlobalThemesManager.getCurrentTheme().iconPlus());
         image.addClickHandler(new ClickHandler() {
             Boolean ex = false;
             @Override

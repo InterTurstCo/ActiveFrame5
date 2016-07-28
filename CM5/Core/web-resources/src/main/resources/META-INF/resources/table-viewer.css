@@ -911,7 +911,7 @@ div.delete-btn-table-viewer-disable:hover {
 **/
 
 .headerPanel {
-    background: #fbfbfb;
+    background: #eaeaea;
     border: 1px solid;
     border-color: #ddd;
     border-radius: 3px;
@@ -925,7 +925,7 @@ div.delete-btn-table-viewer-disable:hover {
 
 .headerPanel img {
     margin: 5px 10px;
-    width: 14px;
+    width: 13px;
     height: auto;
 }
 
