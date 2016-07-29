@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -46,6 +47,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
     private ConfigurationDbValidator configurationDbValidator;
     @Autowired
     private DataStructureDao dataStructureDao;
+    @EJB
+    private StatisticsGatherer statisticsGatherer;
 
     @org.springframework.beans.factory.annotation.Value("${force.db.consistency.check:false}")
     private boolean forceDbCheck;
@@ -115,7 +118,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             }
 
             if (schemaUpdatedByScriptMigration || schemaUpdatedByAutoMigration) {
-                dataStructureDao.gatherStatistics();
+                statisticsGatherer.gatherStatistics();
             }
         } catch (SystemException e) {
             throw e;

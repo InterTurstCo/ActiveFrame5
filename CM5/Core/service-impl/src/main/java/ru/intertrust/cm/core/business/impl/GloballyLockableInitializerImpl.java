@@ -6,36 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
-
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
 import ru.intertrust.cm.core.config.localization.LocalizationLoader;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
-import ru.intertrust.cm.core.dao.api.ExtensionService;
-import ru.intertrust.cm.core.dao.api.InitializationLockDao;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.dao.api.extension.PostDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.dao.api.extension.PreDataLoadApplicationInitializer;
 import ru.intertrust.cm.core.model.FatalException;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.EJBContext;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
-import javax.transaction.NotSupportedException;
-import javax.transaction.Status;
-import javax.transaction.SystemException;
-import javax.transaction.TransactionManager;
-import javax.transaction.UserTransaction;
-
+import javax.transaction.*;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,6 +55,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
     @Resource private EJBContext ejbContext;
+    @EJB private StatisticsGatherer statisticsGatherer;
 
     @Override
     public void init() throws Exception {
@@ -98,7 +83,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
 
                 configurationLoader.load();
                 executeInitialLoadingTasks();
-                dataStructureDao.gatherStatistics();
+                statisticsGatherer.gatherStatistics();
 
                 executorService.shutdownNow();
                 return;
