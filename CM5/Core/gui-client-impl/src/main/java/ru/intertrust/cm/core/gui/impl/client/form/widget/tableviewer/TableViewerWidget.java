@@ -344,8 +344,12 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 return button.addClickHandler(new ClickHandler() {
                     @Override
                     public void onClick(ClickEvent event) {
-                        SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
-                        selectDomainObjectTypePopup.show();
+                        if(state.getRootObject()!=null && state.getRootObject().getId()!=null) {
+                            SelectDomainObjectTypePopup selectDomainObjectTypePopup = new SelectDomainObjectTypePopup(createdObjectsConfig);
+                            selectDomainObjectTypePopup.show();
+                        } else {
+                            Window.alert("Корневой обьект еще не сохранен.");
+                        }
                     }
                 });
             }
@@ -419,9 +423,13 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
 
         @Override
         public void onClick(ClickEvent event) {
-            showNewForm(domainObjectType);
-            if (sourcePopup != null) {
-                sourcePopup.hide();
+            if(state.getRootObject()!=null && state.getRootObject().getId()!=null) {
+                showNewForm(domainObjectType);
+                if (sourcePopup != null) {
+                    sourcePopup.hide();
+                }
+            } else {
+                Window.alert("Корневой обьект еще не сохранен.");
             }
         }
     }
