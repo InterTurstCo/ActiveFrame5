@@ -24,7 +24,7 @@ public class PostgreSqlDataStructureDaoImpl extends BasicDataStructureDaoImpl {
     @Override
     public void gatherStatistics() {
         sqlLoggerEnforcer.forceSqlLogging();
-        jdbcTemplate.update(getQueryHelper().generateGatherStatisticsQuery());
+        jdbcTemplate.execute(getQueryHelper().generateGatherStatisticsQuery());
         sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
     }
 

@@ -390,7 +390,8 @@ public class TableViewerToobar {
         toolbarFooMenu.clearItems();
 
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-        if (config == null || config.getCollectionViewerConfig().getToolBarConfig() == null ||
+        if (config == null || config.getCollectionViewerConfig()==null ||
+                config.getCollectionViewerConfig().getToolBarConfig() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions().size() == 0) {
             toolbarFooMenu.addItem(new MenuItem(noActionsMenu)).addStyleName("item-disable");
