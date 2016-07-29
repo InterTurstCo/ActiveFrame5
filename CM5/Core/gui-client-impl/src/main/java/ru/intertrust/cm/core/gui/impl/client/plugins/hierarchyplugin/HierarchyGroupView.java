@@ -4,6 +4,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEventHandler;
@@ -17,17 +18,10 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActi
  * Time: 10:09
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyGroupView extends Composite
+public class HierarchyGroupView extends HierarchyNode
         implements ExpandHierarchyEventHandler, HierarchyActionEventHandler {
-
-    private EventBus localBus;
     private HierarchyGroupConfig groupConfig;
-    private AbsolutePanel rootPanel;
-    private HorizontalPanel headerPanel;
-    private VerticalPanel childPanel;
-    private HierarchyGuiElementsFactory guiElementsFactory;
-    private HierarchyGuiFactory guiFactory;
-    private Boolean expanded = false;
+
 
     public HierarchyGroupView(HierarchyGroupConfig aGroupConfig) {
         groupConfig = aGroupConfig;
@@ -50,6 +44,7 @@ public class HierarchyGroupView extends Composite
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
     }
 
+    @Override
     protected void addRepresentationCells(Panel container) {
         FlexTable grid = new FlexTable();
         FlexTable.FlexCellFormatter cellFormatter = grid.getFlexCellFormatter();
@@ -76,7 +71,9 @@ public class HierarchyGroupView extends Composite
             for(HierarchyGroupConfig group : groupConfig.getHierarchyGroupConfigs()){
                 childPanel.add(guiFactory.buildGroup(group));
             }
-
+            for(HierarchyCollectionConfig collection : groupConfig.getHierarchyCollectionConfigs()){
+                childPanel.add(guiFactory.buildCollection(collection));
+            }
         } else {
             childPanel.clear();
         }
@@ -87,4 +84,5 @@ public class HierarchyGroupView extends Composite
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
         Window.alert("Действие: " + event.getAction().toString());
     }
+
 }
