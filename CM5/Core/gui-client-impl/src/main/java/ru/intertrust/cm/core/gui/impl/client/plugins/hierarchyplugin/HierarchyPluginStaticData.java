@@ -15,6 +15,12 @@ public class HierarchyPluginStaticData {
     public static final String STYLE_HEADER_PANEL = "headerPanel";
     public static final String STYLE_CHILD_PANEL = "childPanel";
     public static final String STYLE_GROUP_NAME = "groupName";
+    public static final String STYLE_REPRESENTATION_CELL = "representationCell";
+    public static final String STYLE_WRAP_CELL = "wrapCell";
+    public static final String STYLE_HEADER_CELL = "headerCell";
+    public static final String STYLE_CHILD_CELL = "childCell";
+    public static final String STYLE_FIELD_NAME = "fieldName";
+    public static final String STYLE_FIELD_VALUE = "fieldValue";
 
     public enum Actions {
         GROUPREFRESH("Обновить"),

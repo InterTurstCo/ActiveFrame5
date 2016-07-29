@@ -921,7 +921,7 @@ div.delete-btn-table-viewer-disable:hover {
 
 .childPanel {
     margin: 10px 0 0 20px;
-    width: calc(100% - 20px);
+    width: calc(100% - 20px) !important;
 }
 
 .headerPanel img {
@@ -952,4 +952,53 @@ table.wrapWidget>tbody>tr>td>.parentPanel {
 
 .groupName {
     width: 100%;
+}
+
+.wrapCell {
+    margin: 10px 0;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-left-color: #1b809e;
+    width: 100%;
+}
+
+.representationCell {
+    width: 100%;
+    margin: 3px 10px;
+}
+
+.representationCell tr {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display:  flex;
+}
+
+.childPanel table {
+    width: 100%;
+}
+
+.headerPanel tbody tr:last-child td:first-child {
+    -webkit-border-bottom-left-radius: 3px;
+    -moz-border-radius-bottomleft: 3px;
+    border-bottom-left-radius: 3px;
+}
+.headerPanel tbody tr:last-child td:last-child {
+    -webkit-border-bottom-right-radius: 3px;
+    -moz-border-radius-bottomright: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+.headerPanel {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.fieldName {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.fieldValue {
+    margin-right: 30px;
 }

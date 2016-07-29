@@ -25,11 +25,11 @@ public class HierarchyCollectionView extends HierarchyNode {
         guiFactory = new HierarchyGuiFactory();
         localBus = new SimpleEventBus();
         rootPanel = new AbsolutePanel();
-        //rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_PARENT_PANEL);
+        rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_HEADER_CELL);
         headerPanel = new HorizontalPanel();
-        //headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_HEADER_PANEL);
+        headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_CELL);
         childPanel = new VerticalPanel();
-        //childPanel.addStyleName(HierarchyPluginStaticData.STYLE_CHILD_PANEL);
+        childPanel.addStyleName(HierarchyPluginStaticData.STYLE_CHILD_CELL);
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
@@ -41,7 +41,7 @@ public class HierarchyCollectionView extends HierarchyNode {
     protected void addRepresentationCells(Panel container) {
         FlexTable grid = new FlexTable();
         FlexTable.FlexCellFormatter cellFormatter = grid.getFlexCellFormatter();
-        //grid.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_PANEL);
+        grid.addStyleName(HierarchyPluginStaticData.STYLE_REPRESENTATION_CELL);
         if (expandable) {
             grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus));
         }
@@ -49,8 +49,10 @@ public class HierarchyCollectionView extends HierarchyNode {
         int columnIndex = 1;
         for(String key : rowItem.getRow().keySet()){
             InlineHTML fieldName = new InlineHTML("<b>" + key + "</b>");
+            fieldName.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
             InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(key).toString());
+            fieldValue.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_VALUE);
             grid.setWidget(0, columnIndex+1, fieldValue);
             columnIndex+=2;
         }
