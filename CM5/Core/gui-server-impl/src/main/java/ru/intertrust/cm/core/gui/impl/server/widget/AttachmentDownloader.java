@@ -60,7 +60,7 @@ public class AttachmentDownloader {
     public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userAgent = request.getHeader("user-agent");
         String id = request.getParameter(DOWNLOAD_ID);
-        String absolutePath = "";
+        File tempFile = null;
         String filename;
         long contentLength;
         RemoteInputStream remoteFileData = null;
@@ -75,8 +75,8 @@ public class AttachmentDownloader {
             contentLength = remoteFileData.available();
         } else {
             filename = getTempNameFromRequestQuery(request.getQueryString());
-            absolutePath = attachmentTempStoragePath + filename;
-            contentLength = new File(absolutePath).length();
+            tempFile = new File(attachmentTempStoragePath, filename);
+            contentLength = tempFile.length();
         }
         response.setHeader("Content-Length", String.valueOf(contentLength));
         response.addHeader("Cache-Control", "public, max-age=" + MAX_AGE);
@@ -90,7 +90,7 @@ public class AttachmentDownloader {
         response.setHeader("Content-disposition", contentDispositionPart);
 
         try (InputStream fileData = (id != null ?  RemoteInputStreamClient.wrap(remoteFileData)
-             : new FileInputStream(absolutePath)); ) {
+             : new FileInputStream(tempFile)); ) {
             stream(fileData, response.getOutputStream());
             response.flushBuffer();
         }

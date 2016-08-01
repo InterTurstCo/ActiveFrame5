@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 
 /**
@@ -17,6 +18,9 @@ import ru.intertrust.cm.core.dao.api.ExtensionService;
 public class ClientContextExtensionPointInitializer {
     @Autowired
     private ExtensionService extensionService;
+
+    @Autowired
+    private PluginService pluginService;
     
     @Autowired
     private ApplicationContext context;
@@ -33,5 +37,6 @@ public class ClientContextExtensionPointInitializer {
     @PostConstruct
     public void init() {
         extensionService.init(contextName, context, packages);
+        pluginService.init(contextName, context);
     }
 }

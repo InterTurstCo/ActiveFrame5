@@ -148,7 +148,7 @@ public class AttachmentBoxHandler extends LinkEditingWidgetHandler {
     }
 
     private File getTemporaryFile(AttachmentItem attachmentItem) {
-        return new File(getTemporaryStoragePath() + attachmentItem.getTemporaryName());
+        return new File(getTemporaryStoragePath(), attachmentItem.getTemporaryName());
     }
 
     private String getTemporaryStoragePath() {

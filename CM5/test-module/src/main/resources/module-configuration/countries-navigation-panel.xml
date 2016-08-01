@@ -586,6 +586,11 @@
                         <custom name="configuration.deployer.plugin"/>
                     </plugin>
                 </link>
+                <link name="Plugin_manager" display-text="Плагины">
+                    <plugin>
+                        <custom name="plugin.manager.plugin"/>                    
+                    </plugin>
+                </link>
             </child-links>
 
             <child-links group-name="Отчеты">

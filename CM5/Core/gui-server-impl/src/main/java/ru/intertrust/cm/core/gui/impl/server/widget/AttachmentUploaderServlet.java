@@ -20,6 +20,8 @@ import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -82,10 +84,10 @@ public class AttachmentUploaderServlet {
                 String filename = FilenameUtils.getName(item.getName());
                 long time = System.nanoTime();
                 savedFilename = time + "-_-" + filename;
-                String pathToSave = pathForTempFilesStore + savedFilename;
+                File fileToSave = new File(pathForTempFilesStore, savedFilename);
                 try (
                         InputStream inputStream = item.getInputStream();
-                        OutputStream outputStream = new FileOutputStream(pathToSave)) {
+                        OutputStream outputStream = new FileOutputStream(fileToSave)) {
                     stream(inputStream, outputStream);
 
                 }

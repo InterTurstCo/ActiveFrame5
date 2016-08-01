@@ -3,9 +3,11 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.dao.DataAccessException;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import org.springframework.transaction.jta.JtaTransactionManager;
+import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.load.ImportReportsData;
 import ru.intertrust.cm.core.business.load.ImportSystemData;
@@ -51,6 +53,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
     @Autowired private LocalizationLoader localizationLoader;
     @Autowired private MigrationService migrationService;
     @Autowired private ExtensionService extensionService;
+    @Autowired private PluginService pluginService;
+    @Autowired private ApplicationContext context;
 
     @Autowired private JtaTransactionManager jtaTransactionManager;
 
@@ -150,7 +154,8 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
         scheduleTaskLoader.load();
         localizationLoader.load();
-        migrationService.writeMigrationLog(migrationService.getMaxMigrationSequenceNumberFromConfiguration());
+        migrationService.writeMigrationLog(migrationService.getMaxMigrationSequenceNumberFromConfiguration());        
+        pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);
     }
 
     private UserTransaction startTransaction() throws SystemException, NotSupportedException {

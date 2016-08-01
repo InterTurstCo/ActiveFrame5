@@ -318,4 +318,6 @@ public class LocalizationKeys {
     public static final String ACL_SERVICE_WRONG_ACCESS_TOKEN = "dao-impl.exception.AccessControlServiceImpl.wrongAccessToken";
     public static final String ACL_SERVICE_WRONG_SYSTEM_ACCESS_TOKEN = "dao-impl.exception.AccessControlServiceImpl.wrongSystemAccessToken";
     public static final String ACL_SERVICE_READ_PERMISSIONS_DENIED = "dao-impl.exception.AccessControlServiceImpl.readPermissionsDenied";
+    
+    public static final String ADD_PLUGIN_FILES_KEY = "AddPluginFiles";
 }

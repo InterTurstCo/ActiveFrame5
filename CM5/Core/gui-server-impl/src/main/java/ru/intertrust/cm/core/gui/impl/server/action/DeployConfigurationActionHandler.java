@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
+import ru.intertrust.cm.core.business.api.plugin.PluginService;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -33,6 +34,9 @@ public class DeployConfigurationActionHandler
 
     @Autowired
     private PropertyResolver propertyResolver;
+    
+    @Autowired
+    private PluginService pluginService;
 
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
@@ -47,10 +51,16 @@ public class DeployConfigurationActionHandler
             ConfigurationDeployedItem  configurationDeployedItem = new ConfigurationDeployedItem();
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
-                Charset charset = (filePath.endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
-                String configAsString = readFileAsString(filePath, charset);
-                configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
-                configurationDeployedItem.setSuccess(true);
+                if (filePath.toLowerCase().endsWith(".jar")){
+                    //Установка плагина
+                    pluginService.deployPluginPackage(filePath);                    
+                }else{
+                    //Установка конфигурации
+                    Charset charset = (filePath.toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
+                    String configAsString = readFileAsString(filePath, charset);
+                    configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
+                    configurationDeployedItem.setSuccess(true);
+                }
             } catch (EJBException ejbException){
                 configurationDeployedItem.setSuccess(false);
                 configurationDeployedItem.setMessage(ejbException.getLocalizedMessage());
