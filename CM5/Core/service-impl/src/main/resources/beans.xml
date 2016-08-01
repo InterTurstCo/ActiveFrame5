@@ -132,10 +132,6 @@
                     jndi-name="java:module/InterserverLockingServiceImpl!ru.intertrust.cm.core.business.api.InterserverLockingService"
                     business-interface="ru.intertrust.cm.core.business.api.InterserverLockingService"/>                    
 
-    <jee:local-slsb id="pluginAutostartService"
-                    jndi-name="java:module/PluginAutostartService!ru.intertrust.cm.core.business.api.plugin.PluginAutostartService"
-                    business-interface="ru.intertrust.cm.core.business.api.plugin.PluginAutostartService"/>                    
-
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 

@@ -28,7 +28,6 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import ru.intertrust.cm.core.business.api.plugin.Plugin;
-import ru.intertrust.cm.core.business.api.plugin.PluginAutostartService;
 import ru.intertrust.cm.core.business.api.plugin.PluginHandler;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
@@ -43,7 +42,7 @@ public class PluginServiceImpl implements PluginService {
     private Map<String, PluginInfo> pluginsInfo;
     private Map<String, ApplicationContext> contexts = new HashMap<String, ApplicationContext>();
     private PluginClassLoader classLoader;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PluginServiceImpl.class);
 
     @Autowired
@@ -54,16 +53,12 @@ public class PluginServiceImpl implements PluginService {
 
     @Autowired
     private ApplicationContext context;
-    
-    @Autowired
-    private PluginAutostartService pluginAutostartService;
-    
-    
+
     @PostConstruct
     public void init() {
         //Очищаем временные каталоги с плагинами
         String pluginFolderPath = getPluginFolder();
-        if (pluginFolderPath != null){
+        if (pluginFolderPath != null) {
             File pluginFolder = new File(pluginFolderPath);
             File[] subfolders = pluginFolder.listFiles(new FileFilter() {
                 @Override
@@ -71,16 +66,16 @@ public class PluginServiceImpl implements PluginService {
                     return folderFile.isDirectory();
                 }
             });
-            
+
             for (File subfolder : subfolders) {
-                try{
+                try {
                     FileUtils.deleteDirectory(subfolder);
-                }catch(Exception ex){
+                } catch (Exception ex) {
                     //Пишем в лог, невозможность очистить временный каталог не должен мешать запуску сервера
                     logger.warn("Error delete temp folder", ex);
                 }
             }
-        }        
+        }
     }
 
     @Override
@@ -88,8 +83,9 @@ public class PluginServiceImpl implements PluginService {
         contexts.put(contextName, applicationContext);
         //Автостарт плагина
         for (PluginInfo pluginInfo : getPlugins().values()) {
-            if (pluginInfo.isAutostart() && pluginInfo.getContextName().equals(contextName)){
-                pluginAutostartService.execute(pluginInfo.getClassName(), null);
+            if (pluginInfo.isAutostart() && pluginInfo.getContextName().equals(contextName)) {
+                String result = executePluginInternal(pluginInfo.getClassName(), null, false);
+                logger.info("Autostart plugin " + pluginInfo.getClassName() + ". Result: " + result);
             }
         }
     }
@@ -116,7 +112,7 @@ public class PluginServiceImpl implements PluginService {
             //Создаем временную папку для джаров, из за проблемы освобождения ресурсов при передеплое и копируем туда все джары
             File tempFolder = new File(pluginFolder, String.valueOf(System.currentTimeMillis()));
             tempFolder.mkdirs();
-            
+
             //Ищем все jar файлы
             File folder = new File(pluginFolder);
             File[] jars = folder.listFiles(new FilenameFilter() {
@@ -128,13 +124,13 @@ public class PluginServiceImpl implements PluginService {
 
             });
 
-            urls = new URL[jars.length];            
+            urls = new URL[jars.length];
             //Копируем во временную директорию и формируем массив URL
             for (int i = 0; i < jars.length; i++) {
                 FileUtils.copyFileToDirectory(jars[i], tempFolder);
                 File tempJar = new File(tempFolder, jars[i].getName());
                 urls[i] = tempJar.toURI().toURL();
-            }            
+            }
         }
 
         classLoader = new PluginClassLoader(urls, this.getClass().getClassLoader());
@@ -165,10 +161,14 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public String executePlugin(String id, String param) {
-        if (!checkPermissions()){
+        return executePluginInternal(id, param, true);
+    }
+
+    private String executePluginInternal(String id, String param, boolean checkPermissions) {
+        if (checkPermissions && !checkPermissions()) {
             throw new FatalException("Current user not permit execute plugin");
         }
-        
+
         try {
             PluginInfo pluginInfo = pluginsInfo.get(id);
             ApplicationContext context = contexts.get(pluginInfo.getContextName());
@@ -185,12 +185,11 @@ public class PluginServiceImpl implements PluginService {
 
     @Override
     public void deployPluginPackage(String filePath) {
-        
-        if (!checkPermissions()){
+
+        if (!checkPermissions()) {
             throw new FatalException("Current user not permit deploy plugin");
         }
-        
-        
+
         String pluginFolder = getPluginFolder();
         if (pluginFolder == null) {
             throw new FatalException("Error deploy plugin package. Property " + PLUGIN_FOLDER_PROPERTY + " not set.");
@@ -202,10 +201,10 @@ public class PluginServiceImpl implements PluginService {
                 classLoader.close();
                 classLoader = null;
             }
-            
+
             File newPackage = new File(pluginFolder, getFileName(filePath));
             if (newPackage.exists()) {
-                if (!newPackage.delete()){
+                if (!newPackage.delete()) {
                     throw new FatalException("Error redeploy plugin.");
                 }
             }
@@ -215,7 +214,7 @@ public class PluginServiceImpl implements PluginService {
             throw ex;
         } catch (Exception ex) {
             throw new FatalException("Error deploy plugin package.", ex);
-        }finally {
+        } finally {
             getPlugins();
         }
     }
@@ -231,7 +230,7 @@ public class PluginServiceImpl implements PluginService {
             title = title.replaceAll(" ", "-") + ".jar";
             return title;
         } finally {
-            if (jar != null){
+            if (jar != null) {
                 jar.close();
             }
         }
@@ -263,8 +262,8 @@ public class PluginServiceImpl implements PluginService {
         }
         return result;
     }
-    
-    private boolean checkPermissions(){
+
+    private boolean checkPermissions() {
         UserGroupGlobalCache userCache = context.getBean(UserGroupGlobalCache.class);
         CurrentUserAccessor currentUserAccessor = context.getBean(CurrentUserAccessor.class);
         return userCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId());
