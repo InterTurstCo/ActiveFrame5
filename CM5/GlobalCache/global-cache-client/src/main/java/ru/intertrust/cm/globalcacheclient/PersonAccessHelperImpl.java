@@ -75,8 +75,8 @@ public class PersonAccessHelperImpl implements PersonAccessHelper {
                 Boolean accessGranted = personAccess.get(personId);
                 if (accessGranted == Boolean.TRUE) { // if person got access in at least one group - it has access
                     continue;
-                } else { // either absent or no access, which can change if group access is given
-                    personAccess.put(personId, groupEntry.getValue());
+                } else { // set access to unknown (null) if it's not given to a group. User has no access ONLY IF all groups he's included do not have access
+                    personAccess.put(personId, groupEntry.getValue() == Boolean.TRUE ? Boolean.TRUE : null);
                 }
             }
         }
