@@ -295,6 +295,77 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_t_testfield"), hasProperty("value", equalTo("Test string"))));
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test
+    public void testSaveGenericDocument_IndirectLinkedObject() {
+        // Модель конфигурации области поиска
+        IndexedFieldConfig stringField = mock(IndexedFieldConfig.class);
+        when(stringField.getName()).thenReturn("TestField");
+        LinkedDomainObjectConfig objectConfig = mock(LinkedDomainObjectConfig.class);
+        when(objectConfig.getType()).thenReturn("TestType");
+        when(objectConfig.getFields()).thenReturn(Arrays.asList(stringField));
+        LinkedDomainObjectConfig intermediateConfig = mock(LinkedDomainObjectConfig.class);
+        when(intermediateConfig.getType()).thenReturn("IntermediateType");
+        ParentLinkConfig intermedLinkConfig = mock(ParentLinkConfig.class);
+        when(intermedLinkConfig.getDoel()).thenReturn("doel.intermediate.link");
+        when(objectConfig.getParentLink()).thenReturn(intermedLinkConfig);
+        ParentLinkConfig parentLinkConfig = mock(ParentLinkConfig.class);
+        when(parentLinkConfig.getDoel()).thenReturn("doel.parent.link");
+        when(intermediateConfig.getParentLink()).thenReturn(parentLinkConfig);
+        TargetDomainObjectConfig parentObjectConfig = mock(TargetDomainObjectConfig.class);
+        when(parentObjectConfig.getType()).thenReturn("TargetType");
+        SearchConfigHelper.SearchAreaDetailsConfig areaConfig = mock(SearchConfigHelper.SearchAreaDetailsConfig.class);
+        when(areaConfig.getAreaName()).thenReturn("TestArea");
+        when(areaConfig.getTargetObjectType()).thenReturn("TargetType");
+        when(areaConfig.getObjectConfig()).thenReturn(objectConfig);
+        when(areaConfig.getObjectConfigChain()).thenReturn(
+                new IndexedDomainObjectConfig[] { objectConfig, intermediateConfig, parentObjectConfig });
+
+        when(configHelper.findEffectiveConfigs(Mockito.anyString()))
+                .thenReturn(Arrays.asList(areaConfig));
+        when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
+        when(configHelper.isSuitableType(anyString(), anyString())).thenReturn(true);
+        when(configHelper.getFieldType(same(stringField), anyString())).thenReturn(SearchFieldType.TEXT);
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
+
+        // Модель сохраняемого объекта и его изменений
+        DomainObject object = mock(DomainObject.class);
+        Id id = idMock("TestId");
+        when(object.getId()).thenReturn(id);
+        when(object.getTypeName()).thenReturn("TestType");
+        when(object.getValue("TestField")).thenReturn(new StringValue("Test string"));
+        FieldModification modMock = mock(FieldModification.class);
+        when(modMock.getName()).thenReturn("TestField");
+        Id intermediateId = idMock("IntermediateId");
+        DomainObject intermediate = mock(DomainObject.class);
+        when(intermediate.getTypeName()).thenReturn("IntermediateType");
+        Id parentId = idMock("ParentId");
+        DomainObject parent = mock(DomainObject.class);
+        when(parent.getTypeName()).thenReturn("TargetType");
+        when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.intermediate.link")), same(id),
+                Mockito.any(AccessToken.class))).thenReturn(Arrays.asList((Value) new ReferenceValue(intermediateId)));
+        when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel.parent.link")), same(intermediateId),
+                Mockito.any(AccessToken.class))).thenReturn(Arrays.asList((Value) new ReferenceValue(parentId)));
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+        when(domainObjectDao.find(intermediateId, mockToken)).thenReturn(intermediate);
+        when(domainObjectDao.find(parentId, mockToken)).thenReturn(parent);
+
+        // Вызов тестируемого метода
+        testee.onAfterSave(object, Arrays.asList(modMock));
+
+        // Проверка правильности сформированного запроса к Solr
+        ArgumentCaptor<Collection> documents = ArgumentCaptor.forClass(Collection.class);
+        verify(requestQueue).addDocuments(documents.capture());
+        assertEquals(1, documents.getValue().size());
+        SolrInputDocument doc = (SolrInputDocument) documents.getValue().iterator().next();
+        assertThat(doc, hasEntry(equalTo("cm_id"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_area"), hasProperty("value", equalTo("TestArea"))));
+        assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TargetType"))));
+        assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_testfield"), hasProperty("value", equalTo("Test string"))));
+    }
+
     @SuppressWarnings("unchecked")
     @Test
     public void testSaveGenericDocument_LinkedObjectNoParent() {
