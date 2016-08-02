@@ -21,11 +21,15 @@ public class ImageCell extends AbstractCell<String> {
 
     @Override
     public void render(com.google.gwt.cell.client.Cell.Context context, String imagePath, SafeHtmlBuilder sb) {
-        StringBuilder html = new StringBuilder("<div/><img width=");
-        html.append(imageWidth);
-        html.append(" height=");
-        html.append(imageHeight);
-        html.append("; src=" + imagePath + "></div>");
+        StringBuilder html = new StringBuilder("<div/>");
+	if(imagePath != null && !imagePath.trim().isEmpty()){
+		html.append("<img width=");	
+        	html.append(imageWidth);
+        	html.append(" height=");
+        	html.append(imageHeight);
+        	html.append("; src=" + imagePath + ">");
+	}
+	html.append("</div>");	
         sb.append(SafeHtmlUtils.fromTrustedString(html.toString()));
     }
 
