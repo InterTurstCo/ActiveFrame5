@@ -472,6 +472,20 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="test_type_29" initial-status="Active">
+        <fields>
+            <string name="name" length="100" />
+            <reference name="author" type="person" not-null="true" />
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="test_type_30" initial-status="Active">
+        <fields>
+            <string name="name" length="100"/>
+            <reference name="test_type_29" type="test_type_29" immutable="true"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Outgoing_Document_Index" audit-log="true" initial-status="Active"> <!-- OUTGOING_DOCUMENT table -->
         <fields>
             <string name="Registration_Number" length="128" /> <!-- REGISTRATION_NUMBER column -->
