@@ -65,6 +65,8 @@ public class PluginManagerView extends PluginView {
         mainPanel.add(new Label(LocalizeUtil.get(LocalizationKeys.ADD_PLUGIN_FILES_KEY, BusinessUniverseConstants.ADD_PLUGIN_FILES)));
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
+        mainPanel.addStyleName("wrapPluginManager");
+
 
         uploadButton = new Button("Загрузить");
         uploadButton.addClickHandler(new ClickHandler(){
@@ -84,6 +86,7 @@ public class PluginManagerView extends PluginView {
         
         cellTable = new CellTable<PluginInfo>(50);
         //cellTable.setWidth("100%", true);
+        cellTable.addStyleName("cellTable");
 
         // Do not refresh the headers and footers every time the data is updated.
         cellTable.setAutoHeaderRefreshDisabled(true);
