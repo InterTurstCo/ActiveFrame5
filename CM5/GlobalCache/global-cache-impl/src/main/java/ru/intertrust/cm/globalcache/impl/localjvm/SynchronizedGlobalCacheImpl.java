@@ -202,6 +202,16 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
         }
     }
 
+    @Override
+    public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
+        writeLock.lock();
+        try {
+            super.notifyCollectionCountRead(transactionId, name, domainObjectTypes, filterNames, filterValues, count, time, accessToken);
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
     // NOT synchronized
     @Override
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
@@ -215,10 +225,10 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     }
 
     @Override
-    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, long time) {
+    protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes, IdentifiableObjectCollection clonedCollection, int count, long time) {
         writeLock.lock();
         try {
-            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, time);
+            super.notifyCollectionRead(key, subKey, domainObjectTypes, clonedCollection, count, time);
         } finally {
             writeLock.unlock();
         }
@@ -234,6 +244,16 @@ public class SynchronizedGlobalCacheImpl extends GlobalCacheImpl {
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues, int offset, int limit, AccessToken accessToken) {
         return super.getCollection(transactionId, query, paramValues, offset, limit, accessToken);
+    }
+
+    @Override
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
+        readLock.lock();
+        try {
+            return super.getCollectionCount(key, subKey);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     @Override
