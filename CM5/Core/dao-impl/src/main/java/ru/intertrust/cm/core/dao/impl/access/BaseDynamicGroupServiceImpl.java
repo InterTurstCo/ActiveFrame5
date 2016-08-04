@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
@@ -114,17 +115,10 @@ public class BaseDynamicGroupServiceImpl {
      * @return статус доменного объекта
      */
     protected String getStatusFor(Id objectId) {
-        String query = generateGetStatusForQuery(objectId);
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-
-        IdentifiableObjectCollection resultCollection = collectionsService.findCollectionByQuery(query,
-                Collections.singletonList(new ReferenceValue(objectId)), 0, 0, accessToken);
-
-        if (resultCollection == null || resultCollection.size() == 0) {
-            return null;
-        }
-
-        return resultCollection.get(0).getString("name");
+        final AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        final DomainObject object = domainObjectDao.find(objectId, accessToken);
+        final Id statusId = object.getStatus();
+        return statusId == null ? null : domainObjectDao.find(statusId, accessToken).getString("name");
     }
 
     /**
@@ -177,11 +171,25 @@ public class BaseDynamicGroupServiceImpl {
         return userGroupId;
     }
 
+    protected List<DomainObject> createUserGroups(Id contextObjectId, List<DynamicGroupConfig> configs) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
+        ArrayList<DomainObject> userGroups = new ArrayList<>(configs.size());
+        for (DynamicGroupConfig dynamicGroupConfig : configs) {
+            GenericDomainObject userGroupDO = new GenericDomainObject();
+            userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
+            userGroupDO.setString("group_name", dynamicGroupConfig.getName());
+            userGroupDO.setReference("object_id", contextObjectId);
+            userGroups.add(userGroupDO);
+        }
+        return domainObjectDao.save(userGroups, accessToken);
+    }
+
     protected List<FieldModification> getNewObjectModificationList(
             DomainObject domainObject) {
-        List<FieldModification> result = new ArrayList<FieldModification>();
 
-        for (String fieldName : domainObject.getFields()) {
+        final ArrayList<String> fields = domainObject.getFields();
+        List<FieldModification> result = new ArrayList<>(fields.size());
+        for (String fieldName : fields) {
             result.add(new FieldModificationImpl(fieldName, null, domainObject
                     .getValue(fieldName)));
         }
@@ -191,9 +199,9 @@ public class BaseDynamicGroupServiceImpl {
 
     protected List<FieldModification> getDeletedModificationList(
             DomainObject domainObject) {
-        List<FieldModification> result = new ArrayList<FieldModification>();
-
-        for (String fieldName : domainObject.getFields()) {
+        final ArrayList<String> fields = domainObject.getFields();
+        List<FieldModification> result = new ArrayList<>(fields.size());
+        for (String fieldName : fields) {
             result.add(new FieldModificationImpl(fieldName, domainObject
                     .getValue(fieldName), null));
         }
@@ -207,7 +215,7 @@ public class BaseDynamicGroupServiceImpl {
      * @return
      */
     protected List<Id> getIdList(List<Value> valueList) {
-        List<Id> result = new ArrayList<Id>();
+        List<Id> result = new ArrayList<>(valueList.size());
         for (Value value : valueList) {
             if (value.get() != null) {
                 result.add((Id) value.get());
@@ -217,7 +225,10 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     protected List<Id> getIdListFromDomainObjectList(List<DomainObject> domainObjectList) {
-        List<Id> result = new ArrayList<Id>();
+        if (domainObjectList == null || domainObjectList.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Id> result = new ArrayList<>(domainObjectList.size());
         if (domainObjectList != null) {
             for (DomainObject value : domainObjectList) {
                 result.add(value.getId());

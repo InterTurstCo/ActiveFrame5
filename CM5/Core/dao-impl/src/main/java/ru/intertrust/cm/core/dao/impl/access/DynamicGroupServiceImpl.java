@@ -155,9 +155,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     private void createAllDynamicGroups(DomainObject domainObject) {
         List<DynamicGroupConfig> configs = configsByContextType.get(domainObject.getTypeName().toLowerCase());
         if (configs != null) {
-            for (DynamicGroupConfig dynamicGroupConfig : configs) {
-                createUserGroup(dynamicGroupConfig.getName(), domainObject.getId());
-            }
+            createUserGroups(domainObject.getId(), configs);
         }
     }
 
@@ -175,9 +173,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         insertGroupMembers(dynamicGroupId, personIds);
         insertGroupMembersGroups(dynamicGroupId, groupIds);*/
 
-        List<Id> oldGroupIds = getIdListFromDomainObjectList(personManagementService.getChildGroups(dynamicGroupId));
-        List<Id> oldPersonIds =
-                getIdListFromDomainObjectList(personManagementService.getPersonsInGroup(dynamicGroupId));
+        final List<Id> oldGroupIdsList = getIdListFromDomainObjectList(personManagementService.getChildGroups(dynamicGroupId));
+        final List<Id> oldPersonIdsList = getIdListFromDomainObjectList(personManagementService.getPersonsInGroup(dynamicGroupId));
+        final Set<Id> oldGroupIds = oldGroupIdsList.isEmpty() ? Collections.<Id>emptySet() : new HashSet<>(oldGroupIdsList);
+        final Set<Id> oldPersonIds = oldPersonIdsList.isEmpty() ? Collections.<Id>emptySet() : new HashSet<>(oldPersonIdsList);
 
         //Сравнение списков и получение дельты
         //Получение добавленных персон
@@ -242,9 +241,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
      */
     private void insertGroupMembersGroups(Id dynamicGroupId, List<Id> groupIds) {
         if (groupIds != null) {
-            for (Id id : groupIds) {
-                personManagementService.addGroupToGroup(dynamicGroupId, id);
-            }
+            personManagementService.addGroupsToGroup(dynamicGroupId, groupIds);
         }
     }
 

@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.dao.api;
 
-import java.util.List;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Сервис для более удобной работы с пользователями и группами
@@ -84,6 +85,13 @@ public interface PersonManagementServiceDao {
      * @param child
      */
     void addGroupToGroup(Id parent, Id child);
+
+    /**
+     * Добавление группы в группу
+     * @param parent
+     * @param children
+     */
+    void addGroupsToGroup(Id parent, Collection<Id> children);
 
     /**
      * Удаление персоны из группы
