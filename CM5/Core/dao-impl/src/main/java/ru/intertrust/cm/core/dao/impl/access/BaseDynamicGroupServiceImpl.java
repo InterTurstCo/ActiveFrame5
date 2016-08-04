@@ -52,6 +52,9 @@ public class BaseDynamicGroupServiceImpl {
     @Autowired
     protected UserGroupGlobalCache userGroupGlobalCache;
 
+    @Autowired
+    private GlobalCacheManager globalCacheManager;
+
     public void setDoelResolver(DoelResolver doelResolver) {
         this.doelResolver = doelResolver;
         doelResolver.setDomainObjectTypeIdCache(domainObjectTypeIdCache);
@@ -116,9 +119,21 @@ public class BaseDynamicGroupServiceImpl {
      */
     protected String getStatusFor(Id objectId) {
         final AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        final DomainObject object = domainObjectDao.find(objectId, accessToken);
-        final Id statusId = object.getStatus();
-        return statusId == null ? null : domainObjectDao.find(statusId, accessToken).getString("name");
+        if (globalCacheManager.isEnabled()) {
+            final DomainObject object = domainObjectDao.find(objectId, accessToken);
+            final Id statusId = object.getStatus();
+            return statusId == null ? null : domainObjectDao.find(statusId, accessToken).getString("name");
+        } else {
+            String query = generateGetStatusForQuery(objectId);
+            IdentifiableObjectCollection resultCollection = collectionsService.findCollectionByQuery(query,
+                    Collections.singletonList(new ReferenceValue(objectId)), 0, 0, accessToken);
+
+            if (resultCollection == null || resultCollection.size() == 0) {
+                return null;
+            }
+
+            return resultCollection.get(0).getString("name");
+        }
     }
 
     /**
@@ -158,30 +173,27 @@ public class BaseDynamicGroupServiceImpl {
     }
 
     protected Id createUserGroup(String dynamicGroupName, Id contextObjectId) {
-        Id userGroupId;
-        GenericDomainObject userGroupDO = new GenericDomainObject();
-        userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-        userGroupDO.setString("group_name", dynamicGroupName);
-        if (contextObjectId != null) {
-            userGroupDO.setReference("object_id", contextObjectId);
-        }
         AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
-        DomainObject updatedObject = domainObjectDao.save(userGroupDO, accessToken);
-        userGroupId = updatedObject.getId();
-        return userGroupId;
+        return domainObjectDao.save(createUserGroupDO(dynamicGroupName, contextObjectId), accessToken).getId();
     }
 
     protected List<DomainObject> createUserGroups(Id contextObjectId, List<DynamicGroupConfig> configs) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
         ArrayList<DomainObject> userGroups = new ArrayList<>(configs.size());
         for (DynamicGroupConfig dynamicGroupConfig : configs) {
-            GenericDomainObject userGroupDO = new GenericDomainObject();
-            userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
-            userGroupDO.setString("group_name", dynamicGroupConfig.getName());
-            userGroupDO.setReference("object_id", contextObjectId);
-            userGroups.add(userGroupDO);
+            userGroups.add(createUserGroupDO(dynamicGroupConfig.getName(), contextObjectId));
         }
         return domainObjectDao.save(userGroups, accessToken);
+    }
+
+    private DomainObject createUserGroupDO(String groupName, Id contextObjectId) {
+        GenericDomainObject userGroupDO = new GenericDomainObject();
+        userGroupDO.setTypeName(GenericDomainObject.USER_GROUP_DOMAIN_OBJECT);
+        userGroupDO.setString("group_name", groupName);
+        if (contextObjectId != null) {
+            userGroupDO.setReference("object_id", contextObjectId);
+        }
+        return userGroupDO;
     }
 
     protected List<FieldModification> getNewObjectModificationList(

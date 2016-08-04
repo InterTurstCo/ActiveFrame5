@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter;
 
@@ -30,6 +31,9 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Autowired
     private IdentifiableObjectConverter identifiableObjectConverter;
+
+    @Autowired
+    private GlobalCacheManager globalCacheManager;
 
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
@@ -169,18 +173,27 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
-        final List<DomainObject> groupGroupSettings = domainObjectDao.findLinkedDomainObjects(parent, "group_group_settings", "parent_group_id", accessToken);
-        if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
-            return Collections.emptyList();
-        }
-        ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
-        for (DomainObject groupGroupSetting : groupGroupSettings) {
-            final Id childGroupId = groupGroupSetting.getReference("child_group_id");
-            if (childGroupId != null) {
-                childGroupIds.add(childGroupId);
+        if (globalCacheManager.isEnabled()) {
+            final List<DomainObject> groupGroupSettings = domainObjectDao.findLinkedDomainObjects(parent, "group_group_settings", "parent_group_id", accessToken);
+            if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
+                return Collections.emptyList();
             }
+            ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
+            for (DomainObject groupGroupSetting : groupGroupSettings) {
+                final Id childGroupId = groupGroupSetting.getReference("child_group_id");
+                if (childGroupId != null) {
+                    childGroupIds.add(childGroupId);
+                }
+            }
+            return domainObjectDao.find(childGroupIds, accessToken);
+        } else {
+            Filter filter = new Filter();
+            filter.setFilter("byParent");
+            filter.addCriterion(0, new ReferenceValue(parent));
+
+            return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
+                    Collections.singletonList(filter), null, 0, 0, accessToken));
         }
-        return domainObjectDao.find(childGroupIds, accessToken);
     }
 
     @Override
