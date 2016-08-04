@@ -13,6 +13,8 @@ import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import javax.ejb.EJBException;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -47,17 +49,17 @@ public class DeployConfigurationActionHandler
         List<ConfigurationDeployedItem> configurationDeployedItems = new ArrayList<>();
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
         for (AttachmentItem attachmentItem : attachmentItems) {
-            String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
+            File file = new File(pathForTempFilesStore, attachmentItem.getTemporaryName());
             ConfigurationDeployedItem  configurationDeployedItem = new ConfigurationDeployedItem();
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
-                if (filePath.toLowerCase().endsWith(".jar")){
+                if (file.getName().toLowerCase().endsWith(".jar")){
                     //Установка плагина
-                    pluginService.deployPluginPackage(filePath);                    
+                    pluginService.deployPluginPackage(file.getPath());                    
                 }else{
                     //Установка конфигурации
-                    Charset charset = (filePath.toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
-                    String configAsString = readFileAsString(filePath, charset);
+                    Charset charset = (file.getName().toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
+                    String configAsString = readFileAsString(file.getPath(), charset);
                     configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
                     configurationDeployedItem.setSuccess(true);
                 }
