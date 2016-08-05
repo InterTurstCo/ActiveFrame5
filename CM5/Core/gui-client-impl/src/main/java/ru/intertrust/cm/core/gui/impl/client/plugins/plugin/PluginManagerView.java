@@ -277,16 +277,17 @@ public class PluginManagerView extends PluginView {
         Button actionButton = new Button();
         actionButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
         actionButton.addStyleName("add-btn-table-viewer");
+        actionButton.addStyleName("btn-perform");
         actionButton.setTitle("Выполнить");
         toolbarPanel.add(actionButton);
 
 
         actionButton.addClickHandler(new ClickHandler() {
-                                       @Override
-                                       public void onClick(ClickEvent event) {
-                                           dialogBox.showDialogBox();
+                                         @Override
+                                         public void onClick(ClickEvent event) {
+                                             dialogBox.showDialogBox();
 
-                                       }
+                                         }
                                    }
         );
 

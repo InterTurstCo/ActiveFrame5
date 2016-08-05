@@ -598,7 +598,6 @@ div.delete-btn-table-viewer {
     padding: 7px 15px 7px 15px;
     background: #ebf5fe;
     border-bottom: none;
-    min-width: 120px;
 }
 
 .cellTable th:not(:last-child) {
@@ -606,12 +605,12 @@ div.delete-btn-table-viewer {
 }
 
 .cellTable {
-    margin-top: 15px;
+    margin-top: 5px;
 }
 
 .wrapPluginManager .gwt-Button {
     display: inline-block;
-    margin: 5px;
+    margin: 10px 5px 10px 5px;
     padding: 6px 9px;
     border: 1px solid #016cad;
     border-radius: 3px;
@@ -645,4 +644,15 @@ div.delete-btn-table-viewer {
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     color: rgba(255, 255, 255, 0.8);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#0d7bbe, endColorstr=#0874b6, GradientType=1) /*#eeeeee*/;
+}
+
+button.btn-perform {
+    background: url("resources/defaulttheme/images/icons/icon-perform.png") no-repeat;
+    background-size: 16px;
+    background-position: center;
+}
+
+.wrapPluginManager
+.facebook-main-box:empty {
+    display: none !important;
 }
