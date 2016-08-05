@@ -84,6 +84,10 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void notifyCollectionCountRead(String name, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
+    }
+
+    @Override
     public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
     }
 
@@ -143,6 +147,11 @@ public class DisabledGlobalCacheClient implements GlobalCacheClient {
     @Override
     public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
         return null;
+    }
+
+    @Override
+    public int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+        return -1;
     }
 
     @Override

@@ -244,6 +244,20 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     @Override
+    public void notifyCollectionCountRead(String name, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
+        if (isReactivationUndergoing()) {
+            return;
+        }
+        Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
+        Set<String> filterNames = filterNamesWithTypes.getFirst();
+        Set<String> doTypes = filterNamesWithTypes.getSecond();
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return;
+        }
+        globalCache.notifyCollectionCountRead(null, name, doTypes, filterNames, filterValues, count, time, accessToken);
+    }
+
+    @Override
     public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
         if (isReactivationUndergoing()) {
@@ -379,6 +393,19 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     }
 
     @Override
+    public int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+        ++totalReads;
+        if (isReactivationUndergoing()) {
+            return -1;
+        }
+        Set<String> doTypes = collectionsDao.getDOTypes(name, filterValues).getSecond();
+        if (isAtLeastOneTypeSaved(doTypes)) {
+            return -1;
+        }
+        return logHit(globalCache.getCollectionCount(null, name, filterValues, accessToken));
+    }
+
+    @Override
     public IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         ++totalReads;
         if (isReactivationUndergoing()) {
@@ -425,6 +452,13 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     private <T> T logHit(T result) {
         if (result != null) {
+            ++totalHits;
+        }
+        return result;
+    }
+
+    private int logHit(int result) {
+        if (result != -1) {
             ++totalHits;
         }
         return result;

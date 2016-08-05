@@ -33,6 +33,7 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     private final MethodStatistics NOTIFY_LINKED_OBJECTS_READ = new MethodStatistics("Notify Linked Objects Read");
     private final MethodStatistics NOTIFY_LINKED_OBJECTS_IDS_READ = new MethodStatistics("Notify Linked Objects Ids Read");
     private final MethodStatistics NOTIFY_COLLECTION_READ = new MethodStatistics("Notify Collection Read");
+    private final MethodStatistics NOTIFY_COLLECTION_COUNT_READ = new MethodStatistics("Notify Collection Count Read");
     private final MethodStatistics NOTIFY_COLLECTION_BY_QUERY_READ = new MethodStatistics("Notify Collection By Query Read");
     private final MethodStatistics INVALIDATE = new MethodStatistics("Invalidate");
     private final MethodStatistics NOTIFY_COMMIT = new MethodStatistics("Notify Commit");
@@ -46,6 +47,7 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     private final MethodStatistics GET_LINKED_DOMAIN_OBJECTS_IDS = new MethodStatistics("Get Linked Domain Objects Ids", true);
     private final MethodStatistics GET_ALL_DOMAIN_OBJECTS = new MethodStatistics("Get All Domain Objects", true);
     private final MethodStatistics GET_COLLECTION = new MethodStatistics("Get Collection", true);
+    private final MethodStatistics GET_COLLECTION_COUNT = new MethodStatistics("Get Collection Count", true);
     private final MethodStatistics GET_COLLECTION_BY_QUERY = new MethodStatistics("Get Collection By Query", true);
 
     private ArrayList<MethodStatistics> allMethodsStatistics;
@@ -193,6 +195,14 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
     }
 
     @Override
+    public void notifyCollectionCountRead(String name, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
+        final long t1 = System.nanoTime();
+        delegate.notifyCollectionCountRead(name, filterValues, count, time, accessToken);
+        final long executionTime = System.nanoTime() - t1;
+        NOTIFY_COLLECTION_COUNT_READ.log(executionTime, false);
+    }
+
+    @Override
     public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
         final long t1 = System.nanoTime();
         delegate.notifyCollectionRead(name, filterValues, sortOrder, offset, limit, collection, time, accessToken);
@@ -299,6 +309,15 @@ public class ExtendedStatisticsGatherer implements GlobalCacheClient {
         final List<DomainObject> result = delegate.getAllDomainObjects(type, exactType, accessToken);
         final long executionTime = System.nanoTime() - t1;
         GET_ALL_DOMAIN_OBJECTS.log(executionTime, result != null);
+        return result;
+    }
+
+    @Override
+    public int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+        final long t1 = System.nanoTime();
+        final int result = delegate.getCollectionCount(name, filterValues, accessToken);
+        final long executionTime = System.nanoTime() - t1;
+        GET_COLLECTION_COUNT.log(executionTime, result != -1);
         return result;
     }
 
