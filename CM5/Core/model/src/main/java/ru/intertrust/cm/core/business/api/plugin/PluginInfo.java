@@ -10,6 +10,7 @@ public class PluginInfo implements Dto{
     private String contextName;
     private boolean autostart;
     private String className;
+    private boolean checked = false;
     
     public PluginInfo(){
         
@@ -58,6 +59,13 @@ public class PluginInfo implements Dto{
 
     public void setClassName(String className) {
         this.className = className;
-    }   
-    
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
 }

@@ -1,10 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.plugin;
 
-import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
-import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
-
-import com.google.gwt.cell.client.ButtonCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Element;
@@ -18,15 +15,9 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
@@ -38,6 +29,8 @@ import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.AttachmentBoxWidget;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
+import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentBoxState;
@@ -46,15 +39,20 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginInfoData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
+import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
+
 public class PluginManagerView extends PluginView {
 
     private Panel mainPanel = new VerticalPanel();
     private AttachmentBoxWidget attachmentBox;
-    private TextBox parameterTextBox;
     private CellTable<PluginInfo> cellTable;
+    private Panel toolbarPanel = new HorizontalPanel();
     private SimplePager pager;
     private Button uploadButton;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<PluginInfo>();
+
+    private PluginManagerParamDialogBox dialogBox;
 
     public PluginManagerView(Plugin plugin) {
         super(plugin);
@@ -62,6 +60,7 @@ public class PluginManagerView extends PluginView {
     }
 
     private void init() {
+
         mainPanel.add(new Label(LocalizeUtil.get(LocalizationKeys.ADD_PLUGIN_FILES_KEY, BusinessUniverseConstants.ADD_PLUGIN_FILES)));
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
@@ -78,12 +77,30 @@ public class PluginManagerView extends PluginView {
             
         });
         mainPanel.add(uploadButton);
-        
-        mainPanel.add(new Label("Параметр запуска плагина"));
-        
-        parameterTextBox = new TextBox();
-        mainPanel.add(parameterTextBox);
-        
+
+        dialogBox = new PluginManagerParamDialogBox();
+        dialogBox.addCancelButtonClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+            }
+        });
+
+        dialogBox.addOkButtonClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+                for(PluginInfo pluginInfo : dataProvider.getList()) {
+                    if(pluginInfo.isChecked()) {
+                        executePlugin(pluginInfo, dialogBox.getResult());
+                    }
+                }
+            }
+        });
+
+        initTableToolbar();
+        mainPanel.add(toolbarPanel);
+
         cellTable = new CellTable<PluginInfo>(50);
         //cellTable.setWidth("100%", true);
         cellTable.addStyleName("cellTable");
@@ -103,7 +120,7 @@ public class PluginManagerView extends PluginView {
         refreshPluginsModel();
         
         mainPanel.add(cellTable);
-        
+
         Application.getInstance().hideLoadingIndicator();
     }
 
@@ -131,9 +148,9 @@ public class PluginManagerView extends PluginView {
     }    
 
     
-    private void executePlugin(PluginInfo pluginInfo) {
+    private void executePlugin(PluginInfo pluginInfo, String param) {
         ExecutePluginData executePluginData = new ExecutePluginData();
-        executePluginData.setParameter(parameterTextBox.getValue().toString());
+        executePluginData.setParameter(param);
         executePluginData.setPluginId(pluginInfo.getClassName());
         
         Command command = new Command("executePlugin", "plugin.manager.plugin", executePluginData);
@@ -196,6 +213,26 @@ public class PluginManagerView extends PluginView {
     
     private void initTableColumns() {
 
+        //check boxes
+        Column<PluginInfo, Boolean> checkColumn = new Column<PluginInfo, Boolean>(new LabledCheckboxCell()) {
+
+            @Override
+            public Boolean getValue(PluginInfo object) {
+                return object.isChecked();
+            }
+
+            @Override
+            public void onBrowserEvent(Cell.Context context, Element elem, PluginInfo object, NativeEvent event) {
+                super.onBrowserEvent(context, elem, object, event);
+                object.setChecked(((CheckboxCell)this.getCell()).getViewData(object));
+            }
+        };
+
+        checkColumn.setCellStyleNames("check-box-cell");
+        cellTable.addColumn(checkColumn);
+        cellTable.setColumnWidth(checkColumn, 10, Unit.PCT);
+
+
         // ID.
         Column<PluginInfo, String> idColumn = new Column<PluginInfo, String>(
                 new TextCell()) {
@@ -207,6 +244,7 @@ public class PluginManagerView extends PluginView {
 
         cellTable.addColumn(idColumn, "id");
         cellTable.setColumnWidth(idColumn, 20, Unit.PCT);
+
 
         // Name.
         Column<PluginInfo, String> nameColumn = new Column<PluginInfo, String>(
@@ -231,25 +269,27 @@ public class PluginManagerView extends PluginView {
 
         cellTable.addColumn(descriptionColumn, "description");
         cellTable.setColumnWidth(descriptionColumn, 100, Unit.PCT);
-        
-        // action.
-        Column<PluginInfo, String> actionColumn = new Column<PluginInfo, String>(
-                new ButtonCell()) {
-            @Override
-            public String getValue(PluginInfo object) {
-                return "Выполнить";
-            }
-            
-            @Override
-            public void onBrowserEvent(Cell.Context context, Element elem, PluginInfo object, NativeEvent event) {
-                event.preventDefault();
-                executePlugin(object);
-            }
-            
-        };
 
-        cellTable.addColumn(actionColumn, "action");
-        cellTable.setColumnWidth(actionColumn, 50, Unit.PCT);
     }
-    
+
+
+    private void initTableToolbar() {
+        Button actionButton = new Button();
+        actionButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        actionButton.addStyleName("add-btn-table-viewer");
+        actionButton.setTitle("Выполнить");
+        toolbarPanel.add(actionButton);
+
+
+        actionButton.addClickHandler(new ClickHandler() {
+                                       @Override
+                                       public void onClick(ClickEvent event) {
+                                           dialogBox.showDialogBox();
+
+                                       }
+                                   }
+        );
+
+    }
+
 }
