@@ -5,6 +5,10 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.DialogBoxUtils;
+
+import java.util.List;
 
 /**
  * @author Andrei Lozovoy
@@ -22,15 +26,13 @@ public class PluginManagerParamDialogBox extends DialogBox{
     }
 
     private void init(){
-        // Enable animation.
         this.setAnimationEnabled(true);
-        // Enable glass background.
+
         this.addStyleName("dialogBoxBody");
         this.addStyleName("body-popup-plugin-meneger");
         this.removeStyleName("gwt-DialogBox");
-        // DialogBox is a SimplePanel, so you have to set its widget
-        // property to whatever you want its contents to be.
-        okButton= new Button("ОК");
+
+        okButton= new Button("Выполнить");
         okButton.addStyleName("darkButton");
         okButton.removeStyleName("gwt-Button");
 
@@ -43,16 +45,9 @@ public class PluginManagerParamDialogBox extends DialogBox{
         parameterTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
-                if(Cookies.isCookieEnabled()){
-                    Cookies.setCookie("PluginManagerParam", event.getValue());
-                }
                 result = event.getValue();
             }
         });
-
-        if(Cookies.getCookie("PluginManagerParam") != null){
-            parameterTextBox.setValue(Cookies.getCookie("PluginManagerParam"));
-        }
 
         panel.add(parameterTextBox);
 
@@ -60,11 +55,13 @@ public class PluginManagerParamDialogBox extends DialogBox{
         buttonsPanel.addStyleName("attachments-buttons-panel");
         buttonsPanel.getElement().getStyle().clearPosition();
         buttonsPanel.add(okButton);
-        cancelButton = new Button("Нет");
+        cancelButton = new Button("Отмена");
         cancelButton.addStyleName("lightButton");
         cancelButton.removeStyleName("gwt-Button");
         buttonsPanel.add(cancelButton);
         panel.add(buttonsPanel);
+
+        DialogBoxUtils.addCaptionCloseButton(this);
         this.add(panel);
     }
 
@@ -82,5 +79,30 @@ public class PluginManagerParamDialogBox extends DialogBox{
 
     public String getResult(){
         return result;
+    }
+
+    public void checkAndSetParamValue(List<PluginInfo> pluginInfos){
+        String param = null;
+        boolean matched = false;
+        for(PluginInfo pluginInfo: pluginInfos){
+            if(pluginInfo.isChecked()) {
+                String cookieForPlugin = Cookies.getCookie(pluginInfo.getClassName());
+                if(param == null && cookieForPlugin != null) {
+                    param = cookieForPlugin;
+                    matched = true;
+                }else if(param != null && !param.equals(cookieForPlugin)){
+                    matched = false;
+                    break;
+                }
+            }
+        }
+
+        if(matched){
+            parameterTextBox.setValue(param);
+            result = param;
+        }else {
+            parameterTextBox.setValue("");
+            result = "";
+        }
     }
 }
