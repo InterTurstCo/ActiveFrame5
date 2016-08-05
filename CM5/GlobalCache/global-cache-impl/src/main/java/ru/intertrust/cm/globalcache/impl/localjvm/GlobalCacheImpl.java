@@ -1407,6 +1407,10 @@ public class GlobalCacheImpl implements GlobalCache {
                 return NodeDomainObject.Set;
             }
 
+            if (GenericDomainObject.isAbsent(domainObject)) {
+                return NodeDomainObject.Clear;
+            }
+
             int comparison = domainObject.getModifiedDate().compareTo(cachedDomainObject.getModifiedDate());
             if (comparison > 0) {
                 return NodeDomainObject.Set;
