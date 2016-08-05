@@ -329,6 +329,9 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
+        if (filters == null || filters.isEmpty()) {
+            return null;
+        }
         final HashSet<Filter> result = new HashSet<>(filters.size() * 2);
         for (Filter filter : filters) {
             result.add(ObjectCloner.fastCloneFilter(filter));
@@ -627,7 +630,7 @@ public class GlobalCacheImpl implements GlobalCache {
     public int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, AccessToken accessToken) {
         final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : cloneFiltersToSet(filterValues);
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, null, 0, 0);
         return getCollectionCount(key, subKey);
     }
@@ -638,7 +641,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
         sortOrder = ObjectCloner.fastCloneSortOrder(sortOrder);
-        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : cloneFiltersToSet(filterValues);
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
         return getCollection(key, subKey);
     }
