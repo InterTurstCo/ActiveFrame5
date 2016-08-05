@@ -14,6 +14,7 @@ import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -50,6 +51,7 @@ public class PluginManagerView extends PluginView {
     private Panel toolbarPanel = new HorizontalPanel();
     private SimplePager pager;
     private Button uploadButton;
+    private Button executeButton;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<PluginInfo>();
 
     private PluginManagerParamDialogBox dialogBox;
@@ -90,6 +92,7 @@ public class PluginManagerView extends PluginView {
             @Override
             public void onClick(ClickEvent event) {
                 dialogBox.hide();
+                saveParamsForSelectedPlugins(dialogBox.getResult());
                 for(PluginInfo pluginInfo : dataProvider.getList()) {
                     if(pluginInfo.isChecked()) {
                         executePlugin(pluginInfo, dialogBox.getResult());
@@ -225,6 +228,14 @@ public class PluginManagerView extends PluginView {
             public void onBrowserEvent(Cell.Context context, Element elem, PluginInfo object, NativeEvent event) {
                 super.onBrowserEvent(context, elem, object, event);
                 object.setChecked(((CheckboxCell)this.getCell()).getViewData(object));
+                if(isSelectedPluginExist()){
+                    executeButton.setEnabled(true);
+                    executeButton.removeStyleDependentName("disabled");
+                }else {
+                    executeButton.setStyleDependentName("disabled", true);
+                    executeButton.setEnabled(false);
+
+                }
             }
         };
 
@@ -274,22 +285,44 @@ public class PluginManagerView extends PluginView {
 
 
     private void initTableToolbar() {
-        Button actionButton = new Button();
-        actionButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
-        actionButton.addStyleName("add-btn-table-viewer");
-        actionButton.addStyleName("btn-perform");
-        actionButton.setTitle("Выполнить");
-        toolbarPanel.add(actionButton);
+        executeButton = new Button();
+        executeButton.setStylePrimaryName("btn-perform");
+        executeButton.addStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
+        executeButton.addStyleName("add-btn-table-viewer");
+        executeButton.setEnabled(false);
+        executeButton.addStyleDependentName("disabled");
+        executeButton.setTitle("Выполнить");
+        toolbarPanel.add(executeButton);
 
 
-        actionButton.addClickHandler(new ClickHandler() {
-                                         @Override
-                                         public void onClick(ClickEvent event) {
-                                             dialogBox.showDialogBox();
-
-                                         }
-                                   }
+        executeButton.addClickHandler(new ClickHandler() {
+               @Override
+               public void onClick(ClickEvent event) {
+                   dialogBox.checkAndSetParamValue(dataProvider.getList());
+                   dialogBox.showDialogBox();
+               }
+           }
         );
+
+    }
+
+    private void saveParamsForSelectedPlugins(String param){
+        for(PluginInfo pluginInfo : dataProvider.getList()){
+            if(pluginInfo.isChecked()){
+                Cookies.setCookie(pluginInfo.getClassName(), param);
+            }
+        }
+    }
+
+    private boolean isSelectedPluginExist() {
+        boolean selected = false;
+        for(PluginInfo pluginInfo : dataProvider.getList()) {
+            if(pluginInfo.isChecked()){
+                selected = true;
+                break;
+            }
+        }
+        return selected;
 
     }
 
