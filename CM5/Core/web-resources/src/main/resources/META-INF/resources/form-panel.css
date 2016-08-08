@@ -595,13 +595,12 @@ div.delete-btn-table-viewer {
 }
 
 .cellTable th {
-    padding: 7px 15px 7px 15px;
-    background: #ebf5fe;
-    border-bottom: none;
-}
-
-.cellTable th:not(:last-child) {
-    border-right: 2px solid white;
+    border-bottom: 2px solid #6f7277;
+    padding: 3px 15px;
+    text-align: left;
+    color: #4b4a4a;
+    text-shadow: #ddf 1px 1px 0;
+    overflow: hidden;
 }
 
 .cellTable {
@@ -652,7 +651,38 @@ button.btn-perform {
     background-position: center;
 }
 
+button.btn-perform-disabled.add-btn-table-viewer {
+    background: url("resources/defaulttheme/images/icons/icon-perform-disable.png") no-repeat;
+    background-size: 16px;
+    background-position: center;
+    cursor: auto;
+}
+
+button.btn-perform-disabled.add-btn-table-viewer:hover {
+    border: 1px solid #dfe2e5;
+    box-shadow: none;
+}
 .wrapPluginManager
 .facebook-main-box:empty {
     display: none !important;
+}
+
+[class*="cellTableKeyboardSelectedRow"] {
+    background: #FFC !important;
+}
+
+[class*="cellTableKeyboardSelectedRowCell"] {
+    border: 2px solid #FFC !important;
+}
+
+[class*="cellTableKeyboardSelectedCell"] {
+    border: 2px solid #d7dde8 !important;
+}
+
+[class*="cellTableWidget"] {
+    border-collapse: separate !important;
+}
+
+.cellTable th:not(:last-child) {
+    border-right: 2px solid transparent;
 }
