@@ -1,9 +1,12 @@
 package ru.intertrust.cm.core.business.impl.plugin;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.security.RunAs;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -15,8 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor;
@@ -52,6 +59,20 @@ public class PluginServiceImpl implements PluginService {
 
     @Autowired
     private StatusDao statusDao;
+    
+    @Autowired
+    private CollectionsService collectionsService;    
+
+    @PostConstruct
+    public void cleanPluginStatus() {
+        //Ищем в таблице со статусами плагинов подвисшие плагины и меняем у них статус
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(statusDao.getStatusIdByName("Run")));
+        IdentifiableObjectCollection collection = collectionsService.findCollectionByQuery("select id from plugin_status where status = {0}", params);
+        for (IdentifiableObject identifiableObject : collection) {
+            domainObjectDao.setStatus(identifiableObject.getId(), statusDao.getStatusIdByName("Sleep"), getSystemAccessToken());
+        }
+    }
 
     @Override
     public void init(String contextName, ApplicationContext applicationContext) {
