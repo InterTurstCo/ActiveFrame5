@@ -132,6 +132,14 @@
                     jndi-name="java:module/InterserverLockingServiceImpl!ru.intertrust.cm.core.business.api.InterserverLockingService"
                     business-interface="ru.intertrust.cm.core.business.api.InterserverLockingService"/>                    
 
+    <jee:local-slsb id="asyncPluginExecutor"
+                    jndi-name="java:module/AsyncPluginExecutor!ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor"
+                    business-interface="ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor"/>                    
+
+    <jee:local-slsb id="pluginService"
+                    jndi-name="java:module/PluginService!ru.intertrust.cm.core.business.api.plugin.PluginService"
+                    business-interface="ru.intertrust.cm.core.business.api.plugin.PluginService"/>                    
+
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 
@@ -268,7 +276,7 @@
 
     <bean id="threadContext" class="ru.intertrust.cm.core.business.impl.ThreadContextImpl" />
     
-    <bean id="pluginServiceImpl" class="ru.intertrust.cm.core.business.impl.plugin.PluginServiceImpl" />
+    <bean id="pluginStorage" class="ru.intertrust.cm.core.business.impl.plugin.PluginStorageImpl" />    
     
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>

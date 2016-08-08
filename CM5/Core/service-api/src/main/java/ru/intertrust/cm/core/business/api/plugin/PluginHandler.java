@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.plugin;
 
+import javax.ejb.EJBContext;
+
 /**
  * Интерфейс рлагина
  * @author larin
@@ -11,5 +13,5 @@ public interface PluginHandler {
      * @param param
      * @return
      */
-    String execute(String param);
+    String execute(EJBContext context, String param);
 }

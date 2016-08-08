@@ -1,5 +1,7 @@
 package ru.intertrust.cm.test.plugin;
 
+import javax.ejb.EJBContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,7 @@ public class TestPlugin1 implements PluginHandler{
     
     
     @Override
-    public String execute(String param) {
+    public String execute(EJBContext context, String param) {
         logger.info("Start plugin TestPlugin1");
         return "Плагин TestPlugin1 отработал; collectionsService=" + collectionsService  + " Параметр=" + param;
     }
