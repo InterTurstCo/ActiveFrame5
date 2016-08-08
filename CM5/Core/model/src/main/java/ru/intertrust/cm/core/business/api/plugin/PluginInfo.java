@@ -81,8 +81,7 @@ public class PluginInfo implements Dto{
 
     public void setChecked(boolean checked) {
         this.checked = checked;
-    }
-    }
+    }    
 
     public Status getStatus() {
         return status;
