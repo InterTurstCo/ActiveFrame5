@@ -95,9 +95,7 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
                 result = ex.toString();
             }
 
-            if (pluginInfo.isTransactional()) {
-                ejbContext.getUserTransaction().begin();
-            }
+            ejbContext.getUserTransaction().begin();
             
             DomainObject status = getPluginStatus(pluginInfo.getClassName());
             status = domainObjectDao.setStatus(status.getId(), statusDao.getStatusIdByName("Sleep"), getSystemAccessToken());
@@ -116,13 +114,13 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
             ByteArrayInputStream bis = new ByteArrayInputStream(result.getBytes());
             DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
             attachmentService.saveAttachment(directRemoteInputStream, attachment);
-            if (pluginInfo.isTransactional()) {
-                ejbContext.getUserTransaction().commit();
-            }
+
+            ejbContext.getUserTransaction().commit();
         } catch (Exception ex) {
             try {
                 ejbContext.getUserTransaction().rollback();
             } catch (Exception ignoreEx) {
+                logger.warn("", ignoreEx);
             }
             logger.error("Error execute plugin ", ex);
             throw new FatalException("Error execute plugin", ex);
