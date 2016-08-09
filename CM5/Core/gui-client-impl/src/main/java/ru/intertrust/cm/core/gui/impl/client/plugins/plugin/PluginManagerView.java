@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.plugin;
 
+import com.fasterxml.jackson.databind.util.Comparators;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Element;
@@ -7,10 +8,13 @@ import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.ColumnSortEvent;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.Cookies;
@@ -31,6 +35,8 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.action.Action;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.attachmentbox.AttachmentBoxWidget;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.InfoMessageDialog;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.messagedialog.MessageDialog;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.view.LabledCheckboxCell;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
@@ -42,7 +48,10 @@ import ru.intertrust.cm.core.gui.model.plugin.PluginInfoData;
 import ru.intertrust.cm.core.gui.model.plugin.UploadData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
@@ -58,7 +67,7 @@ public class PluginManagerView extends PluginView {
     private Button uploadButton;
     private Button executeButton;
     private Button updateButton;
-    private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<PluginInfo>();
+    private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
 
     private PluginManagerParamDialogBox dialogBox;
 
@@ -104,6 +113,7 @@ public class PluginManagerView extends PluginView {
                         executePlugin(pluginInfo, dialogBox.getResult());
                     }
                 }
+                refreshPluginsModel();
             }
         });
 
@@ -127,7 +137,7 @@ public class PluginManagerView extends PluginView {
         
         dataProvider.addDataDisplay(cellTable);
         refreshPluginsModel();
-        
+
         mainPanel.add(cellTable);
 
         Application.getInstance().hideLoadingIndicator();
@@ -169,11 +179,20 @@ public class PluginManagerView extends PluginView {
                 GWT.log("something was going wrong while obtaining statistics");
                 caught.printStackTrace();
                 ApplicationWindow.errorAlert(LocalizeUtil.get(EXECUTION_ACTION_ERROR_KEY, EXECUTION_ACTION_ERROR) + caught.getMessage());
+                refreshPluginsModel();
             }
 
             @Override
             public void onSuccess(Dto result) {
-                ApplicationWindow.infoAlert(result.toString());
+                MessageDialog messageDialog = new InfoMessageDialog(result.toString());
+                messageDialog.addCloseHandler(new CloseHandler<PopupPanel>() {
+                    @Override
+                    public void onClose(CloseEvent<PopupPanel> event) {
+                        refreshPluginsModel();
+                    }
+                });
+                messageDialog.alert();
+                refreshPluginsModel();
             }
         });
     } 
@@ -186,6 +205,7 @@ public class PluginManagerView extends PluginView {
                 GWT.log("something was going wrong while obtaining statistics");
                 caught.printStackTrace();
                 ApplicationWindow.errorAlert(LocalizeUtil.get(EXECUTION_ACTION_ERROR_KEY, EXECUTION_ACTION_ERROR) + caught.getMessage());
+                checkAndUpdatePerformButtonState();
             }
 
             @Override
@@ -193,10 +213,16 @@ public class PluginManagerView extends PluginView {
                 PluginInfoData data = (PluginInfoData)result;
                 dataProvider.getList().clear();
                 dataProvider.getList().addAll(data.getPluginInfos());
+                if(cellTable.getColumnSortList().get(0).isAscending()) {
+                    Collections.sort(dataProvider.getList(), new PluginNameComparator());
+                }else {
+                    Collections.sort(dataProvider.getList(), Collections.reverseOrder(new PluginNameComparator()));
+                }
+                checkAndUpdatePerformButtonState();
             }
         });
-    }    
-    
+    }
+
     @Override
     public IsWidget getViewWidget() {
         return mainPanel;
@@ -234,14 +260,7 @@ public class PluginManagerView extends PluginView {
             public void onBrowserEvent(Cell.Context context, Element elem, PluginInfo object, NativeEvent event) {
                 super.onBrowserEvent(context, elem, object, event);
                 object.setChecked(((CheckboxCell)this.getCell()).getViewData(object));
-                if(isSelectedPluginExist()){
-                    executeButton.setEnabled(true);
-                    executeButton.removeStyleDependentName("disabled");
-                }else {
-                    executeButton.setStyleDependentName("disabled", true);
-                    executeButton.setEnabled(false);
-
-                }
+                checkAndUpdatePerformButtonState();
             }
         };
 
@@ -272,9 +291,17 @@ public class PluginManagerView extends PluginView {
             }
         };
 
+        nameColumn.setSortable(true);
+        ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler = new ColumnSortEvent.ListHandler<>(
+                dataProvider.getList());
+        columnSortHandler.setComparator(nameColumn, new PluginNameComparator());
+
+        nameColumn.setDefaultSortAscending(true);
+        cellTable.addColumnSortHandler(columnSortHandler);
         cellTable.addColumn(nameColumn, "name");
         cellTable.setColumnWidth(nameColumn, 100, Unit.PCT);
-        
+        cellTable.getColumnSortList().push(nameColumn);
+
         // Description.
         Column<PluginInfo, String> descriptionColumn = new Column<PluginInfo, String>(
                 new TextCell()) {
@@ -283,7 +310,6 @@ public class PluginManagerView extends PluginView {
                 return object.getDescription();
             }
         };
-
         cellTable.addColumn(descriptionColumn, "description");
         cellTable.setColumnWidth(descriptionColumn, 100, Unit.PCT);
 
@@ -294,7 +320,6 @@ public class PluginManagerView extends PluginView {
                 return object.getLastStart();
             }
         };
-
         cellTable.addColumn(startPluginTimeColumn, "start plugin time");
         cellTable.setColumnWidth(startPluginTimeColumn, 100, Unit.PCT);
         startPluginTimeColumn.setCellStyleNames("start-time");
@@ -344,6 +369,20 @@ public class PluginManagerView extends PluginView {
         downloadLogColumn.setCellStyleNames("download-log");
     }
 
+    private class PluginNameComparator implements Comparator<PluginInfo> {
+        public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
+            if(pluginInfo1.getName() != null && pluginInfo2.getName() != null){
+                String name1 = pluginInfo1.getName().toUpperCase();
+                String name2 = pluginInfo2.getName().toUpperCase();
+                return name1.compareTo(name2);
+            }else if(pluginInfo1.getName() == null){
+                return 1;
+            }else if (pluginInfo1.getName() == null && pluginInfo2.getName() == null){
+                return 0;
+            }
+            return -1;
+        }
+    }
 
     private void initTableToolbar() {
         executeButton = new Button();
@@ -361,7 +400,6 @@ public class PluginManagerView extends PluginView {
                                           public void onClick(ClickEvent event) {
                                               dialogBox.checkAndSetParamValue(dataProvider.getList());
                                               dialogBox.showDialogBox();
-                                              refreshPluginsModel();
                                           }
                                       }
         );
@@ -388,6 +426,17 @@ public class PluginManagerView extends PluginView {
             if(pluginInfo.isChecked()){
                 Cookies.setCookie(pluginInfo.getClassName(), param);
             }
+        }
+    }
+
+    private void checkAndUpdatePerformButtonState() {
+        if(isSelectedPluginExist()){
+            executeButton.setEnabled(true);
+            executeButton.removeStyleDependentName("disabled");
+        }else {
+            executeButton.setStyleDependentName("disabled", true);
+            executeButton.setEnabled(false);
+
         }
     }
 
