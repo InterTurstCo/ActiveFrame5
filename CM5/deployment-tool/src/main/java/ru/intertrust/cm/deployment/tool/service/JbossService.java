@@ -141,8 +141,6 @@ public class JbossService {
             }
         }
         logger.info("Deploy ear - {} is success", ear);
-//        return isAppStarted();
-        return true;
-//        return !"5.1.2.81-6.0-A71".equals(ear);
+        return isAppStarted();
     }
 }
