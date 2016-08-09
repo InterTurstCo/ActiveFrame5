@@ -297,6 +297,8 @@ public class PluginManagerView extends PluginView {
 
         cellTable.addColumn(startPluginTimeColumn, "start plugin time");
         cellTable.setColumnWidth(startPluginTimeColumn, 100, Unit.PCT);
+        startPluginTimeColumn.setCellStyleNames("start-time");
+
 
         Column<PluginInfo, Date> finishPluginTimeColumn = new Column<PluginInfo, Date>(new DateCell(DateTimeFormat.getFormat(DATE_TIME_PATTERN))) {
             @Override
@@ -306,6 +308,7 @@ public class PluginManagerView extends PluginView {
         };
         cellTable.addColumn(finishPluginTimeColumn, "finish plugin time");
         cellTable.setColumnWidth(finishPluginTimeColumn, 100, Unit.PCT);
+        finishPluginTimeColumn.setCellStyleNames("finish-time");
 
 
         Column<PluginInfo, String> pluginStatusColumn = new Column<PluginInfo, String>(new TextCell()) {
@@ -322,7 +325,7 @@ public class PluginManagerView extends PluginView {
                 new ButtonCell()) {
             @Override
             public String getValue(PluginInfo object) {
-                return "Скачать лог";
+                return "";
             }
 
             @Override
@@ -338,6 +341,7 @@ public class PluginManagerView extends PluginView {
 
         cellTable.addColumn(downloadLogColumn, "last log");
         cellTable.setColumnWidth(downloadLogColumn, 100, Unit.PCT);
+        downloadLogColumn.setCellStyleNames("download-log");
     }
 
 
@@ -353,13 +357,13 @@ public class PluginManagerView extends PluginView {
 
 
         executeButton.addClickHandler(new ClickHandler() {
-               @Override
-               public void onClick(ClickEvent event) {
-                   dialogBox.checkAndSetParamValue(dataProvider.getList());
-                   dialogBox.showDialogBox();
-                   refreshPluginsModel();
-               }
-           }
+                                          @Override
+                                          public void onClick(ClickEvent event) {
+                                              dialogBox.checkAndSetParamValue(dataProvider.getList());
+                                              dialogBox.showDialogBox();
+                                              refreshPluginsModel();
+                                          }
+                                      }
         );
 
         updateButton = new Button();
