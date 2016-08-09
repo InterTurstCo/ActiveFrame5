@@ -68,12 +68,12 @@
 
         <settings-popup>
             <themes>
-                <theme display-name="Основная тема" component-name="default-theme" default-theme="true"
+                <theme display-name="Основная тема" component-name="light-theme" default-theme="true"
+                       img="resources/common/images/light-theme-preview.png"/>
+                <theme display-name="Классическая тема" component-name="default-theme" default-theme="false"
                        img="resources/common/images/default-theme-preview.png"/>
                 <theme display-name="Тёмная тема" component-name="dark-theme" default-theme="false"
                        img="resources/common/images/dark-theme-preview.png"/>
-                <theme display-name="Светлая тема" component-name="light-theme" default-theme="false"
-                       img="resources/common/images/light-theme-preview.png"/>
                 <theme display-name="Lucem тема" component-name="lucem-theme" default-theme="false"
                        img="resources/common/images/lucem-theme-preview.png"/>
             </themes>
