@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.plugin;
 
-import com.fasterxml.jackson.databind.util.Comparators;
 import com.google.gwt.cell.client.*;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Element;
@@ -23,7 +22,6 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.web.bindery.event.shared.EventBus;
 import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.plugin.PluginInfo;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetDisplayConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
@@ -51,14 +49,13 @@ import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.EXECUTION_ACTION_ERROR_KEY;
 import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants.EXECUTION_ACTION_ERROR;
 
 public class PluginManagerView extends PluginView {
 
-    public static final String DATE_TIME_PATTERN = "dd-mm-yyyy HH:mm:ss";
+    public static final String DATE_TIME_PATTERN = "dd-MM-yyyy HH:mm:ss";
     private Panel mainPanel = new VerticalPanel();
     private AttachmentBoxWidget attachmentBox;
     private CellTable<PluginInfo> cellTable;
@@ -68,6 +65,7 @@ public class PluginManagerView extends PluginView {
     private Button executeButton;
     private Button updateButton;
     private ListDataProvider<PluginInfo> dataProvider = new ListDataProvider<>();
+    ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler;
 
     private PluginManagerParamDialogBox dialogBox;
 
@@ -82,7 +80,6 @@ public class PluginManagerView extends PluginView {
         attachmentBox = createAttachmentBox();
         mainPanel.add(attachmentBox);
         mainPanel.addStyleName("wrapPluginManager");
-
 
         uploadButton = new Button("Загрузить");
         uploadButton.addClickHandler(new ClickHandler(){
@@ -213,10 +210,11 @@ public class PluginManagerView extends PluginView {
                 PluginInfoData data = (PluginInfoData)result;
                 dataProvider.getList().clear();
                 dataProvider.getList().addAll(data.getPluginInfos());
+                Column currentSortColumn = cellTable.getColumnSortList().get(0).getColumn();
                 if(cellTable.getColumnSortList().get(0).isAscending()) {
-                    Collections.sort(dataProvider.getList(), new PluginNameComparator());
+                    Collections.sort(dataProvider.getList(), columnSortHandler.getComparator(currentSortColumn));
                 }else {
-                    Collections.sort(dataProvider.getList(), Collections.reverseOrder(new PluginNameComparator()));
+                    Collections.sort(dataProvider.getList(), Collections.reverseOrder(columnSortHandler.getComparator(currentSortColumn)));
                 }
                 checkAndUpdatePerformButtonState();
             }
@@ -277,7 +275,7 @@ public class PluginManagerView extends PluginView {
                 return object.getClassName();
             }
         };
-
+        idColumn.setSortable(true);
         cellTable.addColumn(idColumn, "id");
         cellTable.setColumnWidth(idColumn, 20, Unit.PCT);
 
@@ -290,17 +288,10 @@ public class PluginManagerView extends PluginView {
                 return object.getName();
             }
         };
-
         nameColumn.setSortable(true);
-        ColumnSortEvent.ListHandler<PluginInfo> columnSortHandler = new ColumnSortEvent.ListHandler<>(
-                dataProvider.getList());
-        columnSortHandler.setComparator(nameColumn, new PluginNameComparator());
-
         nameColumn.setDefaultSortAscending(true);
-        cellTable.addColumnSortHandler(columnSortHandler);
         cellTable.addColumn(nameColumn, "name");
         cellTable.setColumnWidth(nameColumn, 100, Unit.PCT);
-        cellTable.getColumnSortList().push(nameColumn);
 
         // Description.
         Column<PluginInfo, String> descriptionColumn = new Column<PluginInfo, String>(
@@ -320,6 +311,7 @@ public class PluginManagerView extends PluginView {
                 return object.getLastStart();
             }
         };
+        startPluginTimeColumn.setSortable(true);
         cellTable.addColumn(startPluginTimeColumn, "start plugin time");
         cellTable.setColumnWidth(startPluginTimeColumn, 100, Unit.PCT);
         startPluginTimeColumn.setCellStyleNames("start-time");
@@ -331,6 +323,7 @@ public class PluginManagerView extends PluginView {
                 return object.getLastFinish();
             }
         };
+        finishPluginTimeColumn.setSortable(true);
         cellTable.addColumn(finishPluginTimeColumn, "finish plugin time");
         cellTable.setColumnWidth(finishPluginTimeColumn, 100, Unit.PCT);
         finishPluginTimeColumn.setCellStyleNames("finish-time");
@@ -342,6 +335,7 @@ public class PluginManagerView extends PluginView {
                 return object.getStatus().toString();
             }
         };
+        pluginStatusColumn.setSortable(true);
         cellTable.addColumn(pluginStatusColumn, "plugin status");
         cellTable.setColumnWidth(pluginStatusColumn, 100, Unit.PCT);
 
@@ -367,6 +361,31 @@ public class PluginManagerView extends PluginView {
         cellTable.addColumn(downloadLogColumn, "last log");
         cellTable.setColumnWidth(downloadLogColumn, 100, Unit.PCT);
         downloadLogColumn.setCellStyleNames("download-log");
+
+        columnSortHandler = new ColumnSortEvent.ListHandler<>(dataProvider.getList());
+        columnSortHandler.setComparator(idColumn, new PluginIdComparator());
+        columnSortHandler.setComparator(nameColumn, new PluginNameComparator());
+        columnSortHandler.setComparator(startPluginTimeColumn, new LastStartComparator());
+        columnSortHandler.setComparator(finishPluginTimeColumn, new LastFinishComparator());
+        columnSortHandler.setComparator(pluginStatusColumn, new PluginStatusComparator());
+        cellTable.addColumnSortHandler(columnSortHandler);
+        cellTable.getColumnSortList().push(nameColumn);
+    }
+
+
+    private class PluginIdComparator implements Comparator<PluginInfo> {
+        public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
+            if(pluginInfo1.getName() != null && pluginInfo2.getName() != null){
+                String name1 = pluginInfo1.getClassName().toUpperCase();
+                String name2 = pluginInfo2.getClassName().toUpperCase();
+                return name1.compareTo(name2);
+            }else if(pluginInfo1.getClassName() == null && pluginInfo2.getClassName() == null){
+                return 0;
+            }else if (pluginInfo1.getClassName() == null ){
+                return 1;
+            }
+            return -1;
+        }
     }
 
     private class PluginNameComparator implements Comparator<PluginInfo> {
@@ -375,10 +394,49 @@ public class PluginManagerView extends PluginView {
                 String name1 = pluginInfo1.getName().toUpperCase();
                 String name2 = pluginInfo2.getName().toUpperCase();
                 return name1.compareTo(name2);
-            }else if(pluginInfo1.getName() == null){
-                return 1;
-            }else if (pluginInfo1.getName() == null && pluginInfo2.getName() == null){
+            }else if(pluginInfo1.getName() == null && pluginInfo2.getName() == null){
                 return 0;
+            }else if (pluginInfo1.getName() == null){
+                return 1;
+            }
+            return -1;
+        }
+    }
+
+    private class LastStartComparator implements Comparator<PluginInfo> {
+        public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
+            if(pluginInfo1.getLastStart() != null && pluginInfo2.getLastStart() != null){
+                return pluginInfo1.getLastStart().compareTo(pluginInfo2.getLastStart());
+            }else if(pluginInfo1.getLastStart() == null && pluginInfo2.getLastStart() == null){
+                return 0;
+            }else if (pluginInfo1.getLastStart() == null){
+                return 1;
+            }
+            return -1;
+        }
+    }
+
+    private class LastFinishComparator implements Comparator<PluginInfo> {
+        public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
+            if(pluginInfo1.getLastFinish() != null && pluginInfo2.getLastFinish() != null){
+                return pluginInfo1.getLastFinish().compareTo(pluginInfo2.getLastFinish());
+            }else if(pluginInfo1.getLastFinish() == null && pluginInfo2.getLastFinish() == null){
+                return 0;
+            }else if (pluginInfo1.getLastFinish() == null){
+                return 1;
+            }
+            return -1;
+        }
+    }
+
+    private class PluginStatusComparator implements Comparator<PluginInfo> {
+        public int compare(PluginInfo pluginInfo1, PluginInfo pluginInfo2) {
+            if(pluginInfo1.getStatus() != null && pluginInfo2.getStatus() != null){
+                return pluginInfo1.getStatus().toString().compareTo(pluginInfo2.getStatus().toString());
+            }else if(pluginInfo1.getStatus() == null && pluginInfo2.getStatus() == null){
+                return 0;
+            }else if (pluginInfo1.getStatus() == null){
+                return 1;
             }
             return -1;
         }
@@ -393,7 +451,6 @@ public class PluginManagerView extends PluginView {
         executeButton.addStyleDependentName("disabled");
         executeButton.setTitle("Выполнить");
         toolbarPanel.add(executeButton);
-
 
         executeButton.addClickHandler(new ClickHandler() {
                                           @Override
