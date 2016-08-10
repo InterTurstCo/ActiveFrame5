@@ -19,7 +19,7 @@ import static org.springframework.util.StringUtils.isEmpty;
 
 @Configuration
 @ComponentScan({"ru.intertrust.cm.deployment.tool"})
-@PropertySource("classpath:upgrade.properties")
+@PropertySource("file:upgrade.properties")
 public class AppConfig {
 
     @Bean

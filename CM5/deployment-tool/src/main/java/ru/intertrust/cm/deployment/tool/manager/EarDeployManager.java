@@ -53,6 +53,8 @@ public class EarDeployManager {
 
         //deploy sequence ears
         deploySequence();
+
+        logger.info("Done", ear);
         taskExecutor.destroy();
     }
 
@@ -71,11 +73,14 @@ public class EarDeployManager {
             } else {
                 last = true;
             }
-            deploy(ear, backup, last);
+            boolean iterate = !deploy(ear, backup, last);
+            if (iterate) {
+                return;
+            }
         }
     }
 
-    private void deploy(String ear, boolean backup, boolean last) {
+    private boolean deploy(String ear, boolean backup, boolean last) {
         logger.info("Starting deploy {}", ear);
 
         cleanInitData(ear);
@@ -90,6 +95,7 @@ public class EarDeployManager {
                 jbossService.stop();
                 resourceService.cleanServer();
             }
+            return true;
         } else {
             //restore logic
             logger.info("Start restore logic");
@@ -104,7 +110,7 @@ public class EarDeployManager {
             String part = jbossService.isDeploySuccess(ear) ? "has been" : "do not";
             logger.info("Ear version - {} {} restored", ear, part);
         }
-        logger.info("Done", ear);
+        return false;
     }
 
     private void startServer() {

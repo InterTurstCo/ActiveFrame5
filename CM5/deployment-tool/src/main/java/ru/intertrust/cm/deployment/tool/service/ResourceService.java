@@ -147,9 +147,14 @@ public class ResourceService {
         int idx = earSequence.indexOf(ear);
         if (idx != -1) {
             ListIterator<String> iterator = earSequence.listIterator(idx);
-            return iterator.previous();
+            if (iterator.hasPrevious()) {
+                return iterator.previous();
+            } else {
+                String current = props.getEarCurrent();
+                logger.error("Previous version of ear - {} not found, use ear.current version - {}", ear, current);
+                return current;
+            }
         }
-        logger.error("Previous version of ear - {} not found", ear);
         return null;
     }
 
