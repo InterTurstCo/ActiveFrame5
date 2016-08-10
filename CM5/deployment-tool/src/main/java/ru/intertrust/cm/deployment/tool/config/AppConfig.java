@@ -20,6 +20,8 @@ import static org.springframework.util.StringUtils.isEmpty;
 @Configuration
 @ComponentScan({"ru.intertrust.cm.deployment.tool"})
 @PropertySource("file:upgrade.properties")
+//if you run app from ide - uncomment this line and create upgrade.properties file in resources
+//@PropertySource("classpath:upgrade.properties")
 public class AppConfig {
 
     @Bean
