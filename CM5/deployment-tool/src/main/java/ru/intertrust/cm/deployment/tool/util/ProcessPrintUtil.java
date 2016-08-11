@@ -22,15 +22,22 @@ public final class ProcessPrintUtil {
     }
 
     public static void print(final Process process) {
-        try (InputStream is = process.getInputStream();
-             InputStreamReader isr = new InputStreamReader(is);
-             BufferedReader reader = new BufferedReader(isr)) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                logger.info(line);
+        Thread print = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (InputStream is = process.getInputStream();
+                     InputStreamReader isr = new InputStreamReader(is);
+                     BufferedReader reader = new BufferedReader(isr)) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        logger.info(line);
+                    }
+                } catch (IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
             }
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
+        });
+        print.setDaemon(true);
+        print.start();
     }
 }
