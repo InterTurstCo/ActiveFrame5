@@ -44,9 +44,9 @@ public class TransactionChanges {
     }
 
     public boolean isAtLeastOneTypeSaved(Collection<String> types) {
-        if (types == null) {
+        if (types == null || typesChanged == null || typesChanged.isEmpty()) {
             return false;
-        }
+        }        
         for (String type : types) {
             if (typesChanged.contains(type.toLowerCase())) {
                 return true;
