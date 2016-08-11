@@ -118,20 +118,23 @@ public class PluginStorageImpl implements PluginStorage {
             for (PluginInfo pluginInfo : pluginsInfo.values()) {
                 DomainObject status = getPluginStatus(pluginInfo.getClassName());
 
-                pluginInfo.setLastStart(status.getTimestamp("last_start"));
-                pluginInfo.setLastFinish(status.getTimestamp("last_finish"));
-                String statusName = statusDao.getStatusNameById(status.getStatus());
-                if (statusName.equalsIgnoreCase("sleep")) {
+                if (status != null){
+                    pluginInfo.setLastStart(status.getTimestamp("last_start"));
+                    pluginInfo.setLastFinish(status.getTimestamp("last_finish"));
+                    String statusName = statusDao.getStatusNameById(status.getStatus());
+                    if (statusName.equalsIgnoreCase("sleep")) {
+                        pluginInfo.setStatus(PluginInfo.Status.Sleeping);
+                    } else {
+                        pluginInfo.setStatus(PluginInfo.Status.Running);
+                    }
+                    List<DomainObject> logs = domainObjectDao.findLinkedDomainObjects(status.getId(), "execution_log", "plugin_status", getSystemAccessToken());
+                    //Должен в списке быть только один или ноль элементов
+                    Id logId = logs.size() == 0 ? null : logs.get(0).getId();
+
+                    pluginInfo.setLastResult(logId);
+                }else{
                     pluginInfo.setStatus(PluginInfo.Status.Sleeping);
-                } else {
-                    pluginInfo.setStatus(PluginInfo.Status.Running);
                 }
-
-                List<DomainObject> logs = domainObjectDao.findLinkedDomainObjects(status.getId(), "execution_log", "plugin_status", getSystemAccessToken());
-                //Должен в списке быть только один или ноль элементов
-                Id logId = logs.size() == 0 ? null : logs.get(0).getId();
-
-                pluginInfo.setLastResult(logId);
             }
 
             return pluginsInfo;
@@ -197,15 +200,11 @@ public class PluginStorageImpl implements PluginStorage {
 
     }
 
-    private DomainObject getPluginStatus(String pluginId) {
+    @Override
+    public DomainObject getPluginStatus(String pluginId) {
         Map<String, Value> key = new HashMap<String, Value>();
         key.put("plugin_id", new StringValue(pluginId));
         DomainObject result = domainObjectDao.findByUniqueKey("plugin_status", key, getSystemAccessToken());
-        if (result == null) {
-            result = new GenericDomainObject("plugin_status");
-            result.setString("plugin_id", pluginId);
-            result = domainObjectDao.save(result, getSystemAccessToken());
-        }
         return result;
     }
 

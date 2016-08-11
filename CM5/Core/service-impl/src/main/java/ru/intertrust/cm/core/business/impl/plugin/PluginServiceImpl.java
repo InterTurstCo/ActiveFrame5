@@ -98,14 +98,12 @@ public class PluginServiceImpl implements PluginService {
 
         try {
             DomainObject status = getPluginStatus(pluginId);
-            if (status.getStatus() == statusDao.getStatusIdByName("Run")) {
+            if (status != null && status.getStatus() == statusDao.getStatusIdByName("Run")) {
                 throw new FatalException("Plugin " + pluginId + " is started.");
             }
-            status = domainObjectDao.setStatus(status.getId(), statusDao.getStatusIdByName("Run"), getSystemAccessToken());
-            status.setTimestamp("last_start", new Date());
-            domainObjectDao.save(status, getSystemAccessToken());
-
+            
             asyncPluginExecutor.execute(pluginId, param);
+            
             return "Started";
         } catch (FatalException ex) {
             throw ex;
@@ -125,11 +123,6 @@ public class PluginServiceImpl implements PluginService {
         Map<String, Value> key = new HashMap<String, Value>();
         key.put("plugin_id", new StringValue(pluginId));
         DomainObject result = domainObjectDao.findByUniqueKey("plugin_status", key, getSystemAccessToken());
-        if (result == null) {
-            result = new GenericDomainObject("plugin_status");
-            result.setString("plugin_id", pluginId);
-            result = domainObjectDao.save(result, getSystemAccessToken());
-        }
         return result;
     }
 

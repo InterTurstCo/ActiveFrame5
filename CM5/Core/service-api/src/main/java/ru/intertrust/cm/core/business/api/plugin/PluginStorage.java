@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.context.ApplicationContext;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+
 public interface PluginStorage {
 
     Map<String, PluginInfo> getPlugins();
@@ -13,4 +15,6 @@ public interface PluginStorage {
     void init(String contextName, ApplicationContext applicationContext);
 
     PluginHandler getPluginHandler(PluginInfo pluginInfo);
+
+    DomainObject getPluginStatus(String pluginId);
 }

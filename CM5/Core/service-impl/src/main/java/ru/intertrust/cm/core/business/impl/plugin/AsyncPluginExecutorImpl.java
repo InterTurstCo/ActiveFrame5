@@ -26,6 +26,7 @@ import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.plugin.AsyncPluginExecutor;
@@ -71,6 +72,17 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
             String result = null;
             ejbContext.getUserTransaction().begin();
             PluginInfo pluginInfo = pluginStorage.getPlugins().get(pluginId);
+            
+            DomainObject status = pluginStorage.getPluginStatus(pluginInfo.getClassName());
+            if (status == null){
+                status = new GenericDomainObject("plugin_status");
+                status.setString("plugin_id", pluginId);
+                status = domainObjectDao.save(status, getSystemAccessToken());
+            }
+            status = domainObjectDao.setStatus(status.getId(), statusDao.getStatusIdByName("Run"), getSystemAccessToken());
+            status.setTimestamp("last_start", new Date());
+            status = domainObjectDao.save(status, getSystemAccessToken());
+            
             ejbContext.getUserTransaction().commit();
 
             logger.info("Execute plugin " + pluginInfo.getClassName());
@@ -97,7 +109,7 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
 
             ejbContext.getUserTransaction().begin();
             
-            DomainObject status = getPluginStatus(pluginInfo.getClassName());
+            status = pluginStorage.getPluginStatus(pluginInfo.getClassName());
             status = domainObjectDao.setStatus(status.getId(), statusDao.getStatusIdByName("Sleep"), getSystemAccessToken());
             status.setTimestamp("last_finish", new Date());
             domainObjectDao.save(status, getSystemAccessToken());
@@ -129,12 +141,6 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
 
     private AccessToken getSystemAccessToken() {
         return accessControlService.createSystemAccessToken(PluginServiceImpl.class.toString());
-    }
-    
-    private DomainObject getPluginStatus(String pluginId) {
-        Map<String, Value> key = new HashMap<String, Value>();
-        key.put("plugin_id", new StringValue(pluginId));
-        return domainObjectDao.findByUniqueKey("plugin_status", key, getSystemAccessToken());
-    }  
+    }    
 
 }
