@@ -41,7 +41,7 @@ public class JbossService {
             String command = Paths.get(props.getJbossHome(), "bin", isWindowsEnv ? "standalone.bat" : "standalone.sh").toString();
             logger.info("Jboss start...");
             Process process = Runtime.getRuntime().exec(command);
-            ProcessPrintUtil.print(process);
+            ProcessPrintUtil.printInBackground(process);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

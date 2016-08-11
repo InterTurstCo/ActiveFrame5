@@ -21,23 +21,28 @@ public final class ProcessPrintUtil {
         // nothing
     }
 
-    public static void print(final Process process) {
-        Thread print = new Thread(new Runnable() {
+    public static void printInBackground(final Process process) {
+        final Thread print = new Thread(new Runnable() {
             @Override
             public void run() {
-                try (InputStream is = process.getInputStream();
-                     InputStreamReader isr = new InputStreamReader(is);
-                     BufferedReader reader = new BufferedReader(isr)) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        logger.info(line);
-                    }
-                } catch (IOException e) {
-                    logger.error(e.getMessage(), e);
-                }
+                print(process);
             }
         });
         print.setDaemon(true);
         print.start();
+    }
+
+    public static void print(Process process) {
+        //we are specifically suspend the main thread for operations without an explicit result
+        try (InputStream is = process.getInputStream();
+             InputStreamReader isr = new InputStreamReader(is);
+             BufferedReader reader = new BufferedReader(isr)) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                logger.info(line);
+            }
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }
