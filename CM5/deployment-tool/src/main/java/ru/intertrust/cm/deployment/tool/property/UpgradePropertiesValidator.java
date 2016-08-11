@@ -27,7 +27,7 @@ public class UpgradePropertiesValidator {
     @Autowired
     private UpgradeProperties properties;
 
-    public void validate() {
+    public boolean validate() {
         Set<ConstraintViolation<UpgradeProperties>> validate = validator.validate(properties);
         boolean hasErrors = !CollectionUtils.isEmpty(validate);
         if (hasErrors) {
@@ -38,7 +38,8 @@ public class UpgradePropertiesValidator {
                 logger.error("SystemProperty {} - {}", property, message);
             }
             logger.error("Some properties is empty", new IllegalStateException());
-            throw new IllegalStateException();
+            return false;
         }
+        return true;
     }
 }

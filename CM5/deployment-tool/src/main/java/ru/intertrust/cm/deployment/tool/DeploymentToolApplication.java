@@ -1,21 +1,22 @@
 package ru.intertrust.cm.deployment.tool;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import ru.intertrust.cm.deployment.tool.config.AppConfig;
 import ru.intertrust.cm.deployment.tool.manager.EarDeployManager;
 import ru.intertrust.cm.deployment.tool.property.UpgradePropertiesValidator;
 
-@SpringBootApplication
 public class DeploymentToolApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext applicationContext = SpringApplication.run(DeploymentToolApplication.class, args);
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class);
 
         UpgradePropertiesValidator propertiesValidator = applicationContext.getBean(UpgradePropertiesValidator.class);
-        propertiesValidator.validate();
+        boolean isValid = propertiesValidator.validate();
 
-        EarDeployManager earDeployManager = applicationContext.getBean(EarDeployManager.class);
-        earDeployManager.deploy();
+        if (isValid) {
+            EarDeployManager earDeployManager = applicationContext.getBean(EarDeployManager.class);
+            earDeployManager.deploy();
+        }
     }
 }

@@ -108,7 +108,7 @@ public class ResourceService {
                     return true;
                 }
             }
-            logger.info("Start copyDir {} file", fileName);
+            logger.info("Start copy {} file", fileName);
             Files.copy(source, targetFilePath);
             logger.info("File {} has been copied", fileName);
             return true;

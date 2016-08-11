@@ -3,7 +3,9 @@
 set JAVA_HOME=C:\Program Files\Java\jdk1.7.0_75
 
 if "x%JAVA_HOME%" == "x" (
-  java -jar deployment-tool-0.0.1-SNAPSHOT.jar
+  set JAVA_HOME=java
 ) else (
-  "%JAVA_HOME%\bin\java" -jar deployment-tool-0.0.1-SNAPSHOT.jar
+  set JAVA_HOME="%JAVA_HOME%\bin\java"
 )
+
+"%JAVA_HOME%" -jar deployment-tool-0.5.21-11-SNAPSHOT-jar-with-dependencies.jar
