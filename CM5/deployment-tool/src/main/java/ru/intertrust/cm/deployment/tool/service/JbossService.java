@@ -98,14 +98,13 @@ public class JbossService {
 
     public boolean isAppStarted() {
         try {
-            String appUrl = format(APP_URL_PATTERN, props.getJbossHost(), props.getJbossAppPort(), props.getJbossAppUrl());
-            URL url = new URL(appUrl);
+            URL url = new URL(format(APP_URL_PATTERN, props.getJbossHost(), props.getJbossAppPort(), props.getJbossAppUrl()));
             Integer code = isUrlAvailable(url, "GET");
             if (code != null) {
                 if (code.equals(200)) return true;
                 if (code.equals(-1)) return false;
                 if (code.equals(404)) {
-                    logger.info("The application not responding, url - {}, code - 404", appUrl);
+                    logger.info("The application not responding, url - {}, code - 404", url.toString());
                     return false;
                 }
             }

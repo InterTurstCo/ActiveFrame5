@@ -43,6 +43,8 @@ public class EarDeployManager {
 
 
     public void deploy() {
+        logger.info("Starting deploy");
+
         //backup current deployed ear
         String ear = props.getEarCurrent();
         if (jbossService.isServerStarted()) {
