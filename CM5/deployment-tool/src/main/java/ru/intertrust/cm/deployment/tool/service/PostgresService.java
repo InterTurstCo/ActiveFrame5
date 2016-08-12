@@ -29,8 +29,9 @@ public class PostgresService {
     private Boolean isWindowsEnv;
 
     public void create(String earVersion) {
-        final List<String> commands = new ArrayList<>(11);
+        final List<String> commands = new ArrayList<>(12);
         commands.add(Paths.get(props.getPostgresHome(), "bin", isWindowsEnv ? "pg_dump.exe" : "pg_dump").toString());
+        commands.add("-c");
         commands.add("-v");
         commands.add("-f");
         commands.add(Paths.get(props.getBackupFolder(), earVersion, earVersion + "-db.backup").toString());

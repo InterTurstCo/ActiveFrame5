@@ -104,7 +104,7 @@ public class JbossService {
                 if (code.equals(200)) return true;
                 if (code.equals(-1)) return false;
                 if (code.equals(404)) {
-                    logger.info("The application not responding, url - {}, code - 404", url.toString());
+                    logger.info("The application not responding, url - {}, code - {}", url.toString(), code);
                     return false;
                 }
             }
