@@ -5,9 +5,6 @@
         <fields>
             <string name="name" length="256" />
         </fields>
-        <uniqueKey>
-            <field name="name"/>
-        </uniqueKey>
     </domain-object-type>
 
     <domain-object-type name="hp_departments">
@@ -15,11 +12,34 @@
             <string name="name" length="256" />
             <reference name="organization" type="hp_organization"/>
         </fields>
-        <uniqueKey>
-            <field name="name"/>
-            <field name="organization"/>
-        </uniqueKey>
     </domain-object-type>
+
+    <domain-object-type name="hp_dep_position">
+        <fields>
+            <string name="name" length="150" />
+            <reference name="department" type="hp_departments"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="hp_rvz">
+        <fields>
+            <string name="first_name" length="256" />
+            <string name="last_name" length="256" />
+            <reference name="organization" type="hp_organization"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="hp_org_addresses">
+        <fields>
+            <string name="city" length="50" />
+            <string name="street" length="100" />
+            <string name="index" length="10" />
+            <string name="building" length="5" />
+            <reference name="organization" type="hp_organization"/>
+        </fields>
+    </domain-object-type>
+
+
 
 
 </configuration>

@@ -1,0 +1,4 @@
+TYPE_NAME=hp_rvz;KEYS=first_name,last_name,organization
+first_name;last_name;organization
+Алексей;Павленко;"name=""Лидер"""
+Мария;Дятлова;"name=""Дорожные грибы"""

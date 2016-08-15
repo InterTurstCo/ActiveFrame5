@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <!-- Организации -->
+    <collection name="c_hp_organizations" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  o.id,
+                  o.name
+                FROM
+                  hp_organization o
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from hp_organization o ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(o.name) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="v_hp_organizations" collection="c_hp_organizations" is-default="true">
+        <display>
+            <column field="name" name="Наименование" type="string" sortable="true" resizable="true" search-filter="byName"/>
+        </display>
+    </collection-view>
+
+
+    <!-- Подразделения-->
+    <collection name="c_hp_departments" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  d.id,
+                  d.name
+                FROM
+                  hp_departments d
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from hp_departments d ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(d.name) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   d.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="v_hp_departments" collection="c_hp_departments" is-default="true">
+        <display>
+            <column field="name" name="Название" type="string" sortable="true" resizable="true" search-filter="byName"/>
+        </display>
+    </collection-view>
+
+
+    <!-- Должности -->
+    <collection name="c_hp_dep_position" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  p.id,
+                  p.name
+                FROM
+                  hp_dep_position p
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from hp_dep_position p ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(p.name) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   p.department = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="v_hp_dep_position" collection="c_hp_dep_position" is-default="true">
+        <display>
+            <column field="name" name="Должность" type="string" sortable="true" resizable="true" search-filter="byName"/>
+        </display>
+    </collection-view>
+
+
+    <!-- РВЗ -->
+    <collection name="c_hp_rvz" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  r.id,
+                  r.first_name,
+                  r.last_name
+                FROM
+                  hp_rvz r
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from hp_rvz r ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byFirstName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(r.first_name) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byLastName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(r.last_name) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byOrganization">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   r.organization = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection-view name="v_hp_rvz" collection="c_hp_rvz" is-default="true">
+        <display>
+            <column field="first_name" name="Имя" type="string" sortable="true" resizable="true" search-filter="byFirstName"/>
+            <column field="last_name" name="Фамилия" type="string" sortable="true" resizable="true" search-filter="byLastName"/>
+        </display>
+    </collection-view>
+
+    <!-- Адреса -->
+    <collection name="c_hp_org_addresses" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                  a.id,
+                  a.city,
+                  a.street,
+                  a.index,
+                  a.building
+                FROM
+                  hp_org_addresses a
+                  ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from hp_org_addresses a ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byCity">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(a.city) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byStreet">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(a.street) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byIndex">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   upper(a.index) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byBuilding">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   upper(a.building) like upper({0})
+                ]]>
+            </criteria>
+        </filter>
+
+
+    </collection>
+
+    <collection-view name="v_hp_org_addresses" collection="c_hp_org_addresses" is-default="true">
+        <display>
+            <column field="city" name="Город" type="string" sortable="true" resizable="true" search-filter="byCity"/>
+            <column field="street" name="Улица" type="string" sortable="true" resizable="true" search-filter="byStreet"/>
+            <column field="index" name="Индекс" type="string" sortable="true" resizable="true" search-filter="byIndex"/>
+            <column field="building" name="Дом" type="string" sortable="true" resizable="true" search-filter="byBuilding"/>
+        </display>
+    </collection-view>
+</configuration>

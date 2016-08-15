@@ -53,6 +53,11 @@
         <configuration-path>module-configuration/schedule.xml</configuration-path>
         <configuration-path>module-configuration/form-templates.xml</configuration-path>
         <configuration-path>module-configuration/actions.xml</configuration-path>
+
+        <!-- Тестовые обьекты для иерархического плагина  -->
+        <configuration-path>hierarchy-plugin-test-data/domain-objects.xml</configuration-path>
+        <configuration-path>hierarchy-plugin-test-data/collections.xml</configuration-path>
+
         <!-- Настройка импорта -->
         <configuration-path>module-configuration/import-settings.xml</configuration-path>        
 
@@ -153,7 +158,12 @@
         <import-file>contacts-module/importdata/imp-addr-street-type.csv</import-file>
         <import-file>contacts-module/importdata/imp-addr-addresses-assigning.csv</import-file>
         <import-file>contacts-module/importdata/import-classifiers-objects.csv</import-file>
-        
+
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-organization.csv</import-file>
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-departments.csv</import-file>
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-dep-position.csv</import-file>
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-rvz.csv</import-file>
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-org-addresses.csv</import-file>
     </import-files>
 
     <import-reports>

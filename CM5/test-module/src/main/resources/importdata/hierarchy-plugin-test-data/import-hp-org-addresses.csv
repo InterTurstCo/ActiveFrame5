@@ -1,0 +1,4 @@
+TYPE_NAME=hp_org_addresses;KEYS=organization
+city;street;index;building;organization
+Симферополь;Киевская;90876;4А;"name=""Лидер"""
+Симферополь;Луговая;90874;8;"name=""Дорожные грибы"""
