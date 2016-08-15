@@ -1,13 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
-import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEventHandler;
 
@@ -19,15 +15,15 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActi
  * To change this template use File | Settings | File and Code Templates.
  */
 public class HierarchyGroupView extends HierarchyNode
-        implements HierarchyActionEventHandler,ExpandHierarchyEventHandler {
+        implements HierarchyActionEventHandler {
 
 
-    private HierarchyGroupConfig groupConfig;
+
     public HierarchyGroupView(HierarchyGroupConfig aGroupConfig) {
+        super();
         groupConfig = aGroupConfig;
         guiElementsFactory = new HierarchyGuiElementsFactory();
         guiFactory = new HierarchyGuiFactory();
-        localBus = new SimpleEventBus();
         rootPanel = new AbsolutePanel();
         rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_PARENT_PANEL);
         headerPanel = new HorizontalPanel();
@@ -64,24 +60,7 @@ public class HierarchyGroupView extends HierarchyNode
     }
 
 
-    @Override
-    public void onExpandHierarchyEvent(ExpandHierarchyEvent event) {
-        expanded = event.isExpand();
 
-        if (expanded) {
-            for (HierarchyGroupConfig group : groupConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group));
-            }
-            for (HierarchyCollectionConfig collection : groupConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection));
-            }
-        } else {
-            childPanel.clear();
-        }
-
-
-        childPanel.setVisible(expanded);
-    }
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
