@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+    <!-- Тестовые данные для прототипа иерархического плагина -->
+    <domain-object-type name="hp_organization">
+        <fields>
+            <string name="name" length="256" />
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="hp_departments">
+        <fields>
+            <string name="name" length="256" />
+            <reference name="organization" type="hp_organization"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+            <field name="organization"/>
+        </uniqueKey>
+    </domain-object-type>
+
+
+</configuration>

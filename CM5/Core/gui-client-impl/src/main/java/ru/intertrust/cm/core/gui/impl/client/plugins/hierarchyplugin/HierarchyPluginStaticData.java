@@ -8,7 +8,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
  * To change this template use File | Settings | File and Code Templates.
  */
 public class HierarchyPluginStaticData {
-
+    public static final String PLUGIN_COMPONENT_NAME = "hierarchy.plugin";
+    public static final String GET_COL_ROWS_METHOD_NAME = "getCollectionItems";
     public static final String STYLE_WRAP_WIDGET = "wrapWidget";
     public static final String STYLE_WRAP_PANEL = "wrapPanel";
     public static final String STYLE_PARENT_PANEL = "parentPanel";

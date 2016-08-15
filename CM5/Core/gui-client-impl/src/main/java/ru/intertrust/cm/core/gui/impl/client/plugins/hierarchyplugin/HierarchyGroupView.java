@@ -19,10 +19,10 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActi
  * To change this template use File | Settings | File and Code Templates.
  */
 public class HierarchyGroupView extends HierarchyNode
-        implements ExpandHierarchyEventHandler, HierarchyActionEventHandler {
+        implements HierarchyActionEventHandler,ExpandHierarchyEventHandler {
+
+
     private HierarchyGroupConfig groupConfig;
-
-
     public HierarchyGroupView(HierarchyGroupConfig aGroupConfig) {
         groupConfig = aGroupConfig;
         guiElementsFactory = new HierarchyGuiElementsFactory();
@@ -67,16 +67,19 @@ public class HierarchyGroupView extends HierarchyNode
     @Override
     public void onExpandHierarchyEvent(ExpandHierarchyEvent event) {
         expanded = event.isExpand();
+
         if (expanded) {
-            for(HierarchyGroupConfig group : groupConfig.getHierarchyGroupConfigs()){
+            for (HierarchyGroupConfig group : groupConfig.getHierarchyGroupConfigs()) {
                 childPanel.add(guiFactory.buildGroup(group));
             }
-            for(HierarchyCollectionConfig collection : groupConfig.getHierarchyCollectionConfigs()){
+            for (HierarchyCollectionConfig collection : groupConfig.getHierarchyCollectionConfigs()) {
                 childPanel.add(guiFactory.buildCollection(collection));
             }
         } else {
             childPanel.clear();
         }
+
+
         childPanel.setVisible(expanded);
     }
 

@@ -2,6 +2,10 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEventHandler;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,7 +14,7 @@ import com.google.gwt.user.client.ui.*;
  * Time: 12:20
  * To change this template use File | Settings | File and Code Templates.
  */
-public abstract class HierarchyNode extends Composite {
+public abstract class HierarchyNode extends Composite  {
 
     protected EventBus localBus;
     protected AbsolutePanel rootPanel;
@@ -20,5 +24,9 @@ public abstract class HierarchyNode extends Composite {
     protected HierarchyGuiFactory guiFactory;
     protected Boolean expanded = false;
 
+
+
     protected abstract void addRepresentationCells(Panel container);
+
+
 }

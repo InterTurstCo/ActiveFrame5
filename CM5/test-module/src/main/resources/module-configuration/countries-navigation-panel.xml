@@ -1533,6 +1533,7 @@
                                 <hierarchy-collection cid="C1">
                                     <hierarchy-collection-view collection-view="countries_default_view"/>
                                     <collection-ref name="Countries"/>
+                                    <hierarchy-group gid="G2" name="Подгруппа 2"/>
                                 </hierarchy-collection>
                             </hierarchy-group>
                         </hierarchy-plugin>
