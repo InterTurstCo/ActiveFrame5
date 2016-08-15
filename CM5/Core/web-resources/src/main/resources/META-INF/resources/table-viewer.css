@@ -931,6 +931,13 @@ div.delete-btn-table-viewer-disable:hover {
     cursor: pointer;
 }
 
+.wrapCell img {
+    margin: 0px 15px 0px 0px;
+    width: 13px;
+    height: auto;
+    cursor: pointer;
+}
+
 .wrapPanel .gwt-MenuBar-horizontal .gwt-MenuItem {
     padding: 4px 10px;
 }
@@ -1001,4 +1008,9 @@ table.wrapWidget>tbody>tr>td>.parentPanel {
 
 .fieldValue {
     margin-right: 30px;
+}
+
+table.childCell {
+    margin-left: 20px;
+    width: calc(100% - 20px);
 }
