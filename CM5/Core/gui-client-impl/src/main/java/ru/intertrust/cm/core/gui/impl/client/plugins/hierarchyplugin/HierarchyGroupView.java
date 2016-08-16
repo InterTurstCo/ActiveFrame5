@@ -46,7 +46,7 @@ public class HierarchyGroupView extends HierarchyNode
         FlexTable.FlexCellFormatter cellFormatter = grid.getFlexCellFormatter();
         grid.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_PANEL);
 
-        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus));
+        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,parentId));
 
         InlineHTML groupName = new InlineHTML("<b>" + groupConfig.getName() + "</b>");
         grid.setWidget(0, 1, groupName);

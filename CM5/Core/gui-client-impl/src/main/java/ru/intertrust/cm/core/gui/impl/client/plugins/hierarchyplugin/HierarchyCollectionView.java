@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
@@ -21,6 +22,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     private Boolean expandable = false;
     private CollectionRowItem rowItem;
     private CollectionViewConfig collectionViewConfig;
+
 
     public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig) {
         super();
@@ -57,7 +59,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         FlexTable grid = new FlexTable();
         grid.addStyleName(HierarchyPluginStaticData.STYLE_REPRESENTATION_CELL);
         if (expandable) {
-            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus));
+            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,parentId));
         }
 
         int columnIndex = 1;

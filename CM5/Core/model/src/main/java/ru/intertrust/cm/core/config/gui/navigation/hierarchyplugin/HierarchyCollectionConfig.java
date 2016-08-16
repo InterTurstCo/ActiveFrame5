@@ -25,9 +25,6 @@ public class HierarchyCollectionConfig implements Dto {
     @Attribute(name = "cid", required = true)
     private String cid;
 
-    @Attribute(name = "parent-field", required = false)
-    private String parentField;
-
     @Element(name = "hierarchy-collection-view",required = true)
     protected HierarchyCollectionViewConfig hierarchyCollectionViewConfig;
 
@@ -115,13 +112,6 @@ public class HierarchyCollectionConfig implements Dto {
         this.createdObjectsConfig = createdObjectsConfig;
     }
 
-    public String getParentField() {
-        return parentField;
-    }
-
-    public void setParentField(String parentField) {
-        this.parentField = parentField;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -137,11 +127,7 @@ public class HierarchyCollectionConfig implements Dto {
                 : that.cid != null) {
             return false;
         }
-        if (parentField != null
-                ? !parentField.equals(that.parentField)
-                : that.parentField != null) {
-            return false;
-        }
+
         if (hierarchyCollectionViewConfig != null
                 ? !hierarchyCollectionViewConfig.equals(that.hierarchyCollectionViewConfig)
                 : that.hierarchyCollectionViewConfig != null) {
@@ -183,7 +169,6 @@ public class HierarchyCollectionConfig implements Dto {
     @Override
     public int hashCode() {
         int result = cid != null ? cid.hashCode() : 31;
-        result = 31 * result + (parentField != null ? parentField.hashCode() : 31);
         result = 31 * result + (hierarchyCollectionViewConfig != null ? hierarchyCollectionViewConfig.hashCode() : 31);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 31);
         result = 31 * result + (hierarchyGroupConfigs != null ? hierarchyGroupConfigs.hashCode() : 31);

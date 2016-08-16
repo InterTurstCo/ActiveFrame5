@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin;
 
 import com.google.gwt.event.shared.GwtEvent;
+import ru.intertrust.cm.core.business.api.dto.Id;
 
 /**
  * Created by IntelliJ IDEA.
@@ -12,9 +13,11 @@ import com.google.gwt.event.shared.GwtEvent;
 public class ExpandHierarchyEvent extends GwtEvent<ExpandHierarchyEventHandler> {
     public static final Type<ExpandHierarchyEventHandler> TYPE = new Type<>();
     private Boolean expand;
+    private Id parentId;
 
-    public ExpandHierarchyEvent(Boolean anExpand){
+    public ExpandHierarchyEvent(Boolean anExpand, Id aParentId){
         expand = anExpand;
+        parentId = aParentId;
     }
 
     @Override
@@ -29,5 +32,13 @@ public class ExpandHierarchyEvent extends GwtEvent<ExpandHierarchyEventHandler> 
 
     public Boolean isExpand() {
         return expand;
+    }
+
+    public Id getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Id parentId) {
+        this.parentId = parentId;
     }
 }

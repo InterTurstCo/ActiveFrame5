@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Widget;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -19,7 +20,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  */
 public class HierarchyGuiElementsFactory {
 
-    public Widget buildExpandCell(final EventBus anEventBus) {
+    public Widget buildExpandCell(final EventBus anEventBus, final Id aParentId) {
         final Image image = new Image(GlobalThemesManager.getCurrentTheme().chevronRight());
         image.addClickHandler(new ClickHandler() {
             Boolean ex = false;
@@ -28,10 +29,10 @@ public class HierarchyGuiElementsFactory {
 
                 if (ex) {
                     image.setResource(GlobalThemesManager.getCurrentTheme().chevronRight());
-                    anEventBus.fireEvent(new ExpandHierarchyEvent(false));
+                    anEventBus.fireEvent(new ExpandHierarchyEvent(false,aParentId));
                 } else {
                     image.setResource(GlobalThemesManager.getCurrentTheme().chevronDown());
-                    anEventBus.fireEvent(new ExpandHierarchyEvent(true));
+                    anEventBus.fireEvent(new ExpandHierarchyEvent(true,aParentId));
                 }
                 ex = !ex;
             }
