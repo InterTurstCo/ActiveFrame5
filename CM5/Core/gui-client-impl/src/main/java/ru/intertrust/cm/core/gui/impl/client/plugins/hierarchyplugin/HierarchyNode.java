@@ -42,10 +42,10 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
         if (expanded) {
             for (HierarchyGroupConfig group : (groupConfig!=null)?groupConfig.getHierarchyGroupConfigs():collectionConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group));
+                childPanel.add(guiFactory.buildGroup(group,event.getParentId()));
             }
             for (HierarchyCollectionConfig collection : (groupConfig!=null)?groupConfig.getHierarchyCollectionConfigs():collectionConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection));
+                childPanel.add(guiFactory.buildCollection(collection,event.getParentId()));
             }
         } else {
             childPanel.clear();

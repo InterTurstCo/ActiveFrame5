@@ -59,7 +59,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         FlexTable grid = new FlexTable();
         grid.addStyleName(HierarchyPluginStaticData.STYLE_REPRESENTATION_CELL);
         if (expandable) {
-            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,parentId));
+            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,rowItem.getId()));
         }
 
         int columnIndex = 1;

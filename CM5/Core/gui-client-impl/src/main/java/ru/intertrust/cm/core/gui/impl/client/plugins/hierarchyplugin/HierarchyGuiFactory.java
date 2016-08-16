@@ -4,10 +4,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.LongValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
@@ -29,8 +26,8 @@ import java.util.List;
  */
 public class HierarchyGuiFactory {
 
-    public Widget buildGroup(HierarchyGroupConfig aGroupConfig){
-        return new HierarchyGroupView(aGroupConfig);
+    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId){
+        return new HierarchyGroupView(aGroupConfig, aParentId);
     }
 
     /**
@@ -38,7 +35,7 @@ public class HierarchyGuiFactory {
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig){
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId){
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
