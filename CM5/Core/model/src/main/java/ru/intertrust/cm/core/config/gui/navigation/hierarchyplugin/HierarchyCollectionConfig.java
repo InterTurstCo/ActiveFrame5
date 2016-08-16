@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,8 @@ public class HierarchyCollectionConfig implements Dto {
     @Attribute(name = "cid", required = true)
     private String cid;
 
-    @Attribute(name = "up-link-field", required = false)
-    private String upLinkField;
-
-    @Attribute(name = "down-link-field", required = false)
-    private String downLinkField;
+    @Attribute(name = "parent-field", required = false)
+    private String parentField;
 
     @Element(name = "hierarchy-collection-view",required = true)
     protected HierarchyCollectionViewConfig hierarchyCollectionViewConfig;
@@ -48,6 +46,9 @@ public class HierarchyCollectionConfig implements Dto {
     @Element(name = "linked-form-mapping",required = false)
     private LinkedFormMappingConfig linkedFormMappingConfig;
 
+    @Element(name = "initial-filters",required = false)
+    private InitialFiltersConfig initialFiltersConfig;
+
     public HierarchyCollectionConfig(){}
 
     public String getCid() {
@@ -56,22 +57,6 @@ public class HierarchyCollectionConfig implements Dto {
 
     public void setCid(String cid) {
         this.cid = cid;
-    }
-
-    public String getUpLinkField() {
-        return upLinkField;
-    }
-
-    public void setUpLinkField(String upLinkField) {
-        this.upLinkField = upLinkField;
-    }
-
-    public String getDownLinkField() {
-        return downLinkField;
-    }
-
-    public void setDownLinkField(String downLinkField) {
-        this.downLinkField = downLinkField;
     }
 
     public HierarchyCollectionViewConfig getHierarchyCollectionViewConfig() {
@@ -98,6 +83,14 @@ public class HierarchyCollectionConfig implements Dto {
         this.hierarchyGroupConfigs = hierarchyGroupConfigs;
     }
 
+    public InitialFiltersConfig getInitialFiltersConfig() {
+        return initialFiltersConfig;
+    }
+
+    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
+        this.initialFiltersConfig = initialFiltersConfig;
+    }
+
     public List<HierarchyCollectionConfig> getHierarchyCollectionConfigs() {
         return hierarchyCollectionConfigs;
     }
@@ -122,6 +115,14 @@ public class HierarchyCollectionConfig implements Dto {
         this.createdObjectsConfig = createdObjectsConfig;
     }
 
+    public String getParentField() {
+        return parentField;
+    }
+
+    public void setParentField(String parentField) {
+        this.parentField = parentField;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -136,14 +137,9 @@ public class HierarchyCollectionConfig implements Dto {
                 : that.cid != null) {
             return false;
         }
-        if (upLinkField != null
-                ? !upLinkField.equals(that.upLinkField)
-                : that.upLinkField != null) {
-            return false;
-        }
-        if (downLinkField != null
-                ? !downLinkField.equals(that.downLinkField)
-                : that.downLinkField != null) {
+        if (parentField != null
+                ? !parentField.equals(that.parentField)
+                : that.parentField != null) {
             return false;
         }
         if (hierarchyCollectionViewConfig != null
@@ -176,20 +172,25 @@ public class HierarchyCollectionConfig implements Dto {
                 : that.linkedFormMappingConfig != null) {
             return false;
         }
+        if (initialFiltersConfig != null
+                ? !initialFiltersConfig.equals(that.initialFiltersConfig)
+                : that.initialFiltersConfig != null) {
+            return false;
+        }
         return true;
     }
 
     @Override
     public int hashCode() {
         int result = cid != null ? cid.hashCode() : 31;
-        result = 31 * result + (upLinkField != null ? upLinkField.hashCode() : 31);
-        result = 31 * result + (downLinkField != null ? downLinkField.hashCode() : 31);
+        result = 31 * result + (parentField != null ? parentField.hashCode() : 31);
         result = 31 * result + (hierarchyCollectionViewConfig != null ? hierarchyCollectionViewConfig.hashCode() : 31);
         result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 31);
         result = 31 * result + (hierarchyGroupConfigs != null ? hierarchyGroupConfigs.hashCode() : 31);
         result = 31 * result + (hierarchyCollectionConfigs != null ? hierarchyCollectionConfigs.hashCode() : 31);
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 31);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 31);
+        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 31);
         return result;
     }
 }

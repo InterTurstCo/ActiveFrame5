@@ -14,6 +14,7 @@ import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGrou
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.HashMap;
@@ -39,10 +40,13 @@ public class HierarchyGuiFactory {
      */
     public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig){
         final VerticalPanel lines = new VerticalPanel();
-        HierarchyPluginData request = new HierarchyPluginData();
+        HierarchyPluginData pData = new HierarchyPluginData();
+        HierarchyRequest hRequest = new HierarchyRequest();
+        hRequest.setCollectionName(aCollectionConfig.getCollectionRefConfig().getName());
+        pData.setHierarchyRequest(hRequest);
 
         Command command = new Command(HierarchyPluginStaticData.GET_COL_ROWS_METHOD_NAME,
-                HierarchyPluginStaticData.PLUGIN_COMPONENT_NAME, request);
+                HierarchyPluginStaticData.PLUGIN_COMPONENT_NAME, pData);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {

@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.plugin.hierarchy;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 
 import java.util.List;
@@ -46,6 +47,10 @@ public class HierarchyRequest implements Dto {
     }
 
     public SortOrder getSortOrder() {
+        if(sortOrder == null){
+            sortOrder = new SortOrder();
+            sortOrder.add(new SortCriterion("Id", SortCriterion.Order.ASCENDING));
+        }
         return sortOrder;
     }
 

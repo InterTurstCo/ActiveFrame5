@@ -31,23 +31,27 @@ public class HierarchyPluginHandler extends PluginHandler {
     }
 
     public HierarchyPluginData getCollectionItems(Dto request){
-        HierarchyPluginData pData = new HierarchyPluginData();
+        HierarchyPluginData pData = (HierarchyPluginData)request;
+        HierarchyRequest hRequest = pData.getHierarchyRequest();
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
-/*
-        IdentifiableObjectCollection collection = collectionsService.findCollection(hierarchyRequst.getCollectionName(),
-                hierarchyRequst.getSortOrder(),
-                hierarchyRequst.getFilters(),
-                hierarchyRequst.getOffset(),
-                hierarchyRequst.getCount());
-*/
-        CollectionRowItem aRow = new CollectionRowItem();
-        aRow.setId(new RdbmsId(5067,1));
-        aRow.setRow(new HashMap<String,Value>());
-        aRow.getRow().put("ID",new LongValue(1));
-        aRow.getRow().put("Name",new StringValue("Санкт-Петербург"));
-        aRow.getRow().put("Population",new LongValue(3000000));
 
-        items.add(aRow);
+        IdentifiableObjectCollection collection = collectionsService.findCollection(hRequest.getCollectionName(),
+                hRequest.getSortOrder(),
+                hRequest.getFilters(),
+                hRequest.getOffset(),
+                hRequest.getCount());
+
+
+        for(IdentifiableObject iObject : collection){
+            CollectionRowItem aRow = new CollectionRowItem();
+            aRow.setId(iObject.getId());
+            aRow.setRow(new HashMap<String,Value>());
+            for(String fieldName :iObject.getFields()){
+                aRow.getRow().put(fieldName,iObject.getValue(fieldName));
+            }
+            items.add(aRow);
+        }
+              
 
         pData.setCollectionRowItems(items);
         return pData;

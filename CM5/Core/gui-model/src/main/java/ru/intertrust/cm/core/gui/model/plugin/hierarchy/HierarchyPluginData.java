@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class HierarchyPluginData extends PluginData {
     private List<CollectionRowItem> collectionRowItems;
+    private HierarchyRequest hierarchyRequest;
 
     public List<CollectionRowItem> getCollectionRowItems() {
         if (collectionRowItems == null) {
@@ -25,5 +26,13 @@ public class HierarchyPluginData extends PluginData {
 
     public void setCollectionRowItems(List<CollectionRowItem> collectionRowItems) {
         this.collectionRowItems = collectionRowItems;
+    }
+
+    public HierarchyRequest getHierarchyRequest() {
+        return hierarchyRequest;
+    }
+
+    public void setHierarchyRequest(HierarchyRequest hierarchyRequest) {
+        this.hierarchyRequest = hierarchyRequest;
     }
 }

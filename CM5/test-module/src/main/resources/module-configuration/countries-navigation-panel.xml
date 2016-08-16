@@ -1530,9 +1530,9 @@
                                 <hierarchy-group gid="G1.3" name="Группа 1.3">
                                     <hierarchy-group gid="G1.3.1" name="Группа 1.3.1"/>
                                 </hierarchy-group>
-                                <hierarchy-collection cid="C1">
-                                    <hierarchy-collection-view collection-view="countries_default_view"/>
-                                    <collection-ref name="Countries"/>
+                                <hierarchy-collection cid="C1" >
+                                    <hierarchy-collection-view collection-view="countries_default_view" />
+                                    <collection-ref name="c_hp_organizations"/>
                                     <hierarchy-group gid="G2" name="Подгруппа 2"/>
                                 </hierarchy-collection>
                             </hierarchy-group>
