@@ -962,7 +962,7 @@ table.wrapWidget>tbody>tr>td>.parentPanel {
 }
 
 .wrapCell {
-    margin: 10px 0;
+    margin: 4px 0;
     border: 1px solid #eee;
     border-left-width: 5px;
     border-left-color: #1b809e;

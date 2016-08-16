@@ -1520,20 +1520,34 @@
                 <link name="HPlugin" display-text="Иерархический плагин (прототип)">
                     <plugin>
                         <hierarchy-plugin>
-                            <hierarchy-group gid="G1" name="Города">
-                                <hierarchy-group gid="G1.1" name="Группа 1.1"/>
-                                <hierarchy-group gid="G1.2" name="Группа 1.2">
-                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.1"/>
-                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.2"/>
-                                    <hierarchy-group gid="G1.2.1" name="Группа 1.2.3"/>
-                                </hierarchy-group>
-                                <hierarchy-group gid="G1.3" name="Группа 1.3">
-                                    <hierarchy-group gid="G1.3.1" name="Группа 1.3.1"/>
-                                </hierarchy-group>
-                                <hierarchy-collection cid="C1" >
+                            <hierarchy-group gid="G_Org" name="Организации">
+                                <hierarchy-collection cid="C_Org" >
                                     <hierarchy-collection-view collection-view="v_hp_organizations" />
                                     <collection-ref name="c_hp_organizations"/>
-                                    <hierarchy-group gid="G2" name="Подгруппа 2"/>
+                                    <hierarchy-group gid="G_Dep" name="Подразделения">
+                                        <hierarchy-collection cid="C_Dep">
+                                            <hierarchy-collection-view collection-view="v_hp_departments"/>
+                                            <collection-ref name="c_hp_departments"/>
+                                            <hierarchy-group gid="G_Pos" name="ШД">
+                                                <hierarchy-collection cid="C_Pos">
+                                                    <hierarchy-collection-view collection-view="v_hp_dep_position"/>
+                                                    <collection-ref name="c_hp_dep_position"/>
+                                                </hierarchy-collection>
+                                            </hierarchy-group>
+                                        </hierarchy-collection>
+                                    </hierarchy-group>
+                                    <hierarchy-group gid="G_Rvz" name="РВЗ">
+                                        <hierarchy-collection cid="C_Rvz">
+                                            <hierarchy-collection-view collection-view="v_hp_rvz"/>
+                                            <collection-ref name="c_hp_rvz"/>
+                                        </hierarchy-collection>
+                                    </hierarchy-group>
+                                    <hierarchy-group gid="G_Adr" name="Адреса">
+                                        <hierarchy-collection cid="C_Adr">
+                                            <hierarchy-collection-view collection-view="v_hp_org_addresses"/>
+                                            <collection-ref name="c_hp_org_addresses"/>
+                                        </hierarchy-collection>
+                                    </hierarchy-group>
                                 </hierarchy-collection>
                             </hierarchy-group>
                         </hierarchy-plugin>

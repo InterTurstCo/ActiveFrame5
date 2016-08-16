@@ -181,7 +181,7 @@
                   a.id,
                   a.city,
                   a.street,
-                  a.index,
+                  a."index",
                   a.building
                 FROM
                   hp_org_addresses a
