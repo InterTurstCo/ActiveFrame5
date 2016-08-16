@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
@@ -52,7 +53,7 @@ public class HierarchyPluginHandler extends PluginHandler {
                 hRequest.getOffset(),
                 hRequest.getCount());
 
-        CollectionViewConfig viewConfig = PluginHandlerHelper.findCollectionViewConfig(hRequest.getCollectionName(), "v_hp_organizations",
+        CollectionViewConfig viewConfig = PluginHandlerHelper.findCollectionViewConfig(hRequest.getCollectionName(), hRequest.getViewName(),
                 currentUserAccessor.getCurrentUser(),
                 null, configurationService, collectionsService, GuiContext.getUserLocale());
 
@@ -60,13 +61,20 @@ public class HierarchyPluginHandler extends PluginHandler {
             CollectionRowItem aRow = new CollectionRowItem();
             aRow.setId(iObject.getId());
             aRow.setRow(new HashMap<String,Value>());
-            for(String fieldName :iObject.getFields()){
-                aRow.getRow().put(fieldName,iObject.getValue(fieldName));
+            if(viewConfig == null) {
+                for (String fieldName : iObject.getFields()) {
+                    aRow.getRow().put(fieldName, iObject.getValue(fieldName));
+                }
+            } else {
+                for(CollectionColumnConfig column : viewConfig.getCollectionDisplayConfig().getColumnConfig()){
+                    aRow.getRow().put(column.getName(), iObject.getValue(column.getField()));
+                }
             }
+
             items.add(aRow);
         }
 
-
+        pData.setCollectionViewConfig(viewConfig);
         pData.setCollectionRowItems(items);
         return pData;
     }

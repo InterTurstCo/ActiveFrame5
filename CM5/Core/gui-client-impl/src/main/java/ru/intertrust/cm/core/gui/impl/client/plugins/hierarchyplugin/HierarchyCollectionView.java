@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
@@ -19,9 +20,11 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
 
     private Boolean expandable = false;
     private CollectionRowItem rowItem;
+    private CollectionViewConfig collectionViewConfig;
 
-    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow) {
+    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig) {
         super();
+        collectionViewConfig = aCollectionViewConfig;
         rowItem = aRow;
         collectionConfig = aCollectionConfig;
         guiElementsFactory = new HierarchyGuiElementsFactory();

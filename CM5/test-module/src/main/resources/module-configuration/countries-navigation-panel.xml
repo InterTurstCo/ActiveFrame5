@@ -1531,7 +1531,7 @@
                                     <hierarchy-group gid="G1.3.1" name="Группа 1.3.1"/>
                                 </hierarchy-group>
                                 <hierarchy-collection cid="C1" >
-                                    <hierarchy-collection-view collection-view="countries_default_view" />
+                                    <hierarchy-collection-view collection-view="v_hp_organizations" />
                                     <collection-ref name="c_hp_organizations"/>
                                     <hierarchy-group gid="G2" name="Подгруппа 2"/>
                                 </hierarchy-collection>

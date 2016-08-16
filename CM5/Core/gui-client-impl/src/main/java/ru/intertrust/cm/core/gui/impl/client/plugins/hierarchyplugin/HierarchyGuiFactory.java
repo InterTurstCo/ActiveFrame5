@@ -43,6 +43,7 @@ public class HierarchyGuiFactory {
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
         hRequest.setCollectionName(aCollectionConfig.getCollectionRefConfig().getName());
+        hRequest.setViewName(aCollectionConfig.getHierarchyCollectionViewConfig().getCollectionView());
         pData.setHierarchyRequest(hRequest);
 
         Command command = new Command(HierarchyPluginStaticData.GET_COL_ROWS_METHOD_NAME,
@@ -60,7 +61,7 @@ public class HierarchyGuiFactory {
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRowItems();
                 if (collectionRowItems.size() != 0) {
                     for(CollectionRowItem rItem :collectionRowItems){
-                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem));
+                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig()));
                     }
                 }
             }
