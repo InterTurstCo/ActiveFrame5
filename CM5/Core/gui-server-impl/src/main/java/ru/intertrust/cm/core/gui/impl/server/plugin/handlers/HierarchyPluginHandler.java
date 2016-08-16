@@ -4,7 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
+import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
@@ -26,6 +31,12 @@ public class HierarchyPluginHandler extends PluginHandler {
     @Autowired
     private CollectionsService collectionsService;
 
+    @Autowired
+    private ConfigurationExplorer configurationService;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+
     public HierarchyPluginData initialize(Dto config){
         return new HierarchyPluginData();
     }
@@ -41,6 +52,9 @@ public class HierarchyPluginHandler extends PluginHandler {
                 hRequest.getOffset(),
                 hRequest.getCount());
 
+        CollectionViewConfig viewConfig = PluginHandlerHelper.findCollectionViewConfig(hRequest.getCollectionName(), "v_hp_organizations",
+                currentUserAccessor.getCurrentUser(),
+                null, configurationService, collectionsService, GuiContext.getUserLocale());
 
         for(IdentifiableObject iObject : collection){
             CollectionRowItem aRow = new CollectionRowItem();
@@ -51,7 +65,7 @@ public class HierarchyPluginHandler extends PluginHandler {
             }
             items.add(aRow);
         }
-              
+
 
         pData.setCollectionRowItems(items);
         return pData;
