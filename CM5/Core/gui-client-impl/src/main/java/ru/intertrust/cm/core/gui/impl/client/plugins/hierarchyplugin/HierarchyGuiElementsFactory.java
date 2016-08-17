@@ -18,7 +18,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  * Time: 10:47
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyGuiElementsFactory {
+public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
 
     public Widget buildExpandCell(final EventBus anEventBus, final Id aParentId) {
         final Image image = new Image(GlobalThemesManager.getCurrentTheme().chevronRight());
@@ -40,7 +40,7 @@ public class HierarchyGuiElementsFactory {
         return image;
     }
 
-    public Widget buildActionButton(final EventBus anEventBus, final HierarchyPluginStaticData.Actions anAction){
+    public Widget buildActionButton(final EventBus anEventBus, final Actions anAction){
         final Image image;
         switch(anAction){
             case GROUPREFRESH:

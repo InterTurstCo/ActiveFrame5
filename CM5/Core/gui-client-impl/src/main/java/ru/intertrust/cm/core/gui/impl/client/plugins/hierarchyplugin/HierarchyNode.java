@@ -16,7 +16,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarc
  * Time: 12:20
  * To change this template use File | Settings | File and Code Templates.
  */
-public abstract class HierarchyNode extends Composite implements ExpandHierarchyEventHandler {
+public abstract class HierarchyNode extends Composite implements ExpandHierarchyEventHandler,HierarchyPluginConstants {
     protected HierarchyCollectionConfig collectionConfig;
     protected HierarchyGroupConfig groupConfig;
     protected EventBus localBus;

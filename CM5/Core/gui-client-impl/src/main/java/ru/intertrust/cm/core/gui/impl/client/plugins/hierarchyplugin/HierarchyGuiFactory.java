@@ -6,7 +6,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
@@ -18,7 +17,6 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -28,7 +26,7 @@ import java.util.List;
  * Time: 10:22
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyGuiFactory {
+public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
     public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus) {
         return new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus);
@@ -52,7 +50,7 @@ public class HierarchyGuiFactory {
                 if (extraFilterConfig.getParamConfigs() == null || extraFilterConfig.getParamConfigs().size()==0) {
                     ExtraParamConfig eXtraParamConfig = new ExtraParamConfig();
                     eXtraParamConfig.setName(0);
-                    eXtraParamConfig.setType(HierarchyPluginStaticData.REF_TYPE_NAME);
+                    eXtraParamConfig.setType(REF_TYPE_NAME);
                     eXtraParamConfig.setValue(aParentId.toStringRepresentation());
                     extraFilterConfig.setParamConfigs(new ArrayList<ExtraParamConfig>());
                     extraFilterConfig.getParamConfigs().add(eXtraParamConfig);
@@ -64,8 +62,7 @@ public class HierarchyGuiFactory {
         hRequest.setCollectionConfig(aCollectionConfig);
         pData.setHierarchyRequest(hRequest);
 
-        Command command = new Command(HierarchyPluginStaticData.GET_COL_ROWS_METHOD_NAME,
-                HierarchyPluginStaticData.PLUGIN_COMPONENT_NAME, pData);
+        Command command = new Command(GET_COL_ROWS_METHOD_NAME, PLUGIN_COMPONENT_NAME, pData);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
@@ -86,7 +83,7 @@ public class HierarchyGuiFactory {
                 if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
                     for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
                         if (extraFilterConfig.getParamConfigs() != null) {
-                            if(extraFilterConfig.getParamConfigs().get(0).getType().equals(HierarchyPluginStaticData.REF_TYPE_NAME)){
+                            if(extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)){
                                 extraFilterConfig.getParamConfigs().clear();
                             }
                         }

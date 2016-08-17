@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
-import com.google.gwt.user.client.ui.Label;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyPluginConfig;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
@@ -15,7 +14,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
  * Time: 14:36
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyPluginView extends PluginView {
+public class HierarchyPluginView extends PluginView implements HierarchyPluginConstants {
     private HierarchyGuiFactory guiFactory;
     private EventBus commonBus;
     /**
@@ -32,7 +31,7 @@ public class HierarchyPluginView extends PluginView {
     @Override
     public IsWidget getViewWidget() {
         HorizontalPanel rootPanel = new HorizontalPanel();
-        rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_WIDGET);
+        rootPanel.addStyleName(STYLE_WRAP_WIDGET);
         rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig(),null,commonBus));
         return rootPanel;
     }

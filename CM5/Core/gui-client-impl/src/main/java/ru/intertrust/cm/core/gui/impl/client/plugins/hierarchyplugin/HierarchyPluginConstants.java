@@ -7,7 +7,8 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
  * Time: 11:10
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyPluginStaticData {
+public interface HierarchyPluginConstants {
+
     public static final String PLUGIN_COMPONENT_NAME = "hierarchy.plugin";
     public static final String GET_COL_ROWS_METHOD_NAME = "getCollectionItems";
     public static final String STYLE_WRAP_WIDGET = "wrapWidget";

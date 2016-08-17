@@ -4,9 +4,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
-import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
@@ -35,11 +33,11 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         guiElementsFactory = new HierarchyGuiElementsFactory();
         guiFactory = new HierarchyGuiFactory();
         rootPanel = new AbsolutePanel();
-        rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_HEADER_CELL);
+        rootPanel.addStyleName(STYLE_HEADER_CELL);
         headerPanel = new HorizontalPanel();
-        headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_CELL);
+        headerPanel.addStyleName(STYLE_WRAP_CELL);
         childPanel = new VerticalPanel();
-        childPanel.addStyleName(HierarchyPluginStaticData.STYLE_CHILD_CELL);
+        childPanel.addStyleName(STYLE_CHILD_CELL);
 
         if (collectionConfig.getHierarchyGroupConfigs().size() > 0 ||
                 collectionConfig.getHierarchyCollectionConfigs().size() > 0) {
@@ -55,7 +53,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         headerPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_FOCUS_WRAP_CELL);
+                headerPanel.addStyleName(STYLE_FOCUS_WRAP_CELL);
                 commonBus.fireEvent(new CancelSelectionEvent(true, rowItem.getId()));
             }
         }, ClickEvent.getType());
@@ -69,7 +67,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     protected void addRepresentationCells(Panel container) {
 
         FlexTable grid = new FlexTable();
-        grid.addStyleName(HierarchyPluginStaticData.STYLE_REPRESENTATION_CELL);
+        grid.addStyleName(STYLE_REPRESENTATION_CELL);
         if (expandable) {
             grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus, rowItem.getId()));
         }
@@ -77,10 +75,10 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         int columnIndex = 1;
         for (String key : rowItem.getRow().keySet()) {
             InlineHTML fieldName = new InlineHTML("<b>" + key + "</b>");
-            fieldName.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_NAME);
+            fieldName.addStyleName(STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
             InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(key).toString());
-            fieldValue.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_VALUE);
+            fieldValue.addStyleName(STYLE_FIELD_VALUE);
             grid.setWidget(0, columnIndex + 1, fieldValue);
             columnIndex += 2;
         }
@@ -97,7 +95,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     @Override
     public void onCancelSelectionEvent(CancelSelectionEvent event) {
         if (!event.getRowId().equals(rowItem.getId())) {
-            headerPanel.removeStyleName(HierarchyPluginStaticData.STYLE_FOCUS_WRAP_CELL);
+            headerPanel.removeStyleName(STYLE_FOCUS_WRAP_CELL);
         }
     }
 }

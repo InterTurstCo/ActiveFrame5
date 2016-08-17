@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin;
 
 import com.google.gwt.event.shared.GwtEvent;
-import ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin.HierarchyPluginStaticData;
+import ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin.HierarchyPluginConstants;
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,11 +11,11 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin.HierarchyPl
  * To change this template use File | Settings | File and Code Templates.
  */
 public class HierarchyActionEvent extends GwtEvent<HierarchyActionEventHandler> {
-    private HierarchyPluginStaticData.Actions action;
+    private HierarchyPluginConstants.Actions action;
     public static final Type<HierarchyActionEventHandler> TYPE = new Type<>();
 
 
-    public HierarchyActionEvent(HierarchyPluginStaticData.Actions anAction){
+    public HierarchyActionEvent(HierarchyPluginConstants.Actions anAction){
         action = anAction;
     }
 
@@ -29,7 +29,7 @@ public class HierarchyActionEvent extends GwtEvent<HierarchyActionEventHandler> 
         handler.onHierarchyActionEvent(this);
     }
 
-    public HierarchyPluginStaticData.Actions getAction() {
+    public HierarchyPluginConstants.Actions getAction() {
         return action;
     }
 }
