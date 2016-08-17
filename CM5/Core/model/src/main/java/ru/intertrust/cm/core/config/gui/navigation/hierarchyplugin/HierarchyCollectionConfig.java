@@ -5,6 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.LinkedFormMappingConfig;
 import ru.intertrust.cm.core.config.gui.navigation.CollectionRefConfig;
@@ -43,8 +44,8 @@ public class HierarchyCollectionConfig implements Dto {
     @Element(name = "linked-form-mapping",required = false)
     private LinkedFormMappingConfig linkedFormMappingConfig;
 
-    @Element(name = "initial-filters",required = false)
-    private InitialFiltersConfig initialFiltersConfig;
+    @Element(name = "collection-extra-filters",required = false)
+    private CollectionExtraFiltersConfig collectionExtraFiltersConfig;
 
     public HierarchyCollectionConfig(){}
 
@@ -80,12 +81,12 @@ public class HierarchyCollectionConfig implements Dto {
         this.hierarchyGroupConfigs = hierarchyGroupConfigs;
     }
 
-    public InitialFiltersConfig getInitialFiltersConfig() {
-        return initialFiltersConfig;
+    public CollectionExtraFiltersConfig getCollectionExtraFiltersConfig() {
+        return collectionExtraFiltersConfig;
     }
 
-    public void setInitialFiltersConfig(InitialFiltersConfig initialFiltersConfig) {
-        this.initialFiltersConfig = initialFiltersConfig;
+    public void setCollectionExtraFiltersConfig(CollectionExtraFiltersConfig collectionExtraFiltersConfig) {
+        this.collectionExtraFiltersConfig = collectionExtraFiltersConfig;
     }
 
     public List<HierarchyCollectionConfig> getHierarchyCollectionConfigs() {
@@ -158,9 +159,9 @@ public class HierarchyCollectionConfig implements Dto {
                 : that.linkedFormMappingConfig != null) {
             return false;
         }
-        if (initialFiltersConfig != null
-                ? !initialFiltersConfig.equals(that.initialFiltersConfig)
-                : that.initialFiltersConfig != null) {
+        if (collectionExtraFiltersConfig != null
+                ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig)
+                : that.collectionExtraFiltersConfig != null) {
             return false;
         }
         return true;
@@ -175,7 +176,7 @@ public class HierarchyCollectionConfig implements Dto {
         result = 31 * result + (hierarchyCollectionConfigs != null ? hierarchyCollectionConfigs.hashCode() : 31);
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 31);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 31);
-        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 31);
+        result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 31);
         return result;
     }
 }

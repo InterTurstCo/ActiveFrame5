@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class HierarchyRequest implements Dto {
     private int offset = 0;
     private int count = 0;
     private SortOrder sortOrder;
-    private List<Filter> filters;
+    private HierarchyCollectionConfig collectionConfig;
 
     public String getCollectionName() {
         return collectionName;
@@ -58,12 +59,12 @@ public class HierarchyRequest implements Dto {
         this.sortOrder = sortOrder;
     }
 
-    public List<Filter> getFilters() {
-        return filters;
+    public HierarchyCollectionConfig getCollectionConfig() {
+        return collectionConfig;
     }
 
-    public void setFilters(List<Filter> filters) {
-        this.filters = filters;
+    public void setCollectionConfig(HierarchyCollectionConfig collectionConfig) {
+        this.collectionConfig = collectionConfig;
     }
 
     public String getViewName() {

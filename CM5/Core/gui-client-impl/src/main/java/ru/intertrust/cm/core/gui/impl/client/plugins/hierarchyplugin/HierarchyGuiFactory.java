@@ -6,6 +6,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
+import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
 import ru.intertrust.cm.core.gui.model.Command;
@@ -14,6 +16,7 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,21 +29,38 @@ import java.util.List;
  */
 public class HierarchyGuiFactory {
 
-    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId){
+    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId) {
         return new HierarchyGroupView(aGroupConfig, aParentId);
     }
 
     /**
      * Возвращает панель с элементами коллекции и группами
+     *
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId){
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId) {
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
         hRequest.setCollectionName(aCollectionConfig.getCollectionRefConfig().getName());
         hRequest.setViewName(aCollectionConfig.getHierarchyCollectionViewConfig().getCollectionView());
+
+        if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
+            for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
+                if (extraFilterConfig.getParamConfigs() == null || extraFilterConfig.getParamConfigs().size()==0) {
+                    ExtraParamConfig eXtraParamConfig = new ExtraParamConfig();
+                    eXtraParamConfig.setName(0);
+                    eXtraParamConfig.setType("reference");
+                    eXtraParamConfig.setValue(aParentId.toStringRepresentation());
+                    extraFilterConfig.setParamConfigs(new ArrayList<ExtraParamConfig>());
+                    extraFilterConfig.getParamConfigs().add(eXtraParamConfig);
+                }
+            }
+        }
+
+
+        hRequest.setCollectionConfig(aCollectionConfig);
         pData.setHierarchyRequest(hRequest);
 
         Command command = new Command(HierarchyPluginStaticData.GET_COL_ROWS_METHOD_NAME,
@@ -48,7 +68,7 @@ public class HierarchyGuiFactory {
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
-                GWT.log("Something was going wrong while obtaining rows for collection with Id =  "+aCollectionConfig.getCid());
+                GWT.log("Something was going wrong while obtaining rows for collection with Id =  " + aCollectionConfig.getCid());
                 caught.printStackTrace();
             }
 
@@ -57,8 +77,18 @@ public class HierarchyGuiFactory {
                 HierarchyPluginData collectionRowsResponse = (HierarchyPluginData) result;
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRowItems();
                 if (collectionRowItems.size() != 0) {
-                    for(CollectionRowItem rItem :collectionRowItems){
+                    for (CollectionRowItem rItem : collectionRowItems) {
                         lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig()));
+                    }
+                }
+
+                if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
+                    for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
+                        if (extraFilterConfig.getParamConfigs() != null) {
+                            if(extraFilterConfig.getParamConfigs().get(0).getType().equals("reference")){
+                                extraFilterConfig.getParamConfigs().clear();
+                            }
+                        }
                     }
                 }
             }

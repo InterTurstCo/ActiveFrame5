@@ -164,6 +164,7 @@
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-dep-position.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-rvz.csv</import-file>
         <import-file>importdata/hierarchy-plugin-test-data/import-hp-org-addresses.csv</import-file>
+        <import-file>importdata/hierarchy-plugin-test-data/import-hp-pos-appointments.csv</import-file>
     </import-files>
 
     <import-reports>

@@ -1,0 +1,4 @@
+TYPE_NAME=hp_pos_appointments;KEYS=first_name,last_name,position
+first_name;last_name;appdate;position
+Павел;Молчанов;21.11.2016 00:00:00;"name=""Главный бухгалтер"""
+Анастасия;Лыкова;20.10.2015 00:00:00;"name=""Начальник ПФО"""

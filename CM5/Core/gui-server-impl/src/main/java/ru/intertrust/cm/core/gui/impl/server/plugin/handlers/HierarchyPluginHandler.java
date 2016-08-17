@@ -7,17 +7,21 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
+import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,18 +42,27 @@ public class HierarchyPluginHandler extends PluginHandler {
     @Autowired
     private CurrentUserAccessor currentUserAccessor;
 
-    public HierarchyPluginData initialize(Dto config){
+    @Autowired
+    private FilterBuilder filterBuilder;
+
+    public HierarchyPluginData initialize(Dto config) {
         return new HierarchyPluginData();
     }
 
-    public HierarchyPluginData getCollectionItems(Dto request){
-        HierarchyPluginData pData = (HierarchyPluginData)request;
+    public HierarchyPluginData getCollectionItems(Dto request) {
+        HierarchyPluginData pData = (HierarchyPluginData) request;
         HierarchyRequest hRequest = pData.getHierarchyRequest();
         ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
 
+        List<Filter> filters = new ArrayList<>();
+        if (hRequest.getCollectionConfig().getCollectionExtraFiltersConfig() != null) {
+            filterBuilder.prepareExtraFilters(hRequest.getCollectionConfig().getCollectionExtraFiltersConfig(), new ComplexFiltersParams(), filters);
+        }
+
+
         IdentifiableObjectCollection collection = collectionsService.findCollection(hRequest.getCollectionName(),
                 hRequest.getSortOrder(),
-                hRequest.getFilters(),
+                filters,
                 hRequest.getOffset(),
                 hRequest.getCount());
 
@@ -57,16 +70,16 @@ public class HierarchyPluginHandler extends PluginHandler {
                 currentUserAccessor.getCurrentUser(),
                 null, configurationService, collectionsService, GuiContext.getUserLocale());
 
-        for(IdentifiableObject iObject : collection){
+        for (IdentifiableObject iObject : collection) {
             CollectionRowItem aRow = new CollectionRowItem();
             aRow.setId(iObject.getId());
-            aRow.setRow(new HashMap<String,Value>());
-            if(viewConfig == null) {
+            aRow.setRow(new HashMap<String, Value>());
+            if (viewConfig == null) {
                 for (String fieldName : iObject.getFields()) {
                     aRow.getRow().put(fieldName, iObject.getValue(fieldName));
                 }
             } else {
-                for(CollectionColumnConfig column : viewConfig.getCollectionDisplayConfig().getColumnConfig()){
+                for (CollectionColumnConfig column : viewConfig.getCollectionDisplayConfig().getColumnConfig()) {
                     aRow.getRow().put(column.getName(), iObject.getValue(column.getField()));
                 }
             }

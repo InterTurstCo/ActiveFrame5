@@ -3,7 +3,8 @@
                xmlns:act="https://cm5.intertrust.ru/config/action">
     <navigation name="panel" level2-panel-width="220px" level2-default-state="unpinned" margin-size="default"
                 text-auto-cut="false"
-                is-default="true" application="main"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
+                is-default="true"
+                application="main"> <!-- is-default определяет факт того, что данная панель навигации является таковой "по умолчанию", то есть используется для тех пользователей и ролей, для которых панель навигации не переопределена -->
 
 
         <link name="Calendar" display-text="Календарь" image="images/calendar.png" child-to-open="Calendar1">
@@ -198,11 +199,12 @@
                                     <act:action-ref name-ref="aRefresh" order="10"/>
                                     <act:action-separator order="20"/>
 
-                                    <act:action-group name="create.visual.parameters.objects" text="Новые обьекты" order="30" merged="true" imageClass="actionBar-create">
+                                    <act:action-group name="create.visual.parameters.objects" text="Новые обьекты"
+                                                      order="30" merged="true" imageClass="actionBar-create">
                                         <act:action-ref name-ref="aCreate" text="Поле">
                                             <act:action-params>
-                                                <act:action-param name="create.object.type" value="Department" />
-                                                <act:action-param name="create.object.form" value="department_form2" />
+                                                <act:action-param name="create.object.type" value="Department"/>
+                                                <act:action-param name="create.object.form" value="department_form2"/>
                                             </act:action-params>
                                         </act:action-ref>
                                     </act:action-group>
@@ -1521,8 +1523,8 @@
                     <plugin>
                         <hierarchy-plugin>
                             <hierarchy-group gid="G_Org" name="Организации">
-                                <hierarchy-collection cid="C_Org" >
-                                    <hierarchy-collection-view collection-view="v_hp_organizations" />
+                                <hierarchy-collection cid="C_Org">
+                                    <hierarchy-collection-view collection-view="v_hp_organizations"/>
                                     <collection-ref name="c_hp_organizations"/>
                                     <hierarchy-group gid="G_Dep" name="Подразделения">
                                         <hierarchy-collection cid="C_Dep">
@@ -1532,20 +1534,41 @@
                                                 <hierarchy-collection cid="C_Pos">
                                                     <hierarchy-collection-view collection-view="v_hp_dep_position"/>
                                                     <collection-ref name="c_hp_dep_position"/>
+                                                    <hierarchy-group gid="G_Apn" name="Назначения">
+                                                        <hierarchy-collection cid="C_Apn">
+                                                            <hierarchy-collection-view collection-view="v_hp_pos_appointments"/>
+                                                            <collection-ref name="c_hp_pos_appointments"/>
+                                                            <collection-extra-filters>
+                                                                <extra-filter name="byPosition"/>
+                                                            </collection-extra-filters>
+                                                        </hierarchy-collection>
+                                                    </hierarchy-group>
+                                                    <collection-extra-filters>
+                                                        <extra-filter name="byDepartment"/>
+                                                    </collection-extra-filters>
                                                 </hierarchy-collection>
                                             </hierarchy-group>
+                                            <collection-extra-filters>
+                                                <extra-filter name="byOrganization"/>
+                                            </collection-extra-filters>
                                         </hierarchy-collection>
                                     </hierarchy-group>
                                     <hierarchy-group gid="G_Rvz" name="РВЗ">
                                         <hierarchy-collection cid="C_Rvz">
                                             <hierarchy-collection-view collection-view="v_hp_rvz"/>
                                             <collection-ref name="c_hp_rvz"/>
+                                            <collection-extra-filters>
+                                                <extra-filter name="byOrganization"/>
+                                            </collection-extra-filters>
                                         </hierarchy-collection>
                                     </hierarchy-group>
                                     <hierarchy-group gid="G_Adr" name="Адреса">
                                         <hierarchy-collection cid="C_Adr">
                                             <hierarchy-collection-view collection-view="v_hp_org_addresses"/>
                                             <collection-ref name="c_hp_org_addresses"/>
+                                            <collection-extra-filters>
+                                                <extra-filter name="byOrganization"/>
+                                            </collection-extra-filters>
                                         </hierarchy-collection>
                                     </hierarchy-group>
                                 </hierarchy-collection>

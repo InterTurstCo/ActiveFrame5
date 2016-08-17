@@ -39,6 +39,14 @@
         </fields>
     </domain-object-type>
 
+    <domain-object-type name="hp_pos_appointments">
+        <fields>
+            <string name="first_name" length="50" />
+            <string name="last_name" length="50" />
+            <timelessDate name="appdate"/>
+            <reference name="position" type="hp_dep_position"/>
+        </fields>
+    </domain-object-type>
 
 
 
