@@ -955,6 +955,8 @@ table.wrapWidget {
 
 table.wrapWidget>tbody>tr>td>.parentPanel {
     padding: 20px;
+    overflow: auto !important;
+    max-height: 400px;
 }
 
 .groupName {
