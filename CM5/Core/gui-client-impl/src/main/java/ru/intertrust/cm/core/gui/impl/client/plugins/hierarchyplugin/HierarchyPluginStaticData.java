@@ -22,6 +22,7 @@ public class HierarchyPluginStaticData {
     public static final String STYLE_CHILD_CELL = "childCell";
     public static final String STYLE_FIELD_NAME = "fieldName";
     public static final String STYLE_FIELD_VALUE = "fieldValue";
+    public static final String REF_TYPE_NAME = "reference";
 
     public enum Actions {
         GROUPREFRESH("Обновить"),

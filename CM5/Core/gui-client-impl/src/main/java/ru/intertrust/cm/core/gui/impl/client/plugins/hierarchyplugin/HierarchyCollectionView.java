@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
@@ -48,6 +51,13 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         rootPanel.add(childPanel);
         childPanel.setVisible(expanded);
         initWidget(rootPanel);
+
+        headerPanel.addDomHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent clickEvent) {
+                //headerPanel.addStyleName("..some style..");
+            }
+        },ClickEvent.getType());
 
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
