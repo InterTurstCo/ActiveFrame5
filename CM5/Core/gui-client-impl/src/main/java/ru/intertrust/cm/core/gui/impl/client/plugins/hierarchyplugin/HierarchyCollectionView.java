@@ -55,7 +55,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         headerPanel.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent clickEvent) {
-                //headerPanel.addStyleName("..some style..");
+                headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_FOCUS_WRAP_CELL);
             }
         },ClickEvent.getType());
 

@@ -18,6 +18,7 @@ public class HierarchyPluginStaticData {
     public static final String STYLE_GROUP_NAME = "groupName";
     public static final String STYLE_REPRESENTATION_CELL = "representationCell";
     public static final String STYLE_WRAP_CELL = "wrapCell";
+    public static final String STYLE_FOCUS_WRAP_CELL = "focusWrapCell";
     public static final String STYLE_HEADER_CELL = "headerCell";
     public static final String STYLE_CHILD_CELL = "childCell";
     public static final String STYLE_FIELD_NAME = "fieldName";
