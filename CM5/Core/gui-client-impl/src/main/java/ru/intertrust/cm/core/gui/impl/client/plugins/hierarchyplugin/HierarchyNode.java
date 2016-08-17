@@ -35,6 +35,11 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
     protected HierarchyNode(){
         localBus = new SimpleEventBus();
+        guiElementsFactory = new HierarchyGuiElementsFactory();
+        guiFactory = new HierarchyGuiFactory();
+        rootPanel = new AbsolutePanel();
+        headerPanel = new HorizontalPanel();
+        childPanel = new VerticalPanel();
     }
 
     @Override

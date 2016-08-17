@@ -26,13 +26,8 @@ public class HierarchyGroupView extends HierarchyNode
         commonBus = aCommonBus;
         parentId = aParentId;
         groupConfig = aGroupConfig;
-        guiElementsFactory = new HierarchyGuiElementsFactory();
-        guiFactory = new HierarchyGuiFactory();
-        rootPanel = new AbsolutePanel();
         rootPanel.addStyleName(STYLE_PARENT_PANEL);
-        headerPanel = new HorizontalPanel();
         headerPanel.addStyleName(STYLE_HEADER_PANEL);
-        childPanel = new VerticalPanel();
         childPanel.addStyleName(STYLE_CHILD_PANEL);
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);

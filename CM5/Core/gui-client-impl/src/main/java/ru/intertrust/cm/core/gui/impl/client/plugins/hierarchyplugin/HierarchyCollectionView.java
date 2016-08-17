@@ -30,13 +30,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         collectionViewConfig = aCollectionViewConfig;
         rowItem = aRow;
         collectionConfig = aCollectionConfig;
-        guiElementsFactory = new HierarchyGuiElementsFactory();
-        guiFactory = new HierarchyGuiFactory();
-        rootPanel = new AbsolutePanel();
         rootPanel.addStyleName(STYLE_HEADER_CELL);
-        headerPanel = new HorizontalPanel();
         headerPanel.addStyleName(STYLE_WRAP_CELL);
-        childPanel = new VerticalPanel();
         childPanel.addStyleName(STYLE_CHILD_CELL);
 
         if (collectionConfig.getHierarchyGroupConfigs().size() > 0 ||
