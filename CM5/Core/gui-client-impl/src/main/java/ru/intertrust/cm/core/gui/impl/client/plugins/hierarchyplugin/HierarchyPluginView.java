@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.gui.impl.client.PluginView;
  */
 public class HierarchyPluginView extends PluginView {
     private HierarchyGuiFactory guiFactory;
+    private EventBus commonBus;
     /**
      * Основной конструктор
      *
@@ -25,13 +26,14 @@ public class HierarchyPluginView extends PluginView {
     protected HierarchyPluginView(Plugin plugin, EventBus anEventBus) {
         super(plugin);
         guiFactory = new HierarchyGuiFactory();
+        commonBus = anEventBus;
     }
 
     @Override
     public IsWidget getViewWidget() {
         HorizontalPanel rootPanel = new HorizontalPanel();
         rootPanel.addStyleName(HierarchyPluginStaticData.STYLE_WRAP_WIDGET);
-        rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig(),null));
+        rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig(),null,commonBus));
         return rootPanel;
     }
 }

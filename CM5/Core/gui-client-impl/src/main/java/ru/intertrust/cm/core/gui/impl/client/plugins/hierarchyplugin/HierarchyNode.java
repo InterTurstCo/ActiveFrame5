@@ -20,6 +20,7 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
     protected HierarchyCollectionConfig collectionConfig;
     protected HierarchyGroupConfig groupConfig;
     protected EventBus localBus;
+    protected EventBus commonBus;
     protected AbsolutePanel rootPanel;
     protected HorizontalPanel headerPanel;
     protected VerticalPanel childPanel;
@@ -42,10 +43,10 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
         if (expanded) {
             for (HierarchyGroupConfig group : (groupConfig!=null)?groupConfig.getHierarchyGroupConfigs():collectionConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group,event.getParentId()));
+                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus));
             }
             for (HierarchyCollectionConfig collection : (groupConfig!=null)?groupConfig.getHierarchyCollectionConfigs():collectionConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection,event.getParentId()));
+                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus));
             }
         } else {
             childPanel.clear();

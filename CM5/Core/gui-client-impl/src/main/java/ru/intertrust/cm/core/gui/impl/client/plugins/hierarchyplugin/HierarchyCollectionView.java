@@ -3,14 +3,13 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 /**
@@ -20,15 +19,16 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
  * Time: 12:11
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyCollectionView extends HierarchyNode implements HierarchyActionEventHandler {
+public class HierarchyCollectionView extends HierarchyNode implements HierarchyActionEventHandler, CancelSelectionEventHandler {
 
     private Boolean expandable = false;
     private CollectionRowItem rowItem;
     private CollectionViewConfig collectionViewConfig;
 
 
-    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig) {
+    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig, EventBus aCommmonBus) {
         super();
+        commonBus = aCommmonBus;
         collectionViewConfig = aCollectionViewConfig;
         rowItem = aRow;
         collectionConfig = aCollectionConfig;
@@ -41,8 +41,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         childPanel = new VerticalPanel();
         childPanel.addStyleName(HierarchyPluginStaticData.STYLE_CHILD_CELL);
 
-        if(collectionConfig.getHierarchyGroupConfigs().size()>0  ||
-                collectionConfig.getHierarchyCollectionConfigs().size()>0){
+        if (collectionConfig.getHierarchyGroupConfigs().size() > 0 ||
+                collectionConfig.getHierarchyCollectionConfigs().size() > 0) {
             expandable = true;
         }
 
@@ -56,11 +56,13 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             @Override
             public void onClick(ClickEvent clickEvent) {
                 headerPanel.addStyleName(HierarchyPluginStaticData.STYLE_FOCUS_WRAP_CELL);
+                commonBus.fireEvent(new CancelSelectionEvent(true, rowItem.getId()));
             }
-        },ClickEvent.getType());
+        }, ClickEvent.getType());
 
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
+        commonBus.addHandler(CancelSelectionEvent.TYPE, this);
     }
 
     @Override
@@ -69,18 +71,18 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         FlexTable grid = new FlexTable();
         grid.addStyleName(HierarchyPluginStaticData.STYLE_REPRESENTATION_CELL);
         if (expandable) {
-            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,rowItem.getId()));
+            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus, rowItem.getId()));
         }
 
         int columnIndex = 1;
-        for(String key : rowItem.getRow().keySet()){
+        for (String key : rowItem.getRow().keySet()) {
             InlineHTML fieldName = new InlineHTML("<b>" + key + "</b>");
             fieldName.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
             InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(key).toString());
             fieldValue.addStyleName(HierarchyPluginStaticData.STYLE_FIELD_VALUE);
-            grid.setWidget(0, columnIndex+1, fieldValue);
-            columnIndex+=2;
+            grid.setWidget(0, columnIndex + 1, fieldValue);
+            columnIndex += 2;
         }
 
         container.add(grid);
@@ -90,5 +92,12 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
 
+    }
+
+    @Override
+    public void onCancelSelectionEvent(CancelSelectionEvent event) {
+        if (!event.getRowId().equals(rowItem.getId())) {
+            headerPanel.removeStyleName(HierarchyPluginStaticData.STYLE_FOCUS_WRAP_CELL);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -29,8 +30,8 @@ import java.util.List;
  */
 public class HierarchyGuiFactory {
 
-    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId) {
-        return new HierarchyGroupView(aGroupConfig, aParentId);
+    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus) {
+        return new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus);
     }
 
     /**
@@ -39,7 +40,7 @@ public class HierarchyGuiFactory {
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId) {
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus) {
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
@@ -78,7 +79,7 @@ public class HierarchyGuiFactory {
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRowItems();
                 if (collectionRowItems.size() != 0) {
                     for (CollectionRowItem rItem : collectionRowItems) {
-                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig()));
+                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig(),aCommonBus));
                     }
                 }
 

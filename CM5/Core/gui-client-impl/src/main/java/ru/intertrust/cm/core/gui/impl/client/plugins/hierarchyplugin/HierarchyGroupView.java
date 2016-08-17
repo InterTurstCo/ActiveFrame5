@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
+import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -20,8 +21,9 @@ public class HierarchyGroupView extends HierarchyNode
 
 
 
-    public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId) {
+    public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus) {
         super();
+        commonBus = aCommonBus;
         parentId = aParentId;
         groupConfig = aGroupConfig;
         guiElementsFactory = new HierarchyGuiElementsFactory();
