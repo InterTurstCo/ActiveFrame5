@@ -113,6 +113,11 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     }
 
     @Override
+    public void notifyCollectionCountRead(String name, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
+        impl.notifyCollectionCountRead(name, filterValues, count, time, accessToken);
+    }
+
+    @Override
     public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
         impl.notifyCollectionRead(name, filterValues, sortOrder, offset, limit, collection, time, accessToken);
     }
@@ -175,6 +180,11 @@ public class SwitchableCacheClient implements GlobalCacheClient {
     @Override
     public List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken) {
         return impl.getAllDomainObjects(type, exactType, accessToken);
+    }
+
+    @Override
+    public int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+        return impl.getCollectionCount(name, filterValues, accessToken);
     }
 
     @Override

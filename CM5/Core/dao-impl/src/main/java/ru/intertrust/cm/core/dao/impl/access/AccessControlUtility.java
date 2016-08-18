@@ -68,7 +68,7 @@ public class AccessControlUtility {
         Set<ReferenceFieldConfig> refFields = configurationExplorer.getImmutableReferenceFieldConfigs(domainObjectType);
         List<ImmutableFieldData> parentIds = new ArrayList<ImmutableFieldData>(refFields.size());
         
-        //Кроме тимени поля нужна информация еще в каком непосредственно типе оно объявлено
+        //Кроме имени поля нужна информация еще в каком непосредственно типе оно объявлено
         //TODO возможно надо оптимизировать, вынести этот код в configurationExplorer и закэшировать
         String[] types = configurationExplorer.getDomainObjectTypesHierarchyBeginningFromType(domainObjectType);
         for (String type : types) {
@@ -76,11 +76,13 @@ public class AccessControlUtility {
                 FieldConfig typeFieldConfig = configurationExplorer.getFieldConfig(type, fieldConfig.getName(), false);
                 if (typeFieldConfig != null){
                     Id parentObject = domainObject.getReference(fieldConfig.getName());
-                    ImmutableFieldData immutableFieldData = new ImmutableFieldData();
-                    immutableFieldData.setValue(parentObject);
-                    immutableFieldData.setСonfig(fieldConfig);
-                    immutableFieldData.setTypeName(type);
-                    parentIds.add(immutableFieldData);
+                    if (parentObject != null){
+                        ImmutableFieldData immutableFieldData = new ImmutableFieldData();
+                        immutableFieldData.setValue(parentObject);
+                        immutableFieldData.setСonfig(fieldConfig);
+                        immutableFieldData.setTypeName(type);
+                        parentIds.add(immutableFieldData);
+                    }
                 }
             }
         }

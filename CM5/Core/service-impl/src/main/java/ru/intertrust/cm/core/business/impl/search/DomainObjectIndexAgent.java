@@ -242,7 +242,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
                 }
                 if (parentConfig != null) {
                     List<ReferenceValue> values = doelEvaluator.evaluate(
-                            DoelExpression.parse(parentConfig.getDoel()), objectId, accessToken);
+                            DoelExpression.parse(parentConfig.getDoel()), id, accessToken);
                     refs.addAll(values);
                 }
             }

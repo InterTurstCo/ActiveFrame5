@@ -174,6 +174,8 @@ public class BusinessUniverseConstants {
     public static final String COULD_NOT_EXECUTE_ACTION_DURING_UPLOADING_FILES = "Could not execute action during uploading files";
     public static final String MOVE_COLUMN_HINT = "Нажмите и потяните для перемещения колонки";
     public static final String RESIZE_COLUMN_HINT = "Нажмите и потяните для изменения размера колонки";
+    public static final String ADD_PLUGIN_FILES = "Добавьте файлы плагинов:";    
+    
     private BusinessUniverseConstants() {
     }
 }

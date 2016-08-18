@@ -4,7 +4,7 @@
 
     <groupId>ru.intertrust.cm-sochi</groupId>
     <artifactId>cm-sochi</artifactId>
-    <version>0.5.21-4-SNAPSHOT</version>
+    <version>0.5.21-12-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>CompanyMedia 4/5</name>
     <description>CompanyMedia 4/5. Корневой модуль для сборки проекта.</description>
@@ -17,6 +17,7 @@
         <module>Client</module>
         <module>GlobalCache</module>
         <module>test-module</module>
+        <module>deployment-tool</module>
         <module>crypto-pro-service</module>
         <module>bouncycastle-crypto-service</module>
         <module>pdf-cnv-loffice-impl</module>

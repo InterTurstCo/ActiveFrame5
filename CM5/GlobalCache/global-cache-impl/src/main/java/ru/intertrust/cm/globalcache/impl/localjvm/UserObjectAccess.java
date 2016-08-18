@@ -49,7 +49,12 @@ public class UserObjectAccess implements Sizeable {
 
     }
 
-    public void setAccess(UserSubject user, Id objectId, boolean accessGranted) {
+    public void setAccess(UserSubject user, Id objectId, Boolean accessGranted) {
+        if (accessGranted == null) {
+            clearAccess(user, objectId);
+            return;
+        }
+
         Record record = new Record(user, objectId);
         //synchronized (record.getLock()) { // todo - correct lock impl for async cache
         if (access.containsKey(record)) {

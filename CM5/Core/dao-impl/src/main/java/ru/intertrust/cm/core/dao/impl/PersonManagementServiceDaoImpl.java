@@ -6,13 +6,11 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Реализация сервиса вхождения управления пользователями и группами
@@ -33,6 +31,9 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
 
     @Autowired
     private IdentifiableObjectConverter identifiableObjectConverter;
+
+    @Autowired
+    private GlobalCacheManager globalCacheManager;
 
     public void setAccessControlService(AccessControlService accessControlService) {
         this.accessControlService = accessControlService;
@@ -172,13 +173,27 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
     @Override
     public List<DomainObject> getChildGroups(Id parent) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+        if (globalCacheManager.isEnabled()) {
+            final List<DomainObject> groupGroupSettings = domainObjectDao.findLinkedDomainObjects(parent, "group_group_settings", "parent_group_id", accessToken);
+            if (groupGroupSettings == null || groupGroupSettings.isEmpty()) {
+                return Collections.emptyList();
+            }
+            ArrayList<Id> childGroupIds = new ArrayList<>(groupGroupSettings.size());
+            for (DomainObject groupGroupSetting : groupGroupSettings) {
+                final Id childGroupId = groupGroupSetting.getReference("child_group_id");
+                if (childGroupId != null) {
+                    childGroupIds.add(childGroupId);
+                }
+            }
+            return domainObjectDao.find(childGroupIds, accessToken);
+        } else {
+            Filter filter = new Filter();
+            filter.setFilter("byParent");
+            filter.addCriterion(0, new ReferenceValue(parent));
 
-        Filter filter = new Filter();
-        filter.setFilter("byParent");
-        filter.addCriterion(0, new ReferenceValue(parent));
-
-        return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
-                Collections.singletonList(filter), null, 0, 0, accessToken));
+            return identifiableObjectConverter.convertToDomainObjectList(collectionsDao.findCollection("ChildGroups",
+                    Collections.singletonList(filter), null, 0, 0, accessToken));
+        }
     }
 
     @Override
@@ -209,6 +224,19 @@ public class PersonManagementServiceDaoImpl implements PersonManagementServiceDa
         groupGroup.setReference("child_group_id", child);
         AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
         domainObjectDao.save(groupGroup, accessToken);
+    }
+
+    @Override
+    public void addGroupsToGroup(Id parent, Collection<Id> children) {
+        ArrayList<DomainObject> groupGroupSettings = new ArrayList<>(children.size());
+        for (Id child : children) {
+            DomainObject groupGroup = createDomainObject("group_group_settings");
+            groupGroup.setReference("parent_group_id", parent);
+            groupGroup.setReference("child_group_id", child);
+            groupGroupSettings.add(groupGroup);
+        }
+        AccessToken accessToken = accessControlService.createSystemAccessToken("PersonManagementService");
+        domainObjectDao.save(groupGroupSettings, accessToken);
     }
 
     @Override

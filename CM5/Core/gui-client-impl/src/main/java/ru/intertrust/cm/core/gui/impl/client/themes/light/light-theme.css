@@ -1103,6 +1103,26 @@ table.form-panel-header .gwt-Red-Label {
     text-overflow: ellipsis;
 }
 
+.body-popup-plugin-meneger
+.dialog-box-content {
+    background: #c2e7f0;
+    background: -moz-linear-gradient(top, #c2e7f0 0, #b4c1d4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #c2e7f0), color-stop(100%, #b4c1d4));
+    background: -webkit-linear-gradient(top, #c2e7f0 0, #b4c1d4 100%);
+    background: -o-linear-gradient(top, #c2e7f0 0, #b4c1d4 100%);
+    background: -ms-linear-gradient(top, #c2e7f0 0, #b4c1d4 100%);
+    filter: progid\: DXImageTransform\.Microsoft\.gradient\( startColorstr\= "#c2e7f0", endColorstr\= "#b4c1d4", GradientType\= 0 \);
+}
+
+.cellTable th {
+    padding: 7px 15px 7px 15px;
+    background: #ebf5fe;
+    border-bottom: none;
+}
+
+.cellTable th:not\(:last-child\) {
+    border-right: 2px solid white;
+}
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;

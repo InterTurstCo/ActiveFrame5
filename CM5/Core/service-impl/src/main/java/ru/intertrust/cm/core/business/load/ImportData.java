@@ -130,14 +130,14 @@ public class ImportData {
                     if (lineNum > 0 && record.size() > 0 && record.get(0).trim().toUpperCase().startsWith(ImportDataService.TYPE_NAME + "=")) {
                         commitTransaction(transaction);
 
+                        deleteOther(transaction);
+
                         lineNum = 0;
                         typeName = null;
                         keys = null;
                         fields = null;
                         emptyStringSymbol = null;
                         deleteOther = false;                        
-                        
-                        deleteOther(transaction);
                     }
 
                     //Первые две строки это метаданные
@@ -300,9 +300,9 @@ public class ImportData {
             //Удаление лишних записей
             if (toDeleteIds.size() > 0) {
                 int rows = 0;
-                for (IdentifiableObject row : collection) {
+                for (Id id : toDeleteIds) {
                     beginTransactionIfNeed(transaction, rows);
-                    domainObjectDao.delete(row.getId(), getDeleteAccessToken(row.getId()));
+                    domainObjectDao.delete(id, getDeleteAccessToken(id));
                     commitTransactionIfNeed(transaction, rows);
                     rows++;
                 }

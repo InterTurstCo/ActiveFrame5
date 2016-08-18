@@ -461,6 +461,54 @@
         
     </context-role>
 
+    <access-matrix type="test_type_29">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                 <permit-role name="test_type_29_author" />
+            </read>
+            <write>
+                <permit-role name="test_type_29_author" />
+            </write>
+            <create-child type="test_type_30">
+                <permit-role name="test_type_29_author" />
+            </create-child>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="test_type_30">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                 <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+        </status>
+    </access-matrix>
+
+    <context-role name="test_type_29_author">
+        <context>
+            <domain-object type="test_type_29"/>
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>author</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+        
+    </context-role>
+
     <access-matrix type="letter">
         <create>
             <permit-group name="AllPersons" />

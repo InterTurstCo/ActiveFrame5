@@ -589,3 +589,142 @@ div.delete-btn-table-viewer {
 .panel-hide {
     display: none;
 }
+
+.wrapPluginManager {
+    margin: 15px;
+}
+
+.wrapPluginManager
+.attachmentPluginButtonsPanel {
+    width: 50%;
+}
+
+.cellTable th {
+    border-bottom: 2px solid #6f7277;
+    padding: 3px 15px;
+    color: #4b4a4a;
+    text-shadow: #ddf 1px 1px 0;
+    overflow: hidden;
+    text-align: center;
+    text-transform: capitalize;
+}
+
+.cellTable {
+    margin-top: 5px;
+}
+
+.wrapPluginManager .gwt-Button {
+    display: inline-block;
+    margin: 10px 5px 10px 5px;
+    padding: 6px 9px;
+    border: 1px solid #016cad;
+    border-radius: 3px;
+    background: #0874b6;
+    background: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/Pgo8c3ZnIHhtbG5zPSJod…EiIGhlaWdodD0iMSIgZmlsbD0idXJsKCNncmFkLXVjZ2ctZ2VuZXJhdGVkKSIgLz4KPC9zdmc+);
+    background: -moz-linear-gradient(top, #0874b6 0%, #016cad 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #0874b6), color-stop(100%, #016cad));
+    background: -webkit-linear-gradient(top, #0874b6 0%, #016cad 100%);
+    background: -o-linear-gradient(top, #0874b6 0%, #016cad 100%);
+    background: -ms-linear-gradient(top, #0874b6 0%, #016cad 100%);
+    background: linear-gradient(to bottom, #0874b6 0%, #016cad 100%);
+    color: #f1f1f1;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0874b6', endColorstr='#016cad', GradientType=0);
+    cursor: pointer;
+}
+
+.wrapPluginManager .gwt-Button:hover {
+    border: 1px solid #0874b6;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    color: #ffffff;
+    text-shadow: none;
+}
+
+.wrapPluginManager .gwt-Button:active {
+    background: #0874b6;
+    background: -webkit-linear-gradient(top, #0d7bbe, #0874b6);
+    background: linear-gradient(top, #0d7bbe, #0874b6);
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    color: rgba(255, 255, 255, 0.8);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#0d7bbe, endColorstr=#0874b6, GradientType=1) /*#eeeeee*/;
+}
+
+button.btn-perform {
+    background: url("resources/defaulttheme/images/icons/icon-perform.png") no-repeat;
+    background-size: 16px;
+    background-position: center;
+}
+
+button.btn-perform-disabled.add-btn-table-viewer {
+    background: url("resources/defaulttheme/images/icons/icon-perform-disable.png") no-repeat;
+    background-size: 16px;
+    background-position: center;
+    cursor: auto;
+}
+
+button.btn-perform-disabled.add-btn-table-viewer:hover {
+    border: 1px solid #dfe2e5;
+    box-shadow: none;
+}
+
+button.btn-update {
+    background: url("resources/defaulttheme/images/icons/iconRefresh.png") no-repeat;
+    background-size: 15px;
+    background-position: center;
+}
+
+.wrapPluginManager
+.facebook-main-box:empty {
+    display: none !important;
+}
+
+[class*="cellTableKeyboardSelectedRow"] {
+    background: #FFC !important;
+}
+
+[class*="cellTableKeyboardSelectedRowCell"] {
+    border: 2px solid #FFC !important;
+}
+
+[class*="cellTableKeyboardSelectedCell"] {
+    border: 2px solid #d7dde8 !important;
+}
+
+[class*="cellTableWidget"] {
+    border-collapse: separate !important;
+}
+
+.cellTable th:not(:last-child) {
+    border-right: 2px solid transparent;
+}
+
+.start-time,
+.finish-time {
+    white-space: nowrap;
+}
+
+.download-log button {
+    margin: 5px;
+    width: 27px;
+    height: 27px;
+    border: 1px solid #dfe2e5;
+    border-radius: 3px;
+    background: url("resources/defaulttheme/images/icons/icon-log.png") no-repeat;
+    background-size: 18px;
+    background-position: center;
+    background-color: #f5f5f5;
+}
+
+.download-log button:hover {
+    cursor: pointer;
+    border: 1px solid #d6d9dc;
+    -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, .15);
+}
+
+.download-log button:active {
+    -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+    box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
+}

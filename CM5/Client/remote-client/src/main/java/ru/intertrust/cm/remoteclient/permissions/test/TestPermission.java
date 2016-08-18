@@ -637,6 +637,25 @@ public class TestPermission extends ClientBase {
             test24.setString("name", "_" + System.currentTimeMillis());
             test24 = notAdminCrudservice.save(test24);
             
+            //CMFIVE-6007
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            DomainObject test29 = notAdminCrudservice.createDomainObject("test_type_29");
+            test29.setString("name", "_" + System.currentTimeMillis());
+            test29.setReference("author", getPersonId("person5"));
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            test29 = notAdminCrudservice.save(test29);
+            
+            DomainObject test30 = notAdminCrudservice.createDomainObject("test_type_30");
+            test30.setString("name", "_" + System.currentTimeMillis());
+            test30.setReference("test_type_29", test29.getId());
+            notAdminCrudservice.save(test30);
+            
+            DomainObject test30_1 = notAdminCrudservice.createDomainObject("test_type_30");
+            test30_1.setString("name", "_" + System.currentTimeMillis());
+            notAdminCrudservice.save(test30_1);
+            
+            log("Test  CMFIVE-6007: OK");             
+            
             log("Test complete");
         } finally {
             writeLog();

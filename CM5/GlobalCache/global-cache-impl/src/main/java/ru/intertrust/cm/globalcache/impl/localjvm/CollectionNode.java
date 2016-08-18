@@ -12,11 +12,21 @@ import ru.intertrust.cm.globalcache.api.util.Sizeable;
  */
 public class CollectionNode implements Sizeable {
     private IdentifiableObjectCollection collection;
+    private int count;
     private long timeRetrieved;
     private Size size;
 
     public CollectionNode(IdentifiableObjectCollection collection, long timeRetrieved) {
+        this(collection, collection.size(), timeRetrieved);
+    }
+
+    public CollectionNode(int count, long timeRetrieved) {
+        this(null, count, timeRetrieved);
+    }
+
+    private CollectionNode(IdentifiableObjectCollection collection, int count, long timeRetrieved) {
         this.collection = collection;
+        this.count = count;
         this.timeRetrieved = timeRetrieved;
         this.size = new Size(SizeEstimator.estimateSize(this));
     }
@@ -27,6 +37,10 @@ public class CollectionNode implements Sizeable {
 
     public long getTimeRetrieved() {
         return timeRetrieved;
+    }
+
+    public int getCount() {
+        return count;
     }
 
     @Override
