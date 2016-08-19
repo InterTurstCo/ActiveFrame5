@@ -64,10 +64,20 @@
         <filter name="byOrganization">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                   d.organization = {0}
+                   d.organization = {0} AND parent_department IS NULL
                 ]]>
             </criteria>
         </filter>
+
+        <filter name="bySubDepartment">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                   parent_department = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+
 
     </collection>
 

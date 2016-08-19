@@ -11,6 +11,7 @@
         <fields>
             <string name="name" length="256" />
             <reference name="organization" type="hp_organization"/>
+            <reference name="parent_department" type="hp_departments"/>
         </fields>
     </domain-object-type>
 

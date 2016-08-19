@@ -91,4 +91,10 @@ public class HierarchyPluginHandler extends PluginHandler {
         pData.setCollectionRowItems(items);
         return pData;
     }
+
+    public HierarchyPluginData savePluginHistory(Dto request){
+        HierarchyPluginData pData = (HierarchyPluginData)request;
+
+        return pData;
+    }
 }

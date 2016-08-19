@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
@@ -14,6 +15,9 @@ import ru.intertrust.cm.core.config.gui.navigation.PluginConfig;
 @Root(name = "hierarchy-plugin")
 public class HierarchyPluginConfig extends PluginConfig {
     private static final String COMPONENT_NAME = "hierarchy.plugin";
+
+    @Attribute(name = "pid", required = true)
+    private String pid;
 
     @Element(name = "hierarchy-group",required = true)
     private HierarchyGroupConfig hierarchyGroupConfig;
@@ -54,4 +58,12 @@ public class HierarchyPluginConfig extends PluginConfig {
         return result;
     }
     public HierarchyPluginConfig(){}
+
+    public String getPid() {
+        return pid;
+    }
+
+    public void setPid(String pid) {
+        this.pid = pid;
+    }
 }

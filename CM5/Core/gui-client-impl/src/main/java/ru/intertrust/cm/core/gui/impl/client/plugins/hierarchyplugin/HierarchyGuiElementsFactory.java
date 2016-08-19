@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Widget;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeStateEvent;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
 
 /**
@@ -20,7 +21,7 @@ import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
  */
 public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
 
-    public Widget buildExpandCell(final EventBus anEventBus, final Id aParentId) {
+    public Widget buildExpandCell(final EventBus aCommonEventBus, final EventBus anEventBus, final Id aParentId, final String aViewID, final String aParentViewId) {
         final Image image = new Image(GlobalThemesManager.getCurrentTheme().chevronRight());
         image.addClickHandler(new ClickHandler() {
             Boolean ex = false;
@@ -35,6 +36,7 @@ public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
                     anEventBus.fireEvent(new ExpandHierarchyEvent(true,aParentId));
                 }
                 ex = !ex;
+                aCommonEventBus.fireEvent(new NodeStateEvent(ex,aViewID,aParentViewId));
             }
         });
         return image;

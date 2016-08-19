@@ -590,7 +590,7 @@
                 </link>
                 <link name="Plugin_manager" display-text="Плагины">
                     <plugin>
-                        <custom name="plugin.manager.plugin"/>                    
+                        <custom name="plugin.manager.plugin"/>
                     </plugin>
                 </link>
             </child-links>
@@ -1526,7 +1526,7 @@
             <child-links>
                 <link name="HPlugin" display-text="Иерархический плагин (прототип)">
                     <plugin>
-                        <hierarchy-plugin>
+                        <hierarchy-plugin pid="org_plugin">
                             <hierarchy-group gid="G_Org" name="Организации">
                                 <hierarchy-collection cid="C_Org">
                                     <hierarchy-collection-view collection-view="v_hp_organizations"/>
@@ -1541,7 +1541,8 @@
                                                     <collection-ref name="c_hp_dep_position"/>
                                                     <hierarchy-group gid="G_Apn" name="Назначения">
                                                         <hierarchy-collection cid="C_Apn">
-                                                            <hierarchy-collection-view collection-view="v_hp_pos_appointments"/>
+                                                            <hierarchy-collection-view
+                                                                    collection-view="v_hp_pos_appointments"/>
                                                             <collection-ref name="c_hp_pos_appointments"/>
                                                             <collection-extra-filters>
                                                                 <extra-filter name="byPosition"/>
@@ -1553,6 +1554,32 @@
                                                     </collection-extra-filters>
                                                 </hierarchy-collection>
                                             </hierarchy-group>
+                                            <hierarchy-collection cid="C_Sub_Dep_Level_1">
+                                                <hierarchy-collection-view collection-view="v_hp_departments"/>
+                                                <collection-ref name="c_hp_departments"/>
+                                                <hierarchy-group gid="G_Pos" name="ШД">
+                                                    <hierarchy-collection cid="C_Pos">
+                                                        <hierarchy-collection-view collection-view="v_hp_dep_position"/>
+                                                        <collection-ref name="c_hp_dep_position"/>
+                                                        <hierarchy-group gid="G_Apn" name="Назначения">
+                                                            <hierarchy-collection cid="C_Apn">
+                                                                <hierarchy-collection-view
+                                                                        collection-view="v_hp_pos_appointments"/>
+                                                                <collection-ref name="c_hp_pos_appointments"/>
+                                                                <collection-extra-filters>
+                                                                    <extra-filter name="byPosition"/>
+                                                                </collection-extra-filters>
+                                                            </hierarchy-collection>
+                                                        </hierarchy-group>
+                                                        <collection-extra-filters>
+                                                            <extra-filter name="byDepartment"/>
+                                                        </collection-extra-filters>
+                                                    </hierarchy-collection>
+                                                </hierarchy-group>
+                                                <collection-extra-filters>
+                                                    <extra-filter name="bySubDepartment"/>
+                                                </collection-extra-filters>
+                                            </hierarchy-collection>
                                             <collection-extra-filters>
                                                 <extra-filter name="byOrganization"/>
                                             </collection-extra-filters>

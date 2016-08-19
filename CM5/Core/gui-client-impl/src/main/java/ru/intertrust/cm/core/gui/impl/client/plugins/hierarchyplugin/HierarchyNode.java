@@ -28,6 +28,8 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
     protected HierarchyGuiFactory guiFactory;
     protected Boolean expanded = false;
     protected Id parentId;
+    protected String viewID;
+    protected String parentViewID;
 
 
 
@@ -48,10 +50,10 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
         if (expanded) {
             for (HierarchyGroupConfig group : (groupConfig!=null)?groupConfig.getHierarchyGroupConfigs():collectionConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus));
+                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus,getViewID()));
             }
             for (HierarchyCollectionConfig collection : (groupConfig!=null)?groupConfig.getHierarchyCollectionConfigs():collectionConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus));
+                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus,getViewID()));
             }
         } else {
             childPanel.clear();
@@ -59,5 +61,21 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
 
         childPanel.setVisible(expanded);
+    }
+
+    public String getViewID() {
+        return viewID;
+    }
+
+    public void setViewID(String viewID) {
+        this.viewID = viewID;
+    }
+
+    public String getParentViewID() {
+        return parentViewID;
+    }
+
+    public void setParentViewID(String parentViewID) {
+        this.parentViewID = parentViewID;
     }
 }

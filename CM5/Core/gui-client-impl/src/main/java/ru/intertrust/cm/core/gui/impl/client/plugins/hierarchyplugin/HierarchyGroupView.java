@@ -8,6 +8,7 @@ import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGrou
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeCreatedEvent;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,7 +22,7 @@ public class HierarchyGroupView extends HierarchyNode
 
 
 
-    public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus) {
+    public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String aParentViewId) {
         super();
         commonBus = aCommonBus;
         parentId = aParentId;
@@ -29,11 +30,14 @@ public class HierarchyGroupView extends HierarchyNode
         rootPanel.addStyleName(STYLE_PARENT_PANEL);
         headerPanel.addStyleName(STYLE_HEADER_PANEL);
         childPanel.addStyleName(STYLE_CHILD_PANEL);
+        setViewID(aGroupConfig.getGid()+((parentId!=null)?"-"+parentId.toStringRepresentation():""));
+        parentViewID = aParentViewId;
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
         childPanel.setVisible(expanded);
         initWidget(rootPanel);
+        commonBus.fireEvent(new NodeCreatedEvent(getViewID()));
 
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
@@ -45,7 +49,7 @@ public class HierarchyGroupView extends HierarchyNode
         FlexTable.FlexCellFormatter cellFormatter = grid.getFlexCellFormatter();
         grid.addStyleName(STYLE_WRAP_PANEL);
 
-        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus,parentId));
+        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus,localBus,parentId, getViewID(), getParentViewID()));
 
         InlineHTML groupName = new InlineHTML("<b>" + groupConfig.getName() + "</b>");
         grid.setWidget(0, 1, groupName);

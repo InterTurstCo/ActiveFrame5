@@ -6,6 +6,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,6 +19,7 @@ public class HierarchyPluginData extends PluginData {
     private List<CollectionRowItem> collectionRowItems;
     private HierarchyRequest hierarchyRequest;
     private CollectionViewConfig collectionViewConfig;
+    private HierarchyHistoryNode openedNodeList;
 
     public List<CollectionRowItem> getCollectionRowItems() {
         if (collectionRowItems == null) {
@@ -44,5 +46,13 @@ public class HierarchyPluginData extends PluginData {
 
     public void setCollectionViewConfig(CollectionViewConfig collectionViewConfig) {
         this.collectionViewConfig = collectionViewConfig;
+    }
+
+    public HierarchyHistoryNode getOpenedNodeList() {
+        return openedNodeList;
+    }
+
+    public void setOpenedNodeList(HierarchyHistoryNode openedNodeList) {
+        this.openedNodeList = openedNodeList;
     }
 }

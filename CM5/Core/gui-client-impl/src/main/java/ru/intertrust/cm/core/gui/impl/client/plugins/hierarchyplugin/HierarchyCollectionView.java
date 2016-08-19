@@ -24,7 +24,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     private CollectionViewConfig collectionViewConfig;
 
 
-    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig, EventBus aCommmonBus) {
+    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig, EventBus aCommmonBus,String aParentViewId) {
         super();
         commonBus = aCommmonBus;
         collectionViewConfig = aCollectionViewConfig;
@@ -38,7 +38,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
                 collectionConfig.getHierarchyCollectionConfigs().size() > 0) {
             expandable = true;
         }
-
+        setViewID(rowItem.getId().toStringRepresentation());
+        parentViewID = aParentViewId;
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
@@ -53,6 +54,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             }
         }, ClickEvent.getType());
 
+        commonBus.fireEvent(new NodeCreatedEvent(getViewID()));
+
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
         commonBus.addHandler(CancelSelectionEvent.TYPE, this);
@@ -64,7 +67,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         FlexTable grid = new FlexTable();
         grid.addStyleName(STYLE_REPRESENTATION_CELL);
         if (expandable) {
-            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(localBus, rowItem.getId()));
+            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus,localBus, rowItem.getId(), getViewID(), getParentViewID()));
         }
 
         int columnIndex = 1;

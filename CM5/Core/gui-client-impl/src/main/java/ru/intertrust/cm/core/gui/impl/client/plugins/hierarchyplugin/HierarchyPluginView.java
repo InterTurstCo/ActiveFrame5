@@ -32,7 +32,7 @@ public class HierarchyPluginView extends PluginView implements HierarchyPluginCo
     public IsWidget getViewWidget() {
         HorizontalPanel rootPanel = new HorizontalPanel();
         rootPanel.addStyleName(STYLE_WRAP_WIDGET);
-        rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig(),null,commonBus));
+        rootPanel.add(guiFactory.buildGroup(((HierarchyPluginConfig)plugin.getConfig()).getHierarchyGroupConfig(),null,commonBus,null));
         return rootPanel;
     }
 }

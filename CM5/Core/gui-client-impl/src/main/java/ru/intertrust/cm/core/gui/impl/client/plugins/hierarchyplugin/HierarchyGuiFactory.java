@@ -28,8 +28,8 @@ import java.util.List;
  */
 public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
-    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus) {
-        return new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus);
+    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String parentViewId) {
+        return new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus, parentViewId);
     }
 
     /**
@@ -38,7 +38,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus) {
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus, final String parentViewId) {
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
@@ -76,7 +76,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRowItems();
                 if (collectionRowItems.size() != 0) {
                     for (CollectionRowItem rItem : collectionRowItems) {
-                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig(),aCommonBus));
+                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig(),aCommonBus, parentViewId));
                     }
                 }
 

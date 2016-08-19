@@ -9,24 +9,24 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
  */
 public interface HierarchyPluginConstants {
 
-    public static final String PLUGIN_COMPONENT_NAME = "hierarchy.plugin";
-    public static final String GET_COL_ROWS_METHOD_NAME = "getCollectionItems";
-    public static final String STYLE_WRAP_WIDGET = "wrapWidget";
-    public static final String STYLE_WRAP_PANEL = "wrapPanel";
-    public static final String STYLE_PARENT_PANEL = "parentPanel";
-    public static final String STYLE_HEADER_PANEL = "headerPanel";
-    public static final String STYLE_CHILD_PANEL = "childPanel";
-    public static final String STYLE_GROUP_NAME = "groupName";
-    public static final String STYLE_REPRESENTATION_CELL = "representationCell";
-    public static final String STYLE_WRAP_CELL = "wrapCell";
-    public static final String STYLE_FOCUS_WRAP_CELL = "focusWrapCell";
-    public static final String STYLE_HEADER_CELL = "headerCell";
-    public static final String STYLE_CHILD_CELL = "childCell";
-    public static final String STYLE_FIELD_NAME = "fieldName";
-    public static final String STYLE_FIELD_VALUE = "fieldValue";
-    public static final String REF_TYPE_NAME = "reference";
+    String PLUGIN_COMPONENT_NAME = "hierarchy.plugin";
+    String GET_COL_ROWS_METHOD_NAME = "getCollectionItems";
+    String STYLE_WRAP_WIDGET = "wrapWidget";
+    String STYLE_WRAP_PANEL = "wrapPanel";
+    String STYLE_PARENT_PANEL = "parentPanel";
+    String STYLE_HEADER_PANEL = "headerPanel";
+    String STYLE_CHILD_PANEL = "childPanel";
+    String STYLE_GROUP_NAME = "groupName";
+    String STYLE_REPRESENTATION_CELL = "representationCell";
+    String STYLE_WRAP_CELL = "wrapCell";
+    String STYLE_FOCUS_WRAP_CELL = "focusWrapCell";
+    String STYLE_HEADER_CELL = "headerCell";
+    String STYLE_CHILD_CELL = "childCell";
+    String STYLE_FIELD_NAME = "fieldName";
+    String STYLE_FIELD_VALUE = "fieldValue";
+    String REF_TYPE_NAME = "reference";
 
-    public enum Actions {
+    enum Actions {
         GROUPREFRESH("Обновить"),
         GROUPSORT("Сортировать"),
         GROUPADD("Добавить");
@@ -40,5 +40,9 @@ public interface HierarchyPluginConstants {
         public String toString(){
             return tooltip;
         }
+    }
+
+    enum NodeType {
+        GROUP, ROW
     }
 }
