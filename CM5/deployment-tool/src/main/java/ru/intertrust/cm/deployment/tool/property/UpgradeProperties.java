@@ -45,6 +45,14 @@ public class UpgradeProperties {
     private String jbossPassword;
 
     @NotEmpty
+    @Value("${jboss.cli.controller}")
+    private String jbossCliController;
+
+    @NotEmpty
+    @Value("${jboss.cli.port}")
+    private String jbossCliPort;
+
+    @NotEmpty
     @Value("${server.properties}")
     private String serverProperties;
 
@@ -127,6 +135,14 @@ public class UpgradeProperties {
         return jbossPassword;
     }
 
+    public String getJbossCliController() {
+        return jbossCliController;
+    }
+
+    public String getJbossCliPort() {
+        return jbossCliPort;
+    }
+
     public String getServerProperties() {
         return serverProperties;
     }
@@ -193,6 +209,8 @@ public class UpgradeProperties {
         sb.append(", jbossAdminPort='").append(jbossAdminPort).append('\'');
         sb.append(", jbossUser='").append(jbossUser).append('\'');
         sb.append(", jbossPassword='").append(jbossPassword).append('\'');
+        sb.append(", jbossCliController='").append(jbossCliController).append('\'');
+        sb.append(", jbossCliPort='").append(jbossCliPort).append('\'');
         sb.append(", serverProperties='").append(serverProperties).append('\'');
         sb.append(", postgresHome='").append(postgresHome).append('\'');
         sb.append(", dbHost='").append(dbHost).append('\'');
