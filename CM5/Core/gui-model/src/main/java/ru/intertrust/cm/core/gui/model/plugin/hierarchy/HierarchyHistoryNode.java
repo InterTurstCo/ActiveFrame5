@@ -9,6 +9,9 @@ import java.util.Objects;
 
 /**
  * Элемент хранения состояния узла для истории виджета.
+ * Умеет рекурсивно добавлять дочерние узлы по паренту, удалять узлы.
+ * При удалении сравнивается не только Id узла но и парент т.к. строка из
+ * одной и тойже коллекции может быть в разных группах.
  * Created by IntelliJ IDEA.
  * Developer: Ravil Abdulkhairov
  * Date: 18.08.2016
@@ -27,11 +30,6 @@ public class HierarchyHistoryNode implements Dto {
         nodeId = anId;
         parentId = aParentId;
         children = new ArrayList<HierarchyHistoryNode>();
-    }
-
-
-    public Collection<HierarchyHistoryNode> getChildren() {
-        return children;
     }
 
     public void add(HierarchyHistoryNode newNode){
@@ -93,9 +91,6 @@ public class HierarchyHistoryNode implements Dto {
         return nodeId;
     }
 
-    public void setNodeId(String nodeId) {
-        this.nodeId = nodeId;
-    }
 
     public String getParentId() {
         return parentId;
@@ -105,7 +100,4 @@ public class HierarchyHistoryNode implements Dto {
         this.parentId = parentId;
     }
 
-    public void setChildren(Collection<HierarchyHistoryNode> children) {
-        this.children = children;
-    }
-}
+   }

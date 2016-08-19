@@ -38,8 +38,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
                 collectionConfig.getHierarchyCollectionConfigs().size() > 0) {
             expandable = true;
         }
-        setViewID(rowItem.getId().toStringRepresentation());
         parentViewID = aParentViewId;
+        setViewID(rowItem.getId().toStringRepresentation()+"-"+parentViewID);
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
