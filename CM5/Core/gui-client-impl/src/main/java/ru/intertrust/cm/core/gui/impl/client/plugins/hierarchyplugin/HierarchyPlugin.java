@@ -54,6 +54,7 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
 
     @Override
     public void onNodeStateEvent(NodeStateEvent event) {
+        HierarchyHistoryManager hManager = new HierarchyHistoryManager();
         HierarchyPluginData pData = new HierarchyPluginData();
         if(event.isExpanded()){
             if(openedNodeList == null){
@@ -66,6 +67,8 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
         }
 
         pData.setOpenedNodeList(openedNodeList);
+        pData.setPluginId(((HierarchyPluginConfig)getConfig()).getPid());
+        hManager.saveHistory(pData);
     }
 
     @Override

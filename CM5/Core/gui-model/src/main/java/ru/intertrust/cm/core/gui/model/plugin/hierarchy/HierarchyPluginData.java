@@ -20,6 +20,7 @@ public class HierarchyPluginData extends PluginData {
     private HierarchyRequest hierarchyRequest;
     private CollectionViewConfig collectionViewConfig;
     private HierarchyHistoryNode openedNodeList;
+    private String pluginId;
 
     public List<CollectionRowItem> getCollectionRowItems() {
         if (collectionRowItems == null) {
@@ -54,5 +55,13 @@ public class HierarchyPluginData extends PluginData {
 
     public void setOpenedNodeList(HierarchyHistoryNode openedNodeList) {
         this.openedNodeList = openedNodeList;
+    }
+
+    public String getPluginId() {
+        return pluginId;
+    }
+
+    public void setPluginId(String pluginId) {
+        this.pluginId = pluginId;
     }
 }

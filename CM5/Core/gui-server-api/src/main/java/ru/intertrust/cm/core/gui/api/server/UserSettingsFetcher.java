@@ -13,4 +13,6 @@ public interface UserSettingsFetcher {
     }
 
     DomainObject getUserSettingsDomainObject(boolean lock);
+
+    DomainObject getUserHipSettingsDomainObject(String pId);
 }

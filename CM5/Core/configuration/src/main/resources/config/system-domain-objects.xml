@@ -88,6 +88,22 @@
             </index>
         </indices>
     </domain-object-type>
+
+    <!-- История состояния иерархического плагина -->
+    <domain-object-type name="bu_user_hip_settings" initial-status="Active">
+        <fields>
+            <reference name="person" type="person"/>
+            <text name="plugin_state_json"/>
+            <string name="plugin_id" length="128"/>
+        </fields>
+        <indices>
+            <index>
+                <field name="person"/>
+                <field name="plugin_id"/>
+            </index>
+        </indices>
+    </domain-object-type>
+
     <domain-object-type name="bu_nav_link_collection" initial-status="Active">
         <fields>
             <reference name="person" type="person"/>
@@ -150,6 +166,40 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     p.login = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="bu_user_hip_settings_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                    hs.id,
+                    hs.plugin_state_json,
+                    hs.plugin_id
+                    from bu_user_hip_settings hs
+                    inner join Person p on (p.id = hs.person)
+                    ::from-clause
+                    where 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from bu_user_hip_settings hs ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p.login = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byPid">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(hs.plugin_id) like upper({1})
                 ]]>
             </criteria>
         </filter>

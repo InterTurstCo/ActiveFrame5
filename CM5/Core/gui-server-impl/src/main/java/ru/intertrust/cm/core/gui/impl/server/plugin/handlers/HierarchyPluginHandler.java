@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.server.plugin.handlers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -10,6 +11,7 @@ import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.InitialFiltersConfig;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.UserSettingsFetcher;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
@@ -18,7 +20,9 @@ import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +39,12 @@ public class HierarchyPluginHandler extends PluginHandler {
 
     @Autowired
     private CollectionsService collectionsService;
+
+    @Autowired
+    private CrudService crudService;
+
+    @Autowired
+    private UserSettingsFetcher userSettingsFetcher;
 
     @Autowired
     private ConfigurationExplorer configurationService;
@@ -92,9 +102,13 @@ public class HierarchyPluginHandler extends PluginHandler {
         return pData;
     }
 
-    public HierarchyPluginData savePluginHistory(Dto request){
-        HierarchyPluginData pData = (HierarchyPluginData)request;
-
+    public HierarchyPluginData savePluginHistory(Dto request) {
+        HierarchyPluginData pData = (HierarchyPluginData) request;
+        DomainObject domainObject = userSettingsFetcher.getUserHipSettingsDomainObject(pData.getPluginId());
+        Gson gson = new GsonBuilder().create();
+        String jsonInString = gson.toJson(pData.getOpenedNodeList());
+        domainObject.setString("plugin_state_json",jsonInString);
+        crudService.save(domainObject);
         return pData;
     }
 }

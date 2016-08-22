@@ -45,6 +45,20 @@ public class UserSettingsFetcherImpl implements UserSettingsFetcher {
         return result;
     }
 
+    @Override
+    public DomainObject getUserHipSettingsDomainObject(String pId) {
+        DomainObject result;
+        IdentifiableObject identifiableObject = getUserSettingsIdentifiableObject(pId);
+        if (identifiableObject != null) {
+            result = crudService.find(identifiableObject.getId());
+        } else {
+            result = crudService.createDomainObject("bu_user_hip_settings");
+            result.setReference("person", currentUserAccessor.getCurrentUserId());
+            result.setString("plugin_id",pId);
+        }
+        return result;
+    }
+
     private IdentifiableObject getUserSettingsIdentifiableObject(final String userLogin,
                                                                  final CollectionsService collectionsService) {
         final List<Filter> filters = new ArrayList<>();
@@ -53,4 +67,15 @@ public class UserSettingsFetcherImpl implements UserSettingsFetcher {
                 collectionsService.findCollection("bu_user_settings_collection", null, filters);
         return collection.size() == 0 ? null : collection.get(0);
     }
+
+    private IdentifiableObject getUserSettingsIdentifiableObject(String pId) {
+        final List<Filter> filters = new ArrayList<>();
+        filters.add(Filter.create("byPerson", 0, new StringValue(currentUserAccessor.getCurrentUser())));
+        filters.add(Filter.create("byPid", 1, new StringValue(pId)));
+        final IdentifiableObjectCollection collection =
+                collectionsService.findCollection("bu_user_hip_settings_collection", null, filters);
+        return collection.size() == 0 ? null : collection.get(0);
+    }
+
+
 }
