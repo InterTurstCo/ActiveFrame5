@@ -23,6 +23,7 @@ public class HierarchyHistoryNode implements Dto {
     private String nodeId;
     private String parentId;
     private Collection<HierarchyHistoryNode> children;
+    private Boolean opened = false;
 
     public HierarchyHistoryNode(){}
 
@@ -50,13 +51,19 @@ public class HierarchyHistoryNode implements Dto {
         return null;
     }
 
-    public void remove(HierarchyHistoryNode newNode){
+    /**
+     *
+     * @param newNode
+     * @return true - если закрыт самый верхний уровень
+     */
+    public Boolean remove(HierarchyHistoryNode newNode){
         if(nodeId.equals(newNode.getNodeId()) && newNode.getParentId() == null){
             children.clear();
+            return true;
         } else {
             removeFromChildren(children,newNode);
+            return false;
         }
-
     }
 
     private void removeFromChildren(Collection children, HierarchyHistoryNode newNode){
@@ -100,4 +107,15 @@ public class HierarchyHistoryNode implements Dto {
         this.parentId = parentId;
     }
 
-   }
+    public Collection<HierarchyHistoryNode> getChildren() {
+        return children;
+    }
+
+    public Boolean isOpened() {
+        return opened;
+    }
+
+    public void setOpened(Boolean opened) {
+        this.opened = opened;
+    }
+}

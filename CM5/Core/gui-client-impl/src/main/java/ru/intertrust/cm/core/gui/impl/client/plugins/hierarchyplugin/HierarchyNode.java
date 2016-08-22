@@ -1,13 +1,14 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -16,7 +17,9 @@ import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarc
  * Time: 12:20
  * To change this template use File | Settings | File and Code Templates.
  */
-public abstract class HierarchyNode extends Composite implements ExpandHierarchyEventHandler,HierarchyPluginConstants {
+public abstract class HierarchyNode extends Composite implements ExpandHierarchyEventHandler,HierarchyPluginConstants,
+        AutoOpenEventHandler
+{
     protected HierarchyCollectionConfig collectionConfig;
     protected HierarchyGroupConfig groupConfig;
     protected EventBus localBus;
@@ -30,6 +33,7 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
     protected Id parentId;
     protected String viewID;
     protected String parentViewID;
+    protected Widget expandButton;
 
 
 
@@ -50,10 +54,14 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
         if (expanded) {
             for (HierarchyGroupConfig group : (groupConfig!=null)?groupConfig.getHierarchyGroupConfigs():collectionConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus,getViewID()));
+                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus,getViewID(),event.isAutoClick()));
             }
             for (HierarchyCollectionConfig collection : (groupConfig!=null)?groupConfig.getHierarchyCollectionConfigs():collectionConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus,getViewID()));
+                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus,getViewID(),event.isAutoClick()));
+            }
+            // Если внутри только группы. Иначе ивент генерится после загрузки коллекций
+            if(event.isAutoClick() && (collectionConfig==null || collectionConfig.getHierarchyCollectionConfigs().size()==0)){
+                    commonBus.fireEvent(new AutoOpenedEvent(getViewID()));
             }
         } else {
             childPanel.clear();
@@ -62,6 +70,8 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
         childPanel.setVisible(expanded);
     }
+
+
 
     public String getViewID() {
         return viewID;
@@ -77,5 +87,16 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
     public void setParentViewID(String parentViewID) {
         this.parentViewID = parentViewID;
+    }
+
+    protected static native void clickElement(Element elem) /*-{
+        elem.click();
+    }-*/;
+
+    @Override
+    public void onAutoOpenEvent(AutoOpenEvent autoOpenEvent) {
+        if (autoOpenEvent.getViewId().equals(getViewID())) {
+            clickElement(expandButton.getElement());
+        }
     }
 }

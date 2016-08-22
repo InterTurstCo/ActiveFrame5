@@ -18,10 +18,12 @@ import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyHistoryNode;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,11 +106,27 @@ public class HierarchyPluginHandler extends PluginHandler {
 
     public HierarchyPluginData savePluginHistory(Dto request) {
         HierarchyPluginData pData = (HierarchyPluginData) request;
+        String jsonInString;
         DomainObject domainObject = userSettingsFetcher.getUserHipSettingsDomainObject(pData.getPluginId());
         Gson gson = new GsonBuilder().create();
-        String jsonInString = gson.toJson(pData.getOpenedNodeList());
-        domainObject.setString("plugin_state_json",jsonInString);
+        if (pData.getOpenedNodeList() != null) {
+            jsonInString = gson.toJson(pData.getOpenedNodeList());
+        } else {
+            jsonInString = "";
+        }
+        domainObject.setString("plugin_state_json", jsonInString);
         crudService.save(domainObject);
+        return pData;
+    }
+
+    public HierarchyPluginData restorePluginHistory(Dto request) {
+        HierarchyPluginData pData = (HierarchyPluginData) request;
+        DomainObject domainObject = userSettingsFetcher.getUserHipSettingsDomainObject(pData.getPluginId());
+        if (domainObject.getString("plugin_state_json") != null && !domainObject.getString("plugin_state_json").isEmpty()) {
+            Gson gson = new GsonBuilder().create();
+            HierarchyHistoryNode openedNodes = gson.fromJson(domainObject.getString("plugin_state_json"), HierarchyHistoryNode.class);
+            pData.setOpenedNodeList(openedNodes);
+        }
         return pData;
     }
 }

@@ -1,14 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
+import com.google.gwt.dom.client.Element;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.ExpandHierarchyEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.HierarchyActionEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeCreatedEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,7 +19,6 @@ public class HierarchyGroupView extends HierarchyNode
         implements HierarchyActionEventHandler {
 
 
-
     public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String aParentViewId) {
         super();
         commonBus = aCommonBus;
@@ -30,7 +27,7 @@ public class HierarchyGroupView extends HierarchyNode
         rootPanel.addStyleName(STYLE_PARENT_PANEL);
         headerPanel.addStyleName(STYLE_HEADER_PANEL);
         childPanel.addStyleName(STYLE_CHILD_PANEL);
-        setViewID(aGroupConfig.getGid()+((parentId!=null)?"-"+parentId.toStringRepresentation():""));
+        setViewID(aGroupConfig.getGid() + ((parentId != null) ? "-" + parentId.toStringRepresentation() : ""));
         parentViewID = aParentViewId;
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
@@ -38,9 +35,10 @@ public class HierarchyGroupView extends HierarchyNode
         childPanel.setVisible(expanded);
         initWidget(rootPanel);
         commonBus.fireEvent(new NodeCreatedEvent(getViewID()));
-
+        commonBus.addHandler(AutoOpenEvent.TYPE, this);
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
+
     }
 
     @Override
@@ -49,7 +47,8 @@ public class HierarchyGroupView extends HierarchyNode
         FlexTable.FlexCellFormatter cellFormatter = grid.getFlexCellFormatter();
         grid.addStyleName(STYLE_WRAP_PANEL);
 
-        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus,localBus,parentId, getViewID(), getParentViewID()));
+        grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus, localBus, parentId, getViewID(), getParentViewID()));
+        expandButton = grid.getWidget(0, 0);
 
         InlineHTML groupName = new InlineHTML("<b>" + groupConfig.getName() + "</b>");
         grid.setWidget(0, 1, groupName);
@@ -61,8 +60,6 @@ public class HierarchyGroupView extends HierarchyNode
         cellFormatter.setStyleName(0, 1, STYLE_GROUP_NAME);
         container.add(grid);
     }
-
-
 
 
     @Override

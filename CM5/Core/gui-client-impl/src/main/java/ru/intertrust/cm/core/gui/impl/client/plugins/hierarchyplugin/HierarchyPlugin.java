@@ -6,10 +6,7 @@ import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyPlug
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeCreatedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeCreatedEventHandler;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeStateEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.NodeStateEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyHistoryNode;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
@@ -33,11 +30,16 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
 
     @Override
     public PluginView createView() {
-        HierarchyPluginConfig hierarchyPluginConfig = (HierarchyPluginConfig)getConfig();
-        return new HierarchyPluginView(this, eventBus);
+        HierarchyPluginConfig hierarchyPluginConfig = (HierarchyPluginConfig) getConfig();
+        HierarchyPluginView pView = new HierarchyPluginView(this, eventBus);
+        HierarchyHistoryManager hManager = new HierarchyHistoryManager();
+        HierarchyPluginData pData = new HierarchyPluginData();
+        pData.setPluginId(((HierarchyPluginConfig) getConfig()).getPid());
+        hManager.restoreHistory(pData, pView, eventBus);
+        return pView;
     }
 
-    public HierarchyPlugin(){
+    public HierarchyPlugin() {
         super();
         eventBus.addHandler(NodeStateEvent.TYPE, this);
         eventBus.addHandler(NodeCreatedEvent.TYPE, this);
@@ -56,23 +58,26 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
     public void onNodeStateEvent(NodeStateEvent event) {
         HierarchyHistoryManager hManager = new HierarchyHistoryManager();
         HierarchyPluginData pData = new HierarchyPluginData();
-        if(event.isExpanded()){
-            if(openedNodeList == null){
+        if (event.isExpanded()) {
+            if (openedNodeList == null) {
                 openedNodeList = new HierarchyHistoryNode(event.getViewID(), event.getParentViewID());
             } else {
                 openedNodeList.add(new HierarchyHistoryNode(event.getViewID(), event.getParentViewID()));
             }
+
         } else {
-            openedNodeList.remove(new HierarchyHistoryNode(event.getViewID(), event.getParentViewID()));
+            if (openedNodeList.remove(new HierarchyHistoryNode(event.getViewID(), event.getParentViewID()))) {
+                openedNodeList = null;
+            }
         }
 
         pData.setOpenedNodeList(openedNodeList);
-        pData.setPluginId(((HierarchyPluginConfig)getConfig()).getPid());
-        hManager.saveHistory(pData);
+        pData.setPluginId(((HierarchyPluginConfig) getConfig()).getPid());
+        //hManager.saveHistory(pData);
     }
 
     @Override
     public void onNodeCreatedEvent(NodeCreatedEvent event) {
-        existedNodeList.put(event.getViewId(),true);
+        existedNodeList.put(event.getViewId(), true);
     }
 }

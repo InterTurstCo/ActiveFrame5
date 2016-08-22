@@ -14,10 +14,12 @@ public class ExpandHierarchyEvent extends GwtEvent<ExpandHierarchyEventHandler> 
     public static final Type<ExpandHierarchyEventHandler> TYPE = new Type<>();
     private Boolean expand;
     private Id parentId;
+    private Boolean autoClick;
 
-    public ExpandHierarchyEvent(Boolean anExpand, Id aParentId){
+    public ExpandHierarchyEvent(Boolean anExpand, Id aParentId, Boolean isAutoClick){
         expand = anExpand;
         parentId = aParentId;
+        autoClick = isAutoClick;
     }
 
     @Override
@@ -40,5 +42,9 @@ public class ExpandHierarchyEvent extends GwtEvent<ExpandHierarchyEventHandler> 
 
     public void setParentId(Id parentId) {
         this.parentId = parentId;
+    }
+
+    public Boolean isAutoClick() {
+        return autoClick;
     }
 }

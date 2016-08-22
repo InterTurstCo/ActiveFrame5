@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.ExtraParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.ExtraFilterConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.AutoOpenedEvent;
 import ru.intertrust.cm.core.gui.model.Command;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
@@ -28,8 +29,9 @@ import java.util.List;
  */
 public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
-    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String parentViewId) {
-        return new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus, parentViewId);
+    public Widget buildGroup(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String parentViewId, Boolean autoClick) {
+        HierarchyGroupView grView = new HierarchyGroupView(aGroupConfig, aParentId, aCommonBus, parentViewId);
+        return grView;
     }
 
     /**
@@ -38,7 +40,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus, final String parentViewId) {
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus, final String parentViewId, final Boolean autoClick) {
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
@@ -47,7 +49,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
         if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
             for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
-                if (extraFilterConfig.getParamConfigs() == null || extraFilterConfig.getParamConfigs().size()==0) {
+                if (extraFilterConfig.getParamConfigs() == null || extraFilterConfig.getParamConfigs().size() == 0) {
                     ExtraParamConfig eXtraParamConfig = new ExtraParamConfig();
                     eXtraParamConfig.setName(0);
                     eXtraParamConfig.setType(REF_TYPE_NAME);
@@ -76,19 +78,21 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
                 List<CollectionRowItem> collectionRowItems = collectionRowsResponse.getCollectionRowItems();
                 if (collectionRowItems.size() != 0) {
                     for (CollectionRowItem rItem : collectionRowItems) {
-                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig(),aCommonBus, parentViewId));
+                        lines.add(new HierarchyCollectionView(aCollectionConfig, rItem, collectionRowsResponse.getCollectionViewConfig(), aCommonBus, parentViewId));
                     }
                 }
 
                 if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
                     for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
                         if (extraFilterConfig.getParamConfigs() != null) {
-                            if(extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)){
+                            if (extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)) {
                                 extraFilterConfig.getParamConfigs().clear();
                             }
                         }
                     }
                 }
+                if(autoClick){
+                aCommonBus.fireEvent(new AutoOpenedEvent(parentViewId));}
             }
         });
 

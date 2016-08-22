@@ -25,26 +25,30 @@ public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
         final Image image = new Image(GlobalThemesManager.getCurrentTheme().chevronRight());
         image.addClickHandler(new ClickHandler() {
             Boolean ex = false;
+
             @Override
             public void onClick(ClickEvent event) {
-
+                Boolean autoClick = (event.getClientX() == 0 && event.getClientY() == 0);
                 if (ex) {
                     image.setResource(GlobalThemesManager.getCurrentTheme().chevronRight());
-                    anEventBus.fireEvent(new ExpandHierarchyEvent(false,aParentId));
+                    anEventBus.fireEvent(new ExpandHierarchyEvent(false, aParentId,autoClick));
                 } else {
                     image.setResource(GlobalThemesManager.getCurrentTheme().chevronDown());
-                    anEventBus.fireEvent(new ExpandHierarchyEvent(true,aParentId));
+                    anEventBus.fireEvent(new ExpandHierarchyEvent(true, aParentId,autoClick));
                 }
                 ex = !ex;
-                aCommonEventBus.fireEvent(new NodeStateEvent(ex,aViewID,aParentViewId));
+
+
+                aCommonEventBus.fireEvent(new NodeStateEvent(ex, aViewID, aParentViewId));
+
             }
         });
         return image;
     }
 
-    public Widget buildActionButton(final EventBus anEventBus, final Actions anAction){
+    public Widget buildActionButton(final EventBus anEventBus, final Actions anAction) {
         final Image image;
-        switch(anAction){
+        switch (anAction) {
             case GROUPREFRESH:
                 image = new Image(GlobalThemesManager.getCurrentTheme().iconRefresh());
                 break;
@@ -61,14 +65,14 @@ public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
         image.addClickHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                    anEventBus.fireEvent(new HierarchyActionEvent(anAction));
+                anEventBus.fireEvent(new HierarchyActionEvent(anAction));
             }
         });
         image.setTitle(anAction.toString());
         return image;
     }
 
-    public Scheduler.ScheduledCommand getACommand(){
+    public Scheduler.ScheduledCommand getACommand() {
         Scheduler.ScheduledCommand menuItemCommand = new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {

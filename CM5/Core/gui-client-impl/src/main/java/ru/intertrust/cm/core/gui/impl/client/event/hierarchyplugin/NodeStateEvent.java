@@ -19,6 +19,7 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
     private String viewID;
     private String parentViewID;
 
+
     @Override
     public Type<NodeStateEventHandler> getAssociatedType() {
         return TYPE;
@@ -33,6 +34,7 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
         expanded = isExpanded;
         viewID = aViewId;
         parentViewID = aParentViewId;
+
     }
 
     public Boolean isExpanded() {
@@ -51,4 +53,6 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
     public String toString(){
         return "Expanded: "+expanded+" view ID: "+viewID+" Parent View ID: "+parentViewID;
     }
+
+
 }

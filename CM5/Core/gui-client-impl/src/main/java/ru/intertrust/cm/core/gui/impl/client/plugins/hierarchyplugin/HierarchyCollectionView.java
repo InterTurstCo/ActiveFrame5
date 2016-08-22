@@ -24,7 +24,9 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     private CollectionViewConfig collectionViewConfig;
 
 
-    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow, CollectionViewConfig aCollectionViewConfig, EventBus aCommmonBus,String aParentViewId) {
+    public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow,
+                                   CollectionViewConfig aCollectionViewConfig,
+                                   EventBus aCommmonBus, String aParentViewId) {
         super();
         commonBus = aCommmonBus;
         collectionViewConfig = aCollectionViewConfig;
@@ -39,7 +41,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             expandable = true;
         }
         parentViewID = aParentViewId;
-        setViewID(rowItem.getId().toStringRepresentation()+"-"+parentViewID);
+        setViewID(rowItem.getId().toStringRepresentation() + "-" + parentViewID);
         addRepresentationCells(headerPanel);
         rootPanel.add(headerPanel);
         rootPanel.add(childPanel);
@@ -55,7 +57,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         }, ClickEvent.getType());
 
         commonBus.fireEvent(new NodeCreatedEvent(getViewID()));
-
+        commonBus.addHandler(AutoOpenEvent.TYPE, this);
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
         commonBus.addHandler(CancelSelectionEvent.TYPE, this);
@@ -67,7 +69,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         FlexTable grid = new FlexTable();
         grid.addStyleName(STYLE_REPRESENTATION_CELL);
         if (expandable) {
-            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus,localBus, rowItem.getId(), getViewID(), getParentViewID()));
+            grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus, localBus, rowItem.getId(), getViewID(), getParentViewID()));
+            expandButton = grid.getWidget(0, 0);
         }
 
         int columnIndex = 1;
@@ -84,6 +87,12 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         container.add(grid);
     }
 
+    @Override
+    public void onAutoOpenEvent(AutoOpenEvent autoOpenEvent) {
+        if (autoOpenEvent.getViewId().equals(getViewID())) {
+            clickElement(expandButton.getElement());
+        }
+    }
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
