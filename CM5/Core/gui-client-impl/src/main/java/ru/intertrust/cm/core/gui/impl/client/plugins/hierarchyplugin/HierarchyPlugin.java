@@ -73,7 +73,9 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
 
         pData.setOpenedNodeList(openedNodeList);
         pData.setPluginId(((HierarchyPluginConfig) getConfig()).getPid());
-        //hManager.saveHistory(pData);
+        if (!event.isAutoClick()) {
+            hManager.saveHistory(pData);
+        }
     }
 
     @Override

@@ -39,7 +39,7 @@ public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
                 ex = !ex;
 
 
-                aCommonEventBus.fireEvent(new NodeStateEvent(ex, aViewID, aParentViewId));
+                aCommonEventBus.fireEvent(new NodeStateEvent(ex, aViewID, aParentViewId,autoClick));
 
             }
         });

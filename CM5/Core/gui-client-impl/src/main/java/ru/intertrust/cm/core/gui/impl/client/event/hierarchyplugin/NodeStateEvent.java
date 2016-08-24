@@ -18,7 +18,7 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
     private Boolean expanded;
     private String viewID;
     private String parentViewID;
-
+    private Boolean autoClick;
 
     @Override
     public Type<NodeStateEventHandler> getAssociatedType() {
@@ -30,11 +30,11 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
         handler.onNodeStateEvent(this);
     }
 
-    public NodeStateEvent(Boolean isExpanded, String aViewId, String aParentViewId){
+    public NodeStateEvent(Boolean isExpanded, String aViewId, String aParentViewId, Boolean isAutoClick){
         expanded = isExpanded;
         viewID = aViewId;
         parentViewID = aParentViewId;
-
+        autoClick = isAutoClick;
     }
 
     public Boolean isExpanded() {
@@ -54,5 +54,7 @@ public class NodeStateEvent extends GwtEvent<NodeStateEventHandler> {
         return "Expanded: "+expanded+" view ID: "+viewID+" Parent View ID: "+parentViewID;
     }
 
-
+    public Boolean isAutoClick() {
+        return autoClick;
+    }
 }

@@ -108,7 +108,8 @@ public class HierarchyHistoryManager implements HierarchyPluginConstants, AutoOp
             if (n.getNodeId().equals(viewId)) {
                 n.setOpened(true);
                 break;
-            } else if (n.getChildren().size() > 0) {
+            }
+            if (n.getChildren().size() > 0) {
                 markChildrenAsOpened(n.getChildren(), viewId);
             }
         }

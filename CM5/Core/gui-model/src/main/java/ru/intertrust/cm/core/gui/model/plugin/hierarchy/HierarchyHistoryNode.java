@@ -25,73 +25,81 @@ public class HierarchyHistoryNode implements Dto {
     private Collection<HierarchyHistoryNode> children;
     private Boolean opened = false;
 
-    public HierarchyHistoryNode(){}
+    public HierarchyHistoryNode() {
+    }
 
-    public HierarchyHistoryNode(String anId,String  aParentId){
+    public HierarchyHistoryNode(String anId, String aParentId) {
         nodeId = anId;
         parentId = aParentId;
         children = new ArrayList<HierarchyHistoryNode>();
     }
 
-    public void add(HierarchyHistoryNode newNode){
-        if(nodeId.equals(newNode.getParentId())){
+    public void add(HierarchyHistoryNode newNode) {
+        if (nodeId.equals(newNode.getParentId())) {
             children.add(newNode);
         } else {
-            findParent(newNode.getParentId()).add(newNode);
+            HierarchyHistoryNode parent = findParent(newNode.getParentId(), getChildren());
+            parent.add(newNode);
         }
     }
 
-    private HierarchyHistoryNode findParent(String id){
-      for(HierarchyHistoryNode n : children){
-          if(n.getNodeId().equals(id))
-              return n;
-          else
-              return findParent(n.getNodeId());
-      }
+    private HierarchyHistoryNode findParent(String id, Collection<HierarchyHistoryNode> aChildren) {
+        for (HierarchyHistoryNode n : aChildren) {
+            if (n.getNodeId().equals(id)) {
+                return n;
+            } else {
+                if (n.getChildren() != null) {
+                    HierarchyHistoryNode pNode = findParent(id, n.getChildren());
+                    if (pNode == null) {
+                        continue;
+                    } else
+                        return pNode;
+                }
+            }
+        }
         return null;
     }
 
     /**
-     *
      * @param newNode
      * @return true - если закрыт самый верхний уровень
      */
-    public Boolean remove(HierarchyHistoryNode newNode){
-        if(nodeId.equals(newNode.getNodeId()) && newNode.getParentId() == null){
+    public Boolean remove(HierarchyHistoryNode newNode) {
+        if (nodeId.equals(newNode.getNodeId()) && newNode.getParentId() == null) {
             children.clear();
             return true;
         } else {
-            removeFromChildren(children,newNode);
+            removeFromChildren(children, newNode);
             return false;
         }
     }
 
-    private void removeFromChildren(Collection children, HierarchyHistoryNode newNode){
-        for (Iterator<HierarchyHistoryNode> iterator = children.iterator(); iterator.hasNext();) {
+    private void removeFromChildren(Collection children, HierarchyHistoryNode newNode) {
+        for (Iterator<HierarchyHistoryNode> iterator = children.iterator(); iterator.hasNext(); ) {
             HierarchyHistoryNode N = iterator.next();
             if (N.getNodeId().equals(newNode.getNodeId()) && N.getParentId().equals(newNode.getParentId())) {
                 iterator.remove();
                 return;
             } else {
-                removeFromChildren(N.children,newNode);
+                removeFromChildren(N.children, newNode);
             }
         }
 
     }
 
     @Override
-    public boolean equals(Object otherObject){
+    public boolean equals(Object otherObject) {
         if (this == otherObject) return true;
         if (otherObject == null) return false;
         if (getClass() != otherObject.getClass()) return false;
-        HierarchyHistoryNode other = (HierarchyHistoryNode)otherObject;
+        HierarchyHistoryNode other = (HierarchyHistoryNode) otherObject;
 
-        return Objects.equals(nodeId,other.nodeId) && Objects.equals(parentId,other.parentId);
+        return Objects.equals(nodeId, other.nodeId) && Objects.equals(parentId, other.parentId);
     }
 
     @Override
-    public int hashCode(){
-        return Objects.hash(nodeId,parentId);
+    public int hashCode() {
+        return Objects.hash(nodeId, parentId);
     }
 
     public String getNodeId() {

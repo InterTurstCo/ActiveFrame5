@@ -87,12 +87,13 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         container.add(grid);
     }
 
+    /*
     @Override
     public void onAutoOpenEvent(AutoOpenEvent autoOpenEvent) {
         if (autoOpenEvent.getViewId().equals(getViewID())) {
             clickElement(expandButton.getElement());
         }
-    }
+    }*/
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {

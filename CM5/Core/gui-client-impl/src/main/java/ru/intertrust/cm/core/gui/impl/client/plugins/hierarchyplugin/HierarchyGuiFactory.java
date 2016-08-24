@@ -49,6 +49,14 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
         if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
             for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
+                if (extraFilterConfig.getParamConfigs() != null) {
+                    if (extraFilterConfig.getParamConfigs().size() > 0 && extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)) {
+                        extraFilterConfig.getParamConfigs().clear();
+                    }
+                }
+            }
+
+            for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
                 if (extraFilterConfig.getParamConfigs() == null || extraFilterConfig.getParamConfigs().size() == 0) {
                     ExtraParamConfig eXtraParamConfig = new ExtraParamConfig();
                     eXtraParamConfig.setName(0);
@@ -82,17 +90,18 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
                     }
                 }
 
-                if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
+                /*if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
                     for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
                         if (extraFilterConfig.getParamConfigs() != null) {
-                            if (extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)) {
+                            if (extraFilterConfig.getParamConfigs().size() > 0 && extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)) {
                                 extraFilterConfig.getParamConfigs().clear();
                             }
                         }
                     }
+                } */
+                if (autoClick) {
+                    aCommonBus.fireEvent(new AutoOpenedEvent(parentViewId));
                 }
-                if(autoClick){
-                aCommonBus.fireEvent(new AutoOpenedEvent(parentViewId));}
             }
         });
 

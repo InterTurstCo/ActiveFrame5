@@ -1,8 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.dom.client.Element;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -50,25 +53,59 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
 
     @Override
     public void onExpandHierarchyEvent(ExpandHierarchyEvent event) {
-        expanded = event.isExpand();
 
-        if (expanded) {
-            for (HierarchyGroupConfig group : (groupConfig!=null)?groupConfig.getHierarchyGroupConfigs():collectionConfig.getHierarchyGroupConfigs()) {
-                childPanel.add(guiFactory.buildGroup(group,event.getParentId(),commonBus,getViewID(),event.isAutoClick()));
+            expanded = event.isExpand();
+            childPanel.setVisible(expanded);
+            if (expanded) {
+                for (HierarchyGroupConfig group : (groupConfig != null) ? groupConfig.getHierarchyGroupConfigs() : collectionConfig.getHierarchyGroupConfigs()) {
+                    childPanel.add(guiFactory.buildGroup(group, event.getParentId(), commonBus, getViewID(), event.isAutoClick()));
+                }
+                for (HierarchyCollectionConfig collection : (groupConfig != null) ? groupConfig.getHierarchyCollectionConfigs() : collectionConfig.getHierarchyCollectionConfigs()) {
+                    childPanel.add(guiFactory.buildCollection(collection, event.getParentId(), commonBus, getViewID(), event.isAutoClick()));
+                }
+
+            } else {
+                childPanel.clear();
             }
-            for (HierarchyCollectionConfig collection : (groupConfig!=null)?groupConfig.getHierarchyCollectionConfigs():collectionConfig.getHierarchyCollectionConfigs()) {
-                childPanel.add(guiFactory.buildCollection(collection,event.getParentId(),commonBus,getViewID(),event.isAutoClick()));
+
+            if (event.isAutoClick()) {
+                final Timer timer = new Timer() {
+                    @Override
+                    public void run() {
+                        commonBus.fireEvent(new AutoOpenedEvent(getViewID()));
+
+                    }
+                };
+                timer.schedule(500);
+
+                final Timer t2 = new Timer() {
+                    @Override
+                    public void run() {
+                        commonBus.fireEvent(new AutoOpenedEvent(getViewID()));
+
+                    }
+                };
+                t2.schedule(1000);
+
+                final Timer t3 = new Timer() {
+                    @Override
+                    public void run() {
+                        commonBus.fireEvent(new AutoOpenedEvent(getViewID()));
+
+                    }
+                };
+                t3.schedule(2000);
             }
-            // Если внутри только группы. Иначе ивент генерится после загрузки коллекций
-            if(event.isAutoClick() && (collectionConfig==null || collectionConfig.getHierarchyCollectionConfigs().size()==0)){
+
+            if (expanded) {
+                if (event.isAutoClick() && (collectionConfig == null || collectionConfig.getHierarchyCollectionConfigs().size() == 0)) {
                     commonBus.fireEvent(new AutoOpenedEvent(getViewID()));
+
+
+                }
             }
-        } else {
-            childPanel.clear();
-        }
 
 
-        childPanel.setVisible(expanded);
     }
 
 
