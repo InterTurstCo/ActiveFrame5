@@ -449,6 +449,26 @@
         </status>
     </access-matrix>
 
+    <access-matrix type="bu_user_hip_settings">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="Active">
+            <read>
+                <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+            <execute-action name="action1">
+                <permit-group name="Administrators" />
+            </execute-action>
+        </status>
+    </access-matrix>
+
     <access-matrix type="bu_nav_link_collection">
         <create>
             <permit-group name="AllPersons" />
