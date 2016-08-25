@@ -1184,6 +1184,20 @@
         </xs:complexContent>
     </xs:complexType>
 
+    <xs:element type="con:hierarchySurferType" name="hierarchy-surfer" substitutionGroup="con:pluginConfig"/>
+    <xs:complexType name="hierarchySurferType">
+        <xs:complexContent>
+            <xs:extension base="con:abstractPluginConfigType">
+                <xs:sequence>
+                    <xs:element type="con:hierarchyPluginType" name="hierarchy-plugin"
+                                xmlns:con="https://cm5.intertrust.ru/config"/>
+                    <xs:element type="con:formViewerType" name="form-viewer"
+                                xmlns:con="https://cm5.intertrust.ru/config" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
     <!-- CMFIVE-3914 -->
     <xs:element type="con:hierarchyPluginType" name="hierarchy-plugin" substitutionGroup="con:pluginConfig"/>
     <xs:complexType name="hierarchyPluginType">
