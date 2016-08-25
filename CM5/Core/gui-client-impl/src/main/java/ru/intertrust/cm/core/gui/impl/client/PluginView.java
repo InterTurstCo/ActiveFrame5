@@ -1,11 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Node;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Event;
-import com.google.gwt.user.client.EventPreview;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -20,7 +16,6 @@ import ru.intertrust.cm.core.gui.impl.client.plugins.calendar.CalendarPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.configurationdeployer.ConfigurationDeployerPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.plugin.PluginManager;
-import ru.intertrust.cm.core.gui.impl.client.plugins.plugin.PluginManagerView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.report.ReportPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.reportupload.ReportUploadPlugin;
 import ru.intertrust.cm.core.gui.impl.client.util.ActionContextComparator;
@@ -28,6 +23,8 @@ import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
+import ru.intertrust.cm.core.gui.model.action.infobar.InfobarContext;
+import ru.intertrust.cm.core.gui.model.action.infobar.InfobarItem;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
@@ -52,6 +49,7 @@ public abstract class PluginView implements IsWidget {
     protected static Logger log = Logger.getLogger("PluginView console logger");
 
     private AbsolutePanel actionToolBar;
+    private AbsolutePanel infoBar;
     private VerticalPanel viewWidget;
     private MenuBarExt leftMenuBar;
 
@@ -71,6 +69,17 @@ public abstract class PluginView implements IsWidget {
                 asWidget().insert(actionToolBar, 0);
             } else {
                 actionToolBar.removeFromParent();
+            }
+        }
+    }
+
+    public void setVisibleInfoBar(final boolean visible){
+        if (visible != (infoBar.getParent() != null)) {
+            if (visible) {
+                updateInfoBar();
+                asWidget().insert(infoBar, 1);
+            } else {
+                infoBar.removeFromParent();
             }
         }
     }
@@ -128,6 +137,35 @@ public abstract class PluginView implements IsWidget {
             }
         }
         return breadCrumbComponents;
+    }
+
+    public void updateInfoBar(){
+        if(infoBar == null || !plugin.isDisplayInfobar()){
+            return;
+        }
+
+        infoBar.clear();
+        final ActivePluginData initialData = plugin.getInitialData();
+
+        InfobarContext context = initialData.getInfobarContext();
+        if(context == null){
+            context = new InfobarContext();
+        }
+
+        for(InfobarItem infoElement : context.getInfoBarItems()){
+            HorizontalPanel rowBox = new HorizontalPanel();
+            Label nameLabel = new Label();
+            nameLabel.setText(infoElement.getName());
+            nameLabel.getElement().addClassName("labelWidgetDefault");
+
+            Label valueLabel = new Label();
+            valueLabel.setText(infoElement.getValue());
+            valueLabel.getElement().addClassName("textBoxNonEditable");
+
+            rowBox.add(nameLabel);
+            rowBox.add(valueLabel);
+            infoBar.add(rowBox);
+        }
     }
 
     public void updateActionToolBar() {
@@ -200,6 +238,15 @@ public abstract class PluginView implements IsWidget {
                 panel.add(actionToolBar);
             }
         }
+
+        infoBar = createInfoBar();
+        if (plugin.isDisplayInfobar() && (plugin instanceof IsActive)) {
+            updateInfoBar();
+            if (infoBar.getWidgetCount() > 0) {
+                panel.add(infoBar);
+            }
+        }
+
         panel.add(getViewWidget());
         viewWidget = panel;
         addExtraStyleClassIfRequired();
@@ -225,6 +272,11 @@ public abstract class PluginView implements IsWidget {
         final AbsolutePanel toolbar = new AbsolutePanel();
         toolbar.setStyleName("action-bar");
         return toolbar;
+    }
+
+    private AbsolutePanel createInfoBar(){
+        final AbsolutePanel infobar = new AbsolutePanel();
+        return infobar;
     }
 
     private List<ActionContext> getDefaultSystemContexts() {

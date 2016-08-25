@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.collection;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.JsonUtils;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.dom.client.TableRowElement;
@@ -22,6 +23,7 @@ import com.google.gwt.view.client.SetSelectionModel;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.HandlerRegistration;
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -61,10 +63,7 @@ import ru.intertrust.cm.core.gui.model.SortedMarker;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionFiltersActionContext;
 import ru.intertrust.cm.core.gui.model.action.system.CollectionSortOrderActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.*;
 import ru.intertrust.cm.core.gui.model.util.WidgetUtil;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
@@ -142,6 +141,22 @@ public class CollectionPluginView extends PluginView {
                 }
             }
         });
+    }
+
+    public CollectionExtraFiltersConfig getHierarchicalFiltersConfig() {
+        return hierarchicalFiltersConfig;
+    }
+
+    public SortCollectionState getSortCollectionState() {
+        return sortCollectionState;
+    }
+
+    public String getSimpleSearchQuery() {
+        return simpleSearchQuery;
+    }
+
+    public String getSearchArea() {
+        return searchArea;
     }
 
     @Override
@@ -412,25 +427,7 @@ public class CollectionPluginView extends PluginView {
 
 
         // экспорт в csv
-        handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, new SaveToCsvEventHandler() {
-            @Override
-            public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
-                final InitialFiltersConfig initialFiltersConfig =
-                        ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
-                JSONObject requestObj = new JSONObject();
-                JsonUtil.prepareJsonAttributes(requestObj, getPluginData().getCollectionName(), simpleSearchQuery,
-                        searchArea);
-                JsonUtil.prepareJsonSortCriteria(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(),
-                        sortCollectionState);
-                JsonUtil.prepareJsonColumnProperties(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(),
-                        filtersMap);
-                JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
-                JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig,
-                        "jsonHierarchicalFilters");
-                csvController.doPostRequest(requestObj.toString());
-
-            }
-        }));
+        handlerRegistrations.add(eventBus.addHandler(SaveToCsvEvent.TYPE, createExportToCSVActionHahdler()));
 
         handlerRegistrations.add(eventBus.addHandler(CollectionChangeSelectionEvent.TYPE, new
                 CollectionChangeSelectionEventHandler() {
@@ -461,6 +458,28 @@ public class CollectionPluginView extends PluginView {
                 }));
 
 
+    }
+
+    public SaveToCsvEventHandler createExportToCSVActionHahdler() {
+        return new SaveToCsvEventHandler() {
+            @Override
+            public void saveToCsv(SaveToCsvEvent saveToCsvEvent) {
+                final InitialFiltersConfig initialFiltersConfig =
+                        ((CollectionViewerConfig) plugin.getConfig()).getInitialFiltersConfig();
+                JSONObject requestObj = new JSONObject();
+                JsonUtil.prepareJsonAttributes(requestObj, getPluginData().getCollectionName(), simpleSearchQuery,
+                        searchArea);
+                JsonUtil.prepareJsonSortCriteria(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(),
+                        sortCollectionState);
+                JsonUtil.prepareJsonColumnProperties(requestObj, getPluginData().getDomainObjectFieldPropertiesMap(),
+                        filtersMap);
+                JsonUtil.prepareJsonInitialFilters(requestObj, initialFiltersConfig, "jsonInitialFilters");
+                JsonUtil.prepareJsonHierarchicalFiltersConfig(requestObj, hierarchicalFiltersConfig,
+                        "jsonHierarchicalFilters");
+                csvController.doPostRequest(requestObj.toString());
+
+            }
+        };
     }
 
     private void onKeyEnterPressed() {
@@ -1136,7 +1155,7 @@ public class CollectionPluginView extends PluginView {
         }
     }
 
-    private CollectionPluginData getPluginData() {
+    protected CollectionPluginData getPluginData() {
         return plugin.getInitialData();
     }
 
@@ -1158,6 +1177,10 @@ public class CollectionPluginView extends PluginView {
             registration.removeHandler();
         }
         columnHeaderController.clearHandlers();
+    }
+
+    protected CollectionCsvController getCsvController() {
+        return csvController;
     }
 
     public void resetBodyHeight() {

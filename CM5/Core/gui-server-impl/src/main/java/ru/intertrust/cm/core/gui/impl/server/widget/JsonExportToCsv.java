@@ -21,12 +21,10 @@ import ru.intertrust.cm.core.gui.impl.server.util.CollectionPluginHelper;
 import ru.intertrust.cm.core.gui.impl.server.util.JsonUtil;
 import ru.intertrust.cm.core.gui.impl.server.util.SortOrderBuilder;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonColumnProperties;
-import ru.intertrust.cm.core.gui.model.csv.JsonCsvRequest;
-import ru.intertrust.cm.core.gui.model.csv.JsonInitialFilters;
-import ru.intertrust.cm.core.gui.model.csv.JsonSortCriteria;
+import ru.intertrust.cm.core.gui.model.csv.*;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
+import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -63,12 +61,65 @@ public class JsonExportToCsv {
     private static final String DEFAULT_ENCODING = "ANSI-1251";
     private static final int CHUNK_SIZE = 1000;
 
+
+
+    @ResponseBody
+    @RequestMapping(value = "json-extended-search-export-to-csv", method = RequestMethod.POST)
+    public void extendedSearchGenerateCsv(@ModelAttribute("json") String stringCsvRequest, HttpServletResponse response)
+            throws IOException, ParseException, ServletException {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        JsonExtendedSearchCSVRequest csvRequest = mapper.readValue(stringCsvRequest, JsonExtendedSearchCSVRequest.class);
+        String collectionName = csvRequest.getCollectionName();
+        String simpleSearchQuery = csvRequest.getSimpleSearchQuery();
+        String area = csvRequest.getSimpleSearchArea();
+        boolean ascend = csvRequest.isAscend();
+        String columnName = csvRequest.getSortedFieldName();
+        SortOrder sortOrder = null;
+        if (columnName != null) {
+            JsonSortCriteria sortCriteria = csvRequest.getSortCriteria();
+            SortCriteriaConfig sortCriteriaConfig = JsonUtil.convertToSortCriteriaConfig(sortCriteria);
+            sortOrder = SortOrderBuilder.getSortOrder(sortCriteriaConfig, columnName, ascend);
+        } else {
+            sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+        }
+        List<JsonColumnProperties> columnParams = csvRequest.getColumnProperties();
+        Map<String, CollectionColumnProperties> columnPropertiesMap = JsonUtil.convertToColumnPropertiesMap(columnParams);
+        JsonInitialFilters jsonInitialFilters = csvRequest.getJsonInitialFilters();
+        JsonInitialFilters jsonHierarchicalFilters = csvRequest.getJsonHierarchicalFilters();
+        List<Filter> filters = prepareFilters(columnPropertiesMap, jsonInitialFilters, jsonHierarchicalFilters);
+
+        response.setHeader("Content-Disposition", "attachment; filename=" + collectionName + ".csv");
+        response.setContentType("application/csv");
+        response.addHeader("Access-Control-Allow-Origin", "");
+        OutputStream resOut = response.getOutputStream();
+        OutputStream buffer = new BufferedOutputStream(resOut);
+        OutputStreamWriter writer = new OutputStreamWriter(buffer, Charset.forName(DEFAULT_ENCODING));
+
+        //Создание заголовков таблицы
+        printHeader(writer, columnPropertiesMap);
+        writer.append(" \n");
+        IdentifiableObjectCollection collection =  searchService.search(JsonUtil.parseSearchQuesyFromJson(csvRequest.getJsonSearchQuery()),
+                    collectionName , filters,  CHUNK_SIZE);
+        final SortOrder sortOrderProperty = sortOrder;
+        printBody(writer, collection, columnPropertiesMap, new Comparator<Map<String, Value>>() {
+            @Override
+            public int compare(Map<String, Value> o1, Map<String, Value> o2) {
+                Value v1 = o1.get(sortOrderProperty.get(0).getField());
+                Value v2 = o2.get(sortOrderProperty.get(0).getField());
+                return  Value.getComparator(sortOrderProperty.get(0).getOrder().equals(SortCriterion.Order.ASCENDING), true).compare(v1, v2);
+            }
+        });
+    }
+
     @ResponseBody
     @RequestMapping(value = "json-export-to-csv", method = RequestMethod.POST)
     public void generateCsv(@ModelAttribute("json") String stringCsvRequest, HttpServletResponse response)
             throws IOException, ParseException, ServletException {
 
         ObjectMapper mapper = new ObjectMapper();
+
         JsonCsvRequest csvRequest = mapper.readValue(stringCsvRequest, JsonCsvRequest.class);
         String collectionName = csvRequest.getCollectionName();
         String simpleSearchQuery = csvRequest.getSimpleSearchQuery();
@@ -103,7 +154,7 @@ public class JsonExportToCsv {
             printBodyBatch(writer, collectionName, sortOrder, filters, columnPropertiesMap);
         } else {
             IdentifiableObjectCollection collection = searchService.search(simpleSearchQuery, area, collectionName, CHUNK_SIZE);
-            printBody(writer, collection, columnPropertiesMap);
+            printBody(writer, collection, columnPropertiesMap, null);
         }
 
         writer.close();
@@ -126,7 +177,7 @@ public class JsonExportToCsv {
         IdentifiableObjectCollection collection = collectionsService.findCollection(collectionName, sortOrder, filters,
                 offset, CHUNK_SIZE);
         while (collection.size() != 0) {
-            printBody(writer, collection, columnPropertiesMap);
+            printBody(writer, collection, columnPropertiesMap, null);
             offset += CHUNK_SIZE;
             collection = collectionsService.findCollection(collectionName, sortOrder, filters,
                     offset, CHUNK_SIZE);
@@ -135,14 +186,28 @@ public class JsonExportToCsv {
     }
 
     private void printBody(OutputStreamWriter writer, IdentifiableObjectCollection collection,
-                           Map<String, CollectionColumnProperties> columnPropertiesMap) throws IOException {
+                           Map<String, CollectionColumnProperties> columnPropertiesMap, Comparator rowComparator) throws IOException {
+
+        List<Map<String, Value>> rows = new ArrayList<>();
         for (int row = 0; row < collection.size(); row++) {
             IdentifiableObject identifiableObject = collection.get(row);
-            Map<String, Value> rowValues = getRowValues(identifiableObject, columnPropertiesMap);
+            rows.add( getRowValues(identifiableObject, columnPropertiesMap));
+        }
+
+        if(rowComparator != null){
+            Collections.sort(rows, rowComparator);
+        }
+
+        printBody(writer, rows);
+    }
+
+
+
+    private void printBody(OutputStreamWriter writer, List<Map<String, Value>> rows) throws IOException{
+        for(Map<String, Value> rowValues : rows){
             Set<String> fields = rowValues.keySet();
             for (String field : fields) {
                 Value value = rowValues.get(field);
-
                 writer.append("\"");
                 if (value == null || value.get() == null) {
                     writer.append(" ");
@@ -150,11 +215,9 @@ public class JsonExportToCsv {
                     writer.append(value.get().toString().replaceAll("\"", "\"\""));
                 }
                 writer.append("\"").append(";");
-
             }
             writer.append("\n");
         }
-
         writer.flush();
     }
 

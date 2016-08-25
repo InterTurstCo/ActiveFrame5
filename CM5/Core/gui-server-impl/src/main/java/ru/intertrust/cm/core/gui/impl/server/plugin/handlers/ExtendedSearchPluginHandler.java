@@ -28,17 +28,18 @@ import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler;
 import ru.intertrust.cm.core.gui.impl.server.plugin.DefaultImageMapperImpl;
 import ru.intertrust.cm.core.gui.impl.server.util.PluginHandlerHelper;
+import ru.intertrust.cm.core.gui.impl.server.util.WidgetConstants;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
 import ru.intertrust.cm.core.gui.model.form.widget.*;
 import ru.intertrust.cm.core.gui.model.plugin.*;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
+import ru.intertrust.cm.core.gui.model.plugin.collection.ExtendedSearchCollectionPluginData;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static ru.intertrust.cm.core.business.api.dto.FieldType.*;
@@ -49,6 +50,8 @@ import static ru.intertrust.cm.core.business.api.dto.FieldType.*;
  */
 @ComponentName("extended.search.plugin")
 public class ExtendedSearchPluginHandler extends PluginHandler {
+
+    SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     ConfigurationExplorer configurationService;
@@ -114,14 +117,14 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         extendedSearchPluginData.setTargetCollectionNames(targetCollectionNames);
         extendedSearchPluginData.setSearchAreasData(searchAreas);
         extendedSearchPluginData.setSearchFieldsData(searchFields);
-        Map<String, String> valueToDisplayText = getLocalizationMap();
+        Map<String, String> valueToDisplayText = getLocalizationMap(searchAreas, searchFields);
         extendedSearchPluginData.setValueToDisplayText(valueToDisplayText);
         return extendedSearchPluginData;
     }
 
-    private Map<String, String> getLocalizationMap() {
+    private Map<String, String> getLocalizationMap(Map<String, ArrayList<String>> searchAreasData, Map<String, ArrayList<String>> searchFieldsData) {
         Map<String, String> result = new HashMap<>();
-        for (Map.Entry<String, ArrayList<String>> areaData : extendedSearchPluginData.getSearchAreasData().entrySet()) {
+        for (Map.Entry<String, ArrayList<String>> areaData : searchAreasData.entrySet()) {
             String searchAreaName = areaData.getKey();
             result.put(searchAreaName, MessageResourceProvider.getMessage(new MessageKey(searchAreaName,
                     MessageResourceProvider.SEARCH_AREA), GuiContext.getUserLocale()));
@@ -131,7 +134,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         .SEARCH_DOMAIN_OBJECT), GuiContext.getUserLocale()));
             }
         }
-        for (Map.Entry<String, ArrayList<String>> fieldsData : extendedSearchPluginData.getSearchFieldsData().entrySet()) {
+        for (Map.Entry<String, ArrayList<String>> fieldsData : searchFieldsData.entrySet()) {
             String doType = fieldsData.getKey();
             for (String field : fieldsData.getValue()) {
                 Map<String, String> context = new HashMap<>();
@@ -207,6 +210,9 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         // обработке второго виджета
         Map<String, TimeIntervalFilter> rangeFilters = new HashMap<>();
 
+        Map<String, String> formWidgetStringData = new HashMap<>();
+
+
         // проходим по полям формы поиска, собираем данные и строим поисковые
         // фильтры
         for (Map.Entry<String, WidgetState> entry : formWidgetsData.entrySet()) {
@@ -216,19 +222,34 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             String fieldPath = widgetConfig.getFieldPathConfig().getValue();
 
             if (widgetState instanceof LinkEditingWidgetState) {
-                List<Id> ids = ((LinkEditingWidgetState) widgetState).getIds();
+
+                LinkedHashMap<Id, String> titleMap = new LinkedHashMap<>();
+
+                if(widgetState instanceof ListWidgetState){
+                    titleMap = ((ListWidgetState) widgetState).getListValues();
+                };
+
+                List<Id> ids = ((LinkEditingWidgetState)widgetState).getIds();
+
                 if (ids != null && !ids.isEmpty()) {
                     OneOfListFilter filter = new OneOfListFilter(fieldPath);
+                    StringBuilder sBuilder = new StringBuilder();
                     for (Id id : ids) {
+                        if(sBuilder.length() > 0){
+                            sBuilder.append(", ");
+                        }
+                        sBuilder.append(titleMap.get(id));
                         filter.addValue(id);
                     }
                     searchQuery.addFilter(filter);
+                    formWidgetStringData.put(fieldPath, sBuilder.toString());
                 }
             } else if (widgetState instanceof TextState) {
                 String text = ((TextState) widgetState).getText();
                 if (text != null && !text.isEmpty()) {
                     TextSearchFilter filter = new TextSearchFilter(fieldPath, text);
                     searchQuery.addFilter(filter);
+                    formWidgetStringData.put(fieldPath, text);
                 }
             } else if (widgetState instanceof DateBoxState) {
                 WidgetHandler widgetHandler = PluginHandlerHelper.getWidgetHandler(widgetConfig, applicationContext);
@@ -247,22 +268,42 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
                         // Есть ссылка на виджет конца диапазона - значит,
                         // выбранный виджет задаёт начало
                         initStartDate(filter, value);
+                        String startDate = getDateTimeStringValue(value);
+                        if(!formWidgetStringData.containsKey(fieldPath)){
+                            formWidgetStringData.put(fieldPath, startDate);
+                        }else{
+                            String endDate =  formWidgetStringData.get(fieldPath);
+                            formWidgetStringData.put(fieldPath, "C " + startDate + " по " + endDate);
+                        }
                     } else if (dateBoxConfig.getRangeStartConfig() != null) {
                         initEndDate(filter, value);
+
+                        String endDate = getDateTimeStringValue(value);
+                        if(!formWidgetStringData.containsKey(fieldPath)){
+                            formWidgetStringData.put(fieldPath, endDate);
+                        }else{
+                            String startDate =  formWidgetStringData.get(fieldPath);
+                            formWidgetStringData.put(fieldPath, "C " + startDate + " по " + endDate);
+                        }
+
+
                     } else {
                         // Виджет не связан по диапазону - ищем по фиксированной
                         // дате
                         initEndDate(filter, value);
-                        initEndDate(filter, value);
+                       formWidgetStringData.put(fieldPath, getDateTimeStringValue(value));
                     }
+
                 }
             } else if (widgetState instanceof CheckBoxState) {
                 boolean value = ((CheckBoxState) widgetState).isSelected();
                 BooleanSearchFilter filter = new BooleanSearchFilter(fieldPath, value);
                 searchQuery.addFilter(filter);
+                formWidgetStringData.put(fieldPath, value ? "Да" : "Нет");
             } else if (widgetState instanceof EnumBoxState) {
                 EnumBoxState state = (EnumBoxState) widgetState;
                 Value<?> value = state.getDisplayTextToValue().get(state.getSelectedText());
+                formWidgetStringData.put(fieldPath, state.getSelectedText());
                 searchQuery.addFilter(buildFilterForEnumBox(fieldPath, value));
             }
         }
@@ -294,12 +335,15 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             searchResultRowItems.add(collectionPluginHandler.generateCollectionRowItem(
                     identifiableObject, columnPropertiesMap, fieldMaps, false));
         }
-        final CollectionPluginData collectionPluginData = collectionPluginHandler
+        final ExtendedSearchCollectionPluginData collectionPluginData = collectionPluginHandler
                 .getExtendedCollectionPluginData(targetCollectionName, "ext-search", searchResultRowItems);
         collectionPluginData.setExtendedSearchMarker(true);
         collectionPluginData.setCollectionViewConfigName(targetViewConfig.getName());
         collectionPluginData.setDomainObjectFieldPropertiesMap(columnPropertiesMap);
         collectionPluginData.setCollectionName(targetCollectionName);
+        collectionPluginData.setSearchQuery(extendedSearchData.getSearchQuery());
+        collectionPluginData.setRowsChunk(WidgetConstants.UNBOUNDED_LIMIT);
+        collectionPluginData.setSearchArea("");
         ArrayList<CollectionRowItem> items = collectionPluginData.getItems();
         final FormPluginConfig formPluginConfig;
         if (items == null || items.isEmpty()) {
@@ -318,7 +362,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         formPluginConfig.setPluginState(fpState);
 
         FormPluginHandler formPluginHandler = (FormPluginHandler) applicationContext.getBean("form.plugin");
-        final ToolbarContext toolbarContext = formPluginHandler.initialize(formPluginConfig).getToolbarContext();
+        //final ToolbarContext toolbarContext = formPluginHandler.initialize(formPluginConfig).getToolbarContext();
 
         // нужно получить инициализацию формы поиска
         // ExtendedSearchFormPluginHandler extendedSearchFormPluginHandler =
@@ -327,9 +371,9 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         FormPluginData formPluginData = formPluginHandler.initialize(formPluginConfig);
         formPluginData.setPluginState(formPluginConfig.getPluginState());
-        formPluginData.setToolbarContext(toolbarContext);
+        //formPluginData.setToolbarContext(toolbarContext);
 
-        DomainObjectSurferPluginData result = new DomainObjectSurferPluginData();
+        ExtendedSearchDomainObjectSurfacePluginData result = new ExtendedSearchDomainObjectSurfacePluginData();
         DomainObjectSurferConfig domainObjectSurferConfig = new DomainObjectSurferConfig();
 
         CollectionRefConfig refConfig = new CollectionRefConfig();
@@ -341,14 +385,79 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
 
         domainObjectSurferConfig.setCollectionViewerConfig(collectionViewerConfig);
 
+        result.setExtendedSearchConfiguration(formWidgetsData);
+        result.setSearchAreas(searchQuery.getAreas());
+
+        result.setSearchDomainObjectType(searchQuery.getTargetObjectType());
         result.setDomainObjectSurferConfig(domainObjectSurferConfig);
         result.setCollectionPluginData(collectionPluginData);
         result.setFormPluginData(formPluginData);
+
+
+        result.getInfobarContext().addInfoBarItem( MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_RESULT , GuiContext.getUserLocale()) + " : ", String.valueOf(collectionPluginData.getItems().size()));
+        StringBuilder filterValueBuilder = new StringBuilder();
+        Map<String, String> localDataMap = getSearchAreaFieldsConfig();
+        for(Map.Entry<String, String> widgetEntryValue : formWidgetStringData.entrySet()){
+            if(filterValueBuilder.length() > 0){
+                filterValueBuilder.append("; ");
+            }
+            String fieldName = localDataMap.get(widgetEntryValue.getKey());
+
+            filterValueBuilder.append(fieldName).append(" : ").append(widgetEntryValue.getValue());
+        }
+
+        result.getInfobarContext().addInfoBarItem(MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_FILERTS, GuiContext.getUserLocale()) + " : ", filterValueBuilder.toString());
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);
         return result;
     }
+
+    private  Map<String, String> getSearchAreaFieldsConfig(){
+
+        // область поиска - список целевых ДО
+        HashMap<String, ArrayList<String>> searchAreas = new HashMap<String, ArrayList<String>>();
+        // целевой ДО - список его полей
+        HashMap<String, ArrayList<String>> searchFields = new HashMap<String, ArrayList<String>>();
+
+        Collection<SearchAreaConfig> searchAreaConfigs = configurationService.getConfigs(SearchAreaConfig.class);
+
+        for (SearchAreaConfig searchAreaConfig : searchAreaConfigs) {
+            List<TargetDomainObjectConfig> targetObjects = searchAreaConfig.getTargetObjects();
+            // список целевых ДО в конкретной области поиска
+            ArrayList<String> arrayTargetObjects = new ArrayList<String>();
+            for (TargetDomainObjectConfig targetObject : targetObjects) {
+                // получаем результирующую форму поиска(удаляем
+                // несоответствующие поля)
+                List<IndexedFieldConfig> fields = targetObject.getFields();
+                ArrayList<String> fieldNames = new ArrayList<String>(fields.size());
+                for (IndexedFieldConfig field : fields) {
+                    fieldNames.add(field.getName());
+                }
+                searchFields.put(targetObject.getType(), fieldNames);
+                // если форма поиска для данного ДО не сконфигурирована, в
+                // интерфейсе не отображается
+                final UserInfo userInfo = GuiContext.get().getUserInfo();
+                FormDisplayData form = guiService.getSearchForm(targetObject.getType(), new HashSet<String>(fieldNames), userInfo);
+                if (form != null) {
+                    arrayTargetObjects.add(targetObject.getType());
+
+                }
+            }
+            // если у области поиска нет сконфигурированной формы для поиска ДО,
+            // ее не отображаем
+            if (!arrayTargetObjects.isEmpty()) {
+                searchAreas.put(searchAreaConfig.getName(), arrayTargetObjects);
+            }
+        }
+        return getLocalizationMap(searchAreas, searchFields);
+    }
+
+    private String getFieldName(SearchQuery searchQuery, String fieldPath, Map<String, String> localDataMap) {
+
+        return fieldPath;
+    }
+
 
     protected SearchFilter buildFilterForEnumBox(String fieldPath, Value<?> value) {
         FieldType type = value.getFieldType();
@@ -368,10 +477,12 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             return new BooleanSearchFilter(fieldPath, (Boolean) value.get());
         } else if (type.equals(DATETIMEWITHTIMEZONE)) {
             DateTimeWithTimeZone v = (DateTimeWithTimeZone) value.get();
-            return new TimeIntervalFilter(fieldPath, v, v);
+            Date dateValue = convert(v);
+            return new TimeIntervalFilter(fieldPath, dateValue , dateValue);
         } else if (type.equals(TIMELESSDATE)) {
             TimelessDate v = (TimelessDate) value.get();
-            return new TimeIntervalFilter(fieldPath, v, v);
+            Date dateValue = v != null ? v.toDate() : null;
+            return new TimeIntervalFilter(fieldPath, dateValue, dateValue);
         } else if (type.equals(DATETIME)) {
             Date v = (Date) value.get();
             return new TimeIntervalFilter(fieldPath, v, v);
@@ -384,13 +495,39 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         }
     }
 
+    private Date convert(DateTimeWithTimeZone source) {
+        TimeZone tz = TimeZone.getTimeZone(source.getTimeZoneContext().getTimeZoneId());
+        Calendar cal = Calendar.getInstance(tz);
+        cal.set(source.getYear(), source.getMonth(), source.getDayOfMonth(),
+                source.getHours(), source.getMinutes(), source.getSeconds());
+        cal.set(Calendar.MILLISECOND, source.getMilliseconds());
+        return cal.getTime();
+    }
+
     private void initStartDate(TimeIntervalFilter filter, Value<?> date) {
         if (date instanceof DateTimeValue) {
             filter.setStartTime(((DateTimeValue) date).get());
         } else if (date instanceof TimelessDateValue) {
-            filter.setStartTime(((TimelessDateValue) date).get());
+            TimelessDate tdValue = ((TimelessDateValue) date).get();
+            Date dateValue = tdValue != null ? tdValue.toDate() : null;
+
+            filter.setStartTime(dateValue);
         } else if (date instanceof DateTimeWithTimeZoneValue) {
-            filter.setStartTime(((DateTimeWithTimeZoneValue) date).get());
+            DateTimeWithTimeZone dtwzValue = ((DateTimeWithTimeZoneValue)date).get();
+
+            filter.setStartTime(convert(dtwzValue));
+        } else {
+            throw new IllegalArgumentException("Unexpected value type: " + date.getFieldType());
+        }
+    }
+
+    private String getDateTimeStringValue(Value<?> date) {
+        if (date instanceof DateTimeValue) {
+            return formater.format(((DateTimeValue) date).get());
+        } else if (date instanceof TimelessDateValue) {
+            return formater.format(((TimelessDateValue) date).get());
+        } else if (date instanceof DateTimeWithTimeZoneValue) {
+            return formater.format(((DateTimeWithTimeZoneValue) date).get());
         } else {
             throw new IllegalArgumentException("Unexpected value type: " + date.getFieldType());
         }
@@ -400,9 +537,13 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         if (date instanceof DateTimeValue) {
             filter.setEndTime(((DateTimeValue) date).get());
         } else if (date instanceof TimelessDateValue) {
-            filter.setEndTime(((TimelessDateValue) date).get());
+            TimelessDate tdValue = ((TimelessDateValue) date).get();
+            Date dateValue = tdValue != null ? tdValue.toDate() : null;
+
+            filter.setEndTime(dateValue);
         } else if (date instanceof DateTimeWithTimeZoneValue) {
-            filter.setEndTime(((DateTimeWithTimeZoneValue) date).get());
+            DateTimeWithTimeZone dtwzValue = ((DateTimeWithTimeZoneValue)date).get();
+            filter.setEndTime(convert(dtwzValue));
         } else {
             throw new IllegalArgumentException("Unexpected value type: " + date.getFieldType());
         }

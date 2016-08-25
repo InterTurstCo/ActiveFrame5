@@ -34,6 +34,7 @@ import ru.intertrust.cm.core.gui.api.client.history.HistoryManager;
 import ru.intertrust.cm.core.gui.impl.client.action.ActionManagerImpl;
 import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.panel.HeaderContainer;
+import ru.intertrust.cm.core.gui.impl.client.plugins.collection.ExtendedSearchCollectionPlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePlugin;
 import ru.intertrust.cm.core.gui.impl.client.plugins.navigation.NavigationTreePluginView;
 import ru.intertrust.cm.core.gui.impl.client.plugins.objectsurfer.DomainObjectSurferPlugin;
@@ -44,10 +45,7 @@ import ru.intertrust.cm.core.gui.impl.client.util.UserSettingsUtil;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
-import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginConfig;
-import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
-import ru.intertrust.cm.core.gui.model.plugin.NavigationTreePluginConfig;
+import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 import java.util.HashMap;
@@ -185,6 +183,8 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
 
         header.add(headerContainer);
 
+        glEventBus.addHandler(ExtendedSearchShowDialogBoxEvent.TYPE, headerContainer);
+
         left.add(navigationTreePanel);
 
         glEventBus.addHandler(SideBarResizeEvent.TYPE, new BusinessUniverseSideBarEventHandler());
@@ -321,13 +321,24 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
     }
 
     // вывод результатов расширенного поиска
-    public void extendedSearchComplete(DomainObjectSurferPluginData domainObjectSurferPluginData) {
+    public void extendedSearchComplete(ExtendedSearchDomainObjectSurfacePluginData domainObjectSurferPluginData) {
         DomainObjectSurferPlugin domainObjectSurfer = ComponentRegistry.instance.get("domain.object.surfer.plugin");
+
+        ExtendedSearchCollectionPlugin collectionPlugin = ComponentRegistry.instance.get("extended.search.collection.plugin");
+
+        domainObjectSurfer.setCollectionPlugin(collectionPlugin);
+
         domainObjectSurfer.setConfig(domainObjectSurferPluginData.getDomainObjectSurferConfig());
+
         domainObjectSurfer.setInitialData(domainObjectSurferPluginData);
         domainObjectSurfer.setDisplayActionToolBar(true);
+        domainObjectSurfer.setDisplayInfobar(true);
 
-        centralPluginPanel.open(domainObjectSurfer);
+        // закрываем предыдущий результат
+        if(centralPluginPanel.getCurrentPlugin().getInitialData() instanceof ExtendedSearchDomainObjectSurfacePluginData){
+            centralPluginPanel.closeCurrentPlugin();
+        }
+        centralPluginPanel.openChild(domainObjectSurfer);
     }
 
     private void addWindowResizeListener() {

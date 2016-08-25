@@ -22,6 +22,7 @@
             <act:confirmation-message text="Вы действительно хотите удалить выбранный объект ?"/>
         </act:before-execution>
     </act:action>
+
     <act:action name="aToggleEditOff" componentName="close.in.central.panel.action" order="100"
                 text="Закрыть" imageClass="actionBar-close"/>
     <act:action name="aToggleEditOn" componentName="toggle.edit.on.action" order="150" dirtySensitivity="false"
@@ -30,6 +31,13 @@
                 text="open link"/>
     <act:action name="aSaveCsv" componentName="save-csv.action" order="500" dirtySensitivity="false"
                 immediate="true" text="Выгрузить в CSV" imageClass="actionBar-csvUpload"/>
+
+    <act:tool-bar plugin="search.result.toolbar" >
+        <act:action-ref name-ref="aToggleEditOff"/>
+        <act:action name="searchResult.reopen" componentName="reopen.extended.search.panel.action" order="100"
+                    text="Уточнить запрос" imageClass="actionBar-edit"/>
+        <act:action-ref name-ref="aSaveCsv"/>
+    </act:tool-bar>
 
     <act:tool-bar plugin="calendar.plugin">
         <act:action name="aWeek" componentName="calendar.week.mode" rendered="mode=='month'" dirtySensitivity="false"

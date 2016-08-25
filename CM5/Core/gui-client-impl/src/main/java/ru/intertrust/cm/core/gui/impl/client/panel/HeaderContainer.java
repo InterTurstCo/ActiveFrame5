@@ -7,12 +7,15 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.config.SettingsPopupConfig;
 import ru.intertrust.cm.core.config.localization.LocalizationKeys;
 import ru.intertrust.cm.core.gui.api.client.LocalizeUtil;
 import ru.intertrust.cm.core.gui.impl.client.ApplicationWindow;
 import ru.intertrust.cm.core.gui.impl.client.CurrentUserInfo;
 import ru.intertrust.cm.core.gui.impl.client.CurrentVersionInfo;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchShowDialogBoxEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchShowDialogBoxEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.HyperLinkWithHistorySupport;
 import ru.intertrust.cm.core.gui.impl.client.plugins.extendedsearch.ExtSearchDialogBox;
 import ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager;
@@ -20,10 +23,12 @@ import ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstants;
 import ru.intertrust.cm.core.gui.model.BusinessUniverseInitialization;
 import ru.intertrust.cm.core.gui.model.PlainTextUserExtraInfo;
 import ru.intertrust.cm.core.gui.model.UserExtraInfo;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static ru.intertrust.cm.core.config.localization.LocalizationKeys.*;
 import static ru.intertrust.cm.core.gui.impl.client.themes.GlobalThemesManager.*;
@@ -32,13 +37,14 @@ import static ru.intertrust.cm.core.gui.impl.client.util.BusinessUniverseConstan
 /**
  * Entry point classes define <code>createHeader()</code>
  */
-public class HeaderContainer extends SimplePanel {
+public class HeaderContainer extends SimplePanel implements ExtendedSearchShowDialogBoxEventHandler {
     private FocusPanel thirdImage;
     public static final int FIRST_ROW = 0;
     private InformationDialogBox dialogBox;
     private SettingsPopupConfig settingsPopupConfig;
     private PopupPanel popupPanel;
     private AbsolutePanel infoPanel;
+    private ExtSearchDialogBox extendedSearchDialogBox;
 
     public HeaderContainer() {
     }
@@ -150,7 +156,7 @@ public class HeaderContainer extends SimplePanel {
         thirdImage.addDomHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                getExtendedSearchPanel();
+                showExtendedSearchPanel(true, null, null, null);
             }
         }, ClickEvent.getType());
     }
@@ -186,13 +192,22 @@ public class HeaderContainer extends SimplePanel {
     }
 
     // вызываем окно расширенного поиска
-    private void getExtendedSearchPanel() {
+    public void showExtendedSearchPanel(boolean isNew, Map<String, WidgetState> extendedSearchConfiguration, List<String> searchAreas, String searchDomainObjectType) {
 
-        ExtSearchDialogBox dialog = new ExtSearchDialogBox();
-        dialog.setModal(true);
-        dialog.setGlassEnabled(true);
-        dialog.setPopupPosition(thirdImage.getAbsoluteLeft() - 545, 45);
-        dialog.show();
+        if(isNew || extendedSearchDialogBox == null){
+            extendedSearchDialogBox = new ExtSearchDialogBox();
+            extendedSearchDialogBox.setModal(true);
+            extendedSearchDialogBox.setGlassEnabled(true);
+            extendedSearchDialogBox.setPopupPosition(thirdImage.getAbsoluteLeft() - 545, 45);
+        }
+
+        extendedSearchDialogBox.setInitedFormData(extendedSearchConfiguration, searchAreas, searchDomainObjectType);
+        extendedSearchDialogBox.show();
+    }
+
+    @Override
+    public void onShowExtendedSearchDialog(ExtendedSearchShowDialogBoxEvent event) {
+        showExtendedSearchPanel(event.isNewDialog(), event.getExtendedSearchConfiguration(), event.getSearchAreas(), event.getSearchDomainObjectType());
     }
 
     private void logout() {

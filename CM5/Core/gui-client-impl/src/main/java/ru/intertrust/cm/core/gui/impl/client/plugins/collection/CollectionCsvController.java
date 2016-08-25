@@ -33,6 +33,13 @@ public class CollectionCsvController {
 
     public void doPostRequest(String json) {
         param.setText(json);
+        submitForm.setAction(GWT.getHostPageBaseURL() + "json-export-to-csv");
+        submitForm.submit();
+    }
+
+    public void doExtendedSearchPostRequest(String json) {
+        param.setText(json);
+        submitForm.setAction(GWT.getHostPageBaseURL() + "json-extended-search-export-to-csv");
         submitForm.submit();
     }
 
