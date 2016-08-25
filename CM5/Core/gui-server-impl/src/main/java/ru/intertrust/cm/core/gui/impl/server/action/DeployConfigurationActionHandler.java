@@ -5,6 +5,7 @@ import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.dto.ConfigurationDeployedItem;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
+import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -13,6 +14,8 @@ import ru.intertrust.cm.core.gui.model.action.DeployConfigurationActionData;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
 
 import javax.ejb.EJBException;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +39,7 @@ public class DeployConfigurationActionHandler
     private PropertyResolver propertyResolver;
     
     @Autowired
-    private PluginService pluginService;
+    private PluginStorage pluginStorage;
 
     private static final String TEMP_STORAGE_PATH = "${attachment.temp.storage}";
 
@@ -47,17 +50,17 @@ public class DeployConfigurationActionHandler
         List<ConfigurationDeployedItem> configurationDeployedItems = new ArrayList<>();
         String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
         for (AttachmentItem attachmentItem : attachmentItems) {
-            String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
+            File file = new File(pathForTempFilesStore, attachmentItem.getTemporaryName());
             ConfigurationDeployedItem  configurationDeployedItem = new ConfigurationDeployedItem();
             configurationDeployedItem.setFileName(attachmentItem.getName());
             try {
-                if (filePath.toLowerCase().endsWith(".jar")){
+                if (file.getName().toLowerCase().endsWith(".jar")){
                     //Установка плагина
-                    pluginService.deployPluginPackage(filePath);                    
+                    pluginStorage.deployPluginPackage(file.getPath());                    
                 }else{
                     //Установка конфигурации
-                    Charset charset = (filePath.toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
-                    String configAsString = readFileAsString(filePath, charset);
+                    Charset charset = (file.getName().toLowerCase().endsWith(".csv") ? Charset.forName("Windows-1251") : StandardCharsets.UTF_8);
+                    String configAsString = readFileAsString(file.getPath(), charset);
                     configurationControlService.updateConfiguration(configAsString, attachmentItem.getName());
                     configurationDeployedItem.setSuccess(true);
                 }
@@ -81,19 +84,6 @@ public class DeployConfigurationActionHandler
         return new DeployConfigurationActionContext(actionConfig);
     }
 
-    /*private String readFileAsString(String filePath) throws IOException {
-            StringBuilder fileData = new StringBuilder();
-            BufferedReader reader = new BufferedReader(
-                    new FileReader(filePath));
-            char[] buf = new char[1024];
-            int numRead=0;
-            while((numRead=reader.read(buf)) != -1){
-                String readData = String.valueOf(buf, 0, numRead);
-                fileData.append(readData);
-            }
-            reader.close();
-            return fileData.toString();
-        }*/
     private String readFileAsString(String path, Charset encoding)
             throws IOException
     {

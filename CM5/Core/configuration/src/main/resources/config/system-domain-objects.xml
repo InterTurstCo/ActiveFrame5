@@ -111,6 +111,21 @@
             <long name="sequence_number"/>
         </fields>
     </domain-object-type>
+
+    <domain-object-type name="plugin_status" initial-status="Sleep">
+        <fields>
+            <string name="plugin_id" length="256" not-null="true"/>
+            <date-time name="last_start"/>
+            <date-time name="last_finish"/>
+        </fields>
+        <uniqueKey>
+            <field name="plugin_id"/>
+        </uniqueKey>
+        <attachment-types>
+            <attachment-type name="execution_log"/>
+        </attachment-types>
+    </domain-object-type>
+    
     <collection name="last_migration_log" idField="id">
         <prototype>
             <![CDATA[

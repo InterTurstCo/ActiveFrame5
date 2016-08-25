@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_DO;
 
@@ -21,8 +22,8 @@ import static ru.intertrust.cm.core.business.api.dto.GenericDomainObject.STATUS_
  */
 public class StatusDaoImpl implements StatusDao {
 
-    private Map<Id, String> idToStatusName = new HashMap<Id, String>();
-    private Map<String, Id> statusNameToId = new HashMap<String, Id>();
+    private Map<Id, String> idToStatusName = new ConcurrentHashMap<>();
+    private Map<String, Id> statusNameToId = new ConcurrentHashMap<>();
 
     @Autowired
     private AccessControlService accessControlService;

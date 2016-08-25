@@ -17,4 +17,5 @@ public @interface Plugin {
     String description();
     boolean autostart() default false;    
     String context() default ExtensionService.PLATFORM_CONTEXT;
+    boolean transactional() default true;
 }

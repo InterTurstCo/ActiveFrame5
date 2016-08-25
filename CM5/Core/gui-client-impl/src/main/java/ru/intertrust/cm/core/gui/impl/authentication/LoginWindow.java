@@ -312,7 +312,7 @@ public class LoginWindow implements Component {
             @Override
             public void onFailure(Throwable caught) {
                 if (caught instanceof AuthenticationException) {
-                    message.setText(get(AUTHORIZATION_WRONG_PSW_ERROR_KEY, "Ошибка авторизации. Проверте правильность введенных данных."));
+                    message.setText(get(AUTHORIZATION_WRONG_PSW_ERROR_KEY, "Ошибка авторизации. Проверьте правильность введенных данных."));
                 } else if (caught instanceof StatusCodeException) {
                     message.setText(get(AUTHORIZATION_CONNECTION_ERROR_KEY, "Ошибка авторизации. Невозможно подключиться к серверу."));
                 } else {

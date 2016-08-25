@@ -329,11 +329,23 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
+        if (filters == null || filters.isEmpty()) {
+            return null;
+        }
         final HashSet<Filter> result = new HashSet<>(filters.size() * 2);
         for (Filter filter : filters) {
             result.add(ObjectCloner.fastCloneFilter(filter));
         }
         return result;
+    }
+
+    public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
+                                          int count, long time, AccessToken accessToken) {
+        final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames);
+        final UserSubject subject = getUserSubject(accessToken);
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
+        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, null, 0, 0);
+        notifyCollectionRead(key, subKey, domainObjectTypes, null, count, time);
     }
 
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
@@ -343,7 +355,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final UserSubject subject = getUserSubject(accessToken);
         final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
-        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
+        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), -1, time);
     }
 
     @Override
@@ -352,7 +364,7 @@ public class GlobalCacheImpl implements GlobalCache {
         final CollectionTypesKey key = new QueryCollectionTypesKey(query);
         final UserSubject subject = getUserSubject(accessToken);
         final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues == null ? null : new ArrayList<>(paramValues), offset, limit);
-        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), time);
+        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), -1, time);
     }
 
     @Override
@@ -615,12 +627,21 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     @Override
+    public int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, AccessToken accessToken) {
+        final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
+        final UserSubject subject = getUserSubject(accessToken);
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
+        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, null, 0, 0);
+        return getCollectionCount(key, subKey);
+    }
+
+    @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues,
                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
         final UserSubject subject = getUserSubject(accessToken);
         sortOrder = ObjectCloner.fastCloneSortOrder(sortOrder);
-        final Set<? extends Filter> filterValuesSet = filterValues == null ? null : cloneFiltersToSet(filterValues);
+        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
         final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
         return getCollection(key, subKey);
     }
@@ -1051,21 +1072,41 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
-                                     IdentifiableObjectCollection clonedCollection, long time) {
+                                     IdentifiableObjectCollection clonedCollection, int count, long time) {
         CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             baseNode = new CollectionBaseNode(domainObjectTypes == null ? Collections.EMPTY_SET : domainObjectTypes);
             baseNode = collectionsTree.addBaseNode(key, baseNode);
         }
         synchronized (subKey) { // todo fix
-            CollectionNode collectionNode = new CollectionNode(clonedCollection, time);
+            CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
             baseNode.setCollectionNode(subKey, collectionNode);
         }
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         assureCacheSizeLimit();
     }
 
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
+        final CollectionNode collectionNode = getCollectionNode(key, subKey);
+        if (collectionNode == null) {
+            return -1;
+        }
+        int count = collectionNode.getCount();
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
+        return count;
+    }
+
     protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
+        final CollectionNode collectionNode = getCollectionNode(key, subKey);
+        if (collectionNode == null) {
+            return null;
+        }
+        final IdentifiableObjectCollection collection = collectionNode.getCollection();
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
+        return ObjectCloner.fastCloneCollection(collection);
+    }
+
+    private CollectionNode getCollectionNode(CollectionTypesKey key, CollectionSubKey subKey) {
         final CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             return null;
@@ -1086,9 +1127,7 @@ public class GlobalCacheImpl implements GlobalCache {
                 }
             }
         }
-        final IdentifiableObjectCollection collection = collectionNode.getCollection();
-        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
-        return ObjectCloner.fastCloneCollection(collection);
+        return collectionNode;
     }
 
     private boolean typeSavedAfterOrSameTime(String type, long time) {
@@ -1405,6 +1444,10 @@ public class GlobalCacheImpl implements GlobalCache {
             // suspicious situation... todo: log
             if (GenericDomainObject.isAbsent(cachedDomainObject)) {
                 return NodeDomainObject.Set;
+            }
+
+            if (GenericDomainObject.isAbsent(domainObject)) {
+                return NodeDomainObject.Clear;
             }
 
             int comparison = domainObject.getModifiedDate().compareTo(cachedDomainObject.getModifiedDate());

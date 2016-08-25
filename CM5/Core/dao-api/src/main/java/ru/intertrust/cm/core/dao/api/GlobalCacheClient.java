@@ -50,6 +50,9 @@ public interface GlobalCacheClient {
     void notifyLinkedObjectsIdsRead(Id id, String linkedType, String linkedField, boolean exactType, List<Id> linkedObjectsIds,
                                  long time, AccessToken accessToken);
 
+    void notifyCollectionCountRead(String name, List<? extends Filter> filterValues,
+                                   int count, long time, AccessToken accessToken);
+
     void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
                               IdentifiableObjectCollection collection, long time, AccessToken accessToken);
 
@@ -77,6 +80,8 @@ public interface GlobalCacheClient {
     List<Id> getLinkedDomainObjectsIds(Id domainObjectId, String linkedType, String linkedField, boolean exactType, AccessToken accessToken);
 
     List<DomainObject> getAllDomainObjects(String type, boolean exactType, AccessToken accessToken);
+
+    int getCollectionCount(String name, List<? extends Filter> filterValues, AccessToken accessToken);
 
     IdentifiableObjectCollection getCollection(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken);
 

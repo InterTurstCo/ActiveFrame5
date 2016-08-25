@@ -244,9 +244,49 @@ public class CollectionsDaoImpl implements CollectionsDao {
                         configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
     }
 
+    private Pair<Integer, Long> findCollectionCountInDB(long preparationStartTime, CollectionConfig collectionConfig, String collectionName,
+                                                                        List<? extends Filter> filterValues, AccessToken accessToken) {
+        String collectionQuery;
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filterValues, accessToken);
+
+        if (cachedQueryEntry != null) {
+            collectionQuery = cachedQueryEntry.getQuery();
+        } else {
+
+            collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
+
+            collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
+            collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
+            CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, null);
+            collectionQueryCache.putCollectionCountQuery(collectionName, filterValues, accessToken, collectionQueryEntry);
+        }
+
+        Map<String, Object> parameters = new HashMap<>();
+        fillFilterParameters(filterValues, parameters);
+
+        if (accessToken.isDeferred()) {
+            fillAclParameters(accessToken, parameters);
+        }
+        long preparationTime = System.nanoTime() - preparationStartTime;
+        SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
+
+        long retrieveTime = System.currentTimeMillis();
+        return new Pair<>(jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class), retrieveTime);
+    }
+
     private IdentifiableObjectCollection validateCache(String collectionName, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
         if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken).getFirst();
+            if (!fromGlobalCache.equals(fromDb)) {
+                logger.error("CACHE ERROR! Named collection: " + collectionName);
+            }
+        }
+        return fromGlobalCache;
+    }
+
+    private Integer validateCountCache(CollectionConfig config, String collectionName, List<? extends Filter> filterValues, AccessToken accessToken, long start, Integer fromGlobalCache) {
+        if (globalCacheManager.isDebugEnabled()) {
+            Integer fromDb = findCollectionCountInDB(start, config, collectionName, filterValues, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
                 logger.error("CACHE ERROR! Named collection: " + collectionName);
             }
@@ -670,31 +710,16 @@ public class CollectionsDaoImpl implements CollectionsDao {
             return collectionDataGenerator.findCollectionCount(filterValues);
         }
 
-        String collectionQuery;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filterValues, accessToken);
-
-        if (cachedQueryEntry != null) {
-            collectionQuery = cachedQueryEntry.getQuery();
-        } else {
-
-            collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
-
-            collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
-            collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
-            CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, null);
-            collectionQueryCache.putCollectionCountQuery(collectionName, filterValues, accessToken, collectionQueryEntry);
+        final int fromGlobalCache = globalCacheClient.getCollectionCount(collectionName, filterValues, accessToken);
+        if (fromGlobalCache != -1) {
+            return validateCountCache(collectionConfig, collectionName, filterValues, accessToken, start, fromGlobalCache);
         }
 
-        Map<String, Object> parameters = new HashMap<>();
-        fillFilterParameters(filterValues, parameters);
+        final Pair<Integer, Long> dbResultAndStart = findCollectionCountInDB(start, collectionConfig, collectionName, filterValues, accessToken);
+        final Integer count = dbResultAndStart.getFirst();
 
-        if (accessToken.isDeferred()) {
-            fillAclParameters(accessToken, parameters);
-        }
-        long preparationTime = System.nanoTime() - start;
-        SqlLogger.SQL_PREPARATION_TIME_CACHE.set(preparationTime);
-
-        return jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class);
+        globalCacheClient.notifyCollectionCountRead(collectionName, filterValues, count, dbResultAndStart.getSecond(), accessToken);
+        return count;
     }
 
     protected CollectionQueryInitializer createCollectionQueryInitializer(ConfigurationExplorer configurationExplorer) {

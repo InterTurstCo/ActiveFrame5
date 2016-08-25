@@ -1,10 +1,14 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,7 +22,7 @@ public class IdentifiableObjectConverter {
 
     public List<DomainObject> convertToDomainObjectList(IdentifiableObjectCollection identifiableObjects) {
         if (identifiableObjects == null || identifiableObjects.size() == 0) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<DomainObject> result = new ArrayList<>(identifiableObjects.size());

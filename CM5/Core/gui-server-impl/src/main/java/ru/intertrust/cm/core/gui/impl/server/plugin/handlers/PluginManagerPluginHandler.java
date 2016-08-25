@@ -10,6 +10,7 @@ import org.springframework.core.env.PropertyResolver;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.plugin.PluginService;
+import ru.intertrust.cm.core.business.api.plugin.PluginStorage;
 import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.widget.AttachmentItem;
@@ -23,9 +24,9 @@ public class PluginManagerPluginHandler extends PluginHandler {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    private ApplicationContext context;    
-    
-    public PluginManagerPluginHandler(){
+    private ApplicationContext context;
+
+    public PluginManagerPluginHandler() {
         super();
     }
 
@@ -33,7 +34,7 @@ public class PluginManagerPluginHandler extends PluginHandler {
 
     public PluginInfoData refreshPlugins(Dto request) {
         PluginInfoData data = new PluginInfoData();
-        data.getPluginInfos().addAll(context.getBean(PluginService.class).getPlugins().values());
+        data.getPluginInfos().addAll(context.getBean(PluginStorage.class).getPlugins().values());
         return data;
     }
 
@@ -45,7 +46,7 @@ public class PluginManagerPluginHandler extends PluginHandler {
             File file = new File(pathForTempFilesStore, attachmentItem.getTemporaryName());
             if (file.getName().toLowerCase().endsWith(".jar")) {
                 //Установка плагина
-                context.getBean(PluginService.class).deployPluginPackage(file.getPath());
+                context.getBean(PluginStorage.class).deployPluginPackage(file.getPath());
             }
         }
     }

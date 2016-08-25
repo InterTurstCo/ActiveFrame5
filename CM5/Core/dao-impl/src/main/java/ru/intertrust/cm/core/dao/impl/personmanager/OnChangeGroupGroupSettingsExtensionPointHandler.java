@@ -98,17 +98,22 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
         AccessToken accessToken = accessControlService.createSystemAccessToken("OnChangeGroupGroupSettingsExtensionPointHandler");
         
         // Непосредственно добавляем элементы
+        ArrayList<DomainObject> groupGroups = new ArrayList<>(addList.size());
         for (Id group : addList) {
             DomainObject domainObject = createDomainObject("group_group");
             domainObject.setReference("parent_group_id", parent);
             domainObject.setReference("child_group_id", group);
-            domainObjectDao.save(domainObject, accessToken);
+            groupGroups.add(domainObject);
         }
+        domainObjectDao.save(groupGroups, accessToken);
         // Непосредственно удаляем элементы
+
+        ArrayList<Id> toDelete = new ArrayList<>(delList.size());
         for (Id group : delList) {
             Id groupGroupId = getGroupGroupId(parent, group);
-            domainObjectDao.delete(groupGroupId, accessToken);
+            toDelete.add(groupGroupId);
         }
+        domainObjectDao.delete(toDelete, accessToken);
     }
 
     /**
@@ -138,11 +143,12 @@ public class OnChangeGroupGroupSettingsExtensionPointHandler implements AfterSav
      * @return
      */
     private Set<Id> getIds(List<DomainObject> domainObjects) {
-        Set<Id> result = new HashSet<>();
-        if (domainObjects != null) {
-            for (DomainObject domainObject : domainObjects) {
-                result.add(domainObject.getId());
-            }
+        if (domainObjects == null || domainObjects.isEmpty()) {
+            return Collections.emptySet();
+        }
+        Set<Id> result = new HashSet<>(domainObjects.size());
+        for (DomainObject domainObject : domainObjects) {
+            result.add(domainObject.getId());
         }
         return result;
     }

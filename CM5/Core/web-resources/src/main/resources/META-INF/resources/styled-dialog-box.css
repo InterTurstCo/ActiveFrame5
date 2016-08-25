@@ -136,3 +136,23 @@
     font-family: Arial, sans-serif;
     color: white;
 }
+
+.body-popup-plugin-meneger
+.dialog-box-content {
+    padding: 10px;
+    background: #c2e7f0;
+    background: -moz-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #c2e7f0), color-stop(100%, #bfdfea));
+    background: -webkit-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%);
+    background: -o-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%);
+    background: -ms-linear-gradient(top, #c2e7f0 0%, #bfdfea 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#c2e7f0', endColorstr='#bfdfea', GradientType=0);
+}
+
+.body-popup-plugin-meneger
+.attachments-buttons-panel {
+    margin-left: 0px;
+    padding: 3px 0 0 0;
+    width: 100%;
+    background: white;
+}
