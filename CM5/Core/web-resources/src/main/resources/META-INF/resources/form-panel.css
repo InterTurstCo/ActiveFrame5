@@ -670,7 +670,7 @@ button.btn-perform-disabled.add-btn-table-viewer:hover {
 }
 
 button.btn-update {
-    background: url("resources/defaulttheme/images/icons/iconRefresh.png") no-repeat;
+    background: url("resources/defaulttheme/images/icons/icon-update.png") no-repeat;
     background-size: 15px;
     background-position: center;
 }
