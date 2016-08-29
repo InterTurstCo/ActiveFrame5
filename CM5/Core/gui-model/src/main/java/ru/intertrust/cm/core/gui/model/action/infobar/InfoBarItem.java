@@ -5,14 +5,14 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
 /**
  * Created by Vitaliy Orlov on 09.08.2016.
  */
-public class InfobarItem implements Dto{
+public class InfoBarItem implements Dto{
     private String name;
     private String value;
 
-    public InfobarItem() {
+    public InfoBarItem() {
     }
 
-    public InfobarItem(String name, String value) {
+    public InfoBarItem(String name, String value) {
         this.name = name;
         this.value = value;
     }

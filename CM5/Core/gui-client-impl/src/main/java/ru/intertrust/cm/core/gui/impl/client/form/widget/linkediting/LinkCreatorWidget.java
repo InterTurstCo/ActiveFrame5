@@ -66,7 +66,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
             if (createdObjectConfigs.size() == 1) {
                 CreatedObjectConfig createdObjectConfig = createdObjectConfigs.get(0);
                 String domainObjectType = createdObjectConfig.getDomainObjectType();
-                PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType.toLowerCase());
+                PopupTitlesHolder popupTitlesHolder = typeTitleMap != null ? typeTitleMap.get(domainObjectType.toLowerCase()) : null;
                 String title = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
                 createSimpleClickAction(title, domainObjectType, linkedFormMappingConfig, state.getParentWidgetIdsForNewFormMap());
             } else {
@@ -118,7 +118,7 @@ public abstract class LinkCreatorWidget extends EditableTooltipWidget {
                     public void onDomainObjectTypeSelected(DomainObjectTypeSelectedEvent event) {
                         if (event.getSource().equals(selectTypePopup)) {
                             String domainObjectType = event.getDomainObjectType();
-                            PopupTitlesHolder popupTitlesHolder = typeTitleMap.get(domainObjectType);
+                            PopupTitlesHolder popupTitlesHolder = typeTitleMap != null ? typeTitleMap.get(domainObjectType) : null;
                             String title = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleNewObject();
                             createAndShowFormDialogBox(title, domainObjectType, linkedFormMappingConfig, parentWidgetIdsForNewFormMap);
                         }

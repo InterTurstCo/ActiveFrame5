@@ -28,6 +28,7 @@ import ru.intertrust.cm.core.gui.impl.client.event.ExtendedSearchCompleteEvent;
 import ru.intertrust.cm.core.gui.impl.client.form.FormPanel;
 import ru.intertrust.cm.core.gui.impl.client.form.widget.BaseWidget;
 import ru.intertrust.cm.core.gui.model.Command;
+import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
@@ -276,20 +277,23 @@ public class ExtendedSearchPluginView extends PluginView {
         /*
          * if (scrollSearchForm != null) container.remove(scrollSearchForm) ;
          */
+        try {
+            ExtendedSearchData extendedSearchData = new ExtendedSearchData();
+            extendedSearchData.setSearchQuery(searchQuery);
+            extendedSearchData.setFormWidgetsData(formWidgetStates);
+            extendSearchFormPluginPanel = new PluginPanel();
 
-        ExtendedSearchData extendedSearchData = new ExtendedSearchData();
-        extendedSearchData.setSearchQuery(searchQuery);
-        extendedSearchData.setFormWidgetsData(formWidgetStates);
-        extendSearchFormPluginPanel = new PluginPanel();
+            extendedSearchFormPlugin = ComponentRegistry.instance.get("extended.search.form.plugin");
+            extendedSearchFormPlugin.setConfig(extendedSearchData);
+            extendSearchFormPluginPanel.open(extendedSearchFormPlugin);
+            extendSearchFormPluginPanel.setClassForPluginPanel("ext-search-content-wrapper");
 
-        extendedSearchFormPlugin = ComponentRegistry.instance.get("extended.search.form.plugin");
-        extendedSearchFormPlugin.setConfig(extendedSearchData);
-        extendSearchFormPluginPanel.open(extendedSearchFormPlugin);
-        extendSearchFormPluginPanel.setClassForPluginPanel("ext-search-content-wrapper");
-
-        extendSearchFormPluginPanel.asWidget().getElement().getStyle().clearOverflow();
-        scrollSearchForm.clear();
-        scrollSearchForm.add(extendSearchFormPluginPanel);
+            extendSearchFormPluginPanel.asWidget().getElement().getStyle().clearOverflow();
+            scrollSearchForm.clear();
+            scrollSearchForm.add(extendSearchFormPluginPanel);
+        }catch (Exception e){
+            throw new GuiException(e.getMessage(), e);
+        }
     }
 
     @Override

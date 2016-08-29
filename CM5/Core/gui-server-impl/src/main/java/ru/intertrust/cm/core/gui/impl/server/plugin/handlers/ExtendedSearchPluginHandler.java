@@ -394,7 +394,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
         result.setFormPluginData(formPluginData);
 
 
-        result.getInfobarContext().addInfoBarItem( MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_RESULT , GuiContext.getUserLocale()) + " : ", String.valueOf(collectionPluginData.getItems().size()));
+        result.getInfoBarContext().addInfoBarItem( MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_RESULT , GuiContext.getUserLocale()) + " : ", String.valueOf(collectionPluginData.getItems().size()));
         StringBuilder filterValueBuilder = new StringBuilder();
         Map<String, String> localDataMap = getSearchAreaFieldsConfig();
         for(Map.Entry<String, String> widgetEntryValue : formWidgetStringData.entrySet()){
@@ -406,7 +406,7 @@ public class ExtendedSearchPluginHandler extends PluginHandler {
             filterValueBuilder.append(fieldName).append(" : ").append(widgetEntryValue.getValue());
         }
 
-        result.getInfobarContext().addInfoBarItem(MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_FILERTS, GuiContext.getUserLocale()) + " : ", filterValueBuilder.toString());
+        result.getInfoBarContext().addInfoBarItem(MessageResourceProvider.getMessage(MessageResourceProvider.SEARCH_AREA_FILERTS, GuiContext.getUserLocale()) + " : ", filterValueBuilder.toString());
         final DomainObjectSurferPluginState dosState = new DomainObjectSurferPluginState();
         dosState.setToggleEdit(true);
         result.setPluginState(dosState);

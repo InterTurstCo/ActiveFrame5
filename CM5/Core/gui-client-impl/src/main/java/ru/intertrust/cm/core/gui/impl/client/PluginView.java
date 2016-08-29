@@ -23,8 +23,8 @@ import ru.intertrust.cm.core.gui.impl.client.util.LinkUtil;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
-import ru.intertrust.cm.core.gui.model.action.infobar.InfobarContext;
-import ru.intertrust.cm.core.gui.model.action.infobar.InfobarItem;
+import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarItem;
+import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
@@ -147,12 +147,12 @@ public abstract class PluginView implements IsWidget {
         infoBar.clear();
         final ActivePluginData initialData = plugin.getInitialData();
 
-        InfobarContext context = initialData.getInfobarContext();
+        InfoBarContext context = initialData.getInfoBarContext();
         if(context == null){
-            context = new InfobarContext();
+            context = new InfoBarContext();
         }
 
-        for(InfobarItem infoElement : context.getInfoBarItems()){
+        for(InfoBarItem infoElement : context.getInfoBarItems()){
             HorizontalPanel rowBox = new HorizontalPanel();
             Label nameLabel = new Label();
             nameLabel.setText(infoElement.getName());
