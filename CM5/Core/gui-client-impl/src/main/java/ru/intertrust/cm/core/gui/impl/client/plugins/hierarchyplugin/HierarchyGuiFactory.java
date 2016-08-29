@@ -90,15 +90,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
                     }
                 }
 
-                /*if (aCollectionConfig.getCollectionExtraFiltersConfig() != null) {
-                    for (ExtraFilterConfig extraFilterConfig : aCollectionConfig.getCollectionExtraFiltersConfig().getFilterConfigs()) {
-                        if (extraFilterConfig.getParamConfigs() != null) {
-                            if (extraFilterConfig.getParamConfigs().size() > 0 && extraFilterConfig.getParamConfigs().get(0).getType().equals(REF_TYPE_NAME)) {
-                                extraFilterConfig.getParamConfigs().clear();
-                            }
-                        }
-                    }
-                } */
+
                 if (autoClick) {
                     aCommonBus.fireEvent(new AutoOpenedEvent(parentViewId));
                 }

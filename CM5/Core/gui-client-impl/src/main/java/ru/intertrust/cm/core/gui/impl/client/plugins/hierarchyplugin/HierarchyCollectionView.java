@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.ui.*;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
@@ -74,11 +75,12 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         }
 
         int columnIndex = 1;
-        for (String key : rowItem.getRow().keySet()) {
-            InlineHTML fieldName = new InlineHTML("<b>" + key + "</b>");
+
+        for (CollectionColumnConfig column : collectionViewConfig.getCollectionDisplayConfig().getColumnConfig()){
+            InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + "</b>");
             fieldName.addStyleName(STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
-            InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(key).toString());
+            InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(column.getName()).toString());
             fieldValue.addStyleName(STYLE_FIELD_VALUE);
             grid.setWidget(0, columnIndex + 1, fieldValue);
             columnIndex += 2;
@@ -87,13 +89,6 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         container.add(grid);
     }
 
-    /*
-    @Override
-    public void onAutoOpenEvent(AutoOpenEvent autoOpenEvent) {
-        if (autoOpenEvent.getViewId().equals(getViewID())) {
-            clickElement(expandButton.getElement());
-        }
-    }*/
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
