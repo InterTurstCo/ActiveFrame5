@@ -24,7 +24,7 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToggleActionContext;
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarItem;
-import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarContext;
+import ru.intertrust.cm.core.gui.model.action.infobar.InformationBarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
 
@@ -147,9 +147,9 @@ public abstract class PluginView implements IsWidget {
         infoBar.clear();
         final ActivePluginData initialData = plugin.getInitialData();
 
-        InfoBarContext context = initialData.getInfoBarContext();
+        InformationBarContext context = initialData.getInfoBarContext();
         if(context == null){
-            context = new InfoBarContext();
+            context = new InformationBarContext();
         }
 
         for(InfoBarItem infoElement : context.getInfoBarItems()){

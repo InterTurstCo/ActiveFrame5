@@ -1,7 +1,7 @@
 package ru.intertrust.cm.core.gui.model.plugin;
 
 import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
-import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarContext;
+import ru.intertrust.cm.core.gui.model.action.infobar.InformationBarContext;
 
 /**
  * Данные плагина, в котором существует панель действий.
@@ -16,7 +16,7 @@ public class ActivePluginData extends PluginData {
 
     private ToolbarContext toolbarContext;
 
-    private InfoBarContext infoBarContext;
+    private InformationBarContext infoBarContext;
 
     /**
      * Возвращает список конфигураций действий, отображаемых в "Панели действий"
@@ -41,14 +41,14 @@ public class ActivePluginData extends PluginData {
      * Возвращает список конфигураций информационной панели, отображаемых под "Панели действий"
      * @return список элементов информационной панели, отображаемых в "Панели действий"
      */
-    public InfoBarContext getInfoBarContext() {
+    public InformationBarContext getInfoBarContext() {
         if (infoBarContext == null) {
-            infoBarContext = new InfoBarContext();
+            infoBarContext = new InformationBarContext();
         }
         return infoBarContext;
     }
 
-    public void setInfoBarContext(InfoBarContext infoBarContext) {
+    public void setInfoBarContext(InformationBarContext infoBarContext) {
         this.infoBarContext = infoBarContext;
     }
 }
