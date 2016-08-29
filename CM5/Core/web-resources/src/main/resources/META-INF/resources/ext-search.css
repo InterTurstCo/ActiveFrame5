@@ -191,7 +191,7 @@
 }
 
 .ext-search-content-wrapper {
-    position: absolute !important;
+   /*position: absolute !important;*/
     top: 0;
     bottom: 0;
     right: 0;

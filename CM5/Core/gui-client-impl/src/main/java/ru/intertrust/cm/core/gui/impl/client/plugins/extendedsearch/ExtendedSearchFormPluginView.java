@@ -53,8 +53,7 @@ public class ExtendedSearchFormPluginView extends PluginView {
             String id = widget.getDisplayConfig().getId();
             if (widget.isEditable()) {
                 try {
-                    WidgetState state = widget.getCurrentState();
-
+                    WidgetState state = widget.getFullClientStateCopy();
                     result.put(id, state);
                 } catch (GuiException e) {
                     ApplicationWindow.errorAlert(LocalizeUtil.get(LocalizationKeys.EXTENDED_SEARCH_ERROR_MESSAGE_KEY,

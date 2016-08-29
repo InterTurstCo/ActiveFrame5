@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.EnumMap;
 
+import static org.springframework.util.StringUtils.isEmpty;
 import static ru.intertrust.cm.deployment.tool.config.AppConstants.ARCHIVE_NAME_PATTERN;
 
 /**
@@ -47,10 +48,13 @@ public abstract class AttachmentUnzipTask implements Task {
     }
 
     protected boolean unzip(AttachmentType attachmentType, String target) {
-        String ear = context.getEar();
-        String source = props.getBackupFolder() + File.separator + ear;
-        String zipName = String.format(ARCHIVE_NAME_PATTERN, ear, attachmentType.getShortName());
-        return new UnzipHelper().unzip(source, target, zipName);
+        if (!isEmpty(target)) {
+            String ear = context.getEar();
+            String source = props.getBackupFolder() + File.separator + ear;
+            String zipName = String.format(ARCHIVE_NAME_PATTERN, ear, attachmentType.getShortName());
+            return new UnzipHelper().unzip(source, target, zipName);
+        }
+        return true;
     }
 
     @PostConstruct

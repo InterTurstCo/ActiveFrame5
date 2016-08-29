@@ -14,6 +14,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.EnumMap;
 
+import static org.springframework.util.StringUtils.isEmpty;
 import static ru.intertrust.cm.deployment.tool.config.AppConstants.ARCHIVE_NAME_PATTERN;
 
 /**
@@ -46,10 +47,13 @@ public abstract class AttachmentZipTask implements Task {
     }
 
     protected boolean zip(AttachmentType attachmentType, String source) {
-        String ear = context.getEar();
-        String target = props.getBackupFolder() + File.separator + ear;
-        String zipName = String.format(ARCHIVE_NAME_PATTERN, ear, attachmentType.getShortName());
-        return new ZipHelper(source, target).zip(zipName);
+        if (!isEmpty(source)) {
+            String ear = context.getEar();
+            String target = props.getBackupFolder() + File.separator + ear;
+            String zipName = String.format(ARCHIVE_NAME_PATTERN, ear, attachmentType.getShortName());
+            return new ZipHelper(source, target).zip(zipName);
+        }
+        return true;
     }
 
     @PostConstruct

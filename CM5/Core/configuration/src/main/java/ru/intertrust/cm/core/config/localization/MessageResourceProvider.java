@@ -16,6 +16,9 @@ public class MessageResourceProvider {
     public static final String SEARCH_AREA = "SEARCH_AREA";
     public static final String SEARCH_DOMAIN_OBJECT = "SEARCH_DOMAIN_OBJECT";
     public static final String SEARCH_FIELD = "SEARCH_FIELD";
+    public static final String SEARCH_AREA_RESULT = "search-result-label";
+    public static final String SEARCH_AREA_FILERTS = "search-filters-label";
+
 
     public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 

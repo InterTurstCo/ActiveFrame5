@@ -6,8 +6,11 @@ import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.SearchService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.gui.action.AbstractActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
+import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
+import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionDisplayConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.ExpandableObjectConfig;
@@ -16,6 +19,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.filter.InitialParamConfig;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
+import ru.intertrust.cm.core.gui.api.server.GuiServerHelper;
 import ru.intertrust.cm.core.gui.api.server.plugin.ActivePluginHandler;
 import ru.intertrust.cm.core.gui.api.server.plugin.DefaultImageMapper;
 import ru.intertrust.cm.core.gui.api.server.plugin.FilterBuilder;
@@ -30,10 +34,7 @@ import ru.intertrust.cm.core.gui.model.action.ToolbarContext;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
 import ru.intertrust.cm.core.gui.model.form.widget.CollectionRowsResponse;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionPluginData;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRefreshRequest;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowsRequest;
+import ru.intertrust.cm.core.gui.model.plugin.collection.*;
 import ru.intertrust.cm.core.gui.model.util.UserSettingsHelper;
 
 import java.util.*;
@@ -185,7 +186,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         }
     }
 
-    public CollectionPluginData getExtendedCollectionPluginData(String collectionName, final String link,
+    public ExtendedSearchCollectionPluginData getExtendedCollectionPluginData(String collectionName, final String link,
                                                                 ArrayList<CollectionRowItem> items) {
         CollectionRefConfig refConfig = new CollectionRefConfig();
         refConfig.setName(collectionName);
@@ -193,7 +194,7 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         CollectionViewerConfig collectionViewerConfig = new CollectionViewerConfig();
         collectionViewerConfig.setCollectionRefConfig(refConfig);
 
-        CollectionPluginData pluginData = new CollectionPluginData();
+        ExtendedSearchCollectionPluginData pluginData = new ExtendedSearchCollectionPluginData();
         final CollectionViewConfig collectionViewConfig =
                 getViewForCurrentCollection(collectionViewerConfig, collectionName, link);
 
@@ -202,8 +203,19 @@ public class CollectionPluginHandler extends ActivePluginHandler {
         pluginData.setDomainObjectFieldPropertiesMap(map);
         pluginData.setItems(items);
         pluginData.setCollectionName(collectionName);
-        pluginData.setToolbarContext(getToolbarContext(collectionViewerConfig));
+
+        // build SearchResultPlugin data
+        pluginData.setToolbarContext(getExtendedSearchToolbarContext(collectionViewerConfig));
         return pluginData;
+    }
+
+    private ToolbarContext getExtendedSearchToolbarContext(final CollectionViewerConfig viewerConfig){
+        final Map<String, Object> collectionParams = new HashMap<>();
+        final ToolBarConfig toolbarConfig =new ToolBarConfig();
+        final ToolbarContext result = new ToolbarContext();
+        actionConfigBuilder.appendConfigs(actionService.getDefaultToolbarConfig("search.result.toolbar",  GuiContext.getUserLocale()).getActions(), collectionParams);
+        result.setContexts(actionConfigBuilder.getActionContexts(), ToolbarContext.FacetName.LEFT);
+        return result;
     }
 
     private ToolbarContext getToolbarContext(final CollectionViewerConfig viewerConfig) {
@@ -363,24 +375,69 @@ public class CollectionPluginHandler extends ActivePluginHandler {
                                                           LinkedHashMap<String, CollectionColumnProperties> properties,
                                                           List<Filter> filters, int offset, int limit, List<String> expandableTypes) {
         ArrayList<CollectionRowItem> list;
-        String collectionName = request.getCollectionName();
-        if (request.isSortable()) {
-            SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
-            list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
-        } else {
-            if (request.getSimpleSearchQuery().length() > 0) {
-                list = getSimpleSearchRows(collectionName, offset, limit, filters,
-                        request.getSimpleSearchQuery(), request.getSearchArea(),
-                        properties, request.getExpandableTypes());
-            } else {
-                SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
-                list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
 
+        if(request instanceof ExtendedSearchCollectionRowsRequest) {
+            ExtendedSearchCollectionRowsRequest searchRequest = (ExtendedSearchCollectionRowsRequest) request;
+
+
+            list = new ArrayList<>();
+
+            final String targetCollectionName = searchRequest.getCollectionName();
+
+            final Collection<CollectionViewConfig> viewConfigs = configurationService.getConfigs(CollectionViewConfig.class);
+            CollectionViewConfig targetViewConfig = null;
+            for (CollectionViewConfig viewConfig : viewConfigs) {
+                if (viewConfig.getCollection().equals(targetCollectionName) && viewConfig.isDefault()) {
+                    targetViewConfig = viewConfig;
+                    break;
+                }
+            }
+            final LinkedHashMap<String, CollectionColumnProperties> columnPropertiesMap = new LinkedHashMap<>();
+            for (CollectionColumnConfig ccConfig : targetViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
+                final CollectionColumnProperties cProperties =
+                        GuiServerHelper.collectionColumnConfigToProperties(ccConfig, null, null);
+                columnPropertiesMap.put(ccConfig.getField(), cProperties);
             }
 
+            IdentifiableObjectCollection collection = searchService.search(searchRequest.getSearchQuery(),
+                    targetCollectionName, limit);
+
+
+            for (IdentifiableObject identifiableObject : collection) {
+                final Map<String, Map<Value, ImagePathValue>> fieldMaps = defaultImageMapper.getImageMaps(columnPropertiesMap);
+                list.add(generateCollectionRowItem(identifiableObject, columnPropertiesMap, fieldMaps, false));
+            }
+
+            // sort collection
+            final SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
+            Collections.sort(list, new Comparator<CollectionRowItem>() {
+                @Override
+                public int compare(CollectionRowItem o1, CollectionRowItem o2) {
+                   Value v1 = o1.getRowValue(sortOrder.get(0).getField());
+                   Value v2 = o2.getRowValue(sortOrder.get(0).getField());
+                   return  Value.getComparator(sortOrder.get(0).getOrder().equals(SortCriterion.Order.ASCENDING), true).compare(v1, v2);
+                }
+            });
+
+        }else{
+            String collectionName = request.getCollectionName();
+            if (request.isSortable()) {
+                SortOrder sortOrder = CollectionPluginHelper.getSortOrder(request);
+                list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
+            } else {
+                if (request.getSimpleSearchQuery().length() > 0) {
+                    list = getSimpleSearchRows(collectionName, offset, limit, filters,
+                            request.getSimpleSearchQuery(), request.getSearchArea(),
+                            properties, request.getExpandableTypes());
+                } else {
+                    SortOrder sortOrder = sortOrderHelper.buildSortOrderByIdField(collectionName);
+                    list = getRows(collectionName, offset, limit, filters, sortOrder, properties, expandableTypes);
+
+                }
+
+            }
         }
         return list;
-
     }
 
     private boolean hasConfiguredFilters(Map<String, CollectionColumnProperties> columnPropertyMap) {

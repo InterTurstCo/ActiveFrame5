@@ -5,6 +5,8 @@ jboss.app.port=8080
 jboss.admin.port=9990
 jboss.user=admin
 jboss.password=admin1
+jboss.cli.controller=localhost
+jboss.cli.port=9990
 
 server.properties=/home/alexander/workspaces/vendor/wf10/standalone/configuration/server.properties
 

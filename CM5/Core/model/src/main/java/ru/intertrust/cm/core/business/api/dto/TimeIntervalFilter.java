@@ -1,10 +1,10 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import java.util.Calendar;
+//import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
+//import java.util.TimeZone;
 
-import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+//import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 
 /**
  * Фильтр расширенного поиска, позволяющий искать документ по факту того, что значение определённого поля
@@ -33,18 +33,18 @@ public class TimeIntervalFilter extends SearchFilterBase {
         this.startTime = start;
         this.endTime = end;
     }
-
-    public TimeIntervalFilter(String fieldName, TimelessDate startDate, TimelessDate endDate) {
+/*
+    public TimeIntervalFilterV(String fieldName, TimelessDate startDate, TimelessDate endDate) {
         super(fieldName);
-        setStartTime(startDate);
-        setEndTime(endDate);
+        setStartTimelessDate(startDate);
+        setEndTimelessDate(endDate);
     }
 
-    public TimeIntervalFilter(String fieldName, DateTimeWithTimeZone start, DateTimeWithTimeZone end) {
+    public TimeIntervalFilterV(String fieldName, DateTimeWithTimeZone start, DateTimeWithTimeZone end) {
         super(fieldName);
-        setStartTime(start);
-        setEndTime(end);
-    }
+        setStartTimeWithTimeZone(start);
+        setEndTimeWithTimeZone(end);
+    }*/
 
     public Date getStartTime() {
         return startTime;
@@ -53,8 +53,8 @@ public class TimeIntervalFilter extends SearchFilterBase {
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
-
-    public void setStartTime(TimelessDate startDate) {
+/*
+    public void setStartTimelessDate(TimelessDate startDate) {
         if (startDate != null) {
             this.startTime = startDate.toDate();
         } else {
@@ -62,13 +62,13 @@ public class TimeIntervalFilter extends SearchFilterBase {
         }
     }
 
-    public void setStartTime(DateTimeWithTimeZone start) {
+    public void setStartTimeWithTimeZone(DateTimeWithTimeZone start) {
         if (start != null) {
             this.startTime = convert(start);
         } else {
             this.startTime = null;
         }
-    }
+    }*/
 
     public Date getEndTime() {
         return endTime;
@@ -77,8 +77,9 @@ public class TimeIntervalFilter extends SearchFilterBase {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+/*
 
-    public void setEndTime(TimelessDate endDate) {
+    public void setEndTimelessDate(TimelessDate endDate) {
         if (endDate != null) {
             long time = endDate.toDate().getTime();
             time += 24 * 60 * 60 * 1000 - 1;
@@ -88,7 +89,7 @@ public class TimeIntervalFilter extends SearchFilterBase {
         }
     }
 
-    public void setEndTime(DateTimeWithTimeZone end) {
+    public void setEndTimeWithTimeZone(DateTimeWithTimeZone end) {
         if (end != null) {
             this.endTime = convert(end);
         } else {
@@ -105,10 +106,15 @@ public class TimeIntervalFilter extends SearchFilterBase {
         cal.set(Calendar.MILLISECOND, source.getMilliseconds());
         return cal.getTime();
     }
+*/
 
     @Override
     public String toString() {
+        return "from antiquity to eternity";
+    }
+  /*  @Override
+    public String toString() {
         return "from " + (startTime == null ? "antiquity" : ThreadSafeDateFormat.format(startTime, DATE_PATTERN))
                 + " to " + (endTime == null ? "eternity" : ThreadSafeDateFormat.format(endTime, DATE_PATTERN));
-    }
+    }*/
 }

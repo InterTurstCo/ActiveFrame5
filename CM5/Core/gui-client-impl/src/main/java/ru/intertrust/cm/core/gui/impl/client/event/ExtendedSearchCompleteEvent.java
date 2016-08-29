@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.impl.client.event;
 
 import com.google.gwt.event.shared.GwtEvent;
 import ru.intertrust.cm.core.gui.model.plugin.DomainObjectSurferPluginData;
+import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchDomainObjectSurfacePluginData;
 
 /**
  * User: IPetrov
@@ -13,9 +14,9 @@ public class ExtendedSearchCompleteEvent extends GwtEvent<ExtendedSearchComplete
 
     public static GwtEvent.Type<ExtendedSearchCompleteEventHandler> TYPE = new GwtEvent.Type<ExtendedSearchCompleteEventHandler>();
     // данные плагина
-    private DomainObjectSurferPluginData domainObjectSurferPluginData;
+    private ExtendedSearchDomainObjectSurfacePluginData domainObjectSurferPluginData;
 
-    public ExtendedSearchCompleteEvent(DomainObjectSurferPluginData domainObjectSurferPluginData) {
+    public ExtendedSearchCompleteEvent(ExtendedSearchDomainObjectSurfacePluginData domainObjectSurferPluginData) {
         this.domainObjectSurferPluginData = domainObjectSurferPluginData;
     }
 
@@ -28,7 +29,7 @@ public class ExtendedSearchCompleteEvent extends GwtEvent<ExtendedSearchComplete
         handler.onExtendedSearchComplete(this);
     }
 
-    public DomainObjectSurferPluginData getDomainObjectSurferPluginData() {
+    public ExtendedSearchDomainObjectSurfacePluginData getDomainObjectSurferPluginData() {
         return domainObjectSurferPluginData;
     }
 }

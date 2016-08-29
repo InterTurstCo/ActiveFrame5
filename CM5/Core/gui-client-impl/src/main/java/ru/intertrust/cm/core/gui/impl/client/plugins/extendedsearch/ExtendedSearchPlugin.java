@@ -6,8 +6,11 @@ import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.model.ComponentName;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchPluginData;
 
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /*
@@ -55,5 +58,10 @@ public class ExtendedSearchPlugin extends Plugin {
     @Override
     public Component createNew() {
         return new ExtendedSearchPlugin();
+    }
+
+    public void resetFormByInitData(Map<String, WidgetState> extendedSearchConfiguration, List<String> searchAreas, String searchDomainObjectType) {
+        ((ExtendedSearchPluginView)getView()).resetFormByInitData(extendedSearchConfiguration, searchAreas, searchDomainObjectType);
+
     }
 }

@@ -1,6 +1,9 @@
 package ru.intertrust.cm.core.gui.impl.client.util;
 
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.fasterxml.jackson.databind.util.JSONWrappedObject;
 import com.google.gwt.json.client.*;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.AbstractFilterConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.ParamConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.filter.extra.CollectionExtraFiltersConfig;
@@ -10,10 +13,7 @@ import ru.intertrust.cm.core.config.gui.navigation.SortCriterionConfig;
 import ru.intertrust.cm.core.gui.impl.client.plugins.collection.SortCollectionState;
 import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -141,6 +141,15 @@ public class JsonUtil {
         requestObj.put(filterAttributeName, filtersObj);
     }
 
+
+    public static void prepareJsonExtendedSearchParams(JSONObject requestObj, SearchQuery searchQuery, String propertyName){
+        if(searchQuery == null){
+            return;
+        }
+
+        requestObj.put(propertyName, searchQueryToJson(searchQuery) );
+    }
+
     private static void prepareFiltersConfigs(JSONObject filtersObj,
                                               List<? extends AbstractFilterConfig<? extends ParamConfig>> filterConfigs) {
         JSONArray jsonFiltersArr = new JSONArray();
@@ -190,5 +199,81 @@ public class JsonUtil {
         }
     }
 
+
+    public static JSONObject searchQueryToJson(SearchQuery searchQuery) {
+        JSONObject result = new JSONObject();
+        result.put("targetObjectType", new JSONString(searchQuery.getTargetObjectType()));
+
+        JSONArray areasValue = new JSONArray();
+
+
+        int areaIndex = 0;
+        for(String area : searchQuery.getAreas()){
+            areasValue.set(areaIndex, new JSONString(area));
+            areaIndex++;
+        }
+
+
+        result.put("areas", areasValue);
+
+        JSONArray filtersValue = new JSONArray();
+
+        int fIndex = 0;
+        for(SearchFilter filter : searchQuery.getFilters()){
+            filtersValue.set(fIndex, searchFilterToJson(filter));
+            fIndex ++;
+        }
+        result.put("filters", filtersValue);
+
+        return result;
+    }
+
+    private static JSONObject searchFilterToJson(SearchFilter filter) {
+        JSONObject result = new JSONObject();
+        result.put("type", new JSONString(filter.getClass().getCanonicalName()));
+        result.put("name", new JSONString(filter.getFieldName()));
+        JSONArray values = new JSONArray();
+
+        if(filter instanceof BooleanSearchFilter){
+            values.set(0, createJsonValueObject("value", JSONBoolean.getInstance(((BooleanSearchFilter) filter).getValue())));
+        }else if(filter instanceof EmptyValueFilter){
+            values.set(0, createJsonValueObject("value", JSONNull.getInstance()));
+        }else if(filter instanceof CombiningFilter){
+            values.set(0, createJsonValueObject("value", new JSONNumber(((CombiningFilter) filter).getOperation().ordinal())));
+            JSONArray filters = new JSONArray();
+            for(int fIndex = 0; fIndex< ((CombiningFilter) filter).getFilters().size(); fIndex++){
+                values.set(fIndex + 1, createJsonValueObject("filter", searchFilterToJson(((CombiningFilter) filter).getFilters().get(fIndex))));
+            }
+        }else if(filter instanceof NegativeFilter){
+            values.set(0, createJsonValueObject("value", searchFilterToJson(((NegativeFilter) filter).getBaseFilter())));
+        }else if(filter instanceof NumberRangeFilter){
+            Number max = ((NumberRangeFilter) filter).getMax();
+            Number min = ((NumberRangeFilter) filter).getMin();
+
+            values.set(0, createJsonValueObject("min", min != null ? new JSONNumber(min.intValue()) : JSONNull.getInstance() ));
+            values.set(1, createJsonValueObject("max", max != null ? new JSONNumber(max.intValue()) : JSONNull.getInstance() ));
+
+        }else if(filter instanceof OneOfListFilter){
+            for(int fIndex = 0; fIndex< ((OneOfListFilter) filter).getValues().size(); fIndex++){
+                values.set(fIndex, createJsonValueObject("value", new JSONString(((OneOfListFilter) filter).getValues().get(fIndex).get().toStringRepresentation())));
+            }
+        }else if(filter instanceof TextSearchFilter ){
+            values.set(0, createJsonValueObject("value", new JSONString(((TextSearchFilter) filter).getText())));
+        }else if(filter instanceof TimeIntervalFilter){
+            Date startTime = ((TimeIntervalFilter) filter).getStartTime();
+            Date endTime = ((TimeIntervalFilter) filter).getEndTime();
+            values.set(0, createJsonValueObject("start", new JSONNumber(startTime != null ? startTime.getTime() : 0)));
+            values.set(1, createJsonValueObject("end",  new JSONNumber(endTime != null ? endTime.getTime() : 0)));
+        }
+        result.put("values", values);
+        return result;
+    }
+
+    private static JSONObject createJsonValueObject (String propertyName, JSONValue value){
+        JSONObject result = new JSONObject();
+        result.put("propertyName", new JSONString(propertyName));
+        result.put("propertyValue", value);
+        return result;
+    }
 
 }

@@ -52,13 +52,21 @@ public class JbossService {
             Path path = Paths.get(props.getJbossHome(), "bin", isWindowsEnv ? "jboss-cli.bat" : "jboss-cli.sh");
             String command = path +
                     " --connect" +
-                    " --controller=" + props.getJbossHost() + ":" + props.getJbossAdminPort() +
+                    " --controller=" + props.getJbossCliController() + ":" + props.getJbossCliPort() +
                     " --user=" + props.getJbossUser() +
                     " --password=" + props.getJbossPassword() +
                     " command=:shutdown";
             logger.info("Jboss stop...");
             Process process = Runtime.getRuntime().exec(command);
             ProcessPrintUtil.print(process);
+            while (isServerStarted()) {
+                try {
+                    logger.info("Waiting jboss stopping 10 seconds");
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
             logger.info("Server has been stopped");
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
@@ -71,7 +79,7 @@ public class JbossService {
             Integer code = isUrlAvailable(url, "GET");
             if (code != null) {
                 if (code.equals(200)) {
-                    logger.info("Server is already running");
+                    logger.info("Server is running");
                     return true;
                 }
                 if (code.equals(-1)) return false;

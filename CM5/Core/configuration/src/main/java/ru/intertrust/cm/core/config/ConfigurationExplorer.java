@@ -237,7 +237,7 @@ public interface ConfigurationExplorer {
      * @return default toolbar of plugin. Can be NULL if toolbar not defined.
      */
     ToolBarConfig getDefaultToolbarConfig(String pluginName, String currentLocale);
-    
+
 
     /**
      * Возвращает родительский тип доменного объекта

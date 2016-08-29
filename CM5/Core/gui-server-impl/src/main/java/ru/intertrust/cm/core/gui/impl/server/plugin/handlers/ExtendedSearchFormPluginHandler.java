@@ -11,10 +11,12 @@ import ru.intertrust.cm.core.gui.api.server.plugin.PluginHandler;
 import ru.intertrust.cm.core.gui.api.server.GuiContext;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.form.FormDisplayData;
+import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 import ru.intertrust.cm.core.gui.model.plugin.ExtendedSearchData;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginData;
 
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * User: IPetrov
@@ -44,9 +46,15 @@ public class ExtendedSearchFormPluginHandler extends PluginHandler {
 
         HashSet<String> searchFormFields = extendedSearchPluginHandler.selectSearchFormFields(targetDomainObject);
         FormDisplayData form = guiService.getSearchForm(targetDomainObject, searchFormFields, userInfo);
+        if(extendedSearchData.getFormWidgetsData() != null){
+            for(Map.Entry<String, WidgetState> entry : extendedSearchData.getFormWidgetsData().entrySet()){
+                form.getFormState().setWidgetState(entry.getKey(), entry.getValue());
+                form.getFormState().getWidgetState(entry.getKey()).setEditable(true);
+            }
+        }
+
         FormPluginData formPluginData = new FormPluginData();
         formPluginData.setFormDisplayData(form);
-
         return formPluginData;
     }
 }

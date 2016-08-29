@@ -42,6 +42,8 @@ public abstract class Plugin extends BaseComponent {
     private PluginPanel owner;
     private PluginConfig config;
     private boolean displayActionToolBar;
+    private boolean displayInfobar;
+
     private PluginData initialData;
     private boolean initialDataAssigned;
     private PluginView view;
@@ -268,6 +270,14 @@ public abstract class Plugin extends BaseComponent {
 
     public void setDisplayActionToolBar(boolean displayActionToolBar) {
         this.displayActionToolBar = displayActionToolBar;
+    }
+
+    public boolean isDisplayInfobar() {
+        return displayInfobar;
+    }
+
+    public void setDisplayInfobar(boolean displayInfobar) {
+        this.displayInfobar = displayInfobar;
     }
 
     public void setNavigationConfig(NavigationConfig navigationConfig) {
