@@ -31,3 +31,6 @@ restore.version.on.failure=last_successful
 
 #nexus url for ear's downloading
 #http://nexus.inttrust.ru:8081/nexus/content/groups/public/ru/intertrust/cm-base/cm5div6-ear/
+
+#download ear from command line example
+#wget --user=devcm5r --ask-password http://nexus.inttrust.ru:8081/nexus/content/groups/public/ru/intertrust/cm-base/cm5div6-ear/5.1.2.110-6.0-A87/cm5div6-ear-5.1.2.110-6.0-A87.ear
