@@ -120,12 +120,14 @@ public class TableViewerToobar {
         fooMenu = new MenuBar(true);
         actionsMenu.setStyleName("button-table-viewer");
         fooMenu.setStyleName("wrapApproval");
+        actionsMenu.setTitle("Процессы");
         actionsMenu.addItem("", fooMenu);
 
         toolbarActionsMenu = new MenuBar();
         toolbarFooMenu = new MenuBar(true);
         toolbarActionsMenu.setStyleName("button-actions-viewer");
         toolbarFooMenu.setStyleName("wrapActions");
+        toolbarActionsMenu.setTitle("Действия");
         toolbarActionsMenu.addItem("", toolbarFooMenu);
 
         initMenu();
