@@ -28,3 +28,6 @@ backup.before=5.1.2.81-6.0-A60, 5.1.2.81-6.0-A71
 
 #current/last_successful
 restore.version.on.failure=last_successful
+
+#nexus url for ear's downloading
+#http://nexus.inttrust.ru:8081/nexus/content/groups/public/ru/intertrust/cm-base/cm5div6-ear/
