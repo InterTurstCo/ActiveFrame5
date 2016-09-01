@@ -27,6 +27,7 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
     private EventBus eventBus = new SimpleEventBus();
     private Map<String, Boolean> existedNodeList = new HashMap<>();
     private HierarchyHistoryNode openedNodeList;
+    private HierarchySurferPlugin containingHierarchyPlugin;
 
     @Override
     public PluginView createView() {
@@ -81,5 +82,13 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
     @Override
     public void onNodeCreatedEvent(NodeCreatedEvent event) {
         existedNodeList.put(event.getViewId(), true);
+    }
+
+    public HierarchySurferPlugin getContainingHierarchyPlugin() {
+        return containingHierarchyPlugin;
+    }
+
+    public void setContainingHierarchyPlugin(HierarchySurferPlugin containingHierarchyPlugin) {
+        this.containingHierarchyPlugin = containingHierarchyPlugin;
     }
 }
