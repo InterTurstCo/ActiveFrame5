@@ -180,7 +180,7 @@ public class HierarchySurferPluginView extends PluginView {
             formPluginPanel.open(hierarchySurferPlugin.getFormPlugin());
             formPluginPanel.asWidget().addStyleName("formContainer");
             northRootWidget.add(hierarchyPluginPanel);
-            //southRootWidget.add(formPluginPanel);
+            southRootWidget.add(formPluginPanel);
         }
         Application.getInstance().hideLoadingIndicator();
         Application.getInstance().getHistoryManager()

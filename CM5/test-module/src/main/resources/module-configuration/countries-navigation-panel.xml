@@ -1608,7 +1608,7 @@
                         </hierarchy-plugin>
                     </plugin>
                 </link>
-                <link name="HSurfer" display-text="Иерархический слпгин с формой (прототип)">
+                <link name="HSurfer" display-text="Иерархический плагин с формой (прототип)">
                     <plugin>
                         <hierarchy-surfer>
                             <hierarchy-plugin pid="org_hierarchy_surfer">
