@@ -148,6 +148,7 @@ public class HierarchySurferPluginView extends PluginView {
     public IsWidget getViewWidget() {
         rootSurferPanel = new AbsolutePanel();
         rootSurferPanel.setStyleName("centerTopBottomDividerRoot");
+        northRootWidget.addStyleName("topPanel");
         AbsolutePanel container = new AbsolutePanel();
         container.setStyleName("centerTopBottomDividerRootInnerDiv");
         rootSurferPanel.add(container);
