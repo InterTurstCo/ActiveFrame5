@@ -57,6 +57,7 @@
         <!-- Тестовые обьекты для иерархического плагина  -->
         <configuration-path>hierarchy-plugin-test-data/domain-objects.xml</configuration-path>
         <configuration-path>hierarchy-plugin-test-data/collections.xml</configuration-path>
+        <configuration-path>hierarchy-plugin-test-data/forms.xml</configuration-path>
 
         <!-- Настройка импорта -->
         <configuration-path>module-configuration/import-settings.xml</configuration-path>        

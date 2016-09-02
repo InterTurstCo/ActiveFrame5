@@ -205,6 +205,8 @@
             </template-based-widget>
         </widget-config>
     </form>
+
+
     <widget-template name="organizations-inline-table" domain-object-type="Organization"> <!-- domain-object-type необязательный параметр. если он установлен, то field-path должен ссылаться на объект этого типа -->
         <linked-domain-objects-editable-table> <!-- Если тэг виджета находится внутри widget-template, то field-path не обязателен -->
             <!-- форма, на основании которой строится виджеты в таблице связанных объектов -->

@@ -486,6 +486,12 @@
         </uniqueKey>
     </domain-object-type>
 
+    <domain-object-type name="hierarchy_empty_type" audit-log="false">
+        <fields>
+            <string name="data" length="20" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
     <!--TODO Delete start -->
     <!-- типы доменных объектов для системного журнала событий -->
     <domain-object-type name="system_event_log" audit-log="false">

@@ -34,7 +34,7 @@ public class HierarchySurferHandler extends ActivePluginHandler {
                 (HierarchyPluginHandler) applicationContext.getBean("hierarchy.plugin");
         final HierarchyPluginData hierarchyPluginData = hierarchyPluginHandler.initialize(config.getHierarchyPluginConfig());
         final FormPluginConfig formPluginConfig;
-        formPluginConfig = new FormPluginConfig("org_middle");
+        formPluginConfig = new FormPluginConfig("hierarchy_empty_type");
 
         final FormPluginState fpState = new FormPluginState();
         formPluginConfig.setPluginState(fpState);

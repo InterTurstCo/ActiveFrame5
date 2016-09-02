@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config">
+
+    <form name="hp_organization_form" domain-object-type="hp_organization" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные организации">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="orgNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="orgName"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма Организации</text>
+            </label>
+            <label id="orgNameLabel">
+                <text>Наименование</text>
+            </label>
+            <text-box id="orgName" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form name="hp_departments_form" domain-object-type="hp_departments" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные подразделения">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="depNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="depName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="orgNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="orgName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="hidepNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="hidepName"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма подразделения</text>
+            </label>
+
+            <label id="depNameLabel">
+                <text>Наименование</text>
+            </label>
+            <text-box id="depName" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="orgNameLabel">
+                <text>Организация</text>
+            </label>
+            <text-box id="orgName" read-only="true">
+                <field-path value="organization.name"/>
+            </text-box>
+
+            <label id="hidepNameLabel">
+                <text>Вышестоящее подразделение</text>
+            </label>
+            <text-box id="hidepName" read-only="true">
+                <field-path value="parent_department.name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
+    <form name="hp_dep_position_form" domain-object-type="hp_dep_position" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные штатной должности">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="posNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="posName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="depNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="depName"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма штатной должности</text>
+            </label>
+            <label id="posNameLabel">
+                <text>Наименование</text>
+            </label>
+            <text-box id="posName" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="depNameLabel">
+                <text>Подразделение</text>
+            </label>
+            <text-box id="depName" read-only="true">
+                <field-path value="department.name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
+    <form name="hp_rvz_form" domain-object-type="hp_rvz" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные РВЗ">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="firstNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="firstName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="lastNameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="lastName"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="orgLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="orgName"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма РВЗ</text>
+            </label>
+
+            <label id="firstNameLabel">
+                <text>Имя</text>
+            </label>
+            <text-box id="firstName" read-only="true">
+                <field-path value="first_name"/>
+            </text-box>
+
+            <label id="lastNameLabel">
+                <text>Фамилия</text>
+            </label>
+            <text-box id="lastName" read-only="true">
+                <field-path value="last_name"/>
+            </text-box>
+
+            <label id="orgLabel">
+                <text>Организация</text>
+            </label>
+            <text-box id="orgName" read-only="true">
+                <field-path value="organization.name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
+</configuration>

@@ -5,14 +5,18 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.GwtEvent;
 
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchySurferConfig;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
+import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginData;
@@ -26,7 +30,7 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginSta
  * To change this template use File | Settings | File and Code Templates.
  */
 @ComponentName("hierarchy.surfer.plugin")
-public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler {
+public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler {
 
     private EventBus eventBus;
     private FormPlugin formPlugin;
@@ -34,6 +38,7 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
 
     public HierarchySurferPlugin() {
         eventBus = GWT.create(SimpleEventBus.class);
+        eventBus.addHandler(CancelSelectionEvent.TYPE,this);
     }
 
 
@@ -104,5 +109,21 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
+    }
+
+    @Override
+    public void onCancelSelectionEvent(CancelSelectionEvent event) {
+        final PluginPanel formPluginPanel = formPlugin.getOwner();
+        final FormPlugin newFormPlugin = ComponentRegistry.instance.get("form.plugin");
+        // после обновления формы ей снова "нужно дать" локальную шину событий
+        newFormPlugin.setLocalEventBus(this.eventBus);
+        final FormPluginConfig newConfig = new FormPluginConfig(event.getRowId());
+        final FormPluginState pluginState = formPlugin.getPluginState();
+        newConfig.setPluginState(pluginState);
+        newConfig.setFormViewerConfig(((HierarchySurferConfig)this.getConfig()).getFormViewerConfig());
+        newFormPlugin.setConfig(newConfig);
+        newFormPlugin.setPluginState(pluginState);
+        formPluginPanel.open(newFormPlugin, false);
+        this.formPlugin = newFormPlugin;
     }
 }

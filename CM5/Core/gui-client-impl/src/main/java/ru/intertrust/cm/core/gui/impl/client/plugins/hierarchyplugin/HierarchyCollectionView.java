@@ -53,6 +53,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             @Override
             public void onClick(ClickEvent clickEvent) {
                 headerPanel.addStyleName(STYLE_FOCUS_WRAP_CELL);
+                // Уведомляем предыдущую выбраную строку что нужно снять подсветку
                 commonBus.fireEvent(new CancelSelectionEvent(true, rowItem.getId()));
             }
         }, ClickEvent.getType());
