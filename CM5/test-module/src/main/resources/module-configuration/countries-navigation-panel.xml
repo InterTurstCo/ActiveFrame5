@@ -1522,8 +1522,9 @@
         </link>
 
         <link name="Prototypes" display-text="Прототипы" image="images/settings.png"
-              child-to-open="HPlugin">
+              child-to-open="HSurfer">
             <child-links>
+
                 <link name="HPlugin" display-text="Иерархический плагин (прототип)">
                     <plugin>
                         <hierarchy-plugin pid="org_plugin">
@@ -1608,6 +1609,7 @@
                         </hierarchy-plugin>
                     </plugin>
                 </link>
+
                 <link name="HSurfer" display-text="Иерархический плагин с формой (прототип)">
                     <plugin>
                         <hierarchy-surfer>

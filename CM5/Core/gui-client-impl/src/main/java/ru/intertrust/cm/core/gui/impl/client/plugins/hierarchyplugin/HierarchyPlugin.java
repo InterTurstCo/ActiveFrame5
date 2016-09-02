@@ -28,13 +28,14 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
     private Map<String, Boolean> existedNodeList = new HashMap<>();
     private HierarchyHistoryNode openedNodeList;
     private HierarchySurferPlugin containingHierarchyPlugin;
+    private HierarchyHistoryManager hManager;
+    private HierarchyPluginView pView;
+    private HierarchyPluginData pData;
 
     @Override
     public PluginView createView() {
         HierarchyPluginConfig hierarchyPluginConfig = (HierarchyPluginConfig) getConfig();
-        HierarchyPluginView pView = new HierarchyPluginView(this, eventBus);
-        HierarchyHistoryManager hManager = new HierarchyHistoryManager();
-        HierarchyPluginData pData = new HierarchyPluginData();
+        pView = new HierarchyPluginView(this, eventBus);
         pData.setPluginId(((HierarchyPluginConfig) getConfig()).getPid());
         hManager.restoreHistory(pData, pView, eventBus);
         return pView;
@@ -44,6 +45,8 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
         super();
         eventBus.addHandler(NodeStateEvent.TYPE, this);
         eventBus.addHandler(NodeCreatedEvent.TYPE, this);
+        hManager = new HierarchyHistoryManager();
+        pData = new HierarchyPluginData();
     }
 
     @Override
@@ -90,5 +93,8 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
 
     public void setContainingHierarchyPlugin(HierarchySurferPlugin containingHierarchyPlugin) {
         this.containingHierarchyPlugin = containingHierarchyPlugin;
+        this.eventBus = containingHierarchyPlugin.getLocalEventBus();
+        eventBus.addHandler(NodeStateEvent.TYPE, this);
+        eventBus.addHandler(NodeCreatedEvent.TYPE, this);
     }
 }
