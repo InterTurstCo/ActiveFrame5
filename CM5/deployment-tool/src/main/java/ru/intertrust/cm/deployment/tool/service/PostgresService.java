@@ -1,5 +1,6 @@
 package ru.intertrust.cm.deployment.tool.service;
 
+import org.postgresql.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +10,12 @@ import ru.intertrust.cm.deployment.tool.util.ProcessPrintUtil;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by Alexander Bogatyrenko on 28.07.16.
@@ -81,5 +86,28 @@ public class PostgresService {
         builder.redirectErrorStream(true);
         Process process = builder.start();
         ProcessPrintUtil.print(process);
+    }
+
+    public boolean testConnection() {
+        logger.info("Start test database connection");
+        try {
+            DriverManager.registerDriver(new Driver());
+            String url = "jdbc:postgresql://" + props.getDbHost() + ":" + props.getDbPort() + "/" + props.getDbName();
+            Properties properties = new Properties();
+            properties.setProperty("user", props.getDbUser());
+            properties.setProperty("password",props.getDbPassword());
+            Connection connection = DriverManager.getConnection(url, properties);
+            boolean connect = connection != null;
+            if (connect) {
+                logger.info("Database connection - success");
+                connection.close();
+            } else {
+                logger.error("Database connection - fail");
+            }
+            return connect;
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+            return false;
+        }
     }
 }

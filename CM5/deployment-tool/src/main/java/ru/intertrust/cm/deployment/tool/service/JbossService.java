@@ -73,6 +73,17 @@ public class JbossService {
         }
     }
 
+    public void waitAdminJbossStart() {
+        while (!isServerStarted()) {
+            try {
+                logger.info("Waiting jboss admin panel starting 5 seconds");
+                Thread.sleep(TimeUnit.SECONDS.toMillis(5));
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
     public boolean isServerStarted() {
         try {
             URL url = new URL(format(SERVER_URL_PATTERN, props.getJbossHost(), props.getJbossAdminPort()));
