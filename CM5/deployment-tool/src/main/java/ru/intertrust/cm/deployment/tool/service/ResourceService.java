@@ -205,4 +205,30 @@ public class ResourceService {
             return false;
         }
     }
+
+    private boolean exist(String path) {
+        return !isEmpty(path) && new File(path).exists();
+    }
+
+    public boolean verifyPaths() {
+        boolean exist = verifyPath(props.getJbossHome()) &&
+                verifyPath(props.getServerProperties()) &&
+                verifyPath(props.getPostgresHome()) &&
+                verifyPath(props.getEarFolder()) &&
+                verifyPath(props.getBackupFolder());
+        if (!isEmpty(props.getInitialDataFolder())) {
+            exist = exist && verifyPath(props.getInitialDataFolder());
+        }
+        return exist;
+    }
+
+    private boolean verifyPath(String path) {
+        boolean exist = exist(path);
+        if (exist) {
+            logger.info("Path {} has been found - success", path);
+        } else {
+            logger.error("Path {} not found - fail", path);
+        }
+        return exist;
+    }
 }
