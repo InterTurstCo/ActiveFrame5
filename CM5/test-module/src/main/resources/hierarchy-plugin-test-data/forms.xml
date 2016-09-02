@@ -253,4 +253,204 @@
         </widget-config>
     </form>
 
+    <form name="hp_org_addresses_form" domain-object-type="hp_org_addresses" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные адреса">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="cityLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="city"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="streetLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="street"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="indexLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="index"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="buildingLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="building"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="orgLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="org"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма адреса</text>
+            </label>
+
+            <label id="cityLabel">
+                <text>Город</text>
+            </label>
+            <text-box id="city" read-only="true">
+                <field-path value="city"/>
+            </text-box>
+
+            <label id="streetLabel">
+                <text>Улица</text>
+            </label>
+            <text-box id="street" read-only="true">
+                <field-path value="street"/>
+            </text-box>
+
+            <label id="indexLabel">
+                <text>Индекс</text>
+            </label>
+            <text-box id="index" read-only="true">
+                <field-path value="index"/>
+            </text-box>
+
+            <label id="buildingLabel">
+                <text>Номер дома</text>
+            </label>
+            <text-box id="building" read-only="true">
+                <field-path value="building"/>
+            </text-box>
+
+            <label id="orgLabel">
+                <text>Организация</text>
+            </label>
+            <text-box id="org" read-only="true">
+                <field-path value="organization.name"/>
+            </text-box>
+
+
+        </widget-config>
+    </form>
+
+    <form name="hp_pos_appointments_form" domain-object-type="hp_pos_appointments" is-default="true">
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="header"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Данные назначения">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="firstLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="first"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="lastLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="last"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="appDateLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="appDate"/>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <widget id="posLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="position"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="header">
+                <text>Заголовок. Форма Назначения</text>
+            </label>
+
+            <label id="firstLabel">
+                <text>Имя</text>
+            </label>
+            <text-box id="first" read-only="true">
+                <field-path value="first_name"/>
+            </text-box>
+
+            <label id="lastLabel">
+                <text>Фамилия</text>
+            </label>
+            <text-box id="last" read-only="true">
+                <field-path value="last_name"/>
+            </text-box>
+
+            <label id="appDateLabel">
+                <text>Дата назначения</text>
+            </label>
+            <date-box id="appDate" read-only="true">
+                <field-path value="appdate"/>
+            </date-box>
+
+            <label id="posLabel">
+                <text>Должность</text>
+            </label>
+            <text-box id="position" read-only="true">
+                <field-path value="position.name"/>
+            </text-box>
+
+        </widget-config>
+    </form>
+
 </configuration>
