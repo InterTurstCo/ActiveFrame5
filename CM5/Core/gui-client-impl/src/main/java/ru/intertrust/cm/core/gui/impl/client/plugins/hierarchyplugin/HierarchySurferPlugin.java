@@ -6,15 +6,22 @@ import com.google.gwt.event.shared.GwtEvent;
 
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchySurferConfig;
+import ru.intertrust.cm.core.gui.api.client.Application;
 import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.api.client.event.PluginCloseListener;
 import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
+import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
@@ -30,7 +37,7 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginSta
  * To change this template use File | Settings | File and Code Templates.
  */
 @ComponentName("hierarchy.surfer.plugin")
-public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler {
+public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler,OpenDomainObjectFormEventHandler {
 
     private EventBus eventBus;
     private FormPlugin formPlugin;
@@ -39,6 +46,7 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
     public HierarchySurferPlugin() {
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CancelSelectionEvent.TYPE,this);
+        eventBus.addHandler(OpenDomainObjectFormEvent.TYPE,this);
     }
 
 
@@ -125,5 +133,36 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
         newFormPlugin.setPluginState(pluginState);
         formPluginPanel.open(newFormPlugin, false);
         this.formPlugin = newFormPlugin;
+    }
+
+    @Override
+    public void onOpenDomainObjectFormEvent(OpenDomainObjectFormEvent event) {
+        final FormPluginState state = new FormPluginState();
+        if (this.formPlugin.getFormPluginState().isEditable()) {
+            state.setEditable(true);
+            state.setToggleEdit(true);
+        } else {
+            state.setEditable(false);
+            state.setToggleEdit(true);
+        }
+        state.setDomainObjectSource(DomainObjectSource.COLLECTION);
+        state.setInCentralPanel(true);
+
+        openFormFullScreen(event.getId(), state, ((HierarchySurferConfig)this.getConfig()).getFormViewerConfig(), null);
+    }
+
+    private void openFormFullScreen(Id id, FormPluginState state, FormViewerConfig formViewerConfig, PluginCloseListener pluginCloseListener) {
+        final FormPluginConfig config = new FormPluginConfig(id);
+        config.setPluginState(state);
+        config.setFormViewerConfig(formViewerConfig);
+
+        final FormPlugin formPlugin = ComponentRegistry.instance.get("form.plugin");
+        formPlugin.setConfig(config);
+        formPlugin.setDisplayActionToolBar(true);
+        formPlugin.setLocalEventBus(getLocalEventBus());
+        if (pluginCloseListener != null) {
+            formPlugin.addPluginCloseListener(pluginCloseListener);
+        }
+        Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
     }
 }

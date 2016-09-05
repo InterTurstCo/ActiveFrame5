@@ -3,11 +3,15 @@ package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
+import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
@@ -57,6 +61,15 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
                 commonBus.fireEvent(new CancelSelectionEvent(true, rowItem.getId()));
             }
         }, ClickEvent.getType());
+
+        headerPanel.addDomHandler(new DoubleClickHandler() {
+
+                                      @Override
+                                      public void onDoubleClick(final DoubleClickEvent event) {
+                                          commonBus.fireEvent(new OpenDomainObjectFormEvent(rowItem.getId()));
+                                      }
+                                  },
+                DoubleClickEvent.getType());
 
         commonBus.fireEvent(new NodeCreatedEvent(getViewID()));
         commonBus.addHandler(AutoOpenEvent.TYPE, this);
