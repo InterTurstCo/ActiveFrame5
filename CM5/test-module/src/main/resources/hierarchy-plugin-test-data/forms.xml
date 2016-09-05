@@ -38,7 +38,7 @@
             <label id="orgNameLabel">
                 <text>Наименование</text>
             </label>
-            <text-box id="orgName" read-only="true">
+            <text-box id="orgName">
                 <field-path value="name"/>
             </text-box>
         </widget-config>

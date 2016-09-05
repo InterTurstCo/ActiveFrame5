@@ -78,9 +78,7 @@ public class HierarchyPluginHandler extends PluginHandler {
                 hRequest.getOffset(),
                 hRequest.getCount());
 
-        CollectionViewConfig viewConfig = PluginHandlerHelper.findCollectionViewConfig(hRequest.getCollectionName(), hRequest.getViewName(),
-                currentUserAccessor.getCurrentUser(),
-                null, configurationService, collectionsService, GuiContext.getUserLocale());
+        CollectionViewConfig viewConfig = getCollectionViewConfig(hRequest.getCollectionName(), hRequest.getViewName());
 
         for (IdentifiableObject iObject : collection) {
             CollectionRowItem aRow = new CollectionRowItem();
@@ -102,6 +100,13 @@ public class HierarchyPluginHandler extends PluginHandler {
         pData.setCollectionViewConfig(viewConfig);
         pData.setCollectionRowItems(items);
         return pData;
+    }
+
+    private CollectionViewConfig getCollectionViewConfig(String cName, String vName) {
+        CollectionViewConfig viewConfig = PluginHandlerHelper.findCollectionViewConfig(cName, vName,
+                currentUserAccessor.getCurrentUser(),
+                null, configurationService, collectionsService, GuiContext.getUserLocale());
+        return viewConfig;
     }
 
     public HierarchyPluginData savePluginHistory(Dto request) {
@@ -127,6 +132,27 @@ public class HierarchyPluginHandler extends PluginHandler {
             HierarchyHistoryNode openedNodes = gson.fromJson(domainObject.getString("plugin_state_json"), HierarchyHistoryNode.class);
             pData.setOpenedNodeList(openedNodes);
         }
+        return pData;
+    }
+
+    public HierarchyPluginData getItemInfo(Dto request) {
+        HierarchyPluginData pData = (HierarchyPluginData) request;
+        ArrayList<CollectionRowItem> items = new ArrayList<CollectionRowItem>();
+        CollectionViewConfig viewConfig = pData.getCollectionViewConfig();
+
+        IdentifiableObject iObject = crudService.find(pData.getRequestedItemId());
+
+        CollectionRowItem aRow = new CollectionRowItem();
+        aRow.setId(iObject.getId());
+        aRow.setRow(new HashMap<String, Value>());
+
+        for (CollectionColumnConfig column : viewConfig.getCollectionDisplayConfig().getColumnConfig()) {
+            aRow.getRow().put(column.getName(), iObject.getValue(column.getField()));
+        }
+
+        items.add(aRow);
+
+        pData.setCollectionRowItems(items);
         return pData;
     }
 }

@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.gui.model.plugin.hierarchy;
 
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.gui.model.plugin.PluginData;
 import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
@@ -21,6 +22,7 @@ public class HierarchyPluginData extends PluginData {
     private CollectionViewConfig collectionViewConfig;
     private HierarchyHistoryNode openedNodeList;
     private String pluginId;
+    private Id requestedItemId;
 
     public List<CollectionRowItem> getCollectionRowItems() {
         if (collectionRowItems == null) {
@@ -63,5 +65,13 @@ public class HierarchyPluginData extends PluginData {
 
     public void setPluginId(String pluginId) {
         this.pluginId = pluginId;
+    }
+
+    public Id getRequestedItemId() {
+        return requestedItemId;
+    }
+
+    public void setRequestedItemId(Id requestedItemId) {
+        this.requestedItemId = requestedItemId;
     }
 }

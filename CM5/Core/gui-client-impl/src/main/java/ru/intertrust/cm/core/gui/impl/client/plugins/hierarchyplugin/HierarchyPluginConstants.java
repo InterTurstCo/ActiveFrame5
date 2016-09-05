@@ -11,6 +11,7 @@ public interface HierarchyPluginConstants {
 
     String PLUGIN_COMPONENT_NAME = "hierarchy.plugin";
     String GET_COL_ROWS_METHOD_NAME = "getCollectionItems";
+    String GET_ITEM_INFO_METHOD_NAME = "getItemInfo";
     String SAVE_PLUGIN_HISTORY = "savePluginHistory";
     String RESTORE_PLUGIN_HISTORY = "restorePluginHistory";
     String STYLE_WRAP_WIDGET = "wrapWidget";

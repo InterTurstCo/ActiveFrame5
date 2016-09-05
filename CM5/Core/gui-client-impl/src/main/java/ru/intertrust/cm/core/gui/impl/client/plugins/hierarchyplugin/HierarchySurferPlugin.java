@@ -17,9 +17,7 @@ import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
 import ru.intertrust.cm.core.gui.impl.client.Plugin;
 import ru.intertrust.cm.core.gui.impl.client.PluginPanel;
 import ru.intertrust.cm.core.gui.impl.client.PluginView;
-import ru.intertrust.cm.core.gui.impl.client.event.CentralPluginChildOpeningRequestedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEvent;
-import ru.intertrust.cm.core.gui.impl.client.event.PluginPanelSizeChangedEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.*;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEvent;
@@ -37,7 +35,8 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginSta
  * To change this template use File | Settings | File and Code Templates.
  */
 @ComponentName("hierarchy.surfer.plugin")
-public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler,OpenDomainObjectFormEventHandler {
+public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler,
+        OpenDomainObjectFormEventHandler {
 
     private EventBus eventBus;
     private FormPlugin formPlugin;
@@ -47,6 +46,7 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CancelSelectionEvent.TYPE,this);
         eventBus.addHandler(OpenDomainObjectFormEvent.TYPE,this);
+
     }
 
 
