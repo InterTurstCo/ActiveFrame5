@@ -33,7 +33,8 @@ public interface HierarchyPluginConstants {
         GROUPREFRESH("Обновить"),
         GROUPSORT("Сортировать"),
         GROUPADD("Добавить"),
-        ROWEDIT("Редактировать");
+        ROWEDIT("Редактировать"),
+        ROWADD("Создать");
 
         private String tooltip;
 

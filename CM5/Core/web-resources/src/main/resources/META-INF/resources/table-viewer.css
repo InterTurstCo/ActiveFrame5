@@ -1034,3 +1034,11 @@ table.childCell {
 .wrapCell.focusWrapCell img[title="Редактировать"]{
     display: block;
 }
+
+.wrapCell img[title="Создать"] {
+    display: none;
+}
+
+.wrapCell.focusWrapCell img[title="Создать"]{
+    display: block;
+}

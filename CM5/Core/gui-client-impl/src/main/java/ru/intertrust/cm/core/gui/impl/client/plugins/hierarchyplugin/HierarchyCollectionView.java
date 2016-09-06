@@ -99,7 +99,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             expandButton = grid.getWidget(0, 0);
         }
         grid.setWidget(0, (expandable) ? 1 : 0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
-        grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.GROUPADD));
+        grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.ROWADD));
 
         renderData();
 
