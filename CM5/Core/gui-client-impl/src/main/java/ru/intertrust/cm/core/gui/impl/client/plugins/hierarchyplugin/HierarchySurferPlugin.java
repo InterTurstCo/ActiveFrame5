@@ -22,6 +22,8 @@ import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFo
 import ru.intertrust.cm.core.gui.impl.client.event.collection.OpenDomainObjectFormEventHandler;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEvent;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.CancelSelectionEventHandler;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.EditDoEvent;
+import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.EditDoEventHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.plugin.*;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginData;
@@ -36,7 +38,7 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchySurferPluginSta
  */
 @ComponentName("hierarchy.surfer.plugin")
 public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPanelSizeChangedEventHandler,CancelSelectionEventHandler,
-        OpenDomainObjectFormEventHandler {
+        OpenDomainObjectFormEventHandler, EditDoEventHandler {
 
     private EventBus eventBus;
     private FormPlugin formPlugin;
@@ -46,7 +48,7 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
         eventBus = GWT.create(SimpleEventBus.class);
         eventBus.addHandler(CancelSelectionEvent.TYPE,this);
         eventBus.addHandler(OpenDomainObjectFormEvent.TYPE,this);
-
+        eventBus.addHandler(EditDoEvent.TYPE, this);
     }
 
 
@@ -164,5 +166,16 @@ public class HierarchySurferPlugin extends Plugin implements IsActive,PluginPane
             formPlugin.addPluginCloseListener(pluginCloseListener);
         }
         Application.getInstance().getEventBus().fireEvent(new CentralPluginChildOpeningRequestedEvent(formPlugin));
+    }
+
+    @Override
+    public void onEditDoEvent(EditDoEvent event) {
+        final FormPluginState state = new FormPluginState();
+        state.setEditable(true);
+        state.setToggleEdit(true);
+        state.setDomainObjectSource(DomainObjectSource.COLLECTION);
+        state.setInCentralPanel(true);
+
+        openFormFullScreen(event.getDoToEdit(), state, ((HierarchySurferConfig)this.getConfig()).getFormViewerConfig(), null);
     }
 }

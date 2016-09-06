@@ -123,7 +123,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
-
+        commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
     }
 
     @Override
