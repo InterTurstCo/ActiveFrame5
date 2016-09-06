@@ -98,8 +98,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus, localBus, rowItem.getId(), getViewID(), getParentViewID()));
             expandButton = grid.getWidget(0, 0);
         }
-        grid.setWidget(0, (expandable)?1:0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
-
+        grid.setWidget(0, (expandable) ? 1 : 0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
+        grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.GROUPADD));
 
         renderData();
 
@@ -107,7 +107,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     }
 
     private void renderData() {
-        int columnIndex = (expandable)?2:1;
+        int columnIndex = (expandable) ? 3 : 2;
 
         for (CollectionColumnConfig column : collectionViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
             InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + "</b>");
@@ -123,7 +123,11 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
-        commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
+        if (event.getAction().equals(Actions.ROWEDIT)) {
+            commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
+        } else {
+            Window.alert("Действие "+event.getAction().toString());
+        }
     }
 
     @Override
