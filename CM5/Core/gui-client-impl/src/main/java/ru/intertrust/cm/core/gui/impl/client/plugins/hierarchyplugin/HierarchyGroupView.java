@@ -54,7 +54,7 @@ public class HierarchyGroupView extends HierarchyNode
         grid.setWidget(0, 1, groupName);
 
 
-        grid.setWidget(0, 2, guiElementsFactory.buildActionButton(localBus, Actions.GROUPREFRESH));
+        //grid.setWidget(0, 2, guiElementsFactory.buildActionButton(localBus, Actions.GROUPREFRESH));
         grid.setWidget(0, 3, guiElementsFactory.buildActionButton(localBus, Actions.GROUPSORT));
         grid.setWidget(0, 4, guiElementsFactory.buildActionButton(localBus, Actions.GROUPADD));
         cellFormatter.setStyleName(0, 1, STYLE_GROUP_NAME);

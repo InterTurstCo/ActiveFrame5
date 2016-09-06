@@ -98,6 +98,8 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             grid.setWidget(0, 0, guiElementsFactory.buildExpandCell(commonBus, localBus, rowItem.getId(), getViewID(), getParentViewID()));
             expandButton = grid.getWidget(0, 0);
         }
+        grid.setWidget(0, (expandable)?1:0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
+
 
         renderData();
 
@@ -105,7 +107,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     }
 
     private void renderData() {
-        int columnIndex = 1;
+        int columnIndex = (expandable)?2:1;
 
         for (CollectionColumnConfig column : collectionViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
             InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + "</b>");
@@ -116,6 +118,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             grid.setWidget(0, columnIndex + 1, fieldValue);
             columnIndex += 2;
         }
+
     }
 
     @Override

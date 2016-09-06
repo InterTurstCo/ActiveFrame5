@@ -32,7 +32,8 @@ public interface HierarchyPluginConstants {
     enum Actions {
         GROUPREFRESH("Обновить"),
         GROUPSORT("Сортировать"),
-        GROUPADD("Добавить");
+        GROUPADD("Добавить"),
+        ROWEDIT("Редактировать");
 
         private String tooltip;
 
