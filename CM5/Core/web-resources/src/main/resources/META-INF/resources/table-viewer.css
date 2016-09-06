@@ -1026,3 +1026,11 @@ table.childCell {
 .topPanel {
     overflow: auto !important;
 }
+
+.wrapCell img[title="Редактировать"] {
+    display: none;
+}
+
+.wrapCell.focusWrapCell img[title="Редактировать"]{
+    display: block;
+}

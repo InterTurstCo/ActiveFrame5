@@ -132,6 +132,9 @@ public interface ThemeBundle extends ClientBundle {
     @Source("ru/intertrust/cm/core/gui/impl/images/iconAdd.png")
     ImageResource iconAdd();
 
+    @Source("ru/intertrust/cm/core/gui/impl/images/iconEdit.png")
+    ImageResource iconEdit();
+
     @Source("ru/intertrust/cm/core/gui/impl/images/chevronRight.png")
     ImageResource chevronRight();
 
