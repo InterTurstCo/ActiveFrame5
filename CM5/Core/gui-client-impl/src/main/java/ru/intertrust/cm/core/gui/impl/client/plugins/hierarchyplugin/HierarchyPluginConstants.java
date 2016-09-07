@@ -34,7 +34,8 @@ public interface HierarchyPluginConstants {
         GROUPSORT("Сортировать"),
         GROUPADD("Добавить"),
         ROWEDIT("Редактировать"),
-        ROWADD("Создать");
+        ROWADD("Создать"),
+        ROWSORT("Отсортировать");
 
         private String tooltip;
 

@@ -40,7 +40,7 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
      * @param aCollectionConfig
      * @return
      */
-    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus, final String parentViewId, final Boolean autoClick) {
+    public Widget buildCollection(final HierarchyCollectionConfig aCollectionConfig, Id aParentId, final EventBus aCommonBus, final String parentViewId, final Boolean autoClick, final Boolean sortAscending) {
         final VerticalPanel lines = new VerticalPanel();
         HierarchyPluginData pData = new HierarchyPluginData();
         HierarchyRequest hRequest = new HierarchyRequest();
@@ -70,7 +70,16 @@ public class HierarchyGuiFactory implements HierarchyPluginConstants {
 
 
         hRequest.setCollectionConfig(aCollectionConfig);
+
+        if(aCollectionConfig.getSortByField()!=null) {
+            SortOrder sortOrder = new SortOrder();
+            SortCriterion sortCriterion = new SortCriterion(aCollectionConfig.getSortByField(), (sortAscending) ? SortCriterion.Order.ASCENDING : SortCriterion.Order.DESCENDING);
+            sortOrder.add(sortCriterion);
+            hRequest.setSortOrder(sortOrder);
+        }
+
         pData.setHierarchyRequest(hRequest);
+
 
         Command command = new Command(GET_COL_ROWS_METHOD_NAME, PLUGIN_COMPONENT_NAME, pData);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {

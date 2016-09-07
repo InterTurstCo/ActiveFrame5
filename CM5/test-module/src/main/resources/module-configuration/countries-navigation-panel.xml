@@ -1533,7 +1533,7 @@
                                     <hierarchy-collection-view collection-view="v_hp_organizations"/>
                                     <collection-ref name="c_hp_organizations"/>
                                     <hierarchy-group gid="G_Dep" name="Подразделения">
-                                        <hierarchy-collection cid="C_Dep">
+                                        <hierarchy-collection cid="C_Dep" sort-by-field="name">
                                             <hierarchy-collection-view collection-view="v_hp_departments"/>
                                             <collection-ref name="c_hp_departments"/>
                                             <hierarchy-group gid="G_Pos" name="ШД">
@@ -1619,7 +1619,7 @@
                                             <hierarchy-collection-view collection-view="v_hp_organizations"/>
                                             <collection-ref name="c_hp_organizations"/>
                                             <hierarchy-group gid="G_Dep" name="Подразделения">
-                                                <hierarchy-collection cid="C_Dep">
+                                                <hierarchy-collection cid="C_Dep" sort-by-field="name">
                                                     <hierarchy-collection-view collection-view="v_hp_departments"/>
                                                     <collection-ref name="c_hp_departments"/>
                                                     <hierarchy-group gid="G_Pos" name="ШД">

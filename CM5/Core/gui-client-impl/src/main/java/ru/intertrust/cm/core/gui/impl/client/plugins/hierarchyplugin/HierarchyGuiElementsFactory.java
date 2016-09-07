@@ -64,6 +64,9 @@ public class HierarchyGuiElementsFactory implements HierarchyPluginConstants {
             case ROWADD:
                 image = new Image(GlobalThemesManager.getCurrentTheme().iconAdd());
                 break;
+            case ROWSORT:
+                image = new Image(GlobalThemesManager.getCurrentTheme().iconSort());
+                break;
             default:
                 image = new Image(GlobalThemesManager.getCurrentTheme().arrowPlus());
         }

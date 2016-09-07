@@ -1245,6 +1245,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="cid" use="required"/>
+        <xs:attribute type="xs:string" name="sort-by-field" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="hierarchyCollectionViewType">

@@ -1,10 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client.plugins.hierarchyplugin;
 
-import com.google.gwt.dom.client.Element;
+
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
 
@@ -38,8 +39,8 @@ public class HierarchyGroupView extends HierarchyNode
         commonBus.addHandler(AutoOpenEvent.TYPE, this);
         localBus.addHandler(ExpandHierarchyEvent.TYPE, this);
         localBus.addHandler(HierarchyActionEvent.TYPE, this);
-
     }
+
 
     @Override
     protected void addRepresentationCells(Panel container) {
@@ -54,7 +55,6 @@ public class HierarchyGroupView extends HierarchyNode
         grid.setWidget(0, 1, groupName);
 
 
-        //grid.setWidget(0, 2, guiElementsFactory.buildActionButton(localBus, Actions.GROUPREFRESH));
         grid.setWidget(0, 3, guiElementsFactory.buildActionButton(localBus, Actions.GROUPSORT));
         grid.setWidget(0, 4, guiElementsFactory.buildActionButton(localBus, Actions.GROUPADD));
         cellFormatter.setStyleName(0, 1, STYLE_GROUP_NAME);
@@ -64,7 +64,24 @@ public class HierarchyGroupView extends HierarchyNode
 
     @Override
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
-        Window.alert("Действие: " + event.getAction().toString());
+        if (event.getAction().equals(Actions.GROUPSORT)) {
+            Boolean sortingFieldPresents = false;
+            for (HierarchyCollectionConfig cConfig : groupConfig.getHierarchyCollectionConfigs()) {
+                if (cConfig.getSortByField() != null) {
+                    sortingFieldPresents = true;
+                    break;
+                }
+            }
+            if (sortingFieldPresents) {
+                sortAscending = !sortAscending;
+                clickElement(expandButton.getElement());
+                clickElement(expandButton.getElement());
+            } else {
+                Window.alert("Ни одна коллекция не имеет параметра сортировки");
+            }
+        } else {
+            Window.alert("Действие: " + event.getAction().toString());
+        }
     }
 
 }

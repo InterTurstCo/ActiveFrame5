@@ -23,7 +23,7 @@ import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
-import java.util.List;
+
 
 /**
  * Created by IntelliJ IDEA.
@@ -32,7 +32,8 @@ import java.util.List;
  * Time: 12:11
  * To change this template use File | Settings | File and Code Templates.
  */
-public class HierarchyCollectionView extends HierarchyNode implements HierarchyActionEventHandler, CancelSelectionEventHandler, UpdateCollectionEventHandler {
+public class HierarchyCollectionView extends HierarchyNode implements HierarchyActionEventHandler,
+        CancelSelectionEventHandler, UpdateCollectionEventHandler {
 
     private Boolean expandable = false;
     private CollectionRowItem rowItem;
@@ -99,7 +100,10 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             expandButton = grid.getWidget(0, 0);
         }
         grid.setWidget(0, (expandable) ? 1 : 0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
-        grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.ROWADD));
+        if (expandable) {
+            grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.ROWADD));
+            //grid.setWidget(0, (expandable) ? 3 : 2, guiElementsFactory.buildActionButton(localBus, Actions.ROWSORT));
+        }
 
         renderData();
 
@@ -125,8 +129,10 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
         if (event.getAction().equals(Actions.ROWEDIT)) {
             commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
+        } else if (event.getAction().equals(Actions.ROWSORT)) {
+            ;
         } else {
-            Window.alert("Действие "+event.getAction().toString());
+            Window.alert("Действие " + event.getAction().toString());
         }
     }
 
@@ -162,4 +168,6 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             });
         }
     }
+
+
 }

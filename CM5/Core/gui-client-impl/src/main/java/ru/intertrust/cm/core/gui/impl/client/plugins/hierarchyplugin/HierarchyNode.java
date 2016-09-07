@@ -37,6 +37,7 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
     protected String viewID;
     protected String parentViewID;
     protected Widget expandButton;
+    protected Boolean sortAscending = true;
 
 
 
@@ -61,7 +62,7 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
                     childPanel.add(guiFactory.buildGroup(group, event.getParentId(), commonBus, getViewID(), event.isAutoClick()));
                 }
                 for (HierarchyCollectionConfig collection : (groupConfig != null) ? groupConfig.getHierarchyCollectionConfigs() : collectionConfig.getHierarchyCollectionConfigs()) {
-                    childPanel.add(guiFactory.buildCollection(collection, event.getParentId(), commonBus, getViewID(), event.isAutoClick()));
+                    childPanel.add(guiFactory.buildCollection(collection, event.getParentId(), commonBus, getViewID(), event.isAutoClick(),sortAscending));
                 }
 
             } else {

@@ -26,6 +26,9 @@ public class HierarchyCollectionConfig implements Dto {
     @Attribute(name = "cid", required = true)
     private String cid;
 
+    @Attribute(name = "sort-by-field", required = false)
+    private String sortByField;
+
     @Element(name = "hierarchy-collection-view",required = true)
     protected HierarchyCollectionViewConfig hierarchyCollectionViewConfig;
 
@@ -113,6 +116,13 @@ public class HierarchyCollectionConfig implements Dto {
         this.createdObjectsConfig = createdObjectsConfig;
     }
 
+    public String getSortByField() {
+        return sortByField;
+    }
+
+    public void setSortByField(String sortByField) {
+        this.sortByField = sortByField;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -164,6 +174,11 @@ public class HierarchyCollectionConfig implements Dto {
                 : that.collectionExtraFiltersConfig != null) {
             return false;
         }
+        if (sortByField != null
+                ? !sortByField.equals(that.sortByField)
+                : that.sortByField != null) {
+            return false;
+        }
         return true;
     }
 
@@ -177,6 +192,7 @@ public class HierarchyCollectionConfig implements Dto {
         result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 31);
         result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 31);
         result = 31 * result + (collectionExtraFiltersConfig != null ? collectionExtraFiltersConfig.hashCode() : 31);
+        result = 31 * result + (sortByField != null ? sortByField.hashCode() : 31);
         return result;
     }
 }
