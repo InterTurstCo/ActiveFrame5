@@ -1671,6 +1671,14 @@
                                                         <extra-filter name="byOrganization"/>
                                                     </collection-extra-filters>
                                                 </hierarchy-collection>
+                                                <created-objects>
+                                                    <!-- Атрибут fk-field-name нужен чтобы связать создаваемый обьект с ID родительского обьекта в
+                                                    иерархии которого он отображается -->
+                                                    <created-object domain-object-type="hp_departments" text="Подразделение" fk-field-name="organization"/>
+                                                </created-objects>
+                                                <linked-form-mapping>
+                                                    <linked-form domain-object-type="hp_departments" modal-height="200px" modal-width="400px" name="hp_departments_form"/>
+                                                </linked-form-mapping>
                                             </hierarchy-group>
                                             <hierarchy-group gid="G_Rvz" name="РВЗ">
                                                 <hierarchy-collection cid="C_Rvz">
@@ -1689,6 +1697,12 @@
                                                         <extra-filter name="byOrganization"/>
                                                     </collection-extra-filters>
                                                 </hierarchy-collection>
+                                                <created-objects>
+                                                    <created-object domain-object-type="hp_org_addresses" text="Адреса"/>
+                                                </created-objects>
+                                                <linked-form-mapping>
+                                                    <linked-form domain-object-type="hp_org_addresses" modal-height="200px" modal-width="500px" name="hp_org_addresses_form"/>
+                                                </linked-form-mapping>
                                             </hierarchy-group>
                                         </hierarchy-collection>
                                     </hierarchy-group>

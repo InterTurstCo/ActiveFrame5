@@ -5,9 +5,18 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
+import ru.intertrust.cm.core.gui.model.form.FormState;
 
 /**
  * Created by IntelliJ IDEA.
@@ -79,9 +88,68 @@ public class HierarchyGroupView extends HierarchyNode
             } else {
                 Window.alert("Ни одна коллекция не имеет параметра сортировки");
             }
-        } else {
+        }
+        else if(event.getAction().equals(Actions.GROUPADD)){
+            if(groupConfig.getCreatedObjectsConfig()!=null){
+                showNewForm(groupConfig.getCreatedObjectsConfig().getCreateObjectConfigs().get(0).getDomainObjectType());
+            } else {
+                Window.alert("Создание обьектов не сконфигурировано");
+            }
+        }
+        else {
             Window.alert("Действие: " + event.getAction().toString());
         }
+    }
+
+    protected void showNewForm(final String domainObjectType) {
+        LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
+
+        DialogBoxAction saveAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                SaveAction action = getSaveAction(formPlugin, parentId);
+                action.perform();
+            }
+        };
+
+
+        DialogBoxAction cancelAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                // no op
+            }
+        };
+
+        LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
+                .setSaveAction(saveAction)
+                .setCancelAction(cancelAction)
+                .withHeight(GuiUtil.getModalHeight(domainObjectType, groupConfig.getLinkedFormMappingConfig(), null))
+                .withWidth(GuiUtil.getModalWidth(domainObjectType, groupConfig.getLinkedFormMappingConfig(), null))
+                .withObjectType(domainObjectType)
+                .withLinkedFormMapping(groupConfig.getLinkedFormMappingConfig())
+                .withPopupTitlesHolder(null)
+                .withParentWidgetIds(null)
+                .withWidgetsContainer(null)
+                .withTypeTitleMap(null)
+                .withFormResizable(false)
+                .withExternalParentId(parentId)
+                .buildDialogBox();
+
+        lfb.display();
+
+    }
+
+    protected SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        saveActionContext.setRootObjectId(rootObjectId);
+        formPlugin.setLocalEventBus(localBus);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        actionConfig.setDirtySensitivity(false);
+        saveActionContext.setActionConfig(actionConfig);
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 
 }

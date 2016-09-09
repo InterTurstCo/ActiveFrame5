@@ -24,7 +24,6 @@ import ru.intertrust.cm.core.gui.model.plugin.hierarchy.HierarchyPluginData;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseServiceAsync;
 
 
-
 /**
  * Created by IntelliJ IDEA.
  * Developer: Ravil Abdulkhairov
@@ -129,8 +128,12 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     public void onHierarchyActionEvent(HierarchyActionEvent event) {
         if (event.getAction().equals(Actions.ROWEDIT)) {
             commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
-        } else if (event.getAction().equals(Actions.ROWSORT)) {
-            ;
+        } else if (event.getAction().equals(Actions.ROWADD)) {
+            if (collectionConfig.getCreatedObjectsConfig() != null) {
+                ;
+            } else {
+                Window.alert("Создание обьектов не сконфигурировано");
+            }
         } else {
             Window.alert("Действие " + event.getAction().toString());
         }

@@ -65,6 +65,7 @@ public class LinkedFormDialogBoxBuilder  {
     private boolean editable = true;
     private boolean resizable;
     private Button cancelButton;
+    private Id externalParentId;
 
     public FormPlugin getFormPlugin() {
         return formPlugin;
@@ -121,6 +122,11 @@ public class LinkedFormDialogBoxBuilder  {
         return this;
     }
 
+    public LinkedFormDialogBoxBuilder withExternalParentId(Id id) {
+        this.externalParentId = id;
+        return this;
+    }
+
     public LinkedFormDialogBoxBuilder withHeight(String height) {
         if (height != null) {
             this.height = height;
@@ -162,7 +168,10 @@ public class LinkedFormDialogBoxBuilder  {
                 setTitle();
             }
         });
-
+        if(this.formPlugin.getConfig()!=null &&
+                ((FormPluginConfig)this.formPlugin.getConfig()).getParentId()==null && externalParentId!=null){
+            ((FormPluginConfig)this.formPlugin.getConfig()).setParentId(externalParentId);
+        }
         formPluginPanel.open(this.formPlugin);
         return this;
     }

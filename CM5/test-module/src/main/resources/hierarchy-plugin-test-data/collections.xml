@@ -26,6 +26,7 @@
                 ]]>
             </criteria>
         </filter>
+
     </collection>
 
     <collection-view name="v_hp_organizations" collection="c_hp_organizations" is-default="true">

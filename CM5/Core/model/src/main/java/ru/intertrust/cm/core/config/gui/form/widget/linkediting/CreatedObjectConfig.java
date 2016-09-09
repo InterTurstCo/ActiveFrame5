@@ -19,6 +19,9 @@ public class CreatedObjectConfig implements Dto {
     @Attribute(name = "domain-object-type")
     private String domainObjectType;
 
+    @Attribute(name = "fk-field-name",required = false)
+    private String fkFieldName;
+
     public String getText() {
         return text;
     }
@@ -33,6 +36,14 @@ public class CreatedObjectConfig implements Dto {
 
     public void setDomainObjectType(String domainObjectType) {
         this.domainObjectType = domainObjectType;
+    }
+
+    public String getFkFieldName() {
+        return fkFieldName;
+    }
+
+    public void setFkFieldName(String fkFieldName) {
+        this.fkFieldName = fkFieldName;
     }
 
     @Override
@@ -52,7 +63,9 @@ public class CreatedObjectConfig implements Dto {
         if (text != null ? !text.equals(that.text) : that.text != null) {
             return false;
         }
-
+        if (fkFieldName != null ? !fkFieldName.equals(that.fkFieldName) : that.fkFieldName != null) {
+            return false;
+        }
         return true;
     }
 
@@ -60,6 +73,7 @@ public class CreatedObjectConfig implements Dto {
     public int hashCode() {
         int result = text != null ? text.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
+        result = 31 * result + (fkFieldName != null ? fkFieldName.hashCode() : 0);
         return result;
     }
 }
