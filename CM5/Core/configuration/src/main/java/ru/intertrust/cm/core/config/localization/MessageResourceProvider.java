@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config.localization;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Lesia Puhova
@@ -22,7 +23,7 @@ public class MessageResourceProvider {
 
     public static final String DOMAIN_OBJECT_CONTEXT = "domain-object-type";
 
-    private static Map<String, Map<String, String>> localeToResource = new HashMap<>();
+    private static Map<String, Map<String, String>> localeToResource = new ConcurrentHashMap<>();
     private static String defaultLocale;
 
     public static void setLocaleToResource(Map<String, Map<String, String>> localeToResource) {

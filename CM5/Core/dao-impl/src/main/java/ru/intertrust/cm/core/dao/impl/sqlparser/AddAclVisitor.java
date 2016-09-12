@@ -31,8 +31,8 @@ import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций. Заменяет названия таблиц (доменных объектов)
@@ -42,7 +42,7 @@ import java.util.Map;
  */
 public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
-    private static Map<String, SelectBody> aclSelectBodyCache = new HashMap<>();
+    private static Map<String, SelectBody> aclSelectBodyCache = new ConcurrentHashMap<>();
     private static WithItem aclWithItem = null;
 
     private ConfigurationExplorer configurationExplorer;
