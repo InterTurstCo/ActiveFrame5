@@ -17,7 +17,6 @@ public interface DoelEvaluator {
     /**
      * Вычисляет DOEL-выражение в контексте заданного доменного объекта.
      * Требует наличия прав на чтение всех используемых объектов.
-     * ВРЕМЕННО: требует системных прав доступа.
      * 
      * @param expression DOEL-выражение
      * @param sourceObjectId идентификатор исходного доменного объекта
@@ -25,4 +24,5 @@ public interface DoelEvaluator {
      * @return набор значений выражения
      */
     public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken);
+
 }
