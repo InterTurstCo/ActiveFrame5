@@ -1,0 +1,7 @@
+﻿<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<ReportMetadataConfig name="test-resource-service"
+	description="test-resource-service" mainTemplate="test-resource-service" keepDays="5">
+	<formats>
+		<format>PDF</format>
+	</formats>
+</ReportMetadataConfig>
