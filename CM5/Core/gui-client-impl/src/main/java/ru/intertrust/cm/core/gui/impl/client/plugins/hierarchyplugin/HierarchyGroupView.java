@@ -34,7 +34,7 @@ public class HierarchyGroupView extends HierarchyNode
 
 
     public HierarchyGroupView(HierarchyGroupConfig aGroupConfig, Id aParentId, EventBus aCommonBus, String aParentViewId) {
-        super();
+        super(true);
         commonBus = aCommonBus;
         parentId = aParentId;
         groupConfig = aGroupConfig;
@@ -96,7 +96,7 @@ public class HierarchyGroupView extends HierarchyNode
         }
         else if(event.getAction().equals(Actions.GROUPADD)){
             if(groupConfig.getCreatedObjectsConfig()!=null){
-                showNewForm(groupConfig.getCreatedObjectsConfig().getCreateObjectConfigs().get(0).getDomainObjectType());
+                showNewForm(groupConfig.getCreatedObjectsConfig().getCreateObjectConfigs().get(0).getDomainObjectType(),parentId);
             } else {
                 Window.alert("Создание обьектов не сконфигурировано");
             }
@@ -106,56 +106,7 @@ public class HierarchyGroupView extends HierarchyNode
         }
     }
 
-    protected void showNewForm(final String domainObjectType) {
-        LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
 
-        DialogBoxAction saveAction = new DialogBoxAction() {
-            @Override
-            public void execute(FormPlugin formPlugin) {
-                SaveAction action = getSaveAction(formPlugin, parentId);
-                action.perform();
-            }
-        };
-
-
-        DialogBoxAction cancelAction = new DialogBoxAction() {
-            @Override
-            public void execute(FormPlugin formPlugin) {
-                // no op
-            }
-        };
-
-        LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
-                .setSaveAction(saveAction)
-                .setCancelAction(cancelAction)
-                .withHeight(GuiUtil.getModalHeight(domainObjectType, groupConfig.getLinkedFormMappingConfig(), null))
-                .withWidth(GuiUtil.getModalWidth(domainObjectType, groupConfig.getLinkedFormMappingConfig(), null))
-                .withObjectType(domainObjectType)
-                .withLinkedFormMapping(groupConfig.getLinkedFormMappingConfig())
-                .withPopupTitlesHolder(null)
-                .withParentWidgetIds(null)
-                .withWidgetsContainer(null)
-                .withTypeTitleMap(null)
-                .withFormResizable(false)
-                .withExternalParentId(parentId)
-                .buildDialogBox();
-
-        lfb.display();
-
-    }
-
-    protected SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
-        SaveActionContext saveActionContext = new SaveActionContext();
-        saveActionContext.setRootObjectId(rootObjectId);
-        formPlugin.setLocalEventBus(localBus);
-        final ActionConfig actionConfig = new ActionConfig("save.action");
-        actionConfig.setDirtySensitivity(false);
-        saveActionContext.setActionConfig(actionConfig);
-        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
-        action.setInitialContext(saveActionContext);
-        action.setPlugin(formPlugin);
-        return action;
-    }
 
     @Override
     public void updateCollection(UpdateCollectionEvent event) {

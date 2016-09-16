@@ -11,6 +11,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Dto;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionViewConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
@@ -42,7 +43,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
     public HierarchyCollectionView(HierarchyCollectionConfig aCollectionConfig, CollectionRowItem aRow,
                                    CollectionViewConfig aCollectionViewConfig,
                                    EventBus aCommmonBus, String aParentViewId) {
-        super();
+        super(false);
         commonBus = aCommmonBus;
         collectionViewConfig = aCollectionViewConfig;
         rowItem = aRow;
@@ -101,7 +102,6 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         grid.setWidget(0, (expandable) ? 1 : 0, guiElementsFactory.buildActionButton(localBus, Actions.ROWEDIT));
         if (expandable) {
             grid.setWidget(0, (expandable) ? 2 : 1, guiElementsFactory.buildActionButton(localBus, Actions.ROWADD));
-            //grid.setWidget(0, (expandable) ? 3 : 2, guiElementsFactory.buildActionButton(localBus, Actions.ROWSORT));
         }
 
         renderData();
@@ -113,10 +113,11 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
         int columnIndex = (expandable) ? 3 : 2;
 
         for (CollectionColumnConfig column : collectionViewConfig.getCollectionDisplayConfig().getColumnConfig()) {
-            InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + "</b>");
+            InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + ":</b>");
             fieldName.addStyleName(STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
-            InlineHTML fieldValue = new InlineHTML(rowItem.getRow().get(column.getName()).toString());
+            String value = rowItem.getRow().get(column.getName()).toString();
+            InlineHTML fieldValue = new InlineHTML((!value.equals("null"))?value:"");
             fieldValue.addStyleName(STYLE_FIELD_VALUE);
             grid.setWidget(0, columnIndex + 1, fieldValue);
             columnIndex += 2;
@@ -130,7 +131,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             commonBus.fireEvent(new EditDoEvent(rowItem.getId()));
         } else if (event.getAction().equals(Actions.ROWADD)) {
             if (collectionConfig.getCreatedObjectsConfig() != null) {
-                ;
+                showNewForm(collectionConfig.getCreatedObjectsConfig().getCreateObjectConfigs().get(0).getDomainObjectType(), rowItem.getId());
             } else {
                 Window.alert("Создание обьектов не сконфигурировано");
             }
@@ -169,6 +170,17 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
                     }
                 }
             });
+        }
+        else {
+            for(String fieldName : event.getIdentifiableObject().getFields()){
+                if(event.getIdentifiableObject().getValue(fieldName)!=null &&
+                        event.getIdentifiableObject().getValue(fieldName) instanceof ReferenceValue){
+                    if(event.getIdentifiableObject().getReference(fieldName).equals(rowItem.getId())){
+                        clickElement(expandButton.getElement());
+                        clickElement(expandButton.getElement());
+                    }
+                }
+            }
         }
     }
 

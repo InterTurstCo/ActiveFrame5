@@ -9,9 +9,17 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyCollectionConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyGroupConfig;
+import ru.intertrust.cm.core.gui.api.client.ComponentRegistry;
+import ru.intertrust.cm.core.gui.impl.client.FormPlugin;
+import ru.intertrust.cm.core.gui.impl.client.action.SaveAction;
 import ru.intertrust.cm.core.gui.impl.client.event.hierarchyplugin.*;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.DialogBoxAction;
+import ru.intertrust.cm.core.gui.impl.client.form.widget.linkedtable.LinkedFormDialogBoxBuilder;
+import ru.intertrust.cm.core.gui.impl.client.util.GuiUtil;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,18 +46,20 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
     protected String parentViewID;
     protected Widget expandButton;
     protected Boolean sortAscending = true;
+    protected Boolean isGroup = false;
 
 
 
     protected abstract void addRepresentationCells(Panel container);
 
-    protected HierarchyNode(){
+    protected HierarchyNode(Boolean thisIsGroup){
         localBus = new SimpleEventBus();
         guiElementsFactory = new HierarchyGuiElementsFactory();
         guiFactory = new HierarchyGuiFactory();
         rootPanel = new AbsolutePanel();
         headerPanel = new HorizontalPanel();
         childPanel = new VerticalPanel();
+        isGroup = thisIsGroup;
     }
 
     @Override
@@ -136,5 +146,56 @@ public abstract class HierarchyNode extends Composite implements ExpandHierarchy
         if (autoOpenEvent.getViewId().equals(getViewID())) {
             clickElement(expandButton.getElement());
         }
+    }
+
+    protected void showNewForm(final String domainObjectType, final Id aParentId) {
+        LinkedFormDialogBoxBuilder linkedFormDialogBoxBuilder = new LinkedFormDialogBoxBuilder();
+
+        DialogBoxAction saveAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                SaveAction action = getSaveAction(formPlugin, parentId);
+                action.perform();
+            }
+        };
+
+
+        DialogBoxAction cancelAction = new DialogBoxAction() {
+            @Override
+            public void execute(FormPlugin formPlugin) {
+                // no op
+            }
+        };
+
+        LinkedFormDialogBoxBuilder lfb = linkedFormDialogBoxBuilder
+                .setSaveAction(saveAction)
+                .setCancelAction(cancelAction)
+                .withHeight(GuiUtil.getModalHeight(domainObjectType, (isGroup)?groupConfig.getLinkedFormMappingConfig():collectionConfig.getLinkedFormMappingConfig(), null))
+                .withWidth(GuiUtil.getModalWidth(domainObjectType, (isGroup)?groupConfig.getLinkedFormMappingConfig():collectionConfig.getLinkedFormMappingConfig(), null))
+                .withObjectType(domainObjectType)
+                .withLinkedFormMapping((isGroup)?groupConfig.getLinkedFormMappingConfig():collectionConfig.getLinkedFormMappingConfig())
+                .withPopupTitlesHolder(null)
+                .withParentWidgetIds(null)
+                .withWidgetsContainer(null)
+                .withTypeTitleMap(null)
+                .withFormResizable(false)
+                .withExternalParentId(aParentId)
+                .buildDialogBox();
+
+        lfb.display();
+
+    }
+
+    protected SaveAction getSaveAction(final FormPlugin formPlugin, final Id rootObjectId) {
+        SaveActionContext saveActionContext = new SaveActionContext();
+        saveActionContext.setRootObjectId(rootObjectId);
+        formPlugin.setLocalEventBus((isGroup)?localBus:commonBus);
+        final ActionConfig actionConfig = new ActionConfig("save.action");
+        actionConfig.setDirtySensitivity(false);
+        saveActionContext.setActionConfig(actionConfig);
+        final SaveAction action = ComponentRegistry.instance.get(actionConfig.getComponentName());
+        action.setInitialContext(saveActionContext);
+        action.setPlugin(formPlugin);
+        return action;
     }
 }

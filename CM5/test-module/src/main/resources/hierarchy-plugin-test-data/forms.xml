@@ -44,7 +44,7 @@
         </widget-config>
     </form>
 
-    <form name="hp_departments_form" domain-object-type="hp_departments" is-default="true">
+    <form name="hp_departments_form" domain-object-type="hp_departments" is-default="true" default-value-setter="hpdepartments.value.setter">
         <markup>
             <header>
                 <table>
@@ -112,10 +112,17 @@
             <label id="hidepNameLabel">
                 <text>Вышестоящее подразделение</text>
             </label>
-            <text-box id="hidepName" read-only="true">
-                <field-path value="parent_department.name"/>
-            </text-box>
 
+            <suggest-box id="hidepName">
+                <field-path value="parent_department"/>
+                <collection-ref name="c_hp_departments"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byName"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
         </widget-config>
     </form>
 

@@ -1667,13 +1667,18 @@
                                                             <extra-filter name="bySubDepartment"/>
                                                         </collection-extra-filters>
                                                     </hierarchy-collection>
+                                                    <created-objects>
+                                                        <created-object domain-object-type="hp_departments" text="Подразделение"/>
+                                                    </created-objects>
+                                                    <linked-form-mapping>
+                                                        <linked-form domain-object-type="hp_departments" modal-height="200px" modal-width="400px" name="hp_departments_form"/>
+                                                    </linked-form-mapping>
                                                     <collection-extra-filters>
                                                         <extra-filter name="byOrganization"/>
                                                     </collection-extra-filters>
+
                                                 </hierarchy-collection>
                                                 <created-objects>
-                                                    <!-- Атрибут fk-field-name нужен чтобы связать создаваемый обьект с ID родительского обьекта в
-                                                    иерархии которого он отображается -->
                                                     <created-object domain-object-type="hp_departments" text="Подразделение"/>
                                                 </created-objects>
                                                 <linked-form-mapping>
