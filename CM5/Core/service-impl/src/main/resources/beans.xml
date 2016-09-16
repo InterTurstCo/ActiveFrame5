@@ -277,6 +277,8 @@
     <bean id="threadContext" class="ru.intertrust.cm.core.business.impl.ThreadContextImpl" />
     
     <bean id="pluginStorage" class="ru.intertrust.cm.core.business.impl.plugin.PluginStorageImpl" />    
+
+    <bean id="resourceService" class="ru.intertrust.cm.core.business.impl.ResourceServiceImpl" />    
     
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>

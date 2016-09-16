@@ -584,6 +584,34 @@
         </attachment-types>
     </domain-object-type>
 
+    <domain-object-type name="resources" initial-status="Active">
+        <fields>
+            <string name="name" length="256" not-null="true"/>
+            <reference name="locale" type="locale"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="number_resources" initial-status="Active" extends="resources">
+        <fields>
+            <long name="number_value" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="string_resources" initial-status="Active" extends="resources">
+        <fields>
+            <string name="string_value" length="1024" not-null="true"/>
+        </fields>
+    </domain-object-type>
+
+    <domain-object-type name="blob_resources" initial-status="Active" extends="resources">
+        <attachment-types>
+            <attachment-type name="blob_resources_attach"/>
+        </attachment-types>
+    </domain-object-type>
+
     <migration-script sequence-number="0">
         <before-auto-migration>
             <rename-field type="sel_subj_user">
