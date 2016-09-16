@@ -114,8 +114,10 @@ public class HierarchyGroupView extends HierarchyNode
         if(groupConfig.getCreatedObjectsConfig()!=null){
             for(CreatedObjectConfig oConfig : groupConfig.getCreatedObjectsConfig().getCreateObjectConfigs()){
                 if(oConfig.getDomainObjectType().toLowerCase().equals(eObject.getTypeName().toLowerCase())){
-                    clickElement(expandButton.getElement());
-                    clickElement(expandButton.getElement());
+                    //clickElement(expandButton.getElement());
+                    //clickElement(expandButton.getElement());
+                    childPanel.clear();
+                    localBus.fireEvent(new ExpandHierarchyEvent(true, parentId,false));
                 }
             }
         }

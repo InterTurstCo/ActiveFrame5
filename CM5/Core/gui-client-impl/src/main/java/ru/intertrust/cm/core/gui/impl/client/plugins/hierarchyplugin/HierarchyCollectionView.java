@@ -116,7 +116,7 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             InlineHTML fieldName = new InlineHTML("<b>" + column.getName() + ":</b>");
             fieldName.addStyleName(STYLE_FIELD_NAME);
             grid.setWidget(0, columnIndex, fieldName);
-            String value = rowItem.getRow().get(column.getName()).toString();
+            String value = (rowItem.getRow().get(column.getName())!=null)?rowItem.getRow().get(column.getName()).toString():"";
             InlineHTML fieldValue = new InlineHTML((!value.equals("null"))?value:"");
             fieldValue.addStyleName(STYLE_FIELD_VALUE);
             grid.setWidget(0, columnIndex + 1, fieldValue);
@@ -175,9 +175,12 @@ public class HierarchyCollectionView extends HierarchyNode implements HierarchyA
             for(String fieldName : event.getIdentifiableObject().getFields()){
                 if(event.getIdentifiableObject().getValue(fieldName)!=null &&
                         event.getIdentifiableObject().getValue(fieldName) instanceof ReferenceValue){
-                    if(event.getIdentifiableObject().getReference(fieldName).equals(rowItem.getId())){
-                        clickElement(expandButton.getElement());
-                        clickElement(expandButton.getElement());
+                    if(event.getIdentifiableObject().getReference(fieldName)!=null &&
+                            event.getIdentifiableObject().getReference(fieldName).equals(rowItem.getId())){
+                        //clickElement(expandButton.getElement());
+                        //clickElement(expandButton.getElement());
+                        childPanel.clear();
+                        localBus.fireEvent(new ExpandHierarchyEvent(true, rowItem.getId(),false));
                     }
                 }
             }
