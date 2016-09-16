@@ -71,6 +71,10 @@ public class TestReportService extends ClientBase {
             deployReport("../reports/reports/test-resource-service");
             result = generateReport("test-resource-service", null);
 
+            params.clear();
+            params.put("FORMAT", "PDF");
+            result = generateReport("test-resource-service", params);
+            
             //TODO асинхронная генерация, временно закоментарино, до перехода на eap 6.1 
             /*Future<ReportResult> acyncResult = reportService.generateAsync("all-employee-ds", null);
             while (!acyncResult.isDone())

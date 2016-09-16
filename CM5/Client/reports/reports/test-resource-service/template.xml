@@ -3,5 +3,6 @@
 	description="test-resource-service" mainTemplate="test-resource-service" keepDays="5">
 	<formats>
 		<format>PDF</format>
+        <format>DOCX</format>
 	</formats>
 </ReportMetadataConfig>
