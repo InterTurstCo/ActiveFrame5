@@ -166,7 +166,7 @@ public class ActionConfigBuilder {
                 && domainObject != null) {
             final StandardEvaluationContext context = new StandardEvaluationContext(domainObject);
             final List<PropertyAccessor> accessors = new ArrayList<>();
-            accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId()));
+            accessors.add(new DomainObjectPropertyAccessor(currentUserAccessor.getCurrentUserId(), crudService));
             accessors.add(new ReferenceValuePropertyAccessor(crudService));
             context.setPropertyAccessors(accessors);
             context.setTypeComparator(new DomainObjectTypeComparator());
