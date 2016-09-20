@@ -244,19 +244,18 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                         solrQuery.setRows(rows);
                     }
                     QueryResponse response = executeSolrQuery(solrQuery);
-                    if(response.getResults().size() > 0){
-                      foundParts.add(response.getResults());
-                    }
-		    clipped = clipped || rows > 0 && response.getResults().size() == rows;
+                    foundParts.add(response.getResults());
+                    clipped = clipped || rows > 0 && response.getResults().size() == rows;
                 }
                 for (ComplexQuery nested : nestedQueries) {
                     foundParts.add(nested.execute(fetchLimit, query));
                 }
                 if (foundParts.size() == 1) {
-                    return foundParts.get(0);
+                    result = foundParts.get(0);
+                } else {
+                    result = combineResults(foundParts, combineOperation == CombiningFilter.AND
+                            ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 }
-                result = combineResults(foundParts, combineOperation == CombiningFilter.AND
-                        ? new IntersectCombiner(foundParts.size()) : new UnionCombiner(), fetchLimit);
                 clippingFactor /= fetchLimit - result.size() + 1;
             } while (clipped && result.size() < fetchLimit);
             return result;
