@@ -53,6 +53,24 @@ public class TestCrudService extends ClientBase {
         if (!objectNotFound){
             throw new Exception("Need throw ObjectNotFound");
         }
+        
+        //Проверяем исключение при превышении длины поля
+        DomainObject testType31 = crudService.createDomainObject("test_type_31");
+        testType31.setString("name", "123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_123456789_");
+        try{
+            crudService.save(testType31);
+        }catch(Exception ex){
+            System.out.println("Correct error " + ex.getMessage());
+        }
+
+        //Проверяем исключение при пустом not-null поле
+        testType31 = crudService.createDomainObject("test_type_31");
+        try{
+            crudService.save(testType31);
+        }catch(Exception ex){
+            System.out.println("Correct error " + ex.getMessage());
+        }
+        
         System.out.println("Test complete");
     }
 
