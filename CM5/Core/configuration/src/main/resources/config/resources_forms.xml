@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="num_res_form" domain-object-type="number_resources" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Конфигурация числового ресурса">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="valueLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="numberValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="localeLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="localeValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация числового ресурса</text>
+            </label>
+
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="valueLabel">
+                <text>Значение:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <integer-box id="numberValue">
+                <field-path value="number_value"/>
+            </integer-box>
+
+
+            <label id="localeLabel">
+                <text>Локаль:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <suggest-box id="localeValue">
+                <field-path value="locale"/>
+                <collection-ref name="locale_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+
+    <form name="string_res_form" domain-object-type="string_resources" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Конфигурация строкового ресурса">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="valueLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="stringValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="localeLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="localeValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация строкового ресурса</text>
+            </label>
+
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="valueLabel">
+                <text>Значение:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="stringValue">
+                <field-path value="string_value"/>
+            </text-box>
+
+            <label id="localeLabel">
+                <text>Локаль:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <suggest-box id="localeValue">
+                <field-path value="locale"/>
+                <collection-ref name="locale_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+
+    <form name="blob_res_form" domain-object-type="blob_resources" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Конфигурация BLOB ресурса">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="attachLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="attachment"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="localeLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="localeValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация BLOB ресурса</text>
+            </label>
+
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="attachLabel">
+                <text>Файл:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <attachment-box id="attachment">
+                <field-path value="blob_resources_attach^blob_resources" on-root-delete="unlink"/>
+                <attachment-type-ref name="blob_resources_attach"/>
+                <scanner enabled="true"/>
+                <selection-style name="table"/>
+                <single-choice value="true"/>
+            </attachment-box>
+
+
+            <label id="localeLabel">
+                <text>Локаль:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <suggest-box id="localeValue">
+                <field-path value="locale"/>
+                <collection-ref name="locale_collection"/>
+                <drop-down-pattern value="{name}"/>
+                <selection-pattern value="{name}"/>
+                <input-text-filter name="byText"/>
+                <page-size>30</page-size>
+                <selection-style name="inline"/>
+                <single-choice value="true"/>
+            </suggest-box>
+        </widget-config>
+    </form>
+</configuration>

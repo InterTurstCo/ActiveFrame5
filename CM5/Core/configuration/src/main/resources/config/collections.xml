@@ -34,7 +34,7 @@
 
         <filter name="byDepartmentNames">
             <reference placeholder="from-clause">
-                 <![CDATA[
+                <![CDATA[
                     inner join department d on e.department = d.id
                 ]]>
             </reference>
@@ -47,7 +47,7 @@
                 ]]>
             </criteria>
         </filter>
-        
+
         <filter name="byName">
             <criteria placeholder="where-clause">
                 <![CDATA[
@@ -119,17 +119,18 @@
     <collection-view name="departments_default_view" collection="Departments" is-default="true">
         <display>
             <column field="id" name="id" type="integer" sortable="false" search-filter="byId"/>
-            <column field="name" name="Название" editable="false" type="string" sortable="true" drill-down-style="combined-link" search-filter="byName">
-                    
+            <column field="name" name="Название" editable="false" type="string" sortable="true"
+                    drill-down-style="combined-link" search-filter="byName">
+
                 <child-collection-viewer filter="byDepartment"
-                           domain-object-type-to-create="Employee" bread-crumb="Сотрудник">
+                                         domain-object-type-to-create="Employee" bread-crumb="Сотрудник">
                     <collection-viewer>
                         <collection-ref name="Employees"/>
                         <default-sort-criteria column-field="name" order="desc"/>
                         <!--search-area-ref name="Employees-Search-Area"/>
                         <search-collection-ref name="Employees"/-->
                     </collection-viewer>
-               </child-collection-viewer>
+                </child-collection-viewer>
             </column>
         </display>
     </collection-view>
@@ -193,12 +194,12 @@
             </criteria>
         </filter>
         <filter name="byEmployee">
-        <criteria placeholder="where-clause">
-            <![CDATA[
+            <criteria placeholder="where-clause">
+                <![CDATA[
                     o.boss  = {0}
                 ]]>
-        </criteria>
-    </filter>
+            </criteria>
+        </filter>
         <filter name="byStatus">
             <criteria placeholder="where-clause">
                 <![CDATA[
@@ -448,20 +449,21 @@
         </filter>
 
     </collection>
-    
+
     <collection-view name="organizations_default_view" collection="Organizations" is-default="true">
         <display>
 
             <column field="id" name="id" type="integer" sortable="false"/>
 
 
-            <column field="name" name="Название организации" editable="false" type="string" sortable="true" search-filter="byName">
+            <column field="name" name="Название организации" editable="false" type="string" sortable="true"
+                    search-filter="byName">
                 <!-- если ID типа Organization, то вызывается данная коллекция -->
                 <!-- если for-domain-object-type не указан, то данная коллекция используется "в последнюю очередь".
                  это удобно для случая, когда текущая коллекция содержит элементы только одного типа -->
                 <!-- bread-crumb - название "хлебной крошки" для под-коллекции -->
                 <child-collection-viewer for-domain-object-type="Organization" filter="byOrganization"
-                        domain-object-type-to-create="Department" bread-crumb="Подразделение">
+                                         domain-object-type-to-create="Department" bread-crumb="Подразделение">
                     <collection-viewer>
                         <collection-ref name="Departments"/>
                         <collection-view-ref name="departments_default_view"/>
@@ -478,9 +480,9 @@
     </collection-view>
 
     <collection name="Employees_2" idField="id">
-        <generator class-name="employee.collection.test" />
-        <filter name="byName" />
-        <filter name="byDepartment" />
+        <generator class-name="employee.collection.test"/>
+        <filter name="byName"/>
+        <filter name="byDepartment"/>
     </collection>
 
     <collection name="Internal_Document" idField="id">
@@ -535,7 +537,7 @@
         </filter>
         <filter name="byStatus">
             <reference placeholder="from-clause">
-                 <![CDATA[
+                <![CDATA[
                     inner join status s on nc.status = s.id
                 ]]>
             </reference>
@@ -591,7 +593,7 @@
         </filter>
         <filter name="byStatus">
             <reference placeholder="from-clause">
-                 <![CDATA[
+                <![CDATA[
                     inner join status s on ec.status = s.id
                 ]]>
             </reference>
@@ -633,7 +635,7 @@
         </filter>
         <filter name="byStatus">
             <reference placeholder="from-clause">
-                 <![CDATA[
+                <![CDATA[
                     inner join status s on rc.status = s.id
                 ]]>
             </reference>
@@ -1240,8 +1242,8 @@
 
     <collection name="reports" idField="id">
 
-    <prototype>
-        <![CDATA[
+        <prototype>
+            <![CDATA[
                 select
                     id,
                     name,
@@ -1255,7 +1257,7 @@
                 where
                     1=1 ::where-clause
             ]]>
-    </prototype>
+        </prototype>
 
         <filter name="byName">
             <criteria placeholder="where-clause">
@@ -1269,6 +1271,114 @@
             <criteria placeholder="where-clause">
                 <![CDATA[
                     upper(description) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
+    <collection name="resources" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                    T1.id,
+                    T1.resource_name,
+                    T1.resource_value,
+                    T1.resource_type,
+                    T1.locale_name
+                    FROM
+                    (
+                    SELECT
+                    NR.id,
+                    R.name AS resource_name,
+                    L.name AS locale_name,
+                    CAST(NR.number_value AS varchar) AS resource_value,
+                    'Число' AS resource_type
+                    FROM resources R
+                    JOIN number_resources NR ON NR.id = R.id
+                    LEFT JOIN locale L ON R.locale = L.id
+
+                    UNION
+
+                    SELECT
+                    SR.id,
+                    R.name AS resource_name,
+                    L.name AS locale_name,
+                    SR.string_value AS resource_value,
+                    'Строка' AS resource_type
+                    FROM resources R
+                    JOIN string_resources SR ON SR.id = R.id
+                    LEFT JOIN locale L ON R.locale = L.id
+
+                    UNION
+
+                    SELECT
+                    BR.id,
+                    R.name AS resource_name,
+                    L.name AS locale_name,
+                    BRA.name AS resource_value,
+                    'Файл' AS resource_type
+                    FROM resources R
+                    JOIN blob_resources BR ON BR.id = R.id
+                    JOIN blob_resources_attach BRA ON BRA.blob_resources = BR.id
+                    LEFT JOIN locale L ON R.locale = L.id
+                    ) T1 ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.name) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byValue">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.resource_value) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byType">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.resource_type) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byLocale">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.locale_name) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="locale_collection" idField="id">
+
+        <prototype>
+            <![CDATA[
+                select
+                    id,
+                    name
+                from
+                    locale ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byText">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(name) like(upper({0}))
                 ]]>
             </criteria>
         </filter>

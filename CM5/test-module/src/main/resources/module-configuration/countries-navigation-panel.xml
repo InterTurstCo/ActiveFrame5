@@ -1529,11 +1529,64 @@
         </link>
 
         <link name="Dashboard" display-text="Панель управления" image="images/settings.png"
-              child-to-open="CacheControl">
+              child-to-open="Resources">
             <child-links>
                 <link name="CacheControl" display-text="Управление кэшем">
                     <plugin>
                         <global-cache-control statistics-only="false"/>
+                    </plugin>
+                </link>
+
+                <link name="Resources" display-text="Управление ресурсами">
+                    <plugin>
+                        <domain-object-surfer>
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                    <act:action-ref name-ref="aDelete"/>
+                                    <act:action-ref name-ref="aToggleEditOn"/>
+                                    <act:action-group name="createResource" text="Создать" order="99" imageClass="actionBar-create">
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Число"
+                                                    tooltip="Создать числовой ресурс"
+                                                    imageClass="actionBar-create" order="100"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="number_resources"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Строка"
+                                                    tooltip="Создать строковый ресурс"
+                                                    imageClass="actionBar-create" order="101"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="string_resources"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Файл"
+                                                    tooltip="Создать BLOB ресурс"
+                                                    imageClass="actionBar-create" order="101"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="blob_resources"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                    </act:action-group>
+
+                                </act:tool-bar>
+                                <collection-ref name="resources"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="number_resources" form="num_res_form"/>
+                                <form-mapping domain-object-type="string_resources" form="string_res_form"/>
+                                <form-mapping domain-object-type="blob_resources" form="blob_res_form"/>
+                            </form-viewer>
+                        </domain-object-surfer>
                     </plugin>
                 </link>
             </child-links>
