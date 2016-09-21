@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="report_form" domain-object-type="report_template" is-default="true">
+        <act:tool-bar plugin="report.plugin" useDefault="false">
+            <act:action-ref name-ref="aDelete" rendered="false"/>
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab name="Конфигурация">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="nameLabel"/></td>
+                                    <td><widget id="nameValue"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="descriptionLabel"/></td>
+                                    <td><widget id="descriptionValue"/></td>
+                                </tr>
+                                <tr>
+                                    <td><widget id="lockLabel"/></td>
+                                    <td><widget id="lockValue"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Параметры отчета</text>
+            </label>
+
+            <label id="nameLabel">
+                <text>Название:</text>
+            </label>
+
+            <text-box id="nameValue" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="descriptionLabel">
+                <text>Описание:</text>
+            </label>
+
+            <text-box id="descriptionValue">
+                <field-path value="description"/>
+            </text-box>
+
+            <label id="lockLabel">
+                <text>Защитить от обновления:</text>
+            </label>
+            <check-box id="lockValue">
+                <field-path value="lockupdate"/>
+            </check-box>
+
+
+        </widget-config>
+    </form>
+</configuration>

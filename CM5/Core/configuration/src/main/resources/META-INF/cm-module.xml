@@ -24,6 +24,7 @@
         <configuration-path>config/navigation-panel.xml</configuration-path>
         <configuration-path>config/actions.xml</configuration-path>
         <configuration-path>config/hsurfer_form.xml</configuration-path>
+        <configuration-path>config/report_form.xml</configuration-path>
         <!--configuration-path>config/migration.xml</configuration-path-->
     </configuration-paths>
     <import-files>

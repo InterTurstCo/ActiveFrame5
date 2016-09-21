@@ -1238,4 +1238,41 @@
 
     </collection>
 
+    <collection name="reports" idField="id">
+
+    <prototype>
+        <![CDATA[
+                select
+                    id,
+                    name,
+                    description,
+                    case when lockupdate = 0 then
+                    'Да'
+                    else 'Нет'
+                    end as locked
+                from
+                    report_template ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+    </prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(name) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDescription">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(description) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+    </collection>
+
 </configuration>
