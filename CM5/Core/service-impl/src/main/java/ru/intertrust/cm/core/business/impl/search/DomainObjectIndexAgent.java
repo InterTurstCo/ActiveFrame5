@@ -156,8 +156,13 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
         }
 
         for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configHelper.findChildConfigs(config)) {
-            for (DomainObject child : findChildren(object.getId(), linkedConfig)) {
-                reindexObjectAndChildren(solrDocs, child, linkedConfig, mainIds);
+            LinkedDomainObjectConfig cfg = (LinkedDomainObjectConfig) linkedConfig.getObjectConfig();
+            if (LinkedDomainObjectConfig.REINDEX_ON_CHANGE.equalsIgnoreCase(cfg.getReindexOnParent())
+                    || LinkedDomainObjectConfig.REINDEX_ON_CREATE.equalsIgnoreCase(cfg.getReindexOnParent())
+                    && object.getCreatedDate().equals(object.getModifiedDate())) {
+                for (DomainObject child : findChildren(object.getId(), linkedConfig)) {
+                    reindexObjectAndChildren(solrDocs, child, linkedConfig, mainIds);
+                }
             }
         }
     }
