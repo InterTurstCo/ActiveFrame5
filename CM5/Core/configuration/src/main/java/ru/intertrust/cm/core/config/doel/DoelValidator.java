@@ -186,9 +186,6 @@ public class DoelValidator {
         public DoelTypes process() {
             if (result == null) {
                 result = new DoelTypes();
-                //result.typeChain = new DoelTypes.Link();
-                //result.typeChain.type = sourceType;
-                //processStep(0, result.typeChain);
                 result.typeChains = processStep(0, sourceType, false);
             }
             return result;
@@ -316,81 +313,6 @@ public class DoelValidator {
                 }
             }
             return branches;
-        }
-
-        private void old_processStep(int step, DoelTypes.Link currentType) {
-            DoelExpression.Element exprElem = expression.getElements()[step];
-            FieldConfig fieldConfig;
-            List<String> nextTypes = Collections.emptyList();
-
-            if (DoelExpression.ElementType.FIELD == exprElem.getElementType()) {
-                DoelExpression.Field fieldElem = (DoelExpression.Field) exprElem;
-                fieldConfig = config.getFieldConfig(currentType.type, fieldElem.getName());
-                if (fieldConfig instanceof ReferenceFieldConfig) {
-                    ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
-                    if (ReferenceFieldConfig.ANY_TYPE.equals(refFieldConfig.getType()) &&
-                            step < expression.getElements().length - 1) {
-                        DoelExpression.Element nextElem = expression.getElements()[step + 1];
-                        if (DoelExpression.ElementType.FIELD == nextElem.getElementType()) {
-                            nextTypes = findAllTypesHavingField(((DoelExpression.Field) nextElem).getName());
-                        } else if (DoelExpression.ElementType.CHILDREN == nextElem.getElementType()) {
-                            DoelExpression.Children nextLink = (DoelExpression.Children) nextElem;
-                            FieldConfig nextLinkConfig =
-                                    config.getFieldConfig(nextLink.childType, nextLink.parentLink);
-                            if (nextLinkConfig == null || !(nextLinkConfig instanceof ReferenceFieldConfig)) {
-                                //TODO: Неправильная связь на следующем шаге
-                            } else {
-                                nextTypes = Collections.singletonList(
-                                        ((ReferenceFieldConfig) nextLinkConfig).getType());
-                            }
-                        }
-                    } else {
-                        nextTypes = Collections.singletonList(refFieldConfig.getType());
-                    }
-                }
-            } else if (DoelExpression.ElementType.CHILDREN == exprElem.getElementType()) {
-                DoelExpression.Children chilrenElem = (DoelExpression.Children) exprElem;
-                fieldConfig = config.getFieldConfig(chilrenElem.getChildType(), chilrenElem.getParentLink());
-                if (fieldConfig != null && (fieldConfig instanceof ReferenceFieldConfig) &&
-                        !(((ReferenceFieldConfig) fieldConfig).getType().equalsIgnoreCase(currentType.getType()) ||
-                        ReferenceFieldConfig.ANY_TYPE.equals(((ReferenceFieldConfig) fieldConfig).getType()))) {
-                    //TODO: Несвязанная ссылка: тип и поле правильные, но не ссылается на предыдущий объект
-                    result.brokenPaths = true;
-                } else {
-                    result.singleResult = false;
-                    nextTypes = Collections.singletonList(chilrenElem.getChildType());
-                }
-            } else {
-                throw new IllegalStateException("Unknown DOEL expression element type: " +
-                        exprElem.getClass().getName());
-            }
-
-            if (fieldConfig == null) {
-                //TODO: Неправильное имя поля
-                result.brokenPaths = true;
-            } else if (step == expression.getElements().length - 1) {
-                if (result.resultTypes == null) {
-                    result.resultTypes = new HashSet<>();
-                }
-                result.resultTypes.add(fieldConfig.getFieldType());
-                if (FieldType.REFERENCE == fieldConfig.getFieldType()) {
-                    if (result.resultObjectTypes == null) {
-                        result.resultObjectTypes = new HashSet<>();
-                    }
-                    result.resultObjectTypes.addAll(nextTypes);
-                }
-            } else if (nextTypes.size() > 0) {
-                currentType.next = new ArrayList<>(nextTypes.size());
-                for (String type : nextTypes) {
-                    DoelTypes.Link link = new DoelTypes.Link();
-                    link.type = type;
-                    currentType.next.add(link);
-                    old_processStep(step + 1, link);
-                }
-            } else {
-                //TODO: Поле не является ссылкой
-                result.brokenPaths = true;
-            }
         }
 
         private List<String> findAllTypesHavingField(String fieldName) {

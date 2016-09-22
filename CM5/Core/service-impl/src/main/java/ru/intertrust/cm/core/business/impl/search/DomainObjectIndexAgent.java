@@ -49,6 +49,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.extension.AfterDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.AfterSaveExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
+import ru.intertrust.cm.core.model.DoelException;
 import ru.intertrust.cm.core.tools.SearchAreaFilterScriptContext;
 
 /**
@@ -104,42 +105,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
                 continue;
             }
             List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
-            for (Id mainId : mainIds) {
-                SolrInputDocument doc = new SolrInputDocument();
-                doc.addField(SolrFields.OBJECT_ID, domainObject.getId().toStringRepresentation());
-                doc.addField(SolrFields.AREA, config.getAreaName());
-                doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
-                doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
-                doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
-                doc.addField(SolrFields.MODIFIED, domainObject.getModifiedDate());
-                for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
-                    SearchFieldType type =
-                            configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
-                    Object value = calculateField(domainObject, fieldConfig);
-                    if (type == null) {
-                        type = getTypeByValue(value);
-                    }
-                    if (isTextField(type)) {
-                        List<String> languages =
-                                configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
-                        /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
-                            doc.addField(name, value);
-                        }*/
-                        boolean multiValued = type == SearchFieldType.TEXT_MULTI;
-                        for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), multiValued)) {
-                            doc.addField(name, value);
-                        }
-                    } else {
-                        StringBuilder fieldName = new StringBuilder()
-                            .append(SolrFields.FIELD_PREFIX)
-                            .append(type.getInfix())
-                            .append(fieldConfig.getName().toLowerCase());
-                        doc.addField(fieldName.toString(), value);
-                    }
-                }
-                doc.addField("id", createUniqueId(domainObject, config));
-                solrDocs.add(doc);
-            }
+            reindexObjectAndChildren(solrDocs, domainObject, config, mainIds);
         }
         if (solrDocs.size() == 0) {
             return;
@@ -148,6 +114,77 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
         if (log.isInfoEnabled()) {
             log.info(Integer.toString(solrDocs.size()) + " Solr document(s) queued for indexing");
         }
+    }
+
+    private void reindexObjectAndChildren(List<SolrInputDocument> solrDocs, DomainObject object,
+            SearchConfigHelper.SearchAreaDetailsConfig config, List<Id> mainIds) {
+        for (Id mainId : mainIds) {
+            SolrInputDocument doc = new SolrInputDocument();
+            doc.addField(SolrFields.OBJECT_ID, object.getId().toStringRepresentation());
+            doc.addField(SolrFields.AREA, config.getAreaName());
+            doc.addField(SolrFields.TARGET_TYPE, config.getTargetObjectType());
+            doc.addField(SolrFields.OBJECT_TYPE, config.getObjectConfig().getType());
+            doc.addField(SolrFields.MAIN_OBJECT_ID, mainId.toStringRepresentation());
+            doc.addField(SolrFields.MODIFIED, object.getModifiedDate());
+            for (IndexedFieldConfig fieldConfig : config.getObjectConfig().getFields()) {
+                SearchFieldType type =
+                        configHelper.getFieldType(fieldConfig, config.getObjectConfig().getType());
+                Object value = calculateField(object, fieldConfig);
+                if (type == null) {
+                    type = getTypeByValue(value);
+                }
+                if (isTextField(type)) {
+                    List<String> languages =
+                            configHelper.getSupportedLanguages(fieldConfig.getName(), config.getAreaName());
+                    /*for (String name : getSolrTextFieldNames(fieldConfig.getName(), type.isMultivalued(), languages)) {
+                        doc.addField(name, value);
+                    }*/
+                    boolean multiValued = type == SearchFieldType.TEXT_MULTI;
+                    for (String name : new TextFieldNameDecorator(languages, fieldConfig.getName(), multiValued)) {
+                        doc.addField(name, value);
+                    }
+                } else {
+                    StringBuilder fieldName = new StringBuilder()
+                        .append(SolrFields.FIELD_PREFIX)
+                        .append(type.getInfix())
+                        .append(fieldConfig.getName().toLowerCase());
+                    doc.addField(fieldName.toString(), value);
+                }
+            }
+            doc.addField("id", createUniqueId(object, config));
+            solrDocs.add(doc);
+        }
+
+        for (SearchConfigHelper.SearchAreaDetailsConfig linkedConfig : configHelper.findChildConfigs(config)) {
+            for (DomainObject child : findChildren(object.getId(), linkedConfig)) {
+                reindexObjectAndChildren(solrDocs, child, linkedConfig, mainIds);
+            }
+        }
+    }
+
+    private List<DomainObject> findChildren(Id objectId, SearchConfigHelper.SearchAreaDetailsConfig config) {
+        String parentLink = ((LinkedDomainObjectConfig) config.getObjectConfig()).getParentLink().getDoel();
+        DoelExpression parentExpr = DoelExpression.parse(parentLink);
+        DoelExpression linkedExpr;
+        try {
+            linkedExpr = doelEvaluator.createReverseExpression(parentExpr, config.getObjectConfig().getType());
+        } catch (DoelException e) {
+            log.warn("Can't calculate children of type " + config.getObjectConfig().getType() + ": " + e.getMessage()
+                    + "; manual/scheduled calculation required");
+            return Collections.emptyList();
+        }
+        AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
+        List<ReferenceValue> children = doelEvaluator.evaluate(linkedExpr, objectId, accessToken);
+        if (children.size() == 0) {
+            return Collections.emptyList();
+        }
+        ArrayList<Id> ids = new ArrayList<>(children.size());
+        for (ReferenceValue child : children) {
+            if (child.get() != null) {
+                ids.add(child.get());
+            }
+        }
+        return domainObjectDao.find(ids, accessToken);
     }
 
     private void sendAttachment(DomainObject object, SearchConfigHelper.SearchAreaDetailsConfig config) {

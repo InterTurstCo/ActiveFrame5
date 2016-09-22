@@ -23,6 +23,8 @@ public interface DoelEvaluator {
      * @param accessToken маркер доступа
      * @return набор значений выражения
      */
-    public <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken);
+    <T extends Value> List<T> evaluate(DoelExpression expression, Id sourceObjectId, AccessToken accessToken);
 
+    DoelExpression createReverseExpression(DoelExpression expr, String sourceType);
+    DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType);
 }

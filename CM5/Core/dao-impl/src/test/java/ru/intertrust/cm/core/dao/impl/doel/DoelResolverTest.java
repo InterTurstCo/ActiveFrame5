@@ -243,14 +243,14 @@ public class DoelResolverTest {
         assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
     }
 
-    //@Test
+    @Test
     public void testReverseExpression() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         DoelExpression exprBack = doelResolver.createReverseExpression(expr, "InternalDoc");
         assertEquals(DoelExpression.parse("Person^Department.Job^Assignee.parent.parent"), exprBack);
     }
 
-    //@Test
+    @Test
     public void testPartialReverseExpression() {
         DoelExpression expr = DoelExpression.parse("Commission^parent.Job^parent.Assignee.Department");
         DoelExpression exprBack = doelResolver.createReverseExpression(expr, 2, "InternalDoc");

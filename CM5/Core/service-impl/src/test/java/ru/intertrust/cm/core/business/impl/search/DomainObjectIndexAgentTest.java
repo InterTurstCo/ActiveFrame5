@@ -625,6 +625,89 @@ public class DomainObjectIndexAgentTest {
         }
     }
 
+    /*@Test
+    public void testSaveGenericDocument_HavingLinked() {
+        // Модель конфигурации области поиска
+        IndexedFieldConfig stringField = mock(IndexedFieldConfig.class);
+        when(stringField.getName()).thenReturn("StringField");
+
+        IndexedFieldConfig longField = mock(IndexedFieldConfig.class);
+        when(longField.getName()).thenReturn("LongField");
+
+        LinkedDomainObjectConfig childConfig = mock(LinkedDomainObjectConfig.class);
+        when(childConfig.getType()).thenReturn("ChildType");
+        when(childConfig.getFields()).thenReturn(Arrays.asList(longField));
+        ParentLinkConfig linkConfig = mock(ParentLinkConfig.class);
+        when(linkConfig.getDoel()).thenReturn("doel.get.parent");
+        when(childConfig.getParentLink()).thenReturn(linkConfig);
+        TargetDomainObjectConfig parentConfig = mock(TargetDomainObjectConfig.class);
+        when(parentConfig.getType()).thenReturn("ParentType");
+        when(parentConfig.getFields()).thenReturn(Arrays.asList(stringField));
+        when(parentConfig.getLinkedObjects()).thenReturn(Arrays.asList(childConfig));
+        SearchConfigHelper.SearchAreaDetailsConfig areaConfig =
+                new SearchConfigHelper.SearchAreaDetailsConfig(Arrays.<IndexedDomainObjectConfig>asList(parentConfig),
+                        "TestArea", "ParentType");
+
+        when(configHelper.findEffectiveConfigs(Mockito.anyString()))
+                .thenReturn(Arrays.asList(areaConfig));
+        when(configHelper.isAttachmentObject(Mockito.any(DomainObject.class))).thenReturn(false);
+        when(configHelper.isSuitableType("ParentType", "TestType")).thenReturn(true);
+        when(configHelper.getFieldType(same(stringField), anyString())).thenReturn(SearchFieldType.TEXT);
+        when(configHelper.getFieldType(same(longField), anyString())).thenReturn(SearchFieldType.LONG);
+        //when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+
+        when(accessControlService.createSystemAccessToken(anyString())).thenReturn(mockToken);
+
+        // Модель сохраняемого объекта и его изменений
+        DomainObject parent = mock(DomainObject.class);
+        Id parentId = idMock("ParentId");
+        when(parent.getId()).thenReturn(parentId);
+        when(parent.getTypeName()).thenReturn("ParentType");
+        when(parent.getValue("StringField")).thenReturn(new StringValue("Test string"));
+        when(object.getValue("LongField")).thenReturn(new LongValue(47L));
+        FieldModification modMock = mock(FieldModification.class);
+        when(modMock.getName()).thenReturn("StringField", "LongField", "DateField");
+
+        when(doelEvaluator.evaluate(eq(DoelExpression.parse("doel^multiple.strings")), same(id),
+                Mockito.any(AccessToken.class))).thenReturn(Arrays.asList(
+                        (Value) new StringValue("String 1"), new StringValue("String 2"), new StringValue("String 3")));
+
+        when(domainObjectDao.find(id, mockToken)).thenReturn(object);
+
+        // Вызов тестируемого метода
+        testee.onAfterSave(object, Arrays.asList(modMock, modMock, modMock));
+
+        // Проверка правильности сформированного запроса к Solr
+        ArgumentCaptor<Collection> documents = ArgumentCaptor.forClass(Collection.class);
+        verify(requestQueue).addDocuments(documents.capture());
+        assertEquals(1, documents.getValue().size());
+        SolrInputDocument doc = (SolrInputDocument) documents.getValue().iterator().next();
+        assertThat(doc, hasEntry(equalTo("cm_id"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_area"), hasProperty("value", equalTo("TestArea"))));
+        assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TestType"))));
+        assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("TestId"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_stringfield"), hasProperty("value", equalTo("Test string"))));
+        assertThat(doc, hasEntry(equalTo("cm_ru_rustringfield"),
+                hasProperty("value", equalTo("Test russian string"))));
+        assertThat(doc, hasEntry(equalTo("cm_ru_ruengetextfield"),
+                hasProperty("value", equalTo("Test multi-language string"))));
+        assertThat(doc, hasEntry(equalTo("cm_en_ruengetextfield"),
+                hasProperty("value", equalTo("Test multi-language string"))));
+        assertThat(doc, hasEntry(equalTo("cm_ge_ruengetextfield"),
+                hasProperty("value", equalTo("Test multi-language string"))));
+        assertThat(doc, hasEntry(equalTo("cm_l_longfield"), hasProperty("value", equalTo(47L))));
+        assertThat(doc, hasEntry(equalTo("cm_d_decimalfield"), hasProperty("value", equalTo(new BigDecimal("11.76")))));
+        assertThat(doc, hasEntry(equalTo("cm_dt_datefield"), hasProperty("value", equalTo(new Date(12345L)))));
+        assertThat(doc, hasEntry(equalTo("cm_r_referencefield"), hasProperty("value", equalTo("RefId"))));
+        assertThat(doc, hasEntry(equalTo("cm_ts_doelfield"), hasProperty("value",
+                        containsInAnyOrder("String 1", "String 2", "String 3"))));
+        assertThat(doc, hasEntry(equalTo("cm_t_scriptstringfield"), hasProperty("value", equalTo("Calculated"))));
+        assertThat(doc, hasEntry(equalTo("cm_l_scriptlongfield"), hasProperty("value", equalTo(555L))));
+        assertThat(doc, hasEntry(equalTo("cm_dt_scriptdatefield"), hasProperty("value", equalTo(calculatedDate))));
+        assertThat(doc, hasEntry(equalTo("cm_b_scriptboolfield"), hasProperty("value", equalTo(true))));
+        assertThat(doc, hasEntry(equalTo("cm_ds_scriptfloatarrayfield"), hasProperty("value")));   //*****
+    }*/
+
     @Test
     public void testSaveAttachment() throws Exception {
         // Модель конфигурации области поиска

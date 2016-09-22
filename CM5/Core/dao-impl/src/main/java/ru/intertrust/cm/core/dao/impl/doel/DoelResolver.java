@@ -394,35 +394,7 @@ public class DoelResolver implements DoelEvaluator {
         }
         return values;
     }
-/*
-    private boolean isSystemAccessToken(AccessToken accessToken) {
-        return accessToken.getSubject() instanceof SystemSubject;
-    }
 
-    private int getUserId(AccessToken accessToken) {
-        return ((UserSubject) accessToken.getSubject()).getUserId();
-    }
-
-    private void applyAclParameters(Map<String, Object> parameters, AccessToken accessToken) {
-        if (!isSystemAccessToken(accessToken)) {
-            int userId = getUserId(accessToken);
-            parameters.put("user_id", userId);
-        }
-    }
-
-    private void applyAcl(Select select, AccessToken accessToken) {
-        SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
-
-        String query = null;
-        if (!isSystemAccessToken(accessToken)) {
-            sqlQueryModifier.addAclQuery(select);
-        }
-    }
-
-    private SqlQueryModifier createSqlQueryModifier() {
-        return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
-    }
-*/
     private Map<String, List<RdbmsId>> groupByType(List<DoelTypes.Link> types, List<?> ids) {
         HashSet<String> typeSet = new HashSet<>();
         for (DoelTypes.Link link : types) {
@@ -506,13 +478,17 @@ public class DoelResolver implements DoelEvaluator {
         }
     }
 
-    @Deprecated
+    //@Deprecated
     public DoelExpression createReverseExpression(DoelExpression expr, String sourceType) {
         StringBuilder reverseExpr = new StringBuilder();
         String currentType = sourceType;
         for (DoelExpression.Element doelElem : expr.getElements()) {
             if (reverseExpr.length() > 0) {
                 reverseExpr.insert(0, ".");
+            }
+            if (doelElem.getFunctions() != null && doelElem.getFunctions().length > 0 ) {
+                //TODO add reversible funtionns processing
+                throw new DoelException("Can't reverse expression that contains functions");
             }
             if (DoelExpression.ElementType.FIELD == doelElem.getElementType()) {
                 DoelExpression.Field field = (DoelExpression.Field) doelElem;
@@ -524,6 +500,11 @@ public class DoelResolver implements DoelEvaluator {
                 if (fieldConfig instanceof ReferenceFieldConfig) {
                     ReferenceFieldConfig refConfig = (ReferenceFieldConfig) fieldConfig;
                     currentType = refConfig.getType();
+                    if (ReferenceFieldConfig.ANY_TYPE.equals(currentType)) {
+                        throw new DoelException("Can't reverse expression that uses untyped reference fields (*)");
+                    }
+                } else {
+                    throw new DoelException("Can't reverse expression that contains non-reference fields");
                 }
             } else if (DoelExpression.ElementType.CHILDREN == doelElem.getElementType()) {
                 DoelExpression.Children children = (DoelExpression.Children) doelElem;
@@ -536,7 +517,7 @@ public class DoelResolver implements DoelEvaluator {
         return DoelExpression.parse(reverseExpr.toString());
     }
 
-    @Deprecated
+    //@Deprecated
     public DoelExpression createReverseExpression(DoelExpression expr, int count, String sourceType) {
         return createReverseExpression(expr.cutByCount(count), sourceType);
     }
