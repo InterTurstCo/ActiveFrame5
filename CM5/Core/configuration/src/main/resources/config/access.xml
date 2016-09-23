@@ -770,6 +770,8 @@
     <access-matrix type="profile_value" matrix-reference-field="profile"/>
     
     <access-matrix type="resources" read-everybody="true"/>
+    
+    <access-matrix type="blob_resources_attach" read-everybody="true"/>
 
 </configuration>
 
