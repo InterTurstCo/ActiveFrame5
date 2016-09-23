@@ -140,6 +140,11 @@
                     jndi-name="java:module/PluginService!ru.intertrust.cm.core.business.api.plugin.PluginService"
                     business-interface="ru.intertrust.cm.core.business.api.plugin.PluginService"/>                    
 
+    <jee:local-slsb id="clusterManager"
+                    jndi-name="java:module/ClusterManager!ru.intertrust.cm.core.business.api.ClusterManager"
+                    business-interface="ru.intertrust.cm.core.business.api.ClusterManager"/>                    
+
+
     <bean id="transactionalCrudService"
           class="ru.intertrust.cm.core.business.impl.CrudServiceBaseImpl"/>
 

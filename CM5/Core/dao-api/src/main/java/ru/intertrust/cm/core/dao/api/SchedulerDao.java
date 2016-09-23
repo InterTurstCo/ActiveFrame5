@@ -17,7 +17,7 @@ public interface SchedulerDao {
      * @param status
      * @return
      */
-    List<DomainObject> getTasksByStatus(String status, boolean activeOnly);
+    List<DomainObject> getTasksByStatus(String status, boolean activeOnly, String nodeId);
 
     /**
      * Получение всех задач у которых статус отличен от ScheduleService.SCHEDULE_STATUS_SLEEP

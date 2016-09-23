@@ -13,6 +13,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.security.RunAs;
@@ -20,21 +21,18 @@ import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
 import javax.transaction.Status;
-import javax.transaction.SystemException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.NotificationService;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -49,7 +47,6 @@ import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.impl.ConfigurationLoader;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
 import ru.intertrust.cm.core.dao.api.SchedulerDao;
@@ -62,16 +59,17 @@ import ru.intertrust.cm.core.tools.DomainObjectAccessor;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionManagement(TransactionManagementType.BEAN)
 @RunAs("system")
+@Startup
 public class SchedulerBean {
 
     public static final String ADMIN_GROUP = "Administrators";
     public static final String DISABLE_TASK_NOTIFICATION_TYPE = "DISABLE_TASK_NOTIFICATION_TYPE";
-    
+
     private static final Logger logger = LoggerFactory.getLogger(SchedulerBean.class);
 
     @EJB
     private ScheduleProcessor processor;
-    
+
     @EJB
     private ScheduleTaskLoader scheduleTaskLoader;
 
@@ -82,17 +80,11 @@ public class SchedulerBean {
     private DomainObjectDao domainObjectDao;
 
     @Autowired
-    private CollectionsDao collectionsDao;
-
-    @Autowired
     private StatusDao statusDao;
 
     @EJB
-    private ScheduleService scheduleService;
-
-    @EJB
     private NotificationService notificationService;
-    
+
     @Resource
     private EJBContext ejbContext;
 
@@ -104,69 +96,75 @@ public class SchedulerBean {
 
     @Autowired
     private SchedulerDao schedulerDao;
-    
-    private static List<StartedTask> startedTasks = new ArrayList<StartedTask>();
 
-    private static boolean firstRun = true;
+    @Autowired
+    private ClusterManager clusterManager;
+
+    private List<StartedTask> startedTasks = new ArrayList<StartedTask>();
+
+    private boolean firstRun = true;
 
     /**
-     * Входная функция сервиса периодических заданий. Вызывается контейнером раз в минуту
+     * Входная функция сервиса периодических заданий. Вызывается контейнером раз
+     * в минуту
      */
     @Schedule(dayOfWeek = "*", hour = "*", minute = "*/1", second = "0", year = "*", persistent = false)
-    public void backgroundProcessing()
-    {
+    public void backgroundProcessing() {
         try {
             if (configurationLoader.isConfigurationLoaded() && scheduleTaskLoader.isLoaded() && scheduleTaskLoader.isEnable()) {
                 AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-                //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
-                //на случай если они не завершились по причине остановки сервера приложений
-                if (firstRun) {
-                    ejbContext.getUserTransaction().begin();
-                    List<DomainObject> notSleepTasks = schedulerDao.getNonSleepTasks();
-                    for (DomainObject notSleepTask : notSleepTasks) {
-                        domainObjectDao.setStatus(notSleepTask.getId(),
-                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
-                                accessToken);
-                    }
-                    //Пока сервер запущен не проверяем больше статусы
-                    firstRun = false;
-                    ejbContext.getUserTransaction().commit();
-                }
+                //Проверка, является ли нода менеджером периодических заданий
+                if (clusterManager.hasRole(ScheduleService.SCHEDULE_MANAGER_ROLE_NAME)) {
 
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Start schedule task runner");
-                }
-
-                //Получение всех периодических заданий находящихся в статусе SLEEP
-                List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true);
-
-                //Проверка прохождения фильтра по расписанию
-                for (DomainObject task : tasks) {
-                    if (isScheduleComplete(task)) {
-                        //Устанавливаем статус ready
+                    //При первом запуске сбрасываем статусы у всех задач в ScheduleService.SCHEDULE_STATUS_SLEEP 
+                    //на случай если они не завершились по причине остановки сервера приложений
+                    //Данная проверка делается только если текущий сервер единственный из запущенных нод в кластере
+                    if (firstRun && clusterManager.getNodeIds().size() == 1) {
                         ejbContext.getUserTransaction().begin();
-                        DomainObject savedTask =
-                                domainObjectDao
-                                        .setStatus(task.getId(),
-                                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_READY),
-                                                accessToken);
-                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_REDY, new Date());
-                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
-                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
-                        savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
-                        savedTask.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
-                        savedTask.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);
-                        domainObjectDao.save(savedTask, accessToken);
+                        List<DomainObject> notSleepTasks = schedulerDao.getNonSleepTasks();
+                        for (DomainObject notSleepTask : notSleepTasks) {
+                            domainObjectDao.setStatus(notSleepTask.getId(),
+                                    statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                                    accessToken);
+                        }
+                        //Пока сервер запущен не проверяем больше статусы
+                        firstRun = false;
                         ejbContext.getUserTransaction().commit();
                     }
+
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Start schedule task runner");
+                    }
+
+                    //Получение всех периодических заданий находящихся в статусе SLEEP
+                    List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_SLEEP, true, null);
+
+                    //Проверка прохождения фильтра по расписанию
+                    for (DomainObject task : tasks) {
+                        if (isScheduleComplete(task)) {
+                            //Устанавливаем статус ready
+                            ejbContext.getUserTransaction().begin();
+                            DomainObject savedTask = domainObjectDao.setStatus(task.getId(),
+                                    statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_READY),
+                                    accessToken);
+                            savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_REDY, new Date());
+                            savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
+                            savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
+                            savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
+                            savedTask.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
+                            savedTask.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);
+                            savedTask.setString(ScheduleService.SCHEDULE_NODE_ID, scheduleTaskLoader.getNextNodeId());
+                            domainObjectDao.save(savedTask, accessToken);
+                            ejbContext.getUserTransaction().commit();
+                        }
+                    }
                 }
 
-                executeTasks();
             } else {
-                if (!scheduleTaskLoader.isEnable()){
+                if (!scheduleTaskLoader.isEnable()) {
                     logger.warn("Can not run scheduler. Service is disabled.");
-                }else{
+                } else {
                     logger.warn("Can not run scheduler. Configuration is not loaded.");
                 }
             }
@@ -182,8 +180,17 @@ public class SchedulerBean {
     }
 
     /**
-     * Входная функция проверки превышения времени работы периодического задания. Вызывается раз в минуту со сдвигом 10
-     * секунд относительно старта задач.
+     * Непосредственно запук астнхронных исполнителей
+     * */
+    @Schedule(dayOfWeek = "*", hour = "*", minute = "*/1", second = "5", year = "*", persistent = false)
+    public void startTasks() {
+        executeTasks();
+    }
+
+    /**
+     * Входная функция проверки превышения времени работы периодического
+     * задания. Вызывается раз в минуту со сдвигом 10 секунд относительно старта
+     * задач.
      * 
      */
     @Schedule(dayOfWeek = "*", hour = "*", minute = "*/1", second = "10", year = "*", persistent = false)
@@ -209,7 +216,7 @@ public class SchedulerBean {
                     DomainObject task = domainObjectDao.find(startedTask.taskId, accessToken);
                     task.setBoolean("active", false);
                     domainObjectDao.save(task, accessToken);
-                    
+
                     //Отправка уведомления администратору (Нужен сервис отправки уведомлений + нужна группа администраторов)
                     List<NotificationAddressee> addresseeList = new ArrayList<>();
                     addresseeList.add(new NotificationAddresseeGroup(personManagementService.getGroupId(ADMIN_GROUP)));
@@ -217,10 +224,10 @@ public class SchedulerBean {
                     NotificationContext context = new NotificationContext();
                     context.addContextObject("task", new DomainObjectAccessor(task));
                     //Отправляем уведомление
-                    notificationService.sendOnTransactionSuccess(DISABLE_TASK_NOTIFICATION_TYPE, 
-                            (Id)null, 
-                            addresseeList, 
-                            NotificationPriority.HIGH, 
+                    notificationService.sendOnTransactionSuccess(DISABLE_TASK_NOTIFICATION_TYPE,
+                            (Id) null,
+                            addresseeList,
+                            NotificationPriority.HIGH,
                             context);
                 } else {
                     //Проверка времени работы
@@ -254,32 +261,44 @@ public class SchedulerBean {
         }
     }
 
-    private void executeTasks() throws IllegalStateException, NotSupportedException, SystemException,
-            SecurityException, RollbackException, HeuristicMixedException, HeuristicRollbackException {
-        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        //Получение всех задач в статусе Ready
-        List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_READY, false);
+    private void executeTasks(){
+        try {
+            //Проверка, является ли нода исполнителем периодических заданий
+            if (clusterManager.hasRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME)) {
+                AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+                //Получение всех задач в статусе Ready и предназначенных для выполнения на текущей ноде
+                List<DomainObject> tasks = schedulerDao.getTasksByStatus(ScheduleService.SCHEDULE_STATUS_READY, false, clusterManager.getNodeId());
 
-        //Запуск задач путем асинхронного вызова ScheduleProcessor
-        for (DomainObject task : tasks) {
-            //Установка статуса
-            ejbContext.getUserTransaction().begin();
-            DomainObject savedTask =
-                    domainObjectDao.setStatus(task.getId(),
-                            statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_WAIT), accessToken);
-            savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, new Date());
-            domainObjectDao.save(savedTask, accessToken);
-            ejbContext.getUserTransaction().commit();
+                //Запуск задач путем асинхронного вызова ScheduleProcessor
+                for (DomainObject task : tasks) {
+                    //Установка статуса
+                    ejbContext.getUserTransaction().begin();
+                    DomainObject savedTask =
+                            domainObjectDao.setStatus(task.getId(),
+                                    statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_WAIT), accessToken);
+                    savedTask.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, new Date());
+                    domainObjectDao.save(savedTask, accessToken);
+                    ejbContext.getUserTransaction().commit();
 
-            //Запуск процесса задачи
-            Future<String> result = processor.startAsync(task.getId());
-            //Сохраняем объект future для возможности прервать процесс
-            StartedTask startedTask = new StartedTask();
-            startedTask.future = result;
-            startedTask.startTime = System.currentTimeMillis();
-            startedTask.timeout = task.getLong(ScheduleService.SCHEDULE_TIMEOUT);
-            startedTask.taskId = task.getId();
-            startedTasks.add(startedTask);
+                    //Запуск процесса задачи
+                    Future<String> result = processor.startAsync(task.getId());
+                    //Сохраняем объект future для возможности прервать процесс
+                    StartedTask startedTask = new StartedTask();
+                    startedTask.future = result;
+                    startedTask.startTime = System.currentTimeMillis();
+                    startedTask.timeout = task.getLong(ScheduleService.SCHEDULE_TIMEOUT);
+                    startedTask.taskId = task.getId();
+                    startedTasks.add(startedTask);
+                }
+            }
+        } catch (Exception ex) {
+            logger.error("Error on run shedule task", ex);
+            try {
+                if (ejbContext.getUserTransaction().getStatus() == Status.STATUS_ACTIVE) {
+                    ejbContext.getUserTransaction().rollback();
+                }
+            } catch (Exception ignoreEx) {
+            }
         }
     }
 
@@ -313,7 +332,7 @@ public class SchedulerBean {
 
         return result;
     }
-    
+
     public ru.intertrust.cm.core.business.api.schedule.Schedule getScheduleFromTask(DomainObject task) {
         try {
             ru.intertrust.cm.core.business.api.schedule.Schedule result = new ru.intertrust.cm.core.business.api.schedule.Schedule();
@@ -367,7 +386,13 @@ public class SchedulerBean {
             }
         }
     }
-    
+
+    @PostConstruct
+    public void init() {
+        clusterManager.regRole(ScheduleService.SCHEDULE_MANAGER_ROLE_NAME, true);
+        clusterManager.regRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME, false);
+    }
+
     private class StartedTask {
         private long startTime;
         private Future<String> future;

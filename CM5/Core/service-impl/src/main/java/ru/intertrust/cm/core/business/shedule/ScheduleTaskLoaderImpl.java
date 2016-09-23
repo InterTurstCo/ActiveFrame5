@@ -14,6 +14,8 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.ClusterManager;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
@@ -38,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * EJB загрузчик классов периодических заданий
@@ -71,9 +74,14 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     //Флаг готовности сервиса к работе
     private boolean isLoaded = false;
 
+    @Autowired
+    private ClusterManager clusterManager;    
+    
     //Флаг активности сервиса. Прикладное приложение должно само активизировать сервис после старта
     @Value("${schedule.service.enableOnStart:true}")
     private boolean enable;
+    
+    private int lastNodeIndex = -1;
 
     
     /**
@@ -299,4 +307,21 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         this.enable = enable;
     }
 
+    /**
+     * Получение следующей ноды из списка серверов имеющих роль
+     * schedule_executor
+     * @return
+     */
+    @Override
+    public String getNextNodeId() {
+        String result = null;
+        Set<String> nodeIds = clusterManager.getNodesWithRole(ScheduleService.SCHEDULE_EXECUTOR_ROLE_NAME);
+        if (nodeIds.size() > 0) {
+            int nextIndex = lastNodeIndex + 1 > nodeIds.size() - 1 ? 0 : lastNodeIndex + 1;
+            lastNodeIndex = nextIndex;
+            result = nodeIds.toArray(new String[nodeIds.size()])[nextIndex];
+        }
+        return result;
+    }
+    
 }

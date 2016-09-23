@@ -349,34 +349,6 @@
         </attachment-types>        
     </domain-object-type>
 
-    <domain-object-type name="schedule"
-        initial-status="Sleep">
-        <fields>
-            <string name="name" length="256" not-null="true" />
-            <string name="task_class" length="256" not-null="true" />
-            <long name="task_type" not-null="true" />
-            <string name="year" length="8" not-null="true" />
-            <string name="month" length="8" not-null="true" />
-            <string name="day_of_month" length="8" not-null="true" />
-            <string name="day_of_week" length="8" not-null="true" />
-            <string name="hour" length="8" not-null="true" />
-            <string name="minute" length="8" not-null="true" />
-            <long name="timeout" not-null="true" />
-            <long name="priority" not-null="true" />
-            <text name="parameters" not-null="false" />
-            <long name="last_result" not-null="false"/>
-            <text name="last_result_description" not-null="false"/>
-            <boolean name="active" not-null="true"/>
-            <date-time name="last_redy" not-null="false"/>
-            <date-time name="last_wait" not-null="false"/>
-            <date-time name="last_run" not-null="false"/>
-            <date-time name="last_end" not-null="false"/>
-        </fields>
-        <uniqueKey>
-            <field name="name" />
-        </uniqueKey>
-    </domain-object-type>
-
     <domain-object-type name="locale" initial-status="Active">
         <fields>
             <string name="name" length="256" not-null="true" />

@@ -1187,6 +1187,14 @@
             </criteria>
         </filter>
 
+        <filter name="byNode">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    sch.node_id = {0}
+                ]]>
+            </criteria>
+        </filter>
+
     </collection>
 
     <collection name="DynamicGroups" idField="id">
@@ -1240,6 +1248,116 @@
 
     </collection>
 
+    <collection name="last_migration_log" idField="id">
+        <prototype>
+            <![CDATA[
+                    select * from migration_log where sequence_number = (select max(sequence_number) from migration_log)
+            ]]>
+        </prototype>
+    </collection>
+    <collection name="bu_user_settings_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                    select bus.id, bus.theme, bus.splitter_orientation, bus.splitter_position, bus.nav_link, bus.application
+                    from bu_user_settings bus
+                    inner join Person p on (p.id = bus.person)
+                    ::from-clause
+                    where 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from bu_user_settings bus bus ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+        <filter name="byPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p.login = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="bu_user_hip_settings_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                    select
+                    hs.id,
+                    hs.plugin_state_json,
+                    hs.plugin_id
+                    from bu_user_hip_settings hs
+                    inner join Person p on (p.id = hs.person)
+                    ::from-clause
+                    where 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <counting-prototype>
+            select count(*) from bu_user_hip_settings hs ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p.login = {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byPid">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(hs.plugin_id) like upper({1})
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection name="bu_nav_link_collections" idField="id">
+        <prototype>
+            <![CDATA[
+                select
+                    blc.id, blc.collection_view, blc.collection_viewer, blc.application
+                from
+                    bu_nav_link_collection blc
+                    inner join Person p on (blc.person = p.id)
+                     ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+        <!-- если запрос-счётчик отсутствует, то в select подставляется count(*) вместо названий колонок -->
+        <counting-prototype>
+            select count(*) from bu_nav_link_collection blc ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byLink">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    blc.link = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byCollectionViewName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    blc.collection_view_name = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byApplicationName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    blc.application = {0}
+                ]]>
+            </criteria>
+        </filter>
+        <filter name="byPerson">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    p.login = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
     <collection name="reports" idField="id">
 
         <prototype>
