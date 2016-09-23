@@ -3166,6 +3166,15 @@
                                 maxOccurs="1"
                                 xmlns:con="https://cm5.intertrust.ru/config"/>
                 </xs:choice>
+                <xs:attribute name="reindex-on-parent" use="optional" default="never">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="never"/>
+                            <xs:enumeration value="create"/>
+                            <xs:enumeration value="change"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

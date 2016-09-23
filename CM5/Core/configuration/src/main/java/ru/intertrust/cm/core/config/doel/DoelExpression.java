@@ -445,7 +445,8 @@ public class DoelExpression {
             if (obj == null || !getClass().equals(obj.getClass())) {
                 return false;
             }
-            return ((Element) obj).repeated == repeated;
+            Element that = (Element) obj;
+            return this.repeated == that.repeated && Arrays.equals(this.functions, that.functions);
         }
 
         protected String decorate(String element) {
@@ -599,6 +600,18 @@ public class DoelExpression {
         }
 
         @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (obj == null || !Function.class.isAssignableFrom(obj.getClass())) {
+                return false;
+            }
+            Function that = (Function) obj;
+            return this.name.equals(that.name) && Arrays.equals(this.arguments, that.arguments);
+        }
+
+        @Override
         public int hashCode() {
             int hash = name.hashCode();
             if (arguments != null) {
@@ -672,14 +685,6 @@ public class DoelExpression {
             return false;
         }
         DoelExpression other = (DoelExpression) obj;
-        /*if (elements.length != other.elements.length) {
-            return false;
-        }
-        for (int i = 0; i < elements.length; i++) {
-            if (!elements[i].equals(other.elements[i])) {
-                return false;
-            }
-        }*/
         return elements.length == other.elements.length && elements.length == countCommonBeginning(other);
     }
 

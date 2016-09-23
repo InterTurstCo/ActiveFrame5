@@ -39,4 +39,14 @@ public class FieldModificationImpl implements FieldModification {
         this.comparedValue = comparedValue;
     }
 
+    @Override
+    public String toString() {
+        return new StringBuilder(name)
+                .append(": ")
+                .append(baseValue == null ? "null" : baseValue.get())
+                .append(" -> ")
+                .append(comparedValue == null ? "null" : comparedValue.get())
+                .toString();
+    }
+
 }

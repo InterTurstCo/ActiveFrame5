@@ -406,6 +406,22 @@ public class SearchConfigHelper {
         }
     }
 
+    public List<SearchAreaDetailsConfig> findChildConfigs(SearchAreaDetailsConfig config) {
+        List<SearchAreaDetailsConfig> result = new ArrayList<>(config.getObjectConfig().getLinkedObjects().size());
+        for (LinkedDomainObjectConfig child : config.getObjectConfig().getLinkedObjects()) {
+            SearchAreaDetailsConfig details = new SearchAreaDetailsConfig();
+            details.objectConfigChain = new IndexedDomainObjectConfig[config.getObjectConfigChain().length + 1];
+            details.objectConfigChain[0] = child;
+            for (int i = 0; i < config.getObjectConfigChain().length; ++i) {
+                details.objectConfigChain[i + 1] = config.getObjectConfigChain()[i];
+            }
+            details.areaName = config.areaName;
+            details.targetObjectType = config.targetObjectType;
+            result.add(details);
+        }
+        return result;
+    }
+
     /**
      * Определяет, подходит ли действительный тип объекта к типу, описанному в конфигурации (с учётом наследования).
      * Тип считается подходящим, если он совпадает с требуемым или является его наследником (в т.ч. косвенным).
