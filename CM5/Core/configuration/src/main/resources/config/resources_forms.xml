@@ -79,7 +79,7 @@
             </label>
             <suggest-box id="localeValue">
                 <field-path value="locale"/>
-                <collection-ref name="locale_collection"/>
+                <collection-ref name="resource_locale_collection"/>
                 <drop-down-pattern value="{name}"/>
                 <selection-pattern value="{name}"/>
                 <input-text-filter name="byText"/>
@@ -167,7 +167,7 @@
             </label>
             <suggest-box id="localeValue">
                 <field-path value="locale"/>
-                <collection-ref name="locale_collection"/>
+                <collection-ref name="resource_locale_collection"/>
                 <drop-down-pattern value="{name}"/>
                 <selection-pattern value="{name}"/>
                 <input-text-filter name="byText"/>
@@ -260,7 +260,7 @@
             </label>
             <suggest-box id="localeValue">
                 <field-path value="locale"/>
-                <collection-ref name="locale_collection"/>
+                <collection-ref name="resource_locale_collection"/>
                 <drop-down-pattern value="{name}"/>
                 <selection-pattern value="{name}"/>
                 <input-text-filter name="byText"/>
