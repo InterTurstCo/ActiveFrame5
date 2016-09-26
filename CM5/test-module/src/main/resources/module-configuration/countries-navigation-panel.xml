@@ -1539,7 +1539,7 @@
 
                 <link name="Resources" display-text="Управление ресурсами">
                     <plugin>
-                        <domain-object-surfer>
+                        <domain-object-surfer domain-object-type-to-create="string_resources">
                             <collection-viewer>
                                 <act:tool-bar useDefault="false">
                                     <act:action-ref name-ref="aRefresh"/>
