@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -56,18 +57,28 @@ public class SchedulerDaoImpl implements SchedulerDao {
      * @return
      */
     @Override
-    public List<DomainObject> getTasksByStatus(String status, boolean activeOnly) {
+    public List<DomainObject> getTasksByStatus(String status, boolean activeOnly, String nodeId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        Filter filter = new Filter();
+        List<Filter> filters = new ArrayList<Filter>();
+        
+        Filter statusFilter = new Filter();
         if (activeOnly) {
-            filter.setFilter("activeByStatus");
+            statusFilter.setFilter("activeByStatus");
         } else {
-            filter.setFilter("byStatus");
+            statusFilter.setFilter("byStatus");
         }
-        filter.addCriterion(0, new StringValue(status));
+        statusFilter.addCriterion(0, new StringValue(status));
+        filters.add(statusFilter);
+        
+        if (nodeId != null){
+            Filter nodeFilter = new Filter();
+            nodeFilter.setFilter("byNode");
+            nodeFilter.addCriterion(0, new StringValue(nodeId));
+            filters.add(nodeFilter);
+        }
 
         return identifiableObjectConverter.convertToDomainObjectList(
-                collectionsDao.findCollection("ScheduleTasks", Collections.singletonList(filter), null, 0, 0, accessToken));
+                collectionsDao.findCollection("ScheduleTasks", filters, null, 0, 0, accessToken));
     }
 }

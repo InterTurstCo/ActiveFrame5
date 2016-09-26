@@ -34,11 +34,15 @@ public interface ScheduleService {
     public static final String SCHEDULE_LAST_WAIT = "last_wait";
     public static final String SCHEDULE_LAST_RUN = "last_run";
     public static final String SCHEDULE_LAST_END = "last_end";
+    public static final String SCHEDULE_NODE_ID = "node_id";
     
     public static final String SCHEDULE_STATUS_SLEEP = SchedulerDao.SCHEDULE_STATUS_SLEEP;
     public static final String SCHEDULE_STATUS_READY = "Ready";
     public static final String SCHEDULE_STATUS_WAIT = "Wait";
     public static final String SCHEDULE_STATUS_RUN = "Run";
+    
+    public static final String SCHEDULE_MANAGER_ROLE_NAME = "schedule_manager";
+    public static final String SCHEDULE_EXECUTOR_ROLE_NAME = "schedule_executor";    
     
     /**
      * Удаленный интерфейс

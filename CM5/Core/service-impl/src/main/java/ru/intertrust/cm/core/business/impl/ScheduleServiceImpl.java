@@ -11,6 +11,7 @@ import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ScheduleService;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
@@ -239,7 +240,13 @@ public class ScheduleServiceImpl implements ScheduleService {
         try {
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
-            task.setTimestamp(SCHEDULE_LAST_REDY, new Date());
+            task.setTimestamp(SCHEDULE_LAST_REDY, new Date());            
+            task.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
+            task.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
+            task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
+            task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
+            task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);
+            task.setString(ScheduleService.SCHEDULE_NODE_ID, scheduleTaskLoader.getNextNodeId());
             domainObjectDao.save(task, accessToken);
         } catch (SystemException ex) {
             throw ex;

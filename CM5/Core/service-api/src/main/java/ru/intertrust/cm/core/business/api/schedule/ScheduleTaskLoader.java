@@ -43,4 +43,11 @@ public interface ScheduleTaskLoader {
      * @param isEnable
      */
     void setEnable(boolean isEnable);
+    
+    /**
+     * Получение следующей ноды из списка серверов имеющих роль
+     * schedule_executor
+     * @return
+     */
+    String getNextNodeId();
 }
