@@ -170,6 +170,17 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
             //Поиск шаблона по имени
             DomainObject reportTemplateObject = getReportTemplateObject(name);
+            //Удаляем сначала все связанные вложения
+            List<DomainObject> attachments = domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_template_attach", "report_template",  accessToken);
+            deleteDomainObjects(attachments, accessToken);            
+            //Удаляем сначала все связанные результаты генерации и их вложения
+            List<DomainObject> results = (domainObjectDao.findLinkedDomainObjects(reportTemplateObject.getId(), "report_result", "template_id",  accessToken));
+            for (DomainObject childObject : results) {
+                List<DomainObject> resultAttachs = (domainObjectDao.findLinkedDomainObjects(childObject.getId(), "report_result_attachment", "report_result",  accessToken));
+                deleteDomainObjects(resultAttachs, accessToken);
+            }
+            deleteDomainObjects(results, accessToken);
+            
             domainObjectDao.delete(reportTemplateObject.getId(), accessToken);
         } catch (SystemException ex) {
             throw ex;
@@ -177,6 +188,12 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             logger.error("Unexpected exception caught in undeploy", ex);
             throw new UnexpectedException("ReportServiceAdmin", "undeploy", "name: " + name, ex);
         }
+    }
+    
+    private void deleteDomainObjects(List<DomainObject> childObjects, AccessToken accessToken){
+        for (DomainObject childObject : childObjects) {
+            domainObjectDao.delete(childObject.getId(), accessToken);
+        } 
     }
 
     private void compileReport(File tempFolder) throws IOException, JRException, NoSuchMethodException,
