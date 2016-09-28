@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.gui.api.server.action.ActionHandler;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.action.ActionContext;
+import ru.intertrust.cm.core.gui.model.action.SaveActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 
 
@@ -19,7 +21,7 @@ import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
  * To change this template use File | Settings | File and Code Templates.
  */
 @ComponentName("uninstall.report.action")
-public class UninstallReportActionHandler extends ActionHandler<ActionContext, SimpleActionData> {
+public class UninstallReportActionHandler extends ActionHandler {
 
     private static final String REPORT_NAME = "name";
     @Autowired
@@ -34,6 +36,14 @@ public class UninstallReportActionHandler extends ActionHandler<ActionContext, S
         Id rootObject = context.getRootObjectId();
         String reportName = crudService.find(rootObject).getString(REPORT_NAME);
         reportServiceAdmin.undeploy(reportName);
-        return new SimpleActionData();
+        SimpleActionData aData = new SimpleActionData();
+        aData.setSavedMainObjectId(rootObject);
+        return aData;
     }
+
+    @Override
+    public ActionContext getActionContext(ActionConfig actionConfig) {
+        return new SaveActionContext(actionConfig);
+    }
+
 }

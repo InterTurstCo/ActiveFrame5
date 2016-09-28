@@ -586,9 +586,9 @@
                                     <act:action-ref name-ref="aCreate" rendered="false"/>
                                     <act:action-ref name-ref="aDelete" rendered="false"/>
                                     <act:action-ref name-ref="aToggleEditOn" rendered="true"/>
-                                    <act:simple-action name="aUninstall" action-handler="uninstall.report.action" componentName="simple.action" order="200" dirtySensitivity="false"
-                                                text="Деинсталлировать" tooltip="Деинсталлировать отчет" image="images/icons/favorite-panel-off.png"
-                                                permissions="Write"/>
+                                    <act:action componentName="uninstall.report.action" text="Деинсталлировать"
+                                                permissions="Create"
+                                                image="images/icons/favorite-panel-off.png" merged="false" />
                                 </act:tool-bar>
                                 <collection-ref name="reports"/>
                             </collection-viewer>
