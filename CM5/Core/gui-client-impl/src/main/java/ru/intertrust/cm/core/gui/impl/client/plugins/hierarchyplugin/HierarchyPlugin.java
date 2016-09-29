@@ -37,7 +37,7 @@ public class HierarchyPlugin extends Plugin implements NodeStateEventHandler, No
         HierarchyPluginConfig hierarchyPluginConfig = (HierarchyPluginConfig) getConfig();
         pView = new HierarchyPluginView(this, eventBus);
         pData.setPluginId(((HierarchyPluginConfig) getConfig()).getPid());
-        hManager.restoreHistory(pData, pView, eventBus);
+        //hManager.restoreHistory(pData, pView, eventBus);
         return pView;
     }
 
