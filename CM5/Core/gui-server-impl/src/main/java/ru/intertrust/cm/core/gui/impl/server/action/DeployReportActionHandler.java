@@ -41,8 +41,7 @@ public class DeployReportActionHandler extends ActionHandler<DeployReportActionC
         DeployReportData deployData = new DeployReportData();
         for (AttachmentItem attachmentItem : attachmentItems) {
             String pathForTempFilesStore = propertyResolver.resolvePlaceholders(TEMP_STORAGE_PATH);
-            String filePath = pathForTempFilesStore + attachmentItem.getTemporaryName();
-            File file = new File(filePath);
+            File file = new File(pathForTempFilesStore, attachmentItem.getTemporaryName());
             try  {
                 DeployReportItem deployItem = new DeployReportItem();
                 deployItem.setName(attachmentItem.getName());
