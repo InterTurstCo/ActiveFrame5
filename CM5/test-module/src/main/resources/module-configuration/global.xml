@@ -76,6 +76,8 @@
                        img="resources/common/images/dark-theme-preview.png"/>
                 <theme display-name="Lucem тема" component-name="lucem-theme" default-theme="false"
                        img="resources/common/images/lucem-theme-preview.png"/>
+                <theme display-name="Таврика" component-name="taurika-theme" default-theme="false"
+                       img="resources/common/images/tavrika-theme-preview.png"/>
             </themes>
             <languages>
                 <language name = "ru" display-name="Русский" img="images/flags/Russian Federation.png"/>

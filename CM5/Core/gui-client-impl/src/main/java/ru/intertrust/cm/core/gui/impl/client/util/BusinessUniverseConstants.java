@@ -75,6 +75,7 @@ public class BusinessUniverseConstants {
     public static final String LIGHT_THEME_FOLDER = "resources/lighttheme/";
     public static final String LUCEM_THEME_FOLDER = "resources/lucemtheme/";
     public static final String DARK_THEME_FOLDER = "resources/darktheme/";
+    public static final String TAURIKA_THEME_FOLDER = "resources/taurikatheme/";
 
     // Navigation styles
     public static final String LEFT_SECTION_ACTIVE_STYLE = "left-section-active";

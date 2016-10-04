@@ -1,0 +1,626 @@
+/*
+ * Copyright 2010 Ocsico Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * @author gwt-team
+ * @author Neo
+ */
+@def selectionBorderWidth 0px;
+
+/* Style, applied to outer <table> element */
+
+/*
+.docs-common-celltable-header-panel {
+    border-spacing: 2px;
+    background-color: rgb(176, 189, 206);
+    color: #ffffff;
+
+}
+
+.docs-common-celltable-header {
+    */
+/*	mike
+        width: 100%;
+    *//*
+
+    width: 100%;
+    overflow: hidden;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    clear: both;
+    font-weight: bold;
+    border-spacing: 2px;
+    background-color: rgb(176, 189, 206);
+    color: #ffffff;
+}
+
+.docs-common-celltable-header > tbody tr {
+
+    */
+/*	mike
+        display: block;
+    *//*
+
+    display: none;
+}
+
+.docs-common-celltable-header td {
+    overflow: hidden;
+}
+
+.docs-common-celltable-header th {
+    padding: 5px;
+    overflow: hidden;
+    border-right: 1px solid #cccccc;
+    font-weight: bold;
+}
+
+.docs-common-th-header-row {
+    */
+/*
+        padding-left: 5px;
+        padding-right: 5px;
+    *//*
+
+    font-style: italic;
+}
+
+.docs-common-celltable-body {
+    */
+/*	mike
+        width: 100%;
+    *//*
+
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    min-width: 200px;
+    */
+/*min-height: 20px;*//*
+
+    height: 26px;
+    border: none;
+    border-collapse: collapse;
+}
+
+.docs-common-celltable-body tr {
+    */
+/*	mike
+        display:block;
+        float: left;
+        width: 100%;
+        background-color: white;
+    *//*
+
+    clear: left;
+    position: relative;
+    text-align: center;
+    border: none;
+    border-collapse: collapse;
+}
+
+.docs-common-celltable-tr-common {
+    */
+/*background-color: white;*//*
+
+    background-color: transparent;
+}
+
+.docs-common-celltable-tr-unread {
+    background-color: #FFFADC;
+}
+
+.docs-common-celltable-body tr:hover, .docs-common-celltable-body tr.hover {
+    */
+/*	mike
+        display: block;
+    *//*
+
+    border: none;
+    border-collapse: collapse;
+    background: rgba(200, 200, 200, 0.3);
+    box-shadow: 0 3px 6px #ddd;
+    \-moz-box-shadow: literal("0 3px 6px #ddd");
+    \-webkit-box-shadow: literal("0 3px 6px #ddd");
+    z-index: 1;
+}
+
+.docs-common-celltable-body td {
+    border: none;
+    border-collapse: collapse;
+    overflow: hidden;
+    vertical-align: top;
+    padding-left: 5px;
+}
+
+.docs-common-celltable-body .docs-common-ct-row-selected {
+    */
+/*	mike
+        display: block;
+        height: auto;
+    *//*
+
+    box-shadow: 0 3px 6px #ccc;
+    overflow: hidden;
+    color: black;
+    background: #fff682;
+    background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+    background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+    background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    \-moz-box-shadow: literal("0 3px 6px #ccc");
+    \-webkit-box-shadow: literal("0 3px 6px #ccc");
+    z-index: 2;
+}
+
+.docs-common-celltable-body .docs-common-ct-row-selected:hover, .docs-common-celltable-body .docs-common-ct-row-selected.hover {
+    box-shadow: 0 3px 6px #ccc;
+    background: #fff682;
+    background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+    background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+    background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    \-moz-box-shadow: literal("0 3px 6px #ccc");
+    \-webkit-box-shadow: literal("0 3px 6px #ccc");
+    z-index: 2;
+}
+
+.cellTableWidget {
+    width: 100%;
+    clear: left;
+    position: relative;
+    font-family: Arial, sans-serif;
+    font-size: 90%;
+    */
+/*background-color: white;*//*
+
+    background-color: transparent;
+}
+
+.cellTableFirstColumn {
+}
+
+.cellTableLastColumn {
+}
+
+.cellTableFooter {
+}
+
+.cellTableHeader {
+    */
+/*padding: 5px 10px;*//*
+
+    text-align: left;
+}
+
+.cellTableCell {
+    */
+/*padding: 5px;*//*
+
+    text-align: left;
+    position: relative;
+    clear: left;
+}
+
+.cellTableFirstColumnFooter {
+}
+
+.cellTableFirstColumnHeader {
+}
+
+.cellTableLastColumnFooter {
+}
+
+.cellTableLastColumnHeader {
+}
+
+.cellTableSortableHeader {
+
+    */
+/*  cursor: pointer;
+      cursor: hand;*//*
+
+}
+
+.cellTableSortableHeader:hover {
+}
+
+.cellTableSortedHeaderAscending {
+}
+
+.cellTableSortedHeaderDescending {
+}
+
+@eval dynamicWidth com.ocsico.cm4.client.system.utils.ResizeHelper.getCssContentWidth();
+.cellTableEvenRow, .cellTableOddRow {
+}
+
+@if user.agent safari {
+    .cellTableEvenRow, .cellTableOddRow {
+    }
+}
+
+.cellTableEvenRowCell, .cellTableOddRowCell {
+    */
+/* 	display: inline-table; *//*
+
+    position: relative;
+    clear: left;
+}
+
+.cellTableHeader, .cellTableEvenRowCell, .cellTableOddRowCell {
+    */
+/* 	width: 10%; *//*
+
+    */
+/* 	min-width: 50px; *//*
+
+}
+
+.cellTableHoveredRow {
+}
+
+.cellTableHoveredRowCell {
+}
+
+.cellTableKeyboardSelectedRow {
+
+}
+
+.cellTableKeyboardSelectedRowCell {
+
+}
+
+*/
+/** Selected <tr> element *//*
+
+.cellTableSelectedRow {
+}
+
+.docs-common-celltable-body .cellTableSelectedRow {
+    */
+/*	mike
+        display: block;
+        height: auto;
+    *//*
+
+    box-shadow: 0 3px 6px #ccc;
+    overflow: hidden;
+    color: black;
+    background: #fff682;
+    background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+    background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+    background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    \-moz-box-shadow: literal("0 3px 6px #ccc");
+    \-webkit-box-shadow: literal("0 3px 6px #ccc");
+    z-index: 2;
+}
+
+.docs-common-celltable-body .cellTableSelectedRow:hover, .docs-common-celltable-body .cellTableSelectedRow.hover {
+    box-shadow: 0 3px 6px #ccc;
+    background: #fff682;
+    background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+    background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+    background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    \-moz-box-shadow: literal("0 3px 6px #ccc");
+    \-webkit-box-shadow: literal("0 3px 6px #ccc");
+    z-index: 2;
+}
+
+*/
+/** Selected <td> element (under selected <tr>) *//*
+
+.cellTableSelectedRowCell {
+
+}
+
+.cellTableKeyboardSelectedCell {
+
+}
+
+*/
+/** Disable standard celltable styles *//*
+
+@def selectionBorderWidth  0px ;
+.cellTableWidget {
+}
+
+.cellTableFirstColumn {
+}
+
+.cellTableLastColumn {
+}
+
+.cellTableFooter {
+}
+
+.cellTableHeader {
+}
+
+.cellTableCell {
+}
+
+.cellTableFirstColumnFooter {
+}
+
+.cellTableFirstColumnHeader {
+}
+
+.cellTableLastColumnFooter {
+}
+
+.cellTableLastColumnHeader {
+}
+
+.cellTableSortableHeader {
+}
+
+.cellTableSortableHeader:hover {
+}
+
+.cellTableSortedHeaderAscending {
+}
+
+.cellTableSortedHeaderDescending {
+}
+
+.cellTableEvenRow {
+}
+
+.cellTableEvenRowCell {
+}
+
+.cellTableOddRow {
+}
+
+.cellTableOddRowCell {
+}
+
+.cellTableHoveredRow {
+}
+
+.cellTableHoveredRowCell {
+}
+
+.cellTableKeyboardSelectedRow {
+}
+
+.cellTableKeyboardSelectedRowCell {
+}
+
+.cellTableSelectedRow {
+}
+
+.cellTableSelectedRowCell {
+}
+
+.cellTableKeyboardSelectedCell {
+}
+
+.cellTableLoading {
+    display: none;
+}
+*/
+
+.dataGridWidget {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    display: block;
+    height: 100%;
+    /* width: 100%;
+     overflow: hidden;
+     position: absolute;
+     *//*min-height: 20px;*//*
+     height: 300px;
+     border: none;
+     border-collapse: collapse;*/
+}
+
+.dataGridEvenRow {
+    /*    background-color: transparent;*/
+}
+
+.dataGridHeader {
+    border-spacing: 2px;
+    background-color: rgb(215, 227, 226);
+    color: #7a7a7a;
+    overflow: hidden;
+    border-top: 1px solid #afafaf;
+    border-bottom: 1px solid #afafaf;
+    text-align: left;
+    font-weight: bold;
+    padding: 6px 0 6px 10px;
+}
+
+.dataGridHeaderRow {
+
+}
+
+.dataGridHeader:hover {
+    /*border-right: 1px dashed #FFFFFF;*/
+}
+
+.dataGridFirstColumn {
+
+}
+
+.dataGridLastColumn {
+
+}
+
+.dataGridFooter {
+}
+
+.dataGridCell {
+    color: #1c1c1c;
+    padding: 3px 0 3px 5px;
+    overflow: hidden;
+}
+
+.dataGridFirstColumnFooter {
+
+}
+
+.dataGridFirstColumnHeader {
+
+}
+
+.dataGridLastColumnFooter {
+
+}
+
+.dataGridLastColumnHeader {
+
+}
+
+.dataGridSortableHeader {
+}
+
+.dataGridSortableHeader div:first-child {
+    padding: 0 !important;
+}
+
+.dataGridSortableHeader:hover {
+}
+
+.dataGridSortableHeader:active {
+    cursor: move;
+}
+
+.dataGridSortedHeaderAscending {
+    background: rgb(175, 175, 175);
+}
+
+.dataGridSortedHeaderAscending p {
+    display: inline-block !important;
+}
+
+.dataGridSortedHeaderAscending p:first-child {
+    display: none !important;
+}
+
+.dataGridSortedHeaderAscending p:last-child {
+    display: none !important;
+}
+
+.dataGridSortedHeaderDescending {
+    background: rgb(175, 175, 175);
+}
+
+.dataGridSortedHeaderDescending p {
+    display: none !important;
+}
+
+.dataGridSortedHeaderDescending p:last-child {
+    display: inline-block !important;
+}
+
+.dataGridEvenRowCell {
+    padding: 3px 0 3px 5px;
+}
+
+.dataGridOddRow {
+    padding: 3px 0 3px 5px;
+}
+
+.dataGridOddRowCell {
+    /* border: selectionBorderWidth solid #f3f7fb;*/
+}
+
+.dataGridHoveredRow {
+    /* box-shadow: 0 3px 6px #ccc;
+     background: #fff682;
+     background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+     background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+     background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+     background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+     background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+     filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+     background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+     \-moz-box-shadow: literal("0 3px 6px #ccc");
+     \-webkit-box-shadow: literal("0 3px 6px #ccc");
+     z-index: 2;*/
+    border: none;
+    border-collapse: collapse;
+    background: rgba(200, 200, 200, 0.3);
+    /*box-shadow: 0 3px 6px #ddd;*/
+    -moz-box-shadow: 0 3px 6px #ddd;
+    -webkit-box-shadow: 0 3px 6px #ddd;
+    z-index: 1;
+}
+
+.dataGridHoveredRowCell {
+    /* border-top-style: solid;
+     border-top-color: #eee;
+     border-right-style: solid;
+     border-right-color: #eee;
+     border-left-style: solid;
+     border-left-color: #eee;
+     border-bottom-style: solid;
+     border-bottom-color: #eee;*/
+}
+
+.dataGridKeyboardSelectedRow {
+    /*    background: #ffc;*/
+}
+
+.dataGridKeyboardSelectedRowCell {
+    /* border: selectionBorderWidth solid #ffc;*/
+}
+
+.dataGridSelectedRow {
+    background: #fff682;
+    background: literal("-moz-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff682), color-stop(100%, #f9d998))");
+    background: literal("-webkit-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-o-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    background: literal("-ms-linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    filter: literal("progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff682', endColorstr='#f9d998', GradientType=0)");
+    background: literal("linear-gradient(top, #fff682 0%, #f9d998 100%)");
+    box-shadow: 0 3px 6px #ccc;
+    \-moz-box-shadow: literal("0 3px 6px #000000");
+    \-webkit-box-shadow: literal("0 3px 6px #000000");
+    z-index: 2;
+    color: #000000;
+    height: auto;
+    overflow: auto;
+}
+
+.dataGridSelectedRowCell {
+    /* border: selectionBorderWidth solid #628cd5;*/
+}
+
+/**
+ * The keyboard selected cell is visible over selection.
+ */
+.dataGridKeyboardSelectedCell {
+    /*  border: selectionBorderWidth solid #d7dde8;*/
+}
