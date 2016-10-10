@@ -1,26 +1,27 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.PermissionService;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.access.DynamicGroupService;
 import ru.intertrust.cm.core.dao.access.PermissionServiceDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
-
-import javax.annotation.Resource;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-import java.util.List;
 
 /**
  * Сервис получения прав пользователя на доменные объекты
@@ -41,20 +42,20 @@ public class PermissionServiceImpl implements PermissionService {
     @Autowired    
     private ConfigurationExplorer configurationExplorer;
     
-    @Resource
-    private SessionContext context;    
-    
     @Autowired
     private PersonServiceDao personServiceDao;
 
     @Autowired
     private DynamicGroupService dynamicGroupService;
     
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
+    
     
     @Override
     public DomainObjectPermission getObjectPermission(Id domainObjectId) {
         try {
-            String personLogin = context.getCallerPrincipal().getName();
+            String personLogin = currentUserAccessor.getCurrentUser();
             Id personId = personServiceDao.findPersonByLogin(personLogin).getId();
 
             return permissionServiceDao.getObjectPermission(domainObjectId, personId);

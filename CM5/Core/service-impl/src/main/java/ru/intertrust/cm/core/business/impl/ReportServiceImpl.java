@@ -1,18 +1,23 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
-
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -24,9 +29,6 @@ import java.util.concurrent.Future;
 @Remote(ReportService.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportService {
-
-    @Resource
-    private EJBContext ejbContext;
 
     @Autowired
     @Qualifier("nonTransactionalReportService")
@@ -62,7 +64,6 @@ public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportSe
     @Override
     @Asynchronous
     public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters) {
-        String user = ejbContext.getCallerPrincipal().getName();
         ReportResult result = generate(name, parameters);
         return new AsyncResult<ReportResult>(result);
     }
