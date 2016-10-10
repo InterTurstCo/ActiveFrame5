@@ -68,6 +68,9 @@ public class ClusterManagerImpl implements ClusterManager{
     @Autowired
     private CrudService crudService;
     
+    @Autowired
+    private ConfigurationLoader configurationLoader;    
+    
     @org.springframework.beans.factory.annotation.Value("${cluster.available.roles:" + ALL_ROLE + "}")
     private String availableRoles;
 
@@ -94,7 +97,7 @@ public class ClusterManagerImpl implements ClusterManager{
      */
     @Timeout
     public void onTimeout(Timer timer) {
-        if (timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
+        if (configurationLoader.isConfigurationLoaded() && timer.getInfo() != null && timer.getInfo().equals(TIMER_NAME)) {
             //Обновляем информацию о ноде в базе
             DomainObject nodeInfo = crudService.findAndLockByUniqueKey("cluster_node",
                     Collections.singletonMap("node_id", (Value) new StringValue(nodeId)));
