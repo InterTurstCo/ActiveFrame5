@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="user_event_log_form" domain-object-type="user_event_log" is-default = "true" >
+        <act:tool-bar useDefault="false"/>
+        <markup>
+            <header>
+                <table width="500px" height="200px" row-height="50px" col-width="20%" h-align="left" v-align="top">
+                    <tr height="100px" v-align="top">
+                        <td width="50%"><widget id="2"/></td>
+                    </tr>
+
+                </table>
+            </header>
+            <body display-single-tab="false">
+                <tab name="Пользовательское событие">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td><widget id="1"/></td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="1">
+                <field-path/>
+                <text>Пользовательское событие</text>
+            </label>
+            <label id="2">
+                <field-path/>
+                <text> </text>
+            </label>
+
+        </widget-config>
+    </form>
+</configuration>

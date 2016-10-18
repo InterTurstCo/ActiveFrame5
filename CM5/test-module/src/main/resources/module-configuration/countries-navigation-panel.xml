@@ -601,16 +601,13 @@
                         <custom name="report.upload.plugin"/>
                     </plugin>
                 </link>
-                <link name="Configuration_upload" display-text="Загрузка конфигурации">
-                    <plugin>
-                        <custom name="configuration.deployer.plugin"/>
-                    </plugin>
-                </link>
+
                 <link name="Plugin_manager" display-text="Плагины">
                     <plugin>
                         <custom name="plugin.manager.plugin"/>
                     </plugin>
                 </link>
+
             </child-links>
 
             <child-links group-name="Отчеты">
@@ -1586,6 +1583,40 @@
                                 <form-mapping domain-object-type="string_resources" form="string_res_form"/>
                                 <form-mapping domain-object-type="blob_resources" form="blob_res_form"/>
                             </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+                <link name="Configuration_upload" display-text="Загрузка конфигурации">
+                    <plugin>
+                        <custom name="configuration.deployer.plugin"/>
+                    </plugin>
+                </link>
+
+                <link name="UserEvents" display-text="События пользователя">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="user_event_log">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                </act:tool-bar>
+                                <collection-ref name="event_log_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+                <link name="OALog" display-text="Журнал доступа к обьектам">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="object_access_log">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                </act:tool-bar>
+                                <collection-ref name="oal_collection"/>
+                            </collection-viewer>
+                            <toggle-edit>true</toggle-edit>
                         </domain-object-surfer>
                     </plugin>
                 </link>

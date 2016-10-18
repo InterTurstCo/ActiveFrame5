@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <collection name="oal_collection" idField="id">
+        <prototype>
+            <![CDATA[
+            SELECT
+                OAL.id,
+                OAL.event_type,
+                OAL.object AS aobject,
+                OAL.process_name,
+                OAL.access_type,
+                OAL.date,
+                OAL.success,
+                P.login,
+                OAL.client_ip_address,
+                OAL.user_id
+                FROM object_access_log OAL
+                LEFT JOIN person P ON P.id=OAL.person
+                ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <counting-prototype>
+            select count(*) from object_access_log e
+            ::from-clause WHERE 1=1 ::where-clause
+        </counting-prototype>
+
+        <filter name="byId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    cast(OAL.id as varchar(20)) like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byEventType">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.event_type like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byAOId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    cast(OAL.object as varchar(20)) like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byProcessName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.process_name like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byAccessType">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.access_type like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byDate">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.date between {0} and {1}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byPersonLogin">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    P.login like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byIpAddress">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.client_ip_address like {0}
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byUserId">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    OAL.user_id like {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="oal_collection_view" collection="oal_collection" is-default="true">
+        <display>
+            <column field="id" name="ID" type="string" sortable="true" search-filter="byId"/>
+            <column field="event_type" name="Тип" type="string" sortable="true" search-filter="byEventType"/>
+            <column field="aobject" name="ID обьекта" type="integer" sortable="true" search-filter="byAOId"/>
+            <column field="process_name" name="Имя процесса" type="string" sortable="true" search-filter="byProcessName"/>
+            <column field="access_type" name="Тип доступа" type="string" sortable="true" search-filter="byAccessType"/>
+            <column field="date" name="Дата" type="datetime" date-pattern="dd.MM.yyyy HH:mm" date-range="true" sortable="true" resizable="true" search-filter="byDate"/>
+            <column field="success" name="Успешно" type="boolean" sortable="true"/>
+            <column field="login" name="Логин" type="string" sortable="true" search-filter="byPersonLogin"/>
+            <column field="client_ip_address" name="IP адрес" type="string" sortable="true" search-filter="byIpAddress"/>
+            <column field="user_id" name="ID пользователя" type="string" sortable="true" search-filter="byUserId"/>
+        </display>
+    </collection-view>
+</configuration>

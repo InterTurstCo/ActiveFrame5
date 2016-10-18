@@ -19,6 +19,8 @@
         <configuration-path>config/system-domain-objects.xml</configuration-path>
         <configuration-path>config/domain-objects.xml</configuration-path>
         <configuration-path>config/collections.xml</configuration-path>
+        <configuration-path>config/event-log-collections.xml</configuration-path>
+        <configuration-path>config/oal-collections.xml</configuration-path>
         <configuration-path>config/collection-views.xml</configuration-path>
         <configuration-path>config/access.xml</configuration-path>
         <configuration-path>config/navigation-panel.xml</configuration-path>
@@ -26,7 +28,8 @@
         <configuration-path>config/hsurfer_form.xml</configuration-path>
         <configuration-path>config/report_form.xml</configuration-path>
         <configuration-path>config/resources_forms.xml</configuration-path>
-        <!--configuration-path>config/migration.xml</configuration-path-->
+        <configuration-path>config/event-log-forms.xml</configuration-path>
+        <configuration-path>config/oal-forms.xml</configuration-path>
     </configuration-paths>
     <import-files>
         <import-file>importdata/status.csv</import-file>
