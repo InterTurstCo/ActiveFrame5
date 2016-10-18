@@ -8,10 +8,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.ejb.Local;
 import javax.ejb.Remote;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
@@ -20,7 +18,6 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.DeploymentBuilder;
 import org.activiti.engine.runtime.Execution;
@@ -29,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ProcessService;
 import ru.intertrust.cm.core.business.api.dto.DeployedProcess;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -43,10 +39,10 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
-import ru.intertrust.cm.core.model.AccessException;
 import ru.intertrust.cm.core.model.ProcessException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
@@ -68,12 +64,6 @@ public class ProcessServiceImpl implements ProcessService {
     private RuntimeService runtimeService;
 
     @Autowired
-    private TaskService taskService;
-
-    @Resource
-    private SessionContext context;
-
-    @Autowired
     private AccessControlService accessControlService;
 
     @Autowired
@@ -86,13 +76,13 @@ public class ProcessServiceImpl implements ProcessService {
     private CollectionsDao collectionsDao;
 
     @Autowired
-    private IdService idService;
-
-    @Autowired
     FormService formService;
 
     @Autowired
     private StatusDao statusDao;
+    
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;    
 
     /*
      * @PostConstruct public void init() throws JAXBException, SAXException,
@@ -206,7 +196,7 @@ public class ProcessServiceImpl implements ProcessService {
     public List<DomainObject> getUserTasks() {
         try {
             List<DomainObject> result = new ArrayList<DomainObject>();
-            String personLogin = context.getCallerPrincipal().getName();
+            String personLogin = currentUserAccessor.getCurrentUser();
             Id personId = personService.findPersonByLogin(personLogin).getId();
             result = getUserTasks(personId);
             return result;
@@ -223,7 +213,7 @@ public class ProcessServiceImpl implements ProcessService {
     public List<DomainObject> getUserDomainObjectTasks(Id attachedObjectId) {
         try {
             List<DomainObject> result = new ArrayList<DomainObject>();
-            String personLogin = context.getCallerPrincipal().getName();
+            String personLogin = currentUserAccessor.getCurrentUser();
             DomainObject personByLogin = personService.findPersonByLogin(personLogin);
             Id personId = personByLogin.getId();
             if (personId != null) {
@@ -244,7 +234,7 @@ public class ProcessServiceImpl implements ProcessService {
             List<ProcessVariable> variables, String action) {
 
         try {
-            String personLogin = context.getCallerPrincipal().getName();
+            String personLogin = currentUserAccessor.getCurrentUser();
             Id personId = personService.findPersonByLogin(personLogin).getId();
 
             //Проверка на то что задача дейцствительно есть у текущего пользователя

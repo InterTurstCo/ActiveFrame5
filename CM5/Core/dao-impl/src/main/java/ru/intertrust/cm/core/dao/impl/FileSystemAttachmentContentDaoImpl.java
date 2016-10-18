@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +28,7 @@ import ru.intertrust.cm.core.dao.api.EventLogService;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.dto.AttachmentInfo;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.model.FatalException;
 
 /**
  * User: vlad
@@ -43,6 +45,10 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
     @org.springframework.beans.factory.annotation.Value("${attachment.storage}")
     private String attachmentSaveLocation;
 
+    @org.springframework.beans.factory.annotation.Value("${attachments.strict.mode:true}")
+    private boolean attachmentsStrictMode;
+    
+    
     @Autowired
     ConfigurationExplorer configurationExplorer;
 
@@ -133,7 +139,17 @@ public class FileSystemAttachmentContentDaoImpl implements AttachmentContentDao 
                 throw new DaoException("The path is empty");
             }
             String relFilePath = ((StringValue) domainObject.getValue(PATH_NAME)).get();
-            FileInputStream inputStream = new FileInputStream(toAbsFromRelativePathFile(relFilePath));
+            File contentFile = new File(toAbsFromRelativePathFile(relFilePath));
+            InputStream inputStream = null;
+            if (contentFile.exists()){
+                inputStream = new FileInputStream(contentFile);
+            }else{
+                if (attachmentsStrictMode){
+                    throw new FatalException("Error load content. File " + contentFile.getPath() + " not exists.");
+                }else{
+                    inputStream = new ByteArrayInputStream(new byte[0]);
+                }
+            }
             eventLogService.logDownloadAttachmentEvent(domainObject.getId());
             return inputStream;
             

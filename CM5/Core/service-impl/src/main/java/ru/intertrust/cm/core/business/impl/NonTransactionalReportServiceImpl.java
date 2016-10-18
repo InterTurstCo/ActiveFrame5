@@ -1,14 +1,21 @@
 package ru.intertrust.cm.core.business.impl;
 
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
-import ru.intertrust.cm.core.business.api.dto.ReportResult;
-
-import javax.annotation.Resource;
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
 import java.util.Map;
 import java.util.concurrent.Future;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
+import ru.intertrust.cm.core.business.api.dto.ReportResult;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.ReportServiceDelegate}
@@ -21,9 +28,6 @@ import java.util.concurrent.Future;
 @Interceptors(SpringBeanAutowiringInterceptor.class)
 @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 public class NonTransactionalReportServiceImpl extends ReportServiceBaseImpl implements ReportServiceDelegate {
-
-    @Resource
-    private EJBContext ejbContext;
 
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters) {
@@ -42,7 +46,6 @@ public class NonTransactionalReportServiceImpl extends ReportServiceBaseImpl imp
     @Override
     @Asynchronous
     public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters) {
-        String user = ejbContext.getCallerPrincipal().getName();
         ReportResult result = generate(name, parameters);
         return new AsyncResult<ReportResult>(result);
     }

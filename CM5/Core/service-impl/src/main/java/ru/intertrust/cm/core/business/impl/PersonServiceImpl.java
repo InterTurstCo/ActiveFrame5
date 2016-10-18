@@ -1,21 +1,21 @@
 package ru.intertrust.cm.core.business.impl;
 
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
 import ru.intertrust.cm.core.business.api.PersonService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
-
-import javax.annotation.Resource;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
 
 @Stateless(name = "PersonService")
 @Local(PersonService.class)
@@ -25,11 +25,11 @@ public class PersonServiceImpl implements PersonService {
 
     private static final Logger logger = LoggerFactory.getLogger(PersonServiceImpl.class);
 
-    @Resource
-    protected SessionContext sessionContext;
-
     @Autowired
     private PersonServiceDao personServiceDao;
+    
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;    
 
     @Override
     public DomainObject findPersonByLogin(String login) {
@@ -50,6 +50,6 @@ public class PersonServiceImpl implements PersonService {
     }
 
     public String getCurrentPersonUid() {
-        return sessionContext.getCallerPrincipal().getName();
+        return currentUserAccessor.getCurrentUser();
     }
 }
