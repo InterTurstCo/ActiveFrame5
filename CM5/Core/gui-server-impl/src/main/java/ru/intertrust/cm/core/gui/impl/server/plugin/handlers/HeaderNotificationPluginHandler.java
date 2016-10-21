@@ -72,6 +72,7 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     }
 
     private ArrayList<HeaderNotificationItem> getNotificationList(){
+        Integer collectionLimit = null;
         BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
                 BusinessUniverseConfig.NAME);
         SortOrder sortOrder = new SortOrder();
@@ -84,13 +85,23 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
         }
             ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
 
+        if(businessUniverseConfig.getHeaderNotificationLimitConfig()!=null && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit()!=null){
+            collectionLimit = businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit();
+        }
+
         Filter filter = new Filter();
         filter.setFilter("byRecipient");
 
         Id userId = currentUserAccessor.getCurrentUserId();
         filter.addReferenceCriterion(0, userId);
-        IdentifiableObjectCollection collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
-                Collections.singletonList(filter));
+        IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
+        if(collectionLimit == null || collectionLimit<0) {
+             collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
+                    Collections.singletonList(filter));
+        } else {
+             collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
+                    Collections.singletonList(filter),0,collectionLimit);
+        }
         for (int i =0; i < collection.size(); i++){
             final IdentifiableObject identifiableObject = collection.get(i);
             collItems.add(new HeaderNotificationItem(identifiableObject.getId(), identifiableObject.getReference(CONTEXT_OBJECT_COLUMN_NAME),

@@ -460,6 +460,9 @@
             <xs:element name="header-notification-refresh" type="con:collectionCountRefreshType" maxOccurs="1"
                         minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
+            <xs:element name="header-notification-limit" type="con:collectionLimitType" maxOccurs="1"
+                        minOccurs="0"
+                        xmlns:con="https://cm5.intertrust.ru/config"/>
             <xs:element name="collection-count-refresh" type="con:collectionCountRefreshType" maxOccurs="1"
                         minOccurs="1"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
@@ -531,6 +534,9 @@
 
     <xs:complexType name="collectionCountRefreshType">
         <xs:attribute name="time" use="required" type="xs:integer"/>
+    </xs:complexType>
+    <xs:complexType name="collectionLimitType">
+        <xs:attribute name="limit" use="required" type="xs:integer"/>
     </xs:complexType>
     <xs:complexType name="collectionCountCacheRefreshType">
         <xs:attribute name="time" use="required" type="xs:integer"/>

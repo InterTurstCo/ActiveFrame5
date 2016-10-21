@@ -38,6 +38,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
     @Element(name = "header-notification-refresh", required = false)
     private HeaderNotificationRefreshConfig headerNotificationRefreshConfig;
 
+    @Element(name = "header-notification-limit", required = false)
+    private HeaderNotificationLimitConfig headerNotificationLimitConfig;
+
     @Element(name = "collection-count-refresh", required = true)
     private CollectionCountRefreshConfig collectionCountRefreshConfig;
 
@@ -167,6 +170,14 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         this.baseUrlConfig = baseUrlConfig;
     }
 
+    public HeaderNotificationLimitConfig getHeaderNotificationLimitConfig() {
+        return headerNotificationLimitConfig;
+    }
+
+    public void setHeaderNotificationLimitConfig(HeaderNotificationLimitConfig headerNotificationLimitConfig) {
+        this.headerNotificationLimitConfig = headerNotificationLimitConfig;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -224,6 +235,10 @@ public class BusinessUniverseConfig implements LocalizableConfig {
                 : that.defaultFormEditingStyleConfig != null) {
             return false;
         }
+        if (headerNotificationLimitConfig != null ? !defaultFormEditingStyleConfig.equals(that.defaultFormEditingStyleConfig)
+                : that.defaultFormEditingStyleConfig != null) {
+            return false;
+        }
         return true;
     }
 
@@ -239,6 +254,7 @@ public class BusinessUniverseConfig implements LocalizableConfig {
         result = 31 * result + (collectionCountCacheRefreshConfig != null ? collectionCountCacheRefreshConfig.hashCode() : 0);
         result = 31 * result + (settingsPopupConfig != null ? settingsPopupConfig.hashCode() : 0);
         result = 31 * result + (defaultFormEditingStyleConfig != null ? defaultFormEditingStyleConfig.hashCode() : 0);
+        result = 31 * result + (headerNotificationLimitConfig != null ? headerNotificationLimitConfig.hashCode() : 0);
         return result;
     }
 
