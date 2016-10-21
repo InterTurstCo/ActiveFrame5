@@ -42,12 +42,13 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     private final static String SUBJECT_COLUMN_NAME = "subject";
     private final static String BODY_COLUMN_NAME = "body";
     private final static String CONTEXT_OBJECT_COLUMN_NAME = "context_object";
+    private final static int NOTIFICATION_LIMIT = 20;
 
     @Override
     public PluginData initialize(Dto param) {
 
         HeaderNotificationPluginData pluginData = new HeaderNotificationPluginData();
-        ArrayList<HeaderNotificationItem> collItems  = getNotificationList();
+        ArrayList<HeaderNotificationItem> collItems = getNotificationList();
         pluginData.setCollection(collItems);
         pluginData.setSubjectColumnName(SUBJECT_COLUMN_NAME);
         pluginData.setBodyColumnName(BODY_COLUMN_NAME);
@@ -56,37 +57,45 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
     }
 
 
-    public Dto deleteNotification(Dto dto){
+    public Dto deleteNotification(Dto dto) {
 
         CancelHeaderNotificationItem cancelHeaderNotificationItem = (CancelHeaderNotificationItem) dto;
-        if (cancelHeaderNotificationItem.getId() != null){
-        DomainObject domainObject = crudService.find(cancelHeaderNotificationItem.getId());
-        Value value = new DecimalValue(0);
-        domainObject.setValue("new", value);
-        crudService.save(domainObject);
+        if (cancelHeaderNotificationItem.getId() != null) {
+            DomainObject domainObject = crudService.find(cancelHeaderNotificationItem.getId());
+            Value value = new DecimalValue(0);
+            domainObject.setValue("new", value);
+            crudService.save(domainObject);
         }
         cancelHeaderNotificationItem.setItems(getNotificationList());
 
 
-        return cancelHeaderNotificationItem ;
+        return cancelHeaderNotificationItem;
     }
 
-    private ArrayList<HeaderNotificationItem> getNotificationList(){
+    private ArrayList<HeaderNotificationItem> getNotificationList() {
         Integer collectionLimit = null;
         BusinessUniverseConfig businessUniverseConfig = configurationService.getConfig(BusinessUniverseConfig.class,
                 BusinessUniverseConfig.NAME);
         SortOrder sortOrder = new SortOrder();
         if (businessUniverseConfig.getNotificationSortOrderConfig() != null && businessUniverseConfig.getNotificationSortOrderConfig().getValue() != null) {
-            if(businessUniverseConfig.getNotificationSortOrderConfig().getValue().toLowerCase().equals(ASC_CRITERION)){
+            if (businessUniverseConfig.getNotificationSortOrderConfig().getValue().toLowerCase().equals(ASC_CRITERION)) {
                 sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.ASCENDING));
             } else {
                 sortOrder.add(new SortCriterion(FIELD_ID, SortCriterion.Order.DESCENDING));
             }
         }
-            ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
+        ArrayList<HeaderNotificationItem> collItems = new ArrayList<HeaderNotificationItem>();
 
-        if(businessUniverseConfig.getHeaderNotificationLimitConfig()!=null && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit()!=null){
+        if (businessUniverseConfig.getHeaderNotificationLimitConfig() != null && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit() != null
+                && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit() > 0) {
             collectionLimit = businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit();
+        }
+        else if(businessUniverseConfig.getHeaderNotificationLimitConfig() != null && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit() != null
+                && businessUniverseConfig.getHeaderNotificationLimitConfig().getLimit() <= 0){
+            collectionLimit = null;
+        }
+        else {
+            collectionLimit = NOTIFICATION_LIMIT;
         }
 
         Filter filter = new Filter();
@@ -95,14 +104,15 @@ public class HeaderNotificationPluginHandler extends PluginHandler {
         Id userId = currentUserAccessor.getCurrentUserId();
         filter.addReferenceCriterion(0, userId);
         IdentifiableObjectCollection collection = new GenericIdentifiableObjectCollection();
-        if(collectionLimit == null || collectionLimit<0) {
+        if(collectionLimit!=null) {
              collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
-                    Collections.singletonList(filter));
+                    Collections.singletonList(filter), 0, collectionLimit);
         } else {
              collection = collectionsService.findCollection(COLLECTION_NAME, sortOrder,
-                    Collections.singletonList(filter),0,collectionLimit);
+                    Collections.singletonList(filter));
         }
-        for (int i =0; i < collection.size(); i++){
+
+        for (int i = 0; i < collection.size(); i++) {
             final IdentifiableObject identifiableObject = collection.get(i);
             collItems.add(new HeaderNotificationItem(identifiableObject.getId(), identifiableObject.getReference(CONTEXT_OBJECT_COLUMN_NAME),
                     identifiableObject.getString(SUBJECT_COLUMN_NAME), identifiableObject.getString(BODY_COLUMN_NAME)));
