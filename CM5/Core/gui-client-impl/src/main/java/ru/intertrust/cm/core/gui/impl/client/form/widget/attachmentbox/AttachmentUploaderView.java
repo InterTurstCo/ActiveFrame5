@@ -440,7 +440,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
             }
             String filePaths = event.getResults();
 
-            for (String filePath : filePaths.split(",")) {
+            for (String filePath : filePaths.split("\\*")) {
                 AttachmentItem item = handleFileNameFromServer(filePath);
 
                 addAttachment(item);
@@ -523,7 +523,7 @@ public class AttachmentUploaderView extends Composite implements AttachmentEleme
 
         for ( var i = 0; i < input.files.length; i++) {
             if (i > 0) {
-                ret += ", ";
+                ret += "* ";
             }
             ret += input.files[i].name;
         }

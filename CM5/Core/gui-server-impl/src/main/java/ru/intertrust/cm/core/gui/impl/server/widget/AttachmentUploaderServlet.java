@@ -91,7 +91,7 @@ public class AttachmentUploaderServlet {
                     stream(inputStream, outputStream);
 
                 }
-                savedFileNames = savedFileNames + savedFilename + ",";
+                savedFileNames = savedFileNames + savedFilename + "*";
             }
         }
         HttpHeaders headers = new HttpHeaders();
