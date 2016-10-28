@@ -1,7 +1,11 @@
 package ru.intertrust.cm.core.gui.impl.client;
 
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Node;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import ru.intertrust.cm.core.config.gui.action.*;
 import ru.intertrust.cm.core.config.gui.navigation.ChildLinksConfig;
@@ -29,6 +33,7 @@ import ru.intertrust.cm.core.gui.model.action.infobar.InfoBarItem;
 import ru.intertrust.cm.core.gui.model.action.infobar.InformationBarContext;
 import ru.intertrust.cm.core.gui.model.plugin.ActivePluginData;
 import ru.intertrust.cm.core.gui.model.plugin.IsActive;
+import ru.intertrust.cm.core.gui.model.plugin.PluginState;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -75,7 +80,7 @@ public abstract class PluginView implements IsWidget {
         }
     }
 
-    public void setVisibleInfoBar(final boolean visible){
+    public void setVisibleInfoBar(final boolean visible) {
         if (visible != (infoBar.getParent() != null)) {
             if (visible) {
                 updateInfoBar();
@@ -141,8 +146,8 @@ public abstract class PluginView implements IsWidget {
         return breadCrumbComponents;
     }
 
-    public void updateInfoBar(){
-        if(infoBar == null || !plugin.isDisplayInfobar()){
+    public void updateInfoBar() {
+        if (infoBar == null || !plugin.isDisplayInfobar()) {
             return;
         }
 
@@ -150,11 +155,11 @@ public abstract class PluginView implements IsWidget {
         final ActivePluginData initialData = plugin.getInitialData();
 
         InformationBarContext context = initialData.getInfoBarContext();
-        if(context == null){
+        if (context == null) {
             context = new InformationBarContext();
         }
 
-        for(InfoBarItem infoElement : context.getInfoBarItems()){
+        for (InfoBarItem infoElement : context.getInfoBarItems()) {
             HorizontalPanel rowBox = new HorizontalPanel();
             Label nameLabel = new Label();
             nameLabel.setText(infoElement.getName());
@@ -198,26 +203,29 @@ public abstract class PluginView implements IsWidget {
             rightMenuBar.addActionItem(context);
         }
         actionToolBar.add(rightMenuBar);
-
-        keyListener(this);
+        addHanler(this);
     }
 
+    public static native void addHanler(PluginView pObject)
+    /*-{
+        function doc_keyDown(e) {
+            if (e.altKey && e.keyCode == 83 ) {
+                e.preventDefault();
+                e.stopPropagation();
+                pObject.@ru.intertrust.cm.core.gui.impl.client.PluginView::doSaveAction()();
+                e.cancelBubble(e);
+            }
+        };
 
-    private void doSaveAction(){
-        if (leftMenuBar.availableItems.containsKey("aSave")) {
+        $wnd.addEventListener('keydown', doc_keyDown, true);
+    }-*/;
+
+    private void doSaveAction() {
+        if (leftMenuBar.availableItems.containsKey("aSave") && plugin.isDirty()) {
             leftMenuBar.availableItems.get("aSave").getScheduledCommand().execute();
         }
     }
 
-    private static native void keyListener(PluginView instance) /*-{
-        $doc.onkeyup=function(e){
-            var e = e || window.event; // for IE to cover IEs window event-object
-            if(e.altKey &&  e.which == 65 ) {
-                instance.@ru.intertrust.cm.core.gui.impl.client.PluginView::doSaveAction()();
-                return false;
-            }
-        }
-    }-*/;
 
     /**
      * Строит и возвращает представление (внешнее отображение) плагина
@@ -276,7 +284,7 @@ public abstract class PluginView implements IsWidget {
         return toolbar;
     }
 
-    private AbsolutePanel createInfoBar(){
+    private AbsolutePanel createInfoBar() {
         final AbsolutePanel infobar = new AbsolutePanel();
         return infobar;
     }
