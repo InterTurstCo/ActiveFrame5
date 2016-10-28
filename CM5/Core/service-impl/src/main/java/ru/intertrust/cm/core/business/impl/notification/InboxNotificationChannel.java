@@ -68,8 +68,10 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
     private DomainObject createNotification(Id senderId, Id addresseeId, String subject, String body,
             NotificationPriority priority) {
         DomainObject notification = crudService.createDomainObject(NOTIFICATION_DO);
-        notification.setString("Subject", subject);
-        notification.setString("Body", body);
+        String safeSubject = subject.length() > 256 ? subject.substring(0, 256) + "..." : subject; 
+        String safeBody = body.length() > 1024 ? body.substring(0, 1021) + "..." : body;
+        notification.setString("Subject", safeSubject);
+        notification.setString("Body", safeBody);
         notification.setReference("From", senderId);
         notification.setReference("To", addresseeId);
         notification.setString("Priority", priority.toString());

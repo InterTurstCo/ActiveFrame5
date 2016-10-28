@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+import javax.mail.Address;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -60,11 +61,17 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
     @Override
     public void send(String notificationType, Id senderId, Id addresseeId, NotificationPriority priority,
             NotificationContext context) {
-
+        MimeMessage message = null;
+        String resipients = null;
         try {
             // В случае если в конфигурации не указан host то канал отключаем
             if (mailSenderWrapper.getHost() != null) {
-                MimeMessage message = createMailMesssage(notificationType, senderId, addresseeId, context);
+                message = createMailMesssage(notificationType, senderId, addresseeId, context);
+                //Адресаты для более понятной ошибки
+                Address[] addresses = message.getRecipients(MimeMessage.RecipientType.TO);
+                if (addresses != null && addresses.length > 0){
+                    resipients = addresses[0].toString();
+                }
                 // Почтовое сообщение могло быть не сформировано, например из за
                 // отсутствия адресата
                 if (message != null) {
@@ -75,7 +82,8 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
                 }
             }
         } catch (Exception ex) {
-            throw new MailNotificationException("Error send mail", ex);
+            //logger.error("Error send mail to " + resipients, ex);
+            throw new MailNotificationException("Error send mail to " + resipients, ex);
         }
     }
 
@@ -117,7 +125,7 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         // Проверка на то что у адресата есть email. если нет то не формируем
         // сообщения
         if (addresseMail == null || addresseMail.isEmpty()) {
-            logger.debug("Notification for addressee " + addresseeId + " not send. Person email field is empty.");
+            logger.warn("Notification for addressee " + addresseeId + " not send. Person email field is empty.");
             return null;
         }
 
