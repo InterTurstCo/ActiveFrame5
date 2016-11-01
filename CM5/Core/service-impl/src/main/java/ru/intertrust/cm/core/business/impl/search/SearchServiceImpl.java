@@ -227,6 +227,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
             boolean clipped;
             do {
                 clipped = false;
+                int rows = Math.round(fetchLimit / clippingFactor);
                 ArrayList<SolrDocumentList> foundParts = new ArrayList<>(filterStrings.size());
                 for (Map.Entry<String, StringBuilder> entry : filterStrings.entrySet()) {
                     SolrQuery solrQuery = new SolrQuery()
@@ -239,7 +240,6 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     if (!"*".equals(entry.getKey())) {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
                     }
-                    int rows = Math.round(fetchLimit / clippingFactor);
                     if (rows > 0) {
                         solrQuery.setRows(rows);
                     }
@@ -248,7 +248,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                     clipped = clipped || rows > 0 && response.getResults().size() == rows;
                 }
                 for (ComplexQuery nested : nestedQueries) {
-                    foundParts.add(nested.execute(fetchLimit, query));
+                    foundParts.add(nested.execute(rows, query));
                 }
                 if (foundParts.size() == 1) {
                     result = foundParts.get(0);
