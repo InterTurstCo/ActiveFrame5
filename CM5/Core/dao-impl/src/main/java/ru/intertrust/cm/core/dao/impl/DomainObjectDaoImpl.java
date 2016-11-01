@@ -2219,6 +2219,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 }
 
                 masterJdbcTemplate.update(query, parameters);
+                final RdbmsId alId = new RdbmsId(auditLogType, id);
+                getTransactionListener().addModifiedAutoDomainObjectId(alId);
+                globalCacheClient.notifyDelete(alId); // it's a trick as the behavior should be the same as with removal
             }
 
         }
@@ -2495,10 +2498,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         public void addCreatedDomainObject(DomainObject domainObject) {
-            if (isIgnoredOnCreateAndSave(domainObject)) {
+            if (isAutoCreatedDomainObject(domainObject)) {
+                addModifiedAutoDomainObjectId(domainObject.getId());
                 return;
             }
             domainObjectsModification.addCreatedDomainObject(domainObject);
+        }
+
+        private void addModifiedAutoDomainObjectId(Id id) {
+            domainObjectsModification.addModifiedAutoDomainObject(id);
         }
 
         public void addChangeStatusDomainObject(DomainObject domainObject) {
@@ -2506,11 +2514,16 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         }
 
         public void addDeletedDomainObject(DomainObject domainObject){
+            if (isAutoCreatedDomainObject(domainObject)) {
+                addModifiedAutoDomainObjectId(domainObject.getId());
+                return;
+            }
             domainObjectsModification.addDeletedDomainObject(domainObject);
         }
 
         public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
-            if (isIgnoredOnCreateAndSave(domainObject)) {
+            if (isAutoCreatedDomainObject(domainObject)) {
+                addModifiedAutoDomainObjectId(domainObject.getId());
                 return;
             }
 
@@ -2525,7 +2538,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         public void onBeforeCommit() {
         }
 
-        private boolean isIgnoredOnCreateAndSave(DomainObject domainObject) {
+        private boolean isAutoCreatedDomainObject(DomainObject domainObject) {
             if (configurationExplorer.isAuditLogType(domainObject.getTypeName())) {
                 return true;
             }

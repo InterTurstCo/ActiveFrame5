@@ -13,6 +13,7 @@ public class DomainObjectsModification implements Dto {
     private Map<Id, Map<String, FieldModification>> savedDomainObjectsModificationMap = new HashMap<>();
     private Map<Id, DomainObject> savedDomainObjects = new HashMap<>();
     private List<DomainObject> createdDomainObjects = new ArrayList<>();
+    private List<Id> modifiedAutoDomainObjectIds = new ArrayList<>();
     private Map<Id, DomainObject> deletedDomainObjects = new HashMap<>();
     private Map<Id, DomainObject> changeStatusDomainObjects = new LinkedHashMap<>();
     private Map<Id, DomainObject> savedAndChangedStatusDomainObjects = new LinkedHashMap<>();
@@ -26,7 +27,7 @@ public class DomainObjectsModification implements Dto {
     }
 
     public boolean isEmpty() {
-        return createdDomainObjects.isEmpty() && deletedDomainObjects.isEmpty() && savedAndChangedStatusDomainObjects.isEmpty();
+        return createdDomainObjects.isEmpty() && deletedDomainObjects.isEmpty() && savedAndChangedStatusDomainObjects.isEmpty() && modifiedAutoDomainObjectIds.isEmpty();
     }
 
     public List<DomainObject> getCreatedDomainObjects() {
@@ -65,6 +66,10 @@ public class DomainObjectsModification implements Dto {
         return deletedDomainObjects.values();
     }
 
+    public List<Id> getModifiedAutoDomainObjectIds() {
+        return modifiedAutoDomainObjectIds;
+    }
+
     public Set<Id> getDeletedIds() {
         return deletedDomainObjects.keySet();
     }
@@ -73,6 +78,10 @@ public class DomainObjectsModification implements Dto {
         domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
 
         createdDomainObjects.add(domainObject);
+    }
+
+    public void addModifiedAutoDomainObject(Id id) {
+        modifiedAutoDomainObjectIds.add(id); // do not clone as developers do not get these objects at their disposal
     }
 
     public void addChangeStatusDomainObject(DomainObject domainObject){

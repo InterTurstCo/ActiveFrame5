@@ -416,6 +416,11 @@ public class GlobalCacheImpl implements GlobalCache {
             doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
             cleaner.deleteObjectAndItsAccessEntires(deleted.getId(), typeName, deleted, false);
         }
+        for (Id automaticObjectId : modification.getModifiedAutoDomainObjectIds()) {
+            final String typeName = domainObjectTypeIdCache.getName(automaticObjectId);
+            doTypeLastChangeTime.setLastModificationTime(typeName, System.currentTimeMillis(), 0);
+            cleaner.deleteObjectAndItsAccessEntires(automaticObjectId, typeName, null, false);
+        }
         final PersonAccessChanges personAccessChanges = (PersonAccessChanges) accessChanges;
         if (personAccessChanges.getObjectsQty() == 0) {
             return;
