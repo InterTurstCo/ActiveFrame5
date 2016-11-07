@@ -264,6 +264,7 @@ public abstract class ReportServiceBaseImpl extends ReportServiceBase implements
                 ReportDS reportDS = (ReportDS) reportDSClass.newInstance();
                 JRDataSource ds = reportDS.getJRDataSource(
                         connection, params);
+                params.put(JRParameter.REPORT_CONNECTION, connection);                
                 print = JasperFillManager.fillReport(templateFile.getPath(), params, ds);
             }
             connection.close();
