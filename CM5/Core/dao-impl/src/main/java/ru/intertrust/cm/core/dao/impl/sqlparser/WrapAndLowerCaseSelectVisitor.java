@@ -1,14 +1,19 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.WithItem;
 
 /**
- * Реализация SelectVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки
- * имен таблиц и колонок
- * User: vmatsukevich
- * Date: 12/10/13
- * Time: 10:13 AM
+ * Реализация SelectVisitor для транформации sql-запросов: приведение к нижнему
+ * регистру и заключение в кавычки имен таблиц и колонок User: vmatsukevich
+ * Date: 12/10/13 Time: 10:13 AM
  */
 public class WrapAndLowerCaseSelectVisitor implements SelectVisitor {
 
@@ -58,15 +63,15 @@ public class WrapAndLowerCaseSelectVisitor implements SelectVisitor {
             plainSelect.getHaving().accept(new WrapAndLowerCaseExpressionVisitor());
         }
 
-        if (plainSelect.getInto() != null) {
+        if (plainSelect.getIntoTables() != null) {
 
         }
     }
 
     @Override
     public void visit(SetOperationList setOperationList) {
-        if (setOperationList.getPlainSelects() != null) {
-            for (PlainSelect plainSelect : setOperationList.getPlainSelects()) {
+        if (setOperationList.getSelects() != null) {
+            for (SelectBody plainSelect : setOperationList.getSelects()) {
                 plainSelect.accept(this);
             }
         }

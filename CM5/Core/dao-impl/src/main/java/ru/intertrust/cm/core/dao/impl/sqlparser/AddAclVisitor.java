@@ -1,13 +1,70 @@
-
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.expression.*;
-import net.sf.jsqlparser.expression.operators.arithmetic.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.sf.jsqlparser.expression.Alias;
+import net.sf.jsqlparser.expression.AllComparisonExpression;
+import net.sf.jsqlparser.expression.AnalyticExpression;
+import net.sf.jsqlparser.expression.AnyComparisonExpression;
+import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CaseExpression;
+import net.sf.jsqlparser.expression.CastExpression;
+import net.sf.jsqlparser.expression.DateValue;
+import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitor;
+import net.sf.jsqlparser.expression.ExtractExpression;
+import net.sf.jsqlparser.expression.Function;
+import net.sf.jsqlparser.expression.IntervalExpression;
+import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.JdbcParameter;
+import net.sf.jsqlparser.expression.JsonExpression;
+import net.sf.jsqlparser.expression.KeepExpression;
+import net.sf.jsqlparser.expression.LongValue;
+import net.sf.jsqlparser.expression.NullValue;
+import net.sf.jsqlparser.expression.NumericBind;
+import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.SignedExpression;
+import net.sf.jsqlparser.expression.StringValue;
+import net.sf.jsqlparser.expression.TimeValue;
+import net.sf.jsqlparser.expression.TimestampValue;
+import net.sf.jsqlparser.expression.UserVariable;
+import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.WithinGroupExpression;
+import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
+import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
+import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
+import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
+import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
+import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
+import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
+import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.Between;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExistsExpression;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
+import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
+import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.Matches;
+import net.sf.jsqlparser.expression.operators.relational.MinorThan;
+import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
+import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.SetStatement;
 import net.sf.jsqlparser.statement.StatementVisitor;
 import net.sf.jsqlparser.statement.Statements;
 import net.sf.jsqlparser.statement.alter.Alter;
@@ -16,9 +73,26 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.view.CreateView;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
+import net.sf.jsqlparser.statement.execute.Execute;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.replace.Replace;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
+import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.FromItemVisitor;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.LateralSubSelect;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItemVisitor;
+import net.sf.jsqlparser.statement.select.SelectVisitor;
+import net.sf.jsqlparser.statement.select.SetOperationList;
+import net.sf.jsqlparser.statement.select.SubJoin;
+import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.ValuesList;
+import net.sf.jsqlparser.statement.select.WithItem;
 import net.sf.jsqlparser.statement.truncate.Truncate;
 import net.sf.jsqlparser.statement.update.Update;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -30,14 +104,10 @@ import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.access.AccessControlUtility;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций. Заменяет названия таблиц (доменных объектов)
- * на подзапрос с проверкой прав доступа. 
- * Например, employee -> (select * from employee where exists(...))
+ * Добавляет проверки прав доступа (ACL проверки) в SQL запросы коллекций.
+ * Заменяет названия таблиц (доменных объектов) на подзапрос с проверкой прав
+ * доступа. Например, employee -> (select * from employee where exists(...))
  * @author atsvetkov
  */
 public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
@@ -55,7 +125,7 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
     private boolean aclWithItemAdded = false;
 
     public AddAclVisitor(ConfigurationExplorer configurationExplorer, UserGroupGlobalCache userGroupCache,
-                         CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
+            CurrentUserAccessor currentUserAccessor, DomainObjectQueryHelper domainObjectQueryHelper) {
         this.configurationExplorer = configurationExplorer;
         this.userGroupCache = userGroupCache;
         this.currentUserAccessor = currentUserAccessor;
@@ -94,7 +164,8 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
                 FromItem joinItem = join.getRightItem();
                 if (joinItem instanceof Table) {
                     Table table = (Table) joinItem;
-                    //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
+                    // добавляем подзапрос на права в случае если не стоит флаг
+                    // read-everybody
                     if (needToAddAclSubQuery(table)) {
                         join.setRightItem(createAclSubSelect(table));
                     }
@@ -111,7 +182,8 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
         if (isAdministratorWithAllPermissions) {
             return false;
         }
-        // если ДО нет в конфигурации, значит это системный ДО и для него проверка ACL не нужна.
+        // если ДО нет в конфигурации, значит это системный ДО и для него
+        // проверка ACL не нужна.
         boolean isDomainObject = configurationExplorer.getConfig(DomainObjectTypeConfig.class, DaoUtils.unwrap(table.getName())) != null;
         return !configurationExplorer.isReadPermittedToEverybody(DaoUtils.unwrap(table.getName())) && isDomainObject;
     }
@@ -124,7 +196,8 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
         FromItem from = plainSelect.getFromItem();
         if (from instanceof Table) {
             Table table = (Table) from;
-            //добавляем подзапрос на права в случае если не стоит флаг read-everybody 
+            // добавляем подзапрос на права в случае если не стоит флаг
+            // read-everybody
             if (needToAddAclSubQuery(table)) {
                 plainSelect.setFromItem(createAclSubSelect(table));
             }
@@ -433,9 +506,9 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
 
     @Override
     public void visit(CastExpression cast) {
-        if(cast.getLeftExpression() != null){
+        if (cast.getLeftExpression() != null) {
             cast.getLeftExpression().accept(this);
-            
+
         }
     }
 
@@ -460,7 +533,7 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
 
     @Override
     public void visit(IntervalExpression iexpr) {
-        //Skip, as interval can not contain any sub-query
+        // Skip, as interval can not contain any sub-query
     }
 
     @Override
@@ -505,9 +578,9 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
 
     @Override
     public void visit(SetOperationList setOperationList) {
-        if (setOperationList.getPlainSelects() != null) {
-            for (PlainSelect plainSelect : setOperationList.getPlainSelects()) {
-                visit(plainSelect);
+        if (setOperationList.getSelects() != null) {
+            for (SelectBody plainSelect : setOperationList.getSelects()) {
+                visit((PlainSelect) plainSelect);
             }
         }
     }
@@ -586,6 +659,54 @@ public class AddAclVisitor implements StatementVisitor, SelectVisitor, FromItemV
 
     @Override
     public void visit(Statements statements) {
+
+    }
+
+    @Override
+    public void visit(WithinGroupExpression wgexpr) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(JsonExpression jsonExpr) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(RegExpMySQLOperator regExpMySQLOperator) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(UserVariable var) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(NumericBind bind) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(KeepExpression aexpr) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(Execute execute) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(SetStatement set) {
+        // TODO Auto-generated method stub
 
     }
 }

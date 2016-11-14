@@ -19,6 +19,7 @@ import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SelectBody;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
@@ -29,8 +30,8 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
-public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor implements  SelectVisitor, FromItemVisitor, 
-ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
+public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor implements SelectVisitor, FromItemVisitor,
+        ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
     @Override
     protected void visitSubSelect(SubSelect subSelect) {
@@ -109,8 +110,8 @@ ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
     @Override
     public void visit(SetOperationList setOpList) {
-        for (PlainSelect plainSelect : setOpList.getPlainSelects()) {
-            visit(plainSelect);
+        for (SelectBody plainSelect : setOpList.getSelects()) {
+            visit((PlainSelect) plainSelect);
         }
     }
 
@@ -151,6 +152,5 @@ ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
     public void visit(SignedExpression signedExpression) {
 
     }
-
 
 }

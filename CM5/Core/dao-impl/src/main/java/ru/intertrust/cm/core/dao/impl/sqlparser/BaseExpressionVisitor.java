@@ -44,14 +44,13 @@ import net.sf.jsqlparser.expression.operators.relational.Matches;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
 /**
  * Базовая реализация {@see ExpressionVisitor}.
  * @author atsvetkov
- *
+ * 
  */
 public abstract class BaseExpressionVisitor implements ExpressionVisitor {
 
@@ -157,7 +156,6 @@ public abstract class BaseExpressionVisitor implements ExpressionVisitor {
     public void visit(GreaterThanEquals greaterThanEquals) {
         visitBinaryExpression(greaterThanEquals);
     }
-
 
     @Override
     public void visit(IsNullExpression isNullExpression) {
@@ -299,8 +297,8 @@ public abstract class BaseExpressionVisitor implements ExpressionVisitor {
             }
         }
 
-        if (analyticExpression.getPartitionByColumns() != null) {
-            for (Column column : analyticExpression.getPartitionByColumns()) {
+        if (analyticExpression.getPartitionExpressionList() != null) {
+            for (Expression column : analyticExpression.getPartitionExpressionList().getExpressions()) {
                 column.accept(this);
             }
         }

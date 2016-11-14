@@ -36,9 +36,10 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
 
 /**
- * Инициализирует запрос для извлечения коллекций, заполняет параметры в конфигурации фильтров, устанавливает порядок сортировки
+ * Инициализирует запрос для извлечения коллекций, заполняет параметры в
+ * конфигурации фильтров, устанавливает порядок сортировки
  * @author atsvetkov
- *
+ * 
  */
 public class CollectionQueryInitializerImpl implements CollectionQueryInitializer {
 
@@ -67,11 +68,16 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
     /**
      * Применение фильтров, сортировки и т.д. к прототипу запроса.
-     * @param filterValues заполненные фильтры
-     * @param sortOrder порядок сортировки
-     * @param offset смещение
-     * @param limit ограничение количества
+     * @param filterValues
+     *            заполненные фильтры
+     * @param sortOrder
+     *            порядок сортировки
+     * @param offset
+     *            смещение
+     * @param limit
+     *            ограничение количества
      */
+    @Override
     public String initializeQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
             SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
@@ -88,16 +94,20 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
         return filledQuery;
     }
 
+    @Override
     public String initializeQuery(String query, int offset, int limit, AccessToken accessToken) {
         return postProcessQuery(accessToken, query, offset, limit);
     }
 
     /**
-     * Применение фильтров, и т.д. к прототипу запроса на количество доменных объектов в коллекции.
-     * @param filterValues заполненные фильтры
+     * Применение фильтров, и т.д. к прототипу запроса на количество доменных
+     * объектов в коллекции.
+     * @param filterValues
+     *            заполненные фильтры
      */
+    @Override
     public String initializeCountQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues,
-                                       AccessToken accessToken) {
+            AccessToken accessToken) {
         String prototypeQuery = collectionConfig.getCountingPrototype();
         if (prototypeQuery != null) {
             List<CollectionFilterConfig> filledFilterConfigs = findFilledFilterConfigs(filterValues, collectionConfig);
@@ -119,11 +129,12 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Заполняет конфигурации фильтров значениями. Возвращает заполненные конфигурации фильтров (для которых были
-     * переданы значения). Сделан публичным для тестов.
+     * Заполняет конфигурации фильтров значениями. Возвращает заполненные
+     * конфигурации фильтров (для которых были переданы значения). Сделан
+     * публичным для тестов.
      */
     private List<CollectionFilterConfig> findFilledFilterConfigs(List<? extends Filter> filterValues,
-                                                                 CollectionConfig collectionConfig) {
+            CollectionConfig collectionConfig) {
         List<CollectionFilterConfig> filterConfigs = collectionConfig.getFilters();
 
         List<CollectionFilterConfig> filledFilterConfigs = new ArrayList<>();
@@ -166,9 +177,10 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах нужно, чтобы первоначальная конфигурация
-     * коллекции оставалась неизменной.
-     * @param filterConfig конфигурации коллекции
+     * Клонирует конфигурацию коллекции. При заполнении параметров в фильтрах
+     * нужно, чтобы первоначальная конфигурация коллекции оставалась неизменной.
+     * @param filterConfig
+     *            конфигурации коллекции
      * @return копия переданной конфигурации коллекции
      */
     private CollectionFilterConfig cloneFilterConfig(CollectionFilterConfig filterConfig) {
@@ -208,10 +220,15 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
-     * @param collectionConfig конфигурация коллекции
-     * @param accessToken маркер доступа. В случае отложенного маркера добавляет ACL фильтр.
-     * @param query первоначальный запрос
+     * Пост обработка запроса после применения фильтров и правил сортировки.
+     * Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
+     * @param collectionConfig
+     *            конфигурация коллекции
+     * @param accessToken
+     *            маркер доступа. В случае отложенного маркера добавляет ACL
+     *            фильтр.
+     * @param query
+     *            первоначальный запрос
      * @return измененный запрос
      */
     private String postProcessQuery(CollectionConfig collectionConfig, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
@@ -238,9 +255,13 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Пост обработка запроса после применения фильтров и правил сортировки. Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
-     * @param accessToken маркер доступа. В случае отложенного маркера добавляет ACL фильтр.
-     * @param query первоначальный запрос
+     * Пост обработка запроса после применения фильтров и правил сортировки.
+     * Добавляет поле тип идентификатора доменного объекта и ACL фильтр.
+     * @param accessToken
+     *            маркер доступа. В случае отложенного маркера добавляет ACL
+     *            фильтр.
+     * @param query
+     *            первоначальный запрос
      * @return измененный запрос
      */
     private String postProcessQuery(AccessToken accessToken, String query, int offset, int limit) {
@@ -265,7 +286,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     private String fillPrototypeQuery(List<CollectionFilterConfig> filledFilterConfigs,
-                                      String prototypeQuery) {
+            String prototypeQuery) {
         if (prototypeQuery == null || prototypeQuery.trim().length() == 0) {
             throw new FatalException("Prototype query is null and can not be processed");
         }
@@ -315,11 +336,11 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Проверяет наличие placeholder в теле основного запроса
-     * если отсутствует - выбрасываем исключение
+     * Проверяет наличие placeholder в теле основного запроса если отсутствует -
+     * выбрасываем исключение
      */
     private void checkPlaceholderExist(String placeholder, String prototypeQuery) {
-        if (!prototypeQuery.contains(placeholder)){
+        if (!prototypeQuery.contains(placeholder)) {
             throw new CollectionQueryException("The collection query \"" + prototypeQuery +
                     "\" has no placeholder \"" + placeholder + "\"");
         }
@@ -327,7 +348,8 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
 
     /**
      * Удаляет не заполненные placeholders в прототипе запроса.
-     * @param prototypeQuery исходный запрос
+     * @param prototypeQuery
+     *            исходный запрос
      * @return измененный запрос
      */
     private String removeUnFilledPlaceholders(String prototypeQuery) {
@@ -373,7 +395,7 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
             if (union.getOrderByElements() != null && union.getOrderByElements().size() > 0) {
                 union.getOrderByElements().clear();
             }
-            List plainSelects = union.getPlainSelects();
+            List<?> plainSelects = union.getSelects();
             for (Object subSelect : plainSelects) {
                 if (subSelect instanceof PlainSelect) {
                     PlainSelect plainSelect = (PlainSelect) subSelect;
@@ -426,8 +448,10 @@ public class CollectionQueryInitializerImpl implements CollectionQueryInitialize
     }
 
     /**
-     * Группирует все фильтры после слова where по названию placeholder. Т.е. для каждого placeholder составляет запрос
-     * из заполненных фильтров. По умолчанию все фильтры соединяются через условие AND ({@link CollectionQueryInitializerImpl#DEFAULT_CRITERIA_CONDITION})
+     * Группирует все фильтры после слова where по названию placeholder. Т.е.
+     * для каждого placeholder составляет запрос из заполненных фильтров. По
+     * умолчанию все фильтры соединяются через условие AND (
+     * {@link CollectionQueryInitializerImpl#DEFAULT_CRITERIA_CONDITION})
      * @author atsvetkov
      */
     private class CriteriaPlaceHolderCollector {

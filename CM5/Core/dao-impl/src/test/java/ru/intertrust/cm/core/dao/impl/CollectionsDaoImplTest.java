@@ -1,5 +1,22 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,11 +24,28 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortCriterion;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
-import ru.intertrust.cm.core.config.*;
-import ru.intertrust.cm.core.config.base.*;
+import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
+import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.GlobalSettingsConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.StringFieldConfig;
+import ru.intertrust.cm.core.config.UniqueKeyConfig;
+import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterCriteriaConfig;
+import ru.intertrust.cm.core.config.base.CollectionFilterReferenceConfig;
+import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
@@ -20,18 +54,9 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyMapOf;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-
-/**'employee'
- * @author vmatsukevich
- *         Date: 7/2/13
- *         Time: 12:55 PM
+/**
+ * 'employee'
+ * @author vmatsukevich Date: 7/2/13 Time: 12:55 PM
  */
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,22 +67,22 @@ public class CollectionsDaoImplTest {
     private static final String COLLECTION_NOT_EQUALS_REFERENCE = "select s.id from Person s where s.boss = {0} and s.id !={1}";
 
     private static final String COLLECTION_ACL_QUERY = "EXISTS (SELECT r.\"object_id\" FROM \"employee_read\" AS r " +
-    		"INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
-    		"AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
-    		"r.\"object_id\" = \"id\") ";
+            "INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
+            "AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
+            "r.\"object_id\" = \"id\") ";
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
-            "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
-            "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
+                    "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
+                    "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
                     "WHERE gm.person_id = :user_id " +
-            "AND r.object_id = id) " +
-            "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
+                    "AND r.object_id = id) " +
+                    "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
 
     private static final String COLLECTION_QUERY_WITH_FILTER_AND_LIMITS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT " +
-            "FROM employee AS e INNER JOIN department AS d ON e.department = d.id WHERE " + COLLECTION_ACL_QUERY +
-            "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name LIMIT 100 OFFSET 10";
+                    "FROM employee AS e INNER JOIN department AS d ON e.department = d.id WHERE " + COLLECTION_ACL_QUERY +
+                    "AND 1 = 1 AND d.name = 'dep1' ORDER BY e.name LIMIT 100 OFFSET 10";
 
     private static final String COLLECTION_QUERY =
             "SELECT e.\"id\", e.email, e.login, e.password, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT " +
@@ -65,18 +90,18 @@ public class CollectionsDaoImplTest {
 
     private static final String ACTUAL_COLLECTION_QUERY_WITH_LIMITS =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
-                   "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
-                   "WHERE gm.\"person_id\" = :user_id) " +
-                   "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
-                   "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
-                   "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
-                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
-                   "r.\"object_id\" = person.\"access_object_id\")) e INNER JOIN (SELECT department.* " +
-                   "FROM \"department\" department WHERE 1 = 1 AND " +
-                   "EXISTS (SELECT 1 FROM \"department_read\" r " +
-                   "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
-                   "r.\"object_id\" = department.\"access_object_id\")) AS d " +
-                   "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
+                    "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
+                    "WHERE gm.\"person_id\" = :user_id) " +
+                    "SELECT e.\"id\", e.\"id_type\", e.\"email\", e.\"login\", e.\"password\", e.\"created_date\", " +
+                    "e.\"updated_date\", 'employee' \"test_constant\" FROM (SELECT person.* FROM \"person\" person " +
+                    "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"person_read\" r " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                    "r.\"object_id\" = person.\"access_object_id\")) e INNER JOIN (SELECT department.* " +
+                    "FROM \"department\" department WHERE 1 = 1 AND " +
+                    "EXISTS (SELECT 1 FROM \"department_read\" r " +
+                    "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
+                    "r.\"object_id\" = department.\"access_object_id\")) AS d " +
+                    "ON e.\"department\" = d.\"id\" LIMIT 100 OFFSET 10";
 
     private static final String FIND_COLLECTION_QUERY_WITH_FILTERS =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
@@ -91,7 +116,7 @@ public class CollectionsDaoImplTest {
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM \"cur_user_groups\") AND " +
                     "r.\"object_id\" = department.\"access_object_id\")) d ON e.\"department\" = d.\"id\" " +
-                    "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\"";
+                    "WHERE 1 = 1 AND (d.\"name\" = 'dep1') ORDER BY e.\"name\" ASC";
 
     private static final String FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE =
             "WITH cur_user_groups AS (SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
@@ -220,7 +245,6 @@ public class CollectionsDaoImplTest {
         boss.setType("Internal_Employee");
         doTypeConfig.getFieldConfigs().add(boss);
 
-
         UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
         doTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
 
@@ -239,7 +263,7 @@ public class CollectionsDaoImplTest {
 
         DomainObjectTypeConfig departmnet = new DomainObjectTypeConfig();
         departmnet.setName("department");
-        
+
         Configuration configuration = new Configuration();
         configuration.getConfigurationList().add(doTypeConfig);
         configuration.getConfigurationList().add(internalEmployee);
@@ -308,7 +332,7 @@ public class CollectionsDaoImplTest {
         when(accessToken.getSubject()).thenReturn(subject);
         return accessToken;
     }
-    
+
     @Test
     public void testFindCollectionWithFilters() throws Exception {
         Filter filter = new Filter();
@@ -331,20 +355,20 @@ public class CollectionsDaoImplTest {
         CollectionQueryEntry collectionQueryEntry =
                 collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNull(collectionQueryEntry);
-        
+
         collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
 
-        //значения фильтра в ключе кеша не должны использоваться
+        // значения фильтра в ключе кеша не должны использоваться
         filter = new Filter();
-        filter.setFilter("byDepartment");       
+        filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
         collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
-        //значения фильтра в ключе кеша не должны использоваться
+        // значения фильтра в ключе кеша не должны использоваться
         filter = new Filter();
-        filter.setFilter("byDepartment");       
+        filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
 
@@ -353,24 +377,24 @@ public class CollectionsDaoImplTest {
         collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
-        //очередность параметров в фильтре не должна влиять на кеширование запроса
+        // очередность параметров в фильтре не должна влиять на кеширование
+        // запроса
         filter = new Filter();
-        filter.setFilter("byDepartment");       
+        filter.setFilter("byDepartment");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
         collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
-        
         filter = new Filter();
-        filter.setFilter("byDepartment1");       
+        filter.setFilter("byDepartment1");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
         assertNull(collectionQueryEntry);
 
     }
-    
+
     @Test
     public void testGetQueryFromCache() throws Exception {
         String collectionQuery = "Select * from country where id in ({0})";
@@ -389,11 +413,9 @@ public class CollectionsDaoImplTest {
         CollectionQueryEntry collectionQueryEntry =
                 collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
         assertNull(collectionQueryEntry);
-    
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 0, 0, accessToken);
 
-        
         collectionQueryEntry =
                 collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
         assertNotNull(collectionQueryEntry);
@@ -417,7 +439,7 @@ public class CollectionsDaoImplTest {
                 collectionQueryCache.getCollectionQuery(collectionQuery, 4, 2, null, accessToken);
         assertNotNull(collectionQueryEntry);
     }
-    
+
     @Test
     public void testFindCollectionWithMultipleReferenceTypes() throws Exception {
         Filter filter = new Filter();
@@ -430,7 +452,7 @@ public class CollectionsDaoImplTest {
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
     }
 
-    //@Test
+    // @Test
     public void testFindComplexCollectionWithFilters() throws Exception {
         List<Filter> filterValues = new ArrayList<>();
 
@@ -452,7 +474,7 @@ public class CollectionsDaoImplTest {
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
 
-    //@Test
+    // @Test
     public void testFindCollectionWithoutFilters() throws Exception {
         AccessToken accessToken = createMockAccessToken();
 
@@ -461,7 +483,7 @@ public class CollectionsDaoImplTest {
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
 
-    //@Test
+    // @Test
     public void testFindCollectionWithoutSortOrder() throws Exception {
         AccessToken accessToken = createMockAccessToken();
 
@@ -470,7 +492,7 @@ public class CollectionsDaoImplTest {
         assertEquals(COLLECTION_QUERY_WITHOUT_SORT_ORDER, refinedActualQuery);
     }
 
-    //@Test
+    // @Test
     public void testFindCollectionWithLimits() throws Exception {
         Filter filter = new Filter();
         filter.setFilter("byDepartment");
@@ -496,22 +518,21 @@ public class CollectionsDaoImplTest {
     @Test
     public void testFindCollectionByQueryWithReferenceParams() throws Exception {
         AccessToken accessToken = createMockSystemAccessToken();
-        
+
         List<Value> referenceValues =
                 Arrays.<Value> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
-        
+
         List<Value> params = new ArrayList<>();
         params.addAll(referenceValues);
 
-        
         collectionsDaoImpl.findCollectionByQuery(COLLECTION_NOT_EQUALS_REFERENCE, params, 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(COLLECTION_NOT_EQUALS_REFERENCE_RESULT),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
 
     }
-    
-    //@Test
+
+    // @Test
     public void testFindCollectionCountWithFilters() throws Exception {
         List<Filter> filterValues = new ArrayList<>();
 
@@ -559,7 +580,7 @@ public class CollectionsDaoImplTest {
         collectionFilterReference.setValue("inner join department d on e.department = d.id");
 
         CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-         collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
+        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
         collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
 
         byDepartmentFilterConfig.setFilterReference(collectionFilterReference);

@@ -6,11 +6,17 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
+import net.sf.jsqlparser.expression.JsonExpression;
+import net.sf.jsqlparser.expression.KeepExpression;
+import net.sf.jsqlparser.expression.NumericBind;
 import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.UserVariable;
+import net.sf.jsqlparser.expression.WithinGroupExpression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -20,12 +26,12 @@ import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 /**
  * 
  * @author atsvetkov
- *
+ * 
  */
 public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
 
     Map<String, Object> jdbcParameters = new HashMap<>();
-        
+
     public Map<String, Object> getJdbcParameters() {
         return jdbcParameters;
     }
@@ -44,7 +50,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         JdbcNamedParameter referenceTypeParameter = new JdbcNamedParameter();
         String referenceTypeParamName = createReferenceTypeColumn(paramName);
         referenceTypeParameter.setName(referenceTypeParamName);
-        
+
         comparisonExpressionForReferenceType.setRightExpression(referenceTypeParameter);
 
         return comparisonExpressionForReferenceType;
@@ -63,7 +69,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
     protected String createReferenceTypeColumn(String paramName) {
         return paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
     }
-    
+
     protected Expression createFilledReferenceExpression(Column column, String paramName, BinaryExpression equalsTo, boolean isEquals) {
         BinaryExpression expressionForReferenceId = null;
         if (isEquals) {
@@ -82,7 +88,8 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         referenceParameter.setName(paramName);
 
         expressionForReferenceId.setRightExpression(referenceParameter);
-        // замена старого параметризованного фильтра по Reference полю (например, t.id = {0}) на рабочий
+        // замена старого параметризованного фильтра по Reference полю
+        // (например, t.id = {0}) на рабочий
         // фильтр {например, t.id = 1 and t.id_type = 2 }
         Expression newReferenceExpression = null;
         if (isEquals) {
@@ -116,7 +123,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         return finalExpression;
     }
 
-    protected Expression createExpressionForReference(Column column, String paramName,  boolean isEquals) {
+    protected Expression createExpressionForReference(Column column, String paramName, boolean isEquals) {
         BinaryExpression referenceIdEqualsExpression = createReferenceEqualsExpr(column, paramName, isEquals);
         BinaryExpression referenceTypeEqualsExpression = createReferenceTypeEqualsExpr(column, paramName, isEquals);
         if (isEquals) {
@@ -136,7 +143,7 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
             referenceTypeEqualsExpression = new NotEqualsTo();
         }
         referenceTypeEqualsExpression.setLeftExpression(typeColumn);
-        
+
         JdbcNamedParameter referenceTypeParameter = new JdbcNamedParameter();
         String referenceTypeParamName = createReferenceTypeColumn(paramName);
         referenceTypeParameter.setName(referenceTypeParamName);
@@ -153,11 +160,11 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
             referenceIdEqualsExpression = new NotEqualsTo();
         }
         referenceIdEqualsExpression.setLeftExpression(column);
-        
+
         JdbcNamedParameter referenceParameter = new JdbcNamedParameter();
         String referenceParamName = paramName;
         referenceParameter.setName(referenceParamName);
-        
+
         referenceIdEqualsExpression.setRightExpression(referenceParameter);
         return referenceIdEqualsExpression;
     }
@@ -166,13 +173,49 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
         String referenceParamName = paramName;
         String referenceTypeParamName = paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 
-        if(referenceValue == null || referenceValue.get() == null){
+        if (referenceValue == null || referenceValue.get() == null) {
             throw new IllegalArgumentException("Reference value passed as a parameter is null or empty, param name: " + paramName);
         }
         long refTypeId = ((RdbmsId) referenceValue.get()).getTypeId();
 
         jdbcParameters.put(referenceParamName, ((RdbmsId) referenceValue.get()).getId());
         jdbcParameters.put(referenceTypeParamName, refTypeId);
+    }
+
+    @Override
+    public void visit(WithinGroupExpression wgexpr) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(JsonExpression jsonExpr) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(RegExpMySQLOperator regExpMySQLOperator) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(UserVariable var) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(NumericBind bind) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(KeepExpression aexpr) {
+        // TODO Auto-generated method stub
+
     }
 
 }
