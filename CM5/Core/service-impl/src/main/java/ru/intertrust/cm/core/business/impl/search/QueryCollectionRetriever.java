@@ -8,7 +8,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -17,7 +16,6 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 public class QueryCollectionRetriever extends CollectionRetriever {
 
     @Autowired private CollectionsService collectionsService;
-    @Autowired private IdService idService;
 
     private String sqlQuery;
     private List<? extends Value<?>> sqlParameters;
@@ -58,6 +56,7 @@ public class QueryCollectionRetriever extends CollectionRetriever {
                         result.set(i, destRow, sample.get(i, row));
                     }
                     if (result.size() == maxResults) {
+                        addWeightsAndSort(result, documents);
                         return result;
                     }
                 }
@@ -68,6 +67,7 @@ public class QueryCollectionRetriever extends CollectionRetriever {
             fetchStart += fetchSize;
             fetchSize = estimateFetchSize(fetchSize, result.size(), maxResults);
         }
+        addWeightsAndSort(result, documents);
         return result;
     }
 

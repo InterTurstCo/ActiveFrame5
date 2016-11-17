@@ -9,7 +9,6 @@ import org.apache.solr.common.SolrDocumentList;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
-import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -21,7 +20,6 @@ public class NamedCollectionRetriever extends CollectionRetriever {
 
     public static final int MAX_IDS_PER_QUERY = 2000;
 
-    @Autowired private IdService idService;
     @Autowired private CollectionsService collectionsService;
 
     private String collectionName;
@@ -57,9 +55,9 @@ public class NamedCollectionRetriever extends CollectionRetriever {
             }
         }
 
-        //CMFIVE-5387 workaround: splitting query having too many IDs into smaller portions
+        IdentifiableObjectCollection result = null;
         if (idFilter.getCriterionKeys().size() > MAX_IDS_PER_QUERY) {
-            IdentifiableObjectCollection result = null;
+            //CMFIVE-5387 workaround: splitting query having too many IDs into smaller portions
             ArrayList<ReferenceValue> partIds = new ArrayList<>(MAX_IDS_PER_QUERY);
             for (int part = 0; part < (idFilter.getCriterionKeys().size() + MAX_IDS_PER_QUERY - 1) / MAX_IDS_PER_QUERY;
                     ++part) {
@@ -84,12 +82,14 @@ public class NamedCollectionRetriever extends CollectionRetriever {
                 modifiedFilters.remove(modifiedFilters.size() - 1);
                 partIds.clear();
             }
-            return result;
+            //CMFIVE-5387 ----------
+        } else {
+            modifiedFilters.add(idFilter);
+            result = collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
         }
-        //CMFIVE-5387 ----------
 
-        modifiedFilters.add(idFilter);
-        return collectionsService.findCollection(collectionName, new SortOrder(), modifiedFilters, 0, maxResults);
+        addWeightsAndSort(result, found);
+        return result;
     }
 
     private IdsIncludedFilter intersectFilters(IdsIncludedFilter filter1, IdsIncludedFilter filter2) {

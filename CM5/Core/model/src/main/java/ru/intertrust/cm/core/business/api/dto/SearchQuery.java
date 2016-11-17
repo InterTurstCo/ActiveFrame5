@@ -12,6 +12,8 @@ import java.util.List;
 */
 public class SearchQuery implements Dto {
 
+    public static final String RELEVANCE = "_relevance";
+
     private ArrayList<String> areas = new ArrayList<String>();
     private String targetObjectType;
     private HashMap<String, SearchFilter> filters = new HashMap<String, SearchFilter>();
