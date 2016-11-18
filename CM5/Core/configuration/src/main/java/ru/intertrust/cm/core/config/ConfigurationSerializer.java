@@ -9,7 +9,6 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LoadedConfiguration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ConfigurationDeserializationException;
-import ru.intertrust.cm.core.config.migration.MigrationModuleConfig;
 import ru.intertrust.cm.core.config.migration.MigrationScriptConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
@@ -18,7 +17,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Предоставляет функциональность для сериализации/десериализации конфигурации
@@ -98,8 +100,7 @@ public class ConfigurationSerializer {
 
                 for (String configurationFilePath : configurationPaths) {
                     try {
-                        Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths,
-                                moduleConfiguration.getModuleUrl());
+                        Configuration partialConfiguration = deserializeConfiguration(configurationFilePath, schemaPaths, moduleConfiguration);
                         modulePartialConfigurations.add(partialConfiguration);
                     } catch (Exception e) {
                         exceptionList.add(e);
@@ -117,44 +118,16 @@ public class ConfigurationSerializer {
             }
         }
         Configuration combinedConfiguration = new Configuration();
-        final HashSet<String> modulesWithMigrationScripts = findModulesWithMigrationScripts(moduleConfigsByName);
         for (Map.Entry<String, ArrayList<Configuration>> moduleConfigs : moduleConfigsByName.entrySet()) {
-            final String moduleName = moduleConfigs.getKey();
-            final boolean isModuleWithMigrationScripts = modulesWithMigrationScripts.contains(moduleName);
             final ArrayList<Configuration> partialConfigurations = moduleConfigs.getValue();
             for (Configuration partialConfiguration : partialConfigurations) {
-                combineConfigurations(partialConfiguration, combinedConfiguration, !isModuleWithMigrationScripts);
+                combineConfigurations(partialConfiguration, combinedConfiguration);
             }
         }
         return combinedConfiguration;
     }
 
-    private HashSet<String> findModulesWithMigrationScripts(Map<String, ArrayList<Configuration>> moduleConfigsByName) {
-        for (ArrayList<Configuration> modulePartialConfigs : moduleConfigsByName.values()) {
-            for (Configuration partialConfig : modulePartialConfigs) {
-                final List<TopLevelConfig> topLevelConfigs = partialConfig.getConfigurationList();
-                if (topLevelConfigs == null) {
-                    continue;
-                }
-                for (TopLevelConfig topLevelConfig : topLevelConfigs) {
-                    if (topLevelConfig instanceof GlobalSettingsConfig) {
-                        final List<MigrationModuleConfig> migrationModules = ((GlobalSettingsConfig) topLevelConfig).getMigrationModules();
-                        if (migrationModules == null) {
-                            return new HashSet<>();
-                        }
-                        HashSet<String> result = new HashSet<>(migrationModules.size() * 2);
-                        for (MigrationModuleConfig migrationModule : migrationModules) {
-                            result.add(migrationModule.getName());
-                        }
-                        return result;
-                    }
-                }
-            }
-        }
-        return new HashSet<>();
-    }
-
-    private Configuration combineConfigurations(Configuration source, Configuration destination, boolean dropMigrationScripts) {
+    private Configuration combineConfigurations(Configuration source, Configuration destination) {
         if (destination == null) {
             throw new IllegalArgumentException("Destination Configuration cannot be null");
         }
@@ -162,14 +135,12 @@ public class ConfigurationSerializer {
         if (source != null) {
             final List<TopLevelConfig> destinationTopLevelConfigs = destination.getConfigurationList();
             final List<TopLevelConfig> sourceTopLevelConfigs = source.getConfigurationList();
-            if (dropMigrationScripts) {
-                for (TopLevelConfig sourceTopLevelConfig : sourceTopLevelConfigs) {
-                    if (!(sourceTopLevelConfig instanceof MigrationScriptConfig)) {
-                        destinationTopLevelConfigs.add(sourceTopLevelConfig);
-                    }
+            for (TopLevelConfig sourceTopLevelConfig : sourceTopLevelConfigs) {
+                final boolean isMigrationScript = sourceTopLevelConfig instanceof MigrationScriptConfig;
+                if (isMigrationScript) {
+                    ((MigrationScriptConfig) sourceTopLevelConfig).setModuleName(source.getModuleName());
                 }
-            } else {
-                destinationTopLevelConfigs.addAll(sourceTopLevelConfigs);
+                destinationTopLevelConfigs.add(sourceTopLevelConfig);
             }
         }
 
@@ -184,8 +155,9 @@ public class ConfigurationSerializer {
      * @throws Exception
      */
     private Configuration deserializeConfiguration(String configurationFilePath,
-                                                   List<String> configurationSchemaFilePath, URL moduleUrl)
+                                                   List<String> configurationSchemaFilePath, ModuleConfiguration moduleConfiguration)
             throws Exception {
+        final URL moduleUrl = moduleConfiguration.getModuleUrl();
         try {
             InputStream[] schemaInputStreams = new InputStream[configurationSchemaFilePath.size()];
 
@@ -199,6 +171,7 @@ public class ConfigurationSerializer {
             schemaValidator.validate();
             final InputStream is = getStreamFromUrl(moduleUrl, configurationFilePath);
             final Configuration result = createSerializerInstance().read(Configuration.class, is);
+            result.setModuleName(moduleConfiguration.getName());
             return result;
         } catch (ConfigurationDeserializationException e) {
             e.setConfigurationFilePath(configurationFilePath);

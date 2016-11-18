@@ -7,11 +7,15 @@ import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.Migrator;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
+import ru.intertrust.cm.core.config.module.ModuleConfiguration;
+import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.SchemaCache;
@@ -26,6 +30,7 @@ public class MigrationService {
     private final static Logger logger = LoggerFactory.getLogger(MigrationService.class);
     private static final String MIGRATION_LOG_DO_TYPE_NAME = "migration_log";
     private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequence_number";
+    private static final String MODULE_NAME_FIELD_NAME = "module_name";
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -48,11 +53,39 @@ public class MigrationService {
     @Autowired
     private SchemaCache schemaCache;
 
+    @Autowired
+    private ModuleService moduleService;
+
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
      */
     public boolean executeBeforeAutoMigration(ConfigurationExplorer oldConfigurationExplorer) {
+        // todo: drop this code after everyone gets migrated to new version of Platform - it's a workaround for the case when there's no new column in DB
+        if (oldConfigurationExplorer.getFieldConfig("migration_log", "module_name") == null) { // force migration
+            performMigrationMechanismUpgrade(oldConfigurationExplorer);
+        }
+
         return executeScriptMigration(oldConfigurationExplorer, true);
+    }
+
+    private void performMigrationMechanismUpgrade(ConfigurationExplorer oldConfigurationExplorer) {
+        final List<MigrationScriptConfig> scriptConfigs = (List<MigrationScriptConfig>) configurationExplorer.getConfigs(MigrationScriptConfig.class);
+        MigrationScriptConfig migrationMigrationScript1 = null;
+        for (MigrationScriptConfig scriptConfig : scriptConfigs) {
+            if (scriptConfig.getSequenceNumber() == 100 && "core".equals(scriptConfig.getModuleName())) {
+                migrationMigrationScript1 = scriptConfig;
+                break;
+            }
+        }
+        if (migrationMigrationScript1 == null) {
+            throw new IllegalArgumentException("No script for Migration of Migration found");
+        }
+        MigrationScriptConfig migrationMigrationScript = migrationMigrationScript1;
+        executeAutoMigrationEvent(migrationMigrationScript.getSequenceNumber(), migrationMigrationScript.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
+        DomainObject migrationLog = crudService.createDomainObject(MIGRATION_LOG_DO_TYPE_NAME);
+        migrationLog.setLong(SEQUENCE_NUMBER_FIELD_NAME, 100L);
+        migrationLog.setString(MODULE_NAME_FIELD_NAME, "core");
+        crudService.save(migrationLog);
     }
 
     /**
@@ -62,47 +95,44 @@ public class MigrationService {
         return executeScriptMigration(oldConfigurationExplorer, false);
     }
 
-    /**
-     * Записывает данные о проведении скриптовой миграции
-     */
-    public void writeMigrationLog(long migrationVersion) {
-        long maxSavedSequenceNumber = getMaxSavedMigrationSequenceNumber();
-        if (migrationVersion <= maxSavedSequenceNumber) {
-            return;
-        }
-
-        DomainObject migrationLog = crudService.createDomainObject(MIGRATION_LOG_DO_TYPE_NAME);
-        migrationLog.setLong(SEQUENCE_NUMBER_FIELD_NAME, migrationVersion);
-        crudService.save(migrationLog);
-    }
-
-    /**
-     * Возвращает максимальный номер миграциооного скрипта из конфигурации
-     * @return
-     */
-    public long getMaxMigrationSequenceNumberFromConfiguration() {
-        long migrationVersion = 0;
-
+    public void writeMigrationLog() {
         Collection<MigrationScriptConfig> migrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
-        if (migrationConfigs != null && !migrationConfigs.isEmpty()) {
-            MigrationScriptConfig maxSequenceConfig =
-                    Collections.max(migrationConfigs, new MigrationScriptSequenceComparator());
-            migrationVersion = maxSequenceConfig.getSequenceNumber();
+        HashMap<String, Long> maxConfigSequenceByModule = new HashMap<>();
+        HashMap<String, Long> maxSavedSequenceByModule = new HashMap<>();
+        for (MigrationScriptConfig migrationConfig : migrationConfigs) {
+            final String moduleName = migrationConfig.getModuleName();
+            final int sequenceNumber = migrationConfig.getSequenceNumber();
+            final Long maxSequence = maxConfigSequenceByModule.get(moduleName);
+            if (maxSequence == null || sequenceNumber > maxSequence) {
+                maxConfigSequenceByModule.put(moduleName, (long) sequenceNumber);
+            }
+        }
+        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+            Long migrationVersion = maxConfigSequenceByModule.get(moduleConfiguration.getName());
+            final long maxSavedSequenceNumber = getMaxSavedMigrationSequenceNumber(moduleConfiguration);
+            if (migrationVersion == null || migrationVersion <= maxSavedSequenceNumber) {
+                continue;
+            }
+            DomainObject migrationLog = crudService.createDomainObject(MIGRATION_LOG_DO_TYPE_NAME);
+            migrationLog.setLong(SEQUENCE_NUMBER_FIELD_NAME, migrationVersion);
+            migrationLog.setString(MODULE_NAME_FIELD_NAME, moduleConfiguration.getName());
+            crudService.save(migrationLog);
         }
 
-        return migrationVersion;
     }
 
     /**
      * Возвращает максимальный номер миграционного скрипта из базы данных
      * @return
+     * @param moduleConfiguration
      */
-    public long getMaxSavedMigrationSequenceNumber() {
+    public long getMaxSavedMigrationSequenceNumber(ModuleConfiguration moduleConfiguration) {
         if (!dataStructureDao.isTableExist("migration_log")) {
             return 0;
         }
 
-        IdentifiableObjectCollection collection = collectionsService.findCollection("last_migration_log");
+        final Filter byModule = Filter.create("byModule", 0, new StringValue(moduleConfiguration.getName()));
+        IdentifiableObjectCollection collection = collectionsService.findCollection("last_migration_log", null, Collections.singletonList(byModule));
         if (collection == null || collection.size() == 0) {
             return 0;
         }
@@ -112,37 +142,51 @@ public class MigrationService {
 
     private boolean executeScriptMigration(ConfigurationExplorer oldConfigurationExplorer, boolean beforeAutoMigration) {
         Collection<MigrationScriptConfig> migrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
-        if (migrationConfigs == null || migrationConfigs.size() == 0) {
-            logger.warn("No " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts to execute");
-            return false;
-        }
-        logger.warn("Starting " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
-
-        List<MigrationScriptConfig> migrationScriptConfigList = new ArrayList<>(migrationConfigs);
-        Collections.sort(migrationScriptConfigList, new MigrationScriptSequenceComparator());
-
-        long lastSavedMigrationSequence = getMaxSavedMigrationSequenceNumber();
-
-        boolean migrationDone = false;
         sqlLoggerEnforcer.forceSqlLogging();
-
-        for (MigrationScriptConfig migrationScriptConfig : migrationScriptConfigList) {
-            if (migrationScriptConfig.getSequenceNumber() <= lastSavedMigrationSequence) {
+        boolean migrationDone = false;
+        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+            final ArrayList<MigrationScriptConfig> migrationScriptConfigList = getModuleMigrations(moduleConfiguration);
+            if (migrationConfigs == null || migrationConfigs.size() == 0) {
+                logger.warn("Module: " + moduleConfiguration.getName() + ". No " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts to execute");
                 continue;
             }
+            logger.warn("Module: " + moduleConfiguration.getName() + ". " + "Starting " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
 
-            if (beforeAutoMigration) {
-                executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
-            } else {
-                executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getAfterAutoMigrationConfig(), oldConfigurationExplorer);
+            Collections.sort(migrationScriptConfigList, new MigrationScriptSequenceComparator());
+
+            // get all migrations for the module (in case of 1st Core migration - returns 0)
+            long lastSavedMigrationSequence = getMaxSavedMigrationSequenceNumber(moduleConfiguration);
+            for (MigrationScriptConfig migrationScriptConfig : migrationScriptConfigList) {
+                if (migrationScriptConfig.getSequenceNumber() <= lastSavedMigrationSequence) {
+                    continue;
+                }
+
+                if (beforeAutoMigration) {
+                    executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
+                } else {
+                    executeAutoMigrationEvent(migrationScriptConfig.getSequenceNumber(), migrationScriptConfig.getAfterAutoMigrationConfig(), oldConfigurationExplorer);
+                }
+
+                migrationDone = true;
             }
-
-            migrationDone = true;
+            logger.warn("Module: " + moduleConfiguration.getName() + ". " + "Done " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
         }
 
         sqlLoggerEnforcer.cancelSqlLoggingEnforcement();
         logger.warn("Done " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts......................");
         return migrationDone;
+    }
+
+    private ArrayList<MigrationScriptConfig> getModuleMigrations(ModuleConfiguration moduleConfiguration) {
+        Collection<MigrationScriptConfig> allMigrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
+        ArrayList<MigrationScriptConfig> moduleMigrationConfigs = new ArrayList<>();
+        for (MigrationScriptConfig config : allMigrationConfigs) {
+            if (moduleConfiguration.getName().equals(config.getModuleName())) {
+                moduleMigrationConfigs.add(config);
+            }
+        }
+        Collections.sort(moduleMigrationConfigs, new MigrationScriptSequenceComparator());
+        return moduleMigrationConfigs;
     }
 
     private void executeAutoMigrationEvent(int sequenceNumber, AutoMigrationEventConfig autoMigrationEventConfig,

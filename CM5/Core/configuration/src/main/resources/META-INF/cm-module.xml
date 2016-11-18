@@ -30,6 +30,7 @@
         <configuration-path>config/resources_forms.xml</configuration-path>
         <configuration-path>config/event-log-forms.xml</configuration-path>
         <configuration-path>config/oal-forms.xml</configuration-path>
+        <configuration-path>config/migration.xml</configuration-path>
     </configuration-paths>
     <import-files>
         <import-file>importdata/status.csv</import-file>
