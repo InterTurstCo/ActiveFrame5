@@ -125,6 +125,28 @@
             <artifactId>postgresql</artifactId>
             <version>9.1-901-1.jdbc4</version>
         </dependency>
+
+        <!-- Для CLI API -->
+        <!-- https://mvnrepository.com/artifact/org.wildfly.common/wildfly-common -->
+        <dependency>
+            <groupId>org.wildfly.common</groupId>
+            <artifactId>wildfly-common</artifactId>
+            <version>1.2.0.Beta1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jboss.as/jboss-as-cli -->
+        <!-- https://mvnrepository.com/artifact/org.wildfly/wildfly-cli -->
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-cli</artifactId>
+            <version>8.2.1.Final</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.wildfly/wildfly-protocol -->
+        <dependency>
+            <groupId>org.wildfly</groupId>
+            <artifactId>wildfly-protocol</artifactId>
+            <version>8.2.1.Final</version>
+        </dependency>
+
     </dependencies>
 
     <dependencyManagement>

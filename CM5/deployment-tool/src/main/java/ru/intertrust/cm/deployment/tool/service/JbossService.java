@@ -1,5 +1,8 @@
 package ru.intertrust.cm.deployment.tool.service;
 
+import org.jboss.as.cli.CliInitializationException;
+import org.jboss.as.cli.CommandContext;
+import org.jboss.as.cli.CommandLineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +11,16 @@ import ru.intertrust.cm.deployment.tool.property.UpgradeProperties;
 import ru.intertrust.cm.deployment.tool.util.ProcessPrintUtil;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.String.format;
@@ -29,7 +36,7 @@ import static ru.intertrust.cm.deployment.tool.config.AppConstants.SERVER_URL_PA
 public class JbossService {
 
     private static Logger logger = LoggerFactory.getLogger(JbossService.class);
-
+    private static List<String> output = new ArrayList<>();
     @Autowired
     private UpgradeProperties props;
 
@@ -163,4 +170,49 @@ public class JbossService {
         logger.info("The application {} started correctly", started ? "was" : "was not");
         return started;
     }
+
+    public void undeployApplication(String name, String controllerAddress) {
+        CommandContext ctx;
+        try {
+            PrintStream stdout = System.out;
+            System.setOut(new MyFilterPrintStream(System.out));
+            ctx = org.jboss.as.cli.CommandContextFactory.getInstance().newCommandContext();
+            logger.info("Trying to connect on CLI API to "+controllerAddress);
+            ctx.connectController(controllerAddress);
+            ctx.handle("connect");
+            ctx.handle("ls deployment");
+            String dName = contains(name);
+            if (dName != null) {
+                ctx.handle("undeploy " + dName);
+            }
+            ctx.disconnectController();
+            System.setOut(stdout);
+        } catch (CliInitializationException e) {
+            e.printStackTrace();
+        } catch (CommandLineException e) {
+            e.printStackTrace();
+        }
+    }
+
+    class MyFilterPrintStream extends PrintStream {
+        public MyFilterPrintStream(OutputStream out) {
+            super(out);
+        }
+
+        @Override
+        public void print(String s) {
+            output.add(s);
+            super.print(s);
+        }
+    }
+
+    private String contains(String pattern) {
+        for (String s : output) {
+            if (s.contains(pattern))
+                return s;
+        }
+        return null;
+    }
+
+
 }

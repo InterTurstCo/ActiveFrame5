@@ -48,7 +48,7 @@ public class EarDeployManager {
         //backup current deployed ear
         String ear = props.getEarCurrent();
         if (jbossService.isServerStarted()) {
-            jbossService.stop();
+            jbossService.undeployApplication(ear,props.getJbossCliController());
         }
         createBackup(ear);
         resourceService.cleanServer();
@@ -87,27 +87,29 @@ public class EarDeployManager {
 
         cleanInitData(ear);
         copyData(ear);
-        startServer();
+
+        if(!jbossService.isServerStarted()) {
+            startServer();
+        }
 
         if (jbossService.isDeploySuccess(ear)) {
             if (backup) {
                 createBackup(ear);
             }
             if (!last) {
-                jbossService.stop();
+                jbossService.undeployApplication(ear,props.getJbossCliController());
                 resourceService.cleanServer();
             }
             return true;
         } else {
             //restore logic
             logger.info("Start restore logic");
-            jbossService.stop();
+            jbossService.undeployApplication(ear,props.getJbossCliController());
             resourceService.cleanServer();
 
             ear = getForRestore(ear);
             logger.info("Starting restore {}", ear);
             restoreBackup(ear);
-            startServer();
 
             String part = jbossService.isDeploySuccess(ear) ? "has been" : "do not";
             logger.info("Ear version - {} {} restored", ear, part);

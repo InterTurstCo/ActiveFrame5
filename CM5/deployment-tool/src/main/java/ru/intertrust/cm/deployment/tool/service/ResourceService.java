@@ -15,6 +15,7 @@ import ru.intertrust.cm.deployment.tool.xml.StandaloneXml;
 import ru.intertrust.cm.deployment.tool.xml.SystemProperty;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -131,7 +132,7 @@ public class ResourceService {
             for (File file : files) {
                 if (file.isFile()) {
                     String fileName = file.getName();
-                    if (!isEmpty(fileName) && fileName.contains(".ear")) {
+                    if (!isEmpty(fileName) && (fileName.contains(".ear") || fileName.contains(".ear.undeployed"))) {
                         boolean delete = file.delete();
                         if (delete) {
                             logger.info("Ear {} has been deleted from server deployment directory", file);
@@ -179,30 +180,43 @@ public class ResourceService {
                 e.printStackTrace();
             }
         }
-        logger.info("Init data path is - {}", initData.toString());
+        logger.info("Init data path is - {}", (initData != null) ? initData.toString() : " No init data property found in standalone.xml");
         return initData;
     }
 
     public boolean copyDir(Path source, Path target) {
-        File sourceDir = source.toFile();
-        File targetDir = target.toFile();
-        try {
-            FileUtils.copyDirectory(sourceDir, targetDir);
+        if (source != null && target != null) {
+            File sourceDir = source.toFile();
+            File targetDir = target.toFile();
+            try {
+                FileUtils.copyDirectory(sourceDir, targetDir);
+                return true;
+            } catch (IOException e) {
+                if (e instanceof FileNotFoundException) {
+                    logger.info("No initial data found");
+                    return true;
+                } else {
+                    logger.info(e.getMessage(), e);
+                    return false;
+                }
+            }
+        } else {
             return true;
-        } catch (IOException e) {
-            logger.info(e.getMessage(), e);
-            return false;
         }
     }
 
     public boolean delete(Path source) {
-        File dir = source.toFile();
-        try {
-            FileUtils.deleteDirectory(dir);
+        if (source != null) {
+            File dir = source.toFile();
+            try {
+                FileUtils.deleteDirectory(dir);
+                return true;
+            } catch (IOException e) {
+                logger.info(e.getMessage(), e);
+                return false;
+            }
+        } else {
             return true;
-        } catch (IOException e) {
-            logger.info(e.getMessage(), e);
-            return false;
         }
     }
 

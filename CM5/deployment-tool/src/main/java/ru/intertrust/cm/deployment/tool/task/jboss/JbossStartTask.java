@@ -28,7 +28,9 @@ public class JbossStartTask implements Task {
 
     @Override
     public TaskResult call() throws Exception {
-        jbossService.start();
+        if (!jbossService.isServerStarted()) {
+            jbossService.start();
+        }
         return new TaskResult(true);
     }
 
