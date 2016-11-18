@@ -43,6 +43,8 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -78,6 +80,9 @@ public class NamedCollectionRetrieverTest {
         Id id3 = mock(Id.class);
         when(idService.createId("id3")).thenReturn(id3);
 
+        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
+                .thenReturn(new GenericIdentifiableObjectCollection());
+
         NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection");
         initRetriever(retriever);
         retriever.queryCollection(docList, 20);
@@ -98,6 +103,9 @@ public class NamedCollectionRetrieverTest {
         SolrDocumentList docList = new SolrDocumentList();
         docList.addAll(Arrays.asList(docMock, docMock, docMock, docMock, docMock));
         when(idService.createId(anyString())).thenAnswer(RETURNS_MOCKS);
+
+        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
+                .thenReturn(new GenericIdentifiableObjectCollection());
 
         Filter filterMock = mock(Filter.class);
         NamedCollectionRetriever retriever = new NamedCollectionRetriever("TestCollection",
@@ -137,6 +145,9 @@ public class NamedCollectionRetrieverTest {
         Id id4 = mock(Id.class);
         when(idService.createId("id4")).thenReturn(id4);
 
+        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
+                .thenReturn(new GenericIdentifiableObjectCollection());
+
         Filter filterMock = mock(Filter.class);
         IdsIncludedFilter idsFilter = new IdsIncludedFilter(
                 new ReferenceValue(id2), new ReferenceValue(id3), new ReferenceValue(id4));
@@ -174,16 +185,19 @@ public class NamedCollectionRetrieverTest {
     }
 
     private void testALotOfIds(int idCount, int maxResults) {
-        SolrDocument doc = mock(SolrDocument.class);
+        /*SolrDocument doc = mock(SolrDocument.class);
         when(doc.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenAnswer(new Answer<Object>() {
             int seqNum = 0;
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {
                 return Integer.toString(++seqNum);
             }
-        });
+        });*/
         SolrDocumentList docList = new SolrDocumentList();
         for (int i = 0; i < idCount; ++i) {
+            SolrDocument doc = mock(SolrDocument.class);
+            when(doc.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn(Integer.toString(i + 1));
+            when(doc.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
             docList.add(doc);
         }
 
@@ -206,7 +220,7 @@ public class NamedCollectionRetrieverTest {
             expectedMaxResults[i] = maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
         }
 
-        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyList(), anyInt(), anyInt()))
+        when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
                 .thenAnswer(new Answer<IdentifiableObjectCollection>() {
                     int callNum = 0;
                     @Override
@@ -223,7 +237,9 @@ public class NamedCollectionRetrieverTest {
                         ++callNum;
 
                         IdentifiableObjectCollection coll = new GenericIdentifiableObjectCollection();
-                        //coll.setFieldsConfiguration(null);
+                        ReferenceFieldConfig idConfig = new ReferenceFieldConfig();
+                        idConfig.setName("id");
+                        coll.setFieldsConfiguration(Arrays.<FieldConfig>asList(idConfig));
                         for (int i = 0; i < filter.getCriterionKeys().size(); ++i) {
                             try {
                                 RdbmsId id = (RdbmsId) filter.getCriterion(i).get();

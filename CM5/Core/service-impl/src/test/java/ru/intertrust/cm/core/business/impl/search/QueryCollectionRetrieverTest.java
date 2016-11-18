@@ -7,6 +7,7 @@ import static org.mockito.Mockito.RETURNS_MOCKS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.dto.DecimalValue;
 import ru.intertrust.cm.core.business.api.dto.GenericIdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
@@ -57,10 +59,13 @@ public class QueryCollectionRetrieverTest {
     public void testFullFetch() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
+        when(doc1.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.3f);
         SolrDocument doc2 = mock(SolrDocument.class);
         when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        when(doc2.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocument doc3 = mock(SolrDocument.class);
         when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id3");
+        when(doc3.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocumentList docList = new SolrDocumentList();
         docList.addAll(Arrays.asList(doc2, doc3, doc1));    // mixed
 
@@ -84,17 +89,25 @@ public class QueryCollectionRetrieverTest {
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 20);
 
-        assertThat(result, new IdentifiableObjectCollectionMatcher(sample));
+        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2, CollectionRetriever.RELEVANCE_FIELD),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2"), new DecimalValue(new BigDecimal(1f))),
+                pair(id3, new ReferenceValue(id3), new StringValue("object 3"), new DecimalValue(new BigDecimal(1f))),
+                pair(id1, new ReferenceValue(id1), new StringValue("object 1"), new DecimalValue(new BigDecimal(.3f)))
+                );
+        assertThat(result, new IdentifiableObjectCollectionMatcher(expected));
     }
 
     @Test
     public void testPartialFetch() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
+        when(doc1.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocument doc2 = mock(SolrDocument.class);
         when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        when(doc2.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.9f);
         SolrDocument doc3 = mock(SolrDocument.class);
         when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id3");
+        when(doc3.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.5f);
         SolrDocumentList docList = new SolrDocumentList();
         docList.addAll(Arrays.asList(doc1, doc2, doc3));
 
@@ -110,9 +123,9 @@ public class QueryCollectionRetrieverTest {
         when(idService.createId("id5")).thenReturn(id5);
 
         FieldConfig field1 = mock(FieldConfig.class);
-        when(field1.getName()).thenReturn("Id");
+        when(field1.getName()).thenReturn("Ref");
         FieldConfig field2 = mock(FieldConfig.class);
-        when(field2.getName()).thenReturn("Id");
+        when(field2.getName()).thenReturn("Str");
         IdentifiableObjectCollection sample = collection(Arrays.asList(field1, field2),
                 pair(id4, new ReferenceValue(id4), new StringValue("object 4")),
                 pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
@@ -123,9 +136,9 @@ public class QueryCollectionRetrieverTest {
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 20);
 
-        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2),
-                pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
-                pair(id1, new ReferenceValue(id1), new StringValue("object 1"))
+        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2, CollectionRetriever.RELEVANCE_FIELD),
+                pair(id1, new ReferenceValue(id1), new StringValue("object 1"), new DecimalValue(new BigDecimal(1f))),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2"), new DecimalValue(new BigDecimal(.9f)))
                 );
         assertThat(result, new IdentifiableObjectCollectionMatcher(expected));
     }
@@ -134,10 +147,13 @@ public class QueryCollectionRetrieverTest {
     public void testRepeatedFetch() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id5");
+        when(doc1.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocument doc2 = mock(SolrDocument.class);
         when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id6");
+        when(doc2.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.9f);
         SolrDocument doc3 = mock(SolrDocument.class);
         when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        when(doc3.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.5f);
         SolrDocumentList docList = new SolrDocumentList();
         docList.addAll(Arrays.asList(doc1, doc2, doc3));
 
@@ -179,10 +195,10 @@ public class QueryCollectionRetrieverTest {
 
         IdentifiableObjectCollection result = retriever.queryCollection(docList, 5);
 
-        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2),
-                pair(id2, new ReferenceValue(id2), new StringValue("object 2")),
-                pair(id5, new ReferenceValue(id5), new StringValue("object 5")),
-                pair(id6, new ReferenceValue(id6), new StringValue("object 6"))
+        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2, CollectionRetriever.RELEVANCE_FIELD),
+                pair(id5, new ReferenceValue(id5), new StringValue("object 5"), new DecimalValue(new BigDecimal(1f))),
+                pair(id6, new ReferenceValue(id6), new StringValue("object 6"), new DecimalValue(new BigDecimal(.9f))),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2"), new DecimalValue(new BigDecimal(.5f)))
                 );
         assertThat(result, new IdentifiableObjectCollectionMatcher(expected));
     }
@@ -191,10 +207,13 @@ public class QueryCollectionRetrieverTest {
     public void testParametrizedQuery() {
         SolrDocument doc1 = mock(SolrDocument.class);
         when(doc1.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id1");
+        when(doc1.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(.3f);
         SolrDocument doc2 = mock(SolrDocument.class);
         when(doc2.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id2");
+        when(doc2.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocument doc3 = mock(SolrDocument.class);
         when(doc3.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenReturn("id3");
+        when(doc3.getFieldValue(SolrUtils.SCORE_FIELD)).thenReturn(1f);
         SolrDocumentList docList = new SolrDocumentList();
         docList.addAll(Arrays.asList(doc2, doc3, doc1));    // mixed
 
@@ -219,7 +238,12 @@ public class QueryCollectionRetrieverTest {
 
         IdentifiableObjectCollection result = parametrizedRetriever.queryCollection(docList, 20);
 
-        assertThat(result, new IdentifiableObjectCollectionMatcher(sample));
+        IdentifiableObjectCollection expected = collection(Arrays.asList(field1, field2, CollectionRetriever.RELEVANCE_FIELD),
+                pair(id2, new ReferenceValue(id2), new StringValue("object 2"), new DecimalValue(new BigDecimal(1f))),
+                pair(id3, new ReferenceValue(id3), new StringValue("object 3"), new DecimalValue(new BigDecimal(1f))),
+                pair(id1, new ReferenceValue(id1), new StringValue("object 1"), new DecimalValue(new BigDecimal(.3f)))
+                );
+        assertThat(result, new IdentifiableObjectCollectionMatcher(expected));
     }
 
     private static Pair<Id, List<Value<?>>> pair(Id id, Value<?>... values) {

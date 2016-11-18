@@ -57,7 +57,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
         throw new IllegalArgumentException("Field: " + fieldName + " does not exist in collection view configuration");
     }
-    
+
     @Override
     public Id getId(int row) {
         return list.get(row).getId();
@@ -97,7 +97,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     public void sort(SortOrder sortOrder) {
-        Collections.sort((ArrayList<FastIdentifiableObjectImpl>) (ArrayList) list, new FastIdentifiableObjectComparator(this, sortOrder));
+        Collections.sort(list, new FastIdentifiableObjectComparator(/*this,*/ sortOrder));
     }
 
     @Override
@@ -127,6 +127,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         int thisCollectionRow = curSize;
         for (int row = 0; row < collection.size(); ++row) {
+            this.setId(thisCollectionRow, collection.getId(row));
             for (int col = 0; col < collectionFields.size(); ++col) {
                 this.set(addedCollectionFieldIndexesInThisCollection[col], thisCollectionRow, collection.get(col, row));
             }
@@ -176,7 +177,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
     }
 
     public void resetDirty(int row) {
-        ((FastIdentifiableObjectImpl) list.get(row)).resetDirty();
+        (/*(FastIdentifiableObjectImpl)*/ list.get(row)).resetDirty();
     }
 
     @Override
@@ -207,24 +208,24 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         if (fieldConfigs == null) {
             setFieldsConfiguration(new ArrayList<FieldConfig>(0));
         }
-        return new FastIdentifiableObjectImpl(this);
+        return new FastIdentifiableObjectImpl(/*this*/);
     }
 
     /**
      * Имплементация, позволяющая получить быстрый доступ к значениям полей по индексу
      */
-    static class FastIdentifiableObjectImpl implements IdentifiableObject, Cloneable {
+    /*static*/ class FastIdentifiableObjectImpl implements IdentifiableObject, Cloneable {
         private Id id;
         private ArrayList<Value> fieldValues;
-        private IdentifiableObjectCollection collection;
+        //private IdentifiableObjectCollection collection;
         private boolean dirty = false;
 
-        FastIdentifiableObjectImpl() {
-        }
+        /*FastIdentifiableObjectImpl() {
+        }*/
 
-        private FastIdentifiableObjectImpl(IdentifiableObjectCollection collection) {
-            this.collection = collection;
-            final List<FieldConfig> fieldsConfiguration = collection.getFieldsConfiguration();
+        private FastIdentifiableObjectImpl(/*IdentifiableObjectCollection collection*/) {
+            //this.collection = collection;
+            final List<FieldConfig> fieldsConfiguration = /*collection.*/getFieldsConfiguration();
             int fieldsSize = fieldsConfiguration.size();
             fieldValues = new ArrayList<>(fieldsSize);
             for (int i = 0; i < fieldsSize; ++i) {
@@ -248,7 +249,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             // todo: это было сделано для того, чтобы в коллекцию можно было добавить новые поля. Надо расширить интерфейс
             // IdentifiableObjectCollection для того, чтобы можно было добавлять новые поля (см. CMFIVE-386)
             // Identifiable Objects, возвращаемые из коллекции должны стать IMMUTABLE!
-            final int fieldIndex = collection.getFieldIndex(field);
+            final int fieldIndex = /*collection.*/getFieldIndex(field);
             if (fieldIndex < 0) {
                 throw new IllegalArgumentException("Field " + field + " is not presented in collection");
             }
@@ -269,11 +270,14 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public <T extends Value> T getValue(String field) {
             // Behavior should be such (for now), that non-existing field should give null-result
-            final int fieldIndex = collection.getFieldIndex(field);
+            final int fieldIndex = /*collection.*/getFieldIndex(field);
             return fieldIndex != -1 && fieldIndex < fieldValues.size() ? (T) fieldValues.get(fieldIndex) : null;
         }
 
         public void setValue(int index, Value value) {
+            if (index >= fieldValues.size() && index < fieldConfigs.size()) {
+                addEmptyValuesIfNeeded(index + 1);
+            }
             fieldValues.set(index, value);
             dirty = true;
         }
@@ -282,7 +286,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
             if (index < fieldValues.size()) { // this condition also provides throwing exception when index < 0
                 return (T) fieldValues.get(index);
             }
-            final int fieldsSize = collection.getFieldsConfiguration().size();
+            final int fieldsSize = /*collection.*/getFieldsConfiguration().size();
             if (index < fieldsSize) { // field exists in collection, but not in this array
                 return null;
             }
@@ -292,12 +296,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setString(String field, String value) {
             setValue(field, new StringValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setString(int index, String value) {
-            fieldValues.set(index, new StringValue(value));
-            dirty = true;
+            setValue(index, new StringValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -315,12 +319,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setLong(String field, Long value) {
             setValue(field, new LongValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setLong(int index, Long value) {
-            fieldValues.set(index, new LongValue(value));
-            dirty = true;
+            setValue(index, new LongValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -337,12 +341,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setBoolean(String field, Boolean value) {
             setValue(field, new BooleanValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setBoolean(int index, Boolean value) {
-            fieldValues.set(index, new BooleanValue(value));
-            dirty = true;
+            setValue(index, new BooleanValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -359,12 +363,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setDecimal(String field, BigDecimal value) {
             setValue(field, new DecimalValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setDecimal(int index, BigDecimal value) {
-            fieldValues.set(index, new DecimalValue(value));
-            dirty = true;
+            setValue(index, new DecimalValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -381,12 +385,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setTimestamp(String field, Date value) {
             setValue(field, new DateTimeValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setTimestamp(int index, Date value) {
-            fieldValues.set(index, new DateTimeValue(value));
-            dirty = true;
+            setValue(index, new DateTimeValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -398,12 +402,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setTimelessDate(String field, TimelessDate value) {
             setValue(field, new TimelessDateValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setTimelessDate(int index, TimelessDate value) {
-            fieldValues.set(index, new TimelessDateValue(value));
-            dirty = true;
+            setValue(index, new TimelessDateValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -420,12 +424,12 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setDateTimeWithTimeZone(String field, DateTimeWithTimeZone value) {
             setValue(field, new DateTimeWithTimeZoneValue(value));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setDateTimeWithTimeZone(int index, DateTimeWithTimeZone value) {
-            fieldValues.set(index, new DateTimeWithTimeZoneValue(value));
-            dirty = true;
+            setValue(index, new DateTimeWithTimeZoneValue(value));
+            //dirty = true;
         }
 
         @Override
@@ -442,18 +446,18 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         @Override
         public void setReference(String field, DomainObject domainObject) {
             setValue(field, new ReferenceValue(domainObject.getId()));
-            dirty = true;
+            //dirty = true;
         }
 
         public void setReference(int index, DomainObject domainObject) {
-            fieldValues.set(index, new ReferenceValue(domainObject.getId()));
-            dirty = true;
+            setValue(index, new ReferenceValue(domainObject.getId()));
+            //dirty = true;
         }
 
         @Override
         public void setReference(String field, Id id) {
             setValue(field, new ReferenceValue(id));
-            dirty = true;
+            //dirty = true;
         }
 
         @Override
@@ -469,7 +473,7 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
 
         @Override
         public ArrayList<String> getFields() {
-            final ArrayList<FieldConfig> fieldsConfiguration = collection.getFieldsConfiguration();
+            final ArrayList<FieldConfig> fieldsConfiguration = /*collection.*/getFieldsConfiguration();
             final ArrayList<String> result = new ArrayList<>(fieldsConfiguration.size());
             for (FieldConfig config : fieldsConfiguration) {
                 result.add(config.getName());
@@ -539,15 +543,15 @@ public class GenericIdentifiableObjectCollection implements IdentifiableObjectCo
         }
     }
 
-    static class FastIdentifiableObjectComparator implements Comparator<FastIdentifiableObjectImpl> {
+    /*static*/ class FastIdentifiableObjectComparator implements Comparator<FastIdentifiableObjectImpl> {
         private ArrayList<SortCriterionComparator> comparators;
 
-        FastIdentifiableObjectComparator(GenericIdentifiableObjectCollection collection, SortOrder sortOrder) {
+        FastIdentifiableObjectComparator(/*GenericIdentifiableObjectCollection collection,*/ SortOrder sortOrder) {
             comparators = new ArrayList<>(sortOrder.size());
             for (SortCriterion criterion : sortOrder) {
                 final boolean asc = criterion.getOrder() == SortCriterion.Order.ASCENDING;
                 final Comparator<Value> comparator = Value.getComparator(asc, true);
-                final int fieldIndex = collection.getFieldIndex(criterion.getField());
+                final int fieldIndex = /*collection.*/getFieldIndex(criterion.getField());
                 comparators.add(new SortCriterionComparator(fieldIndex, comparator));
             }
         }
