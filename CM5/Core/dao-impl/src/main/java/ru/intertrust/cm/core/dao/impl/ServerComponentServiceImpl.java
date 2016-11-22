@@ -1,12 +1,5 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +12,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
@@ -27,6 +19,12 @@ import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.ServerComponent;
 import ru.intertrust.cm.core.dao.api.component.ServerComponentHandler;
 import ru.intertrust.cm.core.model.ServerComponentException;
+
+import javax.annotation.PostConstruct;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Сервис получения и инициализации серверных компонентов. Регистририрует все серверные компоненты как spring биныс с
@@ -49,7 +47,7 @@ public class ServerComponentServiceImpl implements ServerComponentService {
 
     @Override
     public ServerComponentHandler getServerComponent(String componentName) {
-        return (ServerComponentHandler) localApplicationContext.getBean(componentName);
+        return (ServerComponentHandler) localApplicationContext.getBean(componentName.toLowerCase());
     }
 
     @PostConstruct

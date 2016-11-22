@@ -1,29 +1,23 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.Migrator;
+import ru.intertrust.cm.core.dao.api.SchemaCache;
+import ru.intertrust.cm.core.dao.api.component.ServerComponent;
+import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import ru.intertrust.cm.core.business.api.MigrationComponent;
-import ru.intertrust.cm.core.business.api.Migrator;
-import ru.intertrust.cm.core.business.api.dto.UniqueKeyInfo;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DateTimeWithTimeZoneFieldConfig;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
-import ru.intertrust.cm.core.config.UniqueKeyConfig;
-import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.SchemaCache;
-import ru.intertrust.cm.core.util.SpringApplicationContext;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * Миграционный класс для исправления уникальных ключей, содержащих ссылочное поле
  */
-@MigrationComponent(name = "UniqueKeysFix")
+@ServerComponent(name = "UniqueKeysFix")
 public class UniqueKeysFixMigrator implements Migrator {
 
     private DataStructureDao dataStructureDao;

@@ -3,23 +3,19 @@ package ru.intertrust.cm.core.business.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
-import ru.intertrust.cm.core.business.api.Migrator;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.config.migration.*;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
-import ru.intertrust.cm.core.dao.api.SchemaCache;
-import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
+import ru.intertrust.cm.core.dao.api.*;
 
 import java.util.*;
 
@@ -31,6 +27,9 @@ public class MigrationService {
     private static final String MIGRATION_LOG_DO_TYPE_NAME = "migration_log";
     private static final String SEQUENCE_NUMBER_FIELD_NAME = "sequence_number";
     private static final String MODULE_NAME_FIELD_NAME = "module_name";
+
+    @Autowired
+    private ApplicationContext context;
 
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -56,6 +55,9 @@ public class MigrationService {
     @Autowired
     private ModuleService moduleService;
 
+    @Autowired
+    private ServerComponentService serverComponentService;
+
     /**
      * Выполняет скриптовую миграцию до автоматической конфигурации
      */
@@ -70,22 +72,17 @@ public class MigrationService {
 
     private void performMigrationMechanismUpgrade(ConfigurationExplorer oldConfigurationExplorer) {
         final List<MigrationScriptConfig> scriptConfigs = (List<MigrationScriptConfig>) configurationExplorer.getConfigs(MigrationScriptConfig.class);
-        MigrationScriptConfig migrationMigrationScript1 = null;
+        MigrationScriptConfig migrationMigrationScript = null;
         for (MigrationScriptConfig scriptConfig : scriptConfigs) {
             if (scriptConfig.getSequenceNumber() == 100 && "core".equals(scriptConfig.getModuleName())) {
-                migrationMigrationScript1 = scriptConfig;
+                migrationMigrationScript = scriptConfig;
                 break;
             }
         }
-        if (migrationMigrationScript1 == null) {
+        if (migrationMigrationScript == null) {
             throw new IllegalArgumentException("No script for Migration of Migration found");
         }
-        MigrationScriptConfig migrationMigrationScript = migrationMigrationScript1;
         executeAutoMigrationEvent(migrationMigrationScript.getSequenceNumber(), migrationMigrationScript.getBeforeAutoMigrationConfig(), oldConfigurationExplorer);
-        DomainObject migrationLog = crudService.createDomainObject(MIGRATION_LOG_DO_TYPE_NAME);
-        migrationLog.setLong(SEQUENCE_NUMBER_FIELD_NAME, 100L);
-        migrationLog.setString(MODULE_NAME_FIELD_NAME, "core");
-        crudService.save(migrationLog);
     }
 
     /**
@@ -98,7 +95,6 @@ public class MigrationService {
     public void writeMigrationLog() {
         Collection<MigrationScriptConfig> migrationConfigs = configurationExplorer.getConfigs(MigrationScriptConfig.class);
         HashMap<String, Long> maxConfigSequenceByModule = new HashMap<>();
-        HashMap<String, Long> maxSavedSequenceByModule = new HashMap<>();
         for (MigrationScriptConfig migrationConfig : migrationConfigs) {
             final String moduleName = migrationConfig.getModuleName();
             final int sequenceNumber = migrationConfig.getSequenceNumber();
@@ -146,7 +142,7 @@ public class MigrationService {
         boolean migrationDone = false;
         for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
             final ArrayList<MigrationScriptConfig> migrationScriptConfigList = getModuleMigrations(moduleConfiguration);
-            if (migrationConfigs == null || migrationConfigs.size() == 0) {
+            if (migrationScriptConfigList == null || migrationScriptConfigList.size() == 0) {
                 logger.warn("Module: " + moduleConfiguration.getName() + ". No " + (beforeAutoMigration ? "Before" : "After") + " Auto-Migration Scripts to execute");
                 continue;
             }
@@ -431,27 +427,7 @@ public class MigrationService {
     }
 
     private void processMigrationComponent(ExecuteConfig executeConfig) {
-        ConfigurationClassesCache configurationClassesCache = ConfigurationClassesCache.getInstance();
-
-        Class clazz = configurationClassesCache.getClassByMigrationComponentName(executeConfig.getComponentName());
-
-        if (clazz == null) {
-            throw new ConfigurationException("Failed to execute migration component " +
-                    executeConfig.getComponentName() + " because it doesn't exist");
-        }
-
-        try {
-            Object migrationComponentInstance = clazz.newInstance();
-            if (!(migrationComponentInstance instanceof Migrator)) {
-                throw new ConfigurationException("Failed to execute migration component " +
-                        executeConfig.getComponentName() + " because it doesn't implement Migrator interface");
-            }
-
-            ((Migrator) migrationComponentInstance).execute();
-        } catch (InstantiationException|IllegalAccessException e) {
-            throw new ConfigurationException("Failed to execute migration component " +
-                    executeConfig.getComponentName(), e);
-        }
+        ((Migrator) serverComponentService.getServerComponent(executeConfig.getComponentName())).execute();
     }
 
     private void processNativeCommand(NativeCommandConfig nativeCommandConfig) {
