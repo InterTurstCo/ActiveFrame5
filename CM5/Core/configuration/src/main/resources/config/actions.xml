@@ -68,7 +68,8 @@
 
     <act:tool-bar plugin="configuration.deployer.plugin">
         <act:action name="deploy.configuration.action" componentName="deploy.configuration.action" text="Загрузить конфигурацию" rendered="true"
-                    imageClass="configurationUploader" display="toggleButton"/>
+                    imageClass="configurationUploader" display="toggleButton"
+                    visibility-checker="deploy.action.visibility.checker"/>
     </act:tool-bar>
 
     <act:tool-bar plugin="collection.plugin">
