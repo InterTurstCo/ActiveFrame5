@@ -49,22 +49,22 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     private static Logger log = LoggerFactory.getLogger(LinkedDomainObjectsTableHandler.class);
 
     @Autowired
-    CrudService crudService;
+    protected CrudService crudService;
 
     @Autowired
-    ApplicationContext applicationContext;
+    protected ApplicationContext applicationContext;
 
     @Autowired
-    CollectionsService collectionsService;
+    protected CollectionsService collectionsService;
 
     @Autowired
-    private FilterBuilder filterBuilder;
+    protected FilterBuilder filterBuilder;
 
     @Autowired
-    private GuiService guiService;
+    protected GuiService guiService;
 
     @Autowired
-    private FormResolver formResolver;
+    protected FormResolver formResolver;
 
     @Autowired
     protected PersonService personService;
@@ -114,7 +114,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return state;
     }
 
-    private CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root, LinkedDomainObjectsTableConfig widgetConfig) {
+    protected CreatedObjectsConfig createRestrictedCreateObjectsConfig(DomainObject root, LinkedDomainObjectsTableConfig widgetConfig) {
         CreatedObjectsConfig restrictedCreatedObjectsConfig = null;
         if (widgetConfig.getCreatedObjectsConfig() != null) {
             restrictedCreatedObjectsConfig = ObjectCloner.getInstance().cloneObject(widgetConfig.getCreatedObjectsConfig(),
@@ -140,7 +140,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
 
-    private List<Id> getNotLimitedIds(LinkedDomainObjectsTableConfig widgetConfig,
+    protected List<Id> getNotLimitedIds(LinkedDomainObjectsTableConfig widgetConfig,
                                       List<Id> selectedIds, ComplexFiltersParams filtersParams, boolean tooltipContent) {
         SelectionFiltersConfig selectionFiltersConfig = widgetConfig.getSelectionFiltersConfig();
         List<Filter> filters = new ArrayList<>();
@@ -164,7 +164,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return selectedFilteredIds;
     }
 
-    private List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
+    protected List<RowItem> generateRowItems(LinkedDomainObjectsTableConfig widgetConfig,
                                            List<Id> selectedIds, boolean hasAllowedCreationDoTypes, Cache cache) {
         List<RowItem> rowItems = new ArrayList<>();
         if (selectedIds.isEmpty()) {
@@ -309,7 +309,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return rowItem;
     }
 
-    private HashMap<String, EnumBoxConfig> getEnumBoxConfigs(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
+    protected HashMap<String, EnumBoxConfig> getEnumBoxConfigs(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
         HashMap<String, EnumBoxConfig> result = cache.enumBoxConfigsByDomainObjectType.get(domainObjectType);
         if (result != null) {
             return result;
@@ -326,7 +326,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return configs;
     }
 
-    private FormConfig getFormConfig(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
+    protected FormConfig getFormConfig(String domainObjectType, LinkedDomainObjectsTableConfig widgetConfig, Cache cache) {
         final FormConfig formConfig = cache.formConfigByDomainObjectType.get(domainObjectType);
         if (formConfig != null) {
             return formConfig;
@@ -352,7 +352,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return config;
     }
 
-    private LinkedTablePatternConfig findSuitablePatternForObjectType(SummaryTableColumnConfig columnConfig, String domainObjectType) {
+    protected LinkedTablePatternConfig findSuitablePatternForObjectType(SummaryTableColumnConfig columnConfig, String domainObjectType) {
         LinkedTablePatternConfig config = null;
         List<LinkedTablePatternConfig> patternConfigList = columnConfig.getPatternConfig();
         for (LinkedTablePatternConfig linkedTablePatternConfig : patternConfigList) {
@@ -367,7 +367,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return config;
     }
 
-    private LinkedTablePatternConfig findDefaultPattern(List<LinkedTablePatternConfig> patternConfigList) {
+    protected LinkedTablePatternConfig findDefaultPattern(List<LinkedTablePatternConfig> patternConfigList) {
         for (LinkedTablePatternConfig config : patternConfigList) {
             if (config.getPatternDomainObjectTypesConfig() == null) {
                 return config;
@@ -376,7 +376,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return null;
     }
 
-    private boolean isPatternSuitableForType(String domainObjectType, LinkedTablePatternConfig linkedTablePatternConfig) {
+    protected boolean isPatternSuitableForType(String domainObjectType, LinkedTablePatternConfig linkedTablePatternConfig) {
         PatternDomainObjectTypesConfig patternDomainObjectTypesConfig = linkedTablePatternConfig.getPatternDomainObjectTypesConfig();
         if (patternDomainObjectTypesConfig == null) {
             return false;
@@ -390,7 +390,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return false;
     }
 
-    private Matcher fieldPatternMatcher(String pattern) {
+    protected Matcher fieldPatternMatcher(String pattern) {
         return FormatHandler.pattern.matcher(pattern);
     }
 
@@ -431,7 +431,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return new RowItemsResponse(result);
     }
 
-    private RowItem convertFormStateToRowItem(Id objectId, Id rootId,FormState createdObjectState,
+    protected RowItem convertFormStateToRowItem(Id objectId, Id rootId,FormState createdObjectState,
                                               SummaryTableConfig summaryTableConfig){
         RowItem item = new RowItem();
         item.setDomainObjectType(createdObjectState.getRootDomainObjectType());
@@ -480,7 +480,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return item;
     }
 
-    private String formatFromDb(String fieldPathValue, Id id, FormattingConfig formattingConfig) {
+    protected String formatFromDb(String fieldPathValue, Id id, FormattingConfig formattingConfig) {
         if (id == null) {
             return "";
         }
@@ -489,7 +489,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     }
 
-    private String findWidgetStateAndFormat(String fieldPathValue, Map<String, WidgetState> fieldPathWidgetStateMap, FormattingConfig formattingConfig) {
+    protected String findWidgetStateAndFormat(String fieldPathValue, Map<String, WidgetState> fieldPathWidgetStateMap, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         PatternIterator patternIterator = new PatternIterator(fieldPathValue);
         patternIterator.moveToNext();
@@ -511,7 +511,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
     }
 
 
-    private String formatFromWidgetState(String fieldPathValue, WidgetState widgetState, FormattingConfig formattingConfig) {
+    protected String formatFromWidgetState(String fieldPathValue, WidgetState widgetState, FormattingConfig formattingConfig) {
         StringBuilder displayValue = new StringBuilder();
         if (widgetState != null) {
             if (widgetState instanceof TextState) {
@@ -554,7 +554,7 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
         return displayValue.toString();
     }
 
-    private Map<String, WidgetState> createWidgetStateByFieldPath(String formName, Map<String, WidgetState> widgetStateMap) {
+    protected Map<String, WidgetState> createWidgetStateByFieldPath(String formName, Map<String, WidgetState> widgetStateMap) {
         Map<String, WidgetState> fieldPathMap = new CaseInsensitiveHashMap<>();
         List<WidgetConfig> widgetConfigs = getWidgetConfigs(formName);
         for (WidgetConfig widgetConfig : widgetConfigs) {
@@ -570,17 +570,17 @@ public class LinkedDomainObjectsTableHandler extends LinkEditingWidgetHandler {
 
     }
 
-    private List<WidgetConfig> getWidgetConfigs(String formName) {
+    protected List<WidgetConfig> getWidgetConfigs(String formName) {
         FormConfig formConfig = configurationService.getPlainFormConfig(formName);
         return formConfig.getWidgetConfigurationConfig().getWidgetConfigList();
     }
 
-    private static final class Cache {
+    public static final class Cache {
         private HashMap<String, FormConfig> formConfigByDomainObjectType = new HashMap<>();
         private HashMap<String, HashMap<String, EnumBoxConfig>> enumBoxConfigsByDomainObjectType = new HashMap<>();
         private String currentPersonUid;
 
-        private Cache(String currentPersonUid) {
+        public Cache(String currentPersonUid) {
             this.currentPersonUid = currentPersonUid;
         }
     }
