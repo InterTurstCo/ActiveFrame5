@@ -3,8 +3,6 @@ package ru.intertrust.cm.core.config.migration;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import org.simpleframework.xml.convert.AnnotationStrategy;
-import org.simpleframework.xml.core.Persister;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
@@ -12,7 +10,6 @@ import ru.intertrust.cm.core.config.base.TopLevelConfig;
  */
 @Root(name = "migration-script")
 public class MigrationScriptConfig implements TopLevelConfig {
-
     @Attribute(name = "sequence-number")
     private int sequenceNumber;
 
@@ -21,6 +18,8 @@ public class MigrationScriptConfig implements TopLevelConfig {
 
     @Element(name = "after-auto-migration", required = false)
     private AfterAutoMigrationConfig afterAutoMigrationConfig;
+
+    private String moduleName;
 
     public int getSequenceNumber() {
         return sequenceNumber;
@@ -48,15 +47,14 @@ public class MigrationScriptConfig implements TopLevelConfig {
 
     @Override
     public String getName() {
-        return String.valueOf(sequenceNumber);
+        return (moduleName == null ? "" : moduleName) + String.valueOf(sequenceNumber);
     }
 
-    public static void main(String[] args) {
-        String str = "";
-        try {
-            new Persister(new AnnotationStrategy()).read(MigrationScriptConfig.class, str);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 }

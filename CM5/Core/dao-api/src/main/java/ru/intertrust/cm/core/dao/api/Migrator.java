@@ -1,9 +1,11 @@
-package ru.intertrust.cm.core.business.api;
+package ru.intertrust.cm.core.dao.api;
+
+import ru.intertrust.cm.core.dao.api.component.ServerComponentHandler;
 
 /**
  * Интерфейс миграционного копмонента
  */
-public interface Migrator {
+public interface Migrator extends ServerComponentHandler {
     /**
      * Выполняет действия миграционного компонента
      */

@@ -124,8 +124,14 @@
     </domain-object-type>
     <domain-object-type name="migration_log">
         <fields>
+            <string name="module_name" length="255"/>
             <long name="sequence_number"/>
         </fields>
+        <indices>
+            <index type="btree">
+                <field name="module_name"/>
+            </index>
+        </indices>
     </domain-object-type>
 
     <domain-object-type name="plugin_status" initial-status="Sleep">

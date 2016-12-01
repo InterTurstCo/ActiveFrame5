@@ -3,52 +3,14 @@
                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                xsi:schemaLocation="https://cm5.intertrust.ru/config configuration.xsd">
 
-    <migration-script sequence-number="1">
+    <migration-script sequence-number="100">
         <before-auto-migration>
-            <rename-field type="type1">
-                <field name="field1" new-name="field2"/>
-                <field name="field2" new-name="field3"/>
-            </rename-field>
-            <change-field-class type="type1">
-                <field name="field4"/>
-                <field name="field5"/>
-            </change-field-class>
-            <execute component-name="migration_000001"/>
             <native-command>
                 <![CDATA[
-                    select count(*) from domain_object_type_id
+                    alter table migration_log add column module_name character varying(255)
                 ]]>
             </native-command>
-            <create-unique-key type="type1">
-                <field name="f1"/>
-                <field name="f2"/>
-            </create-unique-key>
-            <make-not-null type="type1">
-                <field name="f1"/>
-                <field name="f2"/>
-            </make-not-null>
+            <execute component-name="ToPerModuleMigrationMigrator"/>
         </before-auto-migration>
-        <after-auto-migration>
-            <delete-types>
-                <type name="type1"/>
-                <type name="type2"/>
-            </delete-types>
-            <delete-fields type="type">
-                <field name="field1"/>
-                <field name="field2"/>
-            </delete-fields>
-        </after-auto-migration>
     </migration-script>
-
-    <migration-script sequence-number="2">
-        <after-auto-migration>
-            <execute component-name="UniqueKeysFix"/>
-        </after-auto-migration>
-    </migration-script>
-    <migration-script sequence-number="5">
-        <after-auto-migration>
-            <execute component-name="Test"/>
-        </after-auto-migration>
-    </migration-script>
-
 </configuration>
