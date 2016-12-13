@@ -66,7 +66,7 @@
           c:dataSource-ref="dataSource"/>
 
     <bean id="switchableNamedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
-          c:dataSource-ref="dataSource"/>
+          c:dataSource-ref="switchableDataSource"/>
 
     <bean id="daoFactoryProducer" class="ru.intertrust.cm.core.dao.impl.DaoFactoryProducer"/>
 

@@ -13,6 +13,11 @@ public interface CurrentDataSourceContext {
     String get();
 
     /**
+     * Устанавливает контекст используемого источника данных
+     */
+    void set(String context);
+
+    /**
      * Устанавливает контекст используемого источника данных в источник данных коллекций
      */
     void setToCollections();

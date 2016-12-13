@@ -1,19 +1,9 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-
 import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
@@ -22,8 +12,13 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ReportServiceException;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReportTemplateCache {
 
@@ -42,9 +37,13 @@ public class ReportTemplateCache {
     @Autowired
     protected AttachmentService attachmentService;
 
+    @Autowired
+    private CurrentDataSourceContext currentDataSourceContext;
+
     public File getTemplateFolder(DomainObject reportTemplateDo) throws IOException {
         //Проверка есть директория для данного отчета в файловой системе, и если есть то проверка даты ее создания
-
+        final String originalDatasource = currentDataSourceContext.get();
+        currentDataSourceContext.setToMaster(); // read reports from MASTER DATASOURCE as slave might be outdated
         //Получение директории с шаблонами
         File templateFolder = new File(reportCachePath, reportTemplateDo.getString("name"));
         boolean dirCreated = false; 
@@ -71,6 +70,7 @@ public class ReportTemplateCache {
             }
             templateFolder.setLastModified(System.currentTimeMillis());
         }
+        currentDataSourceContext.set(originalDatasource);
         return templateFolder;
 
     }

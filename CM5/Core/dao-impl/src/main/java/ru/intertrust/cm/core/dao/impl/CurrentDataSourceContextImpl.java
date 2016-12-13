@@ -22,6 +22,11 @@ public class CurrentDataSourceContextImpl implements CurrentDataSourceContext {
         return currentDataSourceJndiName.get();
     }
 
+    @Override
+    public void set(String context) {
+        currentDataSourceJndiName.set(context);
+    }
+
     /**
      * {@inheritDoc}
      */
