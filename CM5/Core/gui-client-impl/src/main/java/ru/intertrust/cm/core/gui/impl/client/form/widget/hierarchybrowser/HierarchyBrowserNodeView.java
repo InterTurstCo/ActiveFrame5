@@ -107,7 +107,8 @@ public class HierarchyBrowserNodeView implements IsWidget {
             @Override
             public void onScroll(ScrollEvent event) {
 
-                if (scroll.getVerticalScrollPosition() == scroll.getMaximumVerticalScrollPosition()) {
+                if (scroll.getVerticalScrollPosition() == scroll.getMaximumVerticalScrollPosition() ||
+                        scroll.getMaximumVerticalScrollPosition()-scroll.getVerticalScrollPosition()==1) {
                     factor++;
                     eventBus.fireEvent(new HierarchyBrowserScrollEvent(parentId, parentCollectionName,
                             factor, textBox.getText(), recursionDeepness));
