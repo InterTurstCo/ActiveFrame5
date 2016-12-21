@@ -21,7 +21,6 @@ import java.util.List;
  * Если действия выполняются вне контеста контейнерной транзакции,
  * регистрация слушателей будет проигнорированна.
  */
-@Service
 public class UserTransactionServiceImpl implements UserTransactionService{
 
     @Resource
