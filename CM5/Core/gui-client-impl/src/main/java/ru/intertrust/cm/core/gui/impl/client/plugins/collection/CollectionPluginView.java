@@ -1122,7 +1122,8 @@ public class CollectionPluginView extends PluginView {
                 return;
             }
 
-            if (lastScrollPos >= maxScrollTop) {
+            if (lastScrollPos >= maxScrollTop ||
+                    maxScrollTop-lastScrollPos==1) {
                 if (sortCollectionState != null) {
                     sortCollectionState.setResetCollection(false);
                 }
