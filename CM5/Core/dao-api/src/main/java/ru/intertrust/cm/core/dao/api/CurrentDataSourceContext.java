@@ -13,6 +13,12 @@ public interface CurrentDataSourceContext {
     String get();
 
     /**
+     * Возвращает описание используемого источника данных
+     * @return
+     */
+    String getDescription();
+
+    /**
      * Устанавливает контекст используемого источника данных
      */
     void set(String context);
@@ -31,6 +37,12 @@ public interface CurrentDataSourceContext {
      * Устанавливает контекст используемого источника данных в основной источник данных
      */
     void setToMaster();
+
+    /**
+     * Возвращает true, если текущий контекст источника данных является основным (Master)
+     * @return
+     */
+    boolean isMaster();
 
     /**
      * Оменяет установленный контекст источника данных

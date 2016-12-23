@@ -22,6 +22,19 @@ public class CurrentDataSourceContextImpl implements CurrentDataSourceContext {
         return currentDataSourceJndiName.get();
     }
 
+    public String getDescription() {
+        final String jndiName = get();
+        if (jndiName == null || jndiName.equals(defaultDataSourcesConfiguration.getMasterDataSourceJndiName())) {
+            return "MASTER";
+        } else if (jndiName.equals(defaultDataSourcesConfiguration.getCollectionsDataSourceJndiName())) {
+            return "COLLECTIONS";
+        } else if (jndiName.equals(defaultDataSourcesConfiguration.getReportsDataSourceJndiName())) {
+            return "REPORT";
+        } else {
+            return "UNKNOWN " + jndiName;
+        }
+    }
+
     @Override
     public void set(String context) {
         currentDataSourceJndiName.set(context);
@@ -33,6 +46,12 @@ public class CurrentDataSourceContextImpl implements CurrentDataSourceContext {
     @Override
     public void setToMaster() {
         currentDataSourceJndiName.set(defaultDataSourcesConfiguration.getMasterDataSourceJndiName());
+    }
+
+    @Override
+    public boolean isMaster() {
+        final String currentDsJndi = currentDataSourceJndiName.get();
+        return currentDsJndi == null || currentDsJndi.equals(defaultDataSourcesConfiguration.getMasterDataSourceJndiName());
     }
 
     /**

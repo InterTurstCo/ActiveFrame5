@@ -485,6 +485,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
      */
     @Override
     public DomainObject get(String domainObjectType, Map<String, Value> uniqueKey, AccessToken accessToken) {
+        if (getTxReg().getTransactionKey() == null) {
+            return null;
+        }
         final Id id = getUniqueKeyToIdMap(domainObjectType).get(uniqueKey);
         if (id != null) {
             return get(id, accessToken);

@@ -1,21 +1,13 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
-
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Нетранзакционная версия {@link ru.intertrust.cm.core.business.api.ReportServiceDelegate}
@@ -26,7 +18,7 @@ import ru.intertrust.cm.core.business.api.dto.ReportResult;
 @Local(ReportServiceDelegate.class)
 @Remote(ReportServiceDelegate.Remote.class)
 @Interceptors(SpringBeanAutowiringInterceptor.class)
-@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+@TransactionAttribute(TransactionAttributeType.REQUIRED)
 public class NonTransactionalReportServiceImpl extends ReportServiceBaseImpl implements ReportServiceDelegate {
 
     @Override

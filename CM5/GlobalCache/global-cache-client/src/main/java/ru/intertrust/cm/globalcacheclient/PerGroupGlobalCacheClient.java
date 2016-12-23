@@ -10,6 +10,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.globalcache.api.GlobalCache;
@@ -46,6 +47,9 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Autowired
     protected ClusteredCacheSynchronizer clusterSynchronizer;
+
+    @Autowired
+    protected CurrentDataSourceContext currentDataSourceContext;
 
     private CollectionsDao collectionsDao;
 
@@ -136,7 +140,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyRead(Id id, DomainObject obj, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         if (obj == null || !isChangedInTransaction(obj.getId())) {
@@ -146,7 +150,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyReadByUniqueKey(String type, Map<String, Value> uniqueKey, DomainObject obj, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         if (obj == null && !isTypeSaved(type) || obj != null && !isChangedInTransaction(obj.getId())) {
@@ -156,7 +160,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyRead(Collection<DomainObject> objects, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         final Collection<DomainObject> unmodifiedInTransaction = getObjectsUnmodifiedInTransaction(objects);
@@ -168,7 +172,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyReadAll(String type, boolean exactType, Collection<DomainObject> objects, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(objects);
@@ -187,7 +191,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyRead(Collection<Id> ids, Collection<DomainObject> objects, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         if (ids == null || ids.isEmpty()) {
@@ -218,7 +222,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     @Override
     public void notifyLinkedObjectsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<DomainObject> linkedObjects, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         final Collection<DomainObject> unmodifiedObjects = getObjectsUnmodifiedInTransaction(linkedObjects);
@@ -232,7 +236,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     @Override
     public void notifyLinkedObjectsIdsRead(Id id, String linkedType, String linkedField, boolean exactType,
                                         List<Id> linkedObjectsIds, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         final List<Id> idsOfUnmodifiedObjects = getIdsOfObjectsUnmodifiedInTransaction(linkedObjectsIds);
@@ -245,7 +249,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
 
     @Override
     public void notifyCollectionCountRead(String name, List<? extends Filter> filterValues, int count, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
@@ -260,7 +264,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     @Override
     public void notifyCollectionRead(String name, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         Pair<Set<String>, Set<String>> filterNamesWithTypes = collectionsDao.getDOTypes(name, filterValues);
@@ -275,7 +279,7 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     @Override
     public void notifyCollectionRead(String query, List<? extends Value> paramValues, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        if (isReactivationUndergoing()) {
+        if (isReactivationUndergoing() || notMaster()) {
             return;
         }
         Set<String> doTypes = collectionsDao.getQueryDOTypes(query);
@@ -534,6 +538,11 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
     private boolean isChangedInTransaction(Id id) {
         final TransactionChanges changes = getTransactionChanges();
         return changes != null && changes.isObjectChanged(id);
+    }
+
+    private boolean notMaster() {
+        // todo: when reports dedicated server is implemented, allow caching on it
+        return !currentDataSourceContext.isMaster();
     }
 
     private boolean isReactivationUndergoing() {

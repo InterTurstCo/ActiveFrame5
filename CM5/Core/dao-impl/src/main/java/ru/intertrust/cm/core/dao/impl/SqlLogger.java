@@ -1,26 +1,27 @@
 package ru.intertrust.cm.core.dao.impl;
 
 
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.TransactionTrace;
+import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.SqlLoggerEnforcer;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author vmatsukevich
@@ -48,6 +49,8 @@ public class SqlLogger {
     private Boolean excelTableFormat = true;
     @org.springframework.beans.factory.annotation.Value("${sql.trace.output.transactionId:false}")
     private Boolean showTransactionId = false;
+    @org.springframework.beans.factory.annotation.Value("${sql.trace.output.datasource:true}")
+    private Boolean showDatasource = true;
     
 
     @Autowired
@@ -58,6 +61,16 @@ public class SqlLogger {
 
     @Autowired
     private SqlLoggerEnforcer sqlLoggerEnforcer;
+
+    @Autowired
+    private JdbcOperations masterJdbcOperations;
+
+    @Autowired
+    @Qualifier("masterNamedParameterJdbcTemplate")
+    private NamedParameterJdbcOperations masterJdbcTemplate;
+
+    @Autowired
+    private CurrentDataSourceContext currentDataSourceContext;
 
     @Around("(this(org.springframework.jdbc.core.JdbcOperations) || " +
                 "this(org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations)) && " +
@@ -85,25 +98,34 @@ public class SqlLogger {
 
         if (sqlLoggerEnforcer.isSqlLoggingEnforced()) {
             List<String> resolvedQueries = resolveParameters(query, joinPoint, true);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.info(logEntry);
             }
         } else if (logWarn && logger.isWarnEnabled()) {
             List<String> resolvedQueries = resolveParameters(query, joinPoint);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.warn(logEntry);
             }
         } else if (logger.isTraceEnabled()){
             List<String> resolvedQueries = resolveParameters(query, joinPoint);
-            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+            formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
             for (String logEntry : resolvedQueries) {
                 logger.trace(logEntry);
             }
         }
 
         return returnValue;
+    }
+
+    private String getDatasource(ProceedingJoinPoint joinPoint) {
+        Object target = joinPoint.getThis();
+        if (target == masterJdbcOperations || target == masterJdbcTemplate) {
+            return "MASTER";
+        } else {
+            return currentDataSourceContext.getDescription();
+        }
     }
 
     private String getSqlQuery(ProceedingJoinPoint joinPoint) {
@@ -179,7 +201,7 @@ public class SqlLogger {
         int rows = countSqlRows(returnValue, query);
 
         List<String> resolvedQueries = resolveParameters(query, joinPoint);
-        formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows);
+        formatLogEntries(resolvedQueries, preparationTimeMillis, executionTime, rows, getDatasource(joinPoint));
 
         LogTransactionListener listener = null;
         listener = userTransactionService.getListener(LogTransactionListener.class);
@@ -249,36 +271,45 @@ public class SqlLogger {
         return resolvedQueries;
     }
 
-    public void formatLogEntries(List<String> queries, Long preparationTime, long executionTime, int rows) {
+    public void formatLogEntries(List<String> queries, Long preparationTime, long executionTime, int rows, String datasource) {
         if (queries == null || queries.isEmpty()) {
             return;
         }
 
         Long totalTime = preparationTime != null ? preparationTime + executionTime : executionTime;
 
-        StringBuilder traceStringBuilder = new StringBuilder();
-        Formatter formatter = new Formatter(traceStringBuilder);
-
-        String format = null;
-        if (showTransactionId) {
-            if (excelTableFormat) {
-                format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s\t%6$s";
-            } else {
-                format = "SQL Trace: %1$s %2$6s (%3$s+%4$s)  [%5$7s]: %6$s";
+        final String query = queries.get(0);
+        StringBuilder traceStringBuilder = new StringBuilder(70 + query.length()).append("SQL Trace:");
+        if (excelTableFormat) {
+            if (showDatasource) {
+                traceStringBuilder.append("\t").append(datasource);
             }
+            if (showTransactionId) {
+                traceStringBuilder.append("\t").append(userTransactionService.getTransactionId());
+            }
+            traceStringBuilder.append("\t").append(totalTime)
+                    .append("\t").append(preparationTime)
+                    .append("\t").append(executionTime)
+                    .append("\t").append(rows)
+                    .append("\t").append(query);
         } else {
-            if (excelTableFormat) {
-                format = "SQL Trace:\t%1$s\t%2$s\t%3$s\t%4$s\t%5$s";
-            } else {
-                format = "SQL Trace: %1$6s (%2$s+%3$s)  [%4$7s]: %5$s";
+            if (showDatasource) {
+                traceStringBuilder.append(" ").append(datasource);
             }
+            if (showTransactionId) {
+                traceStringBuilder.append(" ").append(userTransactionService.getTransactionId());
+            }
+            traceStringBuilder.append(" ").append(totalTime)
+                    .append(" (").append(preparationTime).append('+').append(executionTime).append(")")
+                    .append(" [").append(rows).append(']')
+                    .append(": ").append(query);
         }
-
+        int totalParamsExceptQuery = 4;
+        if (showDatasource) {
+            ++totalParamsExceptQuery;
+        }
         if (showTransactionId) {
-            formatter.format(format, userTransactionService.getTransactionId(), totalTime, preparationTime,
-                    executionTime, rows, queries.get(0));
-        } else {
-            formatter.format(format, totalTime, preparationTime, executionTime, rows, queries.get(0));
+            ++totalParamsExceptQuery;
         }
 
         queries.set(0, traceStringBuilder.toString());
@@ -287,16 +318,14 @@ public class SqlLogger {
             return;
         }
 
-        if (excelTableFormat) {
-            format = "SQL Trace:\t%1$s";
-        } else {
-            format = "SQL Trace: %1$s";
-        }
-
+        String delim = excelTableFormat ? "\t" : " ";
         for (int i = 1; i < queries.size(); i ++) {
-            traceStringBuilder = new StringBuilder();
-            formatter = new Formatter(traceStringBuilder);
-            formatter.format(format, queries.get(i));
+            traceStringBuilder.setLength(0);
+            traceStringBuilder.append("SQL Trace:");
+            for (int j = 0; j < totalParamsExceptQuery; ++j) {
+                traceStringBuilder.append(delim);
+            }
+            traceStringBuilder.append(queries.get(i));
             queries.set(i, traceStringBuilder.toString());
         }
     }

@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.dao.api.ActionListener;
+import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 
@@ -25,6 +26,9 @@ public class UserTransactionServiceImpl implements UserTransactionService{
 
     @Resource
     private TransactionSynchronizationRegistry txReg;
+
+    @Autowired
+    private CurrentDataSourceContext currentDataSourceContext;
 
     private TransactionSynchronizationRegistry getTxReg() {
         if (txReg == null) {
@@ -51,7 +55,7 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         if (actionListeners == null) {
             actionListeners = new ArrayList();
             getTxReg().putResource(ListenerBasedSynchronization.class, actionListeners);
-            getTxReg().registerInterposedSynchronization(new ListenerBasedSynchronization(actionListeners));
+            getTxReg().registerInterposedSynchronization(new ListenerBasedSynchronization(actionListeners, currentDataSourceContext));
         }
         actionListeners.add(actionListener);
     }
@@ -118,12 +122,16 @@ public class UserTransactionServiceImpl implements UserTransactionService{
         }
         List<ActionListener> actionListeners;
 
-        public ListenerBasedSynchronization(List list) {
+        private CurrentDataSourceContext currentDataSourceContext;
+
+        public ListenerBasedSynchronization(List list, CurrentDataSourceContext currentDataSourceContext) {
             this.actionListeners = list;
+            this.currentDataSourceContext = currentDataSourceContext;
         }
 
         @Override
         public void beforeCompletion() {
+            currentDataSourceContext.reset(); // устанавливаем источник данных в МАСТЕР
             //Идем с конца спсика, чтобы не получить ошибку модификации списка в итераторе
             notifyListeners(Operation.BeforeCommit);
         }

@@ -1,23 +1,17 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+
+import javax.ejb.*;
+import javax.interceptor.Interceptors;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -34,6 +28,14 @@ public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportSe
     @Qualifier("nonTransactionalReportService")
     private ReportServiceDelegate nonTransactionalReportService;
 
+    public ReportResult generate(String name, Map<String, Object> parameters) {
+        return generate(name, parameters, DataSourceContext.CLONE);
+    }
+
+    public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays) {
+        return generate(name, parameters, keepDays, DataSourceContext.CLONE);
+    }
+
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
@@ -45,7 +47,7 @@ public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportSe
     @Override
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
         if (DataSourceContext.MASTER.equals(dataSource)) {
-            return generate(name, parameters, keepDays);
+            return super.generate(name, parameters, keepDays);
         } else {
             return nonTransactionalReportService.generate(name, parameters, keepDays);
         }
@@ -64,7 +66,7 @@ public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportSe
     @Override
     @Asynchronous
     public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters) {
-        ReportResult result = generate(name, parameters);
+        ReportResult result = super.generate(name, parameters);
         return new AsyncResult<ReportResult>(result);
     }
 }
