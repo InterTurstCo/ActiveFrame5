@@ -146,7 +146,7 @@ public class HeaderNotificationPluginView extends PluginView{
 
     private void cancelHeaderNotificationItem(CancelHeaderNotificationItem cancelHeaderNotificationItem){
         Command command = new Command("deleteNotification", "header.notifications.plugin", cancelHeaderNotificationItem);
-        BusinessUniverseServiceAsync.Impl.getInstance().executeCommand(command, new AsyncCallback<Dto>() {
+        BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining canselHeaderNotificationItemForPluginInitialization for ''");
