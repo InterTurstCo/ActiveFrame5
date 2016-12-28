@@ -21,7 +21,7 @@ import java.util.concurrent.Future;
 @Stateless(name = "ReportService")
 @Local(ReportService.class)
 @Remote(ReportService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors({SpringBeanAutowiringInterceptor.class, ReportsDataSourceSetter.class})
 public class ReportServiceImpl extends ReportServiceBaseImpl implements ReportService {
 
     @Autowired
