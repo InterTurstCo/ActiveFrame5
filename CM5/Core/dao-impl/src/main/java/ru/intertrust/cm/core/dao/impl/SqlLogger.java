@@ -290,8 +290,20 @@ public class SqlLogger {
             traceStringBuilder.append("\t").append(totalTime)
                     .append("\t").append(preparationTime)
                     .append("\t").append(executionTime)
-                    .append("\t").append(rows)
-                    .append("\t").append(query);
+                    .append("\t").append(rows);
+            if (!query.substring(0, 4).toLowerCase().equals("with")) {
+                traceStringBuilder.append("\t\t").append(query);
+            } else {
+                final int firstRBracket = query.indexOf(")");
+                if (firstRBracket < 0 || firstRBracket >= query.length() - 1) {
+                    traceStringBuilder.append("\t\t").append(query);
+                } else {
+                    final int splitIndex = firstRBracket + 1;
+                    final String withPart = query.substring(0, splitIndex);
+                    final String queryItself = query.charAt(splitIndex) == ' ' ? query.substring(splitIndex + 1) : query.substring(splitIndex);
+                    traceStringBuilder.append("\t").append(withPart).append("\t").append(queryItself);
+                }
+            }
         } else {
             if (showDatasource) {
                 traceStringBuilder.append(" ").append(datasource);
