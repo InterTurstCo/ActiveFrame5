@@ -1,17 +1,18 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.select.FromItemVisitorAdapter;
+import net.sf.jsqlparser.statement.select.LateralSubSelect;
+import net.sf.jsqlparser.statement.select.SubJoin;
+import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
- * Реализация FromItemVisitor для транформации sql-запросов: приведение к нижнему регистру и заключение в кавычки
- * имен таблиц и колонок
- * User: vmatsukevich
- * Date: 12/10/13
- * Time: 10:36 AM
+ * Реализация FromItemVisitor для транформации sql-запросов: приведение к
+ * нижнему регистру и заключение в кавычки имен таблиц и колонок User:
+ * vmatsukevich Date: 12/10/13 Time: 10:36 AM
  */
-public class WrapAndLowerCaseFromItemVisitor implements FromItemVisitor {
+public class WrapAndLowerCaseFromItemVisitor extends FromItemVisitorAdapter {
 
     @Override
     public void visit(Table table) {
@@ -52,11 +53,10 @@ public class WrapAndLowerCaseFromItemVisitor implements FromItemVisitor {
 
     @Override
     public void visit(LateralSubSelect lateralSubSelect) {
-        lateralSubSelect.accept(new WrapAndLowerCaseFromItemVisitor());
+        if (lateralSubSelect.getPivot() != null) {
+            lateralSubSelect.getPivot().accept(new WrapAndLowerCasePivotVisitor());
+        }
+        lateralSubSelect.getSubSelect().accept(new WrapAndLowerCaseFromItemVisitor());
     }
 
-    @Override
-    public void visit(ValuesList valuesList) {
-        valuesList.accept(new WrapAndLowerCaseFromItemVisitor());
-    }
 }
