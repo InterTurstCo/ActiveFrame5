@@ -13,7 +13,9 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 
-import javax.ejb.*;
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import java.util.List;
 
@@ -25,7 +27,7 @@ import java.util.List;
 @Stateless
 @Local(CollectionsService.class)
 @Remote(CollectionsService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
+@Interceptors({SpringBeanAutowiringInterceptor.class, CollectionsDataSourceSetter.class})
 public class CollectionsServiceImpl implements CollectionsService {
 
     @Autowired

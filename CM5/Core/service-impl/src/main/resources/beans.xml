@@ -108,10 +108,6 @@
                     jndi-name="java:module/ReportService!ru.intertrust.cm.core.business.api.ReportService"
                     business-interface="ru.intertrust.cm.core.business.api.ReportService"/>
 
-    <jee:local-slsb id="nonTransactionalReportService"
-                    jndi-name="java:module/NonTransactionalReportService!ru.intertrust.cm.core.business.api.ReportServiceDelegate"
-                    business-interface="ru.intertrust.cm.core.business.api.ReportServiceDelegate"/>
-
     <jee:local-slsb id="reportServiceAdmin"
                     jndi-name="java:module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin"
                     business-interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin"/>

@@ -1,16 +1,17 @@
 package ru.intertrust.cm.core.report.jasperextension;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import net.sf.jasperreports.engine.JasperReportsContext;
 import net.sf.jasperreports.repo.InputStreamResource;
 import net.sf.jasperreports.repo.RepositoryContext;
 import net.sf.jasperreports.repo.RepositoryService;
 import net.sf.jasperreports.repo.Resource;
 import ru.intertrust.cm.core.business.api.ResourceService;
+import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class PlatformRepositoryService implements RepositoryService{
 
@@ -45,6 +46,11 @@ public class PlatformRepositoryService implements RepositoryService{
 
     @Override
     public <K extends Resource> K getResource(String uri, Class<K> resourceType) {
+        // todo: when running report we access its datasource inside transaction (Profile Service is ejb)
+        CurrentDataSourceContext currentDataSourceContext = SpringApplicationContext.getContext().getBean(CurrentDataSourceContext.class);
+        final String originalDatasource = currentDataSourceContext.get();
+        currentDataSourceContext.setToMaster(); // read from MASTER to avoid "cannot execute PREPARE TRANSACTION during recovery exception" on transaction commit (EJB opens it)
+
         K result = null;
         //Получаем ресурс из сервиса. Проверяем что это наш ресурс
         if (uri.startsWith("res:/")){
@@ -60,7 +66,7 @@ public class PlatformRepositoryService implements RepositoryService{
             result.setName(resName);
             ((InputStreamResource)result).setInputStream(new ByteArrayInputStream(blob));            
         }
-        
+        currentDataSourceContext.set(originalDatasource); // restore after switching to MASTER
         return result;
     }
 }

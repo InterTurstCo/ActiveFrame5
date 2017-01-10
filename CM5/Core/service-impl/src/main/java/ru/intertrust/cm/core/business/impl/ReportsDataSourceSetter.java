@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.impl;
 
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.report.ReportHelper;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -48,7 +49,7 @@ public class ReportsDataSourceSetter {
         }
 
         ReportHelper reportHelper = SpringApplicationContext.getContext().getBean(ReportHelper.class);
-        DomainObject reportDO = reportHelper.getReportTemplateObject((String) ctx.getParameters()[0]);
+        DomainObject reportDO = reportHelper.getReportTemplateObject(((ReportMetadataConfig) ctx.getParameters()[0]).getName());
         Boolean forceMaster = reportDO.getBoolean("forceMaster");
 
         if (forceMaster != null && forceMaster) {
