@@ -172,8 +172,7 @@
         </uniqueKey>        
     </domain-object-type>
     
-    <domain-object-type name="schedule"
-        initial-status="Sleep">
+    <domain-object-type name="schedule" initial-status="Sleep">
         <fields>
             <string name="name" length="256" not-null="true" />
             <string name="task_class" length="256" not-null="true" />
@@ -187,19 +186,30 @@
             <long name="timeout" not-null="true" />
             <long name="priority" not-null="true" />
             <text name="parameters" not-null="false" />
-            <long name="last_result" not-null="false"/>
-            <text name="last_result_description" not-null="false"/>
             <boolean name="active" not-null="true"/>
-            <date-time name="last_redy" not-null="false"/>
-            <date-time name="last_wait" not-null="false"/>
-            <date-time name="last_run" not-null="false"/>
-            <date-time name="last_end" not-null="false"/>
-            <!-- Идентификатор ноды, в которой будет выполнятся данное задание -->
-            <string name="node_id" length="256"/>
+            <!-- Флаг того, что периодическое задание должно выполняться на всех нодах кластера -->
+            <boolean name="all_nodes"/>
+            <!-- Флаг того, что данная задача игнорирует команды cancal и помечается как "Плохая" и делается неактивной -->
+            <boolean name="bad_task"/>
+            <!-- Флаг того, что данная задача сама будет управлять транзакцией -->
+            <boolean name="task_transact_management"/>
         </fields>
         <uniqueKey>
             <field name="name" />
         </uniqueKey>
     </domain-object-type>    
     
+    <domain-object-type name="schedule_execution" initial-status="Ready">
+        <fields>
+            <reference name="schedule" type="schedule" not-null="true"/>            
+            <long name="result" not-null="false"/>
+            <text name="result_description" not-null="false"/>
+            <date-time name="redy_date" not-null="false"/>
+            <date-time name="wait_date" not-null="false"/>
+            <date-time name="run_date" not-null="false"/>
+            <date-time name="complete_date" not-null="false"/>
+            <!-- Идентификатор ноды, в которой будет выполняться данное задание -->
+            <string name="node_id" length="256" not-null="true"/>
+        </fields>
+    </domain-object-type>    
 </configuration>

@@ -61,8 +61,8 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
 
     @Resource
     private EJBContext ejbContext;
-    
-    @Resource 
+
+    @Resource
     SessionContext sessionContext;
 
     @Autowired
@@ -76,75 +76,93 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
      */
     @Asynchronous
     @Override
-    public Future<String> startAsync(Id taskId) {
+    public Future<String> startAsync(Id taskExecutionId) {
         String result = null;
         try {
 
-            DomainObject task = null;
+            DomainObject taskExecution = null;
             boolean error = false;
             AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            String taskName = null;
+            DomainObject task = null;
             try {
                 //Отделяем транзакцию работы со статусами и транзакцию в которой выполняется задача
                 ejbContext.getUserTransaction().begin();
                 //Установка статуса
-                task = domainObjectDao.setStatus(taskId,
-                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_RUN),
-                        accessToken);
-                task.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, new Date());
-                domainObjectDao.save(task, accessToken);
+                taskExecution = domainObjectDao.setStatus(
+                        taskExecutionId, statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_RUN), accessToken);
+                taskExecution.setTimestamp(ScheduleService.SCHEDULE_RUN, new Date());
+                taskExecution = domainObjectDao.save(taskExecution, accessToken);
+                
+                //Получение задачи
+                task = domainObjectDao.find(
+                        taskExecution.getReference(ScheduleService.SCHEDULE_EXECUTION_SCHEDULE), accessToken);
+                taskName = task.getString(ScheduleService.SCHEDULE_NAME);                
                 ejbContext.getUserTransaction().commit();
 
                 //Запуск транзакции задачи
-                ejbContext.getUserTransaction().begin();
-                //Получение задачи и запуск ее выполнения
+                if (inTransactionTask(task)){
+                    ejbContext.getUserTransaction().begin();
+                }
+                
+                //Получение класса исполнителя задачи и запуск ее выполнения
                 ScheduleTaskHandle handle =
                         scheduleTaskLoader.getSheduleTaskHandle(task.getString(ScheduleService.SCHEDULE_TASK_CLASS));
-                result = handle.execute(ejbContext, sessionContext, scheduleService.getTaskParams(taskId));
+                result = handle.execute(ejbContext, sessionContext, scheduleService.getTaskParams(task.getId()));
+
+                if (inTransactionTask(task)){
+                    if (sessionContext.wasCancelCalled()) {
+                        ejbContext.getUserTransaction().rollback();
+                    }else{
+                        ejbContext.getUserTransaction().commit();
+                    }
+                }
             } catch (InterruptedException ex) {
-                logger.error("Task " + taskId + " abort by InterruptedException", ex);
-                ejbContext.getUserTransaction().rollback();
+                logger.error("Task " + taskName + " abort by InterruptedException", ex);
+                if (inTransactionTask(task)){
+                    ejbContext.getUserTransaction().rollback();
+                }
             } catch (Throwable ex) {
-                logger.error("Error on exec task " + taskId, ex);
+                logger.error("Error on exec task " + taskName, ex);
                 ByteArrayOutputStream err = new ByteArrayOutputStream();
                 ex.printStackTrace(new PrintStream(err, true));
                 result = err.toString("utf8");
                 error = true;
-                ejbContext.getUserTransaction().rollback();
+                if (inTransactionTask(task)){
+                    ejbContext.getUserTransaction().rollback();
+                }
             }
 
-            //Запуск транзакции если транзакция запущенная перед выполнением задачи абортнулась
-            if (ejbContext.getUserTransaction() != null && ejbContext.getUserTransaction().getStatus() == Status.STATUS_NO_TRANSACTION) {
-                ejbContext.getUserTransaction().begin();
-            }
+            ejbContext.getUserTransaction().begin();
             //Сброс кэша для доменного объекта задача
-            domainObjectCacheService.evict(taskId);
+            domainObjectCacheService.evict(taskExecutionId);
 
             //Сохранение результата
             //Проверяем был ли прерван процесс по таймауту
             if (sessionContext.wasCancelCalled()) {
-                task = domainObjectDao.setStatus(taskId,
-                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                taskExecution = domainObjectDao.setStatus(taskExecutionId,
+                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE),
                         accessToken);
-                task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
-                task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Timeout.toLong());
-                task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION,
+                taskExecution.setTimestamp(ScheduleService.SCHEDULE_COMPLETE, new Date());
+                taskExecution.setLong(ScheduleService.SCHEDULE_RESULT, ScheduleResult.Timeout.toLong());
+                taskExecution.setString(ScheduleService.SCHEDULE_RESULT_DESCRIPTION,
                         "Schedule task cancal by timeout");
             } else {
                 //Если процесс завершился штатным образом без таймаута
-                task = domainObjectDao.setStatus(taskId,
-                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_SLEEP),
+                taskExecution = domainObjectDao.setStatus(taskExecutionId,
+                        statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE),
                         accessToken);
 
-                task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, new Date());
-                task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, result);
+                taskExecution.setTimestamp(ScheduleService.SCHEDULE_COMPLETE, new Date());
+                taskExecution.setString(ScheduleService.SCHEDULE_RESULT_DESCRIPTION, result);
 
                 if (error) {
-                    task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Error.toLong());
+                    taskExecution.setLong(ScheduleService.SCHEDULE_RESULT, ScheduleResult.Error.toLong());
                 } else {
-                    task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.Complete.toLong());
+                    taskExecution.setLong(ScheduleService.SCHEDULE_RESULT, ScheduleResult.Complete.toLong());
                 }
             }
-            domainObjectDao.save(task, accessToken);
+            domainObjectDao.save(taskExecution, accessToken);
             ejbContext.getUserTransaction().commit();
 
         } catch (Exception ex) {
@@ -159,5 +177,10 @@ public class ScheduleProcessorImpl implements ScheduleProcessor {
         }
         return new AsyncResult<String>(result);
 
+    }
+    
+    private boolean inTransactionTask(DomainObject task){
+        return task.getBoolean(ScheduleService.SCHEDULE_TASK_TRANSACTIONAL_MANAGEMENT) == null 
+                || !task.getBoolean(ScheduleService.SCHEDULE_TASK_TRANSACTIONAL_MANAGEMENT);
     }
 }

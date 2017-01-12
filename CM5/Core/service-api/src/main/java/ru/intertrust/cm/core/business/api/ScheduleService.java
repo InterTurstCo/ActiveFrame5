@@ -6,7 +6,6 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
-import ru.intertrust.cm.core.dao.api.SchedulerDao;
 
 /**
  * Сервис периодических заданий
@@ -14,7 +13,6 @@ import ru.intertrust.cm.core.dao.api.SchedulerDao;
  * 
  */
 public interface ScheduleService {
-
     public static final String SCHEDULE_NAME = "name";
     public static final String SCHEDULE_TASK_CLASS = "task_class";
     public static final String SCHEDULE_TASK_TYPE = "task_type";
@@ -27,21 +25,45 @@ public interface ScheduleService {
     public static final String SCHEDULE_TIMEOUT = "timeout";
     public static final String SCHEDULE_PRIORITY = "priority";
     public static final String SCHEDULE_PARAMETERS = "parameters";
-    public static final String SCHEDULE_LAST_RESULT = "last_result";
-    public static final String SCHEDULE_LAST_RESULT_DESCRIPTION = "last_result_description";
+    public static final String SCHEDULE_RESULT = "result";
+    public static final String SCHEDULE_RESULT_DESCRIPTION = "result_description";
     public static final String SCHEDULE_ACTIVE = "active";
-    public static final String SCHEDULE_LAST_REDY = "last_redy";
-    public static final String SCHEDULE_LAST_WAIT = "last_wait";
-    public static final String SCHEDULE_LAST_RUN = "last_run";
-    public static final String SCHEDULE_LAST_END = "last_end";
+    public static final String SCHEDULE_REDY = "redy_date";
+    public static final String SCHEDULE_WAIT = "wait_date";
+    public static final String SCHEDULE_RUN = "run_date";
+    public static final String SCHEDULE_COMPLETE = "complete_date";
     public static final String SCHEDULE_NODE_ID = "node_id";
+    public static final String SCHEDULE_ALL_NODES = "all_nodes";
+    public static final String SCHEDULE_BAD_TASK = "bad_task";
+    public static final String SCHEDULE_TASK_TRANSACTIONAL_MANAGEMENT = "task_transact_management";
     
-    public static final String SCHEDULE_STATUS_SLEEP = SchedulerDao.SCHEDULE_STATUS_SLEEP;
+    public static final String SCHEDULE_EXECUTION = "schedule_execution";
+    public static final String SCHEDULE_EXECUTION_SCHEDULE = "schedule";      
+    
+    /**
+     * Задача прошла проверку рассписания или запущена вручную
+     */
     public static final String SCHEDULE_STATUS_READY = "Ready";
+    /**
+     * Задача отправлена асинхронному ejb на выполнение
+     */
     public static final String SCHEDULE_STATUS_WAIT = "Wait";
+    /**
+     * Задача выполняется
+     */
     public static final String SCHEDULE_STATUS_RUN = "Run";
+    /**
+     * Выполнение задачи завершено
+     */
+    public static final String SCHEDULE_STATUS_COMPLETE = "Complete";
     
+    /**
+     * Имя роли менеджер сервиса периодических заданий
+     */
     public static final String SCHEDULE_MANAGER_ROLE_NAME = "schedule_manager";
+    /**
+     * Имя роли исполнитель роли периодических заданий
+     */
     public static final String SCHEDULE_EXECUTOR_ROLE_NAME = "schedule_executor";    
     
     /**

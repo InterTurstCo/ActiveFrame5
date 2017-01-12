@@ -58,13 +58,15 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
                 break;
             }
         }
+        String result = null;
         if (notificationTextTemplate == null) {
-            throw new NotificationException("Notification text not found for (notificationType="
-                    + notificationType + "; channel=" + channel + "; locale=" + locale +
-                    "; notificationPart=" + notificationPart + ")");
+            result = "MISSING.NOTIFICATION.TEXT." + channel + "." + notificationType + "." + notificationPart;
+            logger.warn("Missing notification text " + channel + "." + notificationType + "." + notificationPart);
+        }else{
+            result = formatTemplate(notificationTextTemplate, addressee, context);
         }
 
-        return formatTemplate(notificationTextTemplate, addressee, context);
+        return result;
     }
 
     @Override
@@ -106,10 +108,6 @@ public class NotificationTextFormerImpl implements NotificationTextFormer {
         filter.addReferenceCriterion(2, locale);
 
         IdentifiableObjectCollection collection = collectionsService.findCollection("NotificationText", new SortOrder(), Collections.singletonList(filter));
-        if (collection.size() == 0) {
-            throw new NotificationException("Notification text not found for (notificationType="
-                    + notificationType + "; channel=" + channel + "; locale=" + locale + ")");
-        }
         return collection;
     }
 

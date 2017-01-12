@@ -3,8 +3,6 @@ package ru.intertrust.cm.test.schedule;
 import javax.ejb.EJBContext;
 import javax.ejb.SessionContext;
 
-import org.springframework.jmx.access.InvocationFailureException;
-
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;

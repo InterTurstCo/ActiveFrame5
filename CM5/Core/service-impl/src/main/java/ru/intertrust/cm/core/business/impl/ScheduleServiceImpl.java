@@ -1,5 +1,16 @@
 package ru.intertrust.cm.core.business.impl;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
@@ -9,9 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
 import ru.intertrust.cm.core.business.api.ScheduleService;
-import ru.intertrust.cm.core.business.api.dto.*;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.schedule.Schedule;
-import ru.intertrust.cm.core.business.api.schedule.ScheduleResult;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
 import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskParameters;
@@ -20,21 +34,11 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.SchedulerDao;
 import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
-import javax.interceptor.Interceptors;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Реализация сервиса выполнения периодических заданий
@@ -63,6 +67,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private StatusDao statusDao;
+
+    @Autowired
+    private SchedulerDao schedulerDao;
 
     @Override
     public List<DomainObject> getTaskList() {
@@ -164,7 +171,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             throw new ScheduleException("Error on get schedule task parameters", ex);
         } finally {
             try {
-                if (inputStream != null){
+                if (inputStream != null) {
                     inputStream.close();
                 }
             } catch (Exception ignoreEx) {
@@ -182,7 +189,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             Strategy strategy = new AnnotationStrategy();
             Serializer serializer = new Persister(strategy);
             out = new ByteArrayOutputStream();
-            
+
             ScheduleTaskConfig config = new ScheduleTaskConfig();
             config.setParameters(parameters);
             serializer.write(config, out);
@@ -238,16 +245,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public void run(Id taskId) {
         try {
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-            DomainObject task = domainObjectDao.setStatus(taskId, statusDao.getStatusIdByName(SCHEDULE_STATUS_READY), accessToken);
-            task.setTimestamp(SCHEDULE_LAST_REDY, new Date());            
-            task.setTimestamp(ScheduleService.SCHEDULE_LAST_WAIT, null);
-            task.setTimestamp(ScheduleService.SCHEDULE_LAST_RUN, null);
-            task.setTimestamp(ScheduleService.SCHEDULE_LAST_END, null);
-            task.setLong(ScheduleService.SCHEDULE_LAST_RESULT, ScheduleResult.NotRun.toLong());
-            task.setString(ScheduleService.SCHEDULE_LAST_RESULT_DESCRIPTION, null);
-            task.setString(ScheduleService.SCHEDULE_NODE_ID, scheduleTaskLoader.getNextNodeId());
-            domainObjectDao.save(task, accessToken);
+            schedulerDao.createTaskExecution(taskId);
         } catch (SystemException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -304,7 +302,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                     "className:" + className + " name:" + name, ex);
         }
     }
-    
+
     /**
      * Создание нового доменного объекта
      * 
@@ -318,5 +316,5 @@ public class ScheduleServiceImpl implements ScheduleService {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
         return domainObject;
-    }    
+    }
 }

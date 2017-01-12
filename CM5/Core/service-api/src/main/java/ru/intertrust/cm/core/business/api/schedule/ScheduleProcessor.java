@@ -15,5 +15,5 @@ public interface ScheduleProcessor {
      * Запуск выполнения периодического задания в пуле процессов
      * @return
      */
-    public Future<String> startAsync(Id taskId);
+    public Future<String> startAsync(Id taskExecutionId);
 }

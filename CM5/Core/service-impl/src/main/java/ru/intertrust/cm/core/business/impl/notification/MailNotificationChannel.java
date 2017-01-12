@@ -132,15 +132,9 @@ public class MailNotificationChannel extends NotificationChannelBase implements 
         Id locale = findLocaleIdByName(getPersonLocale(addresseeId));
         boolean html = notificationTextFormer.contains(notificationType, BODY_HTML_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL);
 
-        String subject =
-                notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
+        String subject = notificationTextFormer.format(notificationType, SUBJECT_MAIL_PART, addresseeId, locale,
                         MAIL_NOTIFICATION_CHANNEL, context);
-        if (!html && !notificationTextFormer.contains(notificationType, BODY_MAIL_PART, locale, MAIL_NOTIFICATION_CHANNEL)) {
-            throw new NotificationException("No body-html or body text was set for notification type " + notificationType
-                    + ". Setting at least one is mandatory.");
-        }
-        String body =
-                notificationTextFormer.format(notificationType, html ? BODY_HTML_MAIL_PART : BODY_MAIL_PART, addresseeId, locale,
+        String body = notificationTextFormer.format(notificationType, html ? BODY_HTML_MAIL_PART : BODY_MAIL_PART, addresseeId, locale,
                         MAIL_NOTIFICATION_CHANNEL, context);
 
         MimeMessage mimeMessage = mailSenderWrapper.createMimeMessage();

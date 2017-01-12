@@ -1,8 +1,7 @@
 package ru.intertrust.cm.core.dao.api;
 
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-
-import java.util.List;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 
 /**
  * DAO для работы с расписанием задач
@@ -10,19 +9,39 @@ import java.util.List;
  */
 public interface SchedulerDao {
 
-    static final String SCHEDULE_STATUS_SLEEP = "Sleep";
-
     /**
-     * Получение задач в определенном статусе
-     * @param status
+     * Получение идентификаторов подвисших задач
      * @return
      */
-    List<DomainObject> getTasksByStatus(String status, boolean activeOnly, String nodeId);
+    IdentifiableObjectCollection getDeadScheduleExecution(); 
 
     /**
-     * Получение всех задач у которых статус отличен от ScheduleService.SCHEDULE_STATUS_SLEEP
+     * Получение всех активных задач
      * @return
      */
-    List<DomainObject> getNonSleepTasks();
+    IdentifiableObjectCollection getActiveTask(); 
+
+    /**
+     * Получение запущенных задач у конкретной ноды
+     * @param taskId
+     * @param nodeId
+     * @return
+     */
+    IdentifiableObjectCollection getRunningScheduleExecution(Id taskId, String nodeId);
+
+    /**
+     * Получение задач на выполнение, готовых к выполнению
+     * @param taskId
+     * @param nodeId
+     * @return
+     */
+    IdentifiableObjectCollection getReadyScheduleExecution(String nodeId);
+
+    /**
+     * Создание заданий на исполнение
+     * задания создаются или во всех нодах, или в одной очередной, в зависимости от тастроек задания
+     * @param taskId
+     */
+    void createTaskExecution(Id taskId);
 
 }

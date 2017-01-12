@@ -8,7 +8,7 @@
         <prototype>
             SELECT job.id, job.name, st.name as status_name,
                    job.year, job.month, job.day_of_month, job.day_of_week, job.hour, job.minute,
-                   job.priority, job.last_run, job.last_result, job.last_result_description
+                   job.priority
             FROM schedule job
             JOIN status st ON job.status=st.id
             WHERE 1=1
@@ -26,9 +26,6 @@
             <column name="Час" type="string" field="hour" min-width="40"></column>
             <column name="Мин" type="string" field="minute" min-width="40"></column>
             <column name="Приоритет" type="integer" field="priority" min-width="40"></column>
-            <column name="Последний запуск" type="datetime" field="last_run" date-pattern="dd.MM.yyyy HH:mm:ss" min-width="150"></column>
-            <column name="Успешно?" type="integer" field="last_result" min-width="30"></column>
-            <column name="Результат" type="string" field="last_result_description" min-width="200"></column>
         </display>
     </collection-view>
 
@@ -89,6 +86,17 @@
                                     <td colspan="6"><widget id="parameters" width="100%" height="80px"/></td>
                                 </tr>
                             </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+                <tab name="Журнал выполнения">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                	<td><widget width="1200px" id="journal"/></td>
+                                </tr>
+                            </table>                        
                         </tab-group>
                     </single-entry-group>
                 </tab>
@@ -235,8 +243,48 @@
                 <field-path/>
                 <text></text>
             </label>
+            
+            <table-viewer id="journal">
+                <collection-ref name="schedule_execution_collection"/>
+                <collection-view-ref name="schedule_execution_collectiont_view"/>
+                <default-sort-criteria column-field="redy_date" order="desc"/>
+                <collection-extra-filters>
+                    <extra-filter name="bySchedule">
+                        <param name="0" set-base-object="true"/>
+                    </extra-filter>
+                </collection-extra-filters>
+            </table-viewer>                                        
 
         </widget-config>
     </form>
+
+    <collection name="schedule_execution_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                select ex.*, st.description as status_name
+                from schedule_execution ex
+                join status st on st.id=ex.status
+                where 1=1 ::where-clause
+            ]]>
+        </prototype>
+        <filter name="bySchedule">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    ex.schedule = {0}
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+    <collection-view name="schedule_execution_collectiont_view" collection="schedule_execution_collection" is-default="true">
+        <display>
+            <column field="id" name="id" type="integer" sortable="false" hidden="true"/>
+            <column field="redy_date" name="Старт" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>
+            <column field="complete_date" name="Финиш" editable="false" type="datetime" date-pattern="dd.MM.yyyy HH:mm:ss" sortable="true"/>
+            <column field="status_name" name="Статус" editable="false" type="string" sortable="true"/>
+            <column field="result" name="Код работы" type="string" editable="false" sortable="true"/>
+            <column field="result_description" name="Результат" type="string" editable="false" sortable="true" width="400pt"/>
+        </display>
+    </collection-view>
 
 </configuration>

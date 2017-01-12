@@ -1,5 +1,17 @@
 package ru.intertrust.cm.core.business.shedule;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Set;
+
+import javax.ejb.Local;
+import javax.ejb.Remote;
+import javax.ejb.Singleton;
+import javax.interceptor.Interceptors;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.convert.AnnotationStrategy;
 import org.simpleframework.xml.core.Persister;
@@ -21,7 +33,13 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.schedule.*;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTask;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskConfig;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskDefaultParameters;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskHandle;
+import ru.intertrust.cm.core.business.api.schedule.ScheduleTaskLoader;
+import ru.intertrust.cm.core.business.api.schedule.SheduleTaskReestrItem;
+import ru.intertrust.cm.core.business.api.schedule.SheduleType;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
@@ -30,17 +48,6 @@ import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.model.ScheduleException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
-
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Singleton;
-import javax.interceptor.Interceptors;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Set;
 
 /**
  * EJB загрузчик классов периодических заданий
@@ -75,15 +82,14 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     private boolean isLoaded = false;
 
     @Autowired
-    private ClusterManager clusterManager;    
-    
+    private ClusterManager clusterManager;
+
     //Флаг активности сервиса. Прикладное приложение должно само активизировать сервис после старта
     @Value("${schedule.service.enableOnStart:true}")
     private boolean enable;
-    
+
     private int lastNodeIndex = -1;
 
-    
     /**
      * Установка spring контекста
      */
@@ -108,13 +114,14 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
                 }
             }
         }
-        
+
         //Деактивируем все задачи что есть в базе, если их нет в реестре (удалили класс или модуль)
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, task_class, name from schedule where active = 1", 0, 0, accessToken);
+        IdentifiableObjectCollection collection =
+                collectionsDao.findCollectionByQuery("select id, task_class, name from schedule where active = 1", 0, 0, accessToken);
         for (IdentifiableObject row : collection) {
             SheduleTaskReestrItem item = reestr.get(row.getString("task_class"));
-            if (item == null){
+            if (item == null) {
                 DomainObject taskDo = domainObjectDao.find(row.getId(), accessToken);
                 taskDo.setBoolean("active", false);
                 domainObjectDao.save(taskDo, accessToken);
@@ -148,6 +155,8 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         task.setLong(ScheduleService.SCHEDULE_PRIORITY, item.getConfiguration().priority());
         task.setString(ScheduleService.SCHEDULE_PARAMETERS, getDefaultParameters(item.getConfiguration()));
         task.setBoolean(ScheduleService.SCHEDULE_ACTIVE, item.getConfiguration().active());
+        task.setBoolean(ScheduleService.SCHEDULE_ALL_NODES, item.getConfiguration().allNodes());
+        task.setBoolean(ScheduleService.SCHEDULE_TASK_TRANSACTIONAL_MANAGEMENT, item.getConfiguration().taskTransactionalManagement());
         return domainObjectDao.save(task, accessToken);
     }
 
@@ -220,7 +229,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
                 ClassPathScanningCandidateComponentProvider scanner =
                         new ClassPathScanningCandidateComponentProvider(false);
                 scanner.addIncludeFilter(new AnnotationTypeFilter(ScheduleTask.class));
-                
+
                 // Цикл по найденным классам
                 for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
                     String className = bd.getBeanClassName();
@@ -323,5 +332,5 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
         }
         return result;
     }
-    
+
 }

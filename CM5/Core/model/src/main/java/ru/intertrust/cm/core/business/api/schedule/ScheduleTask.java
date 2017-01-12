@@ -23,4 +23,14 @@ public @interface ScheduleTask {
     long timeout() default 5;
     long priority() default 4;
     boolean active() default false;
+    /**
+     * Флаг что данная задача должна выполняется на всех нодах кластера, иначе выполнится только на одной случайно выбранной ноде
+     * @return
+     */
+    boolean allNodes() default false;
+    /**
+     * Флаг что задача сама управляет транзакцией
+     * @return
+     */
+    boolean taskTransactionalManagement() default false;
 }

@@ -1150,7 +1150,7 @@
         </filter>
     </collection>
 
-    <collection name="ScheduleTasks" idField="id">
+    <!-- collection name="ScheduleTasks" idField="id">
 
         <prototype>
             <![CDATA[
@@ -1190,12 +1190,12 @@
         <filter name="byNode">
             <criteria placeholder="where-clause">
                 <![CDATA[
-                    sch.node_id = {0}
+                    (sch.node_id = {0} or sch.all_nodes = 1) 
                 ]]>
             </criteria>
         </filter>
 
-    </collection>
+    </collection-->
 
     <collection name="DynamicGroups" idField="id">
 
