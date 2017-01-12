@@ -2,10 +2,6 @@ package ru.intertrust.cm.core.business.api.schedule;
 
 public enum ScheduleResult {
     /**
-     * Задача не была запущена
-     */
-    NotRun(0),
-    /**
      * Успешное завершение задачи
      */
     Complete(1),
@@ -33,9 +29,7 @@ public enum ScheduleResult {
     }
 
     public ScheduleResult valueOf(long value) {
-        if (value == 0) {
-            return ScheduleResult.NotRun;
-        } else if (value == 1) {
+        if (value == 1) {
             return ScheduleResult.Complete;
         } else if (value == 2) {
             return ScheduleResult.Error;
