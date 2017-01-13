@@ -34,6 +34,8 @@ public class HeaderNotificationPluginView extends PluginView{
     private HeaderNotificationPluginData headerNotificationPluginData;
     private ArrayList<HeaderNotificationItem> listNotificationItem;
     private FormPlugin oldFormPlugin;
+    private Timer timer;
+    private int failures;
 
 
     protected HeaderNotificationPluginView(Plugin plugin) {
@@ -47,7 +49,7 @@ public class HeaderNotificationPluginView extends PluginView{
     }
 
     private void updateNotificationTimer(final int headerNotificationPeriod){
-        Timer timer = new Timer() {
+        timer = new Timer() {
             @Override
             public void run() {
                 cancelHeaderNotificationItem(new CancelHeaderNotificationItem());
@@ -151,7 +153,9 @@ public class HeaderNotificationPluginView extends PluginView{
             public void onFailure(Throwable caught) {
                 GWT.log("something was going wrong while obtaining canselHeaderNotificationItemForPluginInitialization for ''");
                 caught.printStackTrace();
-
+                if (failures++ > 5) {
+                    timer.cancel();
+                }
             }
 
             @Override
@@ -162,7 +166,10 @@ public class HeaderNotificationPluginView extends PluginView{
                 listNotificationItem = ((CancelHeaderNotificationItem) result).getItems();
                 container.clear();
                 buildPlugin();
-
+                failures = 0;
+                if (!timer.isRunning() && Application.getInstance().getHeaderNotificationPeriod() > 0) {
+                    timer.scheduleRepeating(Application.getInstance().getHeaderNotificationPeriod());
+                }
             }
         });
     }
