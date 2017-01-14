@@ -1,13 +1,29 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import ru.intertrust.cm.core.business.api.dto.*;
+import org.mockito.stubbing.Answer;
+
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -18,12 +34,6 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SqlQueryModifierTest {
@@ -146,10 +156,15 @@ public class SqlQueryModifierTest {
     private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
 
     @Before
-    public void setUp(){
-        when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);    
-        when(configurationExplorer.getDomainObjectRootType("employee")).thenReturn("employee");
-        when(configurationExplorer.getDomainObjectRootType("department")).thenReturn("department");
+    public void setUp() {
+        when(configurationExplorer.isReadPermittedToEverybody(anyString())).thenReturn(false);
+        when(configurationExplorer.getDomainObjectRootType(anyString())).thenAnswer(new Answer<String>() {
+
+            @Override
+            public String answer(InvocationOnMock invocation) throws Throwable {
+                return invocation.getArguments()[0].toString();
+            }
+        });
         when(configurationExplorer.getConfig(eq(DomainObjectTypeConfig.class), anyString())).thenReturn(new DomainObjectTypeConfig());
         when(userGroupCache.isAdministrator(any(Id.class))).thenReturn(false);
         when(currentUserAccessor.getCurrentUserId()).thenReturn(new RdbmsId(1, 1));
@@ -158,7 +173,7 @@ public class SqlQueryModifierTest {
         domainObjectQueryHelper.setCurrentUserAccessor(currentUserAccessor);
         domainObjectQueryHelper.setUserGroupCache(userGroupCache);
     }
-    
+
     @Test
     public void testAddTypeColumn() {
         Configuration configuration = new Configuration();
@@ -225,10 +240,10 @@ public class SqlQueryModifierTest {
 
         String modifiedQuery = select.toString();
         assertEquals(PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL, modifiedQuery);
-   }
+    }
 
     @Test
-     public void testIdsIncludedFilter() {
+    public void testIdsIncludedFilter() {
         IdsIncludedFilter idsIncludedFilter1 = new IdsIncludedFilter();
         idsIncludedFilter1.setFilter("idsIncluded1");
         idsIncludedFilter1.addCriterion(0, new ReferenceValue(new RdbmsId(1, 100)));
@@ -243,7 +258,7 @@ public class SqlQueryModifierTest {
         SelectBody selectBody = sqlParser.getSelectBody();
 
         selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
-                Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2}), "id");
+                Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2 }), "id");
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, selectBody.toString());
     }
@@ -264,7 +279,7 @@ public class SqlQueryModifierTest {
         SelectBody selectBody = sqlParser.getSelectBody();
 
         selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
-                Arrays.asList(new Filter[]{idsExcludedFilter1, idsExcludedFilter2}), "person");
+                Arrays.asList(new Filter[] {idsExcludedFilter1, idsExcludedFilter2 }), "person");
 
         assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, selectBody.toString());
     }
