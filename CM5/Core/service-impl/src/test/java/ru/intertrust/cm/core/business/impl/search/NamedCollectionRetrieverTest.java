@@ -184,6 +184,12 @@ public class NamedCollectionRetrieverTest {
         testALotOfIds(5000, NamedCollectionRetriever.MAX_IDS_PER_QUERY);
     }
 
+    // CMFIVE-7227 test
+    @Test
+    public void testPartialFetch_Unlimited() {
+        testALotOfIds(7718, 0);
+    }
+
     private void testALotOfIds(int idCount, int maxResults) {
         /*SolrDocument doc = mock(SolrDocument.class);
         when(doc.getFieldValue(SolrFields.MAIN_OBJECT_ID)).thenAnswer(new Answer<Object>() {
@@ -209,7 +215,10 @@ public class NamedCollectionRetrieverTest {
             }
         });
 
-        int expectedResults = Math.min(idCount / 2, maxResults);
+        int expectedResults = idCount / 2;
+        if (maxResults > 0 && maxResults < expectedResults) {
+            expectedResults = maxResults;
+        }
         final int expectedCalls = expectedResults + NamedCollectionRetriever.MAX_IDS_PER_QUERY - 1
                 / NamedCollectionRetriever.MAX_IDS_PER_QUERY;
         final int[] expectedFilterSize = new int[expectedCalls];
@@ -217,7 +226,7 @@ public class NamedCollectionRetrieverTest {
         for (int i = 0; i < expectedCalls; ++i) {
             expectedFilterSize[i] = Math.min(NamedCollectionRetriever.MAX_IDS_PER_QUERY,
                     idCount - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY);
-            expectedMaxResults[i] = maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
+            expectedMaxResults[i] = maxResults == 0 ? 0 : maxResults - i * NamedCollectionRetriever.MAX_IDS_PER_QUERY / 2;
         }
 
         when(collectionsService.findCollection(anyString(), any(SortOrder.class), anyListOf(Filter.class), anyInt(), anyInt()))
