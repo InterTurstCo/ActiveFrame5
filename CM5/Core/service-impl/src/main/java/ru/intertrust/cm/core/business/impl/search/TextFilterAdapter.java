@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.business.api.dto.SearchFilter;
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
@@ -24,12 +25,16 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
 
         StringBuilder value = new StringBuilder();
         boolean multiple = false;
-        for (String solrField : enumSolrFields(filter.getFieldName(), query.getAreas())) {
+        for (Pair<String, Boolean> solrField : enumSolrFields(filter.getFieldName(), query.getAreas())) {
             multiple = value.length() > 0;
+            // solrField.first (String) - имя поля Solr
+            // solrField.second (Boolean) - true = поиск по подстроке
             value.append(multiple ? " OR " : "")
-                 .append(solrField)
+                 .append(solrField.getFirst())
                  .append(":(")
-                 .append(SolrUtils.protectSearchString(filter.getText()))
+                 .append(solrField.getSecond() ? '"' : "")
+                 .append(SolrUtils.protectSearchString(filter.getText(), solrField.getSecond()))
+                 .append(solrField.getSecond() ? '"' : "")
                  .append(")");
         }
         if (multiple) {
@@ -38,7 +43,7 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         return value.toString();
     }
 
-    private Iterable<String> enumSolrFields(final String name, List<String> areaNames) {
+    private Iterable<Pair<String, Boolean>> enumSolrFields(final String name, List<String> areaNames) {
         String baseField = null;
         if (SearchFilter.EVERYWHERE.equals(name)) {
             baseField = SolrFields.EVERYTHING;
@@ -47,9 +52,9 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         }
         if (baseField != null) {
             List<String> langIds = configHelper.getSupportedLanguages();
-            ArrayList<String> fields = new ArrayList<>(langIds.size());
+            ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size());
             for (String langId : langIds) {
-                fields.add(makeSolrSpecialFieldName(baseField, langId));
+                fields.add(new Pair<>(makeSolrSpecialFieldName(baseField, langId), false));
             }
             return fields;
         }
@@ -58,13 +63,19 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             langIds.addAll(configHelper.getSupportedLanguages(name, area));
         }
         Set<SearchFieldType> types = configHelper.getFieldTypes(name, areaNames);
-        ArrayList<String> fields = new ArrayList<>(langIds.size());
+        ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size());
         for (String langId : langIds) {
             if (types.contains(SearchFieldType.TEXT) || types.contains(null)) {
-                fields.add(makeSolrFieldName(name, langId, SearchFieldType.TEXT));
+                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT), false));
             }
             if (types.contains(SearchFieldType.TEXT_MULTI)) {
-                fields.add(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI));
+                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI), false));
+            }
+            if (types.contains(SearchFieldType.TEXT_SUBSTRING)) {
+                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_SUBSTRING), true));
+            }
+            if (types.contains(SearchFieldType.TEXT_MULTI_SUBSTRING)) {
+                fields.add(new Pair<>(makeSolrFieldName(name, langId, SearchFieldType.TEXT_MULTI_SUBSTRING), true));
             }
         }
         return fields;
@@ -73,10 +84,10 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
     private static String makeSolrFieldName(String field, String langId, SearchFieldType type) {
         StringBuilder result = new StringBuilder(SolrFields.FIELD_PREFIX);
         if (langId == null || langId.isEmpty()) {
-            result.append(type.getInfix());
+            result.append(type.infix);
         } else {
             result.append(langId);
-            if (type == SearchFieldType.TEXT_MULTI) {
+            if (type == SearchFieldType.TEXT_MULTI || type == SearchFieldType.TEXT_MULTI_SUBSTRING) {
                 result.append("s");
             }
             result.append("_");

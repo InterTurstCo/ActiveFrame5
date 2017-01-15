@@ -237,7 +237,7 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
                             //.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"")
                             .addField(SolrFields.MAIN_OBJECT_ID)
                             .addField(SolrUtils.SCORE_FIELD);
-                    if (!"*".equals(entry.getKey())) {
+                    if (!SearchFilter.EVERYWHERE.equals(entry.getKey())) {
                         solrQuery.addFilterQuery(SolrFields.OBJECT_TYPE + ":\"" + entry.getKey() + "\"");
                     }
                     if (rows > 0) {

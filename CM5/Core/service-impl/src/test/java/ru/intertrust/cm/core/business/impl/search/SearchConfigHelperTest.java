@@ -207,7 +207,7 @@ public class SearchConfigHelperTest {
         when(config.getDoel()).thenReturn(null);
         when(config.getScript()).thenReturn("ctx.get('String_B') + ctx.get('String_Bc') + ctx.get('String_Bd')");
         SearchFieldType type = testee.getFieldType(config, "Type_B");
-        assertNull(type);
+        assertEquals(type, SearchFieldType.TEXT);
         //assertFalse("Поле String_Calculated имеет единственное значение", type.isMultivalued());
     }
 

@@ -13,6 +13,10 @@ public class SolrUtils {
     }
 
     public static String protectSearchString(String text) {
+        return protectSearchString(text, false);
+    }
+
+    public static String protectSearchString(String text, boolean noQuotes) {
         State state = State.PLAIN;
         State lastState = null;
         StringBuilder converted = new StringBuilder(text.length());
@@ -23,7 +27,11 @@ public class SolrUtils {
             case QUOTED:
                 switch (ch) {
                 case '"':
-                    state = state == State.PLAIN ? State.QUOTED : State.PLAIN;
+                    if (noQuotes) {
+                        converted.append('\\');
+                    } else {
+                        state = state == State.PLAIN ? State.QUOTED : State.PLAIN;
+                    }
                     break;
                 case '\\':
                     lastState = state;

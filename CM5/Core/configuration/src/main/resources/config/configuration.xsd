@@ -3152,12 +3152,23 @@
     </xs:complexType>
 
     <xs:complexType name="indexedFieldType">
-        <xs:complexContent>
-            <xs:extension base="con:optionalDomainObjectAlgorithmType" xmlns:con="https://cm5.intertrust.ru/config">
-                <xs:attribute type="xs:string" name="name" use="required"/>
-                <xs:attribute type="xs:string" name="language" use="optional"/>
-            </xs:extension>
-        </xs:complexContent>
+    	<xs:complexContent>
+    		<xs:extension base="con:optionalDomainObjectAlgorithmType"
+    			xmlns:con="https://cm5.intertrust.ru/config">
+    			<xs:attribute type="xs:string" name="name"
+    				use="required" />
+    			<xs:attribute type="xs:string" name="language"
+    				use="optional" />
+    			<xs:attribute name="search-by" use="optional">
+    				<xs:simpleType>
+    					<xs:restriction base="xs:string">
+    						<xs:enumeration value="words"></xs:enumeration>
+    						<xs:enumeration value="substring"></xs:enumeration>
+    					</xs:restriction>
+    				</xs:simpleType>
+    			</xs:attribute>
+    		</xs:extension>
+    	</xs:complexContent>
     </xs:complexType>
 
     <xs:complexType name="indexedContentType">

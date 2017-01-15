@@ -539,17 +539,27 @@ public class SearchConfigHelper {
                 return null;
             }
             Set<FieldType> types = analyzed.getResultTypes();
-            result = SearchFieldType.getFieldType(types.size() == 1 ? types.iterator().next() : FieldType.STRING,
-                    !analyzed.isSingleResult());
+            if (config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING || types.size() != 1) {
+                result = analyzed.isSingleResult() ? SearchFieldType.TEXT_SUBSTRING : SearchFieldType.TEXT_MULTI_SUBSTRING;
+            } else {
+                result = SearchFieldType.getFieldType(types.iterator().next(), !analyzed.isSingleResult());
+            }
         } else if (config.getScript() != null) {
-            result = null;
+            //result = null;
+            result = config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING ?
+                    SearchFieldType.TEXT_SUBSTRING : SearchFieldType.TEXT;
         } else {
             FieldConfig fieldConfig = configurationExplorer.getFieldConfig(objectType.toLowerCase(),
                     config.getName().toLowerCase());
             if (fieldConfig == null) {
                 throw new IllegalArgumentException(config.getName() + " isn't defined in type " + objectType);
             }
-            result = SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
+            if (fieldConfig.getFieldType().getValueClass() == StringValue.class
+                    && config.getSearchBy() == IndexedFieldConfig.SearchBy.SUBSTRING) {
+                result = SearchFieldType.TEXT_SUBSTRING;
+            } else {
+                result = SearchFieldType.getFieldType(fieldConfig.getFieldType(), false);
+            }
         }
 
         fieldTypeMap.put(key, result);

@@ -100,6 +100,19 @@ public class TextFilterAdapterTest {
     }
 
     @Test
+    public void testSubstringSearchedField() {
+        TextSearchFilter filter = new TextSearchFilter("TestField", "Quotes must be \"quoted\"");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT_SUBSTRING));
+
+        String result = adapter.getFilterString(filter, query);
+        assertEquals("cm_t_testfield:(\"Quotes must be \\\"quoted\\\"\")", result);
+    }
+
+    @Test
     public void testCalculatedField() {
         TextSearchFilter filter = new TextSearchFilter("TestField", "Test search");
         SearchQuery query = mock(SearchQuery.class);
@@ -121,8 +134,7 @@ public class TextFilterAdapterTest {
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
-        @SuppressWarnings("unused")
-        String result = adapter.getFilterString(filter, query);
+        /*String result =*/ adapter.getFilterString(filter, query);
     }
 
     @Test(expected = SearchException.class)
@@ -134,7 +146,6 @@ public class TextFilterAdapterTest {
         when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
                 .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
-        @SuppressWarnings("unused")
-        String result = adapter.getFilterString(filter, query);
+        /*String result =*/ adapter.getFilterString(filter, query);
     }
 }

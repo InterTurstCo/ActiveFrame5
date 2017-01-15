@@ -15,14 +15,17 @@ public enum SearchFieldType {
     LONG_MULTI("ls_"),
     DOUBLE_MULTI("ds_"),
     REF_MULTI ("rs_"),
-    BOOL_MULTI("bs_");
+    BOOL_MULTI("bs_"),
+    TEXT_SUBSTRING("t_"),
+    TEXT_MULTI_SUBSTRING("ts_");
 
-    private String infix;
+    public final String infix;
 
     private SearchFieldType(String infix) {
         this.infix = infix;
     }
 
+    @Deprecated
     public String getInfix() {
         return infix;
     }

@@ -18,15 +18,15 @@
             </indexed-field>            
             
             <indexed-field name="Registrant"/>
-            <indexed-field name="Registrant_Name">
+            <indexed-field name="Registrant_Name" search-by="substring">
                 <doel>Registrant.Name</doel>
             </indexed-field>
             <indexed-field name="Inspector"/>
-            <indexed-field name="Inspector_Name">
+            <indexed-field name="Inspector_Name" search-by="substring">
                 <doel>Inspector.Name</doel>
             </indexed-field>
             <indexed-field name="Signer"/>
-            <indexed-field name="Signer_Name">
+            <indexed-field name="Signer_Name" search-by="substring">
                 <doel>Signer.Name</doel>
             </indexed-field>
             <indexed-content type="Internal_Document_Content"/>

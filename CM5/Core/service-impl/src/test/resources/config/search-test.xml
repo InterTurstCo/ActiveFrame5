@@ -29,14 +29,14 @@
         <fields>
             <string name="String_B" length="20"/>
             <string name="String_Bc" length="20"/>
-            <string name="String_Bd" length="20"/>            
+            <string name="String_Bd" length="20"/>
             <long name="Long_B"/>
             <long name="Long_Bc"/>
-            <long name="Long_Bd"/>            
+            <long name="Long_Bd"/>
             <decimal name="Decimal_B"/>
             <date-time name="DateTime_B"/>
             <date-time name="DateTime_Bc"/>
-            <date-time name="DateTime_Bd"/>            
+            <date-time name="DateTime_Bd"/>
             <dateTimeWithTimeZone name="DateTimeZone_B"/>
             <timelessDate name="Date_B"/>
             <reference name="Reference_B_A" type="Type_A"/>

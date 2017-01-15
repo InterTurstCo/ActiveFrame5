@@ -7,11 +7,32 @@ import java.io.Serializable;
 
 public class IndexedFieldConfig implements Serializable {
 
+    public enum SearchBy {
+        WORDS("words"),
+        SUBSTRING("substring");
+
+        public final String xmlValue;
+        private SearchBy(String xmlValue) {
+            this.xmlValue = xmlValue;
+        }
+        static SearchBy fromXmlValue(String xmlValue) {
+            for (SearchBy value : values()) {
+                if (value.xmlValue.equalsIgnoreCase(xmlValue)) {
+                    return value;
+                }
+            }
+            throw new IllegalArgumentException("Unknown search-by value: " + xmlValue);
+        }
+    }
+
     @Attribute(required = true)
     private String name;
 
     @Attribute(required = false)
     private String language;
+
+    //@Attribute(name = "search-by", required = false) - declared in getter/setter
+    private SearchBy searchBy;
 
     @Element(required = false)
     private String doel;
@@ -33,6 +54,20 @@ public class IndexedFieldConfig implements Serializable {
     
     public String getScript() {
         return script;
+    }
+
+    @Attribute(name = "search-by", required = false)
+    public String getSearchByString() {
+        return searchBy == null ? null : searchBy.xmlValue;
+    }
+
+    public SearchBy getSearchBy() {
+        return searchBy == null ? SearchBy.WORDS : searchBy;
+    }
+
+    @Attribute(name = "search-by", required = false)
+    public void setSearchByString(String searchBy) {
+        this.searchBy = SearchBy.fromXmlValue(searchBy);
     }
 
     @Override
