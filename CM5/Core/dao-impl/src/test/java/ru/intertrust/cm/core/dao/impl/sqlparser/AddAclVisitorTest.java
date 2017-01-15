@@ -165,6 +165,30 @@ public class AddAclVisitorTest {
     }
 
     @Test
+    public void testSubslectWithoutFrom() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Base_Documents")));
+        AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
+        SqlQueryParser parser = new SqlQueryParser("select id, (select coaleasce(bd.a, bd.b)) ab from base_documents bd");
+        Select select = parser.getSelectStatement();
+        String expected = GROUPS_SUBQUERY
+                + select.toString().replaceFirst("base_documents bd", aclSubquery("base_documents", "base_documents", "base_documents", "bd"));
+        select.accept(visitor);
+        assertEquals(expected, select.toString());
+    }
+
+    @Test
+    public void testSelectWithWith() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Base_Documents")));
+        AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
+        SqlQueryParser parser = new SqlQueryParser("with t as(select x from y where z = 0) select id from base_documents bd where id = t.x");
+        Select select = parser.getSelectStatement();
+        String expected = select.toString().replaceFirst("z = 0\\)", "z = 0\\), " + GROUPS_SUBQUERY.replace("WITH ", "").trim())
+                .replaceFirst("base_documents bd", aclSubquery("base_documents", "base_documents", "base_documents", "bd"));
+        select.accept(visitor);
+        assertEquals(expected, select.toString());
+    }
+
+    @Test
     public void testUsageOfLinkedTypeWithParent() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));

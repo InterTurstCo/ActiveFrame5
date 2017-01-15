@@ -149,7 +149,9 @@ public class AddAclVisitor extends StatementVisitorAdapter implements StatementV
                 addTableToTableGroup(new FromItemAccessor(plainSelect), plainSelect);
             }
         } else {
-            plainSelect.getFromItem().accept(recursiveExpressionVisitor);
+            if (from != null) {
+                from.accept(recursiveExpressionVisitor);
+            }
         }
     }
 
