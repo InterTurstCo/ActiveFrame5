@@ -4,17 +4,27 @@ import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnalyticExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.BinaryExpression;
+import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
 import net.sf.jsqlparser.expression.ExtractExpression;
+import net.sf.jsqlparser.expression.IntervalExpression;
+import net.sf.jsqlparser.expression.JsonExpression;
+import net.sf.jsqlparser.expression.KeepExpression;
+import net.sf.jsqlparser.expression.OracleHierarchicalExpression;
+import net.sf.jsqlparser.expression.Parenthesis;
+import net.sf.jsqlparser.expression.SignedExpression;
+import net.sf.jsqlparser.expression.WhenClause;
+import net.sf.jsqlparser.expression.WithinGroupExpression;
 import net.sf.jsqlparser.expression.operators.arithmetic.Addition;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseAnd;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseOr;
 import net.sf.jsqlparser.expression.operators.arithmetic.BitwiseXor;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.arithmetic.Division;
+import net.sf.jsqlparser.expression.operators.arithmetic.Modulo;
 import net.sf.jsqlparser.expression.operators.arithmetic.Multiplication;
 import net.sf.jsqlparser.expression.operators.arithmetic.Subtraction;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
@@ -26,6 +36,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
 import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
 import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
 import net.sf.jsqlparser.expression.operators.relational.Matches;
@@ -33,6 +44,8 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
+import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
@@ -235,6 +248,71 @@ public class RecursiveExpressionVisitor extends ExpressionVisitorAdapter impleme
     public void visitBinaryExpression(BinaryExpression binaryExpression) {
         binaryExpression.getLeftExpression().accept(this);
         binaryExpression.getRightExpression().accept(this);
+    }
+
+    @Override
+    public void visit(SignedExpression signedExpression) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(Parenthesis parenthesis) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(IsNullExpression isNullExpression) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(CaseExpression caseExpression) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(WhenClause whenClause) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(Modulo modulo) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(WithinGroupExpression wgexpr) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(IntervalExpression iexpr) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(OracleHierarchicalExpression oexpr) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(RegExpMatchOperator rexpr) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(JsonExpression jsonExpr) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(RegExpMySQLOperator regExpMySQLOperator) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(KeepExpression aexpr) {
+        // TODO Auto-generated method stub
     }
 
 }

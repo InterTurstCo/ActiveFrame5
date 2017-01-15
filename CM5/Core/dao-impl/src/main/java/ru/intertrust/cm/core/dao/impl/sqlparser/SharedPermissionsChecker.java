@@ -45,7 +45,7 @@ public class SharedPermissionsChecker {
         }
 
         private boolean checkColumn(Column column, String table, String field) {
-            return column.getColumnName().equals(field) && ("id".equals(field) || column.getTable().getName().equals(table));
+            return column.getColumnName().equalsIgnoreCase(field) && ("id".equalsIgnoreCase(field) || column.getTable().getName().equalsIgnoreCase(table));
         }
 
         @Override
@@ -104,7 +104,7 @@ public class SharedPermissionsChecker {
             typeConfig = configurationExplorer.getConfig(DomainObjectTypeConfig.class, typeConfig.getExtendsAttribute());
         }
 
-        return matrixConfig.getMatrixReference();
+        return matrixConfig == null ? null : matrixConfig.getMatrixReference();
     }
 
     private String getLinker(String firstType, String secondType) {
@@ -148,7 +148,7 @@ public class SharedPermissionsChecker {
     private boolean areRelated(String first, String second) {
         String firstRoot = configurationExplorer.getDomainObjectRootType(first);
         String secondRoot = configurationExplorer.getDomainObjectRootType(second);
-        return firstRoot.equals(secondRoot);
+        return firstRoot.equalsIgnoreCase(secondRoot);
     }
 
 }

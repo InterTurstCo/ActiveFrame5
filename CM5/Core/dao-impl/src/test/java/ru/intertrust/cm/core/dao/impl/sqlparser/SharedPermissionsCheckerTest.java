@@ -136,6 +136,15 @@ public class SharedPermissionsCheckerTest {
         assertTrue(checker.check(first, second));
     }
 
+    @Test
+    public void testCaseInsensitive() throws JSQLParserException {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Root")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Root_Multiple").linkedTo("Root", "Root_id")));
+        FromItemAccessor first = createAccessor("Root", "r");
+        FromItemAccessor second = createAccessor("Root_multiple", "rm", equalsExpression("r.ID", "rm.root_id"), false);
+        assertTrue(checker.check(first, second));
+    }
+
     private Expression andExpression(Expression left, Expression right) {
         return new AndExpression(left, right);
     }

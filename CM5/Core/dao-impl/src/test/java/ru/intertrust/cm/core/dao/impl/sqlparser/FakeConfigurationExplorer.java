@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.DomainObjectFieldsConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -51,20 +52,20 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
     }
 
-    private HashMap<Class<?>, HashMap<String, TopLevelConfig>> categoriesMap =
-            new HashMap<Class<?>, HashMap<String, TopLevelConfig>>();
+    private HashMap<Class<?>, CaseInsensitiveHashMap<TopLevelConfig>> categoriesMap =
+            new HashMap<Class<?>, CaseInsensitiveHashMap<TopLevelConfig>>();
 
     public void addConfig(TopLevelConfig config) {
         if (!categoriesMap.containsKey(config.getClass())) {
-            categoriesMap.put(config.getClass(), new HashMap<String, TopLevelConfig>());
+            categoriesMap.put(config.getClass(), new CaseInsensitiveHashMap<TopLevelConfig>());
         }
-        HashMap<String, TopLevelConfig> subcategoryMap = categoriesMap.get(config.getClass());
+        CaseInsensitiveHashMap<TopLevelConfig> subcategoryMap = categoriesMap.get(config.getClass());
         subcategoryMap.put(config.getName(), config);
     }
 
     @Override
     public <T> T getConfig(Class<T> type, String name) {
-        HashMap<String, TopLevelConfig> category = categoriesMap.get(type);
+        CaseInsensitiveHashMap<TopLevelConfig> category = categoriesMap.get(type);
         if (category == null) {
             return null;
         } else {
@@ -74,7 +75,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
     @Override
     public String getMatrixReferenceTypeName(String childTypeName) {
-        HashMap<String, TopLevelConfig> matrices = categoriesMap.get(AccessMatrixConfig.class);
+        CaseInsensitiveHashMap<TopLevelConfig> matrices = categoriesMap.get(AccessMatrixConfig.class);
         if (matrices == null) {
             return null;
         } else {

@@ -151,6 +151,20 @@ public class AddAclVisitorTest {
     }
 
     @Test
+    public void testCaseInsensitiveness() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Base_Documents")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("Documents").parent("Base_Documents")));
+        AddAclVisitor visitor = new AddAclVisitor(configurationExplorer, userCache, accessor, queryHelper);
+        SqlQueryParser parser = new SqlQueryParser("select id from documents d join base_documents bd on bd.id = d.id");
+        Select select = parser.getSelectStatement();
+        String expected = GROUPS_SUBQUERY
+                + "SELECT id FROM " + aclSubquery("documents", "base_documents", "base_documents", "d")
+                + " JOIN base_documents bd ON bd.id = d.id";
+        select.accept(visitor);
+        assertEquals(expected, select.toString());
+    }
+
+    @Test
     public void testUsageOfLinkedTypeWithParent() {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("base_documents")));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("documents").parent("base_documents")));
