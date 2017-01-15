@@ -15,7 +15,7 @@ public class EmbeddedSolrServerFactory implements DynamicLoadClassFactory<SolrSe
     @Value("${search.solr.home}")
     private String solrHome;
 
-    @Value("${search.solr.collection}")
+    @Value("${search.solr.collection:CM5}")
     private String solrCollection;
 
     @Override
