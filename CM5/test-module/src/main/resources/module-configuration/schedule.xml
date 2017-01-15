@@ -261,7 +261,7 @@
     <collection name="schedule_execution_collection" idField="id">
         <prototype>
             <![CDATA[
-                select ex.*, st.description as status_name
+                select ex.id, ex.redy_date, ex.complete_date, ex.result, ex.result_description, st.description as status_name
                 from schedule_execution ex
                 join status st on st.id=ex.status
                 where 1=1 ::where-clause
