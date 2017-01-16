@@ -211,5 +211,5 @@
             <!-- Идентификатор ноды, в которой будет выполняться данное задание -->
             <string name="node_id" length="256" not-null="true"/>
         </fields>
-    </domain-object-type>    
+    </domain-object-type>
 </configuration>

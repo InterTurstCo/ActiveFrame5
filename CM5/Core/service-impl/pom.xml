@@ -78,19 +78,17 @@
         <dependency>
             <groupId>org.activiti</groupId>
             <artifactId>activiti-engine</artifactId>
-            <version>${activiti.version}</version>
         </dependency>
         <dependency>
             <groupId>org.activiti</groupId>
             <artifactId>activiti-spring</artifactId>
-            <version>${activiti.version}</version>
         </dependency>
 
-		<dependency>
-			<groupId>commons-javaflow</groupId>
-			<artifactId>commons-javaflow</artifactId>
-			<version>1.0.0</version>
-		</dependency>
+        <dependency>
+            <groupId>commons-javaflow</groupId>
+            <artifactId>commons-javaflow</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
         <dependency>
             <groupId>org.eclipse.jdt.core.compiler</groupId>
@@ -120,7 +118,6 @@
         <dependency>
             <groupId>org.apache.solr</groupId>
             <artifactId>solr-solrj</artifactId>
-            <version>${solr.version}</version>
         </dependency>
 
         <dependency>
@@ -169,7 +166,6 @@
                 <dependency>
                     <groupId>org.apache.solr</groupId>
                     <artifactId>solr-core</artifactId>
-                    <version>${solr.version}</version>
                     <exclusions>
                         <exclusion>
                             <groupId>jdk.tools</groupId>
@@ -180,12 +176,10 @@
                 <dependency>
                     <groupId>org.apache.solr</groupId>
                     <artifactId>solr-cell</artifactId>
-                    <version>${solr.version}</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.solr</groupId>
                     <artifactId>solr-langid</artifactId>
-                    <version>${solr.version}</version>
                 </dependency>
                 <!-- <dependency>
                     <groupId>jdk.tools</groupId>
