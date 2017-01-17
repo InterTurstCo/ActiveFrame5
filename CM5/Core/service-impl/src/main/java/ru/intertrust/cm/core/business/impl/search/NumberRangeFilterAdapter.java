@@ -56,7 +56,7 @@ public class NumberRangeFilterAdapter implements FilterAdapter<NumberRangeFilter
     private static String makeSolrFieldFilter(NumberRangeFilter filter, SearchFieldType type) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
-                .append(type.getInfix())
+                .append(type.infix)
                 .append(filter.getFieldName().toLowerCase())
                 .append(":[")
                 .append(numberToString(filter.getMin()))

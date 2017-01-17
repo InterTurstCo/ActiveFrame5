@@ -48,7 +48,7 @@ public class OneOfListFilterAdapter implements FilterAdapter<OneOfListFilter> {
     private static String makeSolrFieldFilter(String name, SearchFieldType type, List<ReferenceValue> values) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
-                .append(type.getInfix())
+                .append(type.infix)
                 .append(name.toLowerCase())
                 .append(":");
         boolean firstValue = true;

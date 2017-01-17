@@ -34,12 +34,12 @@ public class EmptyValueFilterAdapter implements FilterAdapter<EmptyValueFilter> 
             if (SearchFieldType.TEXT == solrType || SearchFieldType.TEXT_MULTI == solrType) {
                 for (String area : query.getAreas()) {
                     for (String langId : configHelper.getSupportedLanguages(field, area)) {
-                        infixes.add(langId.isEmpty() ? solrType.getInfix()
+                        infixes.add(langId.isEmpty() ? solrType.infix
                                 : langId + (solrType == SearchFieldType.TEXT_MULTI ? "s_" : "_"));
                     }
                 }
             } else {
-                infixes = Collections.singleton(solrType.getInfix());
+                infixes = Collections.singleton(solrType.infix);
             }
             for (String infix : infixes) {
                 if (result.length() > 0) {

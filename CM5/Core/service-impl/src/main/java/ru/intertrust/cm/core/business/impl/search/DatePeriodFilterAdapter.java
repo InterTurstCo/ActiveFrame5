@@ -24,7 +24,7 @@ public class DatePeriodFilterAdapter implements FilterAdapter<DatePeriodFilter> 
         }
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
-                .append(SearchFieldType.DATE.getInfix())
+                .append(SearchFieldType.DATE.infix)
                 .append(filter.getFieldName().toLowerCase())
                 .append(":[")
                 .append(dateToString(filter.getStartDate(), true))

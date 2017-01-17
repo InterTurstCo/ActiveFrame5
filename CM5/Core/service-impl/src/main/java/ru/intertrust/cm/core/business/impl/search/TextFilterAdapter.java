@@ -29,11 +29,16 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
             multiple = value.length() > 0;
             // solrField.first (String) - имя поля Solr
             // solrField.second (Boolean) - true = поиск по подстроке
+            String searchString = filter.getText();
+            if (solrField.getSecond() && searchString.length() > 2
+                    && searchString.startsWith("\"") && searchString.endsWith("\"")) {
+                searchString = searchString.substring(1, searchString.length() - 1);
+            }
             value.append(multiple ? " OR " : "")
                  .append(solrField.getFirst())
                  .append(":(")
                  .append(solrField.getSecond() ? '"' : "")
-                 .append(SolrUtils.protectSearchString(filter.getText(), solrField.getSecond()))
+                 .append(SolrUtils.protectSearchString(searchString, solrField.getSecond()))
                  .append(solrField.getSecond() ? '"' : "")
                  .append(")");
         }
@@ -52,16 +57,19 @@ public class TextFilterAdapter implements FilterAdapter<TextSearchFilter> {
         }
         if (baseField != null) {
             List<String> langIds = configHelper.getSupportedLanguages();
-            ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size());
+            ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size() + 1);
             for (String langId : langIds) {
                 fields.add(new Pair<>(makeSolrSpecialFieldName(baseField, langId), false));
             }
+            //CMFIVE-7260: to search by those fields which were indexed without configured languages
+            fields.add(new Pair<>(baseField, false));
             return fields;
         }
         final HashSet<String> langIds = new HashSet<>();
         for (String area : areaNames) {
             langIds.addAll(configHelper.getSupportedLanguages(name, area));
         }
+        langIds.add("");
         Set<SearchFieldType> types = configHelper.getFieldTypes(name, areaNames);
         ArrayList<Pair<String, Boolean>> fields = new ArrayList<>(langIds.size());
         for (String langId : langIds) {

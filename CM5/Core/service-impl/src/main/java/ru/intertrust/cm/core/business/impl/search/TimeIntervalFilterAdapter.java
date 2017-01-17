@@ -50,7 +50,7 @@ public class TimeIntervalFilterAdapter implements FilterAdapter<TimeIntervalFilt
     private static String makeSolrFieldFilter(TimeIntervalFilter filter, SearchFieldType type) {
         StringBuilder str = new StringBuilder()
                 .append(SolrFields.FIELD_PREFIX)
-                .append(type.getInfix())
+                .append(type.infix)
                 .append(filter.getFieldName().toLowerCase())
                 .append(":[")
                 .append(dateToString(filter.getStartTime()))

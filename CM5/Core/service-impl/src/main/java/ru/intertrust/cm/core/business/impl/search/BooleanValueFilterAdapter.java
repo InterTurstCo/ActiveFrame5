@@ -19,7 +19,7 @@ public class BooleanValueFilterAdapter implements FilterAdapter<BooleanSearchFil
         if (types.contains(SearchFieldType.BOOL)) {
             return new StringBuilder()
                     .append(SolrFields.FIELD_PREFIX)
-                    .append(SearchFieldType.BOOL.getInfix())
+                    .append(SearchFieldType.BOOL.infix)
                     .append(fieldName.toLowerCase())
                     .append(":")
                     .append(filter.getValue() ? "true" : "false")

@@ -146,7 +146,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
                 } else {
                     StringBuilder fieldName = new StringBuilder()
                         .append(SolrFields.FIELD_PREFIX)
-                        .append(type.getInfix())
+                        .append(type.infix)
                         .append(fieldConfig.getName().toLowerCase());
                     doc.addField(fieldName.toString(), value);
                 }
@@ -228,7 +228,7 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
             StringBuilder paramName = new StringBuilder()
                     .append("literal.")
                     .append(SolrFields.FIELD_PREFIX)
-                    .append(fieldType.getInfix())
+                    .append(fieldType.infix)
                     .append(fieldName.toLowerCase());
             request.setParam(paramName.toString(), value.toString());
         }
@@ -341,7 +341,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
     }
 
     private boolean isTextField(SearchFieldType type) {
-        return type == SearchFieldType.TEXT || type == SearchFieldType.TEXT_MULTI;
+        return type == SearchFieldType.TEXT || type == SearchFieldType.TEXT_MULTI
+                || type == SearchFieldType.TEXT_SUBSTRING || type == SearchFieldType.TEXT_MULTI_SUBSTRING;
     }
 
     private SearchFieldType getTypeByValue(Object value) {

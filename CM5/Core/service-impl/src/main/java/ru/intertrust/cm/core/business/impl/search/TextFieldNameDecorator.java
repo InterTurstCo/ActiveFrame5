@@ -36,7 +36,7 @@ public class TextFieldNameDecorator implements Iterable<String> {
                 if (solrField == null) {
                     fieldName.append(SolrFields.FIELD_PREFIX);
                     if (langId.isEmpty()) {
-                        fieldName.append(SearchFieldType.getFieldType(FieldType.STRING, multiValued).getInfix());
+                        fieldName.append(SearchFieldType.getFieldType(FieldType.STRING, multiValued).infix);
                     } else {
                         fieldName.append(langId);
                         if (multiValued) {

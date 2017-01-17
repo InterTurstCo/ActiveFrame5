@@ -4,15 +4,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
 import ru.intertrust.cm.core.business.api.dto.SearchQuery;
 import ru.intertrust.cm.core.business.api.dto.TextSearchFilter;
 import ru.intertrust.cm.core.model.SearchException;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -43,12 +46,33 @@ public class TextFilterAdapterTest {
                 .thenReturn(Collections.singleton(SearchFieldType.TEXT));
 
         String result = adapter.getFilterString(filter, query);
-        if (!result.equals("(cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)" +
-                " OR cm_ru_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon))") &&
-            !result.equals("(cm_ru_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)" +
-                    " OR cm_en_testfield:(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon))")) {
-            assertTrue("Incorrect result: " + result, false);
+        HashSet<String> expectedFields = new HashSet<>(
+                Arrays.asList("cm_en_testfield", "cm_ru_testfield", "cm_t_testfield"));
+        result = checkAndCutBeginning(result, "(");
+        while (true) {
+            String foundField = null;
+            for (String fieldName : expectedFields) {
+                if (result.startsWith(fieldName)) {
+                    foundField = fieldName;
+                    break;
+                }
+            }
+            assertNotNull("Unexpected field name: " + result, foundField);
+            expectedFields.remove(foundField);
+            result = result.substring(foundField.length());
+            result = checkAndCutBeginning(result,
+                    ":(find WoRdS && part* || \"whole phrase\" +required -excess escape\\:semicolon)");
+            if (expectedFields.isEmpty()) {
+                assertTrue(result.equals(")"));
+                break;
+            }
+            result = checkAndCutBeginning(result, " OR ");
         }
+    }
+
+    private String checkAndCutBeginning(String string, String beginning) {
+        assertTrue(string.startsWith(beginning));
+        return string.substring(beginning.length());
     }
 
     @Test
@@ -71,7 +95,9 @@ public class TextFilterAdapterTest {
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList("ru", "en", "fr"));
 
         String result = adapter.getFilterString(filter, query);
-        assertEquals("(cm_text_ru:(Test string) OR cm_text_en:(Test string) OR cm_text_fr:(Test string))", result);
+        assertEquals(
+                "(cm_text_ru:(Test string) OR cm_text_en:(Test string) OR cm_text_fr:(Test string) OR cm_text:(Test string))",
+                result);
     }
 
     @Test
@@ -81,7 +107,7 @@ public class TextFilterAdapterTest {
         when(configHelper.getSupportedLanguages()).thenReturn(Arrays.asList("uk"));
 
         String result = adapter.getFilterString(filter, query);
-        assertEquals("cm_content_uk:(\"Test phrase\")", result);
+        assertEquals("(cm_content_uk:(\"Test phrase\") OR cm_content:(\"Test phrase\"))", result);
     }
 
     @Test
@@ -110,6 +136,19 @@ public class TextFilterAdapterTest {
 
         String result = adapter.getFilterString(filter, query);
         assertEquals("cm_t_testfield:(\"Quotes must be \\\"quoted\\\"\")", result);
+    }
+
+    @Test
+    public void testSubstringSearchedField_QuotedString() {
+        TextSearchFilter filter = new TextSearchFilter("TestField", "\"Embracing quotes must be removed\"");
+        SearchQuery query = mock(SearchQuery.class);
+        when(query.getAreas()).thenReturn(Arrays.asList("SingleArea"));
+        when(configHelper.getSupportedLanguages(anyString(), anyString())).thenReturn(Arrays.asList(""));
+        when(configHelper.getFieldTypes(anyString(), anyListOf(String.class)))
+                .thenReturn(Collections.singleton(SearchFieldType.TEXT_SUBSTRING));
+
+        String result = adapter.getFilterString(filter, query);
+        assertEquals("cm_t_testfield:(\"Embracing quotes must be removed\")", result);
     }
 
     @Test
