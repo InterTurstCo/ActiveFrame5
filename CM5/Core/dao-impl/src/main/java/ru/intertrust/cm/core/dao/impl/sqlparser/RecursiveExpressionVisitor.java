@@ -52,6 +52,7 @@ import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 
 public class RecursiveExpressionVisitor extends ExpressionVisitorAdapter implements ExpressionVisitor, ItemsListVisitor, FromItemVisitor {
@@ -313,6 +314,12 @@ public class RecursiveExpressionVisitor extends ExpressionVisitorAdapter impleme
     @Override
     public void visit(KeepExpression aexpr) {
         // TODO Auto-generated method stub
+    }
+
+    @Override
+    public void visit(TableFunction tableFunction) {
+        // TODO Auto-generated method stub
+
     }
 
 }

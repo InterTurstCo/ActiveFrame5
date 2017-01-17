@@ -27,6 +27,7 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.TableFunction;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
@@ -150,6 +151,12 @@ public abstract class BaseParamProcessingVisitor extends BaseExpressionVisitor i
 
     @Override
     public void visit(SignedExpression signedExpression) {
+
+    }
+
+    @Override
+    public void visit(TableFunction tableFunction) {
+        // TODO Auto-generated method stub
 
     }
 

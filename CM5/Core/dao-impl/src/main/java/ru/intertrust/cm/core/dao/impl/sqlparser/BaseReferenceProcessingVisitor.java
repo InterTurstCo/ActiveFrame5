@@ -6,17 +6,11 @@ import java.util.Map;
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.JdbcNamedParameter;
-import net.sf.jsqlparser.expression.JsonExpression;
-import net.sf.jsqlparser.expression.KeepExpression;
-import net.sf.jsqlparser.expression.NumericBind;
 import net.sf.jsqlparser.expression.Parenthesis;
-import net.sf.jsqlparser.expression.UserVariable;
-import net.sf.jsqlparser.expression.WithinGroupExpression;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
@@ -180,42 +174,6 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
 
         jdbcParameters.put(referenceParamName, ((RdbmsId) referenceValue.get()).getId());
         jdbcParameters.put(referenceTypeParamName, refTypeId);
-    }
-
-    @Override
-    public void visit(WithinGroupExpression wgexpr) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(JsonExpression jsonExpr) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(RegExpMySQLOperator regExpMySQLOperator) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(UserVariable var) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(NumericBind bind) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void visit(KeepExpression aexpr) {
-        // TODO Auto-generated method stub
-
     }
 
 }

@@ -62,10 +62,10 @@ public class SqlQueryModifierTest {
             "AND ((e.\"person\" <> :idsExcluded20 OR e.\"person_type\" <> :idsExcluded20_type) AND " +
             "(e.\"person\" <> :idsExcluded21 OR e.\"person_type\" <> :idsExcluded21_type))";
 
-    private static final String UNION_QUERY_WITH_TYPE = "(SELECT * FROM \"employee\" e, " +
-            "\"department\" d WHERE 1 = 1 AND e.\"id\" = 1) " +
-            "UNION (SELECT * FROM \"employee\" e, \"department\" d WHERE 1 = 1 " +
-            "AND e.\"id\" = 2)";
+    private static final String UNION_QUERY_WITH_TYPE = "SELECT * FROM \"employee\" e, " +
+            "\"department\" d WHERE 1 = 1 AND e.\"id\" = 1 " +
+            "UNION SELECT * FROM \"employee\" e, \"department\" d WHERE 1 = 1 " +
+            "AND e.\"id\" = 2";
 
     private static final String PLAIN_SELECT_QUERY_WITHOUT_WHERE_ACL =
             "WITH cur_user_groups AS (" +
@@ -111,7 +111,7 @@ public class SqlQueryModifierTest {
                     "SELECT DISTINCT gg.\"parent_group_id\" FROM \"group_member\" gm " +
                     "INNER JOIN \"group_group\" gg ON gg.\"child_group_id\" = gm.\"usergroup\" " +
                     "WHERE gm.\"person_id\" = :user_id) " +
-                    "(SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
+                    "SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
                     "r.\"object_id\" = employee.\"access_object_id\")) e, " +
@@ -119,8 +119,8 @@ public class SqlQueryModifierTest {
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
                     "AND r.\"object_id\" = department.\"access_object_id\")) d " +
-                    "WHERE 1 = 1 AND e.\"id\" = 1) UNION " +
-                    "(SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
+                    "WHERE 1 = 1 AND e.\"id\" = 1 UNION " +
+                    "SELECT * FROM (SELECT employee.* FROM \"employee\" employee " +
                     "WHERE 1 = 1 AND EXISTS (SELECT 1 FROM \"employee_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) AND " +
                     "r.\"object_id\" = employee.\"access_object_id\")) e, " +
@@ -128,7 +128,7 @@ public class SqlQueryModifierTest {
                     "EXISTS (SELECT 1 FROM \"department_read\" r " +
                     "WHERE r.\"group_id\" IN (SELECT \"parent_group_id\" FROM cur_user_groups) " +
                     "AND r.\"object_id\" = department.\"access_object_id\")) d " +
-                    "WHERE 1 = 1 AND e.\"id\" = 2)";
+                    "WHERE 1 = 1 AND e.\"id\" = 2";
 
     private static final String WRAP_AND_LOWERCASE_QUERY = "SELECT module.Id, module.type_id " +
             "FROM SS_MODULE module " +

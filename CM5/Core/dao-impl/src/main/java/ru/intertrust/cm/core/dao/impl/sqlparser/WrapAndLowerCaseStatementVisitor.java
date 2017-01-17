@@ -11,6 +11,7 @@ import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.execute.Execute;
 import net.sf.jsqlparser.statement.insert.Insert;
+import net.sf.jsqlparser.statement.merge.Merge;
 import net.sf.jsqlparser.statement.replace.Replace;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.WithItem;
@@ -98,6 +99,12 @@ public class WrapAndLowerCaseStatementVisitor implements StatementVisitor {
 
     @Override
     public void visit(SetStatement set) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(Merge merge) {
         // TODO Auto-generated method stub
 
     }
