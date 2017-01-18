@@ -118,11 +118,14 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         Map<String, Object> originalParams = parameters;
         long t1 = 0;
         long heap = 0;
+        LoggingThread loggingThread = null;
         if (logger.isDebugEnabled()) {
             heap = Runtime.getRuntime().totalMemory();
             t1 = System.currentTimeMillis();
             originalParams = new HashMap<>(parameters);
             logger.debug("Executing Report, name: " + name + ". Params: " + originalParams);
+            loggingThread = new LoggingThread(name, originalParams, heap);
+            loggingThread.start();
         }
         try {
             // Получение доменного объекта шаблона отчета
@@ -179,6 +182,9 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             logger.error(ex.getMessage());
             throw new ReportServiceException("Error on generate report", ex);
         } finally {
+            if (loggingThread != null) {
+                loggingThread.cancel();
+            }
             if (logger.isDebugEnabled()) {
                 long time = System.currentTimeMillis() - t1;
                 long heapDelta = (Runtime.getRuntime().totalMemory() - heap) / 1024 / 1024;
@@ -341,4 +347,36 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         return DriverManager.getConnection(connectionString);
     }
 
+    private static class LoggingThread extends Thread {
+        private long t1 = System.currentTimeMillis();
+        private boolean stopped = false;
+        private String name;
+        private Map params;
+        private long heap;
+
+        public LoggingThread(String name, Map params, long heap) {
+            this.name = name;
+            this.params = params;
+            this.heap = heap;
+        }
+
+        @Override
+        public void run() {
+            while (!stopped) {
+                long heapDelta = (Runtime.getRuntime().totalMemory() - heap) / 1024 / 1024;
+                logger.debug("Report, name: " + name + ". Params: "
+                        + params + " is running for " + (System.currentTimeMillis() - t1) / 1000 + " seconds. "
+                        + "Heap delta: " + heapDelta + " MB ");
+                try {
+                    sleep(10000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void cancel() {
+            stopped = true;
+        }
+    }
 }
