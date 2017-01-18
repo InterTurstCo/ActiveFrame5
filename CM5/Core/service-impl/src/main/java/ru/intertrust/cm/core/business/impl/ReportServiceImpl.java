@@ -35,6 +35,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -114,8 +115,14 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
      * Формирование отчета
      */
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
+        Map<String, Object> originalParams = parameters;
+        long t1 = 0;
+        long heap = 0;
         if (logger.isDebugEnabled()) {
-            logger.debug("Executing Report, name: " + name + ". Parameters list " + parameters);
+            heap = Runtime.getRuntime().totalMemory();
+            t1 = System.currentTimeMillis();
+            originalParams = new HashMap<>(parameters);
+            logger.debug("Executing Report, name: " + name + ". Params: " + originalParams);
         }
         try {
             // Получение доменного объекта шаблона отчета
@@ -132,7 +139,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             // todo: this method should accept DataSource and if it's MASTER - support transaction
             File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
             if (logger.isDebugEnabled()) {
-                logger.debug("Generated Report, name: " + name + ". Parameters list " + parameters);
+                logger.debug("Generated Report, name: " + name + ". Params: " + originalParams);
             }
 
             //Вызов точки расширения после генерации отчета
@@ -145,20 +152,20 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             extentionHandler.onAfterGenerateReport(name, parameters, result);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("Saving Report, name: " + name + ". Parameters list " + parameters);
+                logger.debug("Saving Report, name: " + name + ". Params: " + originalParams);
             }
             //Сохранеие результата в хранилище
             Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
 
             //Формироание результата
             if (logger.isDebugEnabled()) {
-                logger.debug("Creating Report result, name: " + name + ". Parameters list " + parameters);
+                logger.debug("Creating Report result, name: " + name + ". Params: " + originalParams);
             }
             ReportResult reportResult = new ReportResult();
             reportResult.setFileName(result.getName());
             final byte[] report = readFile(result); // todo: RE-IMPLEMENT, files can be huge and should not get into RAM
             if (logger.isDebugEnabled()) {
-                logger.debug("Report file read, size: " + report.length / 1024 / 1024 + "MB, name: " + name + ". Parameters list " + parameters);
+                logger.debug("Report file read, size: " + report.length / 1024 / 1024 + " MB, name: " + name + ". Params: " + originalParams);
             }
             reportResult.setReport(report);
             reportResult.setTemplateName(name);
@@ -173,7 +180,11 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             throw new ReportServiceException("Error on generate report", ex);
         } finally {
             if (logger.isDebugEnabled()) {
-                logger.debug("Report built, name: " + name + ". Parameters list " + parameters);
+                long time = System.currentTimeMillis() - t1;
+                long heapDelta = (Runtime.getRuntime().totalMemory() - heap) / 1024 / 1024;
+                logger.debug("Report built, name: " + name + ". Params: " + originalParams
+                        + ". Time: " + time + " ms. "
+                        + "Heap delta: " + heapDelta + " MB ");
             }
         }
     }
