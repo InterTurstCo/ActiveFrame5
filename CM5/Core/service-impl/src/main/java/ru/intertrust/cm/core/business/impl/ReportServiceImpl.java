@@ -156,7 +156,11 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             }
             ReportResult reportResult = new ReportResult();
             reportResult.setFileName(result.getName());
-            reportResult.setReport(readFile(result));
+            final byte[] report = readFile(result); // todo: RE-IMPLEMENT, files can be huge and should not get into RAM
+            if (logger.isDebugEnabled()) {
+                logger.debug("Report file read, size: " + report.length / 1024 / 1024 + "MB, name: " + name + ". Parameters list " + parameters);
+            }
+            reportResult.setReport(report);
             reportResult.setTemplateName(name);
             reportResult.setResultId(resultId);
 
