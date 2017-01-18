@@ -22,6 +22,7 @@ import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.*;
 import ru.intertrust.cm.globalcache.api.util.Size;
+import ru.intertrust.cm.globalcache.api.util.Sizeable;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -35,6 +36,8 @@ import java.util.concurrent.*;
 public class GlobalCacheImpl implements GlobalCache {
     private static final Logger logger = LoggerFactory.getLogger(GlobalCacheImpl.class);
     private final Object READ_EXOTIC_VS_COMMIT_LOCK = new Object();
+    public static final long MAX_CACHED_ENTRY_SIZE = 10 * Size.BYTES_IN_MEGABYTE;
+    public static final long MAX_SUSPICIOUS_ENTRY_SIZE = Size.BYTES_IN_MEGABYTE;
 
     @Autowired
     private ConfigurationExplorer explorer;
@@ -1085,10 +1088,27 @@ public class GlobalCacheImpl implements GlobalCache {
         }
         synchronized (subKey) { // todo fix
             CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
+            if (tooLargeToCache(collectionNode)) {
+                baseNode.setCollectionNode(subKey, null);
+                return;
+            }
             baseNode.setCollectionNode(subKey, collectionNode);
         }
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         assureCacheSizeLimit();
+    }
+
+    private boolean tooLargeToCache(Sizeable object) {
+        final Size size = object.getSize();
+        final long sizeBytes = size.get();
+        if (size.get() > MAX_CACHED_ENTRY_SIZE) {
+            logger.warn(object.getClass() + " is not cached due to it's huge size: " + size.getMB() + " MB");
+            return false;
+        }
+        if (sizeBytes > MAX_SUSPICIOUS_ENTRY_SIZE) {
+            logger.warn("Object " + object.getClass() + " is quite large, but cached: " + size.getMB() + " MB");
+        }
+        return true;
     }
 
     protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
