@@ -114,6 +114,9 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
      * Формирование отчета
      */
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Executing Report, name: " + name + ". Parameters list " + parameters);
+        }
         try {
             // Получение доменного объекта шаблона отчета
             DomainObject reportTemplate = getReportTemplateObject(name);
@@ -128,6 +131,9 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             //Формирование отчета
             // todo: this method should accept DataSource and if it's MASTER - support transaction
             File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Generated Report, name: " + name + ". Parameters list " + parameters);
+            }
 
             //Вызов точки расширения после генерации отчета
             //Сначала для точек расширения у которых указан фильтр
@@ -138,10 +144,16 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
             extentionHandler.onAfterGenerateReport(name, parameters, result);
 
+            if (logger.isDebugEnabled()) {
+                logger.debug("Saving Report, name: " + name + ". Parameters list " + parameters);
+            }
             //Сохранеие результата в хранилище
             Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
 
             //Формироание результата
+            if (logger.isDebugEnabled()) {
+                logger.debug("Creating Report result, name: " + name + ". Parameters list " + parameters);
+            }
             ReportResult reportResult = new ReportResult();
             reportResult.setFileName(result.getName());
             reportResult.setReport(readFile(result));
@@ -155,6 +167,10 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             throw new ReportServiceException("Error on generate report", ex);
+        } finally {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Report built, name: " + name + ". Parameters list " + parameters);
+            }
         }
     }
 
