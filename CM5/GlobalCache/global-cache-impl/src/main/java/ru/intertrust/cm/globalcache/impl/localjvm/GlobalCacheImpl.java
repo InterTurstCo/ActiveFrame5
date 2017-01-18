@@ -1103,12 +1103,12 @@ public class GlobalCacheImpl implements GlobalCache {
         final long sizeBytes = size.get();
         if (size.get() > MAX_CACHED_ENTRY_SIZE) {
             logger.warn(object.getClass() + " is not cached due to it's huge size: " + size.getMB() + " MB");
-            return false;
+            return true;
         }
         if (sizeBytes > MAX_SUSPICIOUS_ENTRY_SIZE) {
             logger.warn("Object " + object.getClass() + " is quite large, but cached: " + size.getMB() + " MB");
         }
-        return true;
+        return false;
     }
 
     protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
