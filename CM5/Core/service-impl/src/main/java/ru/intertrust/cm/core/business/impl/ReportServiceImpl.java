@@ -123,7 +123,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             heap = Runtime.getRuntime().totalMemory();
             t1 = System.currentTimeMillis();
             originalParams = new HashMap<>(parameters);
-            logger.debug("Executing Report, name: " + name + ". Params: " + originalParams);
+            logger.debug("Executing Report, name: " + name + ". Params: " + originalParams + ", User: " + currentUserAccessor.getCurrentUser());
             loggingThread = new LoggingThread(name, originalParams, heap);
             loggingThread.start();
         }
