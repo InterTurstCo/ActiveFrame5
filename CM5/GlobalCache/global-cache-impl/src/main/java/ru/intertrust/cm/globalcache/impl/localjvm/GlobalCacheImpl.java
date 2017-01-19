@@ -1089,7 +1089,7 @@ public class GlobalCacheImpl implements GlobalCache {
         synchronized (subKey) { // todo fix
             CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
             if (tooLargeToCache(collectionNode)) {
-                baseNode.setCollectionNode(subKey, null);
+                baseNode.removeCollectionNode(subKey);
                 return;
             }
             baseNode.setCollectionNode(subKey, collectionNode);
