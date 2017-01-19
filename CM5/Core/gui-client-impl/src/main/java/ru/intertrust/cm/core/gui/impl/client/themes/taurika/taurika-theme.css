@@ -61,10 +61,10 @@
     margin-left: 0px;
 }
 
-
 .left-section-active {
     background: #3464a6;
     margin-top: 100px;
+    /*margin-left: -85px;*/
 }
 
 .central-div-panel-test {
@@ -260,6 +260,8 @@ td.H_td_ExtSearch {
 
 .action-bar {
     background: #fff;
+    border-bottom: 2px solid #3464a6;
+    box-shadow: none;
 }
 
 .before-target-target {
@@ -274,7 +276,9 @@ td.H_td_ExtSearch {
 }
 
 .form-panel-header {
-    background: none;
+    background: #3464a6;
+    color: #fff;
+    padding: 10px 0 20px 0;
 }
 
 .form-footer-blank {
@@ -366,6 +370,222 @@ td.H_td_ExtSearch {
 .left-div-visible {
     background: #e8e8e8;
 }
+
+.form-panel-header .gwt-Good-Label {
+    font-size: 20px;
+}
+
+.gwt-TabPanelBottom .labelWidgetDefault {
+    color: #999999;
+}
+
+.GNMSARGJM-ru-intertrust-cm-core-gui-impl-client-themes-def-splitter-SplitterStyles-gwt-SplitLayoutPanel-HDragger {
+    background: #3464a6 !important;
+    width: 2px !important;
+}
+
+.suggest-container-arrow-btn {
+    background: url(resources/taurikatheme/images/icons/arrow-down.png) no-repeat;
+    -webkit-background-size: cover;
+    background-size: 18px;
+    background-position: center;
+}
+
+.GNMSARGAY-com-google-gwt-user-client-ui-NativeVerticalScrollbar_NativeVerticalScrollbarUiBinderImpl_GenCss_style-viewport {
+    background: #ededed;
+    width: 8px !important;
+    z-index: 10;
+}
+
+. GNMSARGPX-com-google-gwt-user-client-ui-NativeVerticalScrollbar_NativeVerticalScrollbarUiBinderImpl_GenCss_style-scrollable {
+    width: 8px;
+}
+
+.GNMSARGH-com-google-gwt-resources-client-CommonResources-InlineBlockStyle-inlineBlock>table {
+    display: flex;
+    flex-direction: column;
+}
+
+.collection-plugin-view tr[class\*="dataGridEvenRow"],tr[class\*="dataGridOddRow"],tr[class\*="dataGridSelectedRow"]{
+    height: 100px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    margin: 0 30px 0 30px;
+}
+
+tr[class\*="dataGridSelectedRow"]>td{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-grow: 1;
+}
+
+tr[class\*="dataGridOddRow"]>td {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.collection-plugin-view tr[class\*="dataGridEvenRow"]>td {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.collection-plugin-view tr[class\*="dataGridHoveredRow"] {
+    background: none;
+    box-shadow: none;
+}
+
+.collection-plugin-view tr[class\*="dataGridEvenRow"]>td:first-child {
+    padding-left: 20px;
+}
+
+.collection-plugin-view tr[class\*="dataGridOddRow"]>td:first-child {
+    padding-left: 20px;
+}
+
+.collection-plugin-view tr[class\*="dataGridSelectedRow"]>td:first-child {
+    padding-left: 20px;
+}
+
+
+.collection-plugin-view tr[class\*="dataGridSelectedRow"] {
+    border-image-width: 0px 10px 0px 30px;
+    border-image-outset: 0px 10px 0px 30px;
+    border-image-slice: 0 0 0 51 fill;
+    border-image-repeat: stretch stretch;
+    border-image-source: url(resources/taurikatheme/images/icons/row-icon-1.jpg);
+    border-width:0px 10px 0px 30px;
+    box-shadow: 0px 1px 0px #ccc !important;
+}
+
+
+
+/*variant-4*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] td:first-child>div {*/
+    /*position: relative;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] td:first-child>div>div::after {*/
+    /*content: "";*/
+    /*position: absolute;*/
+    /*left: 2px;*/
+    /*top: 50%;*/
+    /*margin-top: -20px;*/
+    /*width: 40px;*/
+    /*height: 40px;*/
+    /*background: url(resources/taurikatheme/images/icons/row-icon.jpg) no-repeat;*/
+    /*background-size: 18px;*/
+    /*background-size: 18px;*/
+/*}*/
+
+
+
+/*variant-3*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] {*/
+    /*position: relative;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"]::after {*/
+    /*content: "";*/
+    /*position: absolute;*/
+    /*left: 2px;*/
+    /*transform: translateY(84%);*/
+    /*width: 40px;*/
+    /*height: 40px;*/
+    /*background: url(resources/taurikatheme/images/icons/row-icon.jpg) no-repeat;*/
+    /*background-size: 18px;*/
+    /*background-size: 18px;*/
+/*}*/
+
+/*variant-3*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*background: url(resources/taurikatheme/images/icons/arrow-down.png) no-repeat;*/
+    /*-webkit-background-size: cover;*/
+    /*background-size: 18px;*/
+    /*background-position: left;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridEvenRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*background: url(resources/taurikatheme/images/icons/bg-row.jpg) no-repeat;*/
+    /*-webkit-background-size: cover;*/
+    /*background-size: 18px;*/
+    /*background-position: left;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridOddRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*background: url(resources/taurikatheme/images/icons/bg-row.jpg) no-repeat;*/
+    /*-webkit-background-size: cover;*/
+    /*background-size: 18px;*/
+    /*background-position: left;*/
+/*}*/
+
+/*variant-2*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*position: relative;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridSelectedRow"] td:first-child::after {*/
+    /*content: "";*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*width: 30px;*/
+    /*height: 102px;*/
+    /*z-index: 1;*/
+    /*background: #fff;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridEvenRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*position: relative;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridEvenRow"] td:first-child::after {*/
+    /*content: "";*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*width: 30px;*/
+    /*height: 100px;*/
+    /*z-index: 1;*/
+    /*background: #fff;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridOddRow"] td:first-child {*/
+    /*padding-left: 30px;*/
+    /*position: relative;*/
+/*}*/
+
+/*.collection-plugin-view tr[class\*="dataGridOddRow"] td:first-child::after {*/
+    /*content: "";*/
+    /*position: absolute;*/
+    /*top: 0;*/
+    /*left: 0;*/
+    /*width: 30px;*/
+    /*height: 100px;*/
+    /*z-index: 1;*/
+    /*background: #fff;*/
+/*}*/
+
+.collection-plugin-view tr[class\*="dataGridSelectedRow"] {
+    box-shadow: none;
+    position: relative;
+    background: #f6f6f6 !important;
+}
+
+
 
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel true;
