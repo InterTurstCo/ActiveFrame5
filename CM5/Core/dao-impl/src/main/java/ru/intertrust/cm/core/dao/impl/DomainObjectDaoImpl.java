@@ -1575,7 +1575,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         query.addReferenceParameter(ID_COLUMN);
 
         if (!isDerived(domainObjectTypeConfig)) {
-            queryBuilder.append(" and ").append(wrap(UPDATED_DATE_COLUMN)).append("=?");
+            //Время урезаем до милисекунд из за CMFIVE-7267 Postgres Specific
+            queryBuilder.append(" and date_trunc('milliseconds', ").append(wrap(UPDATED_DATE_COLUMN)).append(")=?");
             query.addDateParameter(UPDATED_DATE_COLUMN);
         }
 
