@@ -24,7 +24,6 @@ import ru.intertrust.cm.core.gui.model.CollectionColumnProperties;
 import ru.intertrust.cm.core.gui.model.csv.*;
 import ru.intertrust.cm.core.gui.model.filters.ComplexFiltersParams;
 import ru.intertrust.cm.core.gui.model.filters.InitialFiltersParams;
-import ru.intertrust.cm.core.gui.model.plugin.collection.CollectionRowItem;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;

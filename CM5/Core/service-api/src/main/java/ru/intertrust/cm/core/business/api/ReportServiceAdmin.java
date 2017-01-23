@@ -28,4 +28,11 @@ public interface ReportServiceAdmin {
      * @param name
      */
     void undeploy(String name);
+
+    /**
+     * Перекомпиляция всех установленных отчетов
+     * @param name
+     */
+    void recompileAll();
+
 }

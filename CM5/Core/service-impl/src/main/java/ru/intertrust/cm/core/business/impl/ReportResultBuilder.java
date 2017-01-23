@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,9 +62,14 @@ public class ReportResultBuilder extends ReportServiceBase {
      * @return
      * @throws Exception
      */
-    public File generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> params, DataSourceContext dataSource)
+    public File generateReport(ReportMetadataConfig reportMetadata, File templateFolder, Map<String, Object> inParams, DataSourceContext dataSource)
             throws Exception {
         ClassLoader defaultClassLoader = Thread.currentThread().getContextClassLoader();
+        Map<String, Object> params = new HashMap<String, Object>();
+        //Копируем, чтоб не изменять исходный объект
+        if (inParams != null){
+            params.putAll(inParams);
+        }
         try {
 
             File templateFile = new File(templateFolder, reportMetadata.getMainTemplate() + ".jasper");

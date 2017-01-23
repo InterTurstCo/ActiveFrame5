@@ -113,7 +113,7 @@ public class DatasetGenerationServiceImpl implements DatasetGenerationService, D
         // --------------------------------------------------------------------------------
         StreamSource schemaSource = new StreamSource(getClass().getResourceAsStream(
                 "/dataset-generator-configuration.xsd"));
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
         Schema schema = factory.newSchema(schemaSource);
         validator = schema.newValidator();
         generators = RandomGenerators.getInstance();

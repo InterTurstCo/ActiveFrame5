@@ -43,5 +43,10 @@
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-javaflow</artifactId>
         </dependency>        
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-javaflow</artifactId>
+        </dependency>
+        
     </dependencies>
 </project>

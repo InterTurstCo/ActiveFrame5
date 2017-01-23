@@ -13,4 +13,12 @@
             <execute component-name="ToPerModuleMigrationMigrator"/>
         </before-auto-migration>
     </migration-script>
+
+    <!-- В связи с переходом на новую версию JasperReports 6.3.1 перекомпиливаем все отчеты -->
+    <migration-script sequence-number="102">
+        <after-auto-migration>
+            <execute component-name="RecompileAllReports"/>
+        </after-auto-migration>
+    </migration-script>
+
 </configuration>

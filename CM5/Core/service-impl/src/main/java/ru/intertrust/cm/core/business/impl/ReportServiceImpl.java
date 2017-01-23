@@ -1,6 +1,8 @@
 package ru.intertrust.cm.core.business.impl;
 
 import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -29,6 +31,7 @@ import javax.interceptor.Interceptors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -44,11 +47,7 @@ import java.util.concurrent.Future;
  * @author larin
  * 
  */
-@Stateless(name = "ReportService")
-@Local(ReportService.class)
-@Remote(ReportService.Remote.class)
-@Interceptors(SpringBeanAutowiringInterceptor.class)
-public class ReportServiceImpl extends ReportServiceBase implements ReportService {
+public abstract class ReportServiceImpl extends ReportServiceBase implements ReportService {
 
     private static final String DATE_PATTERN = "dd_MM_yyyy HH_mm_ss";
 
@@ -166,11 +165,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             }
             ReportResult reportResult = new ReportResult();
             reportResult.setFileName(result.getName());
-            final byte[] report = readFile(result); // todo: RE-IMPLEMENT, files can be huge and should not get into RAM
-            if (logger.isDebugEnabled()) {
-                logger.debug("Report file read, size: " + report.length / 1024 / 1024 + " MB, name: " + name + ". Params: " + originalParams);
-            }
-            reportResult.setReport(report);
+            reportResult.setReport(getReportStream(result));
             reportResult.setTemplateName(name);
             reportResult.setResultId(resultId);
 
@@ -194,6 +189,8 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
             }
         }
     }
+    
+    protected abstract RemoteInputStream getReportStream(File report);    
 
     private Id saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
             Map<String, Object> params, Integer keepDays) throws Exception {
@@ -221,8 +218,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
                     attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
             reportAttachment.setString("name", "report");
 
-            ByteArrayInputStream bis = new ByteArrayInputStream(readFile(result));
-            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(bis, false);
+            DirectRemoteInputStream directRemoteInputStream = new DirectRemoteInputStream(new FileInputStream(result), false);
 
             attachmentService.saveAttachment(directRemoteInputStream, reportAttachment);
 
@@ -232,7 +228,7 @@ public class ReportServiceImpl extends ReportServiceBase implements ReportServic
                         attachmentService.createAttachmentDomainObjectFor(reportResult.getId(), "report_result_attachment");
                 paramAttachment.setString("name", "params");
 
-                bis = new ByteArrayInputStream(getParametersAsByteArray(params));
+                ByteArrayInputStream bis = new ByteArrayInputStream(getParametersAsByteArray(params));
                 directRemoteInputStream = new DirectRemoteInputStream(bis, false);
 
                 attachmentService.saveAttachment(directRemoteInputStream, paramAttachment);

@@ -4,9 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,12 +53,16 @@ public class GenerateReportServlet {
         String reportName = request.getParameter("report_name");
         OutputStream resOut = response.getOutputStream();
         OutputStream bufferOut = new BufferedOutputStream(resOut);
+        InputStream reportStream = null;
         try {
             Map<String, Object> params = convertParameters(request.getParameterMap());
 
             ReportResult reportResult = reportService.generate(reportName, params, DataSourceContext.CLONE);
             response.setHeader("Content-Disposition", "attachment; filename=" + reportResult.getFileName());
-            bufferOut.write(reportResult.getReport());
+            
+            reportStream = RemoteInputStreamClient.wrap(reportResult.getReport());
+
+            StreamUtils.copy(reportStream, bufferOut);
         } catch (Exception e) {
             logger.error("Ошибка при генерации отчета " + reportName, e);
             response.setHeader("Content-Disposition", "attachment; filename=REPORT_GENERATION_ERROR_" + reportName);

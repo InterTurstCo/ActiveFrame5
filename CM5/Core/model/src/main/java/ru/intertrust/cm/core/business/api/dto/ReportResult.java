@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import com.healthmarketscience.rmiio.RemoteInputStream;
+
 /**
  * Класс результата генерации отчета
  * @author larin
@@ -9,7 +11,7 @@ public class ReportResult implements Dto{
 	private static final long serialVersionUID = -4038466874703422858L;
 	private String templateName;
     private String fileName;
-    private byte[] report;
+    private RemoteInputStream report;
     private Id resultId;
     
     public String getTemplateName() {
@@ -24,10 +26,10 @@ public class ReportResult implements Dto{
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
-    public byte[] getReport() {
+    public RemoteInputStream getReport() {
         return report;
     }
-    public void setReport(byte[] report) {
+    public void setReport(RemoteInputStream report) {
         this.report = report;
     }
 	public Id getResultId() {

@@ -28,6 +28,10 @@
             <groupId>com.esotericsoftware</groupId>
             <artifactId>kryo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.healthmarketscience.rmiio</groupId>
+            <artifactId>rmiio</artifactId>
+        </dependency>        
     </dependencies>
 
 </project>

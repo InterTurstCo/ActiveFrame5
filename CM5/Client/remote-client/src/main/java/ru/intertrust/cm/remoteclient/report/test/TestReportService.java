@@ -3,8 +3,13 @@ package ru.intertrust.cm.remoteclient.report.test;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.util.StreamUtils;
+
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
@@ -95,10 +100,8 @@ public class TestReportService extends ClientBase {
 
     private ReportResult generateReport(String reportName, Map params) throws IOException {
         ReportResult result = reportService.generate(reportName, params);
-        
-        writeToFile(result.getReport(), new File(result.getFileName()));
-        
-        
+        InputStream reportStream = RemoteInputStreamClient.wrap(result.getReport());
+        StreamUtils.copy(reportStream, new FileOutputStream(result.getFileName()));
         return result;
     }
     

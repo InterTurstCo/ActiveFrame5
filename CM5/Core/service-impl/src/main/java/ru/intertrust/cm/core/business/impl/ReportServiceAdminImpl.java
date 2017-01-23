@@ -1,9 +1,11 @@
 package ru.intertrust.cm.core.business.impl;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -25,24 +27,30 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-
 import org.apache.log4j.Logger;
 import org.jboss.vfs.VirtualFile;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStreamClient;
+
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
-import ru.intertrust.cm.core.model.*;
+import ru.intertrust.cm.core.model.ReportServiceException;
+import ru.intertrust.cm.core.model.SystemException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.report.ScriptletClassLoader;
-
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 
 /**
  * Имплементация сервися администрирования подсистемы отчетов
@@ -56,7 +64,7 @@ import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 public class ReportServiceAdminImpl extends ReportServiceBase implements ReportServiceAdmin {
 
     private Logger logger = Logger.getLogger(ReportServiceAdminImpl.class);
-
+    
     /**
      * Установка отчета в систему
      */
@@ -85,6 +93,8 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
                         + " in report template deploy data");
             }
 
+            logger.info("Deploy report " + reportMetadata.getName());
+            
             //Получаем все вложения из временной директории и сохраняем их как вложения
             File[] filelist = tmpFolder.listFiles();
             
@@ -105,7 +115,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
             	}
             	if ((!dopLockUpdate) || (lockUpdate)){
 	                //Если существует то удаляем все вложения по нему
-	                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject);
+	                List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateObject.getId());
 	                for (DomainObject attachment : attachments) {
 	                    attachmentService.deleteAttachment(attachment.getId());
 	                }
@@ -323,4 +333,59 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         return cp.toString();
     }
 
+    @Override
+    public void recompileAll() {
+        logger.info("Start recompile all reports");
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, lockupdate from report_template", 0, 0, accessToken);
+        for (IdentifiableObject identifiableObject : collection) {
+            DeployReportData deployReportData = getReportData(identifiableObject.getId(), accessToken);
+            deploy(deployReportData, identifiableObject.getBoolean("lockupdate"));
+        }        
+        logger.info("End recompile all reports");
+    }
+    
+    private DeployReportData getReportData(Id templateId, AccessToken accessToken){
+        DeployReportData result = new DeployReportData();
+        List<DomainObject> attachments = getAttachments("report_template_attach", templateId);
+        for (DomainObject attachment : attachments) {
+            String name = attachment.getString("name");
+            if (!name.endsWith(".jasper")){
+                DeployReportItem item = new DeployReportItem();
+                item.setBody(getAttachmentContent(attachment));
+                item.setName(name);
+                result.getItems().add(item);
+            }            
+        }
+        return result;
+    }
+
+    protected byte[] getAttachmentContent(DomainObject attachment) {
+        InputStream contentStream = null;
+        RemoteInputStream inputStream = null;
+        try {
+            inputStream = attachmentService.loadAttachment(attachment.getId());
+            contentStream = RemoteInputStreamClient.wrap(inputStream);
+            ByteArrayOutputStream attachmentBytes = new ByteArrayOutputStream();
+
+            int read = 0;
+            byte[] buffer = new byte[1024];
+            while ((read = contentStream.read(buffer)) > 0) {
+                attachmentBytes.write(buffer, 0, read);
+            }
+            return attachmentBytes.toByteArray();
+        } catch (Exception ex) {
+            throw new ReportServiceException("Error on get attachment body", ex);
+        } finally {
+            try {
+                if (contentStream != null){
+                    contentStream.close();
+                }
+                inputStream.close(true);
+            } catch (IOException ignoreEx) {
+            }
+        }
+    }
+    
+    
 }

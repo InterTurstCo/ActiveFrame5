@@ -105,7 +105,7 @@
                     business-interface="ru.intertrust.cm.core.business.api.ScheduleService"/>
 
     <jee:local-slsb id="reportService"
-                    jndi-name="java:module/ReportService!ru.intertrust.cm.core.business.api.ReportService"
+                    jndi-name="java:module/ReportServiceLocalImpl!ru.intertrust.cm.core.business.api.ReportService"
                     business-interface="ru.intertrust.cm.core.business.api.ReportService"/>
 
     <jee:local-slsb id="reportServiceAdmin"

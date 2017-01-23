@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,9 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
@@ -31,7 +32,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
  * @author larin
  * 
  */
-public class ReportServiceBase {
+public abstract class ReportServiceBase {
     private static File tempFolder;
     
     @Autowired
@@ -164,12 +165,14 @@ public class ReportServiceBase {
         return tempFolder;
     }
 
-    protected List<DomainObject> getAttachments(String attachmentType, DomainObject attachmentOwner){
-        String query = "select t.id from " + attachmentType + " t where t.report_template = " + ((RdbmsId)attachmentOwner.getId()).getId();
+    protected List<DomainObject> getAttachments(String attachmentType, Id attachmentOwnerId){
+        String query = "select t.id from " + attachmentType + " t where t.report_template = {0}";
         
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
         List<DomainObject> result = new ArrayList<DomainObject>();
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, 0, 0, accessToken);
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(attachmentOwnerId));
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             result.add(domainObjectDao.find(identifiableObject.getId(), accessToken));
         }
@@ -179,4 +182,5 @@ public class ReportServiceBase {
     public void setAttachmentService(AttachmentService attachmentService) {
         this.attachmentService = attachmentService;
     }
+
 }
