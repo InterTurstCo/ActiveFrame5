@@ -340,7 +340,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
         IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, lockupdate from report_template", 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             DeployReportData deployReportData = getReportData(identifiableObject.getId(), accessToken);
-            deploy(deployReportData, identifiableObject.getBoolean("lockupdate"));
+            deploy(deployReportData, identifiableObject.getBoolean("lockupdate") != null && identifiableObject.getBoolean("lockupdate"));
         }        
         logger.info("End recompile all reports");
     }
