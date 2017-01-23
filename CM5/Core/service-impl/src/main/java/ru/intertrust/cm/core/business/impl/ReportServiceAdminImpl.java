@@ -337,10 +337,13 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     public void recompileAll() {
         logger.info("Start recompile all reports");
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, lockupdate from report_template", 0, 0, accessToken);
+        IdentifiableObjectCollection collection = collectionsDao.findCollectionByQuery("select id, name, lockupdate from report_template", 0, 0, accessToken);
         for (IdentifiableObject identifiableObject : collection) {
             DeployReportData deployReportData = getReportData(identifiableObject.getId(), accessToken);
-            deploy(deployReportData, identifiableObject.getBoolean("lockupdate") != null && identifiableObject.getBoolean("lockupdate"));
+            if (deployReportData.getItems().size() > 0){
+                logger.info("Recompile report " + identifiableObject.getString("name"));
+                deploy(deployReportData, identifiableObject.getBoolean("lockupdate") != null && identifiableObject.getBoolean("lockupdate"));
+            }
         }        
         logger.info("End recompile all reports");
     }
