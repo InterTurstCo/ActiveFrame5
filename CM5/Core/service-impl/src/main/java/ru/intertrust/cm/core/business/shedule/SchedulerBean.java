@@ -133,7 +133,7 @@ public class SchedulerBean {
 
                     //Проверка прохождения фильтра по расписанию
                     for (IdentifiableObject task : tasks) {
-                        if (isScheduleComplete(task)) {
+                        if (isScheduleComplete(task) && !schedulerDao.isRunningTask(task.getId())) {
                             ejbContext.getUserTransaction().begin();
                             schedulerDao.createTaskExecution(task.getId());
                             ejbContext.getUserTransaction().commit();

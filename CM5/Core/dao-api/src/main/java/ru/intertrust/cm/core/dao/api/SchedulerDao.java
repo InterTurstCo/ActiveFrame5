@@ -44,4 +44,10 @@ public interface SchedulerDao {
      */
     void createTaskExecution(Id taskId);
 
+    /**
+     * Проверка есть ли хотя бы одна запущенная задача этого типа на любой из нод
+     * @param taskId
+     * @return
+     */
+    boolean isRunningTask(Id taskId);
 }

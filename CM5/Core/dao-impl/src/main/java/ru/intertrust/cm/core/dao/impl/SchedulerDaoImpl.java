@@ -155,5 +155,22 @@ public class SchedulerDaoImpl implements SchedulerDao {
         domainObject.setCreatedDate(currentDate);
         domainObject.setModifiedDate(currentDate);
         return domainObject;
+    }
+
+    @Override
+    public boolean isRunningTask(Id taskId) {
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+
+        String query = "select se.id from schedule_execution se ";
+        query += "join status st on st.id = se.status ";
+        query += "where se.schedule = {0} ";
+        query += "and st.name != 'Complete' ";
+        
+        List<Value> params = new ArrayList<Value>();
+        params.add(new ReferenceValue(taskId));
+        
+        IdentifiableObjectCollection collection =  collectionsDao.findCollectionByQuery(query, params, 0, 0, accessToken);
+        
+        return collection.size() > 0;
     }    
 }
