@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.report.jasperextension;
 
 import net.sf.jasperreports.engine.JasperReportsContext;
 import net.sf.jasperreports.repo.InputStreamResource;
+import net.sf.jasperreports.repo.RepositoryContext;
 import net.sf.jasperreports.repo.RepositoryService;
 import net.sf.jasperreports.repo.Resource;
 import ru.intertrust.cm.core.business.api.ResourceService;
@@ -10,12 +11,28 @@ import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 public class PlatformRepositoryService implements RepositoryService{
 
+    private JasperReportsContext jasperReportsContext;
 
+    @Override
+    public void setContext(RepositoryContext context) {
+    }
+    
     public PlatformRepositoryService(JasperReportsContext jasperReportsContext) 
     {
+        this.jasperReportsContext = jasperReportsContext;
+    }
+
+    @Override
+    public void revertContext() {
+    }
+
+    @Override
+    public InputStream getInputStream(String uri) {
+        return null;
     }
 
     @Override
