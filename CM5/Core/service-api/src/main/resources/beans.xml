@@ -14,5 +14,7 @@
     <aop:aspectj-autoproxy/>
 
     <bean id="idService"  class="ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl"/>
-
+    
+    <bean id="globalServerSettingsServiceImpl" class="ru.intertrust.cm.core.business.impl.GlobalServerSettingsServiceImpl"/>
+    
 </beans>
