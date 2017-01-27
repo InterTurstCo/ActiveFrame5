@@ -32,6 +32,7 @@
         <configuration-path>config/hsurfer_form.xml</configuration-path>
         <configuration-path>config/report_form.xml</configuration-path>
         <configuration-path>config/resources_forms.xml</configuration-path>
+        <configuration-path>config/global_settings_form.xml</configuration-path>
         <configuration-path>config/event-log-forms.xml</configuration-path>
         <configuration-path>config/oal-forms.xml</configuration-path>
         <configuration-path>config/migration.xml</configuration-path>

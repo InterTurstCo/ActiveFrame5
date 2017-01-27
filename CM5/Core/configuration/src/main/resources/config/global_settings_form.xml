@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+
+    <form name="string_parameter_form" domain-object-type="string_settings" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+           <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab>
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="valueLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="stringValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация строкового параметра</text>
+            </label>
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="valueLabel">
+                <text>Значение:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="stringValue">
+                <field-path value="string_value"/>
+            </text-box>
+        </widget-config>
+    </form>
+
+    <form name="boolean_parameter_form" domain-object-type="boolean_settings" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab>
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="valueLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="booleanValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация логического параметра</text>
+            </label>
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="valueLabel">
+                <text>Значение:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <check-box id="booleanValue">
+                <field-path value="boolean_value"/>
+            </check-box>
+        </widget-config>
+    </form>
+
+    <form name="long_parameter_form" domain-object-type="long_settings" is-default="true">
+        <act:tool-bar useDefault="false">
+            <act:action-ref name-ref="aSave" rendered="true" merged="false"/>
+            <act:action-ref name-ref="aToggleEditOff" rendered="true" merged="false"/>
+        </act:tool-bar>
+        <markup>
+            <header>
+                <table>
+                    <tr>
+                        <td>
+                            <widget id="headerLabel"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
+            <body display-single-tab="true">
+                <tab>
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="nameLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="nameValue"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="valueLabel"/>
+                                    </td>
+                                    <td>
+                                        <widget id="longValue"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="headerLabel">
+                <text>Конфигурация числового параметра</text>
+            </label>
+            <label id="nameLabel">
+                <text>Имя:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <text-box id="nameValue">
+                <field-path value="name"/>
+            </text-box>
+
+            <label id="valueLabel">
+                <text>Значение:</text>
+                <force-required-asterisk value="true"/>
+            </label>
+            <integer-box id="longValue">
+                <field-path value="long_value"/>
+            </integer-box>
+        </widget-config>
+    </form>
+</configuration>

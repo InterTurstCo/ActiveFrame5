@@ -584,6 +584,40 @@
         </attachment-types>
     </domain-object-type>
 
+    <!-- Глобальные параметры CMFIVE-7473 -->
+    <domain-object-type name="global_server_settings" initial-status="Active">
+        <fields>
+            <string name="name" length="128" not-null="true"/>
+        </fields>
+        <uniqueKey>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <!-- Строковый параметр -->
+    <domain-object-type name="string_settings" initial-status="Active" extends="global_server_settings">
+        <fields>
+            <string name="string_value" length="1024"/>
+        </fields>
+
+    </domain-object-type>
+    <!-- Логический параметр -->
+    <domain-object-type name="boolean_settings" initial-status="Active" extends="global_server_settings">
+        <fields>
+            <boolean name="boolean_value"/>
+        </fields>
+
+    </domain-object-type>
+    <!-- Числовой параметр -->
+    <domain-object-type name="long_settings" initial-status="Active" extends="global_server_settings">
+        <fields>
+            <long name="long_value"/>
+        </fields>
+
+    </domain-object-type>
+
+
+
     <migration-script sequence-number="0">
         <before-auto-migration>
             <rename-field type="sel_subj_user">

@@ -196,6 +196,7 @@
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <act:tool-bar useDefault="false">
+                                    <act:action name="oAction" componentName="ordinary.action" text="Тест Ordinary Action"/>
                                     <act:action-ref name-ref="aRefresh" order="10"/>
                                     <act:action-separator order="20"/>
 
@@ -1582,6 +1583,60 @@
                                 <form-mapping domain-object-type="number_resources" form="num_res_form"/>
                                 <form-mapping domain-object-type="string_resources" form="string_res_form"/>
                                 <form-mapping domain-object-type="blob_resources" form="blob_res_form"/>
+                            </form-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
+
+                <link name="GlobalSettings" display-text="Управление глобальными параметрами">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="string_settings">
+                            <collection-viewer>
+                                <act:tool-bar useDefault="false">
+                                    <act:action-ref name-ref="aRefresh"/>
+                                    <act:action-ref name-ref="aDelete"/>
+                                    <act:action-ref name-ref="aToggleEditOn"/>
+                                    <act:action-group name="createSetting" text="Создать" order="99" imageClass="actionBar-create">
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Число"
+                                                    tooltip="Создать числовой параметр"
+                                                    imageClass="actionBar-create" order="100"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="long_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Строка"
+                                                    tooltip="Создать строковый параметр"
+                                                    imageClass="actionBar-create" order="101"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="string_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                        <act:action name="aCreate" componentName="create.new.object.action"
+                                                    text="Логический"
+                                                    tooltip="Создать логический парметр"
+                                                    imageClass="actionBar-create" order="102"
+                                                    dirtySensitivity="true">
+                                            <act:action-params>
+                                                <act:action-param name="create.object.type" value="boolean_settings"/>
+                                            </act:action-params>
+                                        </act:action>
+
+                                    </act:action-group>
+
+                                </act:tool-bar>
+                                <collection-ref name="global_settings_collection"/>
+                            </collection-viewer>
+                            <form-viewer>
+                                <form-mapping domain-object-type="long_settings" form="long_parameter_form"/>
+                                <form-mapping domain-object-type="string_settings" form="string_parameter_form"/>
+                                <form-mapping domain-object-type="boolean_settings" form="boolean_parameter_form"/>
                             </form-viewer>
                         </domain-object-surfer>
                     </plugin>

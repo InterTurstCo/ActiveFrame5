@@ -1513,4 +1513,76 @@
 
     </collection>
 
+
+
+    <collection name="global_settings_collection" idField="id">
+        <prototype>
+            <![CDATA[
+                SELECT
+                    T1.id,
+                    T1.name,
+                    T1."value",
+                    T1."type"
+
+                    FROM
+                    (
+                    SELECT
+                    SS.id,
+                    GS.name AS name,
+                    SS.string_value AS "value",
+                    'Строка' AS "type"
+                    FROM global_server_settings GS
+                    JOIN string_settings SS ON SS.id = GS.id
+
+                    UNION
+
+                    SELECT
+                    BS.id,
+                    GS.name AS name,
+                    CAST(BS.boolean_value AS varchar) AS "value",
+                    'Логический тип' AS "type"
+                    FROM global_server_settings GS
+                    JOIN boolean_settings BS ON BS.id = GS.id
+
+                    UNION
+
+                    SELECT
+                    LS.id,
+                    GS.name AS name,
+                    CAST(LS.long_value AS varchar) AS "value",
+                    'Число' AS "type"
+                    FROM global_server_settings GS
+                    JOIN long_settings LS ON LS.id = GS.id
+                    ) T1 ::from-clause
+                where
+                    1=1 ::where-clause
+            ]]>
+        </prototype>
+
+        <filter name="byName">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.name) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byValue">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.value) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+
+        <filter name="byType">
+            <criteria placeholder="where-clause">
+                <![CDATA[
+                    upper(T1.type) like(upper({0}))
+                ]]>
+            </criteria>
+        </filter>
+    </collection>
+
+
 </configuration>
