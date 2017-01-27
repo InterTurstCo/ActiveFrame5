@@ -59,6 +59,20 @@
         </members>
     </dynamic-group>
     
+    <dynamic-group name="test_type_33_person_group">
+        <context>
+            <domain-object type="test_type_33" filter="getString('name').startsWith('context')"/>
+        </context>
+        <members>
+            <track-domain-objects>
+                <get-person>
+                    <doel>person</doel>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+    
+    
 	<context-role name="test_outgoing_author">
         <context>
             <domain-object type="test_outgoing_document" />

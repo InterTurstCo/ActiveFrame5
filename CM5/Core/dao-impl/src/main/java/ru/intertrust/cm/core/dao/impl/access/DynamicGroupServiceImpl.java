@@ -1,12 +1,40 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.annotation.Resource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.transaction.Synchronization;
+import javax.transaction.TransactionSynchronizationRegistry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import ru.intertrust.cm.core.business.api.dto.*;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.CollectorConfig;
 import ru.intertrust.cm.core.config.DynamicGroupConfig;
@@ -20,14 +48,11 @@ import ru.intertrust.cm.core.dao.api.extension.BeforeDeleteExtensionHandler;
 import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
-import ru.intertrust.cm.core.model.*;
-
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.transaction.Synchronization;
-import javax.transaction.TransactionSynchronizationRegistry;
-import java.util.*;
+import ru.intertrust.cm.core.model.AccessException;
+import ru.intertrust.cm.core.model.CrudException;
+import ru.intertrust.cm.core.model.ObjectNotFoundException;
+import ru.intertrust.cm.core.model.PermissionException;
+import ru.intertrust.cm.core.model.UnexpectedException;
 
 /**
  * Реализация сервиса по работе с динамическими группами пользователей
@@ -56,13 +81,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
     @Override
     public void notifyDomainObjectChanged(DomainObject domainObject,
-            List<FieldModification> modifiedFieldNames, List<Id> beforeSaveInvalidGroups) {
+            List<FieldModification> modifiedFieldNames, Set<Id> beforeSaveInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
         List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем список динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidGroups = new ArrayList<Id>();
+        Set<Id> invalidGroups = new HashSet<Id>();
         if (typeCollectors != null) {
             for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Получаем невалидные контексты для
@@ -71,7 +96,9 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 for (Id invalidContext : invalidContexts) {
                     Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
-                    invalidGroups.add(dynamicGroupId);
+                    if (dynamicGroupId != null){
+                        invalidGroups.add(dynamicGroupId);
+                    }
                 }
             }
         }
@@ -132,7 +159,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мап динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidGroups = new ArrayList<Id>();
+        Set<Id> invalidGroups = new HashSet<Id>();
         if (typeCollectors != null) {
             for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Получаем невалидные контексты для
@@ -142,12 +169,14 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 for (Id invalidContext : invalidContexts) {
                     Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
-                    invalidGroups.add(dynamicGroupId);
+                    if (dynamicGroupId != null){
+                        invalidGroups.add(dynamicGroupId);
+                    }
                 }
             }
         }
 
-        // Непосредственно формирование состава, должно вызыватся в конце
+        // Непосредственно формирование состава, должно вызываться в конце
         // транзакции
         regRecalcInvalidGroups(invalidGroups);
     }
@@ -155,10 +184,10 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     private void createAllDynamicGroups(DomainObject domainObject) {
         List<DynamicGroupConfig> configs = configsByContextType.get(domainObject.getTypeName().toLowerCase());
         if (configs != null) {
-            createUserGroups(domainObject.getId(), configs);
+            createUserGroups(domainObject, configs);
         }
-    }
-
+    }   
+    
     /**
      * Пересчитывает список персон динамической группы.
      * 
@@ -288,31 +317,36 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         }
 
         if (userGroupId == null) {
-            userGroupId = createUserGroup(dynamicGroupName, contextObjectId);
+            AccessToken accessToken = accessControlService
+                    .createSystemAccessToken(this.getClass().getName());
+            
+            DynamicGroupConfig config = configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);
+            if (applyFilter(domainObjectDao.find(contextObjectId, accessToken), config)){
+                userGroupId = createUserGroup(dynamicGroupName, contextObjectId);
+            }
         }
         
         return userGroupId;
     }
 
     @Override
-    public void notifyDomainObjectDeleted(DomainObject domainObject, List<Id> beforeDeleteInvalidGroups) {
+    public void notifyDomainObjectDeleted(DomainObject domainObject, Set<Id> beforeDeleteInvalidGroups) {
         String typeName = domainObject.getTypeName();
 
         List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем список динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidGroups = new ArrayList<Id>();
+        Set<Id> invalidGroups = new HashSet<Id>();
         if (typeCollectors != null) {
-            if (typeCollectors != null) {
-                for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
-                    // Получаем невалидные контексты для
-                    List<Id> invalidContexts =
-                            dynamicGroupCollector.getCollector().getInvalidContexts(domainObject,
-                                    getDeletedModificationList(domainObject));
+            for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
+                // Получаем невалидные контексты для
+                List<Id> invalidContexts =
+                        dynamicGroupCollector.getCollector().getInvalidContexts(domainObject,
+                                getDeletedModificationList(domainObject));
 
-                    for (Id invalidContext : invalidContexts) {
-                        Id dynamicGroupId =
-                                refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                for (Id invalidContext : invalidContexts) {
+                    Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
+                    if (dynamicGroupId != null){
                         invalidGroups.add(dynamicGroupId);
                     }
                 }
@@ -559,13 +593,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     @Override
-    public List<Id> getInvalidGroupsBeforeChange(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
+    public Set<Id> getInvalidGroupsBeforeChange(DomainObject domainObject, List<FieldModification> modifiedFieldNames) {
         String typeName = domainObject.getTypeName();
 
         List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidGroups = new ArrayList<Id>();
+        Set<Id> invalidGroups = new HashSet<Id>();
         if (typeCollectors != null) {
             for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Поучаем невалидные контексты для
@@ -574,7 +608,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 for (Id invalidContext : invalidContexts) {
                     Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
-                    if (!invalidGroups.contains(dynamicGroupId)) {
+                    if (dynamicGroupId != null) {
                         invalidGroups.add(dynamicGroupId);
                     }
                 }
@@ -584,13 +618,13 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
     }
 
     @Override
-    public List<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject) {
+    public Set<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject) {
         String typeName = domainObject.getTypeName();
 
         List<DynamicGroupRegisterItem> typeCollectors = collectorsByTrackingType.get(typeName.toLowerCase());
         // Формируем мапу динамических групп, требующих пересчета и их
         // коллекторов, исключая дублирование
-        List<Id> invalidGroups = new ArrayList<Id>();
+        Set<Id> invalidGroups = new HashSet<Id>();
         if (typeCollectors != null) {
             for (DynamicGroupRegisterItem dynamicGroupCollector : typeCollectors) {
                 // Поучаем невалидные контексты для
@@ -600,7 +634,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
 
                 for (Id invalidContext : invalidContexts) {
                     Id dynamicGroupId = refreshUserGroup(dynamicGroupCollector.getConfig().getName(), invalidContext);
-                    if (!invalidGroups.contains(dynamicGroupId)) {
+                    if (dynamicGroupId != null) {
                         invalidGroups.add(dynamicGroupId);
                     }
                 }
@@ -623,7 +657,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
         recalcGroupSynchronization.addDeleteContextGroups(domainObject.getId());
     }
 
-    private void regRecalcInvalidGroups(List<Id> invalidGroups) {
+    private void regRecalcInvalidGroups(Set<Id> invalidGroups) {
         //не обрабатываем вне транзакции
         if (getTxReg().getTransactionKey() == null) {
             return;
@@ -664,7 +698,7 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             }
         }
 
-        public void addGroups(List<Id> invalidGroups) {
+        public void addGroups(Set<Id> invalidGroups) {
             addAllWithoutDuplicate(groupIds, invalidGroups);
         }
 

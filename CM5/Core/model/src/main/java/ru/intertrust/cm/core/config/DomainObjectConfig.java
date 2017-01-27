@@ -10,12 +10,25 @@ import org.simpleframework.xml.Attribute;
  *
  */
 public class DomainObjectConfig implements Serializable {
+    private static final long serialVersionUID = -4021773651212774997L;
 
     @Attribute(required = true)
     private String type;
 
     @Attribute(required = false)
     private String status;
+
+    @Attribute(required = false)
+    private String filter;
+    
+    
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
 
     public String getStatus() {
         return status;

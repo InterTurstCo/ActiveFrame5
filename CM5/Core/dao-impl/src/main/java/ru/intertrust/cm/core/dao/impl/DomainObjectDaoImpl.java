@@ -4,6 +4,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -173,7 +178,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         List<FieldModification>[] fieldModification = new ArrayList[1];
         fieldModification[0] = new ArrayList<>();
 
-        List<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
+        Set<Id> beforeSaveInvalicContexts = dynamicGroupService.getInvalidGroupsBeforeChange(domainObject, fieldModification[0]);
 
         GenericDomainObject result = update(new DomainObject[]{domainObject}, accessToken, true, fieldModification)[0];
         domainObjectCacheService.putOnUpdate(result, accessToken);
@@ -230,7 +235,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
 
         return createdObjects;
     }
-
+    
     private List<Id> convertToIds(DomainObject[] createdObjects) {
         List<Id> idsList = new ArrayList<>(createdObjects.length);
 
@@ -355,7 +360,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             operation = DomainObjectVersion.AuditLogOperation.CREATE;
         } else {
 
-            List<Id>[] beforeChangeInvalidGroups = getBeforeChangeInvalidGroups(domainObjects, changedFields);
+            Set<Id>[] beforeChangeInvalidGroups = getBeforeChangeInvalidGroups(domainObjects, changedFields);
             result = update(domainObjects, accessToken, changedFields);
             refreshDynamicGroupsAndAclForUpdate(domainObjects, changedFields, beforeChangeInvalidGroups);
 
@@ -388,8 +393,8 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return result;
     }
 
-    private List<Id>[] getBeforeChangeInvalidGroups(DomainObject[] domainObjects, List<FieldModification>[] changedFields) {
-        List<Id> beforeChangeInvalidGroups[] = new List[domainObjects.length];
+    private Set<Id>[] getBeforeChangeInvalidGroups(DomainObject[] domainObjects, List<FieldModification>[] changedFields) {
+        Set<Id> beforeChangeInvalidGroups[] = new HashSet[domainObjects.length];
 
         for (int i = 0; i < domainObjects.length; i++) {
             beforeChangeInvalidGroups[i] = dynamicGroupService.getInvalidGroupsBeforeChange(domainObjects[i], changedFields[i]);
@@ -398,7 +403,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void
-    refreshDynamicGroupsAndAclForUpdate(DomainObject[] domainObjects, List<FieldModification>[] changedFields, List<Id>[] beforeChangeInvalidGroups) {
+    refreshDynamicGroupsAndAclForUpdate(DomainObject[] domainObjects, List<FieldModification>[] changedFields, Set<Id>[] beforeChangeInvalidGroups) {
         for (int i = 0; i < domainObjects.length; i++) {
             refreshDynamiGroupsAndAclForUpdate(domainObjects[i], changedFields[i], beforeChangeInvalidGroups[i]);
         }
@@ -469,7 +474,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
             validateIdType(updatedObject.getId());
         }
 
-        List<Id> beforeChangeInvalidGroups [] = new List[domainObjects.length];
+        Set<Id> beforeChangeInvalidGroups [] = new HashSet[domainObjects.length];
 
         for (int i = 0; i < domainObjects.length; i++) {
             beforeChangeInvalidGroups[i] = dynamicGroupService.getInvalidGroupsBeforeChange(domainObjects[i], changedFields[i]);
@@ -537,7 +542,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     }
 
     private void refreshDynamiGroupsAndAclForUpdate(DomainObject domainObject, List<FieldModification> modifiedFields,
-                                                    List<Id> beforeChangeInvalicContexts) {
+                                                    Set<Id> beforeChangeInvalicContexts) {
         dynamicGroupService.notifyDomainObjectChanged(domainObject, modifiedFields, beforeChangeInvalicContexts);
         permissionService.notifyDomainObjectChanged(domainObject, modifiedFields);
     }
@@ -645,7 +650,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     throw new ObjectNotFoundException(id);
                 }
             }
-            List<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
+            Set<Id> beforeChangeInvalidGroups = dynamicGroupService.getInvalidGroupsBeforeDelete(deletedObject);
 
             // Точка расширения до удаления
             for (String typeName : parentTypes) {
@@ -758,7 +763,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
         return count;
     }
 
-    private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject, List<Id> beforeChangeInvalicContexts) {
+    private void refreshDynamiGroupsAndAclForDelete(DomainObject deletedObject, Set<Id> beforeChangeInvalicContexts) {
         if (deletedObject != null) {
             dynamicGroupService.notifyDomainObjectDeleted(deletedObject, beforeChangeInvalicContexts);
             permissionService.notifyDomainObjectDeleted(deletedObject);

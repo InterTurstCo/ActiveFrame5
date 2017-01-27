@@ -1,7 +1,30 @@
 package ru.intertrust.cm.core.dao.impl.access;
 
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.*;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
+
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.FieldModification;
+import ru.intertrust.cm.core.business.api.dto.FieldModificationImpl;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
@@ -9,13 +32,15 @@ import ru.intertrust.cm.core.config.DynamicGroupConfig;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.PersonManagementServiceDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 import ru.intertrust.cm.core.dao.impl.doel.DoelResolver;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
-
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlName;
 
 /**
  * @author atsvetkov
@@ -177,14 +202,29 @@ public class BaseDynamicGroupServiceImpl {
         return domainObjectDao.save(createUserGroupDO(dynamicGroupName, contextObjectId), accessToken).getId();
     }
 
-    protected List<DomainObject> createUserGroups(Id contextObjectId, List<DynamicGroupConfig> configs) {
+    protected List<DomainObject> createUserGroups(DomainObject contextObject, List<DynamicGroupConfig> configs) {
         AccessToken accessToken = accessControlService.createSystemAccessToken("BaseDynamicGroupService");
         ArrayList<DomainObject> userGroups = new ArrayList<>(configs.size());
         for (DynamicGroupConfig dynamicGroupConfig : configs) {
-            userGroups.add(createUserGroupDO(dynamicGroupConfig.getName(), contextObjectId));
+            if (applyFilter(contextObject, dynamicGroupConfig)){
+                userGroups.add(createUserGroupDO(dynamicGroupConfig.getName(), contextObject.getId()));
+            }
         }
         return domainObjectDao.save(userGroups, accessToken);
     }
+    
+    protected boolean applyFilter(DomainObject domainObject, DynamicGroupConfig config){
+        boolean result = true;
+        
+        if (config.getContext().getDomainObject().getFilter() != null && !config.getContext().getDomainObject().getFilter().isEmpty()){
+            ExpressionParser parser = new SpelExpressionParser();
+            Expression exp = parser.parseExpression(config.getContext().getDomainObject().getFilter());
+    
+            EvaluationContext context = new StandardEvaluationContext(domainObject);
+            result = (Boolean) exp.getValue(context);
+        }
+        return result;
+    }     
 
     private DomainObject createUserGroupDO(String groupName, Id contextObjectId) {
         GenericDomainObject userGroupDO = new GenericDomainObject();

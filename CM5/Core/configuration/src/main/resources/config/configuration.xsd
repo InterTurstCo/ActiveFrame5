@@ -865,6 +865,7 @@
                 <xs:complexType>
                     <xs:attribute name="type" type="xs:string" use="required"/>
                     <xs:attribute name="status" type="xs:string" use="optional"/>
+                    <xs:attribute name="filter" type="xs:string" use="optional"/>
                 </xs:complexType>
             </xs:element>
         </xs:sequence>

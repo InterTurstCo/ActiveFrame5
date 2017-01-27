@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.access;
 
 import java.util.List;
+import java.util.Set;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.FieldModification;
@@ -17,7 +18,7 @@ public interface DynamicGroupService {
      * @param objectId
      *            доменный объект
      */
-    void notifyDomainObjectDeleted(DomainObject domainObject, List<Id> beforeSaveInvalicContexts);
+    void notifyDomainObjectDeleted(DomainObject domainObject, Set<Id> beforeSaveInvalicContexts);
 
     /**
      * Пересчет динамических групп при изменении доменного объекта. Выполняет пересчет дмнамических групп, на состав которых влияет доменный объект. (Доменный
@@ -27,7 +28,7 @@ public interface DynamicGroupService {
      * @param modifiedFieldNames
      *            список измененных полей доменного объекта.
      */
-    void notifyDomainObjectChanged(DomainObject domainObject, List<FieldModification> modifiedFieldNames, List<Id> beforeSaveInvalicContexts);
+    void notifyDomainObjectChanged(DomainObject domainObject, List<FieldModification> modifiedFieldNames, Set<Id> beforeSaveInvalicContexts);
 
     /**
      * Пересчет динамических групп при создании отслеживаемого объекта. Выполняет пересчет дмнамических групп, на состав которых влияет отслеживаемый объект.
@@ -43,7 +44,7 @@ public interface DynamicGroupService {
      * @param domainObject
      * @return
      */
-    List<Id> getInvalidGroupsBeforeChange(DomainObject domainObject, List<FieldModification> modifiedFieldNames);
+    Set<Id> getInvalidGroupsBeforeChange(DomainObject domainObject, List<FieldModification> modifiedFieldNames);
 
     /**
      * Метод получения невалидных контекстов для динамических групп. Вызывается перед удалением данных из базы. Необходим для учета
@@ -52,7 +53,7 @@ public interface DynamicGroupService {
      * @param modifiedFieldNames
      * @return
      */
-    List<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject);
+    Set<Id> getInvalidGroupsBeforeDelete(DomainObject domainObject);
     
     /**
      * Поиск группы (динамической или статической) по имени.

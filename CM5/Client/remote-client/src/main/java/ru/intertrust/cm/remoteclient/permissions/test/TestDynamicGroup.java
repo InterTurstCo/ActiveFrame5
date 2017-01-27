@@ -94,6 +94,27 @@ public class TestDynamicGroup extends ClientBase {
                     doOneLine(line, ids, owners, roles, entries);
                 }
             }
+            
+            //Тест контекстной группы с фильтром (не для всех объектов типа создается дин группа)
+            DomainObject doWithGroup = crudService.createDomainObject("test_type_33");
+            doWithGroup.setString("name", "context_" + System.currentTimeMillis());
+            doWithGroup.setReference("person", prsonService.getPersonId("admin"));
+            doWithGroup = crudService.save(doWithGroup);
+            
+            DomainObject test33DynGroup = prsonService.findDynamicGroup("test_type_33_person_group", doWithGroup.getId());
+            assertTrue("Group exists", test33DynGroup != null);
+            
+            List<DomainObject> personsInTest33DynGroup = prsonService.getPersonsInGroup(test33DynGroup.getId());
+            //assertTrue("Group members", personsInTest33DynGroup.size() == 1 && personsInTest33DynGroup.get(0).getString("login") == "admin");            
+            
+            DomainObject doWithoutGroup = crudService.createDomainObject("test_type_33");
+            doWithoutGroup.setString("name", "not-context_" + System.currentTimeMillis());
+            doWithoutGroup.setReference("person", prsonService.getPersonId("admin"));
+            doWithoutGroup = crudService.save(doWithoutGroup);
+            
+            test33DynGroup = prsonService.findDynamicGroup("test_type_33_person_group", doWithoutGroup.getId());
+            assertTrue("Group exists", test33DynGroup == null);
+            
             log("Test dynamic group success");
 
         } finally {
