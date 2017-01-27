@@ -1,14 +1,43 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RequestCallback;
+import org.springframework.web.client.ResponseExtractor;
+import org.springframework.web.client.RestTemplate;
+
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
@@ -22,25 +51,12 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.dao.api.extension.AfterGenerateReportExtentionHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
-
-import javax.ejb.*;
-import javax.interceptor.Interceptors;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Future;
+import ru.intertrust.cm.core.rest.api.GenerateReportParam;
+import ru.intertrust.cm.core.rest.api.GenerateReportResult;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -74,13 +90,23 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
     @Autowired
     private ExtensionService extensionService;
-    
+
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
 
+    @org.springframework.beans.factory.annotation.Value("${report.server:false}")
+    private boolean reportServer;
+
+    @org.springframework.beans.factory.annotation.Value("${report.server.url:}")
+    private String reportServerUrl;
+    
     @EJB
     private ReportResultBuilder resultBuilder;
 
+    @Autowired
+    private TicketService ticketService;
+    
+    
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
     }
@@ -114,83 +140,130 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
      * Формирование отчета
      */
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
-        Map<String, Object> originalParams = parameters;
-        long t1 = 0;
-        long heap = 0;
-        LoggingThread loggingThread = null;
-        if (logger.isDebugEnabled()) {
-            heap = Runtime.getRuntime().totalMemory();
-            t1 = System.currentTimeMillis();
-            originalParams = new HashMap<>(parameters);
-            logger.debug("Executing Report, name: " + name + ". Params: " + originalParams + ", User: " + currentUserAccessor.getCurrentUser());
-            loggingThread = new LoggingThread(name, originalParams, heap);
-            loggingThread.start();
-        }
-        try {
-            // Получение доменного объекта шаблона отчета
-            DomainObject reportTemplate = getReportTemplateObject(name);
 
-            //Получение директории с шаблонами отчета
-            File templateFolder = templateCache.getTemplateFolder(reportTemplate);
+        if (reportServerUrl != null && !reportServerUrl.equalsIgnoreCase("local") && !reportServer) {
 
-            //Получение метаинформацию отчета
-            ReportMetadataConfig reportMetadata = loadReportMetadata(
-                    readFile(new File(templateFolder, ReportServiceAdmin.METADATA_FILE_MAME)));
+            RestTemplate restTemplate = new RestTemplate();
+            GenerateReportParam generateReportParam = new GenerateReportParam();
+            generateReportParam.setName(name);
+            generateReportParam.setParams(parameters);
+                        
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("ticket", ticketService.createTicket());
+            
+            HttpEntity<GenerateReportParam> entity = new HttpEntity<GenerateReportParam>(generateReportParam, headers);
 
-            //Формирование отчета
-            // todo: this method should accept DataSource and if it's MASTER - support transaction
-            File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
-            if (logger.isDebugEnabled()) {
-                logger.debug("Generated Report, name: " + name + ". Params: " + originalParams);
-            }
+            GenerateReportResult resultInfo = restTemplate.postForObject(
+                    reportServerUrl + "/ws/report/generate", entity, GenerateReportResult.class);
+            
+            final ReportResult reportResult = new ReportResult();
+            reportResult.setFileName(resultInfo.getFileName());
+            reportResult.setTemplateName(resultInfo.getTemplateName());
+            reportResult.setResultId(resultInfo.getResultId());
+            
+            ResponseExtractor<Void> responseExtractor = new ResponseExtractor<Void>() {
+                @Override
+                public Void extractData(ClientHttpResponse response) throws IOException {
+                    File tempFile = File.createTempFile("report_", "_file");
+                    FileOutputStream out = new FileOutputStream(tempFile);
+                    StreamUtils.copy(response.getBody(), out);
+                    reportResult.setReport(getReportStream(new FileInputStream(tempFile)));
+                    return null;
+                }
+            };
+            
+            RequestCallback requestCallback = new RequestCallback(){
 
-            //Вызов точки расширения после генерации отчета
-            //Сначала для точек расширения у которых указан фильтр
-            AfterGenerateReportExtentionHandler extentionHandler = 
-                    extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, name);
-            extentionHandler.onAfterGenerateReport(name, parameters, result);
-            //После для точек расширения у которых не указан фильтр
-            extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
-            extentionHandler.onAfterGenerateReport(name, parameters, result);
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Saving Report, name: " + name + ". Params: " + originalParams);
-            }
-            //Сохранеие результата в хранилище
-            Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
-
-            //Формироание результата
-            if (logger.isDebugEnabled()) {
-                logger.debug("Creating Report result, name: " + name + ". Params: " + originalParams);
-            }
-            ReportResult reportResult = new ReportResult();
-            reportResult.setFileName(result.getName());
-            reportResult.setReport(getReportStream(result));
-            reportResult.setTemplateName(name);
-            reportResult.setResultId(resultId);
-
-            //Удаляем временный файл
-            result.delete();
-
+                @Override
+                public void doWithRequest(ClientHttpRequest request) throws IOException {
+                    request.getHeaders().add("ticket", ticketService.createTicket());
+                }
+                
+            };
+            
+            restTemplate.execute(reportServerUrl + "/ws/report/content/{reportId}", 
+                    HttpMethod.GET, requestCallback, responseExtractor, resultInfo.getResultId().toStringRepresentation());            
             return reportResult;
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
-            throw new ReportServiceException("Error on generate report", ex);
-        } finally {
-            if (loggingThread != null) {
-                loggingThread.cancel();
-            }
+        } else {
+
+            Map<String, Object> originalParams = parameters;
+            long t1 = 0;
+            long heap = 0;
+            LoggingThread loggingThread = null;
             if (logger.isDebugEnabled()) {
-                long time = System.currentTimeMillis() - t1;
-                long heapDelta = (Runtime.getRuntime().totalMemory() - heap) / 1024 / 1024;
-                logger.debug("Report built, name: " + name + ". Params: " + originalParams
-                        + ". Time: " + time + " ms. "
-                        + "Heap delta: " + heapDelta + " MB ");
+                heap = Runtime.getRuntime().totalMemory();
+                t1 = System.currentTimeMillis();
+                originalParams = new HashMap<>(parameters);
+                logger.debug("Executing Report, name: " + name + ". Params: " + originalParams + ", User: " + currentUserAccessor.getCurrentUser());
+                loggingThread = new LoggingThread(name, originalParams, heap);
+                loggingThread.start();
+            }
+            try {
+                // Получение доменного объекта шаблона отчета
+                DomainObject reportTemplate = getReportTemplateObject(name);
+
+                //Получение директории с шаблонами отчета
+                File templateFolder = templateCache.getTemplateFolder(reportTemplate);
+
+                //Получение метаинформацию отчета
+                ReportMetadataConfig reportMetadata = loadReportMetadata(
+                        readFile(new File(templateFolder, ReportServiceAdmin.METADATA_FILE_MAME)));
+
+                //Формирование отчета
+                // todo: this method should accept DataSource and if it's MASTER - support transaction
+                File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Generated Report, name: " + name + ". Params: " + originalParams);
+                }
+
+                //Вызов точки расширения после генерации отчета
+                //Сначала для точек расширения у которых указан фильтр
+                AfterGenerateReportExtentionHandler extentionHandler =
+                        extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, name);
+                extentionHandler.onAfterGenerateReport(name, parameters, result);
+                //После для точек расширения у которых не указан фильтр
+                extentionHandler = extensionService.getExtentionPoint(AfterGenerateReportExtentionHandler.class, "");
+                extentionHandler.onAfterGenerateReport(name, parameters, result);
+
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Saving Report, name: " + name + ". Params: " + originalParams);
+                }
+                //Сохранеие результата в хранилище
+                Id resultId = saveResult(reportMetadata, result, reportTemplate, parameters, keepDays);
+
+                //Формироание результата
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Creating Report result, name: " + name + ". Params: " + originalParams);
+                }
+                ReportResult reportResult = new ReportResult();
+                reportResult.setFileName(result.getName());
+                reportResult.setReport(getReportStream(new FileInputStream(result)));
+                reportResult.setTemplateName(name);
+                reportResult.setResultId(resultId);
+
+                //Удаляем временный файл
+                result.delete();
+
+                return reportResult;
+            } catch (Exception ex) {
+                logger.error(ex.getMessage());
+                throw new ReportServiceException("Error on generate report", ex);
+            } finally {
+                if (loggingThread != null) {
+                    loggingThread.cancel();
+                }
+                if (logger.isDebugEnabled()) {
+                    long time = System.currentTimeMillis() - t1;
+                    long heapDelta = (Runtime.getRuntime().totalMemory() - heap) / 1024 / 1024;
+                    logger.debug("Report built, name: " + name + ". Params: " + originalParams
+                            + ". Time: " + time + " ms. "
+                            + "Heap delta: " + heapDelta + " MB ");
+                }
             }
         }
     }
-    
-    protected abstract RemoteInputStream getReportStream(File report);    
+
+    protected abstract RemoteInputStream getReportStream(InputStream report);
 
     private Id saveResult(ReportMetadataConfig reportMetadata, File result, DomainObject template,
             Map<String, Object> params, Integer keepDays) throws Exception {
@@ -253,12 +326,12 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
         return stream.toByteArray();
     }
-/*
+    /*
     private File getTemplateFolder(DomainObject reportTemplateDo) throws IOException {
         //Проверка есть директория для данного отчета в файловой системе, и если есть то проверка даты ее создания
         //Получение temp директории
         File tempFolder = getTempFolder();
-
+    
         //Получение директории с шаблонами
         File templatesFolder = new File(tempFolder, TEMPLATES_FOLDER_NAME);
         File templateFolder = new File(templatesFolder, reportTemplateDo.getString("name"));
@@ -267,7 +340,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             templateFolder.mkdirs();
             dirCreated = true;
         }
-
+    
         //Сравнение даты изменения директории и даты создания доменного объекта шаблонов отчета 
         if (dirCreated || templateFolder.lastModified() < reportTemplateDo.getModifiedDate().getTime()) {
             //Шаблоны требуют перезачитывания
@@ -276,7 +349,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             for (File file : files) {
                 file.delete();
             }
-
+    
             //Получение всех вложений
             List<DomainObject> attachments = getAttachments("report_template_attach", reportTemplateDo);
             for (DomainObject attachment : attachments) {
@@ -287,9 +360,9 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             templateFolder.setLastModified(System.currentTimeMillis());
         }
         return templateFolder;
-
+    
     }
-*/
+    */
 
     private File getResultFolder() throws IOException {
         /*File resultFolder = new File(getTempFolder(), RESULT_FOLDER_NAME);
@@ -301,28 +374,28 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     }
 
     /**
-     * Получение формата отчета 
+     * Получение формата отчета
      * @param reportMetadata
      * @param params
      * @return
      */
     private String getFormat(ReportMetadataConfig reportMetadata, Map<String, Object> params) {
-        
+
         String format = null;
         //Если формат задан в шаблоне и он только один - то применяем его
-        if (reportMetadata.getFormats() != null && reportMetadata.getFormats().size() == 1){
+        if (reportMetadata.getFormats() != null && reportMetadata.getFormats().size() == 1) {
             format = reportMetadata.getFormats().get(0);
-        }else{
+        } else {
             //Если задано несколько форматов то сначала применяем формат из параметра а если там не задан берем формат по умолчанию
             if (params != null) {
                 format = (String) params.get(FORMAT_PARAM);
             }
-            
+
             //Берем формат по умолчанию
-            if (format == null){
+            if (format == null) {
                 format = defaultReportFormat;
             }
-            
+
             //Проверяем есть ли такой формат в списке поддерживаемых форматов
             if (!reportMetadata.getFormats().contains(format)) {
                 throw new ReportServiceException("FORMAT parameter or default report format is not admissible. Need "

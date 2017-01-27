@@ -69,6 +69,10 @@ public class AddAclVisitorTest {
         public String getCurrentUser() {
             return users.get(currentUser).getLogin();
         }
+
+        @Override
+        public void setTicket(String ticket) {
+        }
     };
 
     private UserGroupGlobalCache userCache = new UserGroupGlobalCache() {

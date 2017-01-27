@@ -212,4 +212,14 @@
             <string name="node_id" length="256" not-null="true"/>
         </fields>
     </domain-object-type>
+    
+    <domain-object-type name="ticket" initial-status="Active">
+        <fields>
+            <string name="ticket" length="256" not-null="true" />
+            <reference name="person" type="person" not-null="true"/>     
+        </fields>
+        <uniqueKey>
+            <field name="ticket" />
+        </uniqueKey>
+    </domain-object-type>        
 </configuration>

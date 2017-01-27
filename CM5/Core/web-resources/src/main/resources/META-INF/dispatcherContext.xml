@@ -11,4 +11,5 @@
      http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd ">
     <mvc:annotation-driven />
     <context:component-scan base-package="ru.intertrust.cm.core.gui.impl.server.widget" />
+    <context:component-scan base-package="ru.intertrust.cm.core.rest.impl" />    
 </beans>

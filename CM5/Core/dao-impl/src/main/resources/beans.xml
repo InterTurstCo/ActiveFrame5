@@ -182,6 +182,10 @@
     <jee:local-slsb id="statisticsGatherer"
                     jndi-name="java:module/StatisticsGatherer!ru.intertrust.cm.core.dao.api.StatisticsGatherer"
                     business-interface="ru.intertrust.cm.core.dao.api.StatisticsGatherer"/>
+                    
+    <jee:local-slsb id="ticketService"
+                    jndi-name="java:module/TicketService!ru.intertrust.cm.core.dao.api.TicketService"
+                    business-interface="ru.intertrust.cm.core.dao.api.TicketService"/>
 
     <beans profile="default">
         <bean id="attachmentContentDao"

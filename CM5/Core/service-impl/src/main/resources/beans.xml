@@ -281,6 +281,8 @@
 
     <bean id="resourceService" class="ru.intertrust.cm.core.business.impl.ResourceServiceImpl" />    
     
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate" />    
+    
     <beans profile="default">
         <bean id="reportTemplateCache" class="ru.intertrust.cm.core.business.impl.ReportTemplateCache"/>
     </beans>

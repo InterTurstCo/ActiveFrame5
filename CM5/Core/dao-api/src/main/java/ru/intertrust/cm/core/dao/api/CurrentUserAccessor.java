@@ -23,4 +23,9 @@ public interface CurrentUserAccessor {
      */
     Id getCurrentUserId();
 
+    /**
+     * Установка билета пользователя
+     * @param ticket
+     */
+    void setTicket(String ticket);
 }

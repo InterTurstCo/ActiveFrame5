@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -21,9 +20,9 @@ import ru.intertrust.cm.core.model.FatalException;
 public class ReportServiceRemoteImpl extends ReportServiceImpl {
 
     @Override
-    protected RemoteInputStream getReportStream(File report) {
+    protected RemoteInputStream getReportStream(InputStream report) {
         try {
-            SimpleRemoteInputStream remoteInputStream = new SimpleRemoteInputStream(new FileInputStream(report));
+            SimpleRemoteInputStream remoteInputStream = new SimpleRemoteInputStream(report);
             return remoteInputStream.export();
         } catch (Exception ex) {
             throw new FatalException("Error get getReportStream", ex);

@@ -4,11 +4,13 @@ import java.security.Principal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.PersonServiceDao;
+import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.EJBContext;
@@ -26,8 +28,13 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     final static Logger logger = LoggerFactory.getLogger(CurrentUserAccessorImpl.class);
 
     private EJBContext ejbContext;
+    
+    private ThreadLocal<String> ticketPerson = new ThreadLocal<String>();
+    
+    @Autowired
+    private TicketService ticketService;
 
-    public EJBContext getEjbContext() {
+    private EJBContext getEjbContext() {
         if (ejbContext == null) {
             try {
                 InitialContext ic = new InitialContext();
@@ -46,6 +53,10 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
      * @return логин текущего пользователя
      */
     public String getCurrentUser() {
+        if (ticketPerson.get() != null){
+            return ticketPerson.get();
+        }
+
         String result = null;
         try {
             // В случае если вызов идет изнутри представившись как system то подставляем пользователя admin,
@@ -121,5 +132,11 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     private PersonServiceDao getPersonServiceDao() {
         ApplicationContext ctx = SpringApplicationContext.getContext();
         return ctx.getBean(PersonServiceDao.class);
+    }
+
+    @Override
+    public void setTicket(String ticket) {
+        String person = ticketService.checkTicket(ticket);
+        ticketPerson.set(person);        
     }
 }

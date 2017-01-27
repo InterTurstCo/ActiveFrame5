@@ -17,7 +17,7 @@ public class TestAfterGenerateReport implements AfterGenerateReportExtentionHand
     @Override
     public void onAfterGenerateReport(String name, Map<String, Object> parameters, File reportFile) {
         try {
-            System.out.println("Generated report " + reportFile.getName());
+            System.out.println("TestAfterGenerateReport Generated report " + reportFile.getName());
             if (parameters != null && parameters.containsKey("REPLACE_RESULT")) {
                 System.out.println("Replace report " + reportFile.getName());
                 try (FileOutputStream os = new FileOutputStream(reportFile)) {
