@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsService {
-
+    private static final Logger logger = LoggerFactory.getLogger(GlobalServerSettingsServiceImpl.class);
 
     private static final String FIELD_STRING_VALUE = "string_value";
     private static final String FIELD_LONG_VALUE = "long_value";
@@ -55,7 +57,7 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
             try {
                 stringPparameterValue = environment.getRequiredProperty(name, String.class);
             } catch (IllegalStateException e) {
-                e.printStackTrace();
+                logger.warn("Settings " + name + " not found. Apply default value.");
             }
         }
         return stringPparameterValue;
@@ -78,7 +80,7 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
             try {
                 booleanPparameterValue = environment.getRequiredProperty(name, Boolean.class);
             } catch (IllegalStateException e) {
-                e.printStackTrace();
+                logger.warn("Settings " + name + " not found. Apply default value.");
             }
         }
         return booleanPparameterValue;
@@ -101,7 +103,7 @@ public class GlobalServerSettingsServiceImpl implements GlobalServerSettingsServ
             try {
                 longPparameterValue = environment.getRequiredProperty(name, Long.class);
             } catch (IllegalStateException e) {
-                e.printStackTrace();
+                logger.warn("Settings " + name + " not found. Apply default value.");
             }
         }
         return longPparameterValue;

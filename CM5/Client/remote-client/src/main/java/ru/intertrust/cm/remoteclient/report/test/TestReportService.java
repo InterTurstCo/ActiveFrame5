@@ -37,6 +37,8 @@ public class TestReportService extends ClientBase {
 
     public void execute(String[] args) throws Exception {
         try {
+            long start = System.currentTimeMillis();
+            
             super.execute(args);
 
             crudService = (CrudService) getService(
@@ -89,7 +91,7 @@ public class TestReportService extends ClientBase {
             }
             writeToFile(acyncResult.get().getReport(), new File(acyncResult.get().getFileName()));*/
             
-            log("Test complete");
+            log("Test complete at " + (System.currentTimeMillis() - start));
             
             
             

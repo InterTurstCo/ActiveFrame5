@@ -39,6 +39,7 @@ import com.healthmarketscience.rmiio.DirectRemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.DataSourceContext;
+import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -96,16 +97,16 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
     @org.springframework.beans.factory.annotation.Value("${report.server:false}")
     private boolean reportServer;
-
-    @org.springframework.beans.factory.annotation.Value("${report.server.url:}")
-    private String reportServerUrl;
     
     @EJB
     private ReportResultBuilder resultBuilder;
 
     @Autowired
     private TicketService ticketService;
-    
+
+    @Autowired
+    private GlobalServerSettingsService globalServerSettingsService;
+
     
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
@@ -141,6 +142,8 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
      */
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
 
+        String reportServerUrl = globalServerSettingsService.getString("report.server.url");
+        
         if (reportServerUrl != null && !reportServerUrl.equalsIgnoreCase("local") && !reportServer) {
 
             RestTemplate restTemplate = new RestTemplate();
