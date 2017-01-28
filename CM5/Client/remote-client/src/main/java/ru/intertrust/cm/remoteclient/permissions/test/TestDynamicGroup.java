@@ -102,10 +102,10 @@ public class TestDynamicGroup extends ClientBase {
             doWithGroup = crudService.save(doWithGroup);
             
             DomainObject test33DynGroup = prsonService.findDynamicGroup("test_type_33_person_group", doWithGroup.getId());
-            assertTrue("Group exists", test33DynGroup != null);
+            assertTrue("Dyn Group fith filter exists", test33DynGroup != null);
             
             List<DomainObject> personsInTest33DynGroup = prsonService.getPersonsInGroup(test33DynGroup.getId());
-            //assertTrue("Group members", personsInTest33DynGroup.size() == 1 && personsInTest33DynGroup.get(0).getString("login") == "admin");            
+            assertTrue("Dyn Group fith filter members", personsInTest33DynGroup.size() == 1 && personsInTest33DynGroup.get(0).getString("login").equals("admin"));            
             
             DomainObject doWithoutGroup = crudService.createDomainObject("test_type_33");
             doWithoutGroup.setString("name", "not-context_" + System.currentTimeMillis());
@@ -113,7 +113,7 @@ public class TestDynamicGroup extends ClientBase {
             doWithoutGroup = crudService.save(doWithoutGroup);
             
             test33DynGroup = prsonService.findDynamicGroup("test_type_33_person_group", doWithoutGroup.getId());
-            assertTrue("Group exists", test33DynGroup == null);
+            assertTrue("Dyn Group fith filter exists", test33DynGroup == null);
             
             log("Test dynamic group success");
 
