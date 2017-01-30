@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.rest.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,12 +21,14 @@ import com.healthmarketscience.rmiio.RemoteInputStream;
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
-import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ReportService;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
 import ru.intertrust.cm.core.rest.api.GenerateReportResult;
@@ -46,7 +49,7 @@ public class ReportRestService {
     @Autowired
     private IdService idService;
     @Autowired
-    private CrudService crudService;
+    private CollectionsService collectionsService;
 
     @RequestMapping(value = "/report/generate", method = RequestMethod.POST)
     public GenerateReportResult generateReport(
@@ -67,16 +70,19 @@ public class ReportRestService {
         try {
             Id reportResultId = idService.createId(reportId);
 
-            List<DomainObject> reportResultAttachment = crudService.findLinkedDomainObjects(reportResultId, "report_result_attachment", "report_result");
+            List<Value> params = new ArrayList<Value>();
+            params.add(new ReferenceValue(reportResultId));
+            IdentifiableObjectCollection reportResultAttachmentCollection =
+                    collectionsService.findCollectionByQuery("select id from report_result_attachment where name='report' and report_result = {0}", params);
 
-            if (reportResultAttachment != null && reportResultAttachment.size() > 0) {
-                RemoteInputStream stream = attachmentService.loadAttachment(reportResultAttachment.get(0).getId());
+            if (reportResultAttachmentCollection.size() > 0) {
+                RemoteInputStream stream = attachmentService.loadAttachment(reportResultAttachmentCollection.get(0).getId());
                 InputStream reportStream;
                 reportStream = RemoteInputStreamClient.wrap(stream);
                 InputStreamResource result = new InputStreamResource(reportStream);
                 return result;
             } else {
-                throw new FatalException("Report result " + reportResultId + " not contains attachment");
+                throw new FatalException("Report result " + reportResultId + " not contains report attachment");
             }
         } catch (IOException ex) {
             throw new FatalException("Error get report content", ex);

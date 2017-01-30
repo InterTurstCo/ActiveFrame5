@@ -35,7 +35,7 @@ public class CheckTicketFilter implements Filter{
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest)request; 
-        String ticket = httpRequest.getHeader("ticket"); 
+        String ticket = httpRequest.getHeader("Ticket"); 
         if (ticket != null){
             currentUserAccessor.setTicket(ticket);
             chain.doFilter(request, response);

@@ -107,6 +107,8 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     @Autowired
     private GlobalServerSettingsService globalServerSettingsService;
 
+    @Autowired
+    private RestTemplate restTemplate;
     
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
@@ -146,13 +148,12 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
         
         if (reportServerUrl != null && !reportServerUrl.equalsIgnoreCase("local") && !reportServer) {
 
-            RestTemplate restTemplate = new RestTemplate();
             GenerateReportParam generateReportParam = new GenerateReportParam();
             generateReportParam.setName(name);
             generateReportParam.setParams(parameters);
                         
             HttpHeaders headers = new HttpHeaders();
-            headers.add("ticket", ticketService.createTicket());
+            headers.add("Ticket", ticketService.createTicket());
             
             HttpEntity<GenerateReportParam> entity = new HttpEntity<GenerateReportParam>(generateReportParam, headers);
 
@@ -179,7 +180,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
                 @Override
                 public void doWithRequest(ClientHttpRequest request) throws IOException {
-                    request.getHeaders().add("ticket", ticketService.createTicket());
+                    request.getHeaders().add("Ticket", ticketService.createTicket());
                 }
                 
             };

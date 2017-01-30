@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.StreamUtils;
@@ -18,6 +21,7 @@ import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DeployReportData;
 import ru.intertrust.cm.core.business.api.dto.DeployReportItem;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.remoteclient.ClientBase;
 
 public class TestReportService extends ClientBase {
@@ -58,13 +62,20 @@ public class TestReportService extends ClientBase {
             deployReport("../reports/reports/all-employee");
             ReportResult result = null;
             //Генерация отчета
-            result = generateReport("all-employee", null);
-            //и еще раз генерим тот же отчет
-            result = generateReport("all-employee", null);
-            //Проверка точки расширения
             Map params = new HashMap();
+            params.put("ID_PARAMETER", new RdbmsId(100, 1000));
+            params.put("DATE_PARAMETER", new Date());
+            
+            List listParam = new ArrayList();
+            listParam.add(new RdbmsId(200, 2000));
+            listParam.add(new RdbmsId(300, 3000));
+            params.put("LIST_PARAMETER", listParam);
+            result = generateReport("all-employee", params, "first");
+            //и еще раз генерим тот же отчет
+            result = generateReport("all-employee", null, "second");
+            //Проверка точки расширения
             params.put("REPLACE_RESULT", Boolean.TRUE);
-            result = generateReport("all-employee", params);
+            result = generateReport("all-employee", params, "theard");
 
             deployReport("../reports/reports/employee-groups");
             result = generateReport("employee-groups", null);
@@ -100,10 +111,23 @@ public class TestReportService extends ClientBase {
         }
     }
 
-    private ReportResult generateReport(String reportName, Map params) throws IOException {
+    private ReportResult generateReport(String reportName, Map params, String ... namePrefix) throws IOException {
         ReportResult result = reportService.generate(reportName, params);
         InputStream reportStream = RemoteInputStreamClient.wrap(result.getReport());
-        StreamUtils.copy(reportStream, new FileOutputStream(result.getFileName()));
+        File resultFolder = new File("report-result"); 
+        if (!resultFolder.exists()){
+            resultFolder.mkdirs();
+        }
+        
+        String fileName = result.getFileName();
+        if (namePrefix != null && namePrefix.length > 0){
+            fileName = namePrefix[0] + "-" + fileName;
+        }
+        
+        File reportResultFile = new File("report-result", fileName);
+        
+        
+        StreamUtils.copy(reportStream, new FileOutputStream(reportResultFile));
         return result;
     }
     
