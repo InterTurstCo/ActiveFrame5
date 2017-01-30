@@ -207,6 +207,19 @@
             </track-domain-objects>
         </groups>
     </context-role>
+    
+    <context-role name="report_result_owner">
+        <context>
+            <domain-object type="report_result" />
+        </context>
+        <groups>
+            <track-domain-objects>
+                <get-group name="Person">
+                    <doel>owner</doel>
+                </get-group>
+            </track-domain-objects>
+        </groups>
+    </context-role>    
 
     <context-role name="AuthorBosses">
         <context>
@@ -719,7 +732,14 @@
         <create>
             <permit-group name="AllPersons" />
         </create>
+        <status name="*">
+            <read>
+                <permit-role name="report_result_owner" />
+            </read>
+        </status>
     </access-matrix>
+    
+    <access-matrix type="report_result_attachment" matrix-reference-field="report_result"/>    
 
     <access-matrix type="schedule">
         <create>
