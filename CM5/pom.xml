@@ -80,7 +80,7 @@
         <url>https://git.inttrust.ru/git/?p=CM5SRC.git</url>
         <connection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</connection>
         <developerConnection>scm:git:ssh://git.inttrust.ru/srv/repos/git/CM5SRC/</developerConnection>
-        <tag>0.5.22-8</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <ciManagement>
