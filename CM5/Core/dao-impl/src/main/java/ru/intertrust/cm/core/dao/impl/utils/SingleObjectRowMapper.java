@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.ResultSetExtractionLogger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +29,10 @@ public class SingleObjectRowMapper extends BasicRowMapper implements ResultSetEx
         DomainObject object = null;
 
         ColumnModel columnModel = buildColumnModel(rs);
+        long rowCount = 0;
+        final long start = System.currentTimeMillis();
         while (rs.next()) {
+            ResultSetExtractionLogger.log("SingleObjectRowMapper.extractData", start, ++rowCount);
             object = buildDomainObject(rs, columnModel);
         }
         return object;

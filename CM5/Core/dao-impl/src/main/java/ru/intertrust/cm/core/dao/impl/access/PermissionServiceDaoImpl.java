@@ -11,7 +11,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectPermission.Permission;
@@ -23,7 +22,6 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.dao.access.*;
 import ru.intertrust.cm.core.dao.api.ActionListener;
-import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.UserTransactionService;
@@ -31,6 +29,7 @@ import ru.intertrust.cm.core.dao.api.extension.ExtensionPoint;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.dao.exception.DaoException;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
+import ru.intertrust.cm.core.dao.impl.ResultSetExtractionLogger;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.PermissionException;
@@ -39,7 +38,6 @@ import javax.annotation.Resource;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.transaction.TransactionSynchronizationRegistry;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -305,7 +303,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             @Override
             public Set<AclInfo> extractData(ResultSet rs) throws SQLException, DataAccessException {
                 Set<AclInfo> result = new HashSet<AclInfo>();
+                long rowCount = 0;
+                final long start = System.currentTimeMillis();
                 while (rs.next()) {
+                    ResultSetExtractionLogger.log("PermissionServiceDaoImpl.getCurrentAclInfo", start, ++rowCount);
                     AccessType accessType = null;
                     String operstion = rs.getString("operation");
                     if (operstion.equals("R")) {
@@ -968,7 +969,10 @@ public class PermissionServiceDaoImpl extends BaseDynamicGroupServiceImpl implem
             @Override
             public List<DomainObjectPermission> extractData(ResultSet rs) throws SQLException, DataAccessException {
                 Map<Id, DomainObjectPermission> personPermissions = new HashMap<>();
+                long rowCount = 0;
+                final long start = System.currentTimeMillis();
                 while (rs.next()) {
+                    ResultSetExtractionLogger.log("PermissionServiceDaoImpl.getObjectPermisstions", start, ++rowCount);
                     long personIdLong = rs.getLong("person_id");
                     int personType = rs.getInt("person_id_type");
                     Id personId = new RdbmsId(personType, personIdLong);

@@ -19,6 +19,11 @@ public class QueryCollectionSubKey extends CollectionSubKey {
     }
 
     @Override
+    public int getKeyEntriesQty() {
+        return paramValues == null ? 0 : paramValues.size();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

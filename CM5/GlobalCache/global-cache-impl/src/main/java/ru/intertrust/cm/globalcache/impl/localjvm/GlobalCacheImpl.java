@@ -22,7 +22,6 @@ import ru.intertrust.cm.core.dao.dto.NamedCollectionTypesKey;
 import ru.intertrust.cm.core.dao.dto.QueryCollectionTypesKey;
 import ru.intertrust.cm.globalcache.api.*;
 import ru.intertrust.cm.globalcache.api.util.Size;
-import ru.intertrust.cm.globalcache.api.util.Sizeable;
 
 import java.text.DecimalFormat;
 import java.util.*;
@@ -36,8 +35,10 @@ import java.util.concurrent.*;
 public class GlobalCacheImpl implements GlobalCache {
     private static final Logger logger = LoggerFactory.getLogger(GlobalCacheImpl.class);
     private final Object READ_EXOTIC_VS_COMMIT_LOCK = new Object();
-    public static final long MAX_CACHED_ENTRY_SIZE = 10 * Size.BYTES_IN_MEGABYTE;
-    public static final long MAX_SUSPICIOUS_ENTRY_SIZE = Size.BYTES_IN_MEGABYTE;
+    public static final int COLLECTION_MAX_ROWS = 2000;
+    public static final int COLLECTION_SUSPICIOUS_ROWS = 1000;
+    public static final int KEY_ENTRIES_MAX_QTY = 50;
+    public static final int KEY_ENTRIES_SUSPICIOUS_QTY = 20;
 
     @Autowired
     private ConfigurationExplorer explorer;
@@ -281,6 +282,9 @@ public class GlobalCacheImpl implements GlobalCache {
 
             final LinkedHashSet<Id> ids = new LinkedHashSet<>((int) (linkedObjects.size() / 0.75f + 1));
             boolean setLinkedObjects = true;
+            if (tooLargeToCache("Linked objects", linkedObjects.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
+                setLinkedObjects = false;
+            }
             for (DomainObject linkedObject : linkedObjects) {
                 final Id linkedObjectId = linkedObject.getId();
                 ids.add(linkedObjectId);
@@ -1087,26 +1091,28 @@ public class GlobalCacheImpl implements GlobalCache {
             baseNode = collectionsTree.addBaseNode(key, baseNode);
         }
         synchronized (subKey) { // todo fix
-            CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
-            if (tooLargeToCache(collectionNode)) {
+            if (tooLargeToCache(subKey.getClass().toString(), subKey.getKeyEntriesQty(), KEY_ENTRIES_MAX_QTY, KEY_ENTRIES_SUSPICIOUS_QTY)) {
+                return;
+            }
+            if (tooLargeToCache(clonedCollection.getClass().toString(), clonedCollection.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
                 baseNode.removeCollectionNode(subKey);
                 return;
             }
+
+            CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
             baseNode.setCollectionNode(subKey, collectionNode);
         }
         accessSorter.logAccess(new CollectionAccessKey(key, subKey));
         assureCacheSizeLimit();
     }
 
-    private boolean tooLargeToCache(Sizeable object) {
-        final Size size = object.getSize();
-        final long sizeBytes = size.get();
-        if (size.get() > MAX_CACHED_ENTRY_SIZE) {
-            logger.warn(object.getClass() + " is not cached due to it's huge size: " + size.getMB() + " MB");
+    private boolean tooLargeToCache(String desc, int entries, int maxRowsSize, int suspicionsRowsSize) {
+        if (entries > maxRowsSize) {
+            logger.warn(desc + " is not cached due to it's huge amount of entries: " + entries);
             return true;
         }
-        if (sizeBytes > MAX_SUSPICIOUS_ENTRY_SIZE) {
-            logger.warn("Object " + object.getClass() + " is quite large, but cached: " + size.getMB() + " MB");
+        if (entries > suspicionsRowsSize) {
+            logger.warn(desc + " is quite large, but cached: " + entries + " entries");
         }
         return false;
     }

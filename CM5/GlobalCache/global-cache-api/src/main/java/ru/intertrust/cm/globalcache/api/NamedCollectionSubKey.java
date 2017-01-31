@@ -22,6 +22,11 @@ public class NamedCollectionSubKey extends CollectionSubKey {
     }
 
     @Override
+    public int getKeyEntriesQty() {
+        return filterValues == null ? 0 : filterValues.size();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

@@ -71,7 +71,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         logger.info("System threads running: " + threadsInformation.size());
         logger.info("Long system threads running: " + toLog.size());
         logLongRunningMethods(toLog);
-        logThreadsDelta(currentlyAliveThreadIds);
+        logNewTreadsSinceLastCheck(currentlyAliveThreadIds);
         // just in case of this class leak:
         final int systemThreadsRunning = threadsInformation.size();
         if (systemThreadsRunning > 5000) {
@@ -126,7 +126,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         }
         final int minEntriesInStackTrace = Math.min(initialBasePackagesElements.size(), currentBasePackagesElements.size());
         int nonMatchingEntriesQty = minEntriesInStackTrace - nonMatchingIndex;
-        return nonMatchingEntriesQty < minEntriesInStackTrace / 2 && nonMatchingEntriesQty < 5;
+        return nonMatchingEntriesQty < minEntriesInStackTrace / 2 && nonMatchingEntriesQty < 5 || nonMatchingIndex > 7;
     }
 
     private ArrayList<StackTraceElement> getBasePackagesStackTraceElements(StackTraceElement[] elements) {
@@ -163,7 +163,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         }
     }
 
-    private void logThreadsDelta(Set<ThreadId> currentlyAliveThreadIds) {
+    private void logNewTreadsSinceLastCheck(Set<ThreadId> currentlyAliveThreadIds) {
         if (!logAllNewThreads) {
             return;
         }

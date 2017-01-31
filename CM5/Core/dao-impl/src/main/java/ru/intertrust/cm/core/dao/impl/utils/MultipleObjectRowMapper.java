@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.ResultSetExtractionLogger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,10 @@ public class MultipleObjectRowMapper extends BasicRowMapper implements ResultSet
             String fieldName = rs.getMetaData().getColumnName(i);
             columnModel.getColumns().add(new Column(i, fieldName));
         }
+        long rowCount = 0;
+        final long start = System.currentTimeMillis();
         while (rs.next()) {
+            ResultSetExtractionLogger.log("MultipleObjectRowMapper.extractData", start, ++rowCount);
             DomainObject object = buildDomainObject(rs, columnModel);
             objects.add(object);
         }

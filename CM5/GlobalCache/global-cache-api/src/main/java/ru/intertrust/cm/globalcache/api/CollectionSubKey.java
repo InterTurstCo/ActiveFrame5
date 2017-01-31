@@ -17,4 +17,6 @@ public abstract class CollectionSubKey {
         this.offset = offset;
         this.limit = limit;
     }
+
+    public abstract int getKeyEntriesQty();
 }

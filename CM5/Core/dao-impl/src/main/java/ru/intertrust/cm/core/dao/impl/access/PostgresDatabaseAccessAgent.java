@@ -17,6 +17,7 @@ import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
+import ru.intertrust.cm.core.dao.impl.ResultSetExtractionLogger;
 import ru.intertrust.cm.core.dao.impl.utils.ConfigurationExplorerUtils;
 import ru.intertrust.cm.core.dao.impl.utils.IdSorterByType;
 import ru.intertrust.cm.core.model.ObjectNotFoundException;
@@ -500,8 +501,10 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         parameters.put("operations", Arrays.asList(opCodes));
 
         return jdbcTemplate.query(query, parameters, new RowMapper<AccessType>() {
+            private long start = System.currentTimeMillis();
             @Override
             public AccessType mapRow(ResultSet rs, int rowNum) throws SQLException {
+                ResultSetExtractionLogger.log("PostgresDatabaseAccessAgent.checkDomainObjectMultiAccess", start, rowNum);
                 String code = rs.getString("operation");
                 return decodeAccessType(code);
             }

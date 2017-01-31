@@ -11,6 +11,7 @@ import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.impl.ResultSetExtractionLogger;
 import ru.intertrust.cm.core.model.FatalException;
 
 import java.sql.ResultSet;
@@ -67,8 +68,9 @@ public class CollectionRowMapper extends BasicRowMapper implements
         
         int row = 0;
         String firstReferenceName = null;
+        final long start = System.currentTimeMillis();
         while (rs.next()) {
-
+            ResultSetExtractionLogger.log("CollectionRowMapper.extractData", start, row + 1);
             int index = 0;
 
             for (int i = 0; i < columnModel.getColumns().size(); i ++) {
