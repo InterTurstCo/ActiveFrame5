@@ -320,8 +320,8 @@ public class DynamicGroupServiceImpl extends BaseDynamicGroupServiceImpl
             AccessToken accessToken = accessControlService
                     .createSystemAccessToken(this.getClass().getName());
             
-            DynamicGroupConfig config = configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);
-            if (applyFilter(domainObjectDao.find(contextObjectId, accessToken), config)){
+            DynamicGroupConfig config = configurationExplorer.getConfig(DynamicGroupConfig.class, dynamicGroupName);            
+            if (contextObjectId == null || applyFilter(domainObjectDao.find(contextObjectId, accessToken), config)){
                 userGroupId = createUserGroup(dynamicGroupName, contextObjectId);
             }
         }
