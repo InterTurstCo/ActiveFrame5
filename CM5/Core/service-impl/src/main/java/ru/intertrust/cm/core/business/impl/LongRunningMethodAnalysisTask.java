@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Периодическое задание, анализирующее работающие потоки и методы и информирующее о тех, которые работают долго
  */
-@ScheduleTask(name = "LongRunningMethodAnalysisTask", minute = "*/1", active = true, allNodes = true)
+@ScheduleTask(name = "LongRunningMethodAnalysisTask", minute = "*/1", allNodes = true)
 public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
     private static final Logger logger = LoggerFactory.getLogger(LongRunningMethodAnalysisTask.class);
 
