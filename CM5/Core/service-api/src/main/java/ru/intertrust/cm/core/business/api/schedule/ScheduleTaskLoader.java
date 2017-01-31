@@ -32,6 +32,8 @@ public interface ScheduleTaskLoader {
 
     ScheduleTaskHandle getSheduleTaskHandle(String className);
 
+    boolean taskNeedsTransaction(String className);
+
     /**
      * Получает статус сервиса
      * @return

@@ -75,8 +75,8 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
     @Autowired
     private ModuleService moduleService;
 
-    @Autowired
-    private SpringApplicationContext springApplicationContext;
+    //@Autowired
+    //private SpringApplicationContext springApplicationContext;
 
     //Флаг готовности сервиса к работе
     private boolean isLoaded = false;
@@ -245,7 +245,7 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
                         if (ScheduleTaskHandle.class.isAssignableFrom(scheduleTaskClass)) {
 
                             // создаем экземпляр класса Добавляем класс как спринговый бин с поддержкой autowire
-                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) springApplicationContext.getContext()
+                            ScheduleTaskHandle scheduleTask = (ScheduleTaskHandle) SpringApplicationContext.getContext()
                                     .getAutowireCapableBeanFactory().createBean(scheduleTaskClass,
                                             AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
                             reestr.put(scheduleTaskClass.getName(), new SheduleTaskReestrItem(scheduleTask, annatation));
@@ -331,6 +331,11 @@ public class ScheduleTaskLoaderImpl implements ScheduleTaskLoader, ScheduleTaskL
             result = nodeIds.toArray(new String[nodeIds.size()])[nextIndex];
         }
         return result;
+    }
+
+    @Override
+    public boolean taskNeedsTransaction(String className) {
+        return !reestr.get(className).getConfiguration().taskTransactionalManagement();
     }
 
 }
