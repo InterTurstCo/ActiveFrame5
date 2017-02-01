@@ -1094,7 +1094,7 @@ public class GlobalCacheImpl implements GlobalCache {
             if (tooLargeToCache(subKey.getClass().toString(), subKey.getKeyEntriesQty(), KEY_ENTRIES_MAX_QTY, KEY_ENTRIES_SUSPICIOUS_QTY)) {
                 return;
             }
-            if (tooLargeToCache(clonedCollection.getClass().toString(), clonedCollection.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
+            if (clonedCollection != null && tooLargeToCache(clonedCollection.getClass().toString(), clonedCollection.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
                 baseNode.removeCollectionNode(subKey);
                 return;
             }
