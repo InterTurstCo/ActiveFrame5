@@ -1,16 +1,16 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.core.JdbcOperations;
+import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcOperations;
-
-import ru.intertrust.cm.core.dao.api.*;
-import ru.intertrust.cm.core.dao.impl.utils.DateUtils;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.wrap;
 
 /**
  * Реализация {@link ru.intertrust.cm.core.dao.api.InitializationLockDao}
@@ -50,6 +50,7 @@ public class InitializationLockDaoImpl implements InitializationLockDao {
     private DomainObjectTypeIdDao domainObjectTypeIdDao;
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations jdbcTemplate;
 
     @Autowired

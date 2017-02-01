@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import ru.intertrust.cm.core.business.api.dto.ColumnInfo;
@@ -31,6 +32,7 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
     private static final Logger logger = LoggerFactory.getLogger(BasicDataStructureDaoImpl.class);
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     protected JdbcOperations jdbcTemplate;
 
     @Autowired

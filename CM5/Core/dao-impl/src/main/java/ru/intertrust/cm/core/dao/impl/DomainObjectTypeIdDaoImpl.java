@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
 import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeId;
@@ -39,6 +40,7 @@ public class DomainObjectTypeIdDaoImpl implements DomainObjectTypeIdDao {
                     wrap(ID_COLUMN) + " = ?";
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations jdbcTemplate;
 
     @Autowired

@@ -63,6 +63,7 @@ public class SqlLogger {
     private SqlLoggerEnforcer sqlLoggerEnforcer;
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations masterJdbcOperations;
 
     @Autowired

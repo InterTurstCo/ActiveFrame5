@@ -4,11 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.ExpressionParser;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.dto.*;
@@ -50,6 +45,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private static final int BATCH_SIZE = 1000;
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations masterJdbcOperations;
 
     @Autowired

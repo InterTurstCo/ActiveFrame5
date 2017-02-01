@@ -60,13 +60,16 @@
           class="ru.intertrust.cm.core.dao.impl.DatabaseInfoImpl" />
 
     <bean id="jdbcTemplate"  class="org.springframework.jdbc.core.JdbcTemplate"
-          c:dataSource-ref="dataSource"/>
+          c:dataSource-ref="dataSource" p:fetchSize="1000"/>
+
+    <bean id="switchableJdbcTemplate"  class="org.springframework.jdbc.core.JdbcTemplate"
+          c:dataSource-ref="switchableDataSource" p:fetchSize="1000"/>
 
     <bean id="masterNamedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
-          c:dataSource-ref="dataSource"/>
+          c:classicJdbcTemplate-ref="jdbcTemplate"/>
 
     <bean id="switchableNamedParameterJdbcTemplate"  class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate"
-          c:dataSource-ref="switchableDataSource"/>
+          c:classicJdbcTemplate-ref="switchableJdbcTemplate"/>
 
     <bean id="daoFactoryProducer" class="ru.intertrust.cm.core.dao.impl.DaoFactoryProducer"/>
 

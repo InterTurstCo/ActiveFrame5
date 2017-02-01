@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
 import ru.intertrust.cm.core.dao.api.IdGenerator;
 
@@ -16,6 +17,7 @@ import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getSqlSeq
 public abstract class BasicSequenceIdGenerator implements IdGenerator {
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations jdbcTemplate;
 
     public void setJdbcTemplate(JdbcOperations jdbcTemplate) {

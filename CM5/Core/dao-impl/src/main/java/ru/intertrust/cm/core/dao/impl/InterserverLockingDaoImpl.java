@@ -1,17 +1,18 @@
 package ru.intertrust.cm.core.dao.impl;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcOperations;
-
 import ru.intertrust.cm.core.dao.api.InterserverLockingDao;
+
+import java.util.Date;
 
 public class InterserverLockingDaoImpl implements InterserverLockingDao {
 
     private volatile boolean isTableCreated;
 
     @Autowired
+    @Qualifier("jdbcTemplate")
     private JdbcOperations jdbcOperations;
 
     @Override
