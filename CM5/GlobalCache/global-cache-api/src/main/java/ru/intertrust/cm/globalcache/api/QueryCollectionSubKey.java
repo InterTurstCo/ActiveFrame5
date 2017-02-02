@@ -1,8 +1,10 @@
 package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +22,23 @@ public class QueryCollectionSubKey extends CollectionSubKey {
 
     @Override
     public int getKeyEntriesQty() {
-        return paramValues == null ? 0 : paramValues.size();
+        if (paramValues == null) {
+            return 0;
+        }
+        int qty = 0;
+        for (Value paramValue : paramValues) {
+            if (paramValue != null) {
+                if (paramValue instanceof ListValue) {
+                    final ArrayList<Value> values = ((ListValue) paramValue).getValues();
+                    if (values != null) {
+                        qty += values.size();
+                    }
+                }
+            } else {
+                ++qty;
+            }
+        }
+        return qty;
     }
 
     @Override

@@ -2,8 +2,13 @@ package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -21,9 +26,39 @@ public class NamedCollectionSubKey extends CollectionSubKey {
         this.sortOrder = sortOrder;
     }
 
-    @Override
     public int getKeyEntriesQty() {
-        return filterValues == null ? 0 : filterValues.size();
+        if (filterValues == null) {
+            return 0;
+        }
+        int qty = 0;
+        for (Filter filter : filterValues) {
+            if (filter != null) {
+                final Collection<List<Value>> values = filter.getParameterMap().values();
+                if (values == null || values.isEmpty()) {
+                    ++qty;
+                    continue;
+                }
+                for (List<Value> value : values) {
+                    if (value != null) {
+                        if (value instanceof ListValue) {
+                            final ArrayList<Value> listValueValues = ((ListValue) value).getValues();
+                            if (listValueValues != null) {
+                                qty += listValueValues.size();
+                            } else {
+                                ++qty;
+                            }
+                        } else {
+                            ++qty;
+                        }
+                    } else {
+                        ++qty;
+                    }
+                }
+            } else {
+                ++qty;
+            }
+        }
+        return qty;
     }
 
     @Override
