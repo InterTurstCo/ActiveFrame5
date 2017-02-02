@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.LruLimitedSynchronizedMap;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -29,6 +30,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
 
     public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap<>();
     private static Map<CollectionTypesKey, Set<String>> collectionDomainObjectTypes = new LruLimitedSynchronizedMap<>(10000);
+    private static final int MAX_QUERY_SIZE_TO_CACHE = 5000;
 
     private static final Logger logger = LoggerFactory.getLogger(CollectionQueryCacheImpl.class);
 
@@ -77,6 +79,8 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
      * @author atsvetkov
      */
     public static class CollectionQueryKey {
+        public static final int MAX_PARAMS_TO_CACHE = 50;
+
         private String collectionNameOrQuery;
         private Set<FilterForCache> filtersForCache = new HashSet<>();
         private SortOrder sortOrder;
@@ -99,6 +103,22 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             this.limit = limit;
             this.accessToken = accessToken;
             this.listValueParams = listValueParams;
+        }
+
+        public boolean shouldBeCached() {
+            int paramsQty = 0;
+            for (FilterForCache filterForCache : filtersForCache) {
+                paramsQty += filterForCache.getParamsCount();
+            }
+            if (listValueParams != null) {
+                for (ListValue listValueParam : listValueParams) {
+                    final ArrayList<Value> values = listValueParam.getValues();
+                    if (values != null) {
+                        paramsQty += values.size();
+                    }
+                }
+            }
+            return paramsQty < MAX_PARAMS_TO_CACHE;
         }
 
         @Override
@@ -195,54 +215,32 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
      * equals() учитываются только название фильтра и названия параметров.
      * @author atsvetkov
      */
-    private static class FilterForCache extends Filter {
-        
+    private static class FilterForCache {
+        private String filterName;
+        private Set<Integer> paramNames;
+
         public FilterForCache(Filter filter) {
-            this.filter = filter.getFilter();
-            this.parameterMap = filter.getParameterMap();
+            this.filterName = filter.getFilter();
+            HashMap<Integer, List<Value>> parameterMap = filter.getParameterMap();
+            this.paramNames = parameterMap == null ? null : new HashSet<>(parameterMap.keySet());
         }
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            Filter another = (Filter) o;
-
-            if (filter == null) {
-                if (another.getFilter() != null) {
-                    return false;
-                }
-            } else if (!filter.equals(another.getFilter())) {
-                return false;
-            }
-
-            Set paramNames = parameterMap != null ? parameterMap.keySet() : null;
-            Set anotherParamNames = another.getParameterMap() != null ? another.getParameterMap().keySet() : null;
-
-            if (paramNames == null) {
-                if (anotherParamNames != null) {
-                    return false;
-                }
-            } else if (!paramNames.equals(anotherParamNames)) {
-                return false;
-            }
-
-            return true;
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            FilterForCache that = (FilterForCache) o;
+            return Objects.equals(filterName, that.filterName) &&
+                    Objects.equals(paramNames, that.paramNames);
         }
 
         @Override
         public int hashCode() {
-            int result = 31 + ((filter == null) ? 0 : filter.hashCode());
-            Set<Integer> paramNames = parameterMap != null ? parameterMap.keySet() : null;
-            if (paramNames != null) {
-                result = 31 * result + paramNames.hashCode();
-            }
-            return result;
+            return Objects.hash(filterName, paramNames);
+        }
+
+        public int getParamsCount() {
+            return paramNames == null ? 0 : paramNames.size();
         }
     }
     
@@ -257,7 +255,9 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
             int limit, Set<ListValue> listValueParams, AccessToken accessToken) {
         if (collectionNameOrQuery != null) {
             CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, listValueParams, accessToken);
-            return collectionQueryCache.get(key);
+            if (key.shouldBeCached()) { // check in order to avoid expensive equals/hash code operations
+                return collectionQueryCache.get(key);
+            }
         }
         return null;
     }
@@ -276,7 +276,11 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
         }
         if (collectionNameOrQuery != null) {
             CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, sortOrder, offset, limit, listValueParams, accessToken);
-            collectionQueryCache.put(key, queryEntry);
+            if (key.shouldBeCached() && queryEntry.getQuery().length() < MAX_QUERY_SIZE_TO_CACHE) {
+                collectionQueryCache.put(key, queryEntry);
+            } else {
+                logger.debug("Query not cached as it's huge: " + queryEntry.getQuery());
+            }
         }
     }
 
@@ -289,7 +293,7 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     
     private void writeLog() {
         if (isAllowedToWriteLog()) {
-            logger.warn("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records. One random entry was removed.");
+            logger.debug("Collection query cache exceeds allowed cache size: " + getCacheMaxSize() + " records. One random entry was removed.");
         }
     }
 
