@@ -73,6 +73,10 @@ public class AddAclVisitorTest {
         @Override
         public void setTicket(String ticket) {
         }
+
+        @Override
+        public void cleanTicket() {
+        }
     };
 
     private UserGroupGlobalCache userCache = new UserGroupGlobalCache() {

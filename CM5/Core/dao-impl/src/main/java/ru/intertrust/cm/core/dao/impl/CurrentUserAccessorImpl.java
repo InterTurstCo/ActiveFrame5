@@ -53,10 +53,6 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
      * @return логин текущего пользователя
      */
     public String getCurrentUser() {
-        if (ticketPerson.get() != null){
-            return ticketPerson.get();
-        }
-
         String result = null;
         try {
             // В случае если вызов идет изнутри представившись как system то подставляем пользователя admin,
@@ -107,6 +103,10 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
             //}
         }
 
+        if (result == null && ticketPerson.get() != null){
+            result = ticketPerson.get();
+        }
+        
         return result;
     }
 
