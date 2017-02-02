@@ -1,25 +1,7 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Future;
-
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -34,10 +16,6 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
-
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
-
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.ReportService;
@@ -58,6 +36,19 @@ import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
 import ru.intertrust.cm.core.rest.api.GenerateReportResult;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -252,6 +243,9 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             } catch (Exception ex) {
                 logger.error(ex.getMessage());
                 throw new ReportServiceException("Error on generate report", ex);
+            } catch (Throwable t) {
+                logger.error(t.getMessage());
+                throw t;
             } finally {
                 if (loggingThread != null) {
                     loggingThread.cancel();
