@@ -139,4 +139,9 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
         String person = ticketService.checkTicket(ticket);
         ticketPerson.set(person);        
     }
+
+    @Override
+    public void cleenTicket() {
+        ticketPerson.remove();        
+    }
 }

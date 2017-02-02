@@ -28,4 +28,10 @@ public interface CurrentUserAccessor {
      * @param ticket
      */
     void setTicket(String ticket);
+
+    /**
+     * Завершение работы с использование билета
+     * @param ticket
+     */
+    void cleenTicket();
 }
