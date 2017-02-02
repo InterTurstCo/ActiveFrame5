@@ -21,6 +21,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
@@ -40,6 +42,8 @@ import ru.intertrust.cm.core.model.FatalException;
 @WebServlet(name = "ExportAttachmentsServlet", urlPatterns = { "/remote/service/export-attachments" }, asyncSupported = true)
 public class ExportAttachmentsServlet extends HttpServlet {
     private static final long serialVersionUID = -8347564224364047817L;
+    
+    private static final Logger logger = LoggerFactory.getLogger(ExportAttachmentsServlet.class);
 
     @Autowired
     private AttachmentService attachmentService;
@@ -138,7 +142,8 @@ public class ExportAttachmentsServlet extends HttpServlet {
             }
             return attachmentBytes.toByteArray();
         } catch (Exception ex) {
-            throw new FatalException("Error on get attachment body", ex);
+            logger.warn("Error load attachment " + attachment.getId(), ex);
+            return null;
         } finally {
             try {
                 if (contentStream != null) {
@@ -164,8 +169,10 @@ public class ExportAttachmentsServlet extends HttpServlet {
                     List<DomainObject> allAttach = crudService.findAll(attachTypeConfig.getName());
                     for (DomainObject domainObject : allAttach) {
                         byte[] content = getAttachmentContent(domainObject);
-                        zipOut.putNextEntry(new ZipEntry(domainObject.getString("path").substring(1)));
-                        zipOut.write(content);
+                        if (content != null){
+                            zipOut.putNextEntry(new ZipEntry(domainObject.getString("path").substring(1)));
+                            zipOut.write(content);
+                        }
                     }
                 }
             }
