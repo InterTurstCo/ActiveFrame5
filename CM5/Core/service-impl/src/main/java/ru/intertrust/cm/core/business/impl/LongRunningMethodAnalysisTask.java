@@ -23,9 +23,10 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
 
     // all the code is executed in a single thread, thus static variables are safe
     private static final SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private final ConcurrentHashMap<ThreadId, Pair<StackTraceElement[], ThreadHistory>> threadsInformation = new ConcurrentHashMap<>(1024);
+    private final ConcurrentHashMap<ThreadId, Pair<StackTraceElement[], HeapHistory>> threadsInformation = new ConcurrentHashMap<>(1024);
     private final StringBuilder sb = new StringBuilder(10000); // big enough log builder
     private Set<ThreadId> aliveThreadIds = new HashSet<>();
+    private HeapState prevHeapState = null;
 
     @org.springframework.beans.factory.annotation.Value("${long.running.method.analysis.system.packages:ru.intertrust}")
     private String[] basePackages;
@@ -48,28 +49,33 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
             if (thread.isAlive()) {
                 currentlyAliveThreadIds.add(threadId);
             }
-            if (state != Thread.State.BLOCKED && state != Thread.State.RUNNABLE) {
+            if (state != Thread.State.BLOCKED && state != Thread.State.RUNNABLE || threadId.id == Thread.currentThread().getId()) {
                 threadsInformation.remove(threadId);
                 continue;
             }
             allThreadIds.add(threadId);
-            Pair<StackTraceElement[], ThreadHistory> history = threadsInformation.get(threadId);
+            Pair<StackTraceElement[], HeapHistory> history = threadsInformation.get(threadId);
             final StackTraceElement[] currentStackTrace = entry.getValue();
             if (history == null) {
                 addNewThreadMethodExecutionInformation(threadId, currentStackTrace);
                 continue;
             }
             if (approximatelySameCodeExecuted(history.getFirst(), currentStackTrace)) {
-                history.getSecond().add(new ThreadHistoryEntry());
+                history.getSecond().add(new HeapState());
                 toLog.add(new Trio<>(threadId, state, currentStackTrace));
             } else {
                 addNewThreadMethodExecutionInformation(threadId, currentStackTrace);
             }
         }
         threadsInformation.keySet().retainAll(allThreadIds);
+
+        HeapState heapState = new HeapState();
         logger.info("Alive threads running: " + currentlyAliveThreadIds.size());
         logger.info("System threads running: " + threadsInformation.size());
         logger.info("Long system threads running: " + toLog.size());
+        logger.info("Current heap: " + heapState.toStringWithDelta(this.prevHeapState));
+        this.prevHeapState = heapState;
+
         logLongRunningMethods(toLog);
         logNewTreadsSinceLastCheck(currentlyAliveThreadIds);
         // just in case of this class leak:
@@ -94,7 +100,7 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
             }
         }
         if (logThread) {
-            threadsInformation.put(threadId, new Pair<>(currentStackTrace, new ThreadHistory()));
+            threadsInformation.put(threadId, new Pair<>(currentStackTrace, new HeapHistory()));
         }
     }
 
@@ -152,8 +158,8 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         for (Trio<ThreadId, Thread.State, StackTraceElement[]> threadInfo : toLog) {
             sb.append("\nThread: ").append(threadInfo.getFirst().id).append(" ").append(threadInfo.getSecond()).append(" (").append(threadInfo.getFirst().name).append(")").append("\n");
             sb.append("Runtime info:\n");
-            ThreadHistory threadHistory = threadsInformation.get(threadInfo.getFirst()).getSecond();
-            sb.append(threadHistory).append("\n");
+            HeapHistory heapHistory = threadsInformation.get(threadInfo.getFirst()).getSecond();
+            sb.append(heapHistory).append("\n");
             for (StackTraceElement elt : threadInfo.getThird()) {
                 sb.append("\t").append(elt.toString()).append("\n");
             }
@@ -185,6 +191,10 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         }
         sb.append("\n");
         logger.warn(sb.toString());
+    }
+
+    public static String toMB(long l) {
+        return Long.toString(l / 1024 / 1024);
     }
 
     private static class ThreadId implements Comparable<ThreadId> {
@@ -228,38 +238,54 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
         }
     }
 
-    private static class ThreadHistory extends ArrayList<ThreadHistoryEntry> {
+    private static class HeapHistory extends ArrayList<HeapState> {
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(200);
             sb.append("Time\tUsed Delta\tTotal Delta\tUsed Heap\tTotal Heap (Everything in MB)\n");
-            for (ThreadHistoryEntry entry : this) {
+            for (HeapState entry : this) {
                 sb.append(dateTimeFormat.format(new Date(entry.time)));
-                final ThreadHistoryEntry firstEntry = get(0);
-                sb.append("\t").append(toMB(entry.heapSize - firstEntry.heapSize));
-                sb.append("\t").append(toMB(entry.totalHeapSize - firstEntry.totalHeapSize));
-                sb.append("\t").append(toMB(entry.heapSize));
-                sb.append("\t").append(toMB(entry.totalHeapSize));
-                sb.append("\n");
+                final HeapState firstEntry = get(0);
+                sb.append(entry.toStringWithDelta(firstEntry)).append("\n");
             }
             return sb.toString();
         }
 
-        private String toMB(long l) {
-            return Long.toString(l / 1024 / 1024);
-        }
+
     }
 
-    private static class ThreadHistoryEntry {
+    private static class HeapState {
+        public static final HeapState ZERO_STATE = new HeapState(0, 0, 0);
         public final long time;
         public final long totalHeapSize;
         public final long heapSize;
 
-        public ThreadHistoryEntry() {
+        public HeapState() {
             this.time = System.currentTimeMillis();
             this.totalHeapSize = Runtime.getRuntime().totalMemory();
             this.heapSize = this.totalHeapSize - Runtime.getRuntime().freeMemory();
         }
-    }
 
+        public HeapState(long time, long totalHeapSize, long heapSize) {
+            this.time = time;
+            this.totalHeapSize = totalHeapSize;
+            this.heapSize = heapSize;
+        }
+
+        public HeapState getDelta(HeapState state) {
+            if (state != null) {
+                return new HeapState(this.time - state.time, this.totalHeapSize - state.totalHeapSize, this.heapSize - state.heapSize);
+            } else {
+                return ZERO_STATE;
+            }
+        }
+
+        public String toStringNoTime() {
+            return "\t" + toMB(heapSize) + "\t" + toMB(totalHeapSize);
+        }
+
+        public String toStringWithDelta(HeapState compareWith) {
+            return this.getDelta(compareWith).toStringNoTime() + toStringNoTime();
+        }
+    }
 }
