@@ -141,7 +141,7 @@ public class CurrentUserAccessorImpl implements CurrentUserAccessor {
     }
 
     @Override
-    public void cleenTicket() {
+    public void cleanTicket() {
         ticketPerson.remove();        
     }
 }

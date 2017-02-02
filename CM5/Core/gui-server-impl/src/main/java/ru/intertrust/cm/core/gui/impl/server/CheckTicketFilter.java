@@ -39,7 +39,7 @@ public class CheckTicketFilter implements Filter{
         if (ticket != null){
             currentUserAccessor.setTicket(ticket);
             chain.doFilter(request, response);
-            currentUserAccessor.cleenTicket();
+            currentUserAccessor.cleanTicket();
         }else{
             throw new FatalException("REST call without ticket");
         }

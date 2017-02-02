@@ -33,5 +33,5 @@ public interface CurrentUserAccessor {
      * Завершение работы с использование билета
      * @param ticket
      */
-    void cleenTicket();
+    void cleanTicket();
 }
