@@ -19,11 +19,11 @@ public class ResultSetExtractionLogger {
         }
         if (rowCount == MIN_ROWS_TO_LOG) {
             if (logger.isWarnEnabled()) {
-                logger.warn(codeId + " retrieved " + rowCount + " rows in " + (System.currentTimeMillis() - startTime) + " ms at", new Throwable());
+                logger.warn(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms at", new Throwable());
             }
         } else if (rowCount % EACH_ROWS_TO_LOG_AFTER == 0) {
             if (logger.isWarnEnabled()) {
-                logger.warn(codeId + " retrieved " + rowCount + " rows in " + (System.currentTimeMillis() - startTime) + " ms");
+                logger.warn(codeId + " retrieved " + rowCount + " Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms");
             }
         }
     }
@@ -33,7 +33,7 @@ public class ResultSetExtractionLogger {
             return;
         }
         if (logger.isDebugEnabled()) {
-            logger.debug(codeId + " DONE. " + rowCount + " rows in " + (System.currentTimeMillis() - startTime) + " ms");
+            logger.debug(codeId + " DONE. " + rowCount + "  Result Set rows in " + (System.currentTimeMillis() - startTime) + " ms");
         }
     }
 }

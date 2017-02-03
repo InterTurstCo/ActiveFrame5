@@ -289,16 +289,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             }
 
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
-            FieldConfig result = configStorage.fieldConfigMap.get(fieldConfigKey);
-
-            if (result != null) {
-                return convertNull(result);
-            }
+            return configStorage.fieldConfigMap.get(fieldConfigKey);
         } finally {
             unlock();
         }
-
-        return convertNull(configurationStorageBuilder.fillFieldConfigMap(domainObjectConfigName, fieldConfigName, returnInheritedConfig));
     }
 
     /**

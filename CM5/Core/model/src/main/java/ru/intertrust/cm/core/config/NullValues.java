@@ -34,14 +34,6 @@ public class NullValues {
         return NullValues.isNull(accessMatrixConfig) ? null : accessMatrixConfig;
     }
 
-    public static boolean isNull(FieldConfig fieldConfig) {
-        return fieldConfig == null || fieldConfig == FIELD_CONFIG;
-    }
-
-    public static FieldConfig convertNull(FieldConfig fieldConfig) {
-        return NullValues.isNull(fieldConfig) ? null : fieldConfig;
-    }
-
     public static boolean isNull(String string) {
         return string == null || string == STRING;
     }

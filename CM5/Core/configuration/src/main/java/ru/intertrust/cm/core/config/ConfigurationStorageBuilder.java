@@ -620,47 +620,6 @@ public class ConfigurationStorageBuilder {
         }
     }
 
-    public FieldConfig fillFieldConfigMap(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
-        lock();
-
-        try {
-            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectConfigName, fieldConfigName, returnInheritedConfig);
-
-            if (!returnInheritedConfig) {
-                configurationStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                return null;
-            }
-
-            FieldConfigKey fieldConfigKeyWithoutInheritance =
-                    new FieldConfigKey(domainObjectConfigName, fieldConfigName, false);
-            FieldConfig result = configurationStorage.fieldConfigMap.get(fieldConfigKeyWithoutInheritance);
-
-            if (!isNull(result)) {
-                configurationStorage.fieldConfigMap.put(fieldConfigKey, result);
-                return result;
-            }
-
-            DomainObjectTypeConfig domainObjectTypeConfig =
-                    configurationExplorer.getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
-
-            if (domainObjectTypeConfig == null || domainObjectTypeConfig.getExtendsAttribute() == null) {
-                configurationStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                return null;
-            }
-
-            result = configurationExplorer.getFieldConfig(domainObjectTypeConfig.getExtendsAttribute(), fieldConfigName);
-            if (isNull(result)) {
-                configurationStorage.fieldConfigMap.put(fieldConfigKey, NullValues.FIELD_CONFIG);
-                return null;
-            } else {
-                configurationStorage.fieldConfigMap.put(fieldConfigKey, result);
-                return result;
-            }
-        } finally {
-            unlock();
-        }
-    }
-
     public List<String> fillAllowedToCreateUserGroups(String objectType) {
         lock();
 
@@ -889,9 +848,15 @@ public class ConfigurationStorageBuilder {
             fillConfigurationMapOfChildDomainObjectType(domainObjectTypeConfig);
             fillAuditLogConfigMap(domainObjectTypeConfig);
 
-            if (domainObjectTypeConfig.getExtendsAttribute() == null) {
+            if (domainObjectTypeConfig.getExtendsAttribute() != null) {
 
             }
+        }
+
+        // fill inherited fields for audit types as well (they are already in top level configs)
+        domainObjectTypeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
+            fillInheritedFieldsConfigMap(domainObjectTypeConfig);
         }
 
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
@@ -927,6 +892,7 @@ public class ConfigurationStorageBuilder {
                 continue;
             }
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
+            configurationStorage.fieldConfigMap.put(new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName(), true), fieldConfig);
         }
     }
 
@@ -934,15 +900,23 @@ public class ConfigurationStorageBuilder {
         List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(domainObjectTypeConfig.getDomainObjectFieldsConfig(), configurationExplorer);
         LinkedHashMap<String, FieldConfig> mutableFieldsConfig = new LinkedHashMap<>(allFieldsConfig.size());
         for (FieldConfig fieldConfig : allFieldsConfig) {
-            FieldConfigKey fieldConfigKey =
-                    new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName());
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
             if (!fieldConfig.isImmutable()) {
                 mutableFieldsConfig.put(fieldConfig.getName().toLowerCase(), fieldConfig);
             }
         }
+
         configurationStorage.mutableFieldsNoInheritanceMap.put(domainObjectTypeConfig.getName(), new ArrayList<>(mutableFieldsConfig.values()));
         fillSystemFields(domainObjectTypeConfig);
+    }
+
+    private void fillInheritedFieldsConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigsIncludingInherited(domainObjectTypeConfig, configurationExplorer);
+        for (FieldConfig fieldConfig : allFieldsConfig) {
+            FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName(), true);
+            configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
+        }
     }
 
     private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
