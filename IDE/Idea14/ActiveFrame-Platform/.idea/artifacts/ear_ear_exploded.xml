@@ -1,10 +1,10 @@
 <component name="ArtifactManager">
   <artifact type="exploded-ear" name="ear:ear exploded">
-    <output-path>$PROJECT_DIR$/../../../CM5/Ear/target/cm-sochi-solr-0.5.20-21-SNAPSHOT</output-path>
+    <output-path>$PROJECT_DIR$/../../../CM5/Ear/target/cm-sochi-solr-0.5.22-20-SNAPSHOT</output-path>
     <root id="root">
       <element id="javaee-facet-resources" facet="ear/javaeeApplication/JavaEE" />
       <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/../../../CM5/Ear/target/cm-sochi-solr-0.5.20-21-SNAPSHOT/META-INF/MANIFEST.MF" />
+        <element id="file-copy" path="$PROJECT_DIR$/../../../CM5/Ear/target/cm-sochi-solr-0.5.22-20-SNAPSHOT/META-INF/MANIFEST.MF" />
       </element>
       <element id="dir-copy" path="$PROJECT_DIR$/../../../CM5/Ear/src/main/application" />
       <element id="archive" name="web-app">

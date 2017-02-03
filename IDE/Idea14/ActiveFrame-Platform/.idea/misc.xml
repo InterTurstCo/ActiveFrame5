@@ -21,8 +21,12 @@
       <list>
         <option value="$PROJECT_DIR$/../../../CM5/pom.xml" />
         <option value="$PROJECT_DIR$/../../../CM5/GlobalCache/pom.xml" />
-        <option value="$PROJECT_DIR$/../../../CM5/GlobalCache/global-cache-client/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/../../../CM5/deployment-tool/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="false" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">

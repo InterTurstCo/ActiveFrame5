@@ -17,6 +17,7 @@
     <server-components-packages>
         <server-components-package>ru.intertrust.cm.core.dao.impl</server-components-package>
         <server-components-package>ru.intertrust.cm.core.business.migration</server-components-package>
+        <server-components-package>ru.intertrust.cm.core.business.impl.profiling</server-components-package>
     </server-components-packages>
     <configuration-schema-path>config/configuration.xsd</configuration-schema-path>
     <configuration-paths>
