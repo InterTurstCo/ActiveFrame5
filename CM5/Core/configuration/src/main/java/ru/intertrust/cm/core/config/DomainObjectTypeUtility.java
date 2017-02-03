@@ -31,6 +31,17 @@ public class DomainObjectTypeUtility {
         return totalFieldConfigs;
     }
 
+    public static List<FieldConfig> getAllFieldConfigsIncludingInherited(DomainObjectTypeConfig domainObjectTypeConfig,
+                                                       ConfigurationExplorer configurationExplorer) {
+        final DomainObjectFieldsConfig objectFieldsConfig = domainObjectTypeConfig.getDomainObjectFieldsConfig();
+        final List<FieldConfig> fieldConfigs = getAllFieldConfigs(objectFieldsConfig, configurationExplorer);
+        final String extendedType = domainObjectTypeConfig.getExtendsAttribute();
+        if (extendedType != null) {
+            fieldConfigs.addAll(getAllFieldConfigsIncludingInherited(configurationExplorer.getDomainObjectTypeConfig(extendedType), configurationExplorer));
+        }
+        return fieldConfigs;
+    }
+
     public static boolean isParentObject(DomainObjectTypeConfig config, ConfigurationExplorer configurationExplorer) {
         boolean isParent = false;
         if (configurationExplorer.isAuditLogType(config.getName())) {
