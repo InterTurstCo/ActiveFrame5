@@ -4,6 +4,7 @@
     <option name="VM_PARAMETERS" value="-Xmx512m -Xmx2048m -XX:MaxPermSize=350m" />
     <option name="SHELL_PARAMETERS" value="-noserver -port 8080 -war d:\intertrust\git\CM5SRC\IDE\Idea14\ActiveFrame-Platform\out\artifacts\EAR_GWT_Dev_Mode.ear\web-app.war\" />
     <option name="RUN_PAGE" value="cm-sochi/BusinessUniverse.html" />
+    <option name="OPEN_IN_BROWSER" value="false" />
     <option name="WORKING_DIRECTORY" value="" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="" />
