@@ -15,6 +15,7 @@ import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,7 +105,7 @@ public class AsyncPluginExecutorImpl implements AsyncPluginExecutor {
                 if (pluginInfo.isTransactional()) {
                     ejbContext.getUserTransaction().rollback();
                 }
-                result = ex.toString();
+                result = ExceptionUtils.getStackTrace(ex);
             }
 
             ejbContext.getUserTransaction().begin();
