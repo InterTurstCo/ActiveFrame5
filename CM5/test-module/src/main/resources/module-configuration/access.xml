@@ -61,7 +61,13 @@
     
     <dynamic-group name="test_type_33_person_group">
         <context>
-            <domain-object type="test_type_33" filter="getString('name').startsWith('context')"/>
+            <domain-object type="test_type_33">
+                <filter>
+                <![CDATA[
+                getString('name').startsWith('context')
+                ]]>
+                </filter>
+            </domain-object>
         </context>
         <members>
             <track-domain-objects>

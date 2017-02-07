@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import java.io.Serializable;
 
 import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
 
 /**
  * Доменный объект, составляющий контекст динамической роли.
@@ -18,9 +19,8 @@ public class DomainObjectConfig implements Serializable {
     @Attribute(required = false)
     private String status;
 
-    @Attribute(required = false)
-    private String filter;
-    
+    @Element(required = false, data=true)
+    private String filter;    
     
     public String getFilter() {
         return filter;
