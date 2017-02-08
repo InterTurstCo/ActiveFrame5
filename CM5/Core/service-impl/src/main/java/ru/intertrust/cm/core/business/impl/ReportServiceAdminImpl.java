@@ -295,7 +295,7 @@ public class ReportServiceAdminImpl extends ReportServiceBase implements ReportS
     }
 
     private String getCompileClassPath() throws IOException, URISyntaxException {
-        String[] rootPackages = new String[] {"net", "ru", "com", "org"};
+        String[] rootPackages = new String[] {"net", "ru", "com", "org", "lotus"};
         //Получаем библиотеки для runtime компилятора
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         //Список найденых jar библиотек. Необходим чтоб не дублировать jar-ы
