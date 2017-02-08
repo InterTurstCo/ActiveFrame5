@@ -728,3 +728,42 @@ button.btn-update {
     -webkit-box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
     box-shadow: inset 0 2px 0 rgba(0, 0, 0, .15);
 }
+
+.cellTable {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    width: 100%;
+    height: 400px;
+}
+.cellTable thead {
+    flex: 0 0 auto;
+    width: calc(100% - 0.9em);
+}
+.cellTable tbody {
+    flex: 1 1 auto;
+    display: block;
+    overflow-y: scroll;
+}
+
+.cellTable tbody td:not(:first-child) {
+    text-align:center
+
+}
+
+.cellTable tbody td:first-child, .cellTable thead th:first-child {
+    width: 3%
+
+}
+.cellTable tbody tr {
+    width: 100%;
+}
+.cellTable thead,
+.cellTable tbody tr {
+    display: table;
+    table-layout: fixed;
+}
+
+.cellTable tbody td{
+    word-wrap: break-word
+}
