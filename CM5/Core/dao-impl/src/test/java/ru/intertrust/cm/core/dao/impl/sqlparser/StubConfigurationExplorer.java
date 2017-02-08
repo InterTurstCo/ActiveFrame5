@@ -1,18 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
-import ru.intertrust.cm.core.config.AccessMatrixConfig;
-import ru.intertrust.cm.core.config.AccessMatrixStatusConfig;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
-import ru.intertrust.cm.core.config.DynamicGroupConfig;
-import ru.intertrust.cm.core.config.FieldConfig;
-import ru.intertrust.cm.core.config.GlobalSettingsConfig;
-import ru.intertrust.cm.core.config.ReferenceFieldConfig;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
@@ -20,6 +8,11 @@ import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StubConfigurationExplorer implements ConfigurationExplorer {
 
@@ -75,6 +68,11 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
 
     @Override
     public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName, boolean returnInheritedConfig) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Set<String> getDomainObjectTypeAllFieldNames(String doType) {
         throw new UnsupportedOperationException();
     }
 

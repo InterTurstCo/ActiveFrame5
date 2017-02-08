@@ -3,6 +3,7 @@ package ru.intertrust.cm.globalcache.api;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,11 @@ public class QueryCollectionSubKey extends CollectionSubKey {
             }
         }
         return qty;
+    }
+
+    @Override
+    public CollectionSubKey getCopy(DomainEntitiesCloner cloner) {
+        return new QueryCollectionSubKey(subject, cloner.fastCloneValueList(paramValues), offset, limit);
     }
 
     @Override

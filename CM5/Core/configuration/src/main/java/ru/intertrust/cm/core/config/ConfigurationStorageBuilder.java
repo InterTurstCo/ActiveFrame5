@@ -758,16 +758,20 @@ public class ConfigurationStorageBuilder {
         if (oldType == null) {
             return;
         }
-
+        configurationStorage.fieldNamesByTypeMap.remove(oldType.getName());
         List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(oldType.getDomainObjectFieldsConfig(), configurationExplorer);
 
         for (FieldConfig fieldConfig : allFieldsConfig) {
             FieldConfigKey fieldConfigKey = new FieldConfigKey(oldType.getName(), fieldConfig.getName());
+            FieldConfigKey fieldConfigKey2 = new FieldConfigKey(oldType.getName(), fieldConfig.getName(), true);
             configurationStorage.fieldConfigMap.remove(fieldConfigKey);
+            configurationStorage.fieldConfigMap.remove(fieldConfigKey2);
         }
         for (FieldConfig fieldConfig : oldType.getSystemFieldConfigs()) {
             FieldConfigKey fieldConfigKey = new FieldConfigKey(oldType.getName(), fieldConfig.getName());
+            FieldConfigKey fieldConfigKey2 = new FieldConfigKey(oldType.getName(), fieldConfig.getName(), true);
             configurationStorage.fieldConfigMap.remove(fieldConfigKey);
+            configurationStorage.fieldConfigMap.remove(fieldConfigKey2);
         }
     }
 
@@ -857,6 +861,7 @@ public class ConfigurationStorageBuilder {
         domainObjectTypeConfigs = configurationExplorer.getConfigs(DomainObjectTypeConfig.class);
         for (DomainObjectTypeConfig domainObjectTypeConfig : domainObjectTypeConfigs) {
             fillInheritedFieldsConfigMap(domainObjectTypeConfig);
+            fillFieldNamesConfigMap(domainObjectTypeConfig);
         }
 
         //Заполнение таблицы read-evrybody. Вынесено сюда, потому что не для всех типов существует матрица прав и важно чтобы было заполнена TopLevelConfigMap
@@ -917,6 +922,16 @@ public class ConfigurationStorageBuilder {
             FieldConfigKey fieldConfigKey = new FieldConfigKey(domainObjectTypeConfig.getName(), fieldConfig.getName(), true);
             configurationStorage.fieldConfigMap.put(fieldConfigKey, fieldConfig);
         }
+    }
+
+    private void fillFieldNamesConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {
+        List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigsIncludingInherited(domainObjectTypeConfig, configurationExplorer);
+        allFieldsConfig.addAll(domainObjectTypeConfig.getSystemFieldConfigs());
+        HashSet<String> fieldNames = new HashSet<>(allFieldsConfig.size());
+        for (FieldConfig fieldConfig : allFieldsConfig) {
+            fieldNames.add(fieldConfig.getName());
+        }
+        configurationStorage.fieldNamesByTypeMap.put(domainObjectTypeConfig.getName(), fieldNames);
     }
 
     private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {

@@ -19,12 +19,15 @@ public class RdbmsId implements Id {
 
     private int typeId;
     private long id;
-    private transient String stringRepresentation;
 
     /**
      * Конструктор по умолчанию. Обычно не используется. Требуется для сериализации
      */
     public RdbmsId() {
+    }
+
+    public RdbmsId(Id id) {
+        this(id.toStringRepresentation());
     }
 
     /**
@@ -50,8 +53,6 @@ public class RdbmsId implements Id {
             throw new IllegalArgumentException("Invalid id string representation '" + stringRep + "'. Must be " +
                     "exactly " + MAX_ID_LENGTH + " characters long");
         }
-
-        this.stringRepresentation = stringRep;
 
         try {
             this.typeId = Integer.parseInt(stringRep.substring(0, MAX_DO_TYPE_ID_LENGTH));
@@ -122,11 +123,7 @@ public class RdbmsId implements Id {
 
     @Override
     public String toStringRepresentation() {
-        if (stringRepresentation == null) {
-            stringRepresentation = generateStringRepresentation();
-        }
-
-        return stringRepresentation;
+        return generateStringRepresentation();
     }
 
     @Override
@@ -152,21 +149,20 @@ public class RdbmsId implements Id {
                     " digits length.");
         }
 
-        String fixedLengthTypeId = generateFixedLengthString(typeIdString, MAX_DO_TYPE_ID_LENGTH);
-        String fixedLengthId = generateFixedLengthString(idString, MAX_DO_ID_LENGTH);
-        return fixedLengthTypeId + fixedLengthId;
+        final StringBuilder result = new StringBuilder(MAX_ID_LENGTH);
+        appendFixedLengthString(result, typeIdString, MAX_DO_TYPE_ID_LENGTH);
+        appendFixedLengthString(result, idString, MAX_DO_ID_LENGTH);
+        return result.toString();
     }
 
-    private String generateFixedLengthString(String string, int maxLength) {
+    private void appendFixedLengthString(StringBuilder to, String string, int maxLength) {
         int stringLength = string.length();
         int missedLength = maxLength - stringLength;
 
-        StringBuilder fixedLengthString = new StringBuilder();
         for(int i = 0; i < missedLength; i ++) {
-            fixedLengthString.append(String.valueOf(0));
+            to.append('0');
         }
 
-        fixedLengthString.append(string);
-        return fixedLengthString.toString();
+        to.append(string);
     }
 }

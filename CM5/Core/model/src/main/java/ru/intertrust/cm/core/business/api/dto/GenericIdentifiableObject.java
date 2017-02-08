@@ -248,6 +248,27 @@ public class GenericIdentifiableObject implements IdentifiableObject, Cloneable 
         return containsFieldValues(this, fieldValues);
     }
 
+    public void retainFields(Set<String> fields) {
+        ArrayList<String> toRemove = new ArrayList<>();
+        for (String originalKey : originalKeys) {
+            if (!fields.contains(originalKey)) {
+                toRemove.add(originalKey);
+            }
+        }
+        for (String field : toRemove) {
+            originalKeys.remove(field);
+            fieldValues.remove(field.toLowerCase());
+        }
+    }
+
+    @Deprecated
+    /**
+     * Plaform-based application Developer! Do not use this method, use interface methods!
+     */
+    public LinkedHashMap<String, Value> getFieldValues() {
+        return fieldValues;
+    }
+
     static boolean containsFieldValues(IdentifiableObject object, Map<String, Value> fieldValues) {
         final Set<String> fields = fieldValues.keySet();
         for (String field : fields) {

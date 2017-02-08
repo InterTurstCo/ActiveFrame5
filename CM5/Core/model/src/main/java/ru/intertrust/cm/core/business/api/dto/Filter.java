@@ -1,6 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.math.BigDecimal;
@@ -20,17 +19,28 @@ public class Filter implements Dto, Cloneable {
      */
     protected String filter;
 
-    protected HashMap<Integer, List<Value>> parameterMap = new HashMap<Integer, List<Value>>();
-    private HashMap<Integer, Boolean> isSingleParameterMap = new HashMap<Integer, Boolean>();
+    protected HashMap<Integer, List<Value>> parameterMap;
+    private HashMap<Integer, Boolean> isSingleParameterMap;
     
     public Filter() {
-
+        parameterMap = new HashMap<>();
+        isSingleParameterMap = new HashMap<>();
     }
 
     public Filter(Filter source) {
+        this(source, false);
+    }
+
+    public Filter(Filter source, boolean makeShallowCopies) {
         this.filter = source.getFilter();
-        this.parameterMap = source.getParameterMap();
-        this.isSingleParameterMap = source.getIsSingleParameterMap();
+        if (makeShallowCopies) {
+            parameterMap = new HashMap<>(source.parameterMap);
+            isSingleParameterMap = new HashMap<>(source.isSingleParameterMap);
+
+        } else {
+            this.parameterMap = source.getParameterMap();
+            this.isSingleParameterMap = source.getIsSingleParameterMap();
+        }
     }
 
     public HashMap<Integer, List<Value>> getParameterMap() {
@@ -49,7 +59,7 @@ public class Filter implements Dto, Cloneable {
     }
 
     public void addCriterion(int index, Value value) {
-        ArrayList<Value> list = new ArrayList<Value>(1);
+        ArrayList<Value> list = new ArrayList<>(1);
         list.add(value);
         parameterMap.put(index, list);
         isSingleParameterMap.put(index, Boolean.TRUE);
@@ -61,7 +71,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiStringCriterion(int index, List<String> stringList) {
         if (stringList != null){
-            List<Value> values = new ArrayList<Value>(stringList.size());
+            List<Value> values = new ArrayList<>(stringList.size());
             for (String string : stringList) {
                 values.add(new StringValue(string));
             }
@@ -75,7 +85,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiBooleanCriterion(int index, List<Boolean> booleanList) {
         if (booleanList != null){
-            List<Value> values = new ArrayList<Value>(booleanList.size());
+            List<Value> values = new ArrayList<>(booleanList.size());
             for (Boolean value : booleanList) {
                 values.add(new BooleanValue(value));
             }
@@ -89,7 +99,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiDecimalCriterion(int index, List<BigDecimal> decimalList) {
         if (decimalList != null){
-            List<Value> values = new ArrayList<Value>(decimalList.size());
+            List<Value> values = new ArrayList<>(decimalList.size());
             for (BigDecimal value : decimalList) {
                 values.add(new DecimalValue(value));
             }
@@ -103,7 +113,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiLongCriterion(int index, List<Long> longList) {
         if (longList != null){
-            List<Value> values = new ArrayList<Value>(longList.size());
+            List<Value> values = new ArrayList<>(longList.size());
             for (Long value : longList) {
                 values.add(new LongValue(value));
             }
@@ -117,7 +127,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiReferenceCriterion(int index, List<Id> idList) {
         if (idList != null){
-            List<Value> values = new ArrayList<Value>(idList.size());
+            List<Value> values = new ArrayList<>(idList.size());
             for (Id value : idList) {
                 values.add(new ReferenceValue(value));
             }
@@ -137,7 +147,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiDateTimeCriterion(int index, List<Date> dateList) {
         if (dateList != null){
-            List<Value> values = new ArrayList<Value>(dateList.size());
+            List<Value> values = new ArrayList<>(dateList.size());
             for (Date value : dateList) {
                 values.add(new DateTimeValue(value));
             }
@@ -157,7 +167,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiDateTimeWithTimeZoneCriterion(int index, List<DateTimeWithTimeZone> dateList) {
         if (dateList != null){
-            List<Value> values = new ArrayList<Value>(dateList.size());
+            List<Value> values = new ArrayList<>(dateList.size());
             for (DateTimeWithTimeZone value : dateList) {
                 values.add(new DateTimeWithTimeZoneValue(value));
             }
@@ -177,7 +187,7 @@ public class Filter implements Dto, Cloneable {
 
     public void addMultiTimelessDateCriterion(int index, List<TimelessDate> dateList) {
         if (dateList != null){
-            List<Value> values = new ArrayList<Value>(dateList.size());
+            List<Value> values = new ArrayList<>(dateList.size());
             for (TimelessDate value : dateList) {
                 values.add(new TimelessDateValue(value));
             }
@@ -254,29 +264,12 @@ public class Filter implements Dto, Cloneable {
 
     @Override
     @GwtIncompatible
-    public Object clone() throws CloneNotSupportedException {
-        final Filter clone = (Filter) super.clone();
-        if (isSingleParameterMap != null) {
-            clone.isSingleParameterMap = (HashMap<Integer, Boolean>) isSingleParameterMap.clone();
+    public Filter clone() {
+        final Filter clone;
+        try {
+            return (Filter) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new UnsupportedOperationException(e);
         }
-        if (parameterMap != null) {
-            final ObjectCloner cloner = ObjectCloner.getInstance();
-            final HashMap<Integer, List<Value>> clonedParameterMap = (HashMap<Integer, List<Value>>) parameterMap.clone();
-            for (Map.Entry<Integer, List<Value>> entry : clonedParameterMap.entrySet()) {
-                final List<Value> list = entry.getValue();
-                if (list != null) {
-                    final ArrayList<Value> listClone = new ArrayList<>(list);
-                    entry.setValue(listClone);
-                    for (int i = 0; i < listClone.size(); i++) {
-                        final Value value = listClone.get(i);
-                        if (value != null && !value.isImmutable()) {
-                            listClone.set(i, cloner.cloneObject(value));
-                        }
-                    }
-                }
-            }
-            clone.parameterMap = clonedParameterMap;
-        }
-        return clone;
     }
 }

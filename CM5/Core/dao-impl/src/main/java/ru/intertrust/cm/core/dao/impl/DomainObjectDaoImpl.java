@@ -60,6 +60,9 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
     private ConfigurationExplorer configurationExplorer;
 
     @Autowired
+    private DomainEntitiesCloner cloner;
+
+    @Autowired
     private IdGenerator idGenerator;
 
     private DomainObjectCacheService domainObjectCacheService;
@@ -2504,15 +2507,15 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 addModifiedAutoDomainObjectId(domainObject.getId());
                 return;
             }
-            domainObjectsModification.addCreatedDomainObject(domainObject);
+            domainObjectsModification.addCreatedDomainObject(cloner.fastCloneDomainObject(domainObject));
         }
 
         private void addModifiedAutoDomainObjectId(Id id) {
-            domainObjectsModification.addModifiedAutoDomainObject(id);
+            domainObjectsModification.addModifiedAutoDomainObject(cloner.fastCloneId(id));
         }
 
         public void addChangeStatusDomainObject(DomainObject domainObject) {
-            domainObjectsModification.addChangeStatusDomainObject(domainObject);
+            domainObjectsModification.addChangeStatusDomainObject(cloner.fastCloneDomainObject(domainObject));
         }
 
         public void addDeletedDomainObject(DomainObject domainObject){
@@ -2529,7 +2532,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                 return;
             }
 
-            domainObjectsModification.addSavedDomainObject(domainObject, newFields);
+            domainObjectsModification.addSavedDomainObject(cloner.fastCloneDomainObject(domainObject), newFields);
         }
 
         @Override

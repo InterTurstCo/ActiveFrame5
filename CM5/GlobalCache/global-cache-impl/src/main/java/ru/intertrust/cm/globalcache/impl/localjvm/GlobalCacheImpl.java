@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.dto.CollectionTypesKey;
@@ -42,6 +43,9 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Autowired
     private ConfigurationExplorer explorer;
+
+    @Autowired
+    private DomainEntitiesCloner domainEntitiesCloner;
 
     @Autowired
     private DomainObjectDao domainObjectDao;
@@ -275,19 +279,15 @@ public class GlobalCacheImpl implements GlobalCache {
             if (!retrievedAfterLastCommitOfMatchingTypes(linkedType, exactType, time)) {
                 return; // don't put anything as list has been retrieved before the last commit occured
             }
-            ObjectNode node = getOrCreateDomainObjectNode(id);
             final UserSubject userSubject = getUserSubject(accessToken);
-            final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
             // todo: do something if node already exists?
 
-            final LinkedHashSet<Id> ids = new LinkedHashSet<>((int) (linkedObjects.size() / 0.75f + 1));
             boolean setLinkedObjects = true;
-            if (tooLargeToCache("Linked objects", linkedObjects.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
+            if (tooLargeToCache("Linked objects", linkedObjects.size(), COLLECTION_MAX_ROWS * 3, COLLECTION_SUSPICIOUS_ROWS)) {
                 setLinkedObjects = false;
             }
             for (DomainObject linkedObject : linkedObjects) {
                 final Id linkedObjectId = linkedObject.getId();
-                ids.add(linkedObjectId);
                 final Action action = createOrUpdateDomainObjectEntries(linkedObjectId, linkedObject, userSubject);
                 if (action.clearDomainObject()) {
                     setLinkedObjects = false;
@@ -296,7 +296,14 @@ public class GlobalCacheImpl implements GlobalCache {
             if (!setLinkedObjects) {
                 return;
             }
+            final LinkedHashSet<Id> ids = new LinkedHashSet<>((int) (linkedObjects.size() / 0.75f + 1));
+            for (DomainObject linkedObject : linkedObjects) {
+                final Id linkedObjectId = linkedObject.getId();
+                ids.add(linkedObjectId);
+            }
 
+            ObjectNode node = getOrCreateDomainObjectNode(id);
+            final LinkedObjectsKey key = new LinkedObjectsKey(linkedType, linkedField, exactType);
             LinkedObjectsNode linkedObjectsNode = new LinkedObjectsNode(ids);
             if (userSubject == null) {
                 node.setSystemLinkedObjectsNode(key, linkedObjectsNode);
@@ -335,43 +342,30 @@ public class GlobalCacheImpl implements GlobalCache {
         return node;
     }
 
-    private Set<? extends Filter> cloneFiltersToSet(List<? extends Filter> filters) { // special case for those who inherits Filter class
-        if (filters == null || filters.isEmpty()) {
-            return null;
-        }
-        final HashSet<Filter> result = new HashSet<>(filters.size() * 2);
-        for (Filter filter : filters) {
-            result.add(ObjectCloner.fastCloneFilter(filter));
-        }
-        return result;
-    }
-
     public void notifyCollectionCountRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                           int count, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames);
-        final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, null, 0, 0);
-        notifyCollectionRead(key, subKey, domainObjectTypes, null, count, time);
+        notifyCollectionRead(
+                new NamedCollectionTypesKey(name, filterNames),
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0),
+                domainObjectTypes, null, count, time);
     }
 
     public void notifyCollectionRead(String transactionId, String name, Set<String> domainObjectTypes, Set<String> filterNames, List<? extends Filter> filterValues,
                                      SortOrder sortOrder, int offset, int limit,
                                      IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, filterNames);
-        final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit); // todo clone sort order (or just clone key)
-        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), -1, time);
+        notifyCollectionRead(
+                new NamedCollectionTypesKey(name, filterNames),
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit),
+                domainObjectTypes, collection, -1, time);
     }
 
     @Override
     public void notifyCollectionRead(String transactionId, String query, Set<String> domainObjectTypes, List<? extends Value> paramValues,
                                      int offset, int limit, IdentifiableObjectCollection collection, long time, AccessToken accessToken) {
-        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
-        final UserSubject subject = getUserSubject(accessToken);
-        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues == null ? null : new ArrayList<>(paramValues), offset, limit);
-        notifyCollectionRead(key, subKey, domainObjectTypes, ObjectCloner.fastCloneCollection(collection), -1, time);
+        notifyCollectionRead(
+                new QueryCollectionTypesKey(query),
+                new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit),
+                domainObjectTypes, collection, -1, time);
     }
 
     @Override
@@ -640,32 +634,75 @@ public class GlobalCacheImpl implements GlobalCache {
 
     @Override
     public int getCollectionCount(String transactionId, String name, List<? extends Filter> filterValues, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
-        final UserSubject subject = getUserSubject(accessToken);
-        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, null, 0, 0);
-        return getCollectionCount(key, subKey);
+        return getCollectionCount(
+                new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues)),
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, null, 0, 0));
+    }
+
+    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
+        if (collectionKeyTooLarge(subKey)) {
+            return -1;
+        }
+        final CollectionNode collectionNode = getCollectionNode(key, subKey);
+        if (collectionNode == null) {
+            return -1;
+        }
+        int count = collectionNode.getCount();
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey.getCopy(domainEntitiesCloner)));
+        return count;
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String name, List<? extends Filter> filterValues,
                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues));
-        final UserSubject subject = getUserSubject(accessToken);
-        sortOrder = ObjectCloner.fastCloneSortOrder(sortOrder);
-        final Set<? extends Filter> filterValuesSet = cloneFiltersToSet(filterValues);
-        final CollectionSubKey subKey = new NamedCollectionSubKey(subject, filterValuesSet, sortOrder, offset, limit);
-        return getCollection(key, subKey);
+        return getCollection(
+                new NamedCollectionTypesKey(name, ModelUtil.getFilterNames(filterValues)),
+                new NamedCollectionSubKey(getUserSubject(accessToken), filterValues, sortOrder, offset, limit));
     }
 
     @Override
     public IdentifiableObjectCollection getCollection(String transactionId, String query, List<? extends Value> paramValues,
                                                       int offset, int limit, AccessToken accessToken) {
-        final CollectionTypesKey key = new QueryCollectionTypesKey(query);
-        final UserSubject subject = getUserSubject(accessToken);
-        paramValues = paramValues == null ? null : ObjectCloner.fastCloneValueList(paramValues);
-        final CollectionSubKey subKey = new QueryCollectionSubKey(subject, paramValues, offset, limit);
-        return getCollection(key, subKey);
+        return getCollection(
+                new QueryCollectionTypesKey(query),
+                new QueryCollectionSubKey(getUserSubject(accessToken), paramValues, offset, limit));
+    }
+
+    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
+        if (collectionKeyTooLarge(subKey)) {
+            return null;
+        }
+        final CollectionNode collectionNode = getCollectionNode(key, subKey);
+        if (collectionNode == null) {
+            return null;
+        }
+        final IdentifiableObjectCollection collection = collectionNode.getCollection();
+        accessSorter.logAccess(new CollectionAccessKey(key, subKey.getCopy(domainEntitiesCloner)));
+        return domainEntitiesCloner.fastCloneCollection(collection);
+    }
+
+    private CollectionNode getCollectionNode(CollectionTypesKey key, CollectionSubKey subKey) {
+        final CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
+        if (baseNode == null) {
+            return null;
+        }
+        final CollectionNode collectionNode = baseNode.getCollectionNode(subKey);
+        if (collectionNode == null) {
+            return null;
+        }
+        final long timeRetrieved = collectionNode.getTimeRetrieved();
+        final Set<String> collectionTypes = baseNode.getCollectionTypes();
+        if (collectionTypes != null) {
+            for (String type : collectionTypes) {
+                // in case of user access, rights changes should be taken into account
+                final boolean invalidNode = subKey.subject == null ? typeSavedAfterOrSameTime(type, timeRetrieved) : typeChangedAfterOrSameTime(type, timeRetrieved);
+                if (invalidNode) {
+                    baseNode.removeCollectionNode(subKey);
+                    return null;
+                }
+            }
+        }
+        return collectionNode;
     }
 
     @Override
@@ -951,7 +988,7 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected DomainObject getClone(DomainObject object) {
-        return object == null || GenericDomainObject.isAbsent(object) ? object : ObjectCloner.fastCloneDomainObject(object);
+        return object == null || GenericDomainObject.isAbsent(object) ? object : domainEntitiesCloner.fastCloneDomainObject(object);
     }
 
     private Action createOrUpdateDomainObjectEntries(Id id, DomainObject obj, UserSubject subject) {
@@ -1084,26 +1121,36 @@ public class GlobalCacheImpl implements GlobalCache {
     }
 
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
-                                     IdentifiableObjectCollection clonedCollection, int count, long time) {
+                                     IdentifiableObjectCollection collection, int count, long time) {
         CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             baseNode = new CollectionBaseNode(domainObjectTypes == null ? Collections.EMPTY_SET : domainObjectTypes);
             baseNode = collectionsTree.addBaseNode(key, baseNode);
         }
+        if (collectionKeyTooLarge(subKey)) {
+            return;
+        }
+        CollectionSubKey subKeyClone;
         synchronized (subKey) { // todo fix
-            if (tooLargeToCache(subKey.getClass().toString(), subKey.getKeyEntriesQty(), KEY_ENTRIES_MAX_QTY, KEY_ENTRIES_SUSPICIOUS_QTY)) {
-                return;
-            }
-            if (clonedCollection != null && tooLargeToCache(clonedCollection.getClass().toString(), clonedCollection.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS)) {
+            if (collection != null && collectionTooLarge(collection)) {
                 baseNode.removeCollectionNode(subKey);
                 return;
             }
 
-            CollectionNode collectionNode = count == -1 ? new CollectionNode(clonedCollection, time) : new CollectionNode(count, time);
-            baseNode.setCollectionNode(subKey, collectionNode);
+            subKeyClone = subKey.getCopy(domainEntitiesCloner);
+            CollectionNode collectionNode = count == -1 ? new CollectionNode(domainEntitiesCloner.fastCloneCollection(collection), time) : new CollectionNode(count, time);
+            baseNode.setCollectionNode(subKeyClone, collectionNode);
         }
-        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
+        accessSorter.logAccess(new CollectionAccessKey(key, subKeyClone));
         assureCacheSizeLimit();
+    }
+
+    private boolean collectionTooLarge(IdentifiableObjectCollection clonedCollection) {
+        return tooLargeToCache(clonedCollection.getClass().toString(), clonedCollection.size(), COLLECTION_MAX_ROWS, COLLECTION_SUSPICIOUS_ROWS);
+    }
+
+    private boolean collectionKeyTooLarge(CollectionSubKey subKey) {
+        return tooLargeToCache(subKey.getClass().toString(), subKey.getKeyEntriesQty(), KEY_ENTRIES_MAX_QTY, KEY_ENTRIES_SUSPICIOUS_QTY);
     }
 
     private boolean tooLargeToCache(String desc, int entries, int maxRowsSize, int suspicionsRowsSize) {
@@ -1115,50 +1162,6 @@ public class GlobalCacheImpl implements GlobalCache {
             logger.warn(desc + " is quite large, but cached: " + entries + " entries");
         }
         return false;
-    }
-
-    protected int getCollectionCount(CollectionTypesKey key, CollectionSubKey subKey) {
-        final CollectionNode collectionNode = getCollectionNode(key, subKey);
-        if (collectionNode == null) {
-            return -1;
-        }
-        int count = collectionNode.getCount();
-        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
-        return count;
-    }
-
-    protected IdentifiableObjectCollection getCollection(CollectionTypesKey key, CollectionSubKey subKey) {
-        final CollectionNode collectionNode = getCollectionNode(key, subKey);
-        if (collectionNode == null) {
-            return null;
-        }
-        final IdentifiableObjectCollection collection = collectionNode.getCollection();
-        accessSorter.logAccess(new CollectionAccessKey(key, subKey));
-        return ObjectCloner.fastCloneCollection(collection);
-    }
-
-    private CollectionNode getCollectionNode(CollectionTypesKey key, CollectionSubKey subKey) {
-        final CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
-        if (baseNode == null) {
-            return null;
-        }
-        final CollectionNode collectionNode = baseNode.getCollectionNode(subKey);
-        if (collectionNode == null) {
-            return null;
-        }
-        final long timeRetrieved = collectionNode.getTimeRetrieved();
-        final Set<String> collectionTypes = baseNode.getCollectionTypes();
-        if (collectionTypes != null) {
-            for (String type : collectionTypes) {
-                // in case of user access, rights changes should be taken into account
-                final boolean invalidNode = subKey.subject == null ? typeSavedAfterOrSameTime(type, timeRetrieved) : typeChangedAfterOrSameTime(type, timeRetrieved);
-                if (invalidNode) {
-                    baseNode.removeCollectionNode(subKey);
-                    return null;
-                }
-            }
-        }
-        return collectionNode;
     }
 
     private boolean typeSavedAfterOrSameTime(String type, long time) {

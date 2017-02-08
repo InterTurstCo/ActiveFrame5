@@ -106,6 +106,8 @@
 
     <bean id="domainObjectQueryHelper" factory-bean="daoFactory" factory-method="createQueryHelper"/>
 
+    <bean id="domainObjectEntitiesCloner" class="ru.intertrust.cm.core.dao.impl.DomainEntitiesClonerImpl"/>
+
     <bean id="identifiableObjectConverter" class="ru.intertrust.cm.core.dao.impl.utils.IdentifiableObjectConverter"/>
 
     <bean id="databaseAccessAgent"

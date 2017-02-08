@@ -24,4 +24,9 @@ public class IdsIncludedFilter extends IdBasedFilter {
     public IdsIncludedFilter(ReferenceValue... idsIncluded) {
         super(idsIncluded);
     }
+
+    @Override
+    public IdsIncludedFilter clone() {
+        return (IdsIncludedFilter) super.clone();
+    }
 }

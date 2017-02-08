@@ -272,6 +272,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         return getFieldConfig(domainObjectConfigName, fieldConfigName, true);
     }
 
+    public Set<String> getDomainObjectTypeAllFieldNames(String doType) {
+        return configStorage.fieldNamesByTypeMap.get(doType);
+    }
+
     /**
      * {@inheritDoc}
      */

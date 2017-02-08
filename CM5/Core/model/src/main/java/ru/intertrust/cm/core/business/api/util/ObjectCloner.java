@@ -10,7 +10,6 @@ import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 
 import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,125 +50,6 @@ public class ObjectCloner {
      */
     public static ObjectCloner getInstance () {
         return objectCloner.get();
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование DomainObject. Пока метод clone() не вынесен в интерфейс {@link DomainObject},
-     * поддерживается клонирование лишь {@link GenericDomainObject}
-     * @param domainObject доменный объект
-     * @return клон доменного объекта
-     * @throws ClassCastException если доменный объект не является {@link GenericDomainObject}
-     */
-    public static DomainObject fastCloneDomainObject(DomainObject domainObject) {
-        if (domainObject == null) {
-            return null;
-        }
-        try {
-            return (DomainObject) ((GenericDomainObject) domainObject).clone(); // cast is a hack until clone() is not in DomainObject interface
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование списка DomainObject. Пока метод clone() не вынесен в интерфейс {@link DomainObject},
-     * поддерживается клонирование лишь {@link GenericDomainObject}
-     * @param domainObjects доменный объект
-     * @return клон списка доменных объектов
-     * @throws ClassCastException если доменный объект в списке не является {@link GenericDomainObject}
-     */
-    public static List<DomainObject> fastCloneDomainObjectList(List<DomainObject> domainObjects) {
-        if (domainObjects == null) {
-            return null;
-        }
-        try {
-            ArrayList<DomainObject> result = new ArrayList<>(domainObjects.size());
-            for (DomainObject domainObject : domainObjects) {
-                result.add((DomainObject) ((GenericDomainObject) domainObjects).clone()); // cast is a hack until clone() is not in DomainObject interface
-            }
-            return result;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование IdentifiableObjectCollection. Пока метод clone() не вынесен в интерфейс {@link IdentifiableObjectCollection},
-     * поддерживается клонирование лишь {@link GenericIdentifiableObjectCollection}
-     * @param collection коллекция
-     * @return клон коллекции
-     * @throws ClassCastException если коллекция не является {@link GenericIdentifiableObjectCollection}
-     */
-    public static IdentifiableObjectCollection fastCloneCollection(IdentifiableObjectCollection collection) {
-        if (collection == null) {
-            return null;
-        }
-        try {
-            return (IdentifiableObjectCollection) ((GenericIdentifiableObjectCollection) collection).clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование {@link Filter}
-     * @param filter фильтр
-     * @return клон фильтра
-     */
-    public static Filter fastCloneFilter(Filter filter) {
-        if (filter == null) {
-            return null;
-        }
-        try {
-            return (Filter) ((Filter) filter).clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование {@link SortOrder}
-     * @param sortOrder фильтр
-     * @return клон фильтра
-     */
-    public static SortOrder fastCloneSortOrder(SortOrder sortOrder) {
-        if (sortOrder == null) {
-            return null;
-        }
-        try {
-            SortOrder clone = new SortOrder();
-            for (SortCriterion sortCriterion : sortOrder) {
-                clone.add((SortCriterion) sortCriterion.clone());
-            }
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException(e);
-        }
-    }
-
-    /**
-     * Метод, быстро осуществляющий глубокое клонирование списка {@link Value}
-     * @param values список {@link Value}
-     * @return клон списка  {@link Value}
-     */
-    public static List<Value> fastCloneValueList(List<? extends Value> values) {
-        if (values == null) {
-            return null;
-        }
-        final ArrayList<Value> clone = new ArrayList<>(values);
-        final ObjectCloner cloner = ObjectCloner.getInstance();
-        for (int i = 0; i < values.size(); i++) {
-            Value value = values.get(i);
-            if (value != null && !value.isImmutable()) {
-                clone.set(i, cloner.cloneObject(value));
-            }
-        }
-        return clone;
     }
 
     /**

@@ -1,6 +1,7 @@
 package ru.intertrust.cm.globalcache.api;
 
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 
 /**
  * @author Denis Mitavskiy
@@ -19,4 +20,6 @@ public abstract class CollectionSubKey {
     }
 
     public abstract int getKeyEntriesQty();
+
+    public abstract CollectionSubKey getCopy(DomainEntitiesCloner cloner);
 }

@@ -26,6 +26,7 @@ public class ConfigurationStorage {
     public Map<Pair<String, Class<?>>, CaseInsensitiveMap<LocalizableConfig>> localizedConfigMap = new HashMap<>();
 
     public Map<FieldConfigKey, FieldConfig> fieldConfigMap = new HashMap<>();
+    public CaseInsensitiveMap<Set<String>> fieldNamesByTypeMap = new CaseInsensitiveMap<>();
     public CaseInsensitiveMap<List<FieldConfig>> mutableFieldsNoInheritanceMap = new CaseInsensitiveMap<>();
     public Map<FieldConfigKey, CollectionColumnConfig> collectionColumnConfigMap = new HashMap<>();
 

@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.api.dto;
 
-import ru.intertrust.cm.core.business.api.util.ObjectCloner;
-
 import java.util.*;
 
 /**
@@ -75,18 +73,15 @@ public class DomainObjectsModification implements Dto {
     }
 
     public void addCreatedDomainObject(DomainObject domainObject) {
-        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
-
         createdDomainObjects.add(domainObject);
     }
 
     public void addModifiedAutoDomainObject(Id id) {
-        modifiedAutoDomainObjectIds.add(id); // do not clone as developers do not get these objects at their disposal
+        modifiedAutoDomainObjectIds.add(id);
     }
 
     public void addChangeStatusDomainObject(DomainObject domainObject){
         final Id id = domainObject.getId();
-        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
 
         savedAndChangedStatusDomainObjects.put(id, domainObject);
         if (!changeStatusDomainObjects.containsKey(id)){
@@ -101,8 +96,6 @@ public class DomainObjectsModification implements Dto {
     }
 
     public void addSavedDomainObject(DomainObject domainObject, List<FieldModification> newFields) {
-        domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
-
         savedDomainObjects.put(domainObject.getId(), domainObject);
         savedAndChangedStatusDomainObjects.put(domainObject.getId(), domainObject);
 

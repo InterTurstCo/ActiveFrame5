@@ -7,12 +7,12 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.UniqueKeyConfig;
 import ru.intertrust.cm.core.config.UniqueKeyFieldConfig;
 import ru.intertrust.cm.core.dao.access.AccessToken;
+import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 import ru.intertrust.cm.core.dao.api.DomainObjectCacheService;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.exception.DaoException;
@@ -67,6 +67,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
     @Autowired
     DomainObjectTypeIdCache domainObjectTypeIdCache;
 
+    @Autowired
+    DomainEntitiesCloner domainEntitiesCloner;
+
     @Resource
     private TransactionSynchronizationRegistry txReg;
 
@@ -94,9 +97,9 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             return parentDomainObjectIdSet;
         }
 
-        private void setDomainObject(DomainObject domainObject) {
+        private void setDomainObject(DomainObject domainObject, DomainEntitiesCloner cloner) {
             //deep clone
-            this.domainObject = ObjectCloner.fastCloneDomainObject(domainObject);
+            this.domainObject = cloner.fastCloneDomainObject(domainObject);
         }
 
 
@@ -164,8 +167,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
                     ? new ArrayList<>(getChildDomainObjectIdMap().get(complexKey)) : null;
         }
 
-        private DomainObject getDomainObject() {
-            return ObjectCloner.fastCloneDomainObject(domainObject);
+        private DomainObject getDomainObject(DomainEntitiesCloner cloner) {
+            return cloner.fastCloneDomainObject(domainObject);
         }
 
         static String generateKey(String ... key) {
@@ -334,7 +337,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
             domainObjects.clear();
         }
 
-        domainObjects.addAll(ObjectCloner.fastCloneDomainObjectList(dobjs));
+        domainObjects.addAll(domainEntitiesCloner.fastCloneDomainObjectList(dobjs));
 
         // TODO Do we need to put objects to cache individually?
     }
@@ -378,7 +381,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         String objectCollectionKey = generateCollectionKey(parentId, key);
 
         List<DomainObject> domainObjects = objectCollectionMap.get(objectCollectionKey);
-        return ObjectCloner.fastCloneDomainObjectList(domainObjects);
+        return domainEntitiesCloner.fastCloneDomainObjectList(domainObjects);
     }
 
     /**
@@ -395,7 +398,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         if (!isCacheEnabled()) return null;
 
         return isEmptyDomainObjectNode(id, accessToken.getAccessLimitationType()) ? null :
-                getOrCreateDomainObjectNode(id, accessToken.getAccessLimitationType()).getDomainObject();
+                getOrCreateDomainObjectNode(id, accessToken.getAccessLimitationType()).getDomainObject(domainEntitiesCloner);
     }
 
     /**
@@ -455,8 +458,8 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         for (Id id : ids) {
             DomainObjectNode don = isEmptyDomainObjectNode(id, accessToken.getAccessLimitationType()) ? null :
                     getOrCreateDomainObjectNode(id, accessToken.getAccessLimitationType());
-            if (don != null && don.getDomainObject() != null) {
-                ret.add(don.getDomainObject());
+            if (don != null && don.getDomainObject(domainEntitiesCloner) != null) {
+                ret.add(don.getDomainObject(domainEntitiesCloner));
             }
         }
         return ret.size() == 0 ? null : ret;
@@ -510,7 +513,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
 
         for (AccessToken.AccessLimitationType limitationType : getAccessLimitationMap().keySet()) {
             if (!isEmptyDomainObjectNode(id, limitationType)) {
-                DomainObject dobj = isEmptyDomainObjectNode(id, limitationType) ? null : getOrCreateDomainObjectNode(id, limitationType).getDomainObject();
+                DomainObject dobj = isEmptyDomainObjectNode(id, limitationType) ? null : getOrCreateDomainObjectNode(id, limitationType).getDomainObject(domainEntitiesCloner);
                 if (dobj != null) {
                     Map<String, Id> idMap = generateReferenceFieldsIdMap(dobj);
                     for (Map.Entry<String, Id> ent : idMap.entrySet()) {
@@ -557,7 +560,7 @@ public class DomainObjectCacheServiceImpl implements DomainObjectCacheService {
         if (!isCacheEnabled()) return null;
 
         DomainObjectNode dobjNode = getOrCreateDomainObjectNode(dobj.getId(), accessLimitationType);
-        dobjNode.setDomainObject(dobj);
+        dobjNode.setDomainObject(dobj, domainEntitiesCloner);
         update(dobjNode); // Необходимо обновить доменный объект во всех кэшах одним и тем же объектом
 
         if (isRead) {

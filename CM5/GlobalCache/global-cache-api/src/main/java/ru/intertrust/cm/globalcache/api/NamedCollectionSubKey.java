@@ -5,11 +5,9 @@ import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
+import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Denis Mitavskiy
@@ -19,6 +17,12 @@ import java.util.Set;
 public class NamedCollectionSubKey extends CollectionSubKey {
     public final Set<? extends Filter> filterValues;
     public final SortOrder sortOrder;
+
+    public NamedCollectionSubKey(UserSubject subject, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit) {
+        super(subject, offset, limit);
+        this.filterValues = filterValues == null ? null : new HashSet<>(filterValues);
+        this.sortOrder = sortOrder;
+    }
 
     public NamedCollectionSubKey(UserSubject subject, Set<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit) {
         super(subject, offset, limit);
@@ -59,6 +63,20 @@ public class NamedCollectionSubKey extends CollectionSubKey {
             }
         }
         return qty;
+    }
+
+    @Override
+    public CollectionSubKey getCopy(DomainEntitiesCloner cloner) {
+        final HashSet<Filter> filtersClone;
+        if (filterValues == null) {
+            filtersClone = null;
+        } else {
+            filtersClone = new HashSet<>(filterValues.size() * 3 / 2);
+            for (Filter filter : filterValues) {
+                filtersClone.add(cloner.fastCloneFilter(filter));
+            }
+        }
+        return new NamedCollectionSubKey(subject, filtersClone, cloner.fastCloneSortOrder(sortOrder), offset, limit);
     }
 
     @Override
