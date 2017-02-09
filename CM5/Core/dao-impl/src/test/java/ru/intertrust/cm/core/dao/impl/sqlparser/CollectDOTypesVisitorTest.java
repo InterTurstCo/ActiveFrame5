@@ -1,26 +1,21 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
-import net.sf.jsqlparser.statement.select.Select;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
+import net.sf.jsqlparser.statement.select.Select;
 
-@RunWith(MockitoJUnitRunner.class)
+import org.junit.Test;
+
+import ru.intertrust.cm.core.dao.impl.sqlparser.FakeConfigurationExplorer.TypeConfigBuilder;
+
 public class CollectDOTypesVisitorTest {
 
-    @Mock
-    private ConfigurationExplorer configurationExplorer;
+    private FakeConfigurationExplorer configurationExplorer = new FakeConfigurationExplorer();
 
     private static final String COLLECTION_COUNT_WITH_FILTERS =
             "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
@@ -32,15 +27,25 @@ public class CollectDOTypesVisitorTest {
 
     @Test
     public void testFindDOTypes() throws Exception {
-        when(configurationExplorer.findChildDomainObjectTypes(anyString(), eq(true))).thenReturn(null);
+
         SqlQueryParser parser = new SqlQueryParser(COLLECTION_COUNT_WITH_FILTERS);
         Select select = parser.getSelectStatement();
         CollectDOTypesVisitor visitor = new CollectDOTypesVisitor(configurationExplorer);
         Set<String> types = visitor.getDOTypes(select);
         Set<String> checkTypes = new HashSet<>(Arrays.asList(new String[] {"group_member", "department", "employee" }));
         assertTrue(checkTypes.containsAll(types));
+    }
 
-        System.out.println(types);
+    @Test
+    public void testFindDOTypesSelectItemSubQuery() throws Exception {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")).addLongField("n"));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("t")).linkedTo("x", "x"));
+        SqlQueryParser parser = new SqlQueryParser("select (select array_agg(abc) from t where t.x = x.id) from x where x.n = 0");
+        Select select = parser.getSelectStatement();
+        CollectDOTypesVisitor visitor = new CollectDOTypesVisitor(configurationExplorer);
+        Set<String> types = visitor.getDOTypes(select);
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"t", "x" }));
+        assertEquals(expected, types);
     }
 
 }

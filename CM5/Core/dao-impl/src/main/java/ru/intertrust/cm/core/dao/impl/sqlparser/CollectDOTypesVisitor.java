@@ -67,12 +67,17 @@ import net.sf.jsqlparser.expression.operators.relational.RegExpMatchOperator;
 import net.sf.jsqlparser.expression.operators.relational.RegExpMySQLOperator;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
 import net.sf.jsqlparser.statement.select.FromItemVisitor;
 import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectBody;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubJoin;
@@ -89,7 +94,7 @@ import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
  * @author atsvetkov
  * 
  */
-public class CollectDOTypesVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor {
+public class CollectDOTypesVisitor implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor, SelectItemVisitor {
 
     private Set<String> doTypes = new HashSet<>();
 
@@ -140,6 +145,10 @@ public class CollectDOTypesVisitor implements SelectVisitor, FromItemVisitor, Ex
 
     @Override
     public void visit(PlainSelect plainSelect) {
+
+        for (SelectItem selectItem : plainSelect.getSelectItems()) {
+            selectItem.accept(this);
+        }
         plainSelect.getFromItem().accept(this);
 
         if (plainSelect.getJoins() != null) {
@@ -499,5 +508,22 @@ public class CollectDOTypesVisitor implements SelectVisitor, FromItemVisitor, Ex
     public void visit(TableFunction tableFunction) {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public void visit(AllColumns allColumns) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(AllTableColumns allTableColumns) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void visit(SelectExpressionItem selectExpressionItem) {
+        selectExpressionItem.getExpression().accept(this);
     }
 }

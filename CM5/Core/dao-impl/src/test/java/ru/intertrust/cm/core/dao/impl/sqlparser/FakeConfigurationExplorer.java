@@ -1,6 +1,7 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
@@ -8,6 +9,7 @@ import ru.intertrust.cm.core.config.AccessMatrixConfig;
 import ru.intertrust.cm.core.config.DomainObjectFieldsConfig;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
 import ru.intertrust.cm.core.config.FieldConfig;
+import ru.intertrust.cm.core.config.LongFieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
@@ -50,6 +52,13 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
             return matrixConfig;
         }
 
+        public TypeConfigBuilder addLongField(String field) {
+            FieldConfig config = new LongFieldConfig();
+            config.setName("field");
+            typeConfig.getFieldConfigs().add(config);
+            return this;
+        }
+
     }
 
     private HashMap<Class<?>, CaseInsensitiveHashMap<TopLevelConfig>> categoriesMap =
@@ -74,8 +83,56 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
     }
 
     @Override
+    public FieldConfig getFieldConfig(String domainObjectConfigName, String fieldConfigName) {
+        if (domainObjectConfigName == null || fieldConfigName == null) {
+            return null;
+        }
+        DomainObjectTypeConfig c = getConfig(DomainObjectTypeConfig.class, domainObjectConfigName);
+        if (c == null) {
+            return null;
+        }
+        for (FieldConfig fc : c.getFieldConfigs()) {
+            if (fc.getName().equalsIgnoreCase(fieldConfigName)) {
+                return fc;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public DomainObjectTypeConfig getDomainObjectTypeConfig(String typeName) {
+        return getConfig(DomainObjectTypeConfig.class, typeName);
+    }
+
+    @Override
+    public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
+        ArrayList<DomainObjectTypeConfig> children = new ArrayList<>();
+        CaseInsensitiveHashMap<TopLevelConfig> types = getCategorySafe(DomainObjectTypeConfig.class);
+        for (DomainObjectTypeConfig c = typeName == null ? null : (DomainObjectTypeConfig) types.get(typeName); c != null; c = (DomainObjectTypeConfig) types
+                .get(c.getExtendsAttribute())) {
+            if (!c.getName().equalsIgnoreCase(typeName)) {
+                children.add(c);
+                if (!includeIndirect) {
+                    break;
+                }
+            }
+            if (c.getExtendsAttribute() == null) {
+                break;
+            }
+        }
+        return children;
+    }
+
+    private CaseInsensitiveHashMap<TopLevelConfig> getCategorySafe(Class<? extends TopLevelConfig> c) {
+        if (!categoriesMap.containsKey(c)) {
+            categoriesMap.put(c, new CaseInsensitiveHashMap<TopLevelConfig>());
+        }
+        return categoriesMap.get(c);
+    }
+
+    @Override
     public String getMatrixReferenceTypeName(String childTypeName) {
-        CaseInsensitiveHashMap<TopLevelConfig> matrices = categoriesMap.get(AccessMatrixConfig.class);
+        CaseInsensitiveHashMap<TopLevelConfig> matrices = getCategorySafe(AccessMatrixConfig.class);
         if (matrices == null) {
             return null;
         } else {
@@ -89,7 +146,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
                 }
             } else {
                 String fieldName = matrixConfig.getMatrixReference();
-                DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) categoriesMap.get(DomainObjectTypeConfig.class).get(childTypeName);
+                DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) getCategorySafe(DomainObjectTypeConfig.class).get(childTypeName);
                 for (FieldConfig fieldConfig : typeConfig.getFieldConfigs()) {
                     if (fieldConfig.getName().equals(fieldName) && fieldConfig instanceof ReferenceFieldConfig) {
                         return ((ReferenceFieldConfig) fieldConfig).getType();
@@ -107,7 +164,7 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
     @Override
     public String getDomainObjectRootType(String typeName) {
-        DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) categoriesMap.get(DomainObjectTypeConfig.class).get(typeName);
+        DomainObjectTypeConfig typeConfig = (DomainObjectTypeConfig) getCategorySafe(DomainObjectTypeConfig.class).get(typeName);
         String parentTypeName = typeConfig.getExtendsAttribute();
         if (parentTypeName == null) {
             return typeName;
