@@ -1155,5 +1155,31 @@ table.form-panel-header .gwt-Red-Label {
 }
 
 
+.collection-plugin-view .search-box,.collection-plugin-view .search-data-box {
+    min-width: calc(100% - 28px) !important;
+}
+
+
+.decorated-action-linkPopup, .decorated-action-nested-linkPopup {
+    background: #669492;
+    background: -moz-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: -webkit-linear-gradient(top, #669492 0, #90b5a4 100%);
+    background: linear-gradient(to bottom, #669492 0, #90b5a4 100%);
+}
+
+.decorated-action-linkPopup:before {
+    background: url(images/bubble_arrow-dark-theme.png);
+}
+
+.menuPopupContent .gwt-MenuItem-selected {
+    background: #669492 !important;
+}
+
+.suggest-container-input .facebook-element {
+    vertical-align: bottom;
+}
+
+
+
 /* CMFIVE-5032 Изменение поведения панели навигации в новой теме */
 @def autoOpenNavigationPanel false;
