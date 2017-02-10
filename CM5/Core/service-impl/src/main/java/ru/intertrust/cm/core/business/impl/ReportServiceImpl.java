@@ -32,6 +32,7 @@ import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.dao.api.extension.AfterGenerateReportExtentionHandler;
+import ru.intertrust.cm.core.dao.api.extension.BeforeGenerateReportExtensionHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
@@ -204,6 +205,14 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 ReportMetadataConfig reportMetadata = loadReportMetadata(
                         readFile(new File(templateFolder, ReportServiceAdmin.METADATA_FILE_MAME)));
 
+                
+                
+                //Вызов точки расширения после генерации отчета
+                //Сначала для точек расширения у которых указан фильтр
+                BeforeGenerateReportExtensionHandler beforeExtentionHandler =
+                        extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, name);
+                beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
+                
                 //Формирование отчета
                 // todo: this method should accept DataSource and if it's MASTER - support transaction
                 File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);
