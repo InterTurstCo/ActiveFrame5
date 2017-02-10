@@ -733,7 +733,7 @@ button.btn-update {
     display: flex;
     flex-flow: column;
     height: 100%;
-    width: 100%;
+    width: 79vw;
     height: 400px;
 }
 .cellTable thead {
@@ -752,7 +752,7 @@ button.btn-update {
 }
 
 .cellTable tbody td:first-child, .cellTable thead th:first-child {
-    width: 3%
+    width: 20px;
 
 }
 .cellTable tbody tr {
