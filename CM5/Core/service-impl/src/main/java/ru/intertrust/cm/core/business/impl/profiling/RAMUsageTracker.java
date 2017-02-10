@@ -26,8 +26,11 @@ public class RAMUsageTracker implements ServerComponentHandler {
     private Logger level2 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_2");
     private Logger level3 = LoggerFactory.getLogger("AF5_RAMUsageTracker_Level_3");
 
-    @Value("${long.running.method.analysis.system.packages:ru.intertrust}")
-    private String[] basePackages;
+    @Value("${long.running.method.analysis.system.paths:ru.intertrust}")
+    private String[] basePaths;
+
+    @Value("${long.running.method.analysis.black.list.paths:org.springframework.web.client.RestTemplate,org.apache.http.impl.client.AbstractHttpClient.execute}")
+    private String[] blackListPaths;
 
     @Value("${suspicious.heap.delta.deviations:3}")
     private double suspiciousHeapDeltaDeviations;
@@ -68,6 +71,12 @@ public class RAMUsageTracker implements ServerComponentHandler {
         prevSnapshot = makeSnapshot();
         suspects = new SuspectGroups();
         heapStat = new HeapStatistics(suspiciousHeapDeltaDeviations, suspiciousTotalHeapDeltaDeviations);
+    }
+
+    public void printHead() {
+        if (isEnabled(level1)) {
+            level1.debug("\tdUsed" + "\tdUsed_avg" + "\tdUsed_warn" + "\tUsed" + "\tdTotal" + "\tdTotal_avg" + "\tdTotal_warn" + "\tTotal" + "\tThreads" + "\tSystem Threads" + "\tSuspects");
+        }
     }
 
     public void track() {
@@ -124,16 +133,16 @@ public class RAMUsageTracker implements ServerComponentHandler {
                         "\t" + snapshot.getThreadsCount() +
                         "\t" + snapshot.getSystemThreadsCount();
 
-        return heapDesc + shortSuspectsSummary() + "\t" + time;
+        return heapDesc + "\t" + shortSuspectsSummary() + "\t" + time;
     }
 
     private String shortSuspectsSummary() {
         final Suspects suspects = this.suspects.get(MAIN);
         if (suspects.isEmpty()) {
-            return "\t0\t";
+            return "---";
         }
         sb.setLength(0);
-        sb.append("\t").append(suspects.getStackTraces().size());
+        sb.append(suspects.getStackTraces().size());
         for (StackTrace stackTrace : suspects.getStackTraces().values()) {
             sb.append(stackTrace.oneLineBasePackageDescription()).append(";");
         }
@@ -167,18 +176,19 @@ public class RAMUsageTracker implements ServerComponentHandler {
             for (StackTrace stackTrace : newSuspectStackTraces) {
                 final ThreadId threadId = stackTrace.getThreadId();
                 sb.append("\n").append(threadId).append("\n");
-                final List<StackTraceElement> stackTraceElements = onlyBasePackages ? stackTrace.getBasePackagesStackTrace() : stackTrace.getStackTrace();
+                final List<StackTraceElement> stackTraceElements = onlyBasePackages ? stackTrace.getBasePathsStackTrace() : stackTrace.getStackTrace();
                 for (StackTraceElement elt : stackTraceElements) {
                     sb.append("\t").append(elt.toString()).append("\n");
                 }
                 sb.append("\n");
                 logger.debug(sb.toString());
+                sb.setLength(0);
             }
         }
     }
 
     public String getHeapStatDesc(Mean value) {
-        return "\t" + format(value.getMean())
+        return format(value.getMean())
                 + "\t" + format(value.getWarnValue());
     }
 
@@ -210,7 +220,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
     }
 
     private ExecutionSnapshot makeSnapshot() {
-        return new ExecutionSnapshot(basePackages);
+        return new ExecutionSnapshot(basePaths, blackListPaths);
     }
 
     private boolean logEnabled() {

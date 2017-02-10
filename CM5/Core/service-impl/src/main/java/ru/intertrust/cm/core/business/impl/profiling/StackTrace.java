@@ -11,30 +11,36 @@ public class StackTrace {
     public static final StackTrace IGNORED = new StackTrace();
     private ThreadId threadId;
     private List<StackTraceElement> stackTrace;
-    private List<StackTraceElement> basePackagesStackTrace;
-    private String[] basePackages;
+    private List<StackTraceElement> basePathsStackTrace;
+    private String[] basePaths;
+    private String[] blackListPaths;
 
     private StackTrace() {
     }
 
-    public StackTrace(ThreadId threadId, List<StackTraceElement> stackTrace, List<StackTraceElement> basePackagesStackTrace, String[] basePackages) {
+    public StackTrace(ThreadId threadId, List<StackTraceElement> stackTrace, List<StackTraceElement> basePathsStackTrace, String[] basePaths, String[] blackListPaths) {
         this.threadId = threadId;
         this.stackTrace = stackTrace;
-        this.basePackagesStackTrace = basePackagesStackTrace;
-        this.basePackages = basePackages;
+        this.basePathsStackTrace = basePathsStackTrace;
+        this.basePaths = basePaths;
+        this.blackListPaths = blackListPaths;
     }
 
-    public static StackTrace get(Thread thread, StackTraceElement[] stackTrace, String[] basePackages) {
-        ArrayList<StackTraceElement> basePackageStackTrace = null;
+    public static StackTrace get(Thread thread, StackTraceElement[] stackTrace, String[] basePaths, String[] blackListPaths) {
+        boolean checkBlackList = blackListPaths != null && blackListPaths.length > 0;
+        ArrayList<StackTraceElement> basePathStackTrace = null;
         for (StackTraceElement stackTraceElement : stackTrace) {
-            if (belongsToBasePackage(stackTraceElement, basePackages)) {
-                if (basePackageStackTrace == null) {
-                    basePackageStackTrace = new ArrayList<>();
+            if (checkBlackList && belongsToOnePathAtLeast(stackTraceElement, blackListPaths)) {
+                return IGNORED;
+            }
+            if (belongsToOnePathAtLeast(stackTraceElement, basePaths)) {
+                if (basePathStackTrace == null) {
+                    basePathStackTrace = new ArrayList<>();
                 }
-                basePackageStackTrace.add(stackTraceElement);
+                basePathStackTrace.add(stackTraceElement);
             }
         }
-        return basePackageStackTrace == null ? IGNORED : new StackTrace(new ThreadId(thread), Arrays.asList(stackTrace), basePackageStackTrace, basePackages);
+        return basePathStackTrace == null ? IGNORED : new StackTrace(new ThreadId(thread), Arrays.asList(stackTrace), basePathStackTrace, basePaths, blackListPaths);
     }
 
     public boolean ignore() {
@@ -49,13 +55,13 @@ public class StackTrace {
         return stackTrace;
     }
 
-    public List<StackTraceElement> getBasePackagesStackTrace() {
-        return basePackagesStackTrace;
+    public List<StackTraceElement> getBasePathsStackTrace() {
+        return basePathsStackTrace;
     }
 
     public boolean approximatelyEquals(StackTrace another) {
-        ArrayList<StackTraceElement> thisStackTrace = reverse(basePackagesStackTrace);
-        ArrayList<StackTraceElement> anotherStackTrace = reverse(another.basePackagesStackTrace);
+        ArrayList<StackTraceElement> thisStackTrace = reverse(basePathsStackTrace);
+        ArrayList<StackTraceElement> anotherStackTrace = reverse(another.basePathsStackTrace);
         if (anotherStackTrace.isEmpty()) {
             return false;
         }
@@ -88,13 +94,13 @@ public class StackTrace {
         return result;
     }
 
-    public String[] getBasePackages() {
-        return basePackages;
+    public String[] getBasePaths() {
+        return basePaths;
     }
 
-    private static boolean belongsToBasePackage(StackTraceElement stackTraceElement, String[] basePackages) {
-        for (String basePackage : basePackages) {
-            if (stackTraceElement.getClassName().contains(basePackage)) {
+    private static boolean belongsToOnePathAtLeast(StackTraceElement stackTraceElement, String[] paths) {
+        for (String basePackage : paths) {
+            if ((stackTraceElement.getClassName() + '.' + stackTraceElement.getMethodName()).contains(basePackage)) {
                 return true;
             }
         }
@@ -102,6 +108,6 @@ public class StackTrace {
     }
 
     public String oneLineBasePackageDescription() {
-        return "\t" + threadId.id + "->" + basePackagesStackTrace.get(0);
+        return threadId.id + "->" + basePathsStackTrace.get(0);
     }
 }

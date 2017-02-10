@@ -51,6 +51,8 @@ public class LongRunningMethodAnalysisTask implements ScheduleTaskHandle {
     void init() {
         ramUsageTracker.setLoggers(null, null, logger);
         ramUsageTracker.setSuspiciousTotalHeapDeltaBytesPerMinute(0);
+
+        frequentRamUsageTracker.printHead();
     }
 
     @Override

@@ -16,15 +16,17 @@ public class ExecutionSnapshot {
     private Map<ThreadId, StackTrace> stackTracesByThread;
     private Map<ThreadId, StackTrace> initialStackTracesByThread;
 
-    private String[] basePackages;
+    private String[] basePaths;
+    private String[] blackListPaths;
     private HeapState heapState;
     private int totalThreadsCount;
 
     private ExecutionSnapshot() {
     }
 
-    public ExecutionSnapshot(String[] basePackages) {
-        this.basePackages = basePackages;
+    public ExecutionSnapshot(String[] basePaths, String[] blackListPaths) {
+        this.basePaths = basePaths;
+        this.blackListPaths = blackListPaths;
         this.stackTracesByThread = new HashMap<>();
         this.heapState = new HeapState();
         final Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
@@ -34,7 +36,7 @@ public class ExecutionSnapshot {
             if (state != Thread.State.BLOCKED && state != Thread.State.RUNNABLE || Thread.currentThread().equals(thread)) {
                 continue;
             }
-            final StackTrace stackTrace = StackTrace.get(thread, threadStackTrace.getValue(), basePackages);
+            final StackTrace stackTrace = StackTrace.get(thread, threadStackTrace.getValue(), basePaths, blackListPaths);
             if (!stackTrace.ignore()) {
                 stackTracesByThread.put(stackTrace.getThreadId(), stackTrace);
             }
@@ -89,7 +91,7 @@ public class ExecutionSnapshot {
             }
         }
         ExecutionSnapshot intersection = new ExecutionSnapshot();
-        intersection.basePackages = this.basePackages;
+        intersection.basePaths = this.basePaths;
         intersection.heapState = this.heapState.time > another.heapState.time ? this.heapState : another.heapState;
         intersection.stackTracesByThread = Collections.unmodifiableMap(stackTraces);
         intersection.initialStackTracesByThread = Collections.unmodifiableMap(initialStackTraces);
@@ -114,7 +116,7 @@ public class ExecutionSnapshot {
     }
 
     private boolean containsLoggedPackages(StackTraceElement stackTraceElement) {
-        for (String basePackage : basePackages) {
+        for (String basePackage : basePaths) {
             if (stackTraceElement.getClassName().contains(basePackage)) {
                 return true;
             }
