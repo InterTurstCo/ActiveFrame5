@@ -1,8 +1,6 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -80,7 +78,7 @@ public class JavaScriptServiceImpl implements ScriptService {
             }
             return context.getResult();
         } catch (ScriptException e) {
-            throw new FatalException("Error executing script " + script);
+            throw new FatalException("Error executing script " + script, e);
         }
     }
 
