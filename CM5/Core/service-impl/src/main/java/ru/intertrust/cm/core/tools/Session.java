@@ -10,13 +10,17 @@ import org.springframework.context.ApplicationContext;
 
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.LongValue;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.StringValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -53,6 +57,33 @@ public class Session implements Serializable {
         // List<DomainObjectAccessor> result = new ArrayList<DomainObjectAccessor>();
         return collectionToList(collection);
     }
+
+    /**
+     * Выполнение запроса и возвращение коллекции
+     * @param query
+     * @param params
+     * @return
+     */
+    public IdentifiableObjectCollection findByQuery(String query, Object ... params) {
+        AccessToken accessToken = getAccessControlService().createSystemAccessToken(getClass().getName());
+        List<Value> queryParams = new ArrayList<Value>();
+        for (Object param : params) {
+            if (param instanceof Id){
+                queryParams.add(new ReferenceValue((Id)param));
+            }else if(param instanceof String){
+                queryParams.add(new StringValue((String)param));
+            }else if(param instanceof Integer){
+                queryParams.add(new LongValue((Integer)param));
+            }else if(param instanceof Long){
+                queryParams.add(new LongValue((Long)param));
+            }else if(param instanceof Boolean){
+                queryParams.add(new BooleanValue((Boolean)param));
+            }
+        }
+        IdentifiableObjectCollection collection = getCollectionService().findCollectionByQuery(query, queryParams, 0, 0, accessToken);
+        return collection;
+    }
+    
     
     /**
      * Получение коллекции c фильтром по id. Фильтр должен быть по id
