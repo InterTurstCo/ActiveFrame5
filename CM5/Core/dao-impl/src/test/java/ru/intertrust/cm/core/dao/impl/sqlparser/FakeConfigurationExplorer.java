@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.dao.impl.sqlparser;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveHashMap;
 import ru.intertrust.cm.core.config.AccessMatrixConfig;
@@ -106,18 +108,31 @@ public class FakeConfigurationExplorer extends StubConfigurationExplorer {
 
     @Override
     public Collection<DomainObjectTypeConfig> findChildDomainObjectTypes(String typeName, boolean includeIndirect) {
-        ArrayList<DomainObjectTypeConfig> children = new ArrayList<>();
-        CaseInsensitiveHashMap<TopLevelConfig> types = getCategorySafe(DomainObjectTypeConfig.class);
-        for (DomainObjectTypeConfig c = typeName == null ? null : (DomainObjectTypeConfig) types.get(typeName); c != null; c = (DomainObjectTypeConfig) types
-                .get(c.getExtendsAttribute())) {
-            if (!c.getName().equalsIgnoreCase(typeName)) {
-                children.add(c);
-                if (!includeIndirect) {
-                    break;
+
+        HashMap<String, List<DomainObjectTypeConfig>> childrenMap = new HashMap<String, List<DomainObjectTypeConfig>>();
+        for (TopLevelConfig c : getCategorySafe(DomainObjectTypeConfig.class).values()) {
+            DomainObjectTypeConfig type = (DomainObjectTypeConfig) c;
+            String parent = type.getExtendsAttribute();
+            if (parent != null) {
+                if (!childrenMap.containsKey(parent)) {
+                    childrenMap.put(parent, new ArrayList<DomainObjectTypeConfig>());
                 }
+                childrenMap.get(parent).add(type);
             }
-            if (c.getExtendsAttribute() == null) {
-                break;
+        }
+
+        ArrayList<DomainObjectTypeConfig> children = new ArrayList<>();
+        if (childrenMap.containsKey(typeName)) {
+            children.addAll(childrenMap.get(typeName));
+        }
+        if (includeIndirect) {
+            ConcurrentLinkedQueue<DomainObjectTypeConfig> queue = new ConcurrentLinkedQueue<DomainObjectTypeConfig>();
+            queue.addAll(children);
+            for (DomainObjectTypeConfig type : queue) {
+                if (childrenMap.containsKey(type.getName())) {
+                    children.addAll(childrenMap.get(type.getName()));
+                    queue.addAll(childrenMap.get(type.getName()));
+                }
             }
         }
         return children;

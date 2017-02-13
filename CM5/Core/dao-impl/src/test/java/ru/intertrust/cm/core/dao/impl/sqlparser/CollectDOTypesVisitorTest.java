@@ -1,13 +1,10 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import net.sf.jsqlparser.statement.select.Select;
 
 import org.junit.Test;
 
@@ -17,34 +14,91 @@ public class CollectDOTypesVisitorTest {
 
     private FakeConfigurationExplorer configurationExplorer = new FakeConfigurationExplorer();
 
-    private static final String COLLECTION_COUNT_WITH_FILTERS =
-            "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
-                    "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
-                    "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
-                    "WHERE gm.person_id = :user_id " +
-                    "AND r.object_id = id) " +
-                    "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
+    private CollectDOTypesVisitor visitor = new CollectDOTypesVisitor(configurationExplorer);
 
     @Test
-    public void testFindDOTypes() throws Exception {
-
-        SqlQueryParser parser = new SqlQueryParser(COLLECTION_COUNT_WITH_FILTERS);
-        Select select = parser.getSelectStatement();
-        CollectDOTypesVisitor visitor = new CollectDOTypesVisitor(configurationExplorer);
-        Set<String> types = visitor.getDOTypes(select);
-        Set<String> checkTypes = new HashSet<>(Arrays.asList(new String[] {"group_member", "department", "employee" }));
-        assertTrue(checkTypes.containsAll(types));
+    public void testIgnoreNotDoTables() throws Exception {
+        Set<String> types = visitor.getDOTypes("select * from a natural join b");
+        Set<String> expected = new HashSet<>();
+        assertEquals(expected, types);
     }
 
     @Test
     public void testFindDOTypesSelectItemSubQuery() throws Exception {
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")).addLongField("n"));
         configurationExplorer.createTypeConfig((new TypeConfigBuilder("t")).linkedTo("x", "x"));
-        SqlQueryParser parser = new SqlQueryParser("select (select array_agg(abc) from t where t.x = x.id) from x where x.n = 0");
-        Select select = parser.getSelectStatement();
-        CollectDOTypesVisitor visitor = new CollectDOTypesVisitor(configurationExplorer);
-        Set<String> types = visitor.getDOTypes(select);
+        Set<String> types = visitor.getDOTypes("select (select array_agg(abc) from t where t.x = x.id) from x where x.n = 0");
         Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"t", "x" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testFindDOTypesWithSubQuery() throws Exception {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")).addLongField("n"));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("t")).linkedTo("x", "x"));
+        Set<String> types = visitor.getDOTypes("with temp as (select a from x) select * from t natural join temp");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"t", "x" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testAddChildTypesToo() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        configurationExplorer.createTypeConfig(new TypeConfigBuilder("xchild").parent("x"));
+        configurationExplorer.createTypeConfig(new TypeConfigBuilder("xgrandchild").parent("xchild"));
+        Set<String> types = visitor.getDOTypes("select * from xchild");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"xchild", "xgrandchild" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testQuotedTableNames() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        Set<String> types = visitor.getDOTypes("select * from \"x\"");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"x" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testMixedCaseType() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("MixedCase")));
+        Set<String> types = visitor.getDOTypes("select * from mixedCase");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"mixedcase" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testAliasedTable() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        Set<String> types = visitor.getDOTypes("select * from (select alias.n from x alias) t");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"x" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testInSubquery() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("y")));
+        Set<String> types = visitor.getDOTypes("select * from x where x.id in (select y.id from y where y.n = 0)");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"x", "y" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testCaseSubquery() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("y")));
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("z")));
+        Set<String> types = visitor.getDOTypes("select case when x.n = 1 then (select t from y) else (select t from z) end from x");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"x", "y", "z" }));
+        assertEquals(expected, types);
+    }
+
+    @Test
+    public void testDOsWithNotDoTables() {
+        configurationExplorer.createTypeConfig((new TypeConfigBuilder("x")));
+        Set<String> types = visitor.getDOTypes("select * from x naturnal join y");
+        Set<String> expected = new HashSet<>(Arrays.asList(new String[] {"x" }));
         assertEquals(expected, types);
     }
 
