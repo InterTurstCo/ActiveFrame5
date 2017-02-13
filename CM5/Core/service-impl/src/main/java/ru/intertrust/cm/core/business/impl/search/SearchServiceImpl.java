@@ -47,6 +47,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
+    @Value("${search.results.limit:5000}")
+    private int RESULTS_LIMIT;
+
     @Autowired
     private SolrServer solrServer;
 
@@ -60,6 +63,9 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     public IdentifiableObjectCollection search(String query, String areaName, String targetCollectionName,
             int maxResults) {
         try {
+            if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
+                maxResults = RESULTS_LIMIT;
+            }
             StringBuilder queryString = new StringBuilder();
             for (String field : listCommonSolrFields()) {
                 queryString.append(queryString.length() == 0 ? "" : " OR ")
@@ -129,6 +135,10 @@ public class SearchServiceImpl implements SearchService, SearchService.Remote {
     private IdentifiableObjectCollection complexSearch(SearchQuery query, CollectionRetriever collectionRetriever,
             int maxResults) {
         try {
+            if (maxResults <= 0 || maxResults > RESULTS_LIMIT) {
+                maxResults = RESULTS_LIMIT;
+            }
+
             // Анализ запроса и разделение фильтров по типам объектов
             ComplexQuery solrMultiQuery = new ComplexQuery();
             solrMultiQuery.addFilters(query.getFilters(), query);

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.*;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -24,6 +25,7 @@ import org.apache.solr.common.params.SolrParams;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -57,6 +59,13 @@ public class SearchServiceTest {
     @InjectMocks private SearchServiceImpl service = new SearchServiceImpl();
 
     //@Captor private ArgumentCaptor<List<Filter>> filters;
+
+    @Before
+    public void initSearchService() throws Exception {
+        Field resultsLimit = SearchServiceImpl.class.getDeclaredField("RESULTS_LIMIT");
+        resultsLimit.setAccessible(true);
+        resultsLimit.set(service, 5000);
+    }
 
     @Test
     public void testSimpleSearch_Basic() throws Exception {
