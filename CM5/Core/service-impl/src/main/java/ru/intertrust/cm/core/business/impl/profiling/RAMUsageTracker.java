@@ -90,9 +90,6 @@ public class RAMUsageTracker implements ServerComponentHandler {
         if (suspiciousActivity) {
             final ExecutionSnapshot intersection = snapshot.getIntersection(prevSnapshot);
             suspects.addAllFrom(MAIN, intersection);
-            if (intersection.isEmpty()) {
-                suspects.addAllFrom(MAIN, snapshot);
-            }
         }
         printLog(snapshot, suspiciousActivity, System.currentTimeMillis() - t1);
 

@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
  */
 public class ResultSetExtractionLogger {
     private static final Logger logger = LoggerFactory.getLogger(ResultSetExtractionLogger.class);
-    public static final int MIN_ROWS_TO_LOG = 100000;
-    public static final int EACH_ROWS_TO_LOG_AFTER = 20000;
+    public static final int MIN_ROWS_TO_LOG = 20000;
+    public static final int EACH_ROWS_TO_LOG_AFTER = 5000;
 
     public static void log(final String codeId, final long startTime, final long rowCount) {
         if (rowCount < MIN_ROWS_TO_LOG) {
