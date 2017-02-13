@@ -207,10 +207,13 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
                 
                 
-                //Вызов точки расширения после генерации отчета
+                //Вызов точки расширения до генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 BeforeGenerateReportExtensionHandler beforeExtentionHandler =
                         extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, name);
+                beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
+                //Вызов точек расширения у кого не указан фильтр
+                beforeExtentionHandler = extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, "");
                 beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
                 
                 //Формирование отчета
