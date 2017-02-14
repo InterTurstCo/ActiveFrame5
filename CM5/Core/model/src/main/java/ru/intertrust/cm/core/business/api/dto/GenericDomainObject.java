@@ -5,6 +5,8 @@ import ru.intertrust.cm.core.config.SystemField;
 import ru.intertrust.cm.core.model.GwtIncompatible;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 /**
  * Обобщённая реализация доменных объектов
@@ -76,6 +78,21 @@ public class GenericDomainObject extends GenericIdentifiableObject implements Do
             setId(null); // обнуляем скопированный Id
         }
         setStatus(source.getStatus());
+    }
+
+    /**
+     * Создаёт копию доменного объекта
+     *
+     * @param source исходный доменный объект
+     * @param copyId флаг, определяющий, требуется ли копирование идентификатор объекта. Если не требуется, то системные даты (создания, модификации)
+     *               также не будут скопировано, потому что эти даты могут существовать только у сохранённого объекта, которому Id уже назначен.
+     */
+    public GenericDomainObject(Id id, String typeName, LinkedHashSet<String> originalKeys, LinkedHashMap<String, Value> fieldValues) {
+        this.setId(id);
+        this.setTypeName(typeName);
+        this.originalKeys = originalKeys;
+        this.fieldValues = fieldValues;
+        resetDirty();
     }
 
     public void setTypeName(String typeName) {

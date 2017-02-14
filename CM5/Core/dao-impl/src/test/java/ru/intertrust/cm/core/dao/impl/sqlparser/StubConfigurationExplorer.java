@@ -72,7 +72,7 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
     }
 
     @Override
-    public Set<String> getDomainObjectTypeAllFieldNames(String doType) {
+    public Set<String> getDomainObjectTypeAllFieldNamesLowerCased(String doType) {
         throw new UnsupportedOperationException();
     }
 

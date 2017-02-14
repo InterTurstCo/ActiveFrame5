@@ -758,7 +758,7 @@ public class ConfigurationStorageBuilder {
         if (oldType == null) {
             return;
         }
-        configurationStorage.fieldNamesByTypeMap.remove(oldType.getName());
+        configurationStorage.fieldNamesLowerCasedByTypeMap.remove(oldType.getName());
         List<FieldConfig> allFieldsConfig = DomainObjectTypeUtility.getAllFieldConfigs(oldType.getDomainObjectFieldsConfig(), configurationExplorer);
 
         for (FieldConfig fieldConfig : allFieldsConfig) {
@@ -929,9 +929,9 @@ public class ConfigurationStorageBuilder {
         allFieldsConfig.addAll(domainObjectTypeConfig.getSystemFieldConfigs());
         HashSet<String> fieldNames = new HashSet<>(allFieldsConfig.size());
         for (FieldConfig fieldConfig : allFieldsConfig) {
-            fieldNames.add(fieldConfig.getName());
+            fieldNames.add(fieldConfig.getName().toLowerCase());
         }
-        configurationStorage.fieldNamesByTypeMap.put(domainObjectTypeConfig.getName(), fieldNames);
+        configurationStorage.fieldNamesLowerCasedByTypeMap.put(domainObjectTypeConfig.getName(), fieldNames);
     }
 
     private void fillAuditLogConfigMap(DomainObjectTypeConfig domainObjectTypeConfig) {

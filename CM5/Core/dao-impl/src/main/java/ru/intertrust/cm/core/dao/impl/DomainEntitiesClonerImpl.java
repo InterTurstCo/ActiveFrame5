@@ -15,6 +15,20 @@ import java.util.*;
  *         Time: 18:13
  */
 public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
+    private final static Set<Class<? extends Value>> PLATFORM_VALUE_CLASSES;
+
+    static {
+        PLATFORM_VALUE_CLASSES = new HashSet<>(16);
+        PLATFORM_VALUE_CLASSES.add(StringValue.class);
+        PLATFORM_VALUE_CLASSES.add(LongValue.class);
+        PLATFORM_VALUE_CLASSES.add(BooleanValue.class);
+        PLATFORM_VALUE_CLASSES.add(DecimalValue.class);
+        PLATFORM_VALUE_CLASSES.add(DateTimeWithTimeZoneValue.class);
+        PLATFORM_VALUE_CLASSES.add(DateTimeValue.class);
+        PLATFORM_VALUE_CLASSES.add(TimelessDateValue.class);
+        PLATFORM_VALUE_CLASSES.add(ReferenceValue.class);
+    }
+
     @Autowired
     private ConfigurationExplorer configurationExplorer;
 
@@ -23,16 +37,33 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
         if (domainObject == null) {
             return null;
         }
-        final Set<String> fields = configurationExplorer.getDomainObjectTypeAllFieldNames(domainObject.getTypeName());
-        final GenericDomainObject clone = new GenericDomainObject(domainObject);
-        clone.retainFields(fields);
-        final LinkedHashMap<String, Value> fieldValues = clone.getFieldValues();
-        new MapValueNormalizer().normalize(fieldValues.entrySet().iterator());
-        clone.setId(fastCloneId(clone.getId()));
-
-        clone.resetDirty();
-        return clone;
+        if (domainObject instanceof GenericDomainObject) {
+            return cloneGenericDomainObject((GenericDomainObject) domainObject);
+        } else {
+            return new GenericDomainObject(domainObject);
+        }
     }
+
+    public DomainObject cloneGenericDomainObject(GenericDomainObject domainObject) {
+        final Set<String> fieldsLowerCased = configurationExplorer.getDomainObjectTypeAllFieldNamesLowerCased(domainObject.getTypeName());
+        LinkedHashSet<String> originalKeys = domainObject.getOriginalKeys();
+        LinkedHashMap<String, Value> fieldValues = domainObject.getFieldValues();
+
+        LinkedHashSet<String> newOriginalKeys = new LinkedHashSet<>((int) (originalKeys.size() / 0.75));
+        LinkedHashMap<String, Value> newFieldValues = new LinkedHashMap<>((int) (fieldValues.size() / 0.75));
+
+        for (String originalKey : originalKeys) {
+            String originalKeyLower = originalKey.toLowerCase();
+            if (fieldsLowerCased.contains(originalKeyLower)) {
+                newOriginalKeys.add(originalKey);
+                newFieldValues.put(originalKeyLower, fieldValues.get(originalKeyLower));
+            }
+        }
+        new MapValueNormalizer().normalize(fieldValues.entrySet().iterator());
+        Id clonedId = fastCloneId(domainObject.getId());
+        return new GenericDomainObject(clonedId, domainObject.getTypeName(), newOriginalKeys, newFieldValues);
+    }
+
 
     @Override
     public List<DomainObject> fastCloneDomainObjectList(List<DomainObject> domainObjects) {

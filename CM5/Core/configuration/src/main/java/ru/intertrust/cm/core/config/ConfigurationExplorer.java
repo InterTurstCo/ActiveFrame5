@@ -124,7 +124,7 @@ public interface ConfigurationExplorer {
      * Возвращает список полей типа доменного объекта
      * @param doType название типа доменного объекта
      */
-    Set<String> getDomainObjectTypeAllFieldNames(String doType);
+    Set<String> getDomainObjectTypeAllFieldNamesLowerCased(String doType);
 
     /**
      * Возвращает список изменяемых полей типа доменного объекта
