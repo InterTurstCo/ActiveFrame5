@@ -139,7 +139,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
             return "---";
         }
         sb.setLength(0);
-        sb.append(suspects.getStackTraces().size());
+        sb.append(suspects.getStackTraces().size()).append("\t");
         for (StackTrace stackTrace : suspects.getStackTraces().values()) {
             sb.append(stackTrace.oneLineBasePackageDescription()).append(";");
         }
@@ -153,6 +153,7 @@ public class RAMUsageTracker implements ServerComponentHandler {
     public void logTraces(Logger logger, boolean suspiciousActivity, boolean onlyBasePackages) {
         sb.setLength(0);
         final Map<ThreadId, Long> oldThreads = suspects.get(MAIN).getOldThreads();
+        final TreeMap<ThreadId, StackTrace> stackTraces = suspects.get(MAIN).getStackTraces();
         if (suspiciousActivity) {
             sb.append("SUSPICIOUS RAM ACTIVITY IS GOING ON\n");
         } else {
@@ -161,7 +162,12 @@ public class RAMUsageTracker implements ServerComponentHandler {
         if (!oldThreads.isEmpty()) {
             sb.append("Previously logged and still running threads information:\n");
             for (Map.Entry<ThreadId, Long> entry : oldThreads.entrySet()) {
-                sb.append("\t\t").append(entry.getKey()).append(": ").append(dateTimeFormat.format(new Date(entry.getValue()))).append("\n");
+                final ThreadId threadId = entry.getKey();
+                final StackTrace stackTrace = stackTraces.get(threadId);
+                final String dateStr = dateTimeFormat.format(new Date(entry.getValue()));
+                final String baseStackFirstLine = stackTrace.getBasePathsStackTrace().get(0).toString();
+                final String stackFirstLine = stackTrace.getStackTrace().get(0).toString();
+                sb.append("\t\t").append(threadId).append(": ").append(dateStr).append("\t-->\t").append(baseStackFirstLine).append("\t").append(stackFirstLine).append("\n");
             }
         }
         logger.debug(sb.toString());
