@@ -10,7 +10,9 @@ import static ru.intertrust.cm.core.business.api.ScheduleService.SCHEDULE_YEAR;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
@@ -107,7 +109,15 @@ public class SchedulerBean {
     @Autowired
     private ClusterManager clusterManager;
 
+
+    @org.springframework.beans.factory.annotation.Value("${excluded.task.list:}")
+    private String excludedTaskList;
+    
+    private Set<String> excludedTask;
+    
     private List<StartedTask> startedTasks = new ArrayList<StartedTask>();
+    
+    
 
     /**
      * Входная функция сервиса периодических заданий. Вызывается контейнером раз
@@ -278,6 +288,14 @@ public class SchedulerBean {
 
                 //Запуск задач путем асинхронного вызова ScheduleProcessor
                 for (IdentifiableObject taskExecution : taskExecutions) {
+                    //Проверка на исключения. Запрет выполняться определенным задачам на данном узле кластера
+                    //Нужно чтоб особо тяжелые и часто выполняющиеся задачи не запускались на узле где работают пользователи
+                    
+                    if (isExcludedTask(taskExecution.getString("name"))){
+                        logger.warn("Schedule task " + taskExecution.getString("name") + " is excluded on this node.");
+                        continue;
+                    }
+                    
                     //Установка статуса
                     ejbContext.getUserTransaction().begin();
                     DomainObject savedTask = domainObjectDao.setStatus(taskExecution.getId(),
@@ -309,6 +327,20 @@ public class SchedulerBean {
         }
     }
 
+    private boolean isExcludedTask(String taskName){
+        if (excludedTask == null){
+            excludedTask = new HashSet<String>();
+            if (excludedTaskList != null && !excludedTaskList.isEmpty()){
+                String[] excludedTaskArray = excludedTaskList.split("[,; ]");
+                for (String excludedTaskItem : excludedTaskArray) {
+                    excludedTask.add(excludedTaskItem);
+                }
+            }
+        }
+        
+        return excludedTask.contains(taskName);
+    }
+    
     /**
      * Проверка расписания на соответствие текущему времени
      * @param task

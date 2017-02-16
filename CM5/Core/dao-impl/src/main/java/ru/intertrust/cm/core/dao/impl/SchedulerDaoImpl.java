@@ -96,8 +96,9 @@ public class SchedulerDaoImpl implements SchedulerDao {
     public IdentifiableObjectCollection getReadyScheduleExecution(String nodeId) {
         AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
 
-        String query = "select se.id, schedule from schedule_execution se ";
+        String query = "select se.id, se.schedule, sh.name from schedule_execution se ";
         query += "join status st on st.id = se.status ";
+        query += "join schedule sh on sh.id = se.schedule ";
         query += "where se.node_id = {0}";
         query += "and st.name = 'Ready' ";
 

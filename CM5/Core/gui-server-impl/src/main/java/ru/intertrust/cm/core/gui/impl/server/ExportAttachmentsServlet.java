@@ -161,7 +161,7 @@ public class ExportAttachmentsServlet extends HttpServlet {
         String prefix =ThreadSafeDateFormat.format(new Date(), "yyyy-MM-dd_HH-mm-ss");
         File tempFile = File.createTempFile("export-" + prefix + "-", ".zip");
         try (ZipOutputStream zipOut = new ZipOutputStream(new FileOutputStream(tempFile))) {
-            String[] typeArr = types.split(",");
+            String[] typeArr = types.split("[;]");
             for (String typeName : typeArr) {
                 DomainObjectTypeConfig config = configurationExplorer.getDomainObjectTypeConfig(typeName);
                 AttachmentTypesConfig attachTypesConfig = config.getAttachmentTypesConfig();
