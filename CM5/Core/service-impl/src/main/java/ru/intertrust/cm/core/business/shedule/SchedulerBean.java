@@ -290,8 +290,19 @@ public class SchedulerBean {
                 for (IdentifiableObject taskExecution : taskExecutions) {
                     //Проверка на исключения. Запрет выполняться определенным задачам на данном узле кластера
                     //Нужно чтоб особо тяжелые и часто выполняющиеся задачи не запускались на узле где работают пользователи
-                    
+
+                    //Проверка на то что задачу можно запускать на данной ноде
                     if (isExcludedTask(taskExecution.getString("name"))){
+                        //Если нешльзя то сразу меняем статус на Complete
+                        ejbContext.getUserTransaction().begin();
+                        DomainObject savedTask = domainObjectDao.setStatus(taskExecution.getId(),
+                                statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE), accessToken);
+                        savedTask.setTimestamp(ScheduleService.SCHEDULE_COMPLETE, new Date());
+                        savedTask.setString(ScheduleService.SCHEDULE_RESULT_DESCRIPTION, "Schedule task " + taskExecution.getString("name") + " is excluded on this node.");
+
+                        domainObjectDao.save(savedTask, accessToken);
+                        ejbContext.getUserTransaction().commit();
+
                         logger.warn("Schedule task " + taskExecution.getString("name") + " is excluded on this node.");
                         continue;
                     }
