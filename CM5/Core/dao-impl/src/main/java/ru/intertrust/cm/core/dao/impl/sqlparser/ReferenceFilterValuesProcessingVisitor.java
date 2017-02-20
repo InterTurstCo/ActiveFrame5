@@ -16,17 +16,16 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.StringValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
- * Заполняет ссылочные параметры фильтров в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
- * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
+ * Заполняет ссылочные параметры фильтров в SQL запросе. Добавляет тип
+ * ссылочного поля в SQL запрос. Например, выполняет следующую замену: t.id =
+ * {0} -> t.id = 1 and t.id_type = 2.
  * @author atsvetkov
  */
 public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcessingVisitor {
@@ -36,7 +35,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
     protected List<? extends Filter> filterValues;
 
     private Map<String, FieldConfig> columnToConfigMap;
-    
+
     public ReferenceFilterValuesProcessingVisitor(List<? extends Filter> filterValues, Map<String, FieldConfig> columnToConfigMap) {
         this.filterValues = filterValues;
         this.columnToConfigMap = columnToConfigMap;
@@ -48,10 +47,9 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
 
     @Override
     public void visit(EqualsTo equalsTo) {
-        visitBinaryExpression(equalsTo);        
+        visitBinaryExpression(equalsTo);
         processReferenceParametersInEqualsExpression(equalsTo, true);
     }
-
 
     @Override
     public void visit(NotEqualsTo notEqualsTo) {
@@ -59,7 +57,6 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
         processReferenceParametersInEqualsExpression(notEqualsTo, false);
     }
 
-    
     @Override
     public void visit(InExpression inExpression) {
         inExpression.getLeftExpression().accept(this);
@@ -67,7 +64,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
         boolean isInExpression = !inExpression.isNot();
         processReferenceParameterInsideInExpression(inExpression, isInExpression);
     }
-    
+
     private void processReferenceParameterInsideInExpression(InExpression inExpression, boolean isEquals) {
         if (filterValues == null) {
             return;
@@ -91,7 +88,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                     }
 
                     for (Integer criterionKey : filterValue.getCriterionKeys()) {
-                        Value criterionValue = filterValue.getCriterion(criterionKey);
+                        Value<?> criterionValue = filterValue.getCriterion(criterionKey);
                         if (inExpressionStr.indexOf(parameterPrefix + criterionKey) > 0) {
                             Expression finalExpression = null;
                             if (criterionValue instanceof ReferenceValue) {
@@ -100,25 +97,13 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                                 addParameters(paramSuffix, (ReferenceValue) criterionValue);
                                 finalExpression = createExpressionForReference(column, paramSuffix, isEquals);
                             } else if (criterionValue instanceof ListValue) {
-                                ListValue listValue = (ListValue) criterionValue;
-                                int index = 0;
-                                for (Value value : listValue.getValues()) {
-                                    ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
-                                    if (refValue == null) {
-                                        continue;
-                                    }
-                                    String paramName =
-                                            new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).append("_")
-                                                    .append(index).toString();
-
-                                    addParameters(paramName, refValue);
-                                    finalExpression = updateFinalExpression(finalExpression, column, index, paramName, isEquals);
-                                    index++;
-                                }                                
+                                finalExpression = processListValue(isEquals, column, filterValue.getFilter() + "_", criterionKey, criterionValue);
                             }
-                            
+
                             if (finalExpression != null) {
-                                finalExpression = new Parenthesis(finalExpression);
+                                if (!(finalExpression instanceof Parenthesis)) {
+                                    finalExpression = new Parenthesis(finalExpression);
+                                }
                                 replaceExpressions.put(inExpression.toString(), finalExpression.toString());
                                 return;
                             }
@@ -131,20 +116,7 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
         }
     }
 
-    private ReferenceValue getReferenceValue(Value value) {
-        ReferenceValue refValue = null;
-        if (value instanceof ReferenceValue) {
-            refValue = (ReferenceValue) value;
-
-        } else if (value instanceof StringValue) {
-            // ссылочные параметры могут передаваться в строковом виде.
-            String strParamValue = ((StringValue) value).get();
-            refValue = new ReferenceValue(new RdbmsId(strParamValue));
-        }
-        return refValue;
-    }
-    
-    private void processReferenceParametersInEqualsExpression(BinaryExpression equalsTo, boolean isEquals) {
+    protected void processReferenceParametersInEqualsExpression(BinaryExpression equalsTo, boolean isEquals) {
         if (filterValues == null) {
             return;
         }
@@ -154,11 +126,11 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
             FieldConfig fieldConfig = columnToConfigMap.get(DaoUtils.unwrap(column.getColumnName().toLowerCase()));
 
             if (fieldConfig instanceof ReferenceFieldConfig) {
-                
+
                 String rightExpression = equalsTo.getRightExpression().toString();
 
                 ReferenceValue referenceValue = null;
-                
+
                 for (Filter filterValue : filterValues) {
                     String parameterPrefix = getFilterParameterPrefix(filterValue.getFilter());
                     if (!rightExpression.startsWith(parameterPrefix)) {
@@ -166,22 +138,21 @@ public class ReferenceFilterValuesProcessingVisitor extends BaseReferenceProcess
                     }
 
                     for (Integer criterionKey : filterValue.getCriterionKeys()) {
-                        Value criterionValue = filterValue.getCriterion(criterionKey);
+                        Value<?> criterionValue = filterValue.getCriterion(criterionKey);
                         if (criterionValue instanceof ReferenceValue && rightExpression.equals(parameterPrefix + criterionKey)) {
                             referenceValue = (ReferenceValue) criterionValue;
-                            
+
                             String paramName = new StringBuilder().append(filterValue.getFilter()).append("_").append(criterionKey).toString();
                             addParameters(paramName, referenceValue);
-                         
+
                             Expression newReferenceExpression = createFilledReferenceExpression(column, paramName, equalsTo, isEquals);
                             replaceExpressions.put(equalsTo.toString(), newReferenceExpression.toString());
                         }
                     }
                 }
-                
+
             }
         }
     }
-
 
 }

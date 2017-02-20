@@ -1,6 +1,10 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import static java.util.Collections.singletonList;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
@@ -10,10 +14,14 @@ import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
@@ -100,16 +108,19 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
     protected Expression updateFinalExpression(Expression finalExpression, Column column, int index, String paramName, boolean isEquals) {
         if (index == 0) {
             finalExpression = createExpressionForReference(column, paramName, isEquals);
+            if (!isEquals) {
+                finalExpression = new Parenthesis(finalExpression);
+            }
 
         } else {
             Expression expressionForReference = createExpressionForReference(column, paramName, isEquals);
-            Expression leftExpression = new Parenthesis(finalExpression);
-            Expression rightExpression = new Parenthesis(expressionForReference);
+            Expression leftExpression = finalExpression;
+            Expression rightExpression = expressionForReference;
 
             if (isEquals) {
                 finalExpression = new OrExpression(leftExpression, rightExpression);
             } else {
-                finalExpression = new AndExpression(leftExpression, rightExpression);
+                finalExpression = new AndExpression(leftExpression, new Parenthesis(rightExpression));
 
             }
 
@@ -174,6 +185,60 @@ public class BaseReferenceProcessingVisitor extends BaseParamProcessingVisitor {
 
         jdbcParameters.put(referenceParamName, ((RdbmsId) referenceValue.get()).getId());
         jdbcParameters.put(referenceTypeParamName, refTypeId);
+    }
+
+    protected Expression connect(Expression first, Expression second, boolean connectWithAndInsteadOfOr) {
+        return connectWithAndInsteadOfOr ? new AndExpression(first, second) : new OrExpression(first, second);
+    }
+
+    protected Expression inExpressionForSingleType(Column column, String paramName, boolean isNotIn) {
+        JdbcNamedParameter param = new JdbcNamedParameter();
+        param.setName(paramName);
+        JdbcNamedParameter typeParam = new JdbcNamedParameter();
+        typeParam.setName(paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX);
+        InExpression idExpression = new InExpression(column, new ExpressionList(singletonList((Expression) param)));
+        idExpression.setNot(isNotIn);
+        Expression typeIdExpression = createReferenceTypeEqualsExpr(column, paramName, !isNotIn);
+        Expression expr = isNotIn ? new OrExpression(idExpression, typeIdExpression) : new AndExpression(idExpression, typeIdExpression);
+        return new Parenthesis(expr);
+    }
+
+    protected Expression processListValue(boolean isIn, Column column, String baseParamName, Integer criterionKey, Value<?> criterionValue) {
+        ListValue listValue = (ListValue) criterionValue;
+        HashMap<Long, List<Long>> idsByType = new HashMap<Long, List<Long>>();
+        for (Value<?> value : listValue.getValues()) {
+            ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
+            if (refValue == null || refValue.get() == null) {
+                continue;
+            }
+            RdbmsId id = (RdbmsId) refValue.get();
+            long type = id.getTypeId();
+            if (!idsByType.containsKey(type)) {
+                idsByType.put(type, new ArrayList<Long>());
+            }
+            idsByType.get(type).add(id.getId());
+        }
+
+        Expression finalExpression = null;
+        int index = 0;
+        for (Map.Entry<Long, List<Long>> e : idsByType.entrySet()) {
+            String paramName =
+                    new StringBuilder().append(baseParamName).append(criterionKey).append("_")
+                            .append(index).toString();
+
+            addParameters(paramName, e.getKey(), e.getValue());
+            finalExpression = finalExpression == null ? inExpressionForSingleType(column, paramName, !isIn) :
+                    connect(finalExpression, inExpressionForSingleType(column, paramName, !isIn), !isIn);
+            index++;
+        }
+        return finalExpression;
+    }
+
+    protected void addParameters(String paramName, Long type, List<Long> ids) {
+        String referenceParamName = paramName;
+        String referenceTypeParamName = paramName + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+        jdbcParameters.put(referenceParamName, ids);
+        jdbcParameters.put(referenceTypeParamName, type);
     }
 
 }

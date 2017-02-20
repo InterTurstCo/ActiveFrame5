@@ -23,8 +23,9 @@ import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 
 /**
- * Заполняет ссылочные параметры в SQL запросе. Добавляет тип ссылочного поля в SQL запрос. Например, выполняет
- * следующую замену: t.id = {0} -> t.id = 1 and t.id_type = 2.
+ * Заполняет ссылочные параметры в SQL запросе. Добавляет тип ссылочного поля в
+ * SQL запрос. Например, выполняет следующую замену: t.id = {0} -> t.id = 1 and
+ * t.id_type = 2.
  * @author atsvetkov
  */
 
@@ -43,10 +44,10 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
     public Map<String, String> getReplaceExpressions() {
         return replaceExpressions;
     }
-    
+
     @Override
     public void visit(EqualsTo equalsTo) {
-        visitBinaryExpression(equalsTo);        
+        visitBinaryExpression(equalsTo);
         processReferenceParameters(equalsTo, true);
     }
 
@@ -65,7 +66,7 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
     }
 
     private void processReferenceParameters(BinaryExpression equalsTo, boolean isEquals) {
-        if (params == null) {
+        if (params == null || params.isEmpty()) {
             return;
         }
         if (equalsTo.getLeftExpression() instanceof Column) {
@@ -73,7 +74,7 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
 
             FieldConfig fieldConfig = columnToConfigMap.get(DaoUtils.unwrap(column.getColumnName().toLowerCase()));
 
-            if (fieldConfig instanceof ReferenceFieldConfig) {                
+            if (fieldConfig instanceof ReferenceFieldConfig) {
 
                 String rightExpression = equalsTo.getRightExpression().toString();
 
@@ -121,38 +122,19 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
                     Expression finalExpression = null;
 
                     if (params.get(paramIndex) instanceof ListValue) {
-                        listValue = (ListValue) params.get(paramIndex);
-
-                        int index = 0;
-                        for (Value value : listValue.getValues()) {
-                            ReferenceValue refValue = null;
-                            if (value instanceof ReferenceValue) {
-                                refValue = (ReferenceValue) value;
-                                // ссылочные параметры могут передаваться в строковом виде.
-                            } else if (value instanceof StringValue) {
-                                String strParamValue = ((StringValue) value).get();
-                                refValue = new ReferenceValue(new RdbmsId(strParamValue));
-                            }
-
-                            if (refValue == null) {
-                                continue;
-                            }
-                            String paramSuffix = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex + "_" + index;
-
-                            addParameters(paramSuffix, refValue);
-                            finalExpression = updateFinalExpression(finalExpression, column, index, paramSuffix, isEquals);                            
-                            index++;
-                        }
+                        finalExpression = processListValue(isEquals, column, CollectionsDaoImpl.JDBC_PARAM_PREFIX, paramIndex, params.get(paramIndex));
                     }
                     if (finalExpression != null) {
-                        finalExpression = new Parenthesis(finalExpression);
+                        if (!(finalExpression instanceof Parenthesis)) {
+                            finalExpression = new Parenthesis(finalExpression);
+                        }
                         replaceExpressions.put(inExpression.toString(), finalExpression.toString());
 
                     }
                 }
             }
         }
-    }    
+    }
 
     private Integer findParameterIndex(String rightExpression) {
         int startParamNumberIndex =
@@ -163,6 +145,6 @@ public class ReferenceParamsProcessingVisitor extends BaseReferenceProcessingVis
         String paramName = rightExpression.substring(startParamNumberIndex, endParamNumberIndex);
         Integer paramIndex = Integer.parseInt(paramName);
         return paramIndex;
-    }    
-    
+    }
+
 }
