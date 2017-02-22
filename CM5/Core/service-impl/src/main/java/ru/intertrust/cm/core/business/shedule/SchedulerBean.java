@@ -293,7 +293,7 @@ public class SchedulerBean {
 
                     //Проверка на то что задачу можно запускать на данной ноде
                     if (isExcludedTask(taskExecution.getString("name"))){
-                        //Если нешльзя то сразу меняем статус на Complete
+                        //Если нельзя то сразу меняем статус на Complete
                         ejbContext.getUserTransaction().begin();
                         DomainObject savedTask = domainObjectDao.setStatus(taskExecution.getId(),
                                 statusDao.getStatusIdByName(ScheduleService.SCHEDULE_STATUS_COMPLETE), accessToken);
