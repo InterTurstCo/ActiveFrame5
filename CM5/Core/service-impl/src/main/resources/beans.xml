@@ -282,7 +282,7 @@
     <bean id="resourceService" class="ru.intertrust.cm.core.business.impl.ResourceServiceImpl" />    
     
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
-        <constructor-arg>
+        <property name="messageConverters">
             <list>
                 <bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter"/>
                 <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
@@ -292,7 +292,14 @@
                 <bean class="org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter"/>
                 <ref bean="mappingJackson2HttpMessageConverter"/>
             </list>
-        </constructor-arg>    
+        </property>
+        <property name="requestFactory">
+            <!-- bean class="org.springframework.http.client.HttpComponentsClientHttpRequestFactory"-->
+            <bean class="org.springframework.http.client.SimpleClientHttpRequestFactory">            
+                <property name="readTimeout" value="${report.server.read.timeout:600000}" />
+                <property name="connectTimeout" value="${report.server.connect.timeout:60000}" />
+            </bean>        
+        </property>
     </bean>    
     
     <bean id="mappingJackson2HttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
