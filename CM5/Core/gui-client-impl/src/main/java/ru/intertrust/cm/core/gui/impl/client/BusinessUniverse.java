@@ -272,6 +272,17 @@ public class BusinessUniverse extends BaseComponent implements EntryPoint, Navig
                             centralPluginPanel.getPluginsCount()==1)) {
                 Application.getInstance().showLoadingIndicator();
                 PluginConfig pluginConfig = event.getPluginConfig();
+                if(pluginConfig==null){
+                    if(selectedLinkConfig.getChildToOpen()!=null){
+                        for(ChildLinksConfig cfg : selectedLinkConfig.getChildLinksConfigList()){
+                            for(LinkConfig lCfg : cfg.getLinkConfigList()){
+                                if(lCfg.getName().equals(selectedLinkConfig.getChildToOpen())){
+                                    pluginConfig = lCfg.getPluginDefinition().getPluginConfig();
+                                }
+                            }
+                        }
+                    }
+                }
                 String pluginName = pluginConfig.getComponentName();
                 final Plugin plugin = ComponentRegistry.instance.get(pluginName);
                 plugin.setConfig(pluginConfig);

@@ -196,7 +196,8 @@
                         <domain-object-surfer domain-object-type-to-create="country">
                             <collection-viewer>
                                 <act:tool-bar useDefault="false">
-                                    <act:action name="oAction" componentName="ordinary.action" text="Тест Ordinary Action"/>
+                                    <act:action name="oAction" componentName="ordinary.action"
+                                                text="Тест Ordinary Action"/>
                                     <act:action-ref name-ref="aRefresh" order="10"/>
                                     <act:action-separator order="20"/>
 
@@ -457,62 +458,36 @@
             </child-links>
         </link>
 
-        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Letters">
-            <child-links>
-                <link name="Letters" display-text="Письма">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="letter">
-                            <collection-viewer>
-                                <collection-ref name="letters"/>
+        <link name="Documents" display-text="Документы" image="images/docs.png" child-to-open="Internal_Document">
+            <child-links group-name="Интеграция">
+                <link name="export_doc" display-text="Экспорт документов" child-to-open="Letters">
+                    <child-links>
+                        <link name="Letters" display-text="Письма">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="letter">
+                                    <collection-viewer>
+                                        <collection-ref name="letters"/>
 
-                            </collection-viewer>
-                            <toggle-edit>true</toggle-edit>
-                            <!--<form-viewer>
-                                <form-mapping domain-object-type="letter" form="letter_form">
-                                    <field-path value="subject">
-                                        <default-value>
-                                            <field value="Тема по умолчанию"/>
-                                        </default-value>
-                                    </field-path>
-                                    <field-path value="actual_end_period">
-                                        <default-value>
-                                            <field set-current-moment="true"/>
-                                        </default-value>
-                                    </field-path>
-                                    <field-path value="letter_creator^letter.employee">
-                                        <default-values>
-                                            <default-value>
-                                                <field>
-                                                    <unique-key-value type="Employee">
-                                                        <field name="Phone" value="8 (495) 777-55-01"/>
-                                                    </unique-key-value>
-                                                </field>
-                                            </default-value>
-                                            <default-value>
-                                                <field>
-                                                    <unique-key-value type="Employee">
-                                                        <field name="Phone" value="8 (495) 777-55-04"/>
-                                                    </unique-key-value>
-                                                </field>
-                                            </default-value>
-                                        </default-values>
-                                    </field-path>
-                                </form-mapping>
-                                &lt;!&ndash;<form-mapping domain-object-type="superCountry" form="my-custom-form"/>&ndash;&gt;
-                            </form-viewer>-->
-                        </domain-object-surfer>
-                    </plugin>
+                                    </collection-viewer>
+                                    <toggle-edit>true</toggle-edit>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                        <link name="Org_Middle" display-text="Промежуточный Объект">
+                            <plugin>
+                                <domain-object-surfer domain-object-type-to-create="org_middle">
+                                    <collection-viewer>
+                                        <collection-ref name="org_middle_collection"/>
+                                    </collection-viewer>
+                                    <toggle-edit>false</toggle-edit>
+                                </domain-object-surfer>
+                            </plugin>
+                        </link>
+                    </child-links>
                 </link>
-                <link name="Org_Middle" display-text="Промежуточный Объект">
-                    <plugin>
-                        <domain-object-surfer domain-object-type-to-create="org_middle">
-                            <collection-viewer>
-                                <collection-ref name="org_middle_collection"/>
-                            </collection-viewer>
-                            <toggle-edit>false</toggle-edit>
-                        </domain-object-surfer>
-                    </plugin>
-                </link>
+            </child-links>
+            <child-links>
+
                 <link name="Internal_Document" display-text="Внутренние документы">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="Internal_Document">
@@ -589,7 +564,7 @@
                                     <act:action-ref name-ref="aToggleEditOn" rendered="true"/>
                                     <act:action componentName="uninstall.report.action" text="Деинсталлировать"
                                                 permissions="Create"
-                                                image="images/icons/favorite-panel-off.png" merged="false" />
+                                                image="images/icons/favorite-panel-off.png" merged="false"/>
                                 </act:tool-bar>
                                 <collection-ref name="reports"/>
                             </collection-viewer>
@@ -1543,7 +1518,8 @@
                                     <act:action-ref name-ref="aRefresh"/>
                                     <act:action-ref name-ref="aDelete"/>
                                     <act:action-ref name-ref="aToggleEditOn"/>
-                                    <act:action-group name="createResource" text="Создать" order="99" imageClass="actionBar-create">
+                                    <act:action-group name="createResource" text="Создать" order="99"
+                                                      imageClass="actionBar-create">
                                         <act:action name="aCreate" componentName="create.new.object.action"
                                                     text="Число"
                                                     tooltip="Создать числовой ресурс"
@@ -1597,7 +1573,8 @@
                                     <act:action-ref name-ref="aRefresh"/>
                                     <act:action-ref name-ref="aDelete"/>
                                     <act:action-ref name-ref="aToggleEditOn"/>
-                                    <act:action-group name="createSetting" text="Создать" order="99" imageClass="actionBar-create">
+                                    <act:action-group name="createSetting" text="Создать" order="99"
+                                                      imageClass="actionBar-create">
                                         <act:action name="aCreate" componentName="create.new.object.action"
                                                     text="Число"
                                                     tooltip="Создать числовой параметр"
