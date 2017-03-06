@@ -15,6 +15,9 @@ public class LoginScreenConfig implements Dto{
     @Attribute(name = "display-core-version", required = false)
     private boolean DisplaycoreVersion;
 
+    @Attribute(name = "display-version-list", required = false)
+    private boolean displayVersionList;
+    
     @Element(name = "product-title", required = true)
     private ProductTitleConfig productTitleConfig;
 
@@ -41,6 +44,14 @@ public class LoginScreenConfig implements Dto{
     public void setProductTitleConfig(ProductTitleConfig productTitleConfig) {
         this.productTitleConfig = productTitleConfig;
     }
+    
+    public boolean isDisplayVersionList() {
+        return displayVersionList;
+    }
+
+    public void setDisplayVersionList(boolean displayVersionList) {
+        this.displayVersionList = displayVersionList;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -52,6 +63,7 @@ public class LoginScreenConfig implements Dto{
         if (DisplayProductVersion != that.DisplayProductVersion) return false;
         if (DisplaycoreVersion != that.DisplaycoreVersion) return false;
         if (!productTitleConfig.equals(that.productTitleConfig)) return false;
+        if (displayVersionList != that.displayVersionList) return false;
 
         return true;
     }
@@ -60,6 +72,7 @@ public class LoginScreenConfig implements Dto{
     public int hashCode() {
         int result = (DisplayProductVersion ? 1 : 0);
         result = 31 * result + (DisplaycoreVersion ? 1 : 0);
+        result = 31 * result + (displayVersionList ? 1 : 0);
         result = 31 * result + productTitleConfig.hashCode();
         return result;
     }

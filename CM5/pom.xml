@@ -502,6 +502,13 @@
                 <artifactId>jackson-annotations</artifactId>
                 <version>2.1.4</version>
             </dependency>
+
+            <!-- version-collector -->
+            <dependency>   
+              <groupId>ru.intertrust.common</groupId>
+              <artifactId>version-collector</artifactId>
+              <version>1.0.3</version>
+            </dependency>
             
         </dependencies>
     </dependencyManagement>

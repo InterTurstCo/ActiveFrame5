@@ -60,7 +60,7 @@
           <stick-notes/>
        </bottom-panel>
         <!--<side-bar-openning-time default-value="3000"/>-->
-        <login-screen display-product-version="true" display-core-version="true">
+        <login-screen display-product-version="false" display-core-version="false" display-version-list="true">
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>

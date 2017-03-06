@@ -40,6 +40,11 @@
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-servlet</artifactId>
         </dependency>
+        
+        <dependency>   
+          <groupId>ru.intertrust.common</groupId>
+          <artifactId>version-collector</artifactId>
+        </dependency>
 
     </dependencies>
 </project>

@@ -5,6 +5,7 @@ import ru.intertrust.cm.core.config.LoginScreenConfig;
 import ru.intertrust.cm.core.config.ProductTitle;
 import ru.intertrust.cm.core.config.ProductVersion;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -17,6 +18,7 @@ public class LoginWindowInitialization implements Dto{
     private ProductTitle globalProductTitle;
     private ProductVersion globalProductVersion;
     private Map<String, String> localizedResources;
+    private List<VersionInfo> productVersionList;
 
     public ProductTitle getGlobalProductTitle() {
         return globalProductTitle;
@@ -78,6 +80,14 @@ public class LoginWindowInitialization implements Dto{
     }
 
     public LoginWindowInitialization() {
+    }
+
+    public List<VersionInfo> getProductVersionList() {
+        return productVersionList;
+    }
+
+    public void setProductVersionList(List<VersionInfo> productVersionList) {
+        this.productVersionList = productVersionList;
     }
 
 }
