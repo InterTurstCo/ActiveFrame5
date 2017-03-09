@@ -64,7 +64,7 @@
                 <product-title style="text"/>
         </login-screen>
         <logo image="images/logo.png"/>
-        <base-url value="baseurl"></base-url>
+        <base-url value="app"></base-url>
 
         <settings-popup>
             <themes>

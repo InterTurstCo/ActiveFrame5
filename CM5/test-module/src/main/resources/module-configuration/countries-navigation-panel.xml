@@ -1924,7 +1924,7 @@
     </navigation>
 
 
-    <navigation name="panel_2" is-default="false" merge="true">
+    <navigation name="panel_2" is-default="false" merge="true" application="geo2">
         <link name="Geography" display-text="География" image="images/analitika.png" child-to-open="Countries">
             <child-links>
                 <link name="Countries" display-text="Страны" counter-type="non-read">
