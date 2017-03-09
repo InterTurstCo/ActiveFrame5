@@ -8,7 +8,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>cm-sochi</artifactId>
-        <version>0.5.22-35-SNAPSHOT</version>
+        <version>0.5.22-37-SNAPSHOT</version>
     </parent>
 
     <properties>

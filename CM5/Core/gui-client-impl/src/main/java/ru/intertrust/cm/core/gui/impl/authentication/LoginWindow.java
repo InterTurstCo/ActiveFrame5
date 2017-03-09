@@ -18,6 +18,7 @@ import ru.intertrust.cm.core.gui.api.client.Component;
 import ru.intertrust.cm.core.gui.api.client.History;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.LoginWindowInitialization;
+import ru.intertrust.cm.core.gui.model.VersionInfo;
 import ru.intertrust.cm.core.gui.rpc.api.BusinessUniverseAuthenticationServiceAsync;
 import ru.intertrust.cm.core.model.AuthenticationException;
 
@@ -55,6 +56,7 @@ public class LoginWindow implements Component {
     private Label titleLogin;
     private Label labelCheckBox;
     private Label titleClearUserSettings;
+    private List<VersionInfo> productVersionList;
 
     public String getVersion() {
         return coreVersion;
@@ -207,6 +209,10 @@ public class LoginWindow implements Component {
                         productVersionPrefix = get(VERSION_KEY, "Версия: ");
                     }
 
+                    if (logoConfig.isDisplayVersionList()) {
+                        productVersionList = loginWindowInitialization.getProductVersionList();
+                    }                    
+                    
                     if (productTitleConfig.getStyle().equals("text")) {
                         if (loginWindowInitialization.getGlobalProductTitle() != null) {
                             textApplicationLogo = loginWindowInitialization.getGlobalProductTitle().getTitle();
@@ -224,19 +230,30 @@ public class LoginWindow implements Component {
 
                 }
                 loginDialog.setHTML("<div class='loginLogo'>" + authSmallLogo + textApplicationLogo + " </div>");
-                Element divCoreVersion = DOM.createDiv();
-                divCoreVersion.setClassName("versionCore");
 
-                Element divPlatformVersion = DOM.createDiv();
-                divPlatformVersion.setClassName("versionPlatform");
 
                 if (productVersion != null) {
+                    Element divPlatformVersion = DOM.createDiv();
+                    divPlatformVersion.setClassName("versionPlatform");
                     divPlatformVersion.setInnerHTML(productVersionPrefix + "<span>" + productVersion + "</span>");
+                    loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divPlatformVersion);
                 }
-                divCoreVersion.setInnerHTML(coreVersionPrefix + "<span>" + coreVersion + "</span>");
 
-                loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divCoreVersion);
-                loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divPlatformVersion);
+                if (coreVersion != null){
+                    Element divCoreVersion = DOM.createDiv();
+                    divCoreVersion.setClassName("versionCore");
+                    divCoreVersion.setInnerHTML(coreVersionPrefix + "<span>" + coreVersion + "</span>");
+                    loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divCoreVersion);
+                }
+
+                if (productVersionList != null){
+                    for (VersionInfo productVersion : productVersionList) {
+                        Element divVersion = DOM.createDiv();
+                        divVersion.setClassName("versionCore");
+                        divVersion.setInnerHTML(productVersion.getComponent() + ": <span>" + productVersion.getVersion() + "</span>");
+                        loginDialog.getElement().getChild(0).getLastChild().getLastChild().getLastChild().getChild(1).getLastChild().insertFirst(divVersion);
+                    }
+                }
 
                 loginName.setText(get(USER_NAME_KEY, "Имя пользователя"));
                 passwordLabel.setText(get(PASSWORD_KEY, "Пароль"));

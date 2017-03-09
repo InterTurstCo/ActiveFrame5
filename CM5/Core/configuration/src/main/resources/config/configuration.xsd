@@ -495,6 +495,7 @@
         </xs:sequence>
         <xs:attribute name="display-product-version" use="optional" type="xs:boolean"/>
         <xs:attribute name="display-core-version" use="optional" type="xs:boolean"/>
+        <xs:attribute name="display-version-list" use="optional" type="xs:boolean"/>
     </xs:complexType>
 
     <xs:complexType name="sideBarOpeningTimeType">
