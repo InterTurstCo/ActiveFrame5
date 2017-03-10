@@ -1,26 +1,5 @@
 package ru.intertrust.cm.core.business.impl;
 
-import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.export.JRHtmlExporter;
-import net.sf.jasperreports.engine.export.JRPdfExporter;
-import net.sf.jasperreports.engine.export.JRRtfExporter;
-import net.sf.jasperreports.engine.export.JRXlsExporter;
-import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
-import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
-import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
-import ru.intertrust.cm.core.business.api.DataSourceContext;
-import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
-import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
-import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
-import ru.intertrust.cm.core.model.ReportServiceException;
-import ru.intertrust.cm.core.report.ReportServiceBase;
-import ru.intertrust.cm.core.report.ScriptletClassLoader;
-import ru.intertrust.cm.core.service.api.ReportDS;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.interceptor.Interceptors;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -29,6 +8,36 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
+import javax.interceptor.Interceptors;
+
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRExporter;
+import net.sf.jasperreports.engine.JRExporterParameter;
+import net.sf.jasperreports.engine.JRParameter;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.export.JRHtmlExporter;
+import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.export.JRRtfExporter;
+import net.sf.jasperreports.engine.export.JRXlsExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRDocxExporter;
+import net.sf.jasperreports.engine.export.ooxml.JRXlsxExporter;
+import net.sf.jasperreports.engine.export.ooxml.SochiJRDocxExporter;
+
+import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
+
+import ru.intertrust.cm.core.business.api.DataSourceContext;
+import ru.intertrust.cm.core.business.api.ReportServiceDelegate;
+import ru.intertrust.cm.core.business.api.util.ThreadSafeDateFormat;
+import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
+import ru.intertrust.cm.core.model.ReportServiceException;
+import ru.intertrust.cm.core.report.ReportServiceBase;
+import ru.intertrust.cm.core.report.ScriptletClassLoader;
+import ru.intertrust.cm.core.service.api.ReportDS;
 
 /**
  * @author Denis Mitavskiy
@@ -46,6 +55,7 @@ public class ReportResultBuilder extends ReportServiceBase {
     public static final String HTML_FORMAT = "HTML";
     public static final String DOCX_FORMAT = "DOCX";
     public static final String XLSX_FORMAT = "XLSX";
+    public static final String SOCHI_DOCX_FORMAT = "SOCHIDOCX";
 
     @org.springframework.beans.factory.annotation.Value("${default.report.format:PDF}")
     private String defaultReportFormat;
@@ -111,6 +121,9 @@ public class ReportResultBuilder extends ReportServiceBase {
             } else if (XLSX_FORMAT.equalsIgnoreCase(format)) {
                 exporter = new JRXlsxExporter();
                 extension = XLSX_FORMAT;
+            } else if (SOCHI_DOCX_FORMAT.equalsIgnoreCase(format)) {
+                exporter = new SochiJRDocxExporter();
+                extension = DOCX_FORMAT;
             } else {
                 // По умолчанию PDF
                 exporter = new JRPdfExporter();
