@@ -30,6 +30,9 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     @Attribute(name = "edit-component",required = false)
     private String editComponent;
 
+    @Attribute(name = "show-activiti-menu",required = false)
+    private Boolean showActivitiMenu;
+
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
     private CollectionViewRefConfig collectionViewRefConfig;
@@ -171,6 +174,17 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
 
     public void setDeleteComponent(String deleteComponent) {
         this.deleteComponent = deleteComponent;
+    }
+
+    public Boolean isShowActivitiMenu() {
+        if(showActivitiMenu==null)
+            return true;
+        else
+            return showActivitiMenu;
+    }
+
+    public void setShowActivitiMenu(Boolean showActivitiMenu) {
+        this.showActivitiMenu = showActivitiMenu;
     }
 
     @Override

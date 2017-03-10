@@ -278,8 +278,8 @@ public class TableViewerToobar {
                         if (context.getRootObjectId() != null && context.getObjectsIds().size() == 0) {
                             eventBus.fireEvent(new UpdateCollectionEvent(context.getRootObjectId()));
                             setSelectedId(context.getRootObjectId());
-                        } else if(context.getObjectsIds().size()>0){
-                            for(Id id : context.getObjectsIds()){
+                        } else if (context.getObjectsIds().size() > 0) {
+                            for (Id id : context.getObjectsIds()) {
                                 eventBus.fireEvent(new UpdateCollectionEvent(id));
                             }
                         }
@@ -392,7 +392,7 @@ public class TableViewerToobar {
         toolbarFooMenu.clearItems();
 
         SafeHtml noActionsMenu = SafeHtmlUtils.fromString("Нет доступных действий");
-        if (config == null || config.getCollectionViewerConfig()==null ||
+        if (config == null || config.getCollectionViewerConfig() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions() == null ||
                 config.getCollectionViewerConfig().getToolBarConfig().getActions().size() == 0) {
@@ -444,5 +444,9 @@ public class TableViewerToobar {
     public void setConfig(TableViewerConfig config) {
         this.config = config;
         initActionsMenu();
+    }
+
+    public void setActivitiMenuVisible(boolean isVisible){
+        actionsMenu.setVisible(isVisible);
     }
 }

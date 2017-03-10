@@ -28,6 +28,6 @@ public class BaseUrlDispatcherServlet extends HttpServlet {
             throws IOException, ServletException {
         HttpSession session = request.getSession(false);
         session.setAttribute("uri", request.getRequestURI());
-        response.sendRedirect(request.getContextPath() + BU_PAGE);
+        response.sendRedirect(request.getContextPath() + BU_PAGE +((request.getQueryString()!=null)?"?"+request.getQueryString():""));
     }
 }

@@ -3695,6 +3695,7 @@
                 <xs:attribute type="xs:string" name="id"/>
                 <xs:attribute type="xs:string" name="delete-component"/>
                 <xs:attribute type="xs:string" name="edit-component"/>
+                <xs:attribute type="xs:boolean" name="show-activiti-menu"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
