@@ -15,6 +15,9 @@ public class SolrServerFactory implements FactoryBean<SolrServer> {
     @Value("${search.solr.url}")
     private String solrUrl;
 
+    @Value("${search.solr.timeout:180000}")
+    private int queryTimeout;
+
     private static final String SOLR_FACTORY_CLASS =
             "ru.intertrust.cm.core.business.impl.solr.EmbeddedSolrServerFactory";
 
@@ -23,7 +26,11 @@ public class SolrServerFactory implements FactoryBean<SolrServer> {
     public SolrServer getObject() throws Exception {
         try {
             if (solrUrl != null && !solrUrl.isEmpty()) {
-                return new HttpSolrServer(solrUrl);
+                HttpSolrServer server = new HttpSolrServer(solrUrl);
+                if (queryTimeout > 0) {
+                    server.setSoTimeout(queryTimeout);
+                }
+                return server;
             }
 
             DynamicLoadClassFactory<SolrServer> factory =
