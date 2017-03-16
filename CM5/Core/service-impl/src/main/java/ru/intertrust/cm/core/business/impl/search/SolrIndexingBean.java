@@ -27,7 +27,7 @@ public class SolrIndexingBean {
 
     protected Logger log = LoggerFactory.getLogger(getClass());
 
-    private boolean active = false;
+    private volatile boolean active = false;
 
     @Autowired
     private SolrUpdateRequestQueue requestQueue;
