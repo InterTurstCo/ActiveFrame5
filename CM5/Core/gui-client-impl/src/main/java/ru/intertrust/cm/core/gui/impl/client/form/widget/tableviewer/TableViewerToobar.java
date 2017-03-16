@@ -446,7 +446,7 @@ public class TableViewerToobar {
         initActionsMenu();
     }
 
-    public void setActivitiMenuVisible(boolean isVisible){
+    public void setWorkflowMenuVisible(boolean isVisible){
         actionsMenu.setVisible(isVisible);
     }
 }

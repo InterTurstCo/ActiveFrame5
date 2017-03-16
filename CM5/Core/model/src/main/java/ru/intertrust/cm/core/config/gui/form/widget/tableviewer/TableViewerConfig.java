@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config.gui.form.widget.tableviewer;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-import ru.intertrust.cm.core.config.gui.NotNullLogicalValidation;
 import ru.intertrust.cm.core.config.gui.form.widget.HasLinkedFormMappings;
 import ru.intertrust.cm.core.config.gui.form.widget.IgnoreFormReadOnlyStateConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.LinkedFormConfig;
@@ -31,7 +30,7 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     private String editComponent;
 
     @Attribute(name = "show-activiti-menu",required = false)
-    private Boolean showActivitiMenu;
+    private Boolean showWorkflowMenu;
 
     @Deprecated
     @Element(name = "collection-view-ref", required = false)
@@ -176,15 +175,15 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
         this.deleteComponent = deleteComponent;
     }
 
-    public Boolean isShowActivitiMenu() {
-        if(showActivitiMenu==null)
+    public Boolean isShowWorkflowMenu() {
+        if(showWorkflowMenu ==null)
             return true;
         else
-            return showActivitiMenu;
+            return showWorkflowMenu;
     }
 
-    public void setShowActivitiMenu(Boolean showActivitiMenu) {
-        this.showActivitiMenu = showActivitiMenu;
+    public void setShowWorkflowMenu(Boolean showWorkflowMenu) {
+        this.showWorkflowMenu = showWorkflowMenu;
     }
 
     @Override
