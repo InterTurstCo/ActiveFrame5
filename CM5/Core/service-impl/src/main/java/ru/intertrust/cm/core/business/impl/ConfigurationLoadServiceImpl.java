@@ -9,10 +9,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
-import ru.intertrust.cm.core.dao.api.ConfigurationDao;
-import ru.intertrust.cm.core.dao.api.ConfigurationDbValidator;
-import ru.intertrust.cm.core.dao.api.DataStructureDao;
-import ru.intertrust.cm.core.dao.api.StatisticsGatherer;
+import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -35,6 +32,8 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
 
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationLoadServiceImpl.class);
 
+    @Autowired
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
     @Autowired
     private ConfigurationExplorer configurationExplorer;
     @Autowired
@@ -109,7 +108,7 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
                 saveConfiguration();
             }
-
+            domainObjectTypeIdCache.build();
             schemaUpdatedByScriptMigration = migrationService.executeAfterAutoMigration(oldConfigurationExplorer) ||
                     schemaUpdatedByScriptMigration;
 
