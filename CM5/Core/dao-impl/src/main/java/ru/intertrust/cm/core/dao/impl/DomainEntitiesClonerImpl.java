@@ -18,7 +18,7 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
     private final static Set<Class<? extends Value>> PLATFORM_VALUE_CLASSES;
 
     static {
-        PLATFORM_VALUE_CLASSES = new HashSet<>(16);
+        PLATFORM_VALUE_CLASSES = new HashSet<>();
         PLATFORM_VALUE_CLASSES.add(StringValue.class);
         PLATFORM_VALUE_CLASSES.add(LongValue.class);
         PLATFORM_VALUE_CLASSES.add(BooleanValue.class);
@@ -134,11 +134,15 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
         if (id == null) {
             return null;
         }
-        if (id instanceof RdbmsId && id.getClass() != RdbmsId.class) {
+        if (id.getClass() != RdbmsId.class) {
             return new RdbmsId(id);
         } else {
             return id;
         }
+    }
+
+    private static boolean isPlatformValue(Value value) {
+        return PLATFORM_VALUE_CLASSES.contains(value.getClass());
     }
 
     private abstract class ValueNormalizer {
@@ -151,16 +155,8 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
                 final Object iterationObject = iterator.next();
                 final Value value = getValue(iterationObject);
                 if (value != null) {
-                    if (value instanceof ReferenceValue && value.getClass() != ReferenceValue.class) {
-                        replaceValue(iterator, iterationObject, new ReferenceValue(fastCloneId((Id) value.get())));
-                        continue;
-                    }
-                    if (!value.isImmutable()) {
-                        if (cloner == null) {
-                            cloner = ObjectCloner.getInstance();
-                        }
-                        replaceValue(iterator, iterationObject, cloner.cloneObject(value));
-                    }
+                    Value clone = isPlatformValue(value) ? value.getPlatformClone() : null;
+                    replaceValue(iterator, iterationObject, clone);
                 }
             }
         }

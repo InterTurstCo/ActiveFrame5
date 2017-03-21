@@ -1122,13 +1122,13 @@ public class GlobalCacheImpl implements GlobalCache {
 
     protected void notifyCollectionRead(CollectionTypesKey key, CollectionSubKey subKey, Set<String> domainObjectTypes,
                                      IdentifiableObjectCollection collection, int count, long time) {
+        if (collectionKeyTooLarge(subKey)) {
+            return;
+        }
         CollectionBaseNode baseNode = collectionsTree.getBaseNode(key);
         if (baseNode == null) {
             baseNode = new CollectionBaseNode(domainObjectTypes == null ? Collections.EMPTY_SET : domainObjectTypes);
             baseNode = collectionsTree.addBaseNode(key, baseNode);
-        }
-        if (collectionKeyTooLarge(subKey)) {
-            return;
         }
         CollectionSubKey subKeyClone;
         synchronized (subKey) { // todo fix

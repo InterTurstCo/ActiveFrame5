@@ -1,8 +1,10 @@
 package ru.intertrust.cm.core.business.api.dto;
 
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+
 /**
  * Хранение ссылки на другой объект.
- * 
+ *
  * @author apirozhkov
  */
 public class ReferenceValue extends Value<ReferenceValue> {
@@ -17,7 +19,7 @@ public class ReferenceValue extends Value<ReferenceValue> {
 
     /**
      * Создаёт значение - ссылку на доменный объект.
-     * 
+     *
      * @param reference ссылка на доменный объект
      */
     public ReferenceValue(Id reference) {
@@ -40,6 +42,18 @@ public class ReferenceValue extends Value<ReferenceValue> {
             return this.isEmpty() ? 0 : 1;
         } else {
             return this.isEmpty() ? -1 : reference.toStringRepresentation().compareTo(o.reference.toStringRepresentation());
+        }
+    }
+
+    @Override
+    public final ReferenceValue getPlatformClone() {
+        final Id id = get();
+        if (this.getClass() != ReferenceValue.class) {
+            return id == null ? new ReferenceValue() : new ReferenceValue(new RdbmsId(id));
+        } else if (id != null && id.getClass() != RdbmsId.class) {
+            return new ReferenceValue(new RdbmsId(id));
+        } else {
+            return this;
         }
     }
 }

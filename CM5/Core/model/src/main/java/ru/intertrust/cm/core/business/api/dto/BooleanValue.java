@@ -55,4 +55,13 @@ public class BooleanValue extends Value<BooleanValue> {
             return this.isEmpty() ? -1 : value.compareTo(o.value);
         }
     }
+
+    @Override
+    public final BooleanValue getPlatformClone() {
+        if (this.getClass() != BooleanValue.class) {
+            return new BooleanValue(get());
+        } else {
+            return this;
+        }
+    }
 }

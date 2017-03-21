@@ -50,4 +50,13 @@ public class LongValue extends Value<LongValue> {
         }
     }
 
+    @Override
+    public final LongValue getPlatformClone() {
+        if (this.getClass() != LongValue.class) {
+            return new LongValue(get());
+        } else {
+            return this;
+        }
+    }
+
 }

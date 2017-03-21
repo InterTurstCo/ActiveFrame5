@@ -70,4 +70,16 @@ public class DecimalValue extends Value<DecimalValue> {
         }
     }
 
+    @Override
+    public final DecimalValue getPlatformClone() {
+        final BigDecimal value = get();
+        if (this.getClass() != DecimalValue.class) {
+            return value == null ? new DecimalValue() : new DecimalValue(new BigDecimal(value.toString()));
+        } else if (value != null && value.getClass() != BigDecimal.class) {
+            return new DecimalValue(new BigDecimal(value.toString()));
+        } else {
+            return this;
+        }
+    }
+
 }

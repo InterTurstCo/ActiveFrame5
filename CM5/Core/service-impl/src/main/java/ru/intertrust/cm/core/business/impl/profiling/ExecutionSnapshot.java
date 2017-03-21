@@ -36,11 +36,11 @@ public class ExecutionSnapshot {
             if (state != Thread.State.BLOCKED && state != Thread.State.RUNNABLE || Thread.currentThread().equals(thread)) {
                 continue;
             }
+            ++totalThreadsCount;
             final StackTrace stackTrace = StackTrace.get(thread, threadStackTrace.getValue(), basePaths, blackListPaths);
             if (!stackTrace.ignore()) {
                 stackTracesByThread.put(stackTrace.getThreadId(), stackTrace);
             }
-            ++totalThreadsCount;
         }
         this.stackTracesByThread = Collections.unmodifiableMap(stackTracesByThread);
         this.initialStackTracesByThread = stackTracesByThread;

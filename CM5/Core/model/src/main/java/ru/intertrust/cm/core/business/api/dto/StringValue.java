@@ -46,4 +46,13 @@ public class StringValue extends Value<StringValue> {
     public boolean isEmpty() {
         return value == null || "".equals(value);
     }
+
+    @Override
+    public final StringValue getPlatformClone() {
+        if (this.getClass() != StringValue.class) {
+            return new StringValue(get());
+        } else {
+            return this;
+        }
+    }
 }

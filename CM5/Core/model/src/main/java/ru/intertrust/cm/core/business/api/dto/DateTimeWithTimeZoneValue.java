@@ -45,6 +45,35 @@ public class DateTimeWithTimeZoneValue extends Value<DateTimeWithTimeZoneValue> 
         return true;
     }
 
+    @Override
+    public final DateTimeWithTimeZoneValue getPlatformClone() {
+        final DateTimeWithTimeZone dt = get();
+
+        final TimeZoneContext timeZoneContext = dt == null ? null : dt.getTimeZoneContext();
+        final OlsonTimeZoneContext olsonContext = timeZoneContext == null || !(timeZoneContext instanceof OlsonTimeZoneContext) ? null : ((OlsonTimeZoneContext) timeZoneContext);
+        final UTCOffsetTimeZoneContext utcContext = timeZoneContext == null || !(timeZoneContext instanceof UTCOffsetTimeZoneContext) ? null : ((UTCOffsetTimeZoneContext) timeZoneContext);
+        if (this.getClass() != DateTimeWithTimeZoneValue.class
+                || (dt != null && dt.getClass() != DateTimeWithTimeZone.class)
+                || olsonContext != null && olsonContext.getClass() != OlsonTimeZoneContext.class
+                || utcContext != null && utcContext.getClass() != UTCOffsetTimeZoneContext.class) {
+            if (dt == null) {
+                return new DateTimeWithTimeZoneValue();
+            }
+            final TimeZoneContext clonedContext;
+            if (timeZoneContext == null) {
+                clonedContext = null;
+            } else if (olsonContext != null) {
+                clonedContext = olsonContext.getClass() == OlsonTimeZoneContext.class ? olsonContext : new OlsonTimeZoneContext(((OlsonTimeZoneContext) timeZoneContext).getTimeZoneId());
+            } else {
+                clonedContext = utcContext.getClass() == UTCOffsetTimeZoneContext.class ? utcContext : new UTCOffsetTimeZoneContext((int) ((UTCOffsetTimeZoneContext) timeZoneContext).getOffset());
+            }
+            final DateTimeWithTimeZone clonedDateTimeWithTimeZone = new DateTimeWithTimeZone(clonedContext, dt.getYear(), dt.getMonth(), dt.getDayOfMonth(), dt.getHours(), dt.getMinutes(), dt.getSeconds(), dt.getMilliseconds());
+            return new DateTimeWithTimeZoneValue(clonedDateTimeWithTimeZone);
+        } else {
+            return this;
+        }
+    }
+
     public DateTimeWithTimeZone getValue() {
         return value;
     }

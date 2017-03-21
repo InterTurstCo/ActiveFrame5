@@ -43,4 +43,16 @@ public class DateTimeValue extends Value<DateTimeValue> {
             return this.isEmpty() ? -1 : value.compareTo(o.value);
         }
     }
+
+    @Override
+    public final DateTimeValue getPlatformClone() {
+        final Date value = get();
+        if (this.getClass() != DateTimeValue.class) {
+            return value == null ? new DateTimeValue() : new DateTimeValue(new Date(value.getTime()));
+        } else if (value != null && value.getClass() != Date.class) {
+            return new DateTimeValue(new Date(value.getTime()));
+        } else {
+            return this;
+        }
+    }
 }

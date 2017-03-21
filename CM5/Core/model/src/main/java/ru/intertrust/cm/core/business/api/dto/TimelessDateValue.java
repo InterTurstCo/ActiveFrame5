@@ -55,6 +55,18 @@ public class TimelessDateValue extends Value<TimelessDateValue> {
         }
     }
 
+    @Override
+    public final TimelessDateValue getPlatformClone() {
+        final TimelessDate td = get();
+        if (this.getClass() != TimelessDateValue.class) {
+            return td == null ? new TimelessDateValue() : new TimelessDateValue(new TimelessDate(td.getYear(), td.getMonth(), td.getDayOfMonth()));
+        } else if (td != null && td.getClass() != TimelessDate.class) {
+            return new TimelessDateValue(new TimelessDate(td.getYear(), td.getMonth(), td.getDayOfMonth()));
+        } else {
+            return this;
+        }
+    }
+
     public TimelessDate getValue() {
         return value;
     }
