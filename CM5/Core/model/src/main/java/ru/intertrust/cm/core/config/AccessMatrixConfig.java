@@ -47,6 +47,7 @@ public class AccessMatrixConfig implements TopLevelConfig {
     public static enum BorrowPermissisonsMode{
         none,
         read,
+        readWriteDelete,
         all
     }
     

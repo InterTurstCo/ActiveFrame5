@@ -65,6 +65,19 @@ public class IndirectlyPermissionLogicalValidator implements ConfigurationValida
                                 " can not has status config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference() +
                                 " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
                     }
+                    if (accessMatrixConfig.getCreateConfig() != null 
+                            && accessMatrixConfig.getCreateConfig().getPermitGroups() != null 
+                            && accessMatrixConfig.getCreateConfig().getPermitGroups().size() > 0){
+                        logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType() +
+                                " can not has create config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference() +
+                                " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
+                    }
+                }else if(accessMatrixConfig.getBorrowPermissisons() == BorrowPermissisonsMode.readWriteDelete){
+                    if (accessMatrixConfig.getStatus() != null && accessMatrixConfig.getStatus().size() > 0){
+                        logicalErrors.addError("Access Matrix tor type " + accessMatrixConfig.getType() +
+                                " can not has status config when it has matrix-reference-field=" + accessMatrixConfig.getMatrixReference() +
+                                " and borrow-permissisons=" + accessMatrixConfig.getBorrowPermissisons());
+                    }
                 }else if(accessMatrixConfig.getBorrowPermissisons() == BorrowPermissisonsMode.read){
                     //При borrow-permissisons == none не должно быть read пав в статусах
                     if (accessMatrixConfig.getStatus() != null)

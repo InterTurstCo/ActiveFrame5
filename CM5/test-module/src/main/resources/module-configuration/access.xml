@@ -19,6 +19,20 @@
         </members>
     </dynamic-group>
 
+    <dynamic-group name="Person1AndPerson2">
+        <context>
+            <domain-object type="Person" />
+        </context>
+        <members>
+            <track-domain-objects>
+                <get-person>
+                    <query>select id from person where login in ('person1', 'person2')</query>
+                </get-person>
+            </track-domain-objects>
+        </members>
+    </dynamic-group>
+
+
     <context-role name="AllUsers">
         <context>
             <domain-object type="Person" />
@@ -212,11 +226,7 @@
         </status>
     </access-matrix>
 
-    <access-matrix type="friend_city_test" matrix-reference-field="city">
-        <create>
-            <permit-group name="AllPersons" />
-        </create>        
-    </access-matrix>
+    <access-matrix type="friend_city_test" matrix-reference-field="city"/>
 
     <access-matrix type="country_test">
         <create>
@@ -267,7 +277,7 @@
 
     <access-matrix type="ref_DO_3" read-everybody="true" />
     
-    <access-matrix type="employee_test" matrix-reference-field="Department" />
+    <access-matrix type="employee_test" matrix-reference-field="Department" borrow-permissisons="all" />
     
     <access-matrix type="employee_test_ref_matrix" matrix-reference-field="Department" />
     
@@ -513,6 +523,29 @@
                 <permit-group name="AllPersons" />
             </delete>
         </status>
+    </access-matrix>
+
+    <access-matrix type="test_type_34">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <read>
+                 <permit-group name="AllPersons" />
+            </read>
+            <write>
+                <permit-group name="AllPersons" />
+            </write>
+            <delete>
+                <permit-group name="AllPersons" />
+            </delete>
+        </status>
+    </access-matrix>
+
+    <access-matrix type="test_type_35" matrix-reference-field="test_type_34" borrow-permissisons="readWriteDelete">
+        <create>
+            <permit-group name="Person1AndPerson2" />
+        </create>
     </access-matrix>
 
     <context-role name="test_type_29_author">

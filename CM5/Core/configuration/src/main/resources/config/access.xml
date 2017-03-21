@@ -574,11 +574,7 @@
     </access-matrix>
 
     <!-- Карточка согласования. Наследует права у родительского документа -->
-    <access-matrix type="Negotiation_Card" matrix-reference-field="Parent_Document" >
-        <create>
-            <permit-group name="AllPersons" />
-        </create>
-    </access-matrix>
+    <access-matrix type="Negotiation_Card" matrix-reference-field="Parent_Document" />
 
     <access-matrix type="Examine_Card" >
         <create>

@@ -330,6 +330,7 @@ public class TestPermission extends ClientBase {
             testType2.setReference("test_type_1", testType1);
             testType2 = getCrudService().save(testType2);
             
+            notAdminCollectionService = (CollectionsService)getService("CollectionsServiceImpl", CollectionsService.Remote.class, "person1", "admin");
             collection = notAdminCollectionService.findCollectionByQuery("select * from test_type_1");
             assertTrue("test test_type_1 query", collection.size() > 0);
 
@@ -487,6 +488,7 @@ public class TestPermission extends ClientBase {
             log("Test delete DO with static group and context role: OK");
             
             //Проверка комбенированных прав (заимствованных на чтение и собственных на запись и удаление
+            notAdminCrudservice = (CrudService.Remote) getService("CrudServiceImpl", CrudService.Remote.class, "person6", "admin");
             DomainObject testType14 = notAdminCrudservice.createDomainObject("test_type_14");
             testType14.setString("name", "Name-" + System.nanoTime());
             testType14 = getCrudService().save(testType14);
@@ -655,6 +657,27 @@ public class TestPermission extends ClientBase {
             notAdminCrudservice.save(test30_1);
             
             log("Test  CMFIVE-6007: OK");             
+            
+            log("CMFIVE-8450");
+            notAdminCrudservice = (CrudService)getService("CrudServiceImpl", CrudService.Remote.class, "person5", "admin");
+            DomainObject test34 = notAdminCrudservice.createDomainObject("test_type_34");
+            test34.setString("name", "_" + System.currentTimeMillis());
+            test34 = notAdminCrudservice.save(test34);            
+
+            try{
+                DomainObject test35 = notAdminCrudservice.createDomainObject("test_type_35");
+                test35.setString("name", "_" + System.currentTimeMillis());
+                test35.setReference("test_type_34", test34.getId());
+                test35 = notAdminCrudservice.save(test35);
+                // Должна быть ошибка если нет то работает некорректно
+                assertTrue("person 5 Has create permission on type_35", false);
+            }catch(AssertExeption assertException){
+                throw assertException;                
+            }catch(Exception ex){
+                //Правильное исключение, person5 не должен иметь прав на создание
+                assertTrue("Correct exception", ex != null);
+            }
+            log("CMFIVE-8450 OK");
             
             log("Test complete");
         } finally {

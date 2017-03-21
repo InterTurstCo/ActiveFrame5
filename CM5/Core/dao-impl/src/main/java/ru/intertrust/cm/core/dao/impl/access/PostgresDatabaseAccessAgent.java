@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.AccessMatrixConfig.BorrowPermissisonsMode;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionContextConfig;
@@ -150,12 +151,12 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         List<AccessType> result = new ArrayList<AccessType>();
         //Проверяем нет ли заимствования прав и в случае наличия подменяем тип доступа согласно мапингу
         String martixRef = configurationExplorer.getMatrixReferenceTypeName(typeName);
-        
+
         final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(typeName);
 
         //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
         boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
-        
+
         //Маппинг производится только тогда когда есть заимснвование прав и эаимствование не комбинированное
         if (martixRef != null && !combinateAccessReference) {
             //Получаем маппинг прав
@@ -288,7 +289,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
         final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObjectTable);
         boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
-        
+
         StringBuilder query = new StringBuilder();
 
         query.append("select count(*) from ").append(wrap(domainObjectAclTable)).append(" a ");
@@ -298,9 +299,9 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
                 .append(wrap("child_group_id")).append(" = gm.").append(wrap("usergroup"));
         //Добавляем этот фрагмент в связи с добавлением правил заимствования прав
         query.append(" inner join ").append(wrap(domainObjectBaseTable)).append(" o on o.");
-        if (combinateAccessReference){
+        if (combinateAccessReference) {
             query.append(wrap("id"));
-        }else{
+        } else {
             query.append(wrap("access_object_id"));
         }
         query.append(" = a.").append(wrap("object_id"));
@@ -362,15 +363,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         Map<String, Object> parameters = new HashMap<String, Object>();
         parameters.put("auditId", id.getId());
-        
-        RdbmsId result = jdbcTemplate.query(query, parameters, new ResultSetExtractor<RdbmsId>(){
+
+        RdbmsId result = jdbcTemplate.query(query, parameters, new ResultSetExtractor<RdbmsId>() {
 
             @Override
             public RdbmsId extractData(ResultSet rs) throws SQLException,
                     DataAccessException {
                 if (rs.next()) {
                     return new RdbmsId(rs.getInt("domain_object_id_type"), rs.getInt("domain_object_id"));
-                }else{
+                } else {
                     throw new ObjectNotFoundException(id);
                 }
             }
@@ -502,6 +503,7 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
         return jdbcTemplate.query(query, parameters, new RowMapper<AccessType>() {
             private long start = System.currentTimeMillis();
+
             @Override
             public AccessType mapRow(ResultSet rs, int rowNum) throws SQLException {
                 ResultSetExtractionLogger.log("PostgresDatabaseAccessAgent.checkDomainObjectMultiAccess", start, rowNum);
@@ -540,8 +542,8 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
         //Флаг комбинированного заимствования прав, когда права на чтение заимствуются, а на запись и удаления настраиваются собственные
         final AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObjectTable);
         boolean combinateAccessReference = AccessControlUtility.isCombineMatrixReference(accessMatrix);
-        
-        if (!combinateAccessReference){            
+
+        if (!combinateAccessReference) {
             domainObjectTable = getDomainObjectTypeWithInheritedAccess(id, domainObjectTable);
         }
 
@@ -670,8 +672,15 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, String objectType) {
-        String checkType = configurationExplorer.getMatrixReferenceTypeName(objectType);
-        if (checkType == null) {
+        AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(objectType);
+
+        String checkType = null;
+        if (accessMatrix != null && (accessMatrix.getBorrowPermissisons() == null || accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.all)) {
+            checkType = configurationExplorer.getMatrixReferenceTypeName(objectType);
+            if (checkType == null) {
+                checkType = objectType;
+            }
+        } else {
             checkType = objectType;
         }
 
@@ -680,10 +689,17 @@ public class PostgresDatabaseAccessAgent implements DatabaseAccessAgent {
 
     @Override
     public boolean isAllowedToCreateByStaticGroups(Id userId, DomainObject domainObject) {
-        String objectType = domainObject.getTypeName();
-        String checkType = getMatrixReferenceActualFieldType(domainObject);
-        if (checkType == null) {
-            checkType = objectType;
+        AccessMatrixConfig accessMatrix = configurationExplorer.getAccessMatrixByObjectTypeUsingExtension(domainObject.getTypeName());
+
+        String checkType = null;
+        if (accessMatrix != null && (accessMatrix.getBorrowPermissisons() == null || accessMatrix.getBorrowPermissisons() == BorrowPermissisonsMode.all)) {
+            String objectType = domainObject.getTypeName();
+            checkType = getMatrixReferenceActualFieldType(domainObject);
+            if (checkType == null) {
+                checkType = objectType;
+            }
+        } else {
+            checkType = domainObject.getTypeName();
         }
 
         return isAllowedToCreateObjectType(userId, checkType);
