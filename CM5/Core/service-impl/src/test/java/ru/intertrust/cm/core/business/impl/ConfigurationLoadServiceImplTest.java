@@ -15,6 +15,7 @@ import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.converter.ConfigurationClassesCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DataStructureDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
 import ru.intertrust.cm.core.dao.api.InitializationLockDao;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
@@ -53,6 +54,8 @@ public class ConfigurationLoadServiceImplTest {
     private CrudService crudService;
     @Mock
     private DataStructureDao dataStructureDao;
+    @Mock
+    private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     @Mock
     private ApplicationContext context;
