@@ -4,7 +4,6 @@ import java.io.Writer;
 
 import net.sf.jasperreports.engine.JasperReportsContext;
 import net.sf.jasperreports.engine.export.CutsInfo;
-import net.sf.jasperreports.engine.export.ooxml.DocxTableHelper;
 
 public class SochiDocxTableHelper extends DocxTableHelper {
 
@@ -18,9 +17,6 @@ public class SochiDocxTableHelper extends DocxTableHelper {
 	public void exportRowHeader(int rowHeight, boolean allowRowResize) 
 	{
 		write("   <w:tr>\n");
-		write("    <w:trPr>\n");
-		write("     <w:trHeight  />\n");
-		write("    </w:trPr>\n");
 	}
 
 }
