@@ -69,7 +69,7 @@ public abstract class BasicQueryHelper {
 
     public abstract String generateSetColumnNotNullQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig, boolean notNull);
 
-    public abstract String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig);
+    public abstract List<String> generateUpdateColumnTypeQueries(DomainObjectTypeConfig config, FieldConfig fieldConfig);
 
     public abstract String generateGatherStatisticsQuery();
 

@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 
+import java.util.Collections;
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
@@ -137,13 +138,16 @@ public class PostgreSqlQueryHelper extends BasicQueryHelper {
 
 
     @Override
-    public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+    public List<String> generateUpdateColumnTypeQueries(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
         StringBuilder query = new StringBuilder();
-
+        final String wrappedColumnName = wrap(getSqlName(fieldConfig));
+        final String sqlType = getSqlType(fieldConfig);
         query.append("alter table ").append(wrap(getSqlName(config))).append(" alter column ").
-                append(wrap(getSqlName(fieldConfig))).append(" set data type ").append(getSqlType(fieldConfig));
+                append(wrappedColumnName).append(" set data type ").append(sqlType).append(";");
+        query.append("alter table ").append(wrap(getALTableSqlName(config.getName()))).append(" alter column ").
+                append(wrappedColumnName).append(" set data type ").append(sqlType).append(";");
 
-        return query.toString();
+        return Collections.singletonList(query.toString());
     }
 
     @Override

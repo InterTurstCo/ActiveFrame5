@@ -7,6 +7,7 @@ import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdDao;
 import ru.intertrust.cm.core.dao.api.MD5Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.*;
@@ -119,13 +120,22 @@ public class OracleQueryHelper extends BasicQueryHelper {
     }
 
     @Override
-    public String generateUpdateColumnTypeQuery(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+    public List<String> generateUpdateColumnTypeQueries(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
+        ArrayList<String> queries = new ArrayList<>(2);
         StringBuilder query = new StringBuilder();
 
+        final String wrapColumnName = wrap(getSqlName(fieldConfig));
+        final String columnType = getSqlType(fieldConfig);
         query.append("alter table ").append(wrap(getSqlName(config))).append(" modify ").
-                append(wrap(getSqlName(fieldConfig))).append(" ").append(getSqlType(fieldConfig));
+                append(wrapColumnName).append(" ").append(columnType);
 
-        return query.toString();
+        queries.add(query.toString());
+        query.setLength(0);
+
+        query.append("alter table ").append(wrap(getALTableSqlName(config.getName()))).append(" modify ").
+                append(wrapColumnName).append(" ").append(columnType);
+        queries.add(query.toString());
+        return queries;
     }
 
     @Override

@@ -311,7 +311,10 @@ public abstract class BasicDataStructureDaoImpl implements DataStructureDao {
      */
     @Override
     public void updateColumnType(DomainObjectTypeConfig config, FieldConfig fieldConfig) {
-        jdbcTemplate.update(getQueryHelper().generateUpdateColumnTypeQuery(config, fieldConfig));
+        final List<String> queries = getQueryHelper().generateUpdateColumnTypeQueries(config, fieldConfig);
+        for (String query : queries) {
+            jdbcTemplate.update(query);
+        }
     }
 
     /**
