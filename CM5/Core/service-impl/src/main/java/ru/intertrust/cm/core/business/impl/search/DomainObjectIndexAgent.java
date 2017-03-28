@@ -99,20 +99,30 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
             return;
         }
         ArrayList<SolrInputDocument> solrDocs = new ArrayList<>(configs.size());
+        ArrayList<String> toDelete = new ArrayList<>();
         for (SearchConfigHelper.SearchAreaDetailsConfig config : configs) {
             if (configHelper.isAttachmentObject(domainObject)) {
                 sendAttachment(domainObject, config);
                 continue;
             }
             List<Id> mainIds = calculateMainObjects(domainObject.getId(), config.getObjectConfigChain());
-            reindexObjectAndChildren(solrDocs, domainObject, config, mainIds);
+            if (mainIds.size() > 0) {
+                reindexObjectAndChildren(solrDocs, domainObject, config, mainIds);
+            } else {
+                toDelete.add(createUniqueId(domainObject, config));
+            }
         }
-        if (solrDocs.size() == 0) {
-            return;
+        if (solrDocs.size() > 0) {
+            requestQueue.addDocuments(solrDocs);
+            if (log.isInfoEnabled()) {
+                log.info("" + solrDocs.size() + " Solr document(s) queued for indexing");
+            }
         }
-        requestQueue.addDocuments(solrDocs);
-        if (log.isInfoEnabled()) {
-            log.info(Integer.toString(solrDocs.size()) + " Solr document(s) queued for indexing");
+        if (toDelete.size() > 0) {
+            requestQueue.addRequest(new UpdateRequest().deleteById(toDelete));
+            if (log.isInfoEnabled()) {
+                log.info("" + toDelete.size() + " Solr document(s) queued for deleting");
+            }
         }
     }
 
@@ -429,5 +439,8 @@ public class DomainObjectIndexAgent implements AfterSaveExtensionHandler, AfterD
             solrIds.add(createUniqueId(deletedDomainObject, config));
         }
         requestQueue.addRequest(new UpdateRequest().deleteById(solrIds));
+        if (log.isInfoEnabled()) {
+            log.info("" + solrIds.size() + " Solr document(s) queued for deleting");
+        }
     }
 }

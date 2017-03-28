@@ -28,7 +28,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.solr.client.solrj.request.AbstractUpdateRequest;
 import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.SolrParams;
 import org.junit.Before;
@@ -233,6 +235,8 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_dt_scriptdatefield"), hasProperty("value", equalTo(calculatedDate))));
         assertThat(doc, hasEntry(equalTo("cm_b_scriptboolfield"), hasProperty("value", equalTo(true))));
         assertThat(doc, hasEntry(equalTo("cm_ds_scriptfloatarrayfield"), hasProperty("value")));   //*****
+
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -293,6 +297,8 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TargetType"))));
         assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
         assertThat(doc, hasEntry(equalTo("cm_t_testfield"), hasProperty("value", equalTo("Test string"))));
+
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -364,6 +370,8 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("TargetType"))));
         assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
         assertThat(doc, hasEntry(equalTo("cm_t_testfield"), hasProperty("value", equalTo("Test string"))));
+
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
     }
 
     @SuppressWarnings("unchecked")
@@ -412,6 +420,9 @@ public class DomainObjectIndexAgentTest {
 
         // Проверка правильности сформированного запроса к Solr
         verify(requestQueue, never()).addDocuments(anyCollection());
+        ArgumentCaptor<UpdateRequest> request = ArgumentCaptor.forClass(UpdateRequest.class);
+        verify(requestQueue).addRequest(request.capture());
+        assertThat(request.getValue().getDeleteById(), containsInAnyOrder("TestId:TestArea:TargetType"));
     }
 
     /**
@@ -488,6 +499,9 @@ public class DomainObjectIndexAgentTest {
         assertThat(doc, hasEntry(equalTo("cm_type"), hasProperty("value", equalTo("ParentFit"))));
         assertThat(doc, hasEntry(equalTo("cm_main"), hasProperty("value", equalTo("ParentId"))));
         assertThat(doc, hasEntry(equalTo("cm_l_testfield"), hasProperty("value", equalTo(100500L))));
+        ArgumentCaptor<UpdateRequest> request = ArgumentCaptor.forClass(UpdateRequest.class);
+        verify(requestQueue).addRequest(request.capture());
+        assertThat(request.getValue().getDeleteById(), containsInAnyOrder("TestId:AreaNotFit:ParentNotFit"));
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -579,6 +593,7 @@ public class DomainObjectIndexAgentTest {
         // Проверка правильности сформированного запроса к Solr
         //ArgumentCaptor<Collection<SolrInputDocument>> documents;// = ArgumentCaptor.forClass(Collection.class);
         verify(requestQueue).addDocuments(documents.capture());
+        verify(requestQueue, never()).addRequest(any(AbstractUpdateRequest.class));
 
         assertEquals(4, documents.getValue().size());
         assertThat(documents.getValue(), containsInAnyOrder(
