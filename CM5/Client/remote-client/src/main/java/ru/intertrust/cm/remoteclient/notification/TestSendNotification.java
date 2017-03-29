@@ -85,6 +85,14 @@ public class TestSendNotification extends ClientBase {
                     addressee,
                     NotificationPriority.HIGH, context);
             
+            //Сообщение с большим subject
+            addressee = new ArrayList<NotificationAddressee>();
+            addressee.add(new NotificationAddresseePerson(getPersonId("person10")));
+            notificationService.sendNow("TEST_LONG_SUBJECT", getPersonId("admin"), 
+                    addressee,
+                    NotificationPriority.HIGH, context);
+            
+            
             System.out.println("Test End");
         } finally {
             writeLog();

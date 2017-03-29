@@ -49,6 +49,11 @@ public class InboxNotificationChannel extends NotificationChannelBase implements
                 notificationTextFormer.format(notificationType, BODY_INBOX_PART, addresseeId, locale,
                         INBOX_NOTIFICATION_CHANNEL,
                         context);
+        //CMFIVE-8626 Урезаем subject до 256 символов
+        if (subject.length() > 256){
+            subject = subject.substring(0, 256);
+        }        
+        
         DomainObject notification = createNotification(senderId, addresseeId, subject, body, priority);
         
         //Смотрим есть ли контекст с именем документ
