@@ -1,7 +1,27 @@
 package ru.intertrust.cm.core.business.impl;
 
-import com.healthmarketscience.rmiio.DirectRemoteInputStream;
-import com.healthmarketscience.rmiio.RemoteInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Future;
+
+import javax.ejb.AsyncResult;
+import javax.ejb.Asynchronous;
+import javax.ejb.EJB;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
@@ -16,12 +36,18 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RequestCallback;
 import org.springframework.web.client.ResponseExtractor;
 import org.springframework.web.client.RestTemplate;
+
+import com.healthmarketscience.rmiio.DirectRemoteInputStream;
+import com.healthmarketscience.rmiio.RemoteInputStream;
+
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.config.model.ReportParameterData;
@@ -30,26 +56,13 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CurrentDataSourceContext;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
 import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.dao.api.extension.AfterGenerateReportExtentionHandler;
 import ru.intertrust.cm.core.dao.api.extension.BeforeGenerateReportExtensionHandler;
 import ru.intertrust.cm.core.model.ReportServiceException;
 import ru.intertrust.cm.core.report.ReportServiceBase;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
-import ru.intertrust.cm.core.rest.api.GenerateReportResult;
-
-import javax.ejb.AsyncResult;
-import javax.ejb.Asynchronous;
-import javax.ejb.EJB;
-import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.Future;
 
 /**
  * Имплементация сервиса генерации отчетов
@@ -89,7 +102,11 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
 
     @org.springframework.beans.factory.annotation.Value("${report.server:false}")
     private boolean reportServer;
-    
+
+    //Таймаут генерации отчета на сервере отчетов. По умолчанию 1 час
+    @org.springframework.beans.factory.annotation.Value("${report.server.generation.timeout:3600}")
+    private long reportServerTimeout;
+
     @EJB
     private ReportResultBuilder resultBuilder;
 
@@ -102,6 +119,9 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     @Autowired
     private RestTemplate restTemplate;
     
+    @Autowired
+    private GlobalCacheClient globalCacheClient;    
+
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
     }
@@ -116,6 +136,35 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters) {
         ReportResult result = generate(name, parameters);
         return new AsyncResult<>(result);
+    }
+
+    @Override
+    @Asynchronous
+    public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, Id queueId, String ticket) {
+        try {
+            currentUserAccessor.setTicket(ticket);
+            
+            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+            ReportResult result = null;
+            try {
+                result = generate(name, parameters);
+                DomainObject queueObject = domainObjectDao.setStatus(queueId, statusDao.getStatusIdByName("Complete"), accessToken);
+                queueObject.setTimestamp("finish", new Date());
+                queueObject.setReference("result_id", result.getResultId());
+                queueObject.setString("file_name", result.getFileName());
+                domainObjectDao.save(queueObject, accessToken);
+            } catch (Exception ex) {
+                logger.error("Error async report generation", ex);
+                DomainObject queueObject = domainObjectDao.setStatus(queueId, statusDao.getStatusIdByName("Fault"), accessToken);
+                queueObject.setTimestamp("finish", new Date());
+                queueObject.setString("error", ExceptionUtils.getStackTrace(ex));
+                domainObjectDao.save(queueObject, accessToken);
+            }
+
+            return new AsyncResult<>(result);
+        } finally {
+            currentUserAccessor.cleanTicket();
+        }
     }
 
     @Override
@@ -135,28 +184,71 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
      * Формирование отчета
      */
     public ReportResult generate(String name, Map<String, Object> parameters, Integer keepDays, DataSourceContext dataSource) {
-
+        AccessToken accessToken = accessControlService.createSystemAccessToken(getClass().getName());
         String reportServerUrl = globalServerSettingsService.getString("report.server.url");
-        
+
+        //Для отладки =================
+        /*boolean server = false;
+        for (StackTraceElement stackTraceElement : Thread.currentThread().getStackTrace()) {
+            if (stackTraceElement.getMethodName().contains("generateAsync")) {
+                server = true;
+                break;
+            }
+        }
+        reportServer = server;*/
+        //Для отладки =================
+
         if (reportServerUrl != null && !reportServerUrl.equalsIgnoreCase("local") && !reportServer) {
 
             GenerateReportParam generateReportParam = new GenerateReportParam();
             generateReportParam.setName(name);
             generateReportParam.setParams(parameters);
-                        
+
             HttpHeaders headers = new HttpHeaders();
             headers.add("Ticket", ticketService.createTicket());
-            
+
             HttpEntity<GenerateReportParam> entity = new HttpEntity<GenerateReportParam>(generateReportParam, headers);
 
-            GenerateReportResult resultInfo = restTemplate.postForObject(
-                    reportServerUrl + "/ws/report/generate", entity, GenerateReportResult.class);
-            
+            Id queueId = restTemplate.postForObject(
+                    reportServerUrl + "/ws/report/generate", entity, Id.class);
+
+            //Ждем смены статуса, но не более
+            IdentifiableObject queue = null;
+            long start = System.currentTimeMillis();
+            while ((System.currentTimeMillis() - start) < (reportServerTimeout * 1000)) {
+                //Получаем объект очереди
+                IdentifiableObjectCollection collection = 
+                        collectionsDao.findCollectionByQuery("select id, status, file_name, name, result_id, error from generate_report_queue", 0, 1, accessToken);
+                queue = collection.get(0);
+                if (queue.getId().equals(statusDao.getStatusIdByName("Run"))) {
+                    logger.debug("Status queue {0} is Run. Waiting...", queue.getId().toStringRepresentation());
+                } else {
+                    logger.debug("Status queue {0} is {1}. End wait.",
+                            queue.getId().toStringRepresentation(), statusDao.getStatusNameById(queue.getReference("status")));
+                    break;
+                }
+                try {
+                    Thread.currentThread().sleep(1000);
+                } catch (InterruptedException ex) {
+                    logger.error("Error wait generate report", ex);
+                }
+            }
+
             final ReportResult reportResult = new ReportResult();
-            reportResult.setFileName(resultInfo.getFileName());
-            reportResult.setTemplateName(resultInfo.getTemplateName());
-            reportResult.setResultId(resultInfo.getResultId());
-            
+            if (queue.getReference("status").equals(statusDao.getStatusIdByName("Complete"))) {
+                reportResult.setFileName(queue.getString("file_name"));
+                reportResult.setTemplateName(queue.getString("name"));
+                reportResult.setResultId(queue.getReference("result_id"));
+            } else if (queue.getReference("status").equals(statusDao.getStatusIdByName("Fault"))) {
+                String message = "Error on generate report on report server " + queue.getString("error");
+                logger.error(message);
+                throw new ReportServiceException(message);
+            } else { //Таймаут
+                String message = "Error on generate report on report server. Timeout";
+                logger.error(message);
+                throw new ReportServiceException(message);
+            }
+
             ResponseExtractor<Void> responseExtractor = new ResponseExtractor<Void>() {
                 @Override
                 public Void extractData(ClientHttpResponse response) throws IOException {
@@ -167,18 +259,18 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                     return null;
                 }
             };
-            
-            RequestCallback requestCallback = new RequestCallback(){
+
+            RequestCallback requestCallback = new RequestCallback() {
 
                 @Override
                 public void doWithRequest(ClientHttpRequest request) throws IOException {
                     request.getHeaders().add("Ticket", ticketService.createTicket());
                 }
-                
+
             };
-            
-            restTemplate.execute(reportServerUrl + "/ws/report/content/{reportId}", 
-                    HttpMethod.GET, requestCallback, responseExtractor, resultInfo.getResultId().toStringRepresentation());            
+
+            restTemplate.execute(reportServerUrl + "/ws/report/content/{reportId}",
+                    HttpMethod.GET, requestCallback, responseExtractor, reportResult.getResultId().toStringRepresentation());
             return reportResult;
         } else {
 
@@ -205,8 +297,6 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 ReportMetadataConfig reportMetadata = loadReportMetadata(
                         readFile(new File(templateFolder, ReportServiceAdmin.METADATA_FILE_MAME)));
 
-                
-                
                 //Вызов точки расширения до генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 BeforeGenerateReportExtensionHandler beforeExtentionHandler =
@@ -215,7 +305,7 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 //Вызов точек расширения у кого не указан фильтр
                 beforeExtentionHandler = extensionService.getExtentionPoint(BeforeGenerateReportExtensionHandler.class, "");
                 beforeExtentionHandler.onBeforeGenerateReport(name, parameters);
-                
+
                 //Формирование отчета
                 // todo: this method should accept DataSource and if it's MASTER - support transaction
                 File result = resultBuilder.generateReport(reportMetadata, templateFolder, parameters, dataSource);

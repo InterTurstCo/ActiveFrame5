@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.rest.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -22,16 +23,17 @@ import com.healthmarketscience.rmiio.RemoteInputStreamClient;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
+import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
 import ru.intertrust.cm.core.business.api.ReportService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
-import ru.intertrust.cm.core.business.api.dto.ReportResult;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.api.TicketService;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
-import ru.intertrust.cm.core.rest.api.GenerateReportResult;
 
 @RestController
 public class ReportRestService {
@@ -45,23 +47,29 @@ public class ReportRestService {
     @Autowired
     private ReportService reportservice;
     @Autowired
+    private CrudService crudService;
+    @Autowired
     private AttachmentService attachmentService;
     @Autowired
     private IdService idService;
     @Autowired
     private CollectionsService collectionsService;
+    @Autowired
+    private TicketService ticketService;
 
     @RequestMapping(value = "/report/generate", method = RequestMethod.POST)
-    public GenerateReportResult generateReport(
+    public Id generateReport(
             @RequestBody(required = true) GenerateReportParam param) {
-        GenerateReportResult result = new GenerateReportResult();
 
-        ReportResult generateResult = reportservice.generate(param.getName(), param.getParams(), 1);
-        result.setFileName(generateResult.getFileName());
-        result.setResultId(generateResult.getResultId());
-        result.setTemplateName(generateResult.getTemplateName());
+        //Создаем объект очереди генерации отчета
+        DomainObject queue = crudService.createDomainObject("generate_report_queue");
+        queue.setString("name", param.getName());
+        queue.setTimestamp("start", new Date());
+        queue = crudService.save(queue);
+        
+        reportservice.generateAsync(param.getName(), param.getParams(), queue.getId(), ticketService.createTicket());
 
-        return result;
+        return queue.getId();
     }
 
     @RequestMapping(value = "/report/content/{reportId}", method = RequestMethod.GET)

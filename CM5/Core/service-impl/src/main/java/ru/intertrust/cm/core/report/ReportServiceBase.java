@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.StatusDao;
 
 /**
  * Базовый класс имплементации сервисов подсистемы генерации отчетов
@@ -47,6 +48,8 @@ public abstract class ReportServiceBase {
     @Autowired
     protected AttachmentService attachmentService;
 
+    @Autowired
+    protected StatusDao statusDao;
     /**
      * Получение доменного объекта отчета по имени
      * @param name

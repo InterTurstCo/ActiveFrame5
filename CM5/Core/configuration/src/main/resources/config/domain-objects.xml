@@ -349,6 +349,17 @@
         </attachment-types>        
     </domain-object-type>
 
+    <domain-object-type name="generate_report_queue" initial-status="Run">
+        <fields>
+            <string name="name" length="256" not-null="true" />
+            <string name="file_name" length="256" />
+            <date-time name="start" not-null="true"/>
+            <date-time name="finish"  />
+            <reference name="result_id" type="report_result"/>
+            <text name="error"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="locale" initial-status="Active">
         <fields>
             <string name="name" length="256" not-null="true" />

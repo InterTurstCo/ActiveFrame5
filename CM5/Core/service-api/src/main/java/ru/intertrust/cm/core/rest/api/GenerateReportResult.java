@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.rest.api;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-
 import ru.intertrust.cm.core.business.api.dto.Id;
 
 public class GenerateReportResult{

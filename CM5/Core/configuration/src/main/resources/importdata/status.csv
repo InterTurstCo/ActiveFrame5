@@ -1,5 +1,5 @@
 TYPE_NAME=Status; KEYS=Name
-"Name	";"Description"
+"Name	";Description
 "Active	";Активный
 "Draft	";Черновик
 "Active4	";Активный4
@@ -19,3 +19,4 @@ TYPE_NAME=Status; KEYS=Name
 "Ready	";Готов
 "Wait	";Ожидает
 "Run	";Запущен
+Fault;Ошибка

@@ -47,4 +47,5 @@ public interface ReportService extends ReportServiceDelegate {
      * @return
      */
     Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, DataSourceContext dataSource);
+
 }

@@ -1,9 +1,10 @@
 package ru.intertrust.cm.core.business.api;
 
-import ru.intertrust.cm.core.business.api.dto.ReportResult;
-
 import java.util.Map;
 import java.util.concurrent.Future;
+
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReportResult;
 
 /**
  * Внутренний служебный интерфейс сервиса отчетов. Используется для создания транзакционной и нетранзакциооной версий сервиса
@@ -45,4 +46,14 @@ public interface ReportServiceDelegate {
      * @return
      */
     Future<ReportResult> generateAsync(String name, Map<String, Object> parameters); 
+    
+    /**
+     * 
+     * @param name
+     * @param parameters
+     * @param queue
+     * @return
+     */
+    Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, Id queue, String ticket);    
+    
 }
