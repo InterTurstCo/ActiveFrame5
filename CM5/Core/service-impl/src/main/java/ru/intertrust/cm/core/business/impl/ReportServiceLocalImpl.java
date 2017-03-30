@@ -1,7 +1,5 @@
 package ru.intertrust.cm.core.business.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 
 import javax.ejb.Local;

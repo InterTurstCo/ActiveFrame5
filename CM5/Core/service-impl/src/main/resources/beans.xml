@@ -103,11 +103,12 @@
     <jee:local-slsb id="scheduleService"
                     jndi-name="java:module/ScheduleService!ru.intertrust.cm.core.business.api.ScheduleService"
                     business-interface="ru.intertrust.cm.core.business.api.ScheduleService"/>
-
     <jee:local-slsb id="reportService"
                     jndi-name="java:module/ReportServiceLocalImpl!ru.intertrust.cm.core.business.api.ReportService"
                     business-interface="ru.intertrust.cm.core.business.api.ReportService"/>
-
+    <jee:local-slsb id="reportServiceAsync"
+                    jndi-name="java:module/ReportServiceAsyncImpl!ru.intertrust.cm.core.business.api.ReportServiceAsync"
+                    business-interface="ru.intertrust.cm.core.business.api.ReportServiceAsync"/>
     <jee:local-slsb id="reportServiceAdmin"
                     jndi-name="java:module/ReportServiceAdmin!ru.intertrust.cm.core.business.api.ReportServiceAdmin"
                     business-interface="ru.intertrust.cm.core.business.api.ReportServiceAdmin"/>

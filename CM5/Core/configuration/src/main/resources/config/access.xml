@@ -789,8 +789,16 @@
     
     <access-matrix type="blob_resources_attach" read-everybody="true"/>
 
-    <access-matrix type="generate_report_queue" read-everybody="true"/>
-
+    <access-matrix type="generate_report_queue" read-everybody="true">
+        <create>
+            <permit-group name="AllPersons" />
+        </create>
+        <status name="*">
+            <write>
+                <permit-group name="AllPersons"/>
+            </write>
+        </status>
+    </access-matrix>
 </configuration>
 
 

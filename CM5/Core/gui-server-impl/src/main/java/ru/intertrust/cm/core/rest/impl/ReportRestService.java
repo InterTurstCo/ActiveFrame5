@@ -25,13 +25,15 @@ import ru.intertrust.cm.core.business.api.AttachmentService;
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
 import ru.intertrust.cm.core.business.api.IdService;
-import ru.intertrust.cm.core.business.api.ReportService;
+import ru.intertrust.cm.core.business.api.ReportServiceAsync;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.dao.api.ActionListener;
 import ru.intertrust.cm.core.dao.api.TicketService;
+import ru.intertrust.cm.core.dao.api.UserTransactionService;
 import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.rest.api.GenerateReportParam;
 
@@ -45,7 +47,7 @@ public class ReportRestService {
     }
 
     @Autowired
-    private ReportService reportservice;
+    private ReportServiceAsync reportservice;
     @Autowired
     private CrudService crudService;
     @Autowired
@@ -56,10 +58,13 @@ public class ReportRestService {
     private CollectionsService collectionsService;
     @Autowired
     private TicketService ticketService;
+    @Autowired
+    private UserTransactionService transactionService;
+    
 
     @RequestMapping(value = "/report/generate", method = RequestMethod.POST)
     public Id generateReport(
-            @RequestBody(required = true) GenerateReportParam param) {
+            @RequestBody(required = true) final GenerateReportParam param) {
 
         //Создаем объект очереди генерации отчета
         DomainObject queue = crudService.createDomainObject("generate_report_queue");

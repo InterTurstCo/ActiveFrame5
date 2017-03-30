@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 
@@ -48,7 +49,9 @@ import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObject;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.ReportResult;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.config.model.ReportMetadataConfig;
 import ru.intertrust.cm.core.config.model.ReportParameterData;
 import ru.intertrust.cm.core.config.model.ReportParametersData;
@@ -141,30 +144,8 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     @Override
     @Asynchronous
     public Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, Id queueId, String ticket) {
-        try {
-            currentUserAccessor.setTicket(ticket);
-            
-            AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
-            ReportResult result = null;
-            try {
-                result = generate(name, parameters);
-                DomainObject queueObject = domainObjectDao.setStatus(queueId, statusDao.getStatusIdByName("Complete"), accessToken);
-                queueObject.setTimestamp("finish", new Date());
-                queueObject.setReference("result_id", result.getResultId());
-                queueObject.setString("file_name", result.getFileName());
-                domainObjectDao.save(queueObject, accessToken);
-            } catch (Exception ex) {
-                logger.error("Error async report generation", ex);
-                DomainObject queueObject = domainObjectDao.setStatus(queueId, statusDao.getStatusIdByName("Fault"), accessToken);
-                queueObject.setTimestamp("finish", new Date());
-                queueObject.setString("error", ExceptionUtils.getStackTrace(ex));
-                domainObjectDao.save(queueObject, accessToken);
-            }
-
-            return new AsyncResult<>(result);
-        } finally {
-            currentUserAccessor.cleanTicket();
-        }
+        ReportResult result = generate(name, parameters);
+        return new AsyncResult<>(result);
     }
 
     @Override
@@ -217,10 +198,13 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
             long start = System.currentTimeMillis();
             while ((System.currentTimeMillis() - start) < (reportServerTimeout * 1000)) {
                 //Получаем объект очереди
+                List<Value> params = new ArrayList<Value>();
+                params.add(new ReferenceValue(queueId));
                 IdentifiableObjectCollection collection = 
-                        collectionsDao.findCollectionByQuery("select id, status, file_name, name, result_id, error from generate_report_queue", 0, 1, accessToken);
+                        collectionsDao.findCollectionByQuery("select id, status, file_name, name, result_id, error from generate_report_queue where id = {0}",
+                                params, 0, 1, accessToken);
                 queue = collection.get(0);
-                if (queue.getId().equals(statusDao.getStatusIdByName("Run"))) {
+                if (queue.getReference("status").equals(statusDao.getStatusIdByName("Run"))) {
                     logger.debug("Status queue {0} is Run. Waiting...", queue.getId().toStringRepresentation());
                 } else {
                     logger.debug("Status queue {0} is {1}. End wait.",

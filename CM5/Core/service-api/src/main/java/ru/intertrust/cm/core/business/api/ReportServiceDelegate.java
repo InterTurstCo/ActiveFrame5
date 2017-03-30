@@ -45,6 +45,7 @@ public interface ReportServiceDelegate {
      * @param parameters
      * @return
      */
+    @Deprecated
     Future<ReportResult> generateAsync(String name, Map<String, Object> parameters); 
     
     /**
@@ -54,6 +55,7 @@ public interface ReportServiceDelegate {
      * @param queue
      * @return
      */
+    @Deprecated
     Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, Id queue, String ticket);    
     
 }

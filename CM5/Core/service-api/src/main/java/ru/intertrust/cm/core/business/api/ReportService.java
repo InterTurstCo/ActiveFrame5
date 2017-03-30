@@ -46,6 +46,7 @@ public interface ReportService extends ReportServiceDelegate {
      * @param dataSource     контекст источника данных, используемого для операций с данными
      * @return
      */
+    @Deprecated
     Future<ReportResult> generateAsync(String name, Map<String, Object> parameters, DataSourceContext dataSource);
 
 }
