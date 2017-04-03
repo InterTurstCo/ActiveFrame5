@@ -44,6 +44,8 @@ public class HyperlinkClickHandler extends LinkedFormOpeningHandler {
         this.readOnly = readOnly;
     }
 
+
+
     @Override
     public void onClick(ClickEvent event) {
         processClick();

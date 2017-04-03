@@ -1,10 +1,8 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.Dto;
-import ru.intertrust.cm.core.business.api.dto.Id;
-import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.PermissionService;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.gui.action.SimpleActionConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -15,6 +13,7 @@ import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.linkediting.CreatedObjectsConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.tableviewer.TableViewerConfig;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.gui.api.server.ActionService;
 import ru.intertrust.cm.core.gui.api.server.widget.LinkEditingWidgetHandler;
 import ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler;
@@ -28,6 +27,7 @@ import ru.intertrust.cm.core.gui.model.form.widget.TableViewerData;
 import ru.intertrust.cm.core.gui.model.form.widget.TableViewerState;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
+import javax.ejb.EJB;
 import java.util.*;
 
 /**
@@ -40,6 +40,12 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
 
     @Autowired
     ActionService actionService;
+
+    @EJB
+    private PermissionService permissionService;
+
+    @Autowired
+    private CurrentUserAccessor currentUserAccessor;
 
     @Override
     public TableViewerState getInitialState(WidgetContext context) {
@@ -115,8 +121,36 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
         Id id = (Id) request;
         TableViewerData data = new TableViewerData();
         data.setAvailableActions(actionService.getActions(id));
+        boolean hasDeleteAccess = true;
+        boolean hasEditAccess = true;
+
+        DomainObjectPermission permission = permissionService.getObjectPermission(id, currentUserAccessor.getCurrentUserId());
+        if (permission != null && permission.getPermission() != null) {
+
+
+            boolean tmpDeletePermission = false;
+            boolean tmpWritePermission = false;
+            for(DomainObjectPermission.Permission prs : permission.getPermission()){
+                if(DomainObjectPermission.Permission.Delete.equals(prs)){
+                    tmpDeletePermission = true;
+                }
+
+                if(DomainObjectPermission.Permission.Write.equals(prs)){
+                    tmpWritePermission = true;
+                }
+            }
+
+            hasDeleteAccess = tmpDeletePermission && hasDeleteAccess;
+            hasEditAccess = tmpWritePermission && hasEditAccess;
+        }
+
+
+        data.setHasDeleteAccess(hasDeleteAccess);
+        data.setHasEditAccess(hasEditAccess);
+
         return data;
     }
+
 
     public Dto getActionsByIds(Dto request) {
         TableViewerData data = (TableViewerData) request;
@@ -124,7 +158,28 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
 /**
  *  #1 Выбираем все доступные действия формируя структуру Имя действия - список Id и контекстов.
  */
+        boolean hasDeleteAccess = true;
+        boolean hasEditAccess = true;
+
         for (final Id id : data.getSelectedIds()) {
+            DomainObjectPermission permission = permissionService.getObjectPermission(id, currentUserAccessor.getCurrentUserId());
+            if (permission != null && permission.getPermission() != null) {
+                boolean tmpDeletePermission = false;
+                boolean tmpWritePermission = false;
+                for(DomainObjectPermission.Permission prs : permission.getPermission()){
+                    if(DomainObjectPermission.Permission.Delete.equals(prs)){
+                        tmpDeletePermission = true;
+                    }
+
+                    if(DomainObjectPermission.Permission.Write.equals(prs)){
+                        tmpWritePermission = true;
+                    }
+                }
+
+                hasDeleteAccess = tmpDeletePermission && hasDeleteAccess;
+                hasEditAccess = tmpWritePermission && hasEditAccess;
+            }
+
             for (final ActionContext aContext : actionService.getActions(id)) {
                 SimpleActionContext simpleActionContext = (SimpleActionContext) aContext;
                 if (tmpHolder.size() == 0 ||
@@ -161,6 +216,9 @@ public class TableViewerHandler extends LinkEditingWidgetHandler implements Self
         }
 
 
+
+        data.setHasDeleteAccess(hasDeleteAccess);
+        data.setHasEditAccess(hasEditAccess);
 
         return data;
     }

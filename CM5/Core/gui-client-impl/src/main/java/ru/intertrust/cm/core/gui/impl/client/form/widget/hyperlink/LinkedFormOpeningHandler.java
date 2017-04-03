@@ -5,6 +5,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.web.bindery.event.shared.EventBus;
+import ru.intertrust.cm.core.business.api.dto.DomainObjectTypeAndAccessValue;
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.StringValue;
@@ -46,7 +47,6 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         this.eventBus = eventBus;
         this.tooltipContent = tooltipContent;
         this.typeTitleMap = typeTitleMap;
-
     }
 
     protected void createEditableFormDialogBox(FormDialogBox dialogBox, HasLinkedFormMappings widget) {
@@ -84,16 +84,15 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
 
     protected void init(final HasLinkedFormMappings widget){
 
-        Command command = new Command("getType", "domain-object-type-extractor", id);
+        Command command = new Command("getTypeAndAccess", "domain-object-type-extractor", id);
         BusinessUniverseServiceAsync.Impl.executeCommand(command, new AsyncCallback<Dto>() {
             @Override
             public void onSuccess(Dto result) {
-               StringValue value = (StringValue) result;
-               domainObjectType = value.get();
+                DomainObjectTypeAndAccessValue value = (DomainObjectTypeAndAccessValue) result;
+               domainObjectType = value.getDomainObjectType();
                PopupTitlesHolder popupTitlesHolder = typeTitleMap == null ? null : typeTitleMap.get(domainObjectType.toLowerCase());
                popupTitle = popupTitlesHolder == null ? null : popupTitlesHolder.getTitleExistingObject();
-               createNonEditableFormDialogBox(widget);
-
+               createNonEditableFormDialogBox(widget, value.isHasWritePermission());
             }
 
             @Override
@@ -103,7 +102,7 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
         });
     }
 
-    protected void createNonEditableFormDialogBox(HasLinkedFormMappings widget) {
+    protected void createNonEditableFormDialogBox(HasLinkedFormMappings widget, boolean hasWritePermission) {
         boolean resizable = GuiUtil.isFormResizable(domainObjectType, widget.getLinkedFormMappingConfig(),
                 widget.getLinkedFormConfig());
         final FormDialogBox noneEditableFormDialogBox = new FormDialogBox(popupTitle,
@@ -116,13 +115,15 @@ public abstract class LinkedFormOpeningHandler implements ClickHandler {
                 openInFullWindow(noneEditableFormDialogBox, false);
             }
         });
-        noneEditableFormDialogBox.initButton(LocalizeUtil.get(EDIT_BUTTON_KEY, EDIT_BUTTON), new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                noEditableOnChangeButtonClick(plugin, noneEditableFormDialogBox);
-            }
+        if(hasWritePermission){
+            noneEditableFormDialogBox.initButton(LocalizeUtil.get(EDIT_BUTTON_KEY, EDIT_BUTTON), new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    noEditableOnChangeButtonClick(plugin, noneEditableFormDialogBox);
+                }
 
-        });
+            });
+        }
         noneEditableFormDialogBox.initButton(LocalizeUtil.get(CANCEL_BUTTON_KEY, CANCEL_BUTTON), new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {

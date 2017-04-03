@@ -368,7 +368,7 @@ public class TableViewerWidget extends BaseWidget implements ParentTabSelectedEv
                 selectedIds.remove(event.getId());
                 toolbar.setSelectedIds(selectedIds);
             }
-            toolbar.deactivateSingleRowAction();
+            toolbar.activateSingleRowAction(false, false);
         }
         toolbar.setSelectedId(null);
     }

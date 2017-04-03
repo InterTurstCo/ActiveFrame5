@@ -71,9 +71,11 @@ public class TableViewerToobar {
         editButton.addStyleName("edit-btn-table-viewer-disable");
         editButton.setTitle("Редактировать");
 
+
         deleteButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         deleteButton.addStyleName("delete-btn-table-viewer-disable");
         deleteButton.setTitle("Удалить");
+
 
         addButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().addDoBtn());
         addButton.addStyleName("add-btn-table-viewer");
@@ -185,10 +187,10 @@ public class TableViewerToobar {
 
     public void setSelectedId(Id id) {
         this.selectedId = id;
-        activateSingleRowAction();
+//        activateSingleRowAction();
         if (selectedId == null) {
             fooMenu.clearItems();
-            deactivateSingleRowAction();
+            activateSingleRowAction(false, false);
         } else {
             getActionsById(selectedId);
         }
@@ -336,6 +338,9 @@ public class TableViewerToobar {
             public void onSuccess(Dto result) {
                 TableViewerData data = (TableViewerData) result;
                 fooMenu.clearItems();
+
+                activateSingleRowAction(true, data.getHasDeleteAccess());
+
                 if (data.getAvailableActions().size() == 0) {
                     initMenu();
                 } else {
@@ -427,18 +432,22 @@ public class TableViewerToobar {
         return menuItem;
     }
 
-    public void deactivateSingleRowAction() {
-        editButton.addStyleName("edit-btn-table-viewer-disable");
-        editButton.removeStyleName("edit-btn-table-viewer");
-        deleteButton.addStyleName("delete-btn-table-viewer-disable");
-        deleteButton.removeStyleName("delete-btn-table-viewer");
-    }
+    public void activateSingleRowAction(boolean hasEdit, boolean hasDelete) {
+        if(hasEdit){
+            editButton.addStyleName("edit-btn-table-viewer");
+            editButton.removeStyleName("edit-btn-table-viewer-disable");
+        }else{
+            editButton.addStyleName("edit-btn-table-viewer-disable");
+            editButton.removeStyleName("edit-btn-table-viewer");
+        }
 
-    public void activateSingleRowAction() {
-        editButton.addStyleName("edit-btn-table-viewer");
-        editButton.removeStyleName("edit-btn-table-viewer-disable");
-        deleteButton.addStyleName("delete-btn-table-viewer");
-        deleteButton.removeStyleName("delete-btn-table-viewer-disable");
+        if(hasDelete){
+            deleteButton.addStyleName("delete-btn-table-viewer");
+            deleteButton.removeStyleName("delete-btn-table-viewer-disable");
+        }else{
+            deleteButton.addStyleName("delete-btn-table-viewer-disable");
+            deleteButton.removeStyleName("delete-btn-table-viewer");
+        }
     }
 
     public void setConfig(TableViewerConfig config) {

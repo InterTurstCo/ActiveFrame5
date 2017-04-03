@@ -18,7 +18,8 @@ import java.util.Map;
  */
 public class TableViewerData implements Dto {
     private List<ActionContext> availableActions;
-
+    private Boolean hasDeleteAccess;
+    private Boolean hasEditAccess;
     private Map<String,List<ActionContext>> idsActions;
 
     private List<Id> selectedIds;
@@ -55,5 +56,21 @@ public class TableViewerData implements Dto {
 
     public void setSelectedIds(List<Id> selectedIds) {
         this.selectedIds = selectedIds;
+    }
+
+    public Boolean getHasDeleteAccess() {
+        return hasDeleteAccess;
+    }
+
+    public void setHasDeleteAccess(Boolean hasDeleteAccess) {
+        this.hasDeleteAccess = hasDeleteAccess;
+    }
+
+    public Boolean getHasEditAccess() {
+        return hasEditAccess;
+    }
+
+    public void setHasEditAccess(Boolean hasEditAccess) {
+        this.hasEditAccess = hasEditAccess;
     }
 }
