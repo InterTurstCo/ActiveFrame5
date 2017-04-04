@@ -2,6 +2,7 @@ package ru.intertrust.cm.core.gui.model.form;
 
 import ru.intertrust.cm.core.business.api.dto.Dto;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.config.gui.navigation.FormViewerConfig;
 import ru.intertrust.cm.core.gui.model.form.widget.WidgetState;
 
 import java.util.Map;
@@ -23,18 +24,20 @@ public class FormState implements Dto {
     private Map<String, String> widgetComponents;
     private FormState parentState;
     private Id parentId;
+    private FormViewerConfig formViewerConfig;
     /**
      * Конструктор по умолчанию.
      */
     public FormState() {
     }
 
-    public FormState(String name, Map<String, WidgetState> widgetStateMap, FormObjects objects, Map<String, String> widgetComponents, Map<String, String> messages) {
+    public FormState(String name, Map<String, WidgetState> widgetStateMap, FormObjects objects, Map<String, String> widgetComponents, Map<String, String> messages, FormViewerConfig formViewerConfig) {
         this.name = name;
         this.objects = objects;
         this.widgetStateMap = widgetStateMap;
         this.widgetComponents = widgetComponents;
         this.messages = messages;
+        this.formViewerConfig = formViewerConfig;
     }
 
     public String getName() {
@@ -127,5 +130,13 @@ public class FormState implements Dto {
     public void clearParentStateAndId(){
         parentState = null;
         parentId = null;
+    }
+
+    public FormViewerConfig getFormViewerConfig() {
+        return formViewerConfig;
+    }
+
+    public void setFormViewerConfig(FormViewerConfig formViewerConfig) {
+        this.formViewerConfig = formViewerConfig;
     }
 }

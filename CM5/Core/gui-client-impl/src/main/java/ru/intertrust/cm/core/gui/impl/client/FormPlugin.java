@@ -103,7 +103,7 @@ public class FormPlugin extends Plugin implements IsActive, IsDomainObjectEditor
         FormPluginView view = (FormPluginView) getView();
         Map<String, WidgetState> widgetsState = view.getWidgetsState(widgetStateFilter, deepClone);
         FormState result = new FormState(initialFormState.getName(), widgetsState, initialFormState.getObjects(), initialFormState.getWidgetComponents(),
-                initialFormState.getMessages());
+                initialFormState.getMessages(), initialFormState.getFormViewerConfig());
         return result;
     }
 

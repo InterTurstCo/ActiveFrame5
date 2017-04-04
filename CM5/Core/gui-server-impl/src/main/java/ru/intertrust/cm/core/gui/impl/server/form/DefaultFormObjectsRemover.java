@@ -81,7 +81,7 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
     public void deleteForm(FormState currentFormState) {
         this.currentFormState = currentFormState;
         this.formConfig = configurationExplorer.getPlainFormConfig(currentFormState.getName());
-        this.initialFormState = formRetriever.getForm(currentFormState.getObjects().getRootDomainObject().getId(), null).getFormState(); //TODO: is it ok to pass null as formViewerConfig param?
+        this.initialFormState = formRetriever.getForm(currentFormState.getObjects().getRootDomainObject().getId(), currentFormState.getFormViewerConfig()).getFormState(); //TODO: is it ok to pass null as formViewerConfig param?
         this.formObjects = initialFormState.getObjects();
         deleteForm();
     }
@@ -360,7 +360,7 @@ public class DefaultFormObjectsRemover extends FormProcessor implements FormObje
         }
         final List<DomainObject> attachments = attachmentService.findAttachmentDomainObjectsFor(formObjects.getRootDomainObject().getId());
         for (DomainObject attachment : attachments) {
-            if (deletedAttachments.contains(attachment)) {
+            if (deletedAttachments.contains(attachment.getId())) {
                 continue;
             }
             attachmentService.deleteAttachment(attachment.getId());

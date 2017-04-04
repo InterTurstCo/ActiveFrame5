@@ -102,7 +102,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
 
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()), null);
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -147,7 +147,7 @@ public class FormRetriever extends FormProcessor {
         HashMap<String, String> widgetComponents = buildWidgetComponentsMap(widgetConfigs);
         HashMap<String, WidgetState> widgetStateMap = new HashMap<>(widgetConfigs.size());
         FormState formState = new FormState(formName, widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()), null);
         fillWidgetStatesMap(widgetConfigs, formState, formConfig);
 
         return new FormDisplayData(formState, formConfig.getMarkup(), widgetComponents,
@@ -275,7 +275,7 @@ public class FormRetriever extends FormProcessor {
         final ObjectsNode ROOT_NODE = new SingleObjectNode(root);
         formObjects.setRootNode(ROOT_NODE);
         FormState formState = new FormState(formConfig.getName(), widgetStateMap, formObjects, widgetComponents,
-                MessageResourceProvider.getMessages(GuiContext.getUserLocale()));
+                MessageResourceProvider.getMessages(GuiContext.getUserLocale()), formViewerConfig);
         formState.setParentState(parentFormState);
         formState.setParentId(parentId);
         for (final WidgetConfig config : widgetConfigs) {

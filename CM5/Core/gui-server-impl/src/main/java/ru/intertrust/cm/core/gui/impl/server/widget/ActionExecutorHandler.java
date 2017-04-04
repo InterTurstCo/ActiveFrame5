@@ -1,11 +1,7 @@
 package ru.intertrust.cm.core.gui.impl.server.widget;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.config.gui.action.ActionConfig;
 import ru.intertrust.cm.core.config.gui.action.ActionRefConfig;
@@ -22,6 +18,9 @@ import ru.intertrust.cm.core.gui.model.action.ActionContext;
 import ru.intertrust.cm.core.gui.model.form.widget.ActionExecutorState;
 import ru.intertrust.cm.core.gui.model.form.widget.LabelState;
 import ru.intertrust.cm.core.gui.model.plugin.FormPluginState;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Sergey.Okolot
@@ -56,9 +55,11 @@ public class ActionExecutorHandler extends LabelHandler {
                 final ActionHandler handler = (ActionHandler) applicationContext.getBean(actionConfig.getComponentName());
                 final ActionHandler.HandlerStatusData statusData = handler.getCheckStatusData();
                 final FormPluginState pluginState = GuiContext.get().getFormPluginState();
-                params.put(FormPluginHandlerStatusData.PLUGIN_IN_CENTRAL_PANEL_ATTR, pluginState.isInCentralPanel());
-                params.put(FormPluginHandlerStatusData.TOGGLE_EDIT_ATTR, pluginState.isToggleEdit());
-                params.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
+                if (pluginState != null) {
+                    params.put(FormPluginHandlerStatusData.PLUGIN_IN_CENTRAL_PANEL_ATTR, pluginState.isInCentralPanel());
+                    params.put(FormPluginHandlerStatusData.TOGGLE_EDIT_ATTR, pluginState.isToggleEdit());
+                    params.put(FormPluginHandlerStatusData.PREVIEW_ATTR, !pluginState.isEditable());
+                }
                 statusData.initialize(params);
                 final ActionHandler.Status actionStatus =
                         handler.getHandlerStatus(actionConfig.getRendered(), statusData);
