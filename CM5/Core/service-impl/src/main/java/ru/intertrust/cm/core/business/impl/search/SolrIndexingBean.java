@@ -62,7 +62,7 @@ public class SolrIndexingBean {
                 } else {
                     processed++;
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error("Error processing Solr request: " + request, e);
             }
         }
@@ -72,7 +72,7 @@ public class SolrIndexingBean {
                 if (log.isInfoEnabled()) {
                     log.info(Integer.toString(processed) + " document(s) indexed by Solr");
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 log.error("Error committing Solr update", e);
             }
         }
