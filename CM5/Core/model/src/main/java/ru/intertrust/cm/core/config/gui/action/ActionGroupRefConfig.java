@@ -53,4 +53,28 @@ public class ActionGroupRefConfig extends BaseActionConfig {
                 .append(": nameRef=").append(nameRef)
                 .toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ActionGroupRefConfig that = (ActionGroupRefConfig) o;
+
+        if (showText != that.showText) return false;
+        if (showImage != that.showImage) return false;
+        if (nameRef != null ? !nameRef.equals(that.nameRef) : that.nameRef != null) return false;
+        if (text != null ? !text.equals(that.text) : that.text != null) return false;
+        if (merged != null ? !merged.equals(that.merged) : that.merged != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (nameRef != null ? nameRef.hashCode() : 0);
+        return result;
+    }
 }

@@ -320,7 +320,7 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
             return false;
         }
 
-        if (displayValuesAsLinksConfig!= null ? !displayChosenValues.equals(that.displayValuesAsLinksConfig) :
+        if (displayValuesAsLinksConfig!= null ? !displayValuesAsLinksConfig.equals(that.displayValuesAsLinksConfig) :
                 that.displayValuesAsLinksConfig!= null) {
             return false;
         }

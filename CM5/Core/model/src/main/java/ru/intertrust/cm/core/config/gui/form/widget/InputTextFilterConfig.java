@@ -34,4 +34,22 @@ public class InputTextFilterConfig implements Serializable {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        InputTextFilterConfig that = (InputTextFilterConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (value != null ? !value.equals(that.value) : that.value != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

@@ -23,5 +23,22 @@ public class IgnoreFormReadOnlyStateConfig implements Dto {
     public void setValue(boolean value) {
         this.value = value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IgnoreFormReadOnlyStateConfig that = (IgnoreFormReadOnlyStateConfig) o;
+
+        if (value != that.value) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (value ? 1 : 0);
+    }
 }
 

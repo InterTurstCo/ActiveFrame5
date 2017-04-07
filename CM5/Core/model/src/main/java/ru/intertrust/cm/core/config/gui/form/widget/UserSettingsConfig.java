@@ -23,4 +23,21 @@ public class UserSettingsConfig implements Dto {
     public void setSave(boolean save) {
         this.save = save;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UserSettingsConfig that = (UserSettingsConfig) o;
+
+        if (save != that.save) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return (save ? 1 : 0);
+    }
 }

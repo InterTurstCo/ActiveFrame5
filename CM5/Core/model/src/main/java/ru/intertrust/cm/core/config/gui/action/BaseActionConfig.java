@@ -1,11 +1,12 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.core.Commit;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Sergey.Okolot
@@ -78,5 +79,25 @@ public class BaseActionConfig extends AbstractActionConfig {
 
     public Map<String, String> getProperties() {
         return properties;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        BaseActionConfig that = (BaseActionConfig) o;
+
+        if (visibleWhenNew != that.visibleWhenNew) return false;
+        if (visibilityStateCondition != null ? !visibilityStateCondition.equals(that.visibilityStateCondition) : that.visibilityStateCondition != null)
+            return false;
+        if (visibilityChecker != null ? !visibilityChecker.equals(that.visibilityChecker) : that.visibilityChecker != null)
+            return false;
+        if (permissions != null ? !permissions.equals(that.permissions) : that.permissions != null) return false;
+        if (actionParams != null ? !actionParams.equals(that.actionParams) : that.actionParams != null) return false;
+        if (properties != null ? !properties.equals(that.properties) : that.properties != null) return false;
+
+        return true;
     }
 }

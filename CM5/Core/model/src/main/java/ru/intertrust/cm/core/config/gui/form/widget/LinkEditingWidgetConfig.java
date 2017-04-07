@@ -88,13 +88,4 @@ public abstract class LinkEditingWidgetConfig extends WidgetConfig implements Ha
 
         return true;
     }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (createNewButtonConfig != null ? createNewButtonConfig.hashCode() : 0);
-        result = 31 * result + (createdObjectsConfig != null ? createdObjectsConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormMappingConfig != null ? linkedFormMappingConfig.hashCode() : 0);
-        return result;
-    }
 }

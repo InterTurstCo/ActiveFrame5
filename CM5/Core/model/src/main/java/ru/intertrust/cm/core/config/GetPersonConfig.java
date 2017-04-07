@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config;
 
 import org.simpleframework.xml.Element;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -55,5 +54,26 @@ public class GetPersonConfig implements Dto {
     public void setJavaClass(String javaClass) {
         this.javaClass = javaClass;
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GetPersonConfig that = (GetPersonConfig) o;
+
+        if (doel != null ? !doel.equals(that.doel) : that.doel != null) return false;
+        if (query != null ? !query.equals(that.query) : that.query != null) return false;
+        if (springBean != null ? !springBean.equals(that.springBean) : that.springBean != null) return false;
+        if (javaClass != null ? !javaClass.equals(that.javaClass) : that.javaClass != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = doel != null ? doel.hashCode() : 0;
+        result = 31 * result + (query != null ? query.hashCode() : 0);
+        return result;
+    }
 }

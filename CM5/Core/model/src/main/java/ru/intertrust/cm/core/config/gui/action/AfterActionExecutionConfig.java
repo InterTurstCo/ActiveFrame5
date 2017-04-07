@@ -1,7 +1,8 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.io.Serializable;
 import org.simpleframework.xml.Element;
+
+import java.io.Serializable;
 
 /**
  * @author Sergey.Okolot
@@ -15,5 +16,23 @@ public class AfterActionExecutionConfig implements Serializable {
 
     public OnSuccessMessageConfig getMessageConfig() {
         return successMessageConfig;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AfterActionExecutionConfig that = (AfterActionExecutionConfig) o;
+
+        if (successMessageConfig != null ? !successMessageConfig.equals(that.successMessageConfig) : that.successMessageConfig != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return successMessageConfig != null ? successMessageConfig.hashCode() : 0;
     }
 }

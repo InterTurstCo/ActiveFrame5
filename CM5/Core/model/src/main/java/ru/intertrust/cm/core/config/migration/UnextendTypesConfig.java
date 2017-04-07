@@ -27,4 +27,21 @@ public class UnextendTypesConfig extends MigrationScenarioConfig implements Dto 
             this.types = types;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        UnextendTypesConfig that = (UnextendTypesConfig) o;
+
+        if (types != null ? !types.equals(that.types) : that.types != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return types != null ? types.hashCode() : 0;
+    }
 }

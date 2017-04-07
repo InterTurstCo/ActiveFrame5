@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
@@ -24,5 +22,19 @@ public class MenuBarConfig extends BaseAttributeConfig implements TopLevelConfig
     public String getName() {
         // todo will be implements
         return null;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        MenuBarConfig that = (MenuBarConfig) o;
+
+        if (componentName != null ? !componentName.equals(that.componentName) : that.componentName != null)
+            return false;
+
+        return true;
     }
 }

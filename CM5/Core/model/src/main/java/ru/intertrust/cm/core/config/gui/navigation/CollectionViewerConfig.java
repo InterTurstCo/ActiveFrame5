@@ -239,81 +239,54 @@ public class CollectionViewerConfig extends PluginConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         CollectionViewerConfig that = (CollectionViewerConfig) o;
 
-        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) : that.
-                defaultSortCriteriaConfig != null) {
+        if (isEmbedded != that.isEmbedded) return false;
+        if (isHierarchical != that.isHierarchical) return false;
+        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.collectionRefConfig) : that.collectionRefConfig != null)
+            return false;
+        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.collectionViewRefConfig) : that.collectionViewRefConfig != null)
+            return false;
+        if (searchAreaRefConfig != null ? !searchAreaRefConfig.equals(that.searchAreaRefConfig) : that.searchAreaRefConfig != null)
+            return false;
+        if (searchCollectionRefConfig != null ? !searchCollectionRefConfig.equals(that.searchCollectionRefConfig) : that.searchCollectionRefConfig != null)
+            return false;
+        if (defaultSortCriteriaConfig != null ? !defaultSortCriteriaConfig.equals(that.defaultSortCriteriaConfig) : that.defaultSortCriteriaConfig != null)
+            return false;
+        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null)
+            return false;
+        if (selectionFiltersConfig != null ? !selectionFiltersConfig.equals(that.selectionFiltersConfig) : that.selectionFiltersConfig != null)
+            return false;
+        if (filterPanelConfig != null ? !filterPanelConfig.equals(that.filterPanelConfig) : that.filterPanelConfig != null)
+            return false;
+        if (toolBarConfig != null ? !toolBarConfig.equals(that.toolBarConfig) : that.toolBarConfig != null)
+            return false;
+        if (nonReadElementsDefinitionConfig != null ? !nonReadElementsDefinitionConfig.equals(that.nonReadElementsDefinitionConfig) : that.nonReadElementsDefinitionConfig != null)
+            return false;
+        if (childCollectionConfig != null ? !childCollectionConfig.equals(that.childCollectionConfig) : that.childCollectionConfig != null)
+            return false;
+        if (rowsSelectionConfig != null ? !rowsSelectionConfig.equals(that.rowsSelectionConfig) : that.rowsSelectionConfig != null)
+            return false;
+        if (collectionExtraFiltersConfig != null ? !collectionExtraFiltersConfig.equals(that.collectionExtraFiltersConfig) : that.collectionExtraFiltersConfig != null)
+            return false;
+        if (userSettingsConfig != null ? !userSettingsConfig.equals(that.userSettingsConfig) : that.userSettingsConfig != null)
+            return false;
+        if (currentRowChangeConfig != null ? !currentRowChangeConfig.equals(that.currentRowChangeConfig) : that.currentRowChangeConfig != null)
+            return false;
+        if (tableBrowserParams != null ? !tableBrowserParams.equals(that.tableBrowserParams) : that.tableBrowserParams != null)
+            return false;
+        if (hierarchicalFiltersConfig != null ? !hierarchicalFiltersConfig.equals(that.hierarchicalFiltersConfig) : that.hierarchicalFiltersConfig != null)
+            return false;
 
-            return false;
-        }
-
-        if (collectionRefConfig != null ? !collectionRefConfig.equals(that.getCollectionRefConfig()) : that.
-                getCollectionRefConfig() != null) {
-            return false;
-        }
-
-        if (childCollectionConfig != null ? !childCollectionConfig.equals(that.getChildCollectionConfig()) : that.
-                getChildCollectionConfig() != null) {
-            return false;
-        }
-
-        if (userSettingsConfig != null ? !userSettingsConfig.equals(that.getUserSettingsConfig()) : that.
-                getUserSettingsConfig() != null) {
-            return false;
-        }
-
-        if (collectionViewRefConfig != null ? !collectionViewRefConfig.equals(that.getCollectionViewRefConfig()) : that.
-                getCollectionViewRefConfig() != null) {
-            return false;
-        }
-        if (searchAreaRefConfig != null ? !searchAreaRefConfig.equals(that.searchAreaRefConfig) : that.
-                searchAreaRefConfig != null) {
-            return false;
-        }
-        if (searchCollectionRefConfig != null ? !searchCollectionRefConfig.equals(that.searchCollectionRefConfig) : that.
-                searchCollectionRefConfig != null) {
-            return false;
-        }
-        if (initialFiltersConfig != null ? !initialFiltersConfig.equals(that.initialFiltersConfig) : that.initialFiltersConfig != null) {
-            return false;
-        }
-        if (filterPanelConfig != null ? !filterPanelConfig.equals(that.filterPanelConfig) : that.filterPanelConfig != null) {
-            return false;
-        }
-
-        if (nonReadElementsDefinitionConfig != null ? !nonReadElementsDefinitionConfig.equals(that.nonReadElementsDefinitionConfig)
-                : that.nonReadElementsDefinitionConfig!= null) {
-            return false;
-        }
-        if (rowsSelectionConfig != null ? !rowsSelectionConfig.equals(that.rowsSelectionConfig) : that.rowsSelectionConfig != null) {
-            return false;
-        }
-        if (currentRowChangeConfig != null ? !currentRowChangeConfig.equals(that.currentRowChangeConfig) : that.currentRowChangeConfig != null) {
-            return false;
-        }
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
-        result = 31 * result + (collectionViewRefConfig != null ? collectionViewRefConfig.hashCode() : 0);
-        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (searchAreaRefConfig != null ? searchAreaRefConfig.hashCode() : 0);
-        result = 31 * result + (searchCollectionRefConfig != null ? searchCollectionRefConfig.hashCode() : 0);
-        result = 31 * result + (initialFiltersConfig != null ? initialFiltersConfig.hashCode() : 0);
-        result = 31 * result + (childCollectionConfig != null ? childCollectionConfig.hashCode() : 0);
-        result = 31 * result + (userSettingsConfig != null ? userSettingsConfig.hashCode() : 0);
-        result = 31 * result + (filterPanelConfig != null ? filterPanelConfig.hashCode() : 0);
-        result = 31 * result + (currentRowChangeConfig != null ? currentRowChangeConfig.hashCode() : 0);
-        return result;
+        return collectionRefConfig != null ? collectionRefConfig.hashCode() : 0;
     }
 
     @Override

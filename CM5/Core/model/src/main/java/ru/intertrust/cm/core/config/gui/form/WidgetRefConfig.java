@@ -21,21 +21,18 @@ public class WidgetRefConfig implements IdentifiedConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
         WidgetRefConfig that = (WidgetRefConfig) o;
-        if (!id.equals(that.id)) {
-            return false;
-        }
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return id != null ? id.hashCode() : 0;
     }
 }

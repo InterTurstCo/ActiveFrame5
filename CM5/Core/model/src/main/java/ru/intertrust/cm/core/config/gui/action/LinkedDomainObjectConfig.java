@@ -40,4 +40,27 @@ public class LinkedDomainObjectConfig implements Dto {
     public boolean isPerformValidation() {
         return performValidation == null ? true : performValidation.getValue();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        LinkedDomainObjectConfig that = (LinkedDomainObjectConfig) o;
+
+        if (title != null ? !title.equals(that.title) : that.title != null) return false;
+        if (formMappingConfig != null ? !formMappingConfig.equals(that.formMappingConfig) : that.formMappingConfig != null)
+            return false;
+        if (referenceTypeConfig != null ? !referenceTypeConfig.equals(that.referenceTypeConfig) : that.referenceTypeConfig != null)
+            return false;
+        if (performValidation != null ? !performValidation.equals(that.performValidation) : that.performValidation != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return title != null ? title.hashCode() : 0;
+    }
 }

@@ -23,4 +23,21 @@ public class ActionSettingsConfig implements Dto {
         this.processAction = processAction;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ActionSettingsConfig that = (ActionSettingsConfig) o;
+
+        if (processAction != null ? !processAction.equals(that.processAction) : that.processAction != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return processAction != null ? processAction.hashCode() : 0;
+    }
 }

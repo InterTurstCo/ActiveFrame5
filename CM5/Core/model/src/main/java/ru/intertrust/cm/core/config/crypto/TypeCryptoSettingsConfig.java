@@ -4,7 +4,6 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
-
 import ru.intertrust.cm.core.config.CollectorSettings;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.CollectorSettingsConverter;
@@ -77,5 +76,28 @@ public class TypeCryptoSettingsConfig implements TopLevelConfig{
         this.signatureStorageBeanSettings = signatureStorageBeanSettings;
     }
 
-    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TypeCryptoSettingsConfig that = (TypeCryptoSettingsConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (getContentBeanName != null ? !getContentBeanName.equals(that.getContentBeanName) : that.getContentBeanName != null)
+            return false;
+        if (signatureStorageBeanName != null ? !signatureStorageBeanName.equals(that.signatureStorageBeanName) : that.signatureStorageBeanName != null)
+            return false;
+        if (getContentBeanSettings != null ? !getContentBeanSettings.equals(that.getContentBeanSettings) : that.getContentBeanSettings != null)
+            return false;
+        if (signatureStorageBeanSettings != null ? !signatureStorageBeanSettings.equals(that.signatureStorageBeanSettings) : that.signatureStorageBeanSettings != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

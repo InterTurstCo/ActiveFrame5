@@ -281,119 +281,49 @@ public class CollectionColumnConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         CollectionColumnConfig that = (CollectionColumnConfig) o;
 
-        if (dateRange != that.dateRange) {
+        if (hidden != that.hidden) return false;
+        if (sortable != that.sortable) return false;
+        if (editable != that.editable) return false;
+        if (resizable != that.resizable) return false;
+        if (dateRange != that.dateRange) return false;
+        if (expandable != that.expandable) return false;
+        if (field != null ? !field.equals(that.field) : that.field != null) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) return false;
+        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern != null) return false;
+        if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) return false;
+        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) return false;
+        if (width != null ? !width.equals(that.width) : that.width != null) return false;
+        if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) return false;
+        if (maxWidth != null ? !maxWidth.equals(that.maxWidth) : that.maxWidth != null) return false;
+        if (textBreakStyle != null ? !textBreakStyle.equals(that.textBreakStyle) : that.textBreakStyle != null)
             return false;
-        }
-        if (editable != that.editable) {
+        if (drillDownStyle != null ? !drillDownStyle.equals(that.drillDownStyle) : that.drillDownStyle != null)
             return false;
-        }
-        if (hidden != that.hidden) {
+        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) : that.ascSortCriteriaConfig != null)
             return false;
-        }
-        if (resizable != that.resizable) {
+        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) : that.descSortCriteriaConfig != null)
             return false;
-        }
-        if (sortable != that.sortable) {
+        if (imageMappingsConfig != null ? !imageMappingsConfig.equals(that.imageMappingsConfig) : that.imageMappingsConfig != null)
             return false;
-        }
-        if (ascSortCriteriaConfig != null ? !ascSortCriteriaConfig.equals(that.ascSortCriteriaConfig) : that
-                .ascSortCriteriaConfig != null) {
+        if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null)
             return false;
-        }
-        if (childCollectionViewerConfigList != null ? !childCollectionViewerConfigList.equals(that
-                .childCollectionViewerConfigList) : that.childCollectionViewerConfigList != null) {
+        if (childCollectionViewerConfigList != null ? !childCollectionViewerConfigList.equals(that.childCollectionViewerConfigList) : that.childCollectionViewerConfigList != null)
             return false;
-        }
-        if (datePattern != null ? !datePattern.equals(that.datePattern) : that.datePattern != null) {
+        if (actionRefConfig != null ? !actionRefConfig.equals(that.actionRefConfig) : that.actionRefConfig != null)
             return false;
-        }
-        if (descSortCriteriaConfig != null ? !descSortCriteriaConfig.equals(that.descSortCriteriaConfig) : that
-                .descSortCriteriaConfig != null) {
-            return false;
-        }
-        if (!field.equals(that.field)) {
-            return false;
-        }
-        if (imageMappingsConfig != null ? !imageMappingsConfig.equals(that.imageMappingsConfig) : that
-                .imageMappingsConfig != null) {
-            return false;
-        }
-        if (maxWidth != null ? !maxWidth.equals(that.maxWidth) : that.maxWidth != null) {
-            return false;
-        }
-        if (minWidth != null ? !minWidth.equals(that.minWidth) : that.minWidth != null) {
-            return false;
-        }
-        if (!name.equals(that.name)) {
-            return false;
-        }
-        if (rendererConfig != null ? !rendererConfig.equals(that.rendererConfig) : that.rendererConfig != null) {
-            return false;
-        }
-        if (searchFilter != null ? !searchFilter.equals(that.searchFilter) : that.searchFilter != null) {
-            return false;
-        }
-        if (textBreakStyle != null ? !textBreakStyle.equals(that.textBreakStyle) : that.textBreakStyle != null) {
-            return false;
-        }
-        if (timePattern != null ? !timePattern.equals(that.timePattern) : that.timePattern != null) {
-            return false;
-        }
-        if (timeZoneId != null ? !timeZoneId.equals(that.timeZoneId) : that.timeZoneId != null) {
-            return false;
-        }
-        if (!type.equals(that.type)) {
-            return false;
-        }
-        if (width != null ? !width.equals(that.width) : that.width != null) {
-            return false;
-        }
-        if (drillDownStyle != null ? !drillDownStyle.equals(that.drillDownStyle) : that.drillDownStyle != null) {
-            return false;
-        }
-        if (actionRefConfig != null ? !actionRefConfig.equals(that.actionRefConfig) : that.actionRefConfig != null) {
-            return false;
-        }
-        if (expandable != that.expandable) {
-            return false;
-        }
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = field.hashCode();
-        result = 31 * result + name.hashCode();
-        result = 31 * result + (hidden ? 1 : 0);
-        result = 31 * result + (sortable ? 1 : 0);
-        result = 31 * result + (editable ? 1 : 0);
-        result = 31 * result + type.hashCode();
-        result = 31 * result + (datePattern != null ? datePattern.hashCode() : 0);
-        result = 31 * result + (timePattern != null ? timePattern.hashCode() : 0);
-        result = 31 * result + (timeZoneId != null ? timeZoneId.hashCode() : 0);
-        result = 31 * result + (searchFilter != null ? searchFilter.hashCode() : 0);
-        result = 31 * result + (width != null ? width.hashCode() : 0);
-        result = 31 * result + (minWidth != null ? minWidth.hashCode() : 0);
-        result = 31 * result + (maxWidth != null ? maxWidth.hashCode() : 0);
-        result = 31 * result + (resizable ? 1 : 0);
-        result = 31 * result + (textBreakStyle != null ? textBreakStyle.hashCode() : 0);
-        result = 31 * result + (dateRange ? 1 : 0);
-        result = 31 * result + (ascSortCriteriaConfig != null ? ascSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (descSortCriteriaConfig != null ? descSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (imageMappingsConfig != null ? imageMappingsConfig.hashCode() : 0);
-        result = 31 * result + (rendererConfig != null ? rendererConfig.hashCode() : 0);
-        result = 31 * result + (childCollectionViewerConfigList != null ? childCollectionViewerConfigList.hashCode() : 0);
-        result = 31 * result + (drillDownStyle != null ? drillDownStyle.hashCode() : 0);
-        result = 31 * result + (actionRefConfig != null ? actionRefConfig.hashCode() : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 }

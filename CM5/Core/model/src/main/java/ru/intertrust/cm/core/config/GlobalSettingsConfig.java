@@ -169,34 +169,35 @@ public class GlobalSettingsConfig implements TopLevelConfig {
 
         GlobalSettingsConfig that = (GlobalSettingsConfig) o;
 
-        if (applicationHelpConfig != null ? !applicationHelpConfig.equals(that.applicationHelpConfig) : that.applicationHelpConfig != null)
-            return false;
-        if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) return false;
-        if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
-            return false;
-        if (eventLogsConfig != null ? !eventLogsConfig.equals(that.eventLogsConfig) : that.eventLogsConfig != null)
-            return false;
         if (productTitle != null ? !productTitle.equals(that.productTitle) : that.productTitle != null) return false;
         if (productVersion != null ? !productVersion.equals(that.productVersion) : that.productVersion != null)
             return false;
+        if (auditLog != null ? !auditLog.equals(that.auditLog) : that.auditLog != null) return false;
+        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
+            return false;
         if (searchLanguages != null ? !searchLanguages.equals(that.searchLanguages) : that.searchLanguages != null)
+            return false;
+        if (developmentMode != null ? !developmentMode.equals(that.developmentMode) : that.developmentMode != null)
             return false;
         if (migrationModules != null ? !migrationModules.equals(that.migrationModules) : that.migrationModules != null)
             return false;
-        if (transactionTrace != null ? !transactionTrace.equals(that.transactionTrace) : that.transactionTrace != null)
+        if (eventLogsConfig != null ? !eventLogsConfig.equals(that.eventLogsConfig) : that.eventLogsConfig != null)
+            return false;
+        if (applicationHelpConfig != null ? !applicationHelpConfig.equals(that.applicationHelpConfig) : that.applicationHelpConfig != null)
             return false;
         if (cryptoSettingsConfig != null ? !cryptoSettingsConfig.equals(that.cryptoSettingsConfig) : that.cryptoSettingsConfig != null)
             return false;
-
+        if (collectionQueryCache != null ? !collectionQueryCache.equals(that.collectionQueryCache) : that.collectionQueryCache != null)
+            return false;
         if (defaultLocaleConfig != null ? !defaultLocaleConfig.equals(that.defaultLocaleConfig) : that.defaultLocaleConfig != null)
             return false;
+
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = productTitle != null ? productTitle.hashCode() : 0;
-        return result;
+        return productTitle != null ? productTitle.hashCode() : 0;
     }
 
     @Override

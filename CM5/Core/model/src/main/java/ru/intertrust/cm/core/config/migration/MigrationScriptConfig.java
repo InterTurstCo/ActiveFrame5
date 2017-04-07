@@ -57,4 +57,26 @@ public class MigrationScriptConfig implements TopLevelConfig {
     public void setModuleName(String moduleName) {
         this.moduleName = moduleName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MigrationScriptConfig that = (MigrationScriptConfig) o;
+
+        // Module name IS NOT part of XML configuration (it's filled by Platform), thus it's not included in equals, and SHOULD NOT be
+        if (sequenceNumber != that.sequenceNumber) return false;
+        if (beforeAutoMigrationConfig != null ? !beforeAutoMigrationConfig.equals(that.beforeAutoMigrationConfig) : that.beforeAutoMigrationConfig != null)
+            return false;
+        if (afterAutoMigrationConfig != null ? !afterAutoMigrationConfig.equals(that.afterAutoMigrationConfig) : that.afterAutoMigrationConfig != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return sequenceNumber;
+    }
 }

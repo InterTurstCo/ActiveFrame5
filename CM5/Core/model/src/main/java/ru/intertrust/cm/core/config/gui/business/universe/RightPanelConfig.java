@@ -10,4 +10,13 @@ import ru.intertrust.cm.core.business.api.dto.Dto;
  */
 @Root(name = "right-panel")
 public class RightPanelConfig implements Dto{
+    @Override
+    public boolean equals(Object o) {
+        return this == o ? true : o == null || getClass() != o.getClass() ? false : true;
+    }
+
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 }

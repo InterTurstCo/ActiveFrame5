@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Element;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -30,5 +29,26 @@ public class BeforeActionExecutionConfig implements Dto {
 
     public LinkedDomainObjectConfig getLinkedDomainObjectConfig() {
         return linkedDomainObjectConfig;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BeforeActionExecutionConfig that = (BeforeActionExecutionConfig) o;
+
+        if (messageConfig != null ? !messageConfig.equals(that.messageConfig) : that.messageConfig != null)
+            return false;
+        if (linkedDomainObjectConfig != null ? !linkedDomainObjectConfig.equals(that.linkedDomainObjectConfig) : that.linkedDomainObjectConfig != null)
+            return false;
+        if (saveContext != null ? !saveContext.equals(that.saveContext) : that.saveContext != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return messageConfig != null ? messageConfig.hashCode() : 0;
     }
 }

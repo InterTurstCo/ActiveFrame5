@@ -131,11 +131,7 @@ public abstract class WidgetConfig implements IdentifiedConfig {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (readOnly != null ? readOnly.hashCode() : 0);
-        result = 31 * result + (fieldPathConfig != null ? fieldPathConfig.hashCode() : 0);
-        result = 31 * result + (persist != null ? persist.hashCode() : 0);
-        return result;
+        return id != null ? id.hashCode() : 0;
     }
 
     public abstract String getComponentName();

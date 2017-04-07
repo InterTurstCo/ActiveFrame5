@@ -59,35 +59,22 @@ public class CollectionViewConfig implements LocalizableConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         CollectionViewConfig that = (CollectionViewConfig) o;
 
-        if (isDefault != that.isDefault) {
-            return false;
-        }
-        if (collection != null ? !collection.equals(that.collection) : that.collection != null) {
-            return false;
-        }
-        if (collectionDisplayConfig != null ? !collectionDisplayConfig.
-                equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
-            return false;
+        if (isDefault != that.isDefault) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (collection != null ? !collection.equals(that.collection) : that.collection != null) return false;
+        if (collectionDisplayConfig != null ? !collectionDisplayConfig.equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
+            return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (isDefault ? 1 : 0);
-        result = 31 * result + (collection != null ? collection.hashCode() : 0);
-        result = 31 * result + (collectionDisplayConfig != null ? collectionDisplayConfig.hashCode() : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 }

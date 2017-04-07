@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
-
 import ru.intertrust.cm.core.business.api.dto.Dto;
 
 /**
@@ -28,5 +27,23 @@ public class BaseAttributeConfig implements Dto {
 
     public void setRendered(final String rendered) {
         this.rendered = rendered;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BaseAttributeConfig that = (BaseAttributeConfig) o;
+
+        if (styleClass != null ? !styleClass.equals(that.styleClass) : that.styleClass != null) return false;
+        if (rendered != null ? !rendered.equals(that.rendered) : that.rendered != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return styleClass != null ? styleClass.hashCode() : 0;
     }
 }

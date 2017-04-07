@@ -42,4 +42,22 @@ public class CollectorConfig implements Dto {
     public void setSettings(CollectorSettings settings) {
         this.settings = settings;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CollectorConfig that = (CollectorConfig) o;
+
+        if (className != null ? !className.equals(that.className) : that.className != null) return false;
+        if (settings != null ? !settings.equals(that.settings) : that.settings != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return className != null ? className.hashCode() : 0;
+    }
 }

@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.gui.DomainObjectContextConfig;
+
+import java.util.List;
 
 @Root(name="action-context")
 public class ActionContextConfig implements TopLevelConfig{
@@ -48,5 +47,23 @@ public class ActionContextConfig implements TopLevelConfig{
         this.action = action;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
+        ActionContextConfig that = (ActionContextConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (domainObjectContext != null ? !domainObjectContext.equals(that.domainObjectContext) : that.domainObjectContext != null)
+            return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
 }

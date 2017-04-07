@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.config;
 import ru.intertrust.cm.core.config.base.Configuration;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -27,8 +28,8 @@ public class DomainObjectTypeUtility {
             DomainObjectFieldGroupConfig fieldGroupConfig = configurationExplorer.getConfig(DomainObjectFieldGroupConfig.class, groupName);
             totalFieldConfigs.addAll(getAllFieldConfigs(fieldGroupConfig, configurationExplorer));
         }
-
-        return totalFieldConfigs;
+        // get rid of duplicates - they may appear, when processing saved configuration - with already resolved groups
+        return new ArrayList<>(new LinkedHashSet<>(totalFieldConfigs));
     }
 
     public static List<FieldConfig> getAllFieldConfigsIncludingInherited(DomainObjectTypeConfig domainObjectTypeConfig,
@@ -39,7 +40,7 @@ public class DomainObjectTypeUtility {
         if (extendedType != null) {
             fieldConfigs.addAll(getAllFieldConfigsIncludingInherited(configurationExplorer.getDomainObjectTypeConfig(extendedType), configurationExplorer));
         }
-        return fieldConfigs;
+        return new ArrayList<>(new LinkedHashSet<>(fieldConfigs));
     }
 
     public static boolean isParentObject(DomainObjectTypeConfig config, ConfigurationExplorer configurationExplorer) {

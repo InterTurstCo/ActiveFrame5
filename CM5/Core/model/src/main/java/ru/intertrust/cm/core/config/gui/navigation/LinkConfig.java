@@ -169,76 +169,40 @@ public class  LinkConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         LinkConfig that = (LinkConfig) o;
 
-        if (displayCounter != that.displayCounter) {
+        if (displayCounter != that.displayCounter) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (displayText != null ? !displayText.equals(that.displayText) : that.displayText != null) return false;
+        if (image != null ? !image.equals(that.image) : that.image != null) return false;
+        if (counterType != null ? !counterType.equals(that.counterType) : that.counterType != null) return false;
+        if (childToOpen != null ? !childToOpen.equals(that.childToOpen) : that.childToOpen != null) return false;
+        if (autoCut != null ? !autoCut.equals(that.autoCut) : that.autoCut != null) return false;
+        if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) return false;
+        if (pluginDefinition != null ? !pluginDefinition.equals(that.pluginDefinition) : that.pluginDefinition != null)
             return false;
-        }
-        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.childLinksConfigList)
-                : that.childLinksConfigList != null) {
+        if (defaultSearchAreasConfig != null ? !defaultSearchAreasConfig.equals(that.defaultSearchAreasConfig) : that.defaultSearchAreasConfig != null)
             return false;
-        }
-        if (childToOpen != null ? !childToOpen.equals(that.childToOpen) : that.childToOpen != null) {
+        if (childLinksConfigList != null ? !childLinksConfigList.equals(that.childLinksConfigList) : that.childLinksConfigList != null)
             return false;
-        }
-        if (counterType != that.counterType) {
+        if (decorationsConfig != null ? !decorationsConfig.equals(that.decorationsConfig) : that.decorationsConfig != null)
             return false;
-        }
-        if (decorationsConfig != null ? !decorationsConfig.equals(that.decorationsConfig)
-                : that.decorationsConfig != null) {
+        if (outerTypeConfig != null ? !outerTypeConfig.equals(that.outerTypeConfig) : that.outerTypeConfig != null)
             return false;
-        }
-        if (outerTypeConfig != null ? !outerTypeConfig.equals(that.outerTypeConfig)
-                : that.outerTypeConfig != null) {
+        if (parentLinkConfig != null ? !parentLinkConfig.equals(that.parentLinkConfig) : that.parentLinkConfig != null)
             return false;
-        }
-        if (defaultSearchAreasConfig != null ? !defaultSearchAreasConfig.equals(that.defaultSearchAreasConfig)
-                : that.defaultSearchAreasConfig != null) {
+        if (parentChildLinksConfig != null ? !parentChildLinksConfig.equals(that.parentChildLinksConfig) : that.parentChildLinksConfig != null)
             return false;
-        }
-        if (displayText != null ? !displayText.equals(that.displayText) : that.displayText != null) {
-            return false;
-        }
-        if (image != null ? !image.equals(that.image) : that.image != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (pluginDefinition != null ? !pluginDefinition.equals(that.pluginDefinition) : that.pluginDefinition != null) {
-            return false;
-        }
-        if (autoCut != null ? !autoCut.equals(that.autoCut) : that.autoCut != null) {
-            return false;
-        }
-        if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) {
-            return false;
-        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (displayText != null ? displayText.hashCode() : 0);
-        result = 31 * result + (image != null ? image.hashCode() : 0);
-        result = 31 * result + (displayCounter ? 1 : 0);
-        result = 31 * result + (counterType != null ? counterType.hashCode() : 0);
-        result = 31 * result + (childToOpen != null ? childToOpen.hashCode() : 0);
-        result = 31 * result + (pluginDefinition != null ? pluginDefinition.hashCode() : 0);
-        result = 31 * result + (outerTypeConfig != null ? outerTypeConfig.hashCode() : 0);
-        result = 31 * result + (defaultSearchAreasConfig != null ? defaultSearchAreasConfig.hashCode() : 0);
-        result = 31 * result + (childLinksConfigList != null ? childLinksConfigList.hashCode() : 0);
-        result = 31 * result + (decorationsConfig != null ? decorationsConfig.hashCode() : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 
     @Override

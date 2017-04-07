@@ -20,4 +20,18 @@ public class OnSuccessMessageConfig extends MessageConfig {
     public void setSuccessNotificationType(String successNotificationType) {
         this.successNotificationType = successNotificationType;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        OnSuccessMessageConfig that = (OnSuccessMessageConfig) o;
+
+        if (successNotificationType != null ? !successNotificationType.equals(that.successNotificationType) : that.successNotificationType != null)
+            return false;
+
+        return true;
+    }
 }

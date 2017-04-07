@@ -1,12 +1,11 @@
 package ru.intertrust.cm.core.config.importcsv;
 
-import java.util.List;
-
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+
+import java.util.List;
 
 @Root(name = "import-settings")
 public class ImportSettingsConfig implements TopLevelConfig {
@@ -33,5 +32,23 @@ public class ImportSettingsConfig implements TopLevelConfig {
 
     public void setBeforeImport(List<BeforeImportConfig> beforeImport) {
         this.beforeImport = beforeImport;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ImportSettingsConfig that = (ImportSettingsConfig) o;
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (beforeImport != null ? !beforeImport.equals(that.beforeImport) : that.beforeImport != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
     }
 }

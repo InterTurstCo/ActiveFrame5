@@ -53,41 +53,25 @@ public class ChildCollectionViewerConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ChildCollectionViewerConfig that = (ChildCollectionViewerConfig) o;
 
-        if (!collectionViewerConfig.equals(that.collectionViewerConfig)) {
+        if (forDomainObjectType != null ? !forDomainObjectType.equals(that.forDomainObjectType) : that.forDomainObjectType != null)
             return false;
-        }
-        if (!domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate)) {
+        if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
+        if (domainObjectTypeToCreate != null ? !domainObjectTypeToCreate.equals(that.domainObjectTypeToCreate) : that.domainObjectTypeToCreate != null)
             return false;
-        }
-        if (!filter.equals(that.filter)) {
+        if (breadCrumb != null ? !breadCrumb.equals(that.breadCrumb) : that.breadCrumb != null) return false;
+        if (collectionViewerConfig != null ? !collectionViewerConfig.equals(that.collectionViewerConfig) : that.collectionViewerConfig != null)
             return false;
-        }
-        if (!breadCrumb.equals(that.breadCrumb)) {
-            return false;
-        }
-        if (forDomainObjectType != null ? !forDomainObjectType.equals(that.forDomainObjectType) : that.forDomainObjectType != null) {
-            return false;
-        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = forDomainObjectType != null ? forDomainObjectType.hashCode() : 0;
-        result = 31 * result + filter.hashCode();
-        result = 31 * result + domainObjectTypeToCreate.hashCode();
-        result = 31 * result + breadCrumb.hashCode();
-        result = 31 * result + collectionViewerConfig.hashCode();
-        return result;
+        return forDomainObjectType != null ? forDomainObjectType.hashCode() : 0;
     }
 }

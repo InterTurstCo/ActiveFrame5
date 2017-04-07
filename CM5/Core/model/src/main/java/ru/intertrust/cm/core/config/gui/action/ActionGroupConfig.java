@@ -1,16 +1,13 @@
 package ru.intertrust.cm.core.config.gui.action;
 
 import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
-import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
 
 import java.util.Collections;
 import java.util.List;
@@ -156,21 +153,24 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         ActionGroupConfig that = (ActionGroupConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
+        if (weight != that.weight) return false;
+        if (merged != that.merged) return false;
+        if (disabled != that.disabled) return false;
+        if (displayEmptyGroups != that.displayEmptyGroups) return false;
+        if (dirtySensitivity != that.dirtySensitivity) return false;
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (text != null ? !text.equals(that.text) : that.text != null) return false;
+        if (imageUrl != null ? !imageUrl.equals(that.imageUrl) : that.imageUrl != null) return false;
+        if (imageClass != null ? !imageClass.equals(that.imageClass) : that.imageClass != null) return false;
+        if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) return false;
+        if (display != that.display) return false;
+        if (children != null ? !children.equals(that.children) : that.children != null) return false;
 
         return true;
     }

@@ -42,4 +42,19 @@ public class SimpleActionConfig extends ActionConfig {
     public boolean reReadInSameTransaction() {
         return reReadInSameTransaction;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        SimpleActionConfig that = (SimpleActionConfig) o;
+
+        if (reReadInSameTransaction != that.reReadInSameTransaction) return false;
+        if (actionHandler != null ? !actionHandler.equals(that.actionHandler) : that.actionHandler != null)
+            return false;
+
+        return true;
+    }
 }
