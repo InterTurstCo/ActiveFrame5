@@ -69,7 +69,7 @@ public class TableViewerToobar {
         editButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
         //editButton.addStyleName("edit-btn-table-viewer");
         editButton.addStyleName("edit-btn-table-viewer-disable");
-        editButton.setTitle("Редактировать");
+        editButton.setTitle("Открыть");
 
 
         deleteButton.setStyleName(GlobalThemesManager.getCurrentTheme().commonCss().editButton());
