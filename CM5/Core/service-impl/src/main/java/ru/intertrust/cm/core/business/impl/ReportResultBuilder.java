@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
@@ -167,12 +168,11 @@ public class ReportResultBuilder extends ReportServiceBase {
     }
 
     private File getResultFolder() throws IOException {
-        /*File resultFolder = new File(getTempFolder(), RESULT_FOLDER_NAME);
-        if (!resultFolder.exists()) {
-            resultFolder.mkdirs();
-        }
-        return resultFolder;*/
-        return getTempFolder();
+        //Чтобы небыло конфликтов генерим отчеты каждый в своей папке
+        File tmpFolder = new File(getTempFolder(), UUID.randomUUID().toString());
+        tmpFolder.mkdirs();
+        tmpFolder.deleteOnExit();
+        return tmpFolder;
     }
 
     /**

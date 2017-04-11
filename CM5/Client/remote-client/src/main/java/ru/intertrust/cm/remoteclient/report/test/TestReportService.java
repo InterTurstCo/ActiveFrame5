@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.naming.NamingException;
+
 import org.springframework.util.StreamUtils;
 
 import com.healthmarketscience.rmiio.RemoteInputStreamClient;
@@ -39,24 +41,27 @@ public class TestReportService extends ClientBase {
         }
     }
 
+    protected void initServices() throws NamingException{
+        crudService = (CrudService) getService(
+                "CrudServiceImpl", CrudService.Remote.class);
+
+        collectionService = (CollectionsService) getService(
+                "CollectionsServiceImpl", CollectionsService.Remote.class);
+        
+        reportService = (ReportService) getService(
+                "ReportService", ReportService.Remote.class);
+
+        reportServiceAdmin = (ReportServiceAdmin) getService(
+                "ReportServiceAdmin", ReportServiceAdmin.Remote.class);
+    }
+    
     public void execute(String[] args) throws Exception {
         try {
             long start = System.currentTimeMillis();
             
             super.execute(args);
 
-            crudService = (CrudService) getService(
-                    "CrudServiceImpl", CrudService.Remote.class);
-
-            collectionService = (CollectionsService) getService(
-                    "CollectionsServiceImpl", CollectionsService.Remote.class);
-            
-            reportService = (ReportService) getService(
-                    "ReportService", ReportService.Remote.class);
-
-            reportServiceAdmin = (ReportServiceAdmin) getService(
-                    "ReportServiceAdmin", ReportServiceAdmin.Remote.class);
-            
+            initServices();
             
             //Установка отчетов
             deployReport("../reports/reports/all-employee");
@@ -111,7 +116,7 @@ public class TestReportService extends ClientBase {
         }
     }
 
-    private ReportResult generateReport(String reportName, Map params, String ... namePrefix) throws IOException {
+    protected ReportResult generateReport(String reportName, Map params, String ... namePrefix) throws IOException {
         ReportResult result = reportService.generate(reportName, params);
         InputStream reportStream = RemoteInputStreamClient.wrap(result.getReport());
         File resultFolder = new File("report-result"); 
@@ -147,7 +152,7 @@ public class TestReportService extends ClientBase {
         }
     }    
 
-    private void deployReport(String templateFolderPath) throws IOException {
+    protected void deployReport(String templateFolderPath) throws IOException {
         DeployReportData deployData = new DeployReportData();
 
         File templateFolder = new File(templateFolderPath);
