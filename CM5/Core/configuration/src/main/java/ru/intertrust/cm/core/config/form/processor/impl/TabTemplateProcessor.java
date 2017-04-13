@@ -23,6 +23,13 @@ public class TabTemplateProcessor implements FormTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
+    public TabTemplateProcessor() {
+    }
+
+    public TabTemplateProcessor(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }

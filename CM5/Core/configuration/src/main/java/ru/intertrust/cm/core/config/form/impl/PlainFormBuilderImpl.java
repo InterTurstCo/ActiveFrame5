@@ -1,11 +1,14 @@
 package ru.intertrust.cm.core.config.form.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
+import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormTemplateProcessor;
+import ru.intertrust.cm.core.config.form.processor.impl.FormExtensionsProcessorImpl;
+import ru.intertrust.cm.core.config.form.processor.impl.TabTemplateProcessor;
+import ru.intertrust.cm.core.config.form.processor.impl.TableTemplateProcessor;
+import ru.intertrust.cm.core.config.form.processor.impl.WidgetTemplateProcessorImpl;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
 
 /**
@@ -14,21 +17,20 @@ import ru.intertrust.cm.core.config.gui.form.FormConfig;
  *         Time: 18:23
  */
 public class PlainFormBuilderImpl implements PlainFormBuilder {
-
-    @Autowired
     private FormExtensionsProcessor formExtensionsProcessor;
-
-    @Autowired
-    @Qualifier("widgetTemplateProcessor")
     private FormTemplateProcessor widgetTemplateProcessor;
-
-    @Autowired
-    @Qualifier("tabTemplateProcessor")
     private FormTemplateProcessor tabTemplateProcessor;
-
-    @Autowired
-    @Qualifier("tableTemplateProcessor")
     private FormTemplateProcessor tableTemplateProcessor;
+
+    public PlainFormBuilderImpl() {
+    }
+
+    public PlainFormBuilderImpl(ConfigurationExplorer explorer) {
+        formExtensionsProcessor = new FormExtensionsProcessorImpl(explorer);
+        widgetTemplateProcessor = new WidgetTemplateProcessorImpl(explorer);
+        tabTemplateProcessor = new TabTemplateProcessor(explorer);
+        tableTemplateProcessor = new TableTemplateProcessor(explorer);
+    }
 
     @Override
     public FormConfig buildPlainForm(FormConfig rawFormConfig) {

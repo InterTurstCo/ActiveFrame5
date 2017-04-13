@@ -24,4 +24,9 @@ public class CheckBoxConfig extends WidgetConfig {
     public String getComponentName() {
         return "check-box";
     }
+
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "checkBoxLogicalValidator";
+    }
 }

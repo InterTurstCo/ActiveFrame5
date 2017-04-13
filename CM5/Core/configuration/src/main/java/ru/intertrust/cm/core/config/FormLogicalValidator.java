@@ -3,9 +3,9 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
+import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
 import ru.intertrust.cm.core.config.gui.form.*;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfigurationConfig;
@@ -31,15 +31,14 @@ public class FormLogicalValidator implements ConfigurationValidator {
     private static final String WIDGET_HANDLER_FULL_QUALIFIED_NAME = "ru.intertrust.cm.core.gui.api.server.widget.WidgetHandler";
     private static final String SELF_MANAGING_WIDGET_HANDLER_FULL_QUALIFIED_NAME = "ru.intertrust.cm.core.gui.api.server.widget.SelfManagingWidgetHandler";
 
-    @Autowired
-    ApplicationContext context;
-
     private final static Logger logger = LoggerFactory.getLogger(FormLogicalValidator.class);
 
+    private ApplicationContext context;
+
     private ConfigurationExplorer configurationExplorer;
-    @Autowired
+
     private PlainFormBuilder plainFormBuilder;
-    @Autowired
+
     private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
 
     private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
@@ -48,12 +47,15 @@ public class FormLogicalValidator implements ConfigurationValidator {
     }
 
     public FormLogicalValidator(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
+        setConfigurationExplorer(configurationExplorer);
     }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         logicalErrorsList.clear();
         this.configurationExplorer = configurationExplorer;
+        this.context = ((ConfigurationExplorerImpl) configurationExplorer).getContext();
+        this.plainFormBuilder = new PlainFormBuilderImpl(configurationExplorer);
+        this.widgetConfigurationLogicalValidator = new WidgetConfigurationLogicalValidatorImpl(configurationExplorer);
     }
 
     /**

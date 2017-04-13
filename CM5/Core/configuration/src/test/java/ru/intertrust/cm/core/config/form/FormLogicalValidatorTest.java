@@ -1,11 +1,8 @@
 package ru.intertrust.cm.core.config.form;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.FormLogicalValidator;
-import ru.intertrust.cm.core.config.LogicalErrors;
-import ru.intertrust.cm.core.config.WidgetConfigurationLogicalValidatorImpl;
+import ru.intertrust.cm.core.config.*;
+import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
 import ru.intertrust.cm.core.config.form.processor.impl.FormExtensionsProcessorImpl;
 
 import java.util.List;
@@ -24,23 +21,13 @@ public class FormLogicalValidatorTest extends AbstractConfigProcessingTest{
     private static final String FORM_XML_PATH = "config/forms-test.xml";
     private static final String INVALID_FORM_XML_PATH = "config/form-with-errors.xml";
 
-    @Autowired
-    private FormLogicalValidator formValidator;
-
-    @Autowired
-    private WidgetConfigurationLogicalValidatorImpl widgetConfigurationLogicalValidator;
-
-    @Autowired
-    private FormExtensionsProcessorImpl formExtensionsProcessor;
-
-
     @Test
     public void validateCorrectForm() throws Exception {
 
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(FORM_XML_PATH);
-        formValidator.setConfigurationExplorer(configurationExplorer);
-        widgetConfigurationLogicalValidator.setConfigurationExplorer(configurationExplorer);
-        formExtensionsProcessor.setConfigurationExplorer(configurationExplorer);
+        FormLogicalValidator formValidator = new FormLogicalValidator(configurationExplorer);
+        WidgetConfigurationLogicalValidatorImpl widgetConfigurationLogicalValidator = new WidgetConfigurationLogicalValidatorImpl(configurationExplorer);
+        FormExtensionsProcessorImpl formExtensionsProcessor = new FormExtensionsProcessorImpl(configurationExplorer);
         formValidator.validate();
         List<LogicalErrors> errors = formValidator.validate();
         assertEquals(0, errors.size());
@@ -81,9 +68,9 @@ public class FormLogicalValidatorTest extends AbstractConfigProcessingTest{
                 + "Couldn't find widget with id '31'\n"
                 + "Collection 'SO_StructureUnit_Collection' for hierarchy-browser with id 'SO_Parent_SU' wasn't found";
         ConfigurationExplorer configurationExplorer = createConfigurationExplorer(INVALID_FORM_XML_PATH);
-        formValidator.setConfigurationExplorer(configurationExplorer);
-        widgetConfigurationLogicalValidator.setConfigurationExplorer(configurationExplorer);
-        formExtensionsProcessor.setConfigurationExplorer(configurationExplorer);
+        FormLogicalValidator formValidator = new FormLogicalValidator(configurationExplorer);
+        WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator = new WidgetConfigurationLogicalValidatorImpl(configurationExplorer);
+        FormExtensionsProcessor formExtensionsProcessor = new FormExtensionsProcessorImpl(configurationExplorer);
         List<LogicalErrors> errors = formValidator.validate();
         assertEquals(4, errors.size());
 

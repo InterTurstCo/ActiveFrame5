@@ -31,7 +31,5 @@
             </list>
         </property>
     </bean>
-    <bean id = "formLogicalValidator" class = "ru.intertrust.cm.core.config.FormLogicalValidator"/>
-    <bean id = "navigationPanelLogicalValidator" class = "ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
     <bean name = "globalSettings" class="ru.intertrust.cm.core.config.GlobalSettingsConfig"/>
 </beans>

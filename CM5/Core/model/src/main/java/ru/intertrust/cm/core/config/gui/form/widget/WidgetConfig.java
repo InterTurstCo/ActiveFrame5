@@ -139,4 +139,12 @@ public abstract class WidgetConfig implements IdentifiedConfig {
     public boolean handlesMultipleObjects() {
         return false;
     }
+
+    /**
+     * Возвращает название компонента (на данный момент, spring-бина), который отвечает за логическую валидацию виджета
+     * @return название компонента (на данный момент, spring-бина), который отвечает за логическую валидацию виджета
+     */
+    public String getLogicalValidatorComponentName() {
+        return null;
+    }
 }

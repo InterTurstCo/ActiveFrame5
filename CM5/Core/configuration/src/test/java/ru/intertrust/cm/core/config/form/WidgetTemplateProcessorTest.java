@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.form;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.impl.WidgetTemplateProcessorImpl;
@@ -23,16 +22,13 @@ import static ru.intertrust.cm.core.config.Constants.FORM_EXTENSION_INVALID_CONF
 
 public class WidgetTemplateProcessorTest extends AbstractConfigProcessingTest{
 
-    @Autowired
-    private WidgetTemplateProcessorImpl widgetTemplateProcessor;
-
     @Test
     public void testProcessFormWithTemplates() throws Exception {
 
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_CONFIG);
 
         FormConfig formWithTemplates = customConfigExplorer.getConfig(FormConfig.class, "form_with_templates");
-        widgetTemplateProcessor.setConfigurationExplorer(customConfigExplorer);
+        WidgetTemplateProcessorImpl widgetTemplateProcessor = new WidgetTemplateProcessorImpl(customConfigExplorer);
         List<WidgetConfig> widgetConfigs = widgetTemplateProcessor.processTemplates(formWithTemplates.getName(),
                 formWithTemplates.getWidgetConfigurationConfig().getWidgetConfigList());
 
@@ -62,7 +58,7 @@ public class WidgetTemplateProcessorTest extends AbstractConfigProcessingTest{
 
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_INVALID_CONFIG);
         FormConfig formWithTemplates = customConfigExplorer.getConfig(FormConfig.class, "form_with_templates");
-        widgetTemplateProcessor.setConfigurationExplorer(customConfigExplorer);
+        WidgetTemplateProcessorImpl widgetTemplateProcessor = new WidgetTemplateProcessorImpl(customConfigExplorer);
         widgetTemplateProcessor.processTemplates(formWithTemplates.getName(),
                 formWithTemplates.getWidgetConfigurationConfig().getWidgetConfigList());
     }

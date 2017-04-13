@@ -4,6 +4,7 @@ import ru.intertrust.cm.core.config.form.processor.ExtensionOperationStatus;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionProcessor;
 import ru.intertrust.cm.core.config.gui.form.WidgetGroupConfig;
 import ru.intertrust.cm.core.config.gui.form.WidgetGroupsConfig;
+import ru.intertrust.cm.core.config.gui.form.extension.FormExtensionOperation;
 import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.AddWidgetGroupsConfig;
 import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.DeleteWidgetGroupsConfig;
 import ru.intertrust.cm.core.config.gui.form.extension.widget.groups.ReplaceWidgetGroupsConfig;
@@ -30,6 +31,19 @@ public class WidgetGroupsExtensionProcessor implements FormExtensionProcessor {
     public WidgetGroupsExtensionProcessor(WidgetGroupsConfig widgetGroupsConfig, List<String> errors) {
         this.widgetGroupsConfig = widgetGroupsConfig;
         this.errors = errors;
+    }
+
+    public WidgetGroupsExtensionProcessor(WidgetGroupsConfig widgetGroupsConfig,
+                                                 FormExtensionOperation formExtensionOperation, List<String> errors) {
+        this(widgetGroupsConfig, errors);
+        final Class<? extends FormExtensionOperation> clazz = formExtensionOperation.getClass();
+        if (clazz.equals(AddWidgetGroupsConfig.class)) {
+            this.addWidgetGroupsConfig = (AddWidgetGroupsConfig) formExtensionOperation;
+        } else if (clazz.equals(DeleteWidgetGroupsConfig.class)) {
+            this.deleteWidgetGroupsConfig = (DeleteWidgetGroupsConfig) formExtensionOperation;
+        } else if (clazz.equals(ReplaceWidgetGroupsConfig.class)) {
+            this.replaceWidgetGroupsConfig = (ReplaceWidgetGroupsConfig) formExtensionOperation;
+        }
     }
 
     public WidgetGroupsExtensionProcessor(WidgetGroupsConfig widgetGroupsConfig,

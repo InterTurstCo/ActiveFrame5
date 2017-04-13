@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.gui.navigation.*;
 
@@ -22,13 +21,12 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
     private List<LogicalErrors> logicalErrorsList = new ArrayList<>();
     private ConfigurationExplorer configurationExplorer;
 
-    @Autowired
-    ApplicationContext context;
+    private ApplicationContext context;
 
     public NavigationPanelLogicalValidator() {
     }
     public NavigationPanelLogicalValidator(ConfigurationExplorer configurationExplorer) {
-        this.configurationExplorer = configurationExplorer;
+        setConfigurationExplorer(configurationExplorer);
     }
 
     public ConfigurationExplorer getConfigurationExplorer() {
@@ -37,6 +35,7 @@ public class NavigationPanelLogicalValidator implements ConfigurationValidator {
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+        this.context = ((ConfigurationExplorerImpl) configurationExplorer).getContext();
     }
 
     /**

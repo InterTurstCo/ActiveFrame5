@@ -22,6 +22,11 @@ public class EnumBoxConfig extends WidgetConfig {
         return "enumeration-box";
     }
 
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "enumBoxLogicalValidator";
+    }
+
     public EnumMappingConfig getEnumMappingConfig() {
         return enumMappingConfig;
     }

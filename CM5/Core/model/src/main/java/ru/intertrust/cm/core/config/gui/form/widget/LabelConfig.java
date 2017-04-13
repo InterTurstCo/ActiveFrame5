@@ -213,4 +213,9 @@ public class LabelConfig extends WidgetConfig implements Dto {
     public String getComponentName() {
         return "label";
     }
+
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "labelLogicalValidator";
+    }
 }

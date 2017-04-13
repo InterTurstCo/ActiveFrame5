@@ -1,7 +1,6 @@
 package ru.intertrust.cm.core.config.form;
 
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.impl.FormExtensionsProcessorImpl;
@@ -22,14 +21,16 @@ import static ru.intertrust.cm.core.config.Constants.FORM_EXTENSION_INVALID_CONF
 
 public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
 
-    @Autowired
-    private FormExtensionsProcessorImpl formExtensionsProcessor;
+    private FormExtensionsProcessorImpl getFormExtensionsProcessor(ConfigurationExplorer explorer) {
+        return new FormExtensionsProcessorImpl(explorer);
+    }
 
     @Test
     public void testProcessCityForm() throws Exception {
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_CONFIG);
 
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "city_form");
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         FormConfig plainFormConfig = formExtensionsProcessor.processExtensions(rawFormConfig);
 
@@ -75,6 +76,7 @@ public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_CONFIG);
 
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "parent_city_form");
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         FormConfig plainFormConfig = formExtensionsProcessor.processExtensions(rawFormConfig);
 
@@ -114,6 +116,7 @@ public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
 
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_INVALID_CONFIG);
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "parent_city_form");
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         formExtensionsProcessor.processExtensions(rawFormConfig);
     }
@@ -129,6 +132,7 @@ public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
 
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_INVALID_CONFIG);
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "city_form");
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         formExtensionsProcessor.processExtensions(rawFormConfig);
     }
@@ -138,6 +142,7 @@ public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_CONFIG);
 
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "coordination_form");
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         FormConfig plainFormConfig = formExtensionsProcessor.processExtensions(rawFormConfig);
 
@@ -154,7 +159,7 @@ public class FormExtensionsProcessorTest extends AbstractConfigProcessingTest {
                 "was built with errors. Count: 1 Content:\n" +
                 "Parent form with name 'execution_form' was not found");
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_EXTENSION_INVALID_CONFIG);
-
+        FormExtensionsProcessorImpl formExtensionsProcessor = getFormExtensionsProcessor(customConfigExplorer);
         FormConfig rawFormConfig = customConfigExplorer.getConfig(FormConfig.class, "coordination_task_form");
         formExtensionsProcessor.setConfigurationExplorer(customConfigExplorer);
         formExtensionsProcessor.processExtensions(rawFormConfig);

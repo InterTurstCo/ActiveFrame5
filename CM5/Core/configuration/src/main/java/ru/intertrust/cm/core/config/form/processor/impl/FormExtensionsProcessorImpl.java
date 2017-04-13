@@ -5,6 +5,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormExtensionsProcessor;
 import ru.intertrust.cm.core.config.form.processor.FormProcessingUtil;
@@ -31,8 +32,16 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
 
     private ConfigurationExplorer configurationExplorer;
 
+    public FormExtensionsProcessorImpl() {
+    }
+
+    public FormExtensionsProcessorImpl(ConfigurationExplorer configurationExplorer) {
+        setConfigurationExplorer(configurationExplorer);
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+        this.applicationContext = ((ConfigurationExplorerImpl) configurationExplorer).getContext();
     }
 
     @Override
@@ -171,8 +180,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
             } else {
                 List<FormExtensionOperation> operations = markupExtensionConfig.getOperations();
                 for (FormExtensionOperation operation : operations) {
-                    FormExtensionProcessor processor = (FormExtensionProcessor) applicationContext
-                            .getBean("markupExtensionProcessor", markupConfig, operation, errors);
+                    FormExtensionProcessor processor = new MarkupExtensionProcessor(markupConfig, operation, errors);
                     processor.processFormExtension();
 
                 }
@@ -189,8 +197,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
                 List<FormExtensionOperation> operations =
                         widgetConfigurationExtensionConfig.getWidgetConfigurationExtensionOperations();
                 for (FormExtensionOperation operation : operations) {
-                    FormExtensionProcessor processor = (FormExtensionProcessor) applicationContext
-                            .getBean("widgetConfigurationExtensionProcessor", widgetConfiguration, operation, errors);
+                    FormExtensionProcessor processor = new WidgetConfigurationExtensionProcessor(widgetConfiguration, operation, errors);
                     processor.processFormExtension();
                 }
             }
@@ -206,8 +213,7 @@ public class FormExtensionsProcessorImpl implements FormExtensionsProcessor, App
                 List<FormExtensionOperation> operations =
                         widgetGroupsExtensionConfig.getWidgetGroupsExtensionOperations();
                 for (FormExtensionOperation operation : operations) {
-                    FormExtensionProcessor processor = (FormExtensionProcessor) applicationContext
-                            .getBean("widgetGroupsExtensionProcessor", widgetGroupsConfig, operation, errors);
+                    FormExtensionProcessor processor = new WidgetGroupsExtensionProcessor(widgetGroupsConfig, operation, errors);
                     processor.processFormExtension();
 
                 }

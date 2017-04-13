@@ -183,9 +183,10 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     private void updateConfiguration(Configuration configuration) {
         Configuration newConfiguration = buildNewConfiguration(configuration);
-        ConfigurationExplorer newConfigurationExplorer = new ConfigurationExplorerImpl(newConfiguration);
+        ConfigurationExplorer newConfigurationExplorer = new ConfigurationExplorerImpl(newConfiguration, ((ConfigurationExplorerImpl) configurationExplorer).getContext());
 
         RecursiveConfigurationMerger recursiveMerger = createRecursiveConfigurationMerger();
+        // todo insead of this - replace data in SINGLETON config explorer with new data, but first - perform logical validation
         recursiveMerger.merge(configurationExplorer, newConfigurationExplorer);
 
         saveConfiguration(newConfiguration);

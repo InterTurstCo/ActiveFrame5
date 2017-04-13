@@ -81,6 +81,11 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         return "suggest-box";
     }
 
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "suggestBoxLogicalValidator";
+    }
+
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
     }

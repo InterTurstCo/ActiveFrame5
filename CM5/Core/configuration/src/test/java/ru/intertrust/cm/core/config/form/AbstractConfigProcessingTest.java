@@ -3,6 +3,8 @@ package ru.intertrust.cm.core.config.form;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -28,13 +30,16 @@ import static ru.intertrust.cm.core.config.Constants.CONFIGURATION_SCHEMA_PATH;
 @ContextConfiguration(locations = {"/beans-test.xml"})
 public abstract class AbstractConfigProcessingTest {
 
+    @Autowired
+    private ApplicationContext context;
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     protected ConfigurationExplorer createConfigurationExplorer(String configPath) throws Exception {
         ConfigurationSerializer configurationSerializer = createConfigurationSerializer(configPath);
         Configuration config = configurationSerializer.deserializeConfiguration();
-        return new ConfigurationExplorerImpl(config, true);
+        return new ConfigurationExplorerImpl(config, context,true);
     }
 
     private ConfigurationSerializer createConfigurationSerializer(String confPath) throws Exception {

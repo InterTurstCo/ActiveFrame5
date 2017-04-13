@@ -387,4 +387,9 @@ public class TableBrowserConfig extends LinkEditingWidgetConfig {
     public String getComponentName() {
         return "table-browser";
     }
+
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "tableBrowserLogicalValidator";
+    }
 }

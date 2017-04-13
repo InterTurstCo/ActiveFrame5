@@ -6,35 +6,6 @@
        http://www.springframework.org/schema/beans/spring-beans.xsd
        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-    <bean id="widgetConfigurationExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetConfigurationExtensionProcessor"
-          scope="prototype" lazy-init="true"/>
-    <bean id="widgetGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetGroupsExtensionProcessor"
-          scope="prototype" lazy-init="true"/>
-    <bean id="markupExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.MarkupExtensionProcessor"
-          scope="prototype" lazy-init="true"/>
-    <bean id="tabsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabsExtensionProcessorImpl"
-          lazy-init="true"/>
-    <bean id="tabGroupsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabGroupsExtensionProcessorImpl"
-          lazy-init="true"/>
-    <bean id="rowsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.RowsExtensionProcessorImpl"
-          lazy-init="true"/>
-    <bean id="cellsExtensionProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.CellsExtensionProcessorImpl"
-          lazy-init="true"/>
-    <bean id="plainFormBuilder" class="ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl"/>
-    <bean id="formExtensionsProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.FormExtensionsProcessorImpl">
-        <property name="configurationExplorer" ref="configurationExplorer"/>
-    </bean>
-    <bean id="widgetTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.WidgetTemplateProcessorImpl">
-        <property name="configurationExplorer" ref="configurationExplorer"/>
-    </bean>
-    <bean id="tabTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TabTemplateProcessor">
-        <property name="configurationExplorer" ref="configurationExplorer"/>
-    </bean>
-    <bean id="tableTemplateProcessor" class="ru.intertrust.cm.core.config.form.processor.impl.TableTemplateProcessor">
-        <property name="configurationExplorer" ref="configurationExplorer"/>
-    </bean>
-    <bean id="formLogicalValidator" class="ru.intertrust.cm.core.config.FormLogicalValidator"/>
-    <bean id="navigationPanelLogicalValidator" class="ru.intertrust.cm.core.config.NavigationPanelLogicalValidator"/>
     <bean id="label" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
     <bean id="integer-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
     <bean id="text-box" class="ru.intertrust.cm.core.config.form.StubWidgetHandler"/>
@@ -55,7 +26,6 @@
            <value>true</value>
         </constructor-arg>
     </bean>
-    <bean id="widgetConfigurationLogicalValidator" class="ru.intertrust.cm.core.config.WidgetConfigurationLogicalValidatorImpl"/>
 
     <bean id="suggestBoxLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.SuggestBoxWidgetLogicalValidator"/>
     <bean id="checkBoxLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.CheckBoxWidgetLogicalValidator"/>
@@ -67,17 +37,4 @@
     <bean id="dateBoxLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.DateBoxWidgetLogicalValidator"/>
     <bean id="linkedDomainObjectsTableLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.LinkedDomainObjectsTableWidgetLogicalValidator"/>
     <bean id="linkedDomainObjectHyperlinkLogicalValidator" class="ru.intertrust.cm.core.config.form.widget.LinkedDomainObjectHyperlinkWidgetLogicalValidator"/>
-
-    <util:map id="componentValidatorMap">
-        <entry key="suggest-box" value="suggestBoxLogicalValidator"/>
-        <entry key="check-box" value="checkBoxLogicalValidator"/>
-        <entry key="table-browser" value="tableBrowserLogicalValidator"/>
-        <entry key="hierarchy-browser" value="hierarchyBrowserLogicalValidator"/>
-        <entry key="radio-button" value="radioButtonLogicalValidator"/>
-        <entry key="label" value="labelLogicalValidator"/>
-        <entry key="enumeration-box" value="enumBoxLogicalValidator"/>
-        <entry key="date-box" value="dateBoxLogicalValidator"/>
-        <entry key="linked-domain-objects-table" value="linkedDomainObjectsTableLogicalValidator"/>
-        <entry key="linked-domain-object-hyperlink" value="linkedDomainObjectHyperlinkLogicalValidator"/>
-    </util:map>
 </beans>
