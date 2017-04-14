@@ -15,6 +15,9 @@ public class ActionContextConfig implements TopLevelConfig{
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @ElementList (entry = "domain-object-context", inline = true, required=false)
     private List<DomainObjectContextConfig> domainObjectContext;
 
@@ -24,6 +27,16 @@ public class ActionContextConfig implements TopLevelConfig{
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public List<DomainObjectContextConfig> getDomainObjectContext() {
@@ -55,6 +68,7 @@ public class ActionContextConfig implements TopLevelConfig{
         ActionContextConfig that = (ActionContextConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
         if (domainObjectContext != null ? !domainObjectContext.equals(that.domainObjectContext) : that.domainObjectContext != null)
             return false;
         if (action != null ? !action.equals(that.action) : that.action != null) return false;

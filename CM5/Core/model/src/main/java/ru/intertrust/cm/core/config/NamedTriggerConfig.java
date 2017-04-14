@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
@@ -16,6 +15,9 @@ public class NamedTriggerConfig  implements TopLevelConfig {
 
     @Attribute(required = true)
     private String name;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Element(name = "trigger", required = true)
     private TriggerConfig trigger = new TriggerConfig();    
@@ -31,6 +33,16 @@ public class NamedTriggerConfig  implements TopLevelConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     @Override
@@ -66,6 +78,9 @@ public class NamedTriggerConfig  implements TopLevelConfig {
                 return false;
             }
         } else if (!trigger.equals(other.trigger)) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(other.replacementPolicy) : other.replacementPolicy != null) {
             return false;
         }
         return true;

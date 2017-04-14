@@ -1,13 +1,9 @@
 package ru.intertrust.cm.core.config.base;
 
+import org.simpleframework.xml.*;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Order;
-import org.simpleframework.xml.Root;
 
 /**
  * Java модель конфигурации одной коллекции
@@ -20,6 +16,9 @@ public class CollectionConfig implements TopLevelConfig {
 
     @Attribute(required = true)
     private String name;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Attribute(required = true)
     private String idField;
@@ -61,6 +60,16 @@ public class CollectionConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -139,6 +148,9 @@ public class CollectionConfig implements TopLevelConfig {
         CollectionConfig that = (CollectionConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (idField != null ? !idField.equals(that.idField) : that.idField != null) {

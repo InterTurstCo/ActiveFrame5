@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
@@ -19,6 +20,9 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     private static final long serialVersionUID = -8166587368979922484L;
     public static final String NAME = "global-settings";
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+    
     @Element(name = "product", required = false)
     private ProductTitle productTitle;
 
@@ -191,6 +195,8 @@ public class GlobalSettingsConfig implements TopLevelConfig {
             return false;
         if (defaultLocaleConfig != null ? !defaultLocaleConfig.equals(that.defaultLocaleConfig) : that.defaultLocaleConfig != null)
             return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null)
+            return false;
 
         return true;
     }
@@ -203,5 +209,15 @@ public class GlobalSettingsConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return "";
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 }

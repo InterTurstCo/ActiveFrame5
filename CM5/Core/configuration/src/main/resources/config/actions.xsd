@@ -2,6 +2,12 @@
 <xs:schema targetNamespace="https://cm5.intertrust.ru/config/action" elementFormDefault="qualified"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:act="https://cm5.intertrust.ru/config/action">
+    <xs:simpleType name="replacementPolicyType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="runtime"/>
+            <xs:enumeration value="none"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:element name="menu-bar" type="act:menuBarType"/>
     <xs:element name="tool-bar" type="act:toolBarType"/>
@@ -103,6 +109,7 @@
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="groupId" type="xs:string"/>
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
+                <xs:attribute name="replace" type="act:replacementPolicyType" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -130,6 +137,7 @@
                 <xs:attribute name="weight" type="xs:positiveInteger"/>
                 <xs:attribute name="dirtySensitivity" type="xs:boolean" default="true"/>
                 <xs:attribute name="display-empty-groups" type="xs:boolean" default="false"/>
+                <xs:attribute type="act:replacementPolicyType" name="replace" use="optional"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -186,6 +194,7 @@
         </xs:choice>
         <xs:attributeGroup ref="act:baseAttributeGroup"/>
         <xs:attribute name="componentName" type="act:componentNameType" default="action.menu.bar"/>
+        <xs:attribute type="act:replacementPolicyType" name="replace" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="toolBarType">
@@ -213,6 +222,7 @@
         <xs:attribute name="plugin" type="xs:string"/>
         <xs:attribute name="useDefault" type="xs:boolean" default="true"/>
         <xs:attribute name="name" type="xs:string"/>
+        <xs:attribute type="act:replacementPolicyType" name="replace" use="optional"/>
     </xs:complexType>
 
 
@@ -345,6 +355,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
+        <xs:attribute type="act:replacementPolicyType" name="replace" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="actionParamsType">

@@ -16,6 +16,9 @@ public class ContextRoleConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Element(name = "context", required = true)
     private ContextConfig context;
 
@@ -25,6 +28,16 @@ public class ContextRoleConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
     }
 
     public void setName(String name) {
@@ -65,6 +78,9 @@ public class ContextRoleConfig implements TopLevelConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
 

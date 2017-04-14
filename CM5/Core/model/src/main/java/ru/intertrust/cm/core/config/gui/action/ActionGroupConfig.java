@@ -31,6 +31,9 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Attribute(required = false)
     @Localizable
     private String text;
@@ -89,6 +92,16 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
     @Override
     public String getName() {
         return name == null || name.isEmpty() ? null : name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public String getText() {
@@ -165,6 +178,7 @@ public class ActionGroupConfig extends BaseActionConfig implements LocalizableCo
         if (displayEmptyGroups != that.displayEmptyGroups) return false;
         if (dirtySensitivity != that.dirtySensitivity) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
         if (text != null ? !text.equals(that.text) : that.text != null) return false;
         if (imageUrl != null ? !imageUrl.equals(that.imageUrl) : that.imageUrl != null) return false;
         if (imageClass != null ? !imageClass.equals(that.imageClass) : that.imageClass != null) return false;

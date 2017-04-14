@@ -40,6 +40,9 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Attribute(name = "componentName")
     private String componentName;
 
@@ -133,6 +136,16 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
         return name == null || name.isEmpty() ? null : name;
     }
 
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
+
     public String getComponentName() {
         return componentName;
     }
@@ -222,6 +235,7 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
         if (disabled != that.disabled) return false;
         if (immediate != that.immediate) return false;
         if (dirtySensitivity != that.dirtySensitivity) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
         if (beforeConfig != null ? !beforeConfig.equals(that.beforeConfig) : that.beforeConfig != null) return false;
         if (afterConfig != null ? !afterConfig.equals(that.afterConfig) : that.afterConfig != null) return false;
         if (actionSettings != null ? !actionSettings.equals(that.actionSettings) : that.actionSettings != null)

@@ -13,6 +13,9 @@ public class ImportSettingsConfig implements TopLevelConfig {
 
     @Attribute
     private String name;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
     
     @ElementList(required=false, inline=true, entry="before-import")
     private List<BeforeImportConfig> beforeImport;
@@ -20,6 +23,16 @@ public class ImportSettingsConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
     }
 
     public void setName(String name) {
@@ -42,6 +55,7 @@ public class ImportSettingsConfig implements TopLevelConfig {
         ImportSettingsConfig that = (ImportSettingsConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
         if (beforeImport != null ? !beforeImport.equals(that.beforeImport) : that.beforeImport != null) return false;
 
         return true;

@@ -1,11 +1,6 @@
 package ru.intertrust.cm.core.config;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Order;
-import org.simpleframework.xml.Root;
-
+import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.util.ArrayList;
@@ -127,6 +122,16 @@ public class AccessMatrixConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return type;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
     }
 
     public String getMatrixReference() {

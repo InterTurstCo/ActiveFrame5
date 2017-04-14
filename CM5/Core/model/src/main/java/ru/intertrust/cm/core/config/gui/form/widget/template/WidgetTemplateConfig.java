@@ -19,12 +19,25 @@ public class WidgetTemplateConfig implements TopLevelConfig {
     @Attribute(name = "name")
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Element(type=WidgetConfig.class)
     private WidgetConfig widgetConfig;
 
     @Override
     public String getName() {
         return name != null ? name : "widget-template-config";
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -55,6 +68,9 @@ public class WidgetTemplateConfig implements TopLevelConfig {
         }
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
 

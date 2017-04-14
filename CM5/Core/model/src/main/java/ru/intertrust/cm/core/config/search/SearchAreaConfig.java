@@ -13,12 +13,25 @@ public class SearchAreaConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @ElementList(entry = "target-domain-object", inline = true)
     private List<TargetDomainObjectConfig> targetObjects;
 
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public List<TargetDomainObjectConfig> getTargetObjects() {
@@ -38,6 +51,10 @@ public class SearchAreaConfig implements TopLevelConfig {
         if (obj == null || !getClass().equals(obj.getClass())) {
             return false;
         }
-        return name.equals(((SearchAreaConfig) obj).name);
+        final SearchAreaConfig that = (SearchAreaConfig) obj;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
+            return false;
+        }
+        return name.equals(that.name);
     }
 }

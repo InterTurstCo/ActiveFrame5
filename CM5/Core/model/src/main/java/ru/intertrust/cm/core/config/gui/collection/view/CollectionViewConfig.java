@@ -15,6 +15,9 @@ public class CollectionViewConfig implements LocalizableConfig {
     @Attribute(name = "name")
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Attribute(name = "is-default")
     private boolean isDefault;
 
@@ -27,6 +30,16 @@ public class CollectionViewConfig implements LocalizableConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -66,6 +79,7 @@ public class CollectionViewConfig implements LocalizableConfig {
 
         if (isDefault != that.isDefault) return false;
         if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
         if (collection != null ? !collection.equals(that.collection) : that.collection != null) return false;
         if (collectionDisplayConfig != null ? !collectionDisplayConfig.equals(that.collectionDisplayConfig) : that.collectionDisplayConfig != null)
             return false;

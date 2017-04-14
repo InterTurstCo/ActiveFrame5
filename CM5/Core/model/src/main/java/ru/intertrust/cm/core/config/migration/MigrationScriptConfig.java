@@ -50,6 +50,16 @@ public class MigrationScriptConfig implements TopLevelConfig {
         return (moduleName == null ? "" : moduleName) + String.valueOf(sequenceNumber);
     }
 
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
+    }
+
     public String getModuleName() {
         return moduleName;
     }

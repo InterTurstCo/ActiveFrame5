@@ -31,6 +31,16 @@ public class DynamicGroupConfig implements TopLevelConfig {
         return name;
     }
 
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

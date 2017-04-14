@@ -1,10 +1,6 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.ElementListUnion;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 
 import java.util.Collections;
@@ -25,6 +21,9 @@ public class ToolBarConfig extends BaseAttributeConfig implements LocalizableCon
 
     @Attribute(name = "plugin", required = false)
     private String plugin;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Attribute(name = "useDefault", required = false)
     private boolean useDefault = true;
@@ -88,6 +87,16 @@ public class ToolBarConfig extends BaseAttributeConfig implements LocalizableCon
     }
 
     @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -108,6 +117,9 @@ public class ToolBarConfig extends BaseAttributeConfig implements LocalizableCon
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (plugin != null ? !plugin.equals(that.plugin) : that.plugin != null) {
