@@ -6,7 +6,7 @@
             <string name="type" not-null="true" length="255"/>
             <string name="name" not-null="true" length="255"/>
             <text name="current_xml"/>
-            <boolean name="active"/>
+            <boolean name="active" not-null="true"/>
         </fields>
         <uniqueKey>
             <field name="type"/>
