@@ -1,6 +1,26 @@
 <?xml version="1.1" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config">
 
+    <domain-object-type name="configuration_extension" audit-log="true">
+        <fields>
+            <string name="type" not-null="true" length="255"/>
+            <string name="name" not-null="true" length="255"/>
+            <text name="current_xml"/>
+            <boolean name="active"/>
+        </fields>
+        <uniqueKey>
+            <field name="type"/>
+            <field name="name"/>
+        </uniqueKey>
+    </domain-object-type>
+
+    <domain-object-type name="config_extension_tooling">
+        <fields>
+            <reference name="configuration_extension" type="configuration_extension"/>
+            <text name="draft_xml"/>
+        </fields>
+    </domain-object-type>
+
     <domain-object-type name="Attachment" template="true">
         <fields>
             <string name="Name" length="128"/>
