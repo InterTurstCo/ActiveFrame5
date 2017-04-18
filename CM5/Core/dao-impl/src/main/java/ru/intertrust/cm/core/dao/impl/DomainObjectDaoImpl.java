@@ -1869,6 +1869,7 @@ public class DomainObjectDaoImpl implements DomainObjectDao {
                     String str = (String) value.get();
                     if (wasUpdated(domainObject, stringFieldConfig, str)){
                         value = new StringValue(MD5Utils.getMD5AsHex(str));
+                        domainObject.setValue(fieldConfig.getName(), value);
                     }
                 }
             }
