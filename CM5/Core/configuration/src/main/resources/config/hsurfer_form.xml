@@ -27,7 +27,7 @@
         <widget-config>
             <label id="1">
                 <field-path/>
-                <text>Объект иерархии не выбран</text>
+                <text>Объект не выбран</text>
             </label>
             <label id="2">
                 <field-path/>

@@ -9,6 +9,8 @@ import ru.intertrust.cm.core.config.gui.globalcachecontrol.GlobalCacheControlCon
 import ru.intertrust.cm.core.config.gui.navigation.calendar.CalendarConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchyPluginConfig;
 import ru.intertrust.cm.core.config.gui.navigation.hierarchyplugin.HierarchySurferConfig;
+import ru.intertrust.cm.core.config.gui.navigation.listplugin.ListPluginConfig;
+import ru.intertrust.cm.core.config.gui.navigation.listplugin.ListSurferConfig;
 
 /**
  * @author Yaroslav Bondacrhuk
@@ -25,7 +27,9 @@ public class LinkPluginDefinition implements Dto {
             @Element(name = "report-plugin", type = ReportPluginConfig.class),
             @Element(name = "global-cache-control", type = GlobalCacheControlConfig.class),
             @Element(name = "hierarchy-plugin", type = HierarchyPluginConfig.class),
-            @Element(name = "hierarchy-surfer", type = HierarchySurferConfig.class)
+            @Element(name = "hierarchy-surfer", type = HierarchySurferConfig.class),
+            @Element(name = "list-plugin", type = ListPluginConfig.class),
+            @Element(name = "list-surfer", type = ListSurferConfig.class)
 
     })
     private PluginConfig pluginConfig;
