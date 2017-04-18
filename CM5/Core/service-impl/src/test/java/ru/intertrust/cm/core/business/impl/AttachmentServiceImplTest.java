@@ -26,6 +26,7 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.impl.RdbmsIdServiceImpl;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
+import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.AttachmentContentDao;
@@ -136,16 +137,8 @@ public class AttachmentServiceImplTest {
         @Mock
         private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
-        @Mock
-        private FormLogicalValidator formLogicalValidator;
-
-        @Mock
-        private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
-
-        @Mock
         private WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator;
 
-        @Mock
         private PlainFormBuilder plainFormBuilder;
 
         @Mock
@@ -164,7 +157,7 @@ public class AttachmentServiceImplTest {
         @Bean
         public ConfigurationExplorer configurationExplorer() {
             try {
-                return getConfigurationExplorer();
+                return getConfigurationExplorer(context());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -185,14 +178,12 @@ public class AttachmentServiceImplTest {
             return currentUserAccessor;
         }
 
-        @Bean
         public PlainFormBuilder plainFormBuilder(){
-            return plainFormBuilder;
+            return new PlainFormBuilderImpl(configurationExplorer());
         }
 
-        @Bean
         public WidgetConfigurationLogicalValidator widgetConfigurationLogicalValidator(){
-            return widgetConfigurationLogicalValidator;
+            return new WidgetConfigurationLogicalValidatorImpl(configurationExplorer());
         }
 
         @Bean
@@ -252,14 +243,12 @@ public class AttachmentServiceImplTest {
             return domainObjectDao;
         }
 
-        @Bean
         public FormLogicalValidator formLogicalValidator() {
-            return formLogicalValidator;
+            return new FormLogicalValidator(configurationExplorer());
         }
 
-        @Bean
         public NavigationPanelLogicalValidator navigationPanelLogicalValidator() {
-            return navigationPanelLogicalValidator;
+            return new NavigationPanelLogicalValidator(configurationExplorer());
         }
     }
 
@@ -446,7 +435,7 @@ public class AttachmentServiceImplTest {
         return result;
     }
 
-    static private ConfigurationExplorer getConfigurationExplorer() throws Exception {
+    static private ConfigurationExplorer getConfigurationExplorer(ApplicationContext context) throws Exception {
         ru.intertrust.cm.core.config.base.Configuration configuration =
                 new ru.intertrust.cm.core.config.base.Configuration();
         GlobalSettingsConfig globalSettings = new GlobalSettingsConfig();
@@ -466,7 +455,7 @@ public class AttachmentServiceImplTest {
         configuration.getConfigurationList().add(dot);
         configuration.getConfigurationList().add(globalSettings);
 
-        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration);
+        ConfigurationExplorer configurationExplorer = new ConfigurationExplorerImpl(configuration, context);
 
         dot = configurationExplorer.getConfig(DomainObjectTypeConfig.class, "Person");
         Assert.assertNotNull(dot);

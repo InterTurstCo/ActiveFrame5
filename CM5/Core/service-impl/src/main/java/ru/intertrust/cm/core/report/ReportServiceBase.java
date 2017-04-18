@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import ru.intertrust.cm.core.business.api.AttachmentService;
@@ -34,6 +36,8 @@ import ru.intertrust.cm.core.dao.api.StatusDao;
  * 
  */
 public abstract class ReportServiceBase {
+    private static final Logger logger = LoggerFactory.getLogger(ReportServiceBase.class);
+
     private static File tempFolder;
     
     @Autowired
@@ -138,9 +142,13 @@ public abstract class ReportServiceBase {
             while ((read = input.read(buffer)) > 0) {
                 out.write(buffer, 0, read);
             }
-            return out.toByteArray();
+            return out.toByteArray();        
         } finally {
-            input.close();
+            try{
+                input.close();
+            }catch(Exception ex){
+                logger.error("Error read File", ex);
+            }
         }
     }
 /*

@@ -11,11 +11,24 @@ public class UrlConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Text(data = true)
     private String urlTemplate;
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -38,6 +51,7 @@ public class UrlConfig implements TopLevelConfig {
         UrlConfig urlConfig = (UrlConfig) o;
 
         if (!name.equals(urlConfig.name)) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(urlConfig.replacementPolicy) : urlConfig.replacementPolicy != null) return false;
         if (urlTemplate != null ? !urlTemplate.equals(urlConfig.urlTemplate) : urlConfig.urlTemplate != null)
             return false;
 

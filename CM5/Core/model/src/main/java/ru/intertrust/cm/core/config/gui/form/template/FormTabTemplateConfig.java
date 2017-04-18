@@ -45,4 +45,9 @@ public class FormTabTemplateConfig extends FormTemplateConfig {
         result = 31 * result + (tabConfig != null ? tabConfig.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
 }

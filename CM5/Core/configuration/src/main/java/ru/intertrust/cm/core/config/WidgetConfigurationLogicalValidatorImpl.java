@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.form.widget.AbstractWidgetLogicalValidator;
 import ru.intertrust.cm.core.config.form.widget.WidgetLogicalValidatorHelper;
@@ -11,12 +10,10 @@ import ru.intertrust.cm.core.config.gui.form.widget.FieldPathConfig;
 import ru.intertrust.cm.core.config.gui.form.widget.WidgetConfig;
 import ru.intertrust.cm.core.util.ReflectionUtil;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Yaroslav Bondarchuk
@@ -27,17 +24,20 @@ public class WidgetConfigurationLogicalValidatorImpl implements WidgetConfigurat
 
     private final static Logger logger = LoggerFactory.getLogger(WidgetConfigurationLogicalValidator.class);
 
-    @Autowired
     private ConfigurationExplorer configurationExplorer;
 
-    @Autowired
     private ApplicationContext applicationContext;
 
-    @Resource
-    private Map<String, String> componentValidatorMap;
+    public WidgetConfigurationLogicalValidatorImpl() {
+    }
+
+    public WidgetConfigurationLogicalValidatorImpl(ConfigurationExplorer configurationExplorer) {
+        setConfigurationExplorer(configurationExplorer);
+    }
 
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
+        this.applicationContext = ((ConfigurationExplorerImpl) configurationExplorer).getContext();
     }
 
     public void validate(FormToValidate data, LogicalErrors logicalErrors) {
@@ -245,8 +245,7 @@ public class WidgetConfigurationLogicalValidatorImpl implements WidgetConfigurat
     }
 
     private void validateWidgetDependingOnType(WidgetConfigurationToValidate widget, LogicalErrors logicalErrors) {
-        String componentName = widget.getWidgetConfig().getComponentName();
-        String widgetValidatorName = componentValidatorMap.get(componentName);
+        String widgetValidatorName = widget.getWidgetConfig().getLogicalValidatorComponentName();
         if (widgetValidatorName != null) {
             AbstractWidgetLogicalValidator widgetLogicalValidator =
                     applicationContext.getBean(widgetValidatorName, AbstractWidgetLogicalValidator.class);

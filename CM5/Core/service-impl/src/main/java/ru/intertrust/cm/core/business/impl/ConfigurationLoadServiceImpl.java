@@ -4,10 +4,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.dao.api.*;
 import ru.intertrust.cm.core.model.SystemException;
@@ -16,6 +13,7 @@ import ru.intertrust.cm.core.util.SpringApplicationContext;
 
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
+import java.util.HashSet;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationLoadService}
@@ -96,16 +94,18 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
                         "configuration. This may mean that configuration structure has changed since last configuration load", e);
             }
 
-            boolean executeAutoMigration = !configurationExplorer.getConfiguration().equals(oldConfiguration);
-
             ConfigurationExplorer oldConfigurationExplorer = new ConfigurationExplorerImpl(oldConfiguration, true);
             boolean schemaUpdatedByScriptMigration = migrationService.executeBeforeAutoMigration(oldConfigurationExplorer);
 
             boolean schemaUpdatedByAutoMigration = false;
 
+            boolean executeAutoMigration = !sameDomainObjectTypes(configurationExplorer, oldConfigurationExplorer);
+            logger.warn("Auto-migration should " + (executeAutoMigration ? "" : "NOT ") + "be done");
             if (executeAutoMigration) {
                 schemaUpdatedByAutoMigration =
                         createRecursiveConfigurationMerger().merge(oldConfigurationExplorer, configurationExplorer);
+            }
+            if (!configurationExplorer.getConfiguration().equals(oldConfiguration)) {
                 saveConfiguration();
             }
             domainObjectTypeIdCache.build();
@@ -125,6 +125,10 @@ public class ConfigurationLoadServiceImpl implements ConfigurationLoadService, C
             logger.error("Unexpected exception caught in updateConfiguration", e);
             throw new UnexpectedException("ConfigurationLoadService", "updateConfiguration", "", e);
         }
+    }
+
+    private boolean sameDomainObjectTypes(ConfigurationExplorer explorer1, ConfigurationExplorer explorer2) {
+        return new HashSet(explorer1.getConfigs(DomainObjectTypeConfig.class)).equals(new HashSet(explorer2.getConfigs(DomainObjectTypeConfig.class)));
     }
 
     private void saveConfiguration() {

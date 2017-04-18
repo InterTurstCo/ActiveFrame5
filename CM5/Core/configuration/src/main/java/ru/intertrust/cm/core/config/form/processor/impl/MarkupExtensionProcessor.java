@@ -1,9 +1,8 @@
 package ru.intertrust.cm.core.config.form.processor.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import ru.intertrust.cm.core.config.form.processor.*;
 import ru.intertrust.cm.core.config.gui.form.MarkupConfig;
+import ru.intertrust.cm.core.config.gui.form.extension.FormExtensionOperation;
 import ru.intertrust.cm.core.config.gui.form.extension.markup.*;
 
 import java.util.List;
@@ -14,15 +13,9 @@ import java.util.List;
  *         Time: 18:58
  */
 public class MarkupExtensionProcessor implements FormExtensionProcessor {
-    @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
     private TabsExtensionProcessor tabsExtensionProcessor;
-    @Autowired
     private TabGroupsExtensionProcessor tabGroupsExtensionProcessor;
-    @Autowired
     private RowsExtensionProcessor rowsExtensionProcessor;
-    @Autowired
     private CellsExtensionProcessor cellsExtensionProcessor;
 
     private MarkupConfig markupConfig;
@@ -50,6 +43,40 @@ public class MarkupExtensionProcessor implements FormExtensionProcessor {
     public MarkupExtensionProcessor(MarkupConfig markupConfig, List<String> errors) {
         this.markupConfig = markupConfig;
         this.errors = errors;
+    }
+
+    public MarkupExtensionProcessor(MarkupConfig markupConfig, FormExtensionOperation formExtensionOperation, List<String> errors) {
+        this(markupConfig, errors);
+        final Class<? extends FormExtensionOperation> clazz = formExtensionOperation.getClass();
+        if (clazz.equals(AddTabsConfig.class)) {
+            this.addTabsConfig = (AddTabsConfig) formExtensionOperation;
+        } else if (clazz.equals(DeleteTabsConfig.class)) {
+            this.deleteTabsConfig = (DeleteTabsConfig) formExtensionOperation;
+        } else if (clazz.equals(ReplaceTabsConfig.class)) {
+            this.replaceTabsConfig = (ReplaceTabsConfig) formExtensionOperation;
+        } else if (clazz.equals(AddTabGroupsConfig.class)) {
+            this.addTabGroupsConfig = (AddTabGroupsConfig) formExtensionOperation;
+        } else if (clazz.equals(DeleteTabGroupsConfig.class)) {
+            this.deleteTabGroupsConfig = (DeleteTabGroupsConfig) formExtensionOperation;
+        } else if (clazz.equals(ReplaceTabGroupsConfig.class)) {
+            this.replaceTabGroupsConfig = (ReplaceTabGroupsConfig) formExtensionOperation;
+        } else if (clazz.equals(AddRowsConfig.class)) {
+            this.addRowsConfig = (AddRowsConfig) formExtensionOperation;
+        } else if (clazz.equals(DeleteRowsConfig.class)) {
+            this.deleteRowsConfig = (DeleteRowsConfig) formExtensionOperation;
+        } else if (clazz.equals(ReplaceRowsConfig.class)) {
+            this.replaceRowsConfig = (ReplaceRowsConfig) formExtensionOperation;
+        } else if (clazz.equals(AddCellsConfig.class)) {
+            this.addCellsConfig = (AddCellsConfig) formExtensionOperation;
+        } else if (clazz.equals(DeleteCellsConfig.class)) {
+            this.deleteCellsConfig = (DeleteCellsConfig) formExtensionOperation;
+        } else if (clazz.equals(ReplaceCellsConfig.class)) {
+            this.replaceCellsConfig = (ReplaceCellsConfig) formExtensionOperation;
+        }
+        tabsExtensionProcessor = new TabsExtensionProcessorImpl();
+        tabGroupsExtensionProcessor = new TabGroupsExtensionProcessorImpl();
+        rowsExtensionProcessor = new RowsExtensionProcessorImpl();
+        cellsExtensionProcessor = new CellsExtensionProcessorImpl();
     }
 
     public MarkupExtensionProcessor(MarkupConfig markupConfig, AddTabsConfig addTabsConfig,

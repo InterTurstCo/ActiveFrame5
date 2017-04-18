@@ -1,14 +1,9 @@
 package ru.intertrust.cm.core.config.gui.action;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.ElementListUnion;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
 import org.simpleframework.xml.convert.Convert;
 import ru.intertrust.cm.core.config.base.Localizable;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
-import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.converter.ActionDisplayTypeConverter;
 import ru.intertrust.cm.core.config.converter.ActionTypeConverter;
 
@@ -44,6 +39,9 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
 
     @Attribute(name = "name", required = false)
     private String name;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Attribute(name = "componentName")
     private String componentName;
@@ -138,6 +136,16 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
         return name == null || name.isEmpty() ? null : name;
     }
 
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
+
     public String getComponentName() {
         return componentName;
     }
@@ -216,21 +224,34 @@ public class ActionConfig extends BaseActionConfig implements LocalizableConfig 
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         ActionConfig that = (ActionConfig) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) {
+        if (weight != that.weight) return false;
+        if (merged != that.merged) return false;
+        if (disabled != that.disabled) return false;
+        if (immediate != that.immediate) return false;
+        if (dirtySensitivity != that.dirtySensitivity) return false;
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) return false;
+        if (beforeConfig != null ? !beforeConfig.equals(that.beforeConfig) : that.beforeConfig != null) return false;
+        if (afterConfig != null ? !afterConfig.equals(that.afterConfig) : that.afterConfig != null) return false;
+        if (actionSettings != null ? !actionSettings.equals(that.actionSettings) : that.actionSettings != null)
             return false;
-        }
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (componentName != null ? !componentName.equals(that.componentName) : that.componentName != null)
+            return false;
+        if (text != null ? !text.equals(that.text) : that.text != null) return false;
+        if (imageUrl != null ? !imageUrl.equals(that.imageUrl) : that.imageUrl != null) return false;
+        if (imageClass != null ? !imageClass.equals(that.imageClass) : that.imageClass != null) return false;
+        if (tooltip != null ? !tooltip.equals(that.tooltip) : that.tooltip != null) return false;
+        if (action != null ? !action.equals(that.action) : that.action != null) return false;
+        if (display != that.display) return false;
+        if (type != that.type) return false;
+        if (groupId != null ? !groupId.equals(that.groupId) : that.groupId != null) return false;
+        if (children != null ? !children.equals(that.children) : that.children != null) return false;
 
         return true;
     }

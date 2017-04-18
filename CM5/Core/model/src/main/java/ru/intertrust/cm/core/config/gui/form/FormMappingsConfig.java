@@ -19,6 +19,9 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @ElementList(inline = true)
     private List<FormMappingConfig> formMappingConfigList = new ArrayList<FormMappingConfig>();
 
@@ -27,6 +30,16 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
 
     public String getName() {
        return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -65,6 +78,9 @@ public class FormMappingsConfig implements Dto, TopLevelConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
 

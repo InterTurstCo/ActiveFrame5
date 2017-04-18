@@ -17,11 +17,24 @@ public class NavigationPanelMappingsConfig implements Dto, TopLevelConfig {
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @ElementList(inline = true)
     private List<NavigationPanelMappingConfig> navigationPanelMappingConfigs = new ArrayList<NavigationPanelMappingConfig>();
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -44,6 +57,9 @@ public class NavigationPanelMappingsConfig implements Dto, TopLevelConfig {
         NavigationPanelMappingsConfig that = (NavigationPanelMappingsConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (navigationPanelMappingConfigs != null ? !navigationPanelMappingConfigs.equals(that.navigationPanelMappingConfigs) : that.

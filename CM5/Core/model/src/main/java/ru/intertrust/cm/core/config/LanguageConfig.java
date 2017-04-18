@@ -37,31 +37,20 @@ public class LanguageConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
         LanguageConfig that = (LanguageConfig) o;
-        if (name.equals(that.name)) {
-            return false;
-        }
-        if (img != null ? !img.equals(that.img) : that.img != null) {
-            return false;
-        }
-        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) {
-            return false;
-        }
+
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (displayName != null ? !displayName.equals(that.displayName) : that.displayName != null) return false;
+        if (img != null ? !img.equals(that.img) : that.img != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (displayName != null ? displayName.hashCode() : 31);
-        result = 31 * result + (img != null ? img.hashCode() : 31);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 }

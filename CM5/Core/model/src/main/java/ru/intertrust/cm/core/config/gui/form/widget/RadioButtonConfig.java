@@ -29,4 +29,8 @@ public class RadioButtonConfig extends SingleSelectionWidgetConfig implements Dt
         return "radio-button";
     }
 
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "radioButtonLogicalValidator";
+    }
 }

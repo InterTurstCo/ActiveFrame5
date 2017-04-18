@@ -21,6 +21,9 @@ public class NavigationConfig implements LocalizableConfig {
     @Attribute(name = "name")
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Attribute(name = "application",required = false)
     private String application;
 
@@ -51,6 +54,16 @@ public class NavigationConfig implements LocalizableConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     private String baseUrlOne;
@@ -183,6 +196,9 @@ public class NavigationConfig implements LocalizableConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (application != null ? !application.equals(that.application) : that.application != null) {

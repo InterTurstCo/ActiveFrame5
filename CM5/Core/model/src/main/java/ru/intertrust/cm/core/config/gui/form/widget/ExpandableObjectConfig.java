@@ -25,22 +25,18 @@ public class ExpandableObjectConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         ExpandableObjectConfig that = (ExpandableObjectConfig) o;
 
-        if (objectName != null ? !objectName.equals(that.objectName) : that.objectName != null) {
-            return false;
-        }
+        if (objectName != null ? !objectName.equals(that.objectName) : that.objectName != null) return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return objectName != null ? objectName.hashCode() : 0;
     }
 }

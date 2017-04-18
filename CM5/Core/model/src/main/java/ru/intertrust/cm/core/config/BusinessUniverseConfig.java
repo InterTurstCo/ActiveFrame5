@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.config;
 
+import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
@@ -16,6 +17,9 @@ import ru.intertrust.cm.core.config.search.ExtendedSearchPopupConfig;
 @Root(name = "business-universe")
 public class BusinessUniverseConfig implements LocalizableConfig {
     public static final String NAME = "business_universe";
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
 
     @Element(name = "login-screen", required = false)
     private LoginScreenConfig loginScreenConfig;
@@ -189,6 +193,9 @@ public class BusinessUniverseConfig implements LocalizableConfig {
 
         BusinessUniverseConfig that = (BusinessUniverseConfig) o;
 
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
+            return false;
+        }
         if (bottomPanelConfig != null ? !bottomPanelConfig.equals(that.bottomPanelConfig) : that.bottomPanelConfig != null){
             return false;
         }
@@ -261,5 +268,15 @@ public class BusinessUniverseConfig implements LocalizableConfig {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 }

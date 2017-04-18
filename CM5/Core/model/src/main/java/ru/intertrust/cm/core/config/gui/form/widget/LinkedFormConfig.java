@@ -127,13 +127,6 @@ public class LinkedFormConfig implements Dto{
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (inline ? 1 : 0);
-        result = 31 * result + (titleConfig != null ? titleConfig.hashCode() : 0);
-        result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
-        result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
-        result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
-        result = 31 * result + (resizable ? 1 : 0);
-        return result;
+        return name != null ? name.hashCode() : 0;
     }
 }

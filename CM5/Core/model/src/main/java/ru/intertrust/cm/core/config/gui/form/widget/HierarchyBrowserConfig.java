@@ -185,4 +185,9 @@ public class HierarchyBrowserConfig extends WidgetConfig {
     public String getComponentName() {
         return "hierarchy-browser";
     }
+
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "hierarchyBrowserLogicalValidator";
+    }
 }

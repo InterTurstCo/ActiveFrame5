@@ -1,11 +1,6 @@
 package ru.intertrust.cm.core.config;
 
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Order;
-import org.simpleframework.xml.Root;
-
+import org.simpleframework.xml.*;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.model.FatalException;
 
@@ -87,6 +82,16 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.None;
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.None;
     }
 
     public void setName(String name) {
@@ -201,9 +206,6 @@ public class DomainObjectTypeConfig implements TopLevelConfig {
             return false;
         }
         if (extendsAttribute != null ? !extendsAttribute.equals(that.extendsAttribute) : that.extendsAttribute != null) {
-            return false;
-        }
-        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {

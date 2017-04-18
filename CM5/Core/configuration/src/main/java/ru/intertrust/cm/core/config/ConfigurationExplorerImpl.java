@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
@@ -15,6 +16,7 @@ import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
 import ru.intertrust.cm.core.config.form.PlainFormBuilder;
+import ru.intertrust.cm.core.config.form.impl.PlainFormBuilderImpl;
 import ru.intertrust.cm.core.config.gui.action.ToolBarConfig;
 import ru.intertrust.cm.core.config.gui.collection.view.CollectionColumnConfig;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -39,37 +41,61 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     private ConfigurationStorageBuilder configurationStorageBuilder;
 
     private ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private FormLogicalValidator formLogicalValidator;
 
-    @Autowired
-    private NavigationPanelLogicalValidator navigationPanelLogicalValidator;
-
-    @Autowired
     private PlainFormBuilder plainFormBuilder;
+
+    private boolean skipLogicalValidation;
+
+    private Configuration configuration;
+
+    @Autowired
+    private ApplicationContext context;
 
     /**
      * Создает {@link ConfigurationExplorerImpl}
      */
     public ConfigurationExplorerImpl(Configuration configuration, boolean skipLogicalValidation) {
-        configStorage = new ConfigurationStorage(configuration);
-        configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
-
-        configurationStorageBuilder.buildConfigurationStorage();
-        if (!skipLogicalValidation) {
-            validate();
-        }
-
+        this(configuration, null, skipLogicalValidation);
     }
 
     public ConfigurationExplorerImpl(Configuration configuration) {
         this(configuration, false);
     }
 
+    public ConfigurationExplorerImpl(Configuration configuration, ApplicationContext context) {
+        this(configuration, context, false);
+    }
+
+    public ConfigurationExplorerImpl(Configuration configuration, ApplicationContext context, boolean skipLogicalValidation) {
+        this.configuration = configuration;
+        this.skipLogicalValidation = skipLogicalValidation;
+        this.context = context;
+        init();
+    }
+
+    /**
+     * It's a special constructor for Spring, which do not execute init() method which requires ApplicationContext to be set up
+     * @param specialSpringConstructor
+     * @param configuration
+     */
+    private ConfigurationExplorerImpl(double specialSpringConstructor, Configuration configuration) {
+        this.configuration = configuration;
+        this.skipLogicalValidation = false;
+    }
+
     private void init() {
-        if (configStorage.globalSettings.validateGui()) {
-            validateGui();
+        configStorage = new ConfigurationStorage(configuration);
+        configurationStorageBuilder = new ConfigurationStorageBuilder(this, configStorage);
+        plainFormBuilder = new PlainFormBuilderImpl(this);
+        configurationStorageBuilder.buildConfigurationStorage();
+        this.skipLogicalValidation = skipLogicalValidation;
+        if (!skipLogicalValidation) {
+            validate();
         }
+    }
+
+    public ApplicationContext getContext() {
+        return context;
     }
 
     /**
@@ -118,29 +144,30 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
             logicalErrorsList.addAll(new ReadEvrybodyPermissionLogicalValidator(this).validate());
         }
 
+        if (configStorage.globalSettings.validateGui()) {
+            // GUI validation is temporarily switched off as it's not working correctly anymore
+            //logicalErrorsList.addAll(validateGui());
+        }
+
         if (!logicalErrorsList.isEmpty()) {
             throw new FatalBeanException("Configuration validation failed",
                     new ConfigurationException(LogicalErrors.toString(logicalErrorsList)));
         }
+
     }
 
-    public void validateGui() {
+    public List<LogicalErrors> validateGui() {
         List<LogicalErrors> logicalErrorsList = new ArrayList<>();
 
-        navigationPanelLogicalValidator.setConfigurationExplorer(this);
+        NavigationPanelLogicalValidator navigationPanelLogicalValidator = new NavigationPanelLogicalValidator(this);
         logicalErrorsList.addAll(navigationPanelLogicalValidator.validate());
 
-        formLogicalValidator.setConfigurationExplorer(this);
+        FormLogicalValidator formLogicalValidator = new FormLogicalValidator(this);
         logicalErrorsList.addAll(formLogicalValidator.validate());
 
         logicalErrorsList.addAll(new CollectionViewLogicalValidator(this).validate());
 
-        if (!logicalErrorsList.isEmpty()) {
-            String errorMessage = LogicalErrors.toString(logicalErrorsList);
-            if (!errorMessage.isEmpty()) {
-                throw new ConfigurationException(LogicalErrors.toString(logicalErrorsList));
-            }
-        }
+        return logicalErrorsList;
     }
 
     /**

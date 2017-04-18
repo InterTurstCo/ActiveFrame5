@@ -41,33 +41,23 @@ public class WidgetGroupConfig implements IdentifiedConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         WidgetGroupConfig that = (WidgetGroupConfig) o;
 
-        if (!name.equals(that.name)) {
+        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (widgetRefConfigList != null ? !widgetRefConfigList.equals(that.widgetRefConfigList) : that.widgetRefConfigList != null)
             return false;
-        }
-        if (!id.equals(that.id)) {
-            return false;
-        }
-        if (!widgetRefConfigList.equals(that.widgetRefConfigList)) {
-            return false;
-        }
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + id.hashCode();
-        result = 31 * result + widgetRefConfigList.hashCode();
+        int result = name != null ? name.hashCode() : 0;
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

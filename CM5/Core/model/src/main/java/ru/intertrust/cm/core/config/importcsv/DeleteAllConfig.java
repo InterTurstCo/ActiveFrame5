@@ -14,6 +14,21 @@ public class DeleteAllConfig implements Dto {
     public void setDoel(String doel) {
         this.doel = doel;
     }
-    
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeleteAllConfig that = (DeleteAllConfig) o;
+
+        if (doel != null ? !doel.equals(that.doel) : that.doel != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return doel != null ? doel.hashCode() : 0;
+    }
 }

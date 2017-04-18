@@ -3,7 +3,6 @@ package ru.intertrust.cm.core.config;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
-
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 /**
@@ -17,12 +16,24 @@ public class NotificationConfig implements TopLevelConfig {
     @Attribute(name = "name", required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
   
     @Element(name = "notification-type", required = true)
     private NotificationTypeConfig notificationTypeConfig = new NotificationTypeConfig();
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -63,6 +74,9 @@ public class NotificationConfig implements TopLevelConfig {
                 return false;
             }
         } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(other.replacementPolicy) : other.replacementPolicy != null) {
             return false;
         }
         if (notificationTypeConfig == null) {

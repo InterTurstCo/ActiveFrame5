@@ -39,4 +39,24 @@ public class CreateUniqueKeyConfig extends MigrationScenarioConfig implements Dt
             this.fields = fields;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CreateUniqueKeyConfig that = (CreateUniqueKeyConfig) o;
+
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (fields != null ? !fields.equals(that.fields) : that.fields != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (fields != null ? fields.hashCode() : 0);
+        return result;
+    }
 }

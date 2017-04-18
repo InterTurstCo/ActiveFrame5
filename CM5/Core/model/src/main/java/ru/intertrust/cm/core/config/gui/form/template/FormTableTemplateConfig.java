@@ -47,4 +47,9 @@ public class FormTableTemplateConfig extends FormTemplateConfig {
         result = 31 * result + (tableLayoutConfig != null ? tableLayoutConfig.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
 }

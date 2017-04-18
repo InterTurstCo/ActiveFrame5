@@ -18,12 +18,26 @@ import java.util.List;
 public class CollectionMappingsConfig implements TopLevelConfig, Dto {
     @Attribute(name = "name", required = false)
     private String name;
+
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @ElementList(inline = true)
     private List<CollectionMappingConfig> collectionMappingConfigList = new ArrayList<CollectionMappingConfig>();
 
 
     public String getName() {
         return name != null ? name : "collection-mappings";
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -55,6 +69,9 @@ public class CollectionMappingsConfig implements TopLevelConfig, Dto {
         }
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         return true;

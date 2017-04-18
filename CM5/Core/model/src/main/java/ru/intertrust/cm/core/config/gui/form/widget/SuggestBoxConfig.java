@@ -81,6 +81,11 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         return "suggest-box";
     }
 
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "suggestBoxLogicalValidator";
+    }
+
     public CollectionRefConfig getCollectionRefConfig() {
         return collectionRefConfig;
     }
@@ -305,29 +310,6 @@ public class SuggestBoxConfig extends LinkEditingWidgetConfig implements Dto {
         }
 
         return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (collectionRefConfig != null ? collectionRefConfig.hashCode() : 0);
-        result = 31 * result + (dropdownPatternConfig != null ? dropdownPatternConfig.hashCode() : 0);
-        result = 31 * result + (selectionPatternConfig != null ? selectionPatternConfig.hashCode() : 0);
-        result = 31 * result + (inputTextFilterConfig != null ? inputTextFilterConfig.hashCode() : 0);
-        result = 31 * result + (pageSize != null ? pageSize.hashCode() : 0);
-        result = 31 * result + (selectionStyleConfig != null ? selectionStyleConfig.hashCode() : 0);
-        result = 31 * result + (singleChoice != null ? singleChoice.hashCode() : 0);
-        result = 31 * result + (clearAllButtonConfig != null ? clearAllButtonConfig.hashCode() : 0);
-        result = 31 * result + (maxDropDownWidth != null ? maxDropDownWidth.hashCode() : 0);
-        result = 31 * result + (maxDropDownHeight != null ? maxDropDownHeight.hashCode() : 0);
-        result = 31 * result + (defaultSortCriteriaConfig != null ? defaultSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (displayValuesAsLinksConfig != null ? displayValuesAsLinksConfig.hashCode() : 0);
-        result = 31 * result + (formattingConfig != null ? formattingConfig.hashCode() : 0);
-        result = 31 * result + (selectionFiltersConfig != null ? selectionFiltersConfig.hashCode() : 0);
-        result = 31 * result + (selectionSortCriteriaConfig != null ? selectionSortCriteriaConfig.hashCode() : 0);
-        result = 31 * result + (linkedFormConfig != null ? linkedFormConfig.hashCode() : 0);
-        result = 31 * result + (collectionExtraFiltersConfig!= null ? collectionExtraFiltersConfig.hashCode() : 0);
-        return result;
     }
 }
 

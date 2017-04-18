@@ -31,4 +31,22 @@ public abstract class AutoMigrationEventConfig implements Dto {
     public void setMigrationScenarioConfigs(List<MigrationScenarioConfig> migrationScenarioConfigs) {
         this.migrationScenarioConfigs = migrationScenarioConfigs == null ? new ArrayList<MigrationScenarioConfig>(0) : migrationScenarioConfigs;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AutoMigrationEventConfig)) return false;
+
+        AutoMigrationEventConfig that = (AutoMigrationEventConfig) o;
+
+        if (migrationScenarioConfigs != null ? !migrationScenarioConfigs.equals(that.migrationScenarioConfigs) : that.migrationScenarioConfigs != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return migrationScenarioConfigs != null ? migrationScenarioConfigs.hashCode() : 0;
+    }
 }

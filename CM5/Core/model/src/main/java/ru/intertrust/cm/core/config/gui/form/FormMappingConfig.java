@@ -109,11 +109,6 @@ public class FormMappingConfig implements Dto {
     public int hashCode() {
         int result = form != null ? form.hashCode() : 0;
         result = 31 * result + (domainObjectType != null ? domainObjectType.hashCode() : 0);
-        result = 31 * result + (usersConfig != null ? usersConfig.hashCode() : 0);
-        result = 31 * result + (groupsConfig != null ? groupsConfig.hashCode() : 0);
-        result = 31 * result + (fieldPathConfigs != null ? fieldPathConfigs.hashCode() : 0);
-        result = 31 * result + (modalWidth != null ? modalWidth.hashCode() : 0);
-        result = 31 * result + (modalHeight != null ? modalHeight.hashCode() : 0);
         return result;
     }
 

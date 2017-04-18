@@ -21,6 +21,13 @@ public class TableTemplateProcessor implements FormTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
+    public TableTemplateProcessor() {
+    }
+
+    public TableTemplateProcessor(ConfigurationExplorer explorer) {
+        configurationExplorer = explorer;
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }

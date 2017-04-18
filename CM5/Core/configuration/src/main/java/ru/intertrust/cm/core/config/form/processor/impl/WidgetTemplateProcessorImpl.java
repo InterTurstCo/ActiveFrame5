@@ -25,6 +25,13 @@ public class WidgetTemplateProcessorImpl implements WidgetTemplateProcessor {
 
     private ConfigurationExplorer configurationExplorer;
 
+    public WidgetTemplateProcessorImpl() {
+    }
+
+    public WidgetTemplateProcessorImpl(ConfigurationExplorer configurationExplorer) {
+        this.configurationExplorer = configurationExplorer;
+    }
+
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
     }

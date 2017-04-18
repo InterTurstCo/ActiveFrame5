@@ -7,6 +7,13 @@
 
     <xs:element name="configuration" type="con:configurationType"/>
 
+    <xs:simpleType name="replacementPolicyType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="runtime"/>
+            <xs:enumeration value="none"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:element name="widget" type="con:abstractWidgetType"/>
     <xs:complexType name="abstractWidgetType" abstract="true">
         <xs:attribute name="read-only" use="optional" type="xs:boolean"/>
@@ -70,6 +77,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="optional" type="con:namedObjectType"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="triggerType">
@@ -158,6 +166,7 @@
             </xs:element>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="con:namedObjectType"/>
+        <xs:attribute name="replace" type="con:replacementPolicyType" use="optional"/>
     </xs:complexType>
 
     <xs:complexType name="notificationTypeType">
@@ -479,6 +488,7 @@
                         minOccurs="0"
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:choice>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
     <xs:complexType name="settingsPopupType">
         <xs:sequence minOccurs="1">
@@ -567,6 +577,7 @@
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="name" use="required" type="xs:string"/>
+                <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -709,6 +720,7 @@
                 </xs:element>
             </xs:choice>
         </xs:sequence>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="uniqueKeyType">
@@ -850,6 +862,7 @@
         <xs:attribute type="xs:string" name="idField" use="optional"/>
         <xs:attribute type="xs:boolean" name="useClone" use="optional"/>
         <xs:attribute type="con:transactionCacheType" name="transaction-cache" default="disabled" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:simpleType name="transactionCacheType">
@@ -1057,6 +1070,7 @@
         <xs:attribute name="unpin-enabled" type="xs:boolean" use="optional"/>
         <xs:attribute name="margin-size" type="con:marginSizeType" use="optional"/>
         <xs:attribute name="text-auto-cut" type="xs:boolean" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:simpleType name="level2DefaultStateType">
@@ -1702,6 +1716,7 @@
         <xs:attribute type="xs:string" name="default-value-setter"/>
         <xs:attribute type="xs:boolean" name="re-read-in-same-transaction"/>
         <xs:attribute type="xs:string" name="extends"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:simpleType name="formTypeType">
@@ -2034,6 +2049,7 @@
                         maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="navigationPanelMappingsType">
@@ -2042,6 +2058,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="roleType">
@@ -2605,6 +2622,7 @@
             <xs:element ref="con:widget"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="formattingType">
@@ -3093,6 +3111,7 @@
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="get-content-bean-name" type="xs:string" use="optional"/>
         <xs:attribute name="signature-storage-bean-name" type="xs:string" use="optional"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="typeSettingsExtension">
@@ -3174,6 +3193,7 @@
         <xs:attribute type="xs:string" name="name"/>
         <xs:attribute type="xs:string" name="collection"/>
         <xs:attribute type="xs:string" name="is-default"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="searchAreaType">
@@ -3182,6 +3202,7 @@
                         maxOccurs="unbounded" xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="indexedDomainObjectType" abstract="true">
@@ -4277,6 +4298,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="formTableTemplateType">
@@ -4287,6 +4309,7 @@
                         xmlns:con="https://cm5.intertrust.ru/config"/>
         </xs:sequence>
         <xs:attribute type="xs:string" name="name" use="required"/>
+        <xs:attribute type="con:replacementPolicyType" name="replace" use="optional" xmlns:con="https://cm5.intertrust.ru/config"/>
     </xs:complexType>
 
     <xs:complexType name="abstractFormTemplateType" abstract="true" mixed="true">

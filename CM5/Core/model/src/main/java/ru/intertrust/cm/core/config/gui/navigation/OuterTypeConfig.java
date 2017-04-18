@@ -50,34 +50,22 @@ public class OuterTypeConfig implements Dto {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         OuterTypeConfig that = (OuterTypeConfig) o;
 
-        if (url != that.url) {
+        if (url != null ? !url.equals(that.url) : that.url != null) return false;
+        if (openPosition != null ? !openPosition.equals(that.openPosition) : that.openPosition != null) return false;
+        if (urlTypeConfig != null ? !urlTypeConfig.equals(that.urlTypeConfig) : that.urlTypeConfig != null)
             return false;
-        }
-        if (openPosition != null ? !openPosition.equals(that.openPosition)
-                : that.openPosition != null) {
-            return false;
-        }
-        if (urlTypeConfig != null ? !urlTypeConfig.equals(that.urlTypeConfig) : that.urlTypeConfig != null) {
-            return false;
-        }
-       return true;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = url != null ? url.hashCode() : 0;
-        result = 31 * result + (openPosition != null ? openPosition.hashCode() : 0);
-        result = 31 * result + (urlTypeConfig != null ? urlTypeConfig.hashCode() : 0);
-        return result;
+        return url != null ? url.hashCode() : 0;
     }
 
     @Override

@@ -1,8 +1,8 @@
 package ru.intertrust.cm.core.config;
 
-import java.io.Serializable;
-
 import org.simpleframework.xml.Attribute;
+
+import java.io.Serializable;
 
 /**
  * Подключает алгоритм получения доменного объекта, извлекающий из отслеживаемого объекта группу, которая должна
@@ -20,5 +20,25 @@ public class GetGroupConfig extends GetPersonConfig implements Serializable {
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        GetGroupConfig that = (GetGroupConfig) o;
+
+        if (groupName != null ? !groupName.equals(that.groupName) : that.groupName != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (groupName != null ? groupName.hashCode() : 0);
+        return result;
     }
 }

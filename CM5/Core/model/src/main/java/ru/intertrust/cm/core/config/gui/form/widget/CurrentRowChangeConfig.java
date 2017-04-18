@@ -23,4 +23,21 @@ public class CurrentRowChangeConfig implements Dto {
     public void setComponent(String component) {
         this.component = component;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        CurrentRowChangeConfig that = (CurrentRowChangeConfig) o;
+
+        if (component != null ? !component.equals(that.component) : that.component != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return component != null ? component.hashCode() : 0;
+    }
 }

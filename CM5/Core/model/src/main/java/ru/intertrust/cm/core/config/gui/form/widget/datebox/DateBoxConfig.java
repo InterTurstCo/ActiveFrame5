@@ -82,6 +82,11 @@ public class DateBoxConfig extends WidgetConfig implements Dto {
     }
 
     @Override
+    public String getLogicalValidatorComponentName() {
+        return "dateBoxLogicalValidator";
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;

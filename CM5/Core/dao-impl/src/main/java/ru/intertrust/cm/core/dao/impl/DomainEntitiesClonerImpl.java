@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
@@ -59,7 +60,7 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
                 newFieldValues.put(originalKeyLower, fieldValues.get(originalKeyLower));
             }
         }
-        new MapValueNormalizer().normalize(fieldValues.entrySet().iterator());
+        new MapValueNormalizer().normalize(fieldValues.entrySet().iterator(), false);
         Id clonedId = fastCloneId(domainObject.getId());
         return new GenericDomainObject(clonedId, domainObject.getTypeName(), newOriginalKeys, newFieldValues);
     }
@@ -125,7 +126,7 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
             return null;
         }
         final ArrayList<Value> clone = new ArrayList<>(values);
-        new ListValueNormalizer().normalize(clone.listIterator());
+        new ListValueNormalizer().normalize(clone.listIterator(), true);
         return clone;
     }
 
@@ -145,17 +146,41 @@ public class DomainEntitiesClonerImpl implements DomainEntitiesCloner {
         return PLATFORM_VALUE_CLASSES.contains(value.getClass());
     }
 
+    private static ListValue cloneListValue(ListValue listValue) {
+        final ArrayList<Value> values = listValue.getValues();
+        final ArrayList<Value> clone = new ArrayList<>(values.size());
+        for (Value value : values) {
+            if (value == null) {
+                clone.add(null);
+            } else {
+                final Value platformClone = value.getPlatformClone();
+                if (platformClone == null) {
+                    return null;
+                }
+                clone.add(platformClone);
+            }
+        }
+        return new ListValue(clone);
+    }
+
     private abstract class ValueNormalizer {
         protected abstract Value getValue(Object iterationObject);
         protected abstract void replaceValue(Iterator iterator, Object iterationObject, Value newValue);
 
-        public void normalize(Iterator iterator) {
+        public void normalize(Iterator iterator, boolean supportListValue) {
             ObjectCloner cloner = null;
             while (iterator.hasNext()) {
                 final Object iterationObject = iterator.next();
                 final Value value = getValue(iterationObject);
                 if (value != null) {
-                    Value clone = isPlatformValue(value) ? value.getPlatformClone() : null;
+                    Value clone;
+                    if (isPlatformValue(value)) {
+                        clone = value.getPlatformClone();
+                    } else if (supportListValue && value instanceof ListValue) {
+                        clone = cloneListValue((ListValue) value);
+                    } else {
+                        clone = null;
+                    }
                     replaceValue(iterator, iterationObject, clone);
                 }
             }

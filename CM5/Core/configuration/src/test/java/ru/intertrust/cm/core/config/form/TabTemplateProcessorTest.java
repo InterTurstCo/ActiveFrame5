@@ -2,7 +2,6 @@ package ru.intertrust.cm.core.config.form;
 
 import junit.framework.Assert;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.form.processor.impl.TabTemplateProcessor;
 import ru.intertrust.cm.core.config.gui.form.FormConfig;
@@ -19,8 +18,6 @@ import static ru.intertrust.cm.core.config.Constants.FORM_TEMPLATES_CONFIG;
  *         Time: 15:31
  */
 public class TabTemplateProcessorTest extends AbstractConfigProcessingTest{
-    @Autowired
-    private TabTemplateProcessor tabTemplateProcessor;
     /**
      * important
      * table processor was not applied, so we have raw tab template
@@ -31,6 +28,7 @@ public class TabTemplateProcessorTest extends AbstractConfigProcessingTest{
     public void testProcessTemplates() throws Exception {
         ConfigurationExplorer customConfigExplorer = createConfigurationExplorer(FORM_TEMPLATES_CONFIG);
         FormConfig formWithTemplates = customConfigExplorer.getConfig(FormConfig.class, "ex1_form_with_templates");
+        TabTemplateProcessor tabTemplateProcessor = new TabTemplateProcessor(customConfigExplorer);
         tabTemplateProcessor.setConfigurationExplorer(customConfigExplorer);
 
         FormConfig processed = tabTemplateProcessor.processTemplates(formWithTemplates);

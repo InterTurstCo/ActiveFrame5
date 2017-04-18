@@ -19,6 +19,9 @@ public class TestTypeConfig implements TopLevelConfig {
     @Attribute(required = true)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Element(name="test-fields")
     @Namespace(reference="https://cm5.intertrust.ru/custom-config")
     private TestFieldsConfig testFieldsConfig;
@@ -48,6 +51,16 @@ public class TestTypeConfig implements TopLevelConfig {
         return name;
     }
 
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -64,6 +77,9 @@ public class TestTypeConfig implements TopLevelConfig {
         TestTypeConfig that = (TestTypeConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (testFieldsConfig != null ? !testFieldsConfig.equals(that.testFieldsConfig) : that.testFieldsConfig != null) {

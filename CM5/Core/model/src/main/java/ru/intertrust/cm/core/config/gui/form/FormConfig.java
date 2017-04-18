@@ -32,6 +32,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     @Attribute(name = "name", required = false)
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Attribute(name = "domain-object-type", required = false)
     private String domainObjectType;
 
@@ -108,6 +111,16 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public void setName(String name) {
@@ -301,6 +314,9 @@ public class FormConfig implements Dto, TopLevelConfig, LocalizableConfig {
             return false;
         }
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (defaultValueSetter != null ? !defaultValueSetter.equals(that.defaultValueSetter) : that.defaultValueSetter != null) {

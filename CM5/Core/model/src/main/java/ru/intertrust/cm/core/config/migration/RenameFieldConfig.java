@@ -39,4 +39,22 @@ public class RenameFieldConfig extends MigrationScenarioConfig implements Dto {
             this.fields = fields;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RenameFieldConfig that = (RenameFieldConfig) o;
+
+        if (type != null ? !type.equals(that.type) : that.type != null) return false;
+        if (fields != null ? !fields.equals(that.fields) : that.fields != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return type != null ? type.hashCode() : 0;
+    }
 }

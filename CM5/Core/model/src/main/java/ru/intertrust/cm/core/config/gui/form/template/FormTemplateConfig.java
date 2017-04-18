@@ -14,11 +14,24 @@ public abstract class FormTemplateConfig implements TopLevelConfig {
     @Attribute
     private String name;
 
+    @Attribute(name = "replace", required = false)
+    private String replacementPolicy;
+
     @Element(name = "widget-config", required = false)
     private WidgetConfigurationConfig widgetConfigurationConfig;
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public ExtensionPolicy getReplacementPolicy() {
+        return ExtensionPolicy.fromString(replacementPolicy);
+    }
+
+    @Override
+    public ExtensionPolicy getCreationPolicy() {
+        return ExtensionPolicy.Runtime;
     }
 
     public WidgetConfigurationConfig getWidgetConfigurationConfig() {
@@ -37,6 +50,9 @@ public abstract class FormTemplateConfig implements TopLevelConfig {
         FormTemplateConfig that = (FormTemplateConfig) o;
 
         if (name != null ? !name.equals(that.name) : that.name != null) {
+            return false;
+        }
+        if (replacementPolicy != null ? !replacementPolicy.equals(that.replacementPolicy) : that.replacementPolicy != null) {
             return false;
         }
         if (widgetConfigurationConfig != null ? !widgetConfigurationConfig.equals(that.widgetConfigurationConfig)

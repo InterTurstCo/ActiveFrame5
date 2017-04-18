@@ -168,4 +168,9 @@ public class LinkedDomainObjectHyperlinkConfig extends LinkEditingWidgetConfig {
     public String getComponentName() {
         return "linked-domain-object-hyperlink";
     }
+
+    @Override
+    public String getLogicalValidatorComponentName() {
+        return "linkedDomainObjectHyperlinkLogicalValidator";
+    }
 }
