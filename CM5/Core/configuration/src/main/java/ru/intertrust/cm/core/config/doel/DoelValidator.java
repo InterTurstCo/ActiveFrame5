@@ -235,6 +235,10 @@ public class DoelValidator {
                             ReferenceFieldConfig refFieldConfig = (ReferenceFieldConfig) fieldConfig;
                             if (checkTypesCompatibility(type, refFieldConfig.getType())) {
                                 nextType = childrenElem.getChildType();
+                                if (ReferenceFieldConfig.ANY_TYPE.equals(type)) {
+                                    type = nextType;
+                                    result.brokenPaths = true;
+                                }
                             }
                             //TODO Добавить проверку наличия ключа уникальности = единственной ссылки
                             multiple = true;//result.singleResult = false;

@@ -235,6 +235,20 @@ public class DoelValidatorTest {
     }
 
     @Test
+    public void testReverseLinkAfterMultiTypeLinkExpression() {
+        DoelExpression expr = DoelExpression.parse("toAny.A^toC");
+        DoelValidator.Processor proc = new DoelValidator.Processor(expr, "D");
+        DoelValidator.DoelTypes result = proc.process();
+        assertTrue("Выражение должно быть корректным", result.isCorrect());
+        assertFalse("Выражение не должно быть всегда корректным", result.isAlwaysCorrect());
+        assertTrue("Тип результата выражения должен быть ссылочным",
+                result.getResultTypes().size() == 1 && result.getResultTypes().contains(FieldType.REFERENCE));
+        assertFalse("Выражение может возвращать множество значений", result.isSingleResult());
+        assertTrue("Проверка типа возвращаемого доменного объекта", result.getResultObjectTypes().size() == 1 &&
+                result.getResultObjectTypes().contains("A"));
+    }
+
+    @Test
     public void testDescendantTypeFieldExpression() {
         DoelExpression expr = DoelExpression.parse("toC.toF.fString");
         DoelValidator.Processor proc = new DoelValidator.Processor(expr, "A");
