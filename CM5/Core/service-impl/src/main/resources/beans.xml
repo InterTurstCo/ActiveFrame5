@@ -17,6 +17,9 @@
     <bean id="configurationLoader" class="ru.intertrust.cm.core.business.impl.ConfigurationLoader"
           depends-on="springApplicationContext"/>
 
+    <bean id="configurationExtensionProcessor" class="ru.intertrust.cm.core.business.impl.ConfigurationExtensionProcessor"
+          scope="prototype"/>
+
     <bean id="recursiveConfigurationLoader" class="ru.intertrust.cm.core.business.impl.RecursiveConfigurationLoader"
           scope="prototype"/>
 

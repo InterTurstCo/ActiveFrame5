@@ -55,6 +55,21 @@ public class ConfigurationSerializer {
     }
 
     /**
+     * Десериализует текст конфигурации в Java-класс
+     * @param configurationString XML-конфигурация
+     * @return конфигурация
+     * @throws ConfigurationException
+     *             в случае ошибки десериализации
+     */
+    public static Configuration deserializeConfiguration(String configurationString) {
+        try {
+            return createSerializerInstance().read(Configuration.class, configurationString);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to deserialize configuration");
+        }
+    }
+
+    /**
      * Десериализует строку в конфигурацию без выполнения валидации на соответствие схеме конфигурации. Данный метод
      * предназначен для десериализации строк, представляющих собой ранее сериализованную конфигурацию
      * @param configurationString

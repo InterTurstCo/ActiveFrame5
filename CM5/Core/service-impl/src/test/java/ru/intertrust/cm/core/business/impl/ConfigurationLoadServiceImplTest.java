@@ -51,6 +51,8 @@ public class ConfigurationLoadServiceImplTest {
     @Mock
     private RecursiveConfigurationMerger recursiveConfigurationMerger;
     @Mock
+    private ConfigurationExtensionProcessor configurationExtensionProcessor;
+    @Mock
     private CrudService crudService;
     @Mock
     private DataStructureDao dataStructureDao;
