@@ -1,5 +1,7 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -12,7 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
@@ -271,6 +274,18 @@ public class CollectionsDaoImplTest {
         configuration.getConfigurationList().add(employee);
         configuration.getConfigurationList().add(departmnet);
 
+        CollectionConfig childrenCollectionConfig = new CollectionConfig();
+        childrenCollectionConfig.setPrototype("select name from child where 1 = 1 ::where-clause");
+        childrenCollectionConfig.setName("children");
+        CollectionFilterConfig parentFilterConfig = new CollectionFilterConfig();
+        parentFilterConfig.setName("byParent");
+        CollectionFilterCriteriaConfig parentFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
+        parentFilterCriteriaConfig.setPlaceholder("where-clause");
+        parentFilterCriteriaConfig.setValue("parent = {0}");
+        parentFilterConfig.setFilterCriteria(parentFilterCriteriaConfig);
+        childrenCollectionConfig.setFilters(singletonList(parentFilterConfig));
+        configuration.getConfigurationList().add(childrenCollectionConfig);
+
         collectionConfig = createEmployeesCollectionConfig();
         configuration.getConfigurationList().add(collectionConfig);
 
@@ -311,6 +326,7 @@ public class CollectionsDaoImplTest {
         configurationExplorer = new ConfigurationExplorerImpl(configuration);
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
+
     }
 
     private AccessToken createMockAccessToken() {
@@ -339,7 +355,7 @@ public class CollectionsDaoImplTest {
         filter.setFilter("byDepartment");
         AccessToken accessToken = createMockAccessToken();
 
-        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 0, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH_FILTERS),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
@@ -353,17 +369,17 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(1, 2)));
 
         CollectionQueryEntry collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+                collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
         assertNull(collectionQueryEntry);
 
-        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 2, 0, accessToken);
 
         // значения фильтра в ключе кеша не должны использоваться
         filter = new Filter();
         filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // значения фильтра в ключе кеша не должны использоваться
@@ -372,9 +388,9 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionsDaoImpl.findCollection("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 2, 0, accessToken);
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // очередность параметров в фильтре не должна влиять на кеширование
@@ -384,13 +400,13 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         filter = new Filter();
         filter.setFilter("byDepartment1");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", Collections.singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
         assertNull(collectionQueryEntry);
 
     }
@@ -400,9 +416,9 @@ public class CollectionsDaoImplTest {
         String collectionQuery = "Select * from country where id in ({0})";
         AccessToken accessToken = createMockAccessToken();
 
-        List<Value> referenceValues =
-                Arrays.<Value> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
-        ListValue listValue = new ListValue(referenceValues);
+        List<Value<?>> referenceValues =
+                Arrays.<Value<?>> asList(new ReferenceValue(new RdbmsId(1, 1)), new ReferenceValue(new RdbmsId(1, 2)));
+        ListValue listValue = ListValue.createListValue(referenceValues);
 
         List<Value> params = new ArrayList<>();
         params.add(listValue);
@@ -411,24 +427,24 @@ public class CollectionsDaoImplTest {
         listParams.add(listValue);
 
         CollectionQueryEntry collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, null, accessToken);
         assertNull(collectionQueryEntry);
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 0, 0, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, listParams, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 0, 0, null, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // другие offset и limit
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, listParams, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, null, accessToken);
         assertNull(collectionQueryEntry);
 
         collectionsDaoImpl.findCollectionByQuery(collectionQuery, params, 2, 2, accessToken);
 
         collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, listParams, accessToken);
+                collectionQueryCache.getCollectionQuery(collectionQuery, 2, 2, null, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // запрос без параметров
@@ -446,10 +462,61 @@ public class CollectionsDaoImplTest {
         filter.setFilter("byDepartment");
         AccessToken accessToken = createMockAccessToken();
 
-        collectionsDaoImpl.findCollection("Persons", Collections.singletonList(filter), new SortOrder(), 0, 0, accessToken);
+        collectionsDaoImpl.findCollection("Persons", singletonList(filter), new SortOrder(), 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH_MULTIPLE_TYPE_REFERENCE),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testFindCollectionWithReferenceParams() throws Exception {
+
+        Filter f = new Filter();
+        f.setFilter("byParent");
+        f.addReferenceCriterion(0, new RdbmsId(1, 1));
+
+        collectionsDaoImpl
+                .findCollection("children", singletonList(f), new SortOrder(), 0, 0, createMockSystemAccessToken());
+
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("byParent_0", 1L);
+        expected.put("byParent_0_type", 1L);
+        verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
+                eq(expected), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testFindCollectionWithListParams() throws Exception {
+
+        Filter f = new Filter();
+        f.setFilter("byParent");
+        f.addCriterion(0, ListValue.createListValue(asList(new ReferenceValue(new RdbmsId(1, 1)))));
+
+        collectionsDaoImpl
+                .findCollection("children", singletonList(f), new SortOrder(), 0, 0, createMockSystemAccessToken());
+
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("byParent_0_0", asList(1L));
+        expected.put("byParent_0_0_type", 1L);
+        verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
+                eq(expected), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testFindCollectionWithMultipleCriterionWithReferenceParams() throws Exception {
+
+        Filter f = new Filter();
+        f.setFilter("byParent");
+        f.addMultiReferenceCriterion(0, asList((Id) new RdbmsId(1, 1)));
+
+        collectionsDaoImpl
+                .findCollection("children", singletonList(f), new SortOrder(), 0, 0, createMockSystemAccessToken());
+
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("byParent_0_0", asList(1L));
+        expected.put("byParent_0_0_type", 1L);
+        verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
+                eq(expected), any(CollectionRowMapper.class));
     }
 
     // @Test
@@ -498,7 +565,7 @@ public class CollectionsDaoImplTest {
         filter.setFilter("byDepartment");
         AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, Collections.singletonList(filter),
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, singletonList(filter),
                 sortOrder, 10, 100, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
 
@@ -525,10 +592,15 @@ public class CollectionsDaoImplTest {
         List<Value> params = new ArrayList<>();
         params.addAll(referenceValues);
 
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("PARAM0", 1L);
+        expected.put("PARAM0_type", 1L);
+        expected.put("PARAM1", 2L);
+        expected.put("PARAM1_type", 1L);
         collectionsDaoImpl.findCollectionByQuery(COLLECTION_NOT_EQUALS_REFERENCE, params, 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(COLLECTION_NOT_EQUALS_REFERENCE_RESULT),
-                anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
+                eq(expected), any(CollectionRowMapper.class));
 
     }
 
@@ -662,5 +734,13 @@ public class CollectionsDaoImplTest {
         result.setIdField("id");
 
         return result;
+    }
+
+    private Set<FilterForCache> filtersForCache(List<? extends Filter> filterValues) {
+        HashSet<FilterForCache> filtersForCache = new HashSet<>();
+        for (Filter f : filterValues) {
+            filtersForCache.add(new FilterForCache(f));
+        }
+        return filtersForCache;
     }
 }

@@ -1,9 +1,7 @@
 package ru.intertrust.cm.core.business.api.dto;
 
 /**
- * @author Denis Mitavskiy
- *         Date: 12.10.13
- *         Time: 18:58
+ * @author Denis Mitavskiy Date: 12.10.13 Time: 18:58
  */
 public class Pair<T1, T2> implements Dto {
     private T1 first;
@@ -59,5 +57,10 @@ public class Pair<T1, T2> implements Dto {
         int result = first != null ? first.hashCode() : 0;
         result = 31 * result + (second != null ? second.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "{" + first.toString() + ", " + second.toString() + "}";
     }
 }
