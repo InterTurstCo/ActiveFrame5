@@ -1,8 +1,9 @@
 package ru.intertrust.cm.core.dao.impl.utils;
 
-import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
-import ru.intertrust.cm.core.business.api.dto.util.ListValue;
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
+import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,23 +12,30 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.DataStructureNamingHelper.getTimeZoneIdColumnName;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getGMTDate;
-import static ru.intertrust.cm.core.dao.impl.utils.DateUtils.getTimeZoneId;
+import ru.intertrust.cm.core.business.api.dto.BooleanValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
+import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.TimelessDate;
+import ru.intertrust.cm.core.business.api.dto.TimelessDateValue;
+import ru.intertrust.cm.core.business.api.dto.Value;
+import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 
 /**
  * Представляет набор функций для работы со колонками доменного объекта
- *
+ * 
  * @author skashanski
- *
+ * 
  */
 public class DaoUtils {
 
     /**
      * Формирует строку параметров вида :param1, param2,.. из списка переданных
      * имен колонок
-     *
+     * 
      * @param columns
      *            список колонок
      * @return строку параметров разделенных запятой
@@ -67,8 +75,9 @@ public class DaoUtils {
      * Формирует строку состоящую из списка переданных колонок разделенных
      * запятой. В результате получаем строку ввида : column1=:param1,
      * column2=:param2
-     *
-     * @param columns список колонок
+     * 
+     * @param columns
+     *            список колонок
      * @return возвращает строку состоящую из списка значений
      */
     public static String generateCommaSeparatedListWithParams(Collection<String> columns) {
@@ -95,9 +104,14 @@ public class DaoUtils {
 
     public static void setParameter(String parameterName, Value value, Map<String, Object> parameters) {
         if (value instanceof ReferenceValue) {
-            RdbmsId rdbmsId = (RdbmsId) value.get();
-            parameters.put(parameterName, rdbmsId.getId());
-            parameters.put(generateReferenceTypeParameter(parameterName), rdbmsId.getTypeId());
+            // Ничего не делаем, Reference-параметры заполняются отдельным
+            // обработчиком
+            /*
+             * RdbmsId rdbmsId = (RdbmsId) value.get();
+             * parameters.put(parameterName, rdbmsId.getId());
+             * parameters.put(generateReferenceTypeParameter(parameterName),
+             * rdbmsId.getTypeId());
+             */
         } else if (value instanceof DateTimeValue) {
             parameters.put(parameterName, getGMTDate((Date) value.get()));
         } else if (value instanceof DateTimeWithTimeZoneValue) {
@@ -109,10 +123,12 @@ public class DaoUtils {
         } else if (value instanceof BooleanValue) {
             Boolean parameterValue = (Boolean) value.get();
             parameters.put(parameterName, parameterValue ? 1 : 0);
-        } else if (value instanceof ListValue) {            
-            List<Serializable> jdbcCompliantValues = createJdbcCompliantValues((ListValue) value);
-            parameters.put(parameterName, jdbcCompliantValues);
-
+        } else if (value instanceof ListValue) {
+            ListValue listValue = (ListValue) value;
+            if (doesNotContainReferenceValues(listValue)) {
+                List<Serializable> jdbcCompliantValues = createJdbcCompliantValues(listValue);
+                parameters.put(parameterName, jdbcCompliantValues);
+            }
         } else {
             parameters.put(parameterName, value.get());
         }
@@ -129,7 +145,8 @@ public class DaoUtils {
                 jdbcCompliantValues.add(((RdbmsId) singleValue).getId());
             } else if (singleValue instanceof DateTimeWithTimeZone) {
                 jdbcCompliantValues.add(getGMTDate((DateTimeWithTimeZone) singleValue));
-                // TODO create mechanism for passing timeZone. in() expression in SQL should be replaced by set of OR
+                // TODO create mechanism for passing timeZone. in() expression
+                // in SQL should be replaced by set of OR
                 // exressions
             } else if (singleValue instanceof Date) {
                 jdbcCompliantValues.add(getGMTDate((Date) singleValue));
@@ -161,15 +178,28 @@ public class DaoUtils {
     /**
      * Добавляет фильтры на количество возвращаемых записей и смещение.
      * @param query
-     * @param offset смещение. Если равно 0, то не создается фильтр по смещению.
-     * @param limit количество. Если равно 0, то не создается фильтр по количеству.
+     * @param offset
+     *            смещение. Если равно 0, то не создается фильтр по смещению.
+     * @param limit
+     *            количество. Если равно 0, то не создается фильтр по
+     *            количеству.
      */
     public static void applyOffsetAndLimit(StringBuilder query, int offset, int limit) {
         if (limit != 0) {
             query.append(" limit ").append(limit);
         }
-        if(offset != 0){
+        if (offset != 0) {
             query.append(" OFFSET ").append(offset);
         }
+    }
+
+    private static boolean doesNotContainReferenceValues(ListValue value) {
+        boolean result = true;
+        for (Value<?> v : value.getUnmodifiableValuesList()) {
+            if (v instanceof ReferenceValue) {
+                result = false;
+            }
+        }
+        return result;
     }
 }

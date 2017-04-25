@@ -1,17 +1,14 @@
 package ru.intertrust.cm.globalcache.api;
 
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @author Denis Mitavskiy
- *         Date: 13.08.2015
- *         Time: 17:06
+ * @author Denis Mitavskiy Date: 13.08.2015 Time: 17:06
  */
 public class QueryCollectionSubKey extends CollectionSubKey {
     public final List<? extends Value> paramValues;
@@ -30,7 +27,7 @@ public class QueryCollectionSubKey extends CollectionSubKey {
         for (Value paramValue : paramValues) {
             if (paramValue != null) {
                 if (paramValue instanceof ListValue) {
-                    final ArrayList<Value> values = ((ListValue) paramValue).getValues();
+                    final List<Value<?>> values = ((ListValue) paramValue).getUnmodifiableValuesList();
                     if (values != null) {
                         qty += values.size();
                     }
