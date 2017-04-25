@@ -116,18 +116,35 @@ public class CollectionQueryCacheImplTest {
 
     @Test
     public void testCountQuery() {
-        cache.putCollectionCountQuery("Employees", filtersForCache(singletonList(filterWithMultipleCriterions("byDepartment", new ReferenceValue(
-                new RdbmsId(1, 2)), new ReferenceValue(new RdbmsId(1, 2))))), createMockAccessToken(), entry);
+        List<Filter> filters = singletonList(filterWithMultipleCriterions("byDepartment", new ReferenceValue(
+                new RdbmsId(1, 2)), new ReferenceValue(new RdbmsId(1, 2))));
+        cache.putCollectionCountQuery("Employees", filtersForCache(filters), new QueryModifierPrompt(), createMockAccessToken(), entry);
         assertSame(entry,
-                cache.getCollectionCountQuery("Employees", filtersForCache(singletonList(filterWithMultipleCriterions("byDepartment", new ReferenceValue(
-                        new RdbmsId(1, 2)), new ReferenceValue(new RdbmsId(1, 2))))), createMockAccessToken()));
+                cache.getCollectionCountQuery("Employees", filtersForCache(filters), new QueryModifierPrompt(), createMockAccessToken()));
+    }
+
+    @Test
+    public void testCountQueryIsAffectedByListParameters() {
+        ParametersConverter converter = new ParametersConverter();
+
+        List<Filter> filters = singletonList(idsFilter("byDepartment", new RdbmsId(1, 2), new RdbmsId(1, 2)));
+        cache.putCollectionCountQuery("Employees", filtersForCache(filters), converter.convertReferenceValuesInFilters(filters).getSecond(),
+                createMockAccessToken(), entry);
+
+        List<Filter> differentFilters = singletonList(idsFilter("byDepartment", new RdbmsId(1, 2), new RdbmsId(2, 2)));
+        assertNotSame(entry, cache.getCollectionCountQuery("Employees", filtersForCache(differentFilters),
+                converter.convertReferenceValuesInFilters(differentFilters).getSecond(), createMockAccessToken()));
     }
 
     @Test
     public void testCountQueryIsNotTheSameAsPlainQuery() {
-        cache.putCollectionCountQuery("Employees", filtersForCache(singletonList(filterWithMultipleCriterions("byDepartment", new ReferenceValue(
-                new RdbmsId(1, 2)), new ReferenceValue(new RdbmsId(1, 2))))), createMockAccessToken(), entry);
-        assertNotSame(entry, cache.getCollectionQuery("Employees", null, null, null, 0, 0, createMockAccessToken()));
+        ParametersConverter converter = new ParametersConverter();
+        List<Filter> filters = singletonList(filterWithMultipleCriterions("byDepartment", new ReferenceValue(
+                new RdbmsId(1, 2)), new ReferenceValue(new RdbmsId(1, 2))));
+        QueryModifierPrompt prompt = converter.convertReferenceValuesInFilters(filters).getSecond();
+        cache.putCollectionCountQuery("Employees", filtersForCache(filters), prompt,
+                createMockAccessToken(), entry);
+        assertNotSame(entry, cache.getCollectionQuery("Employees", filtersForCache(filters), prompt, null, 0, 0, createMockAccessToken()));
     }
 
     @Test

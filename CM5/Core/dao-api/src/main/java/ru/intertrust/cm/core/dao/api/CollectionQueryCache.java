@@ -27,10 +27,12 @@ public interface CollectionQueryCache {
      * {@link CollectionsDao#findCollectionCount(String, List, AccessToken)}
      * @param collectionName
      * @param filterValues
+     * @param queryModifierPrompt
      * @param accessToken
      * @return
      */
-    CollectionQueryEntry getCollectionCountQuery(String collectionName, Set<FilterForCache> filterValues, AccessToken accessToken);
+    CollectionQueryEntry getCollectionCountQuery(String collectionName, Set<FilterForCache> filterValues, QueryModifierPrompt queryModifierPrompt,
+            AccessToken accessToken);
 
     Set<String> getCollectionDomainObjectTypes(String query);
 
@@ -75,10 +77,12 @@ public interface CollectionQueryCache {
      * Помещение SQL запроса для размера коллекции в кеш.
      * @param collectionName
      * @param filterValues
+     * @param queryModifierPrompt
      * @param accessToken
      * @param queryEntry
      */
-    void putCollectionCountQuery(String collectionName, Set<FilterForCache> filterValues, AccessToken accessToken, CollectionQueryEntry queryEntry);
+    void putCollectionCountQuery(String collectionName, Set<FilterForCache> filterValues, QueryModifierPrompt queryModifierPrompt, AccessToken accessToken,
+            CollectionQueryEntry queryEntry);
 
     void putCollectionDomainObjectTypes(String query, Set<String> types);
 
@@ -106,7 +110,8 @@ public interface CollectionQueryCache {
      * {@link CollectionsDao#findCollection(String, List, SortOrder, int, int, AccessToken)}
      * @param collectionName
      * @param filterValues
-     * @param prompt TODO
+     * @param prompt
+     *            TODO
      * @param sortOrder
      * @param offset
      * @param limit

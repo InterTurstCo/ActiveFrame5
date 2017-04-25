@@ -243,13 +243,14 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
             Select select = sqlParser.getSelectStatement();
 
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+
             Map<String, FieldConfig> columnToConfigMap =
-                    createSqlQueryModifier().buildColumnToConfigMapForParameters(select);
+                    sqlQueryModifier.buildColumnToConfigMapForParameters(select);
             columnToConfigMapForSelectItems = createSqlQueryModifier().buildColumnToConfigMapForSelectItems(select);
 
             columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
-            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
             collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, paramsWithPrompt.getSecond());
 
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
@@ -287,8 +288,15 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     private Pair<Integer, Long> findCollectionCountInDB(long preparationStartTime, CollectionConfig collectionConfig, String collectionName,
             List<? extends Filter> filterValues, AccessToken accessToken) {
+
+        Map<String, Object> parameters = new HashMap<>();
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> paramsWithPrompt = converter.convertReferenceValuesInFilters(filterValues);
+        parameters.putAll(paramsWithPrompt.getFirst());
+
         String collectionQuery;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filtersForCache(filterValues), accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filtersForCache(filterValues),
+                paramsWithPrompt.getSecond(), accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
@@ -296,13 +304,18 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
             collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
+            SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
+            Select select = sqlParser.getSelectStatement();
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+            collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, paramsWithPrompt.getSecond());
+
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, null);
-            collectionQueryCache.putCollectionCountQuery(collectionName, filtersForCache(filterValues), accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionCountQuery(collectionName, filtersForCache(filterValues), paramsWithPrompt.getSecond(), accessToken,
+                    collectionQueryEntry);
         }
 
-        Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
 
         if (accessToken.isDeferred()) {
@@ -712,7 +725,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 // в исполняемом SQL запросе названия параметров совпадает с их
                 // номерами в начальном SQL запросе.
                 String parameterName = index + "";
-                setParameter(parameterName, value, parameterMap);
+                setParameter(parameterName, value, parameterMap, true);
             }
             index++;
         }
@@ -763,7 +776,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     // continue;
                     // }
                     if (criterion instanceof Value) {
-                        setParameter(parameterName, (Value<?>) criterion, parameters);
+                        setParameter(parameterName, (Value<?>) criterion, parameters, true);
                     } else if (criterion instanceof List) {
                         List<Value> valuesList = (List) criterion;
                         if (doesNotContainReferenceValues(valuesList)) {

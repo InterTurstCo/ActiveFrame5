@@ -61,6 +61,6 @@ public class Pair<T1, T2> implements Dto {
 
     @Override
     public String toString() {
-        return "{" + first.toString() + ", " + second.toString() + "}";
+        return "{" + (first == null ? "null" : first.toString()) + ", " + (second == null ? "null" : second.toString()) + "}";
     }
 }

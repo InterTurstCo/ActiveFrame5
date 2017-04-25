@@ -102,16 +102,13 @@ public class DaoUtils {
 
     }
 
-    public static void setParameter(String parameterName, Value value, Map<String, Object> parameters) {
+    public static void setParameter(String parameterName, Value value, Map<String, Object> parameters, boolean ignoreReferenceParameters) {
         if (value instanceof ReferenceValue) {
-            // Ничего не делаем, Reference-параметры заполняются отдельным
-            // обработчиком
-            /*
-             * RdbmsId rdbmsId = (RdbmsId) value.get();
-             * parameters.put(parameterName, rdbmsId.getId());
-             * parameters.put(generateReferenceTypeParameter(parameterName),
-             * rdbmsId.getTypeId());
-             */
+            if (!ignoreReferenceParameters) {
+                RdbmsId rdbmsId = (RdbmsId) value.get();
+                parameters.put(parameterName, rdbmsId.getId());
+                parameters.put(generateReferenceTypeParameter(parameterName), rdbmsId.getTypeId());
+            }
         } else if (value instanceof DateTimeValue) {
             parameters.put(parameterName, getGMTDate((Date) value.get()));
         } else if (value instanceof DateTimeWithTimeZoneValue) {
@@ -125,7 +122,7 @@ public class DaoUtils {
             parameters.put(parameterName, parameterValue ? 1 : 0);
         } else if (value instanceof ListValue) {
             ListValue listValue = (ListValue) value;
-            if (doesNotContainReferenceValues(listValue)) {
+            if (!ignoreReferenceParameters || doesNotContainReferenceValues(listValue)) {
                 List<Serializable> jdbcCompliantValues = createJdbcCompliantValues(listValue);
                 parameters.put(parameterName, jdbcCompliantValues);
             }
