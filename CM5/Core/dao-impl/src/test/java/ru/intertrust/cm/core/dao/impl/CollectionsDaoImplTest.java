@@ -6,7 +6,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,6 +41,7 @@ import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.FieldConfig;
 import ru.intertrust.cm.core.config.GlobalSettingsConfig;
 import ru.intertrust.cm.core.config.ReferenceFieldConfig;
 import ru.intertrust.cm.core.config.StringFieldConfig;
@@ -55,6 +58,7 @@ import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
 /**
@@ -73,14 +77,6 @@ public class CollectionsDaoImplTest {
             "INNER JOIN \"group_group\" AS gg ON r.\"group_id\" = gg.\"parent_group_id\" INNER JOIN \"group_member\" " +
             "AS gm ON gg.\"child_group_id\" = gm.\"usergroup\" WHERE gm.\"person_id\" = :user_id AND " +
             "r.\"object_id\" = \"id\") ";
-
-    private static final String COLLECTION_COUNT_WITH_FILTERS =
-            "SELECT count(*), 'employee' AS TEST_CONSTANT FROM employee AS e " +
-                    "INNER JOIN department AS d ON e.department = d.id WHERE EXISTS " +
-                    "(SELECT r.object_id FROM employee_READ AS r INNER JOIN group_member AS gm ON r.group_id = gm.usergroup " +
-                    "WHERE gm.person_id = :user_id " +
-                    "AND r.object_id = id) " +
-                    "AND 1 = 1 AND d.name = 'dep1' AND e.name = 'employee1'";
 
     private static final String COLLECTION_QUERY_WITH_FILTER_AND_LIMITS =
             "SELECT e.id, e.name, e.position, e.created_date, e.updated_date, 'employee' AS TEST_CONSTANT " +
@@ -195,22 +191,17 @@ public class CollectionsDaoImplTest {
     @Mock
     private GlobalCacheClient globalCacheClient;
 
+    @Mock
+    private GlobalCacheManager globalCacheManager;
+
     private DomainObjectQueryHelper domainObjectQueryHelper = new DomainObjectQueryHelper();
 
     private ConfigurationExplorerImpl configurationExplorer;
     CollectionQueryCacheImpl collectionQueryCache = new CollectionQueryCacheImpl();
 
-    private CollectionFilterConfig byDepartmentFilterConfig;
-    private CollectionFilterConfig byDepartmentComplexFilterConfig;
-    private CollectionFilterConfig byNameFilterConfig;
-    private CollectionFilterConfig byNameComplexFilterConfig;
-    private CollectionFilterConfig byAuthenticationInfoFilterConfig;
-
     private CollectionConfig collectionConfig;
     private CollectionConfig complexCollectionConfig;
     private CollectionConfig personsCollectionConfig;
-
-    private SortOrder sortOrder;
 
     @Before
     public void setUp() throws Exception {
@@ -225,96 +216,53 @@ public class CollectionsDaoImplTest {
     }
 
     private void initConfigurationExplorer() {
-        DomainObjectTypeConfig doTypeConfig = new DomainObjectTypeConfig();
-        doTypeConfig.setName("Person");
-        StringFieldConfig email = new StringFieldConfig();
-        email.setName("EMail");
-        email.setLength(128);
-        doTypeConfig.getFieldConfigs().add(email);
-
-        StringFieldConfig login = new StringFieldConfig();
-        login.setName("Login");
-        login.setLength(64);
-        login.setNotNull(true);
-        doTypeConfig.getFieldConfigs().add(login);
-
-        StringFieldConfig password = new StringFieldConfig();
-        password.setName("Password");
-        password.setLength(128);
-        doTypeConfig.getFieldConfigs().add(password);
-
-        ReferenceFieldConfig boss = new ReferenceFieldConfig();
-        boss.setName("Boss");
-        boss.setType("Internal_Employee");
-        doTypeConfig.getFieldConfigs().add(boss);
-
-        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
-        doTypeConfig.getUniqueKeyConfigs().add(uniqueKeyConfig);
-
-        UniqueKeyFieldConfig uniqueKeyFieldConfig1 = new UniqueKeyFieldConfig();
-        uniqueKeyFieldConfig1.setName("EMail");
-        uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueKeyFieldConfig1);
-
-        DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
-        internalEmployee.setName("Internal_Employee");
-
-        DomainObjectTypeConfig externalEmployee = new DomainObjectTypeConfig();
-        externalEmployee.setName("External_Employee");
-
-        DomainObjectTypeConfig employee = new DomainObjectTypeConfig();
-        employee.setName("employee");
-
-        DomainObjectTypeConfig departmnet = new DomainObjectTypeConfig();
-        departmnet.setName("department");
 
         Configuration configuration = new Configuration();
-        configuration.getConfigurationList().add(doTypeConfig);
-        configuration.getConfigurationList().add(internalEmployee);
-        configuration.getConfigurationList().add(externalEmployee);
-        configuration.getConfigurationList().add(employee);
-        configuration.getConfigurationList().add(departmnet);
 
-        CollectionConfig childrenCollectionConfig = new CollectionConfig();
-        childrenCollectionConfig.setPrototype("select name from child where 1 = 1 ::where-clause");
-        childrenCollectionConfig.setName("children");
-        CollectionFilterConfig parentFilterConfig = new CollectionFilterConfig();
-        parentFilterConfig.setName("byParent");
-        CollectionFilterCriteriaConfig parentFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        parentFilterCriteriaConfig.setPlaceholder("where-clause");
-        parentFilterCriteriaConfig.setValue("parent = {0}");
-        parentFilterConfig.setFilterCriteria(parentFilterCriteriaConfig);
-        childrenCollectionConfig.setFilters(singletonList(parentFilterConfig));
-        configuration.getConfigurationList().add(childrenCollectionConfig);
+        configuration.getConfigurationList().addAll(asList(
+                typeConfig("Person", asList(
+                        stringFieldConfig("EMail", 128, false)
+                        , stringFieldConfig("Login", 64, true)
+                        , stringFieldConfig("Password", 128, false)
+                        , referenceConfig("Boss", "Internal_Employee")
+                        ), asList(uniqueKey("EMail")))
+                , typeConfig("Internal_Employee")
+                , typeConfig("External_Employee")
+                , typeConfig("employee")
+                , typeConfig("department")
+                ));
 
-        collectionConfig = createEmployeesCollectionConfig();
-        configuration.getConfigurationList().add(collectionConfig);
+        collectionConfig = createCollectionConfig("Employees", EMLOYEES_PROROTYPE, EMPLOYEES_COUNTING_PROTOTYPE,
+                filterConfig("byDepartment", from("inner join department d on e.department = d.id", "from-clause"),
+                        where(" d.name = 'dep1'")),
+                filterConfig("byName", null, where(" e.name = 'employee1' ")),
+                filterConfig("byAuthenticationInfo", from("inner join authentication_info a on e.login = a.id", "from-clause2"),
+                        where(" a.id = 1 ", "where-clause2"))
+                );
 
-        complexCollectionConfig = createEmployeesComplexCollectionConfig();
-        configuration.getConfigurationList().add(complexCollectionConfig);
+        complexCollectionConfig = createCollectionConfig("EmployeesComplex", EMPLOYEES_COMPLEX_PROTOTYPE, EMPLOYEES_COUNTING_PROTOTYPE,
+                filterConfig("byDepartment", from("inner join department d on e.department = d.id", "from-clause"),
+                        where(" d.name = 'dep1'")),
+                filterConfig("byDepartment", from("inner join department d on e.department = d.id", "from-clause1"),
+                        where(" d.name = 'dep1'", "where-clause1")),
+                filterConfig("byName", null, where(" e.name = 'employee1' ")),
+                filterConfig("byName", null, where(" e.name = 'employee1' ", "where-clause1")),
+                filterConfig("byAuthenticationInfo", from("inner join authentication_info a on e.login = a.id", "from-clause2"),
+                        where(" a.id = 1 ", "where-clause2"))
+                );
 
-        personsCollectionConfig = createPersonsCollectionConfig();
-        configuration.getConfigurationList().add(personsCollectionConfig);
-
-        byDepartmentFilterConfig = createByDepartmentFilterConfig();
-        collectionConfig.getFilters().add(byDepartmentFilterConfig);
-        complexCollectionConfig.getFilters().add(byDepartmentFilterConfig);
-
-        byDepartmentComplexFilterConfig = createByDepartmentComplexFilterConfig();
-        complexCollectionConfig.getFilters().add(byDepartmentComplexFilterConfig);
-
-        byNameFilterConfig = createByNameFilterConfig();
-        collectionConfig.getFilters().add(byNameFilterConfig);
-        complexCollectionConfig.getFilters().add(byNameFilterConfig);
-
-        byNameComplexFilterConfig = createByNameComplexFilterConfig();
-        collectionConfig.getFilters().add(byNameComplexFilterConfig);
-        complexCollectionConfig.getFilters().add(byNameComplexFilterConfig);
-
-        byAuthenticationInfoFilterConfig = createByAuthenticationInfoFilterConfig();
-        collectionConfig.getFilters().add(byAuthenticationInfoFilterConfig);
-        complexCollectionConfig.getFilters().add(byAuthenticationInfoFilterConfig);
-
-        sortOrder = createByNameSortOrder();
+        personsCollectionConfig = createCollectionConfig("Persons", PERSONS_PROROTYPE, PERSONS_COUNTING_PROTOTYPE);
+        configuration.getConfigurationList().addAll(asList(
+                createCollectionConfig(
+                        "children",
+                        "select name from child where 1 = 1 ::where-clause",
+                        null,
+                        filterConfig("byParent", null, where("parent = {0}"))
+                ),
+                collectionConfig,
+                complexCollectionConfig,
+                personsCollectionConfig
+                ));
 
         GlobalSettingsConfig globalSettingsConfig = new GlobalSettingsConfig();
         CollectionQueryCacheConfig collectionQueryCacheConfig = new CollectionQueryCacheConfig();
@@ -327,6 +275,52 @@ public class CollectionsDaoImplTest {
         collectionsDaoImpl.setConfigurationExplorer(configurationExplorer);
         collectionQueryCache.setConfigurationExplorer(configurationExplorer);
 
+    }
+
+    private DomainObjectTypeConfig typeConfig(String name, List<FieldConfig> fieldConfigs, List<UniqueKeyConfig> uniqueKeys) {
+        DomainObjectTypeConfig c = typeConfig(name);
+        c.getFieldConfigs().addAll(fieldConfigs);
+        c.getUniqueKeyConfigs().addAll(uniqueKeys);
+        return c;
+    }
+
+    private ReferenceFieldConfig referenceConfig(String name, String type) {
+        ReferenceFieldConfig c = new ReferenceFieldConfig();
+        c.setName(name);
+        c.setType(type);
+        return c;
+    }
+
+    private CollectionFilterConfig filterConfig(String name, CollectionFilterReferenceConfig from, CollectionFilterCriteriaConfig where) {
+        CollectionFilterConfig filterConfig = new CollectionFilterConfig();
+        filterConfig.setName(name);
+        filterConfig.setFilterReference(from);
+        filterConfig.setFilterCriteria(where);
+        return filterConfig;
+    }
+
+    private UniqueKeyConfig uniqueKey(String... fields) {
+        UniqueKeyConfig uniqueKeyConfig = new UniqueKeyConfig();
+        for (String field : fields) {
+            UniqueKeyFieldConfig uniqueField = new UniqueKeyFieldConfig();
+            uniqueField.setName(field);
+            uniqueKeyConfig.getUniqueKeyFieldConfigs().add(uniqueField);
+        }
+        return uniqueKeyConfig;
+    }
+
+    private DomainObjectTypeConfig typeConfig(String name) {
+        DomainObjectTypeConfig internalEmployee = new DomainObjectTypeConfig();
+        internalEmployee.setName(name);
+        return internalEmployee;
+    }
+
+    private StringFieldConfig stringFieldConfig(String name, int length, boolean isNotNull) {
+        StringFieldConfig config = new StringFieldConfig();
+        config.setName(name);
+        config.setLength(length);
+        config.setNotNull(isNotNull);
+        return config;
     }
 
     private AccessToken createMockAccessToken() {
@@ -355,7 +349,7 @@ public class CollectionsDaoImplTest {
         filter.setFilter("byDepartment");
         AccessToken accessToken = createMockAccessToken();
 
-        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 0, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), createByNameSortOrder(), 0, 0, accessToken);
 
         verify(jdbcTemplate).query(eq(FIND_COLLECTION_QUERY_WITH_FILTERS),
                 anyMapOf(String.class, Object.class), any(CollectionRowMapper.class));
@@ -369,17 +363,18 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(1, 2)));
 
         CollectionQueryEntry collectionQueryEntry =
-                collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
+                collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2, 0, accessToken);
         assertNull(collectionQueryEntry);
 
-        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), createByNameSortOrder(), 2, 0, accessToken);
 
         // значения фильтра в ключе кеша не должны использоваться
         filter = new Filter();
         filter.setFilter("byDepartment");
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+                0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // значения фильтра в ключе кеша не должны использоваться
@@ -388,9 +383,10 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionsDaoImpl.findCollection("Employees", singletonList(filter), sortOrder, 2, 0, accessToken);
+        collectionsDaoImpl.findCollection("Employees", singletonList(filter), createByNameSortOrder(), 2, 0, accessToken);
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+                0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         // очередность параметров в фильтре не должна влиять на кеширование
@@ -400,13 +396,15 @@ public class CollectionsDaoImplTest {
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
         filter.addCriterion(0, new ReferenceValue(new RdbmsId(2, 2)));
 
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+                0, accessToken);
         assertNotNull(collectionQueryEntry);
 
         filter = new Filter();
         filter.setFilter("byDepartment1");
         filter.addCriterion(1, new ReferenceValue(new RdbmsId(2, 2)));
-        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, sortOrder, 2, 0, accessToken);
+        collectionQueryEntry = collectionQueryCache.getCollectionQuery("Employees", filtersForCache(singletonList(filter)), null, createByNameSortOrder(), 2,
+                0, accessToken);
         assertNull(collectionQueryEntry);
 
     }
@@ -536,7 +534,7 @@ public class CollectionsDaoImplTest {
         filterValues.add(filter);
 
         AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filterValues, sortOrder, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(complexCollectionConfig, filterValues, createByNameSortOrder(), 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(FIND_COMPLEX_COLLECTION_QUERY_WITH_FILTERS, refinedActualQuery);
     }
@@ -545,7 +543,7 @@ public class CollectionsDaoImplTest {
     public void testFindCollectionWithoutFilters() throws Exception {
         AccessToken accessToken = createMockAccessToken();
 
-        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, new ArrayList<Filter>(), sortOrder, 0, 0, accessToken);
+        String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, new ArrayList<Filter>(), createByNameSortOrder(), 0, 0, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
         assertEquals(COLLECTION_QUERY_WITHOUT_FILTERS, refinedActualQuery);
     }
@@ -566,7 +564,7 @@ public class CollectionsDaoImplTest {
         AccessToken accessToken = createMockAccessToken();
 
         String actualQuery = collectionsDaoImpl.getFindCollectionQuery(collectionConfig, singletonList(filter),
-                sortOrder, 10, 100, accessToken);
+                createByNameSortOrder(), 10, 100, accessToken);
         String refinedActualQuery = refineQuery(actualQuery);
 
         assertEquals(COLLECTION_QUERY_WITH_FILTER_AND_LIMITS, refinedActualQuery);
@@ -604,101 +602,46 @@ public class CollectionsDaoImplTest {
 
     }
 
-    // @Test
+    @Test
     public void testFindCollectionCountWithFilters() throws Exception {
-        List<Filter> filterValues = new ArrayList<>();
+
+        when(globalCacheClient.getCollectionCount(anyString(), anyListOf(Filter.class), any(AccessToken.class))).thenReturn(-1);
+        when(jdbcTemplate.queryForObject(anyString(), anyMapOf(String.class, Object.class), eq(Integer.class))).thenReturn(0);
 
         Filter filter = new Filter();
-        filter.setFilter("byDepartment");
-        filterValues.add(filter);
+        filter.setFilter("byParent");
+        filter.addReferenceCriterion(0, new RdbmsId(1, 1));
 
-        filter = new Filter();
-        filter.setFilter("byName");
-        filterValues.add(filter);
+        collectionsDaoImpl.findCollectionCount("children", asList(filter), createMockSystemAccessToken());
 
-        AccessToken accessToken = createMockAccessToken();
-        String actualQuery = collectionsDaoImpl.getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
-        String refinedActualQuery = refineQuery(actualQuery);
-        assertEquals(COLLECTION_COUNT_WITH_FILTERS, refinedActualQuery);
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("byParent_0", 1L);
+        expected.put("byParent_0_type", 1L);
+
+        verify(jdbcTemplate).queryForObject("SELECT count(*) FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)",
+                expected, Integer.class);
     }
 
     private String refineQuery(String actualQuery) {
         return actualQuery.trim().replaceAll("\\s+", " ");
     }
 
-    private CollectionFilterConfig createByDepartmentFilterConfig() {
-        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
-        byDepartmentFilterConfig.setName("byDepartment");
-        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
-
-        collectionFilterReference.setPlaceholder("from-clause");
-        collectionFilterReference.setValue("inner join department d on e.department = d.id");
-
-        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause");
-        collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
-
-        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
-        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
-        return byDepartmentFilterConfig;
+    private CollectionFilterCriteriaConfig where(String where, String placeholder) {
+        CollectionFilterCriteriaConfig c = new CollectionFilterCriteriaConfig();
+        c.setPlaceholder(placeholder);
+        c.setValue(where);
+        return c;
     }
 
-    private CollectionFilterConfig createByDepartmentComplexFilterConfig() {
-        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
-        byDepartmentFilterConfig.setName("byDepartment");
-        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
-
-        collectionFilterReference.setPlaceholder("from-clause1");
-        collectionFilterReference.setValue("inner join department d on e.department = d.id");
-
-        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
-        collectionFilterCriteriaConfig.setValue(" d.name = 'dep1'");
-
-        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
-        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
-        return byDepartmentFilterConfig;
+    private CollectionFilterCriteriaConfig where(String where) {
+        return where(where, "where-clause");
     }
 
-    private CollectionFilterConfig createByAuthenticationInfoFilterConfig() {
-        CollectionFilterConfig byDepartmentFilterConfig = new CollectionFilterConfig();
-        byDepartmentFilterConfig.setName("byAuthenticationInfo");
-        CollectionFilterReferenceConfig collectionFilterReference = new CollectionFilterReferenceConfig();
-
-        collectionFilterReference.setPlaceholder("from-clause2");
-        collectionFilterReference.setValue("inner join authentication_info a on e.login = a.id");
-
-        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause2");
-        collectionFilterCriteriaConfig.setValue(" a.id = 1 ");
-
-        byDepartmentFilterConfig.setFilterReference(collectionFilterReference);
-        byDepartmentFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
-        return byDepartmentFilterConfig;
-    }
-
-    private CollectionFilterConfig createByNameFilterConfig() {
-        CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
-        byNameFilterConfig.setName("byName");
-
-        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause");
-        collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
-
-        byNameFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
-        return byNameFilterConfig;
-    }
-
-    private CollectionFilterConfig createByNameComplexFilterConfig() {
-        CollectionFilterConfig byNameFilterConfig = new CollectionFilterConfig();
-        byNameFilterConfig.setName("byName");
-
-        CollectionFilterCriteriaConfig collectionFilterCriteriaConfig = new CollectionFilterCriteriaConfig();
-        collectionFilterCriteriaConfig.setPlaceholder("where-clause1");
-        collectionFilterCriteriaConfig.setValue(" e.name = 'employee1' ");
-
-        byNameFilterConfig.setFilterCriteria(collectionFilterCriteriaConfig);
-        return byNameFilterConfig;
+    private CollectionFilterReferenceConfig from(String from, String placeholder) {
+        CollectionFilterReferenceConfig c = new CollectionFilterReferenceConfig();
+        c.setPlaceholder(placeholder);
+        c.setValue(from);
+        return c;
     }
 
     private SortOrder createByNameSortOrder() {
@@ -707,32 +650,13 @@ public class CollectionsDaoImplTest {
         return sortOrder;
     }
 
-    private CollectionConfig createEmployeesCollectionConfig() {
+    private CollectionConfig createCollectionConfig(String name, String prototype, String countingPrototype, CollectionFilterConfig... filterConfigs) {
         CollectionConfig result = new CollectionConfig();
-        result.setName("Employees");
-        result.setPrototype(EMLOYEES_PROROTYPE);
-        result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
+        result.setName(name);
+        result.setPrototype(prototype);
+        result.setCountingPrototype(countingPrototype);
         result.setIdField("id");
-
-        return result;
-    }
-
-    private CollectionConfig createEmployeesComplexCollectionConfig() {
-        CollectionConfig result = new CollectionConfig();
-        result.setName("EmployeesComplex");
-        result.setPrototype(EMPLOYEES_COMPLEX_PROTOTYPE);
-        result.setCountingPrototype(EMPLOYEES_COUNTING_PROTOTYPE);
-        result.setIdField("id");
-        return result;
-    }
-
-    private CollectionConfig createPersonsCollectionConfig() {
-        CollectionConfig result = new CollectionConfig();
-        result.setName("Persons");
-        result.setPrototype(PERSONS_PROROTYPE);
-        result.setCountingPrototype(PERSONS_COUNTING_PROTOTYPE);
-        result.setIdField("id");
-
+        result.setFilters(new ArrayList<>(asList(filterConfigs)));
         return result;
     }
 

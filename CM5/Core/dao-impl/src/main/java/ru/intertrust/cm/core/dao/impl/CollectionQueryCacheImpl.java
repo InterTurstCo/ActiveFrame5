@@ -276,23 +276,24 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     }
 
     @Override
-    public CollectionQueryEntry getCollectionCountQuery(String collectionNameOrQuery, Set<FilterForCache> filterValues, AccessToken accessToken) {
+    public CollectionQueryEntry getCollectionCountQuery(String collectionNameOrQuery, Set<FilterForCache> filterValues, QueryModifierPrompt prompt,
+            AccessToken accessToken) {
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, null, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, prompt, accessToken);
             return collectionQueryCache.get(key);
         }
         return null;
     }
 
     @Override
-    public void putCollectionCountQuery(String collectionNameOrQuery, Set<FilterForCache> filterValues, AccessToken accessToken,
+    public void putCollectionCountQuery(String collectionNameOrQuery, Set<FilterForCache> filterValues, QueryModifierPrompt prompt, AccessToken accessToken,
             CollectionQueryEntry queryEntry) {
         if (collectionQueryCache.size() > getCacheMaxSize()) {
             writeLog();
             removeOneEntryFromCache();
         }
         if (collectionNameOrQuery != null) {
-            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, null, accessToken);
+            CollectionQueryKey key = new CollectionQueryKey(collectionNameOrQuery, filterValues, null, null, null, prompt, accessToken);
             collectionQueryCache.put(key, queryEntry);
         }
     }
