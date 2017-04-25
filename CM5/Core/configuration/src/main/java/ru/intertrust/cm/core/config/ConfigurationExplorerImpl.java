@@ -96,6 +96,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     private ConfigurationExplorerImpl(double specialSpringConstructor, Configuration configuration) {
         this.configuration = configuration;
+        this.distributiveConfiguration = configuration;
         this.skipLogicalValidation = false;
     }
 

@@ -6,6 +6,7 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
@@ -46,19 +47,73 @@ public class ConfigurationExtensionProcessor {
     @Autowired
     private ApplicationContext context;
 
+    // this bean is prototype, it is its local cache
+    public Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelDistributiveConfigs = new HashMap<>();
+
     @Transactional
     public void applyConfigurationExtension() {
-        final ArrayList<TagInfo> activeExtensions = deleteOrDeactivateInvalidExtensions();
-        createNewEntries();
-        activateExtensionsOrDeactivateEverythingOnError(activeExtensions);
+        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
+        createNewInactiveDistributiveExtensions();
+        try {
+            activateExtensions(activeExtensions);
+        } catch (Throwable e) {
+            Throwable cause = null;
+            if (e instanceof ConfigurationException) {
+                cause = e;
+            } else if (e instanceof FatalBeanException) {
+                cause = ((FatalBeanException) e).getCause();
+            }
+            if (cause != null && cause instanceof ConfigurationException) {
+                logger.error("Configuration extension not applied. List of errors:");
+                logger.error(((ConfigurationException) cause).getMessage());
+            }
+            logger.error("All extensions are deactivated", e);
+            deactivateExtensions(activeExtensions);
+        }
     }
 
     @Transactional
-    public void activateDrafts(Collection<Id> toolingIds) {
-
+    public void activateDraftsById(List<Id> toolingIds) {
+        activateDrafts(domainObjectDao.find(new ArrayList<>(toolingIds), getSystemAccessToken()));
     }
 
-    private ArrayList<TagInfo> deleteOrDeactivateInvalidExtensions() {
+    @Transactional
+    public void activateDrafts(List<DomainObject> toolingDOs) {
+        final AccessToken systemAccessToken = getSystemAccessToken();
+        for (DomainObject toolingDO : toolingDOs) {
+            final Id extensionId = toolingDO.getReference("configuration_extension");
+            DomainObject extensionDO;
+            if (extensionId == null) {
+                extensionDO = new GenericDomainObject("configuration_extension");
+                TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
+                extensionDO.setString("type", getTagType(draftConfig.getClass()));
+                extensionDO.setString("name", draftConfig.getName());
+            } else{
+                extensionDO = domainObjectDao.find(extensionId, systemAccessToken);
+            }
+            extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
+            extensionDO.setBoolean("active", true);
+            extensionDO = domainObjectDao.save(extensionDO, systemAccessToken);
+            if (extensionId == null) {
+                toolingDO.setReference("configuration_extension", extensionDO.getId());
+                domainObjectDao.save(toolingDO, systemAccessToken);
+            }
+        }
+        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
+        activateExtensions(activeExtensions);
+    }
+
+    @Transactional
+    public void activateDrafts() {
+        activateDrafts(domainObjectDao.findAll("config_extension_tooling", getSystemAccessToken()));
+    }
+
+    /*@Transactional
+    public void activateDraftsFromStream(InputStream stream) {
+        activateDrafts(domainObjectDao.findAll("config_extension_tooling", getSystemAccessToken()));
+    }*/
+
+    private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid() {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
         final Map<String, TagTypeInfo> tagTypeByTagName = getTagClassMapping();
         ArrayList<DomainObject> toDeactivate = new ArrayList<>();
@@ -77,7 +132,7 @@ public class ConfigurationExtensionProcessor {
                 toDelete.add(extensionDO.getId());
                 continue;
             }
-            final TopLevelConfig distrConfig = (TopLevelConfig) configurationExplorer.getConfig(tagTypeInfo.clazz, tagName);
+            final TopLevelConfig distrConfig = getTopLevelDistributiveConfig(tagTypeInfo.clazz, tagName);
             if (distrConfig != null) {
                 if (distrConfig.getReplacementPolicy() != TopLevelConfig.ExtensionPolicy.Runtime) {
                     logger.warn(getTagDefString(tagType, tagName) + " deleted - tag is not replaceable");
@@ -94,38 +149,22 @@ public class ConfigurationExtensionProcessor {
                 continue;
             }
             final String overriddenXml = extensionDO.getString("current_xml");
-            if (overriddenXml == null || overriddenXml.trim().isEmpty()) {
-                toDeactivate.add(extensionDO);
-                continue;
-            }
-            final StringBuilder configString = new StringBuilder(CONFIGURATION_START.length() + overriddenXml.length() + CONFIGURATION_END.length());
-            configString.append(CONFIGURATION_START);
-            configString.append(overriddenXml);
-            configString.append(CONFIGURATION_END);
-            final Configuration configuration;
             TopLevelConfig extensionConfig = null;
             try {
-                configuration = ConfigurationSerializer.deserializeConfiguration(configString.toString());
-                if (configuration.getConfigurationList().size() != 1) {
-                    logger.warn(getTagDefString(tagType, tagName) + " deactivated and XML cleared - XML doesn't define exactly 1 valid tag");
-                    toDeactivateAndClearXML.add(extensionDO);
-                    continue;
+                extensionConfig = parseXML(overriddenXml);
+                if (!extensionConfig.getClass().equals(tagTypeInfo.clazz)) {
+                    throw new DeactivationWithCleaningException("XML doesn't match the tag");
                 }
-            } catch (ConfigurationException e) {
+                if (!extensionConfig.getName().equals(tagName)) {
+                    throw new DeactivationException("XML doesn't match name");
+                }
+            } catch (DeactivationException e) {
                 toDeactivate.add(extensionDO);
-                logger.warn(getTagDefString(tagType, tagName) + " deactivated - XML is not valid", e);
+                logger.warn(getTagDefString(tagType, tagName) + " deactivated. " + e.getMessage(), e);
                 continue;
-            }
-
-            extensionConfig = configuration.getConfigurationList().get(0);
-            if (extensionConfig.getClass() != tagTypeInfo.clazz) {
+            } catch (DeactivationWithCleaningException e) {
+                logger.warn(getTagDefString(tagType, tagName) + " deactivated and XML cleared. " + e.getMessage(), e);
                 toDeactivateAndClearXML.add(extensionDO);
-                logger.warn(getTagDefString(tagType, tagName) + " deactivated and XML cleared - XML doesn't match the tag");
-                continue;
-            }
-            if (!extensionConfig.getName().equals(tagName)) {
-                toDeactivate.add(extensionDO);
-                logger.warn(getTagDefString(tagType, tagName) + " deactivated - XML doesn't match name");
                 continue;
             }
 
@@ -147,7 +186,27 @@ public class ConfigurationExtensionProcessor {
         return activeExtensions;
     }
 
-    private void createNewEntries() {
+    private TopLevelConfig parseXML(String overriddenXml) {
+        if (overriddenXml == null || overriddenXml.trim().isEmpty()) {
+            throw new DeactivationException("Empty XML");
+        }
+        final StringBuilder configString = new StringBuilder(CONFIGURATION_START.length() + overriddenXml.length() + CONFIGURATION_END.length());
+        configString.append(CONFIGURATION_START);
+        configString.append(overriddenXml);
+        configString.append(CONFIGURATION_END);
+        List<TopLevelConfig> configurationList = null;
+        try {
+            configurationList = ConfigurationSerializer.deserializeConfiguration(configString.toString()).getConfigurationList();
+        } catch (ConfigurationException e) {
+            throw new DeactivationException("XML not valid", e);
+        }
+        if (configurationList.size() != 1) {
+            throw new DeactivationWithCleaningException("XML doesn't define exactly 1 valid tag");
+        }
+        return configurationList.get(0);
+    }
+
+    private void createNewInactiveDistributiveExtensions() {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
         final Set<TagInfo> currentExtensions = new HashSet<>();
         for (DomainObject extensionDO : extensionDOs) {
@@ -155,7 +214,7 @@ public class ConfigurationExtensionProcessor {
             final String tagName = extensionDO.getString("name");
             currentExtensions.add(new TagInfo(tagType, tagName));
         }
-        final List<TopLevelConfig> distibutiveConfigs = configurationExplorer.getConfiguration().getConfigurationList();
+        final List<TopLevelConfig> distibutiveConfigs = configurationExplorer.getDistributiveConfiguration().getConfigurationList();
         final ArrayList<DomainObject> newExtensibleTags = new ArrayList<>();
         for (TopLevelConfig distibutiveConfig : distibutiveConfigs) {
             final TagInfo newExtensibleTag = new TagInfo(distibutiveConfig, null);
@@ -170,13 +229,13 @@ public class ConfigurationExtensionProcessor {
         domainObjectDao.save(newExtensibleTags, getSystemAccessToken());
     }
 
-    private void activateExtensionsOrDeactivateEverythingOnError(Collection<TagInfo> activeExtensions) {
+    private void activateExtensions(Collection<TagInfo> activeExtensions) {
         HashMap<TagInfo, TagInfo> extensionsMap = new HashMap<>(activeExtensions.size() * 2);
         for (TagInfo activeExtension : activeExtensions) {
             extensionsMap.put(activeExtension, activeExtension);
         }
-        final ArrayList<TopLevelConfig> configurationList = new ArrayList<>(configurationExplorer.getConfiguration().getConfigurationList().size() + extensionsMap.size());
-        for (TopLevelConfig topLevelConfig : configurationExplorer.getConfiguration().getConfigurationList()) {
+        final ArrayList<TopLevelConfig> configurationList = new ArrayList<>(configurationExplorer.getDistributiveConfiguration().getConfigurationList().size() + extensionsMap.size());
+        for (TopLevelConfig topLevelConfig : configurationExplorer.getDistributiveConfiguration().getConfigurationList()) {
             final TagInfo distrTagInfo = new TagInfo(topLevelConfig, null);
             final TagInfo extTagInfo = extensionsMap.get(distrTagInfo);
             if (extTagInfo != null) {
@@ -191,24 +250,17 @@ public class ConfigurationExtensionProcessor {
         }
         Configuration configuration = new Configuration();
         configuration.setConfigurationList(configurationList);
-        try {
-            ConfigurationExplorer newExplorer = new ConfigurationExplorerImpl(configuration, context, false);
-            ((ConfigurationExplorerImpl) configurationExplorer).copyFrom(((ConfigurationExplorerImpl) newExplorer));
-        } catch (Throwable e) {
-            if (e instanceof FatalBeanException) {
-                final Throwable cause = ((FatalBeanException) e).getCause();
-                if (cause instanceof ConfigurationException) {
-                    logger.error("Configuration extension not applied. List of errors:");
-                    logger.error(((ConfigurationException) cause).getMessage());
-                }
-            }
-            logger.error("All extensions are deactivated", e);
-            ArrayList<DomainObject> toDeactivate = new ArrayList<>(activeExtensions.size());
-            for (TagInfo extension : activeExtensions) {
-                extension.extDomainObject.setBoolean("active", false);
-                toDeactivate.add(extension.extDomainObject);
-                domainObjectDao.save(toDeactivate, getSystemAccessToken());
-            }
+
+        ConfigurationExplorer newExplorer = new ConfigurationExplorerImpl(configuration, context, false);
+        ((ConfigurationExplorerImpl) configurationExplorer).copyFrom(((ConfigurationExplorerImpl) newExplorer));
+    }
+
+    private void deactivateExtensions(Collection<TagInfo> activeExtensions) {
+        ArrayList<DomainObject> toDeactivate = new ArrayList<>(activeExtensions.size());
+        for (TagInfo extension : activeExtensions) {
+            extension.extDomainObject.setBoolean("active", false);
+            toDeactivate.add(extension.extDomainObject);
+            domainObjectDao.save(toDeactivate, getSystemAccessToken());
         }
     }
 
@@ -221,7 +273,7 @@ public class ConfigurationExtensionProcessor {
     }
 
     private String getTagDefString(String tagType, String tagName) {
-        return "Extension tag <" + tagType + "name=\"" + tagName + "\">";
+        return "Extension tag <" + tagType + " name=\"" + tagName + "\">";
     }
 
     private Map<String, TagTypeInfo> getTagClassMapping() {
@@ -235,6 +287,25 @@ public class ConfigurationExtensionProcessor {
             mapping.put(tagType, new TagTypeInfo(clazz));
         }
         return mapping;
+    }
+
+    private TopLevelConfig getTopLevelDistributiveConfig(Class type, String name) {
+        if (topLevelDistributiveConfigs.isEmpty()) {
+            final List<TopLevelConfig> topLevelConfigs = configurationExplorer.getDistributiveConfiguration().getConfigurationList();
+            for (TopLevelConfig topLevelConfig : topLevelConfigs) {
+                CaseInsensitiveMap<TopLevelConfig> typeConfigsByName = topLevelDistributiveConfigs.get(topLevelConfig.getClass());
+                if (typeConfigsByName == null) {
+                    typeConfigsByName = new CaseInsensitiveMap<>();
+                    topLevelDistributiveConfigs.put(topLevelConfig.getClass(), typeConfigsByName);
+                }
+                typeConfigsByName.put(topLevelConfig.getName(), topLevelConfig);
+            }
+        }
+        final CaseInsensitiveMap<TopLevelConfig> typeConfigsByName = topLevelDistributiveConfigs.get(type);
+        if (typeConfigsByName == null) {
+            return null;
+        }
+        return typeConfigsByName.get(name);
     }
 
     private static String getTagType(Class<? extends TopLevelConfig> clazz) {
@@ -303,6 +374,48 @@ public class ConfigurationExtensionProcessor {
                 logger.error("Can't instantiate class: " + clazz, e);
                 creationPolicy = TopLevelConfig.ExtensionPolicy.None;
             }
+        }
+    }
+
+    private static class DeactivationException extends ConfigurationException {
+        public DeactivationException() {
+        }
+
+        public DeactivationException(String message) {
+            super(message);
+        }
+
+        public DeactivationException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public DeactivationException(Throwable cause) {
+            super(cause);
+        }
+
+        public DeactivationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
+        }
+    }
+
+    private static class DeactivationWithCleaningException extends ConfigurationException {
+        public DeactivationWithCleaningException() {
+        }
+
+        public DeactivationWithCleaningException(String message) {
+            super(message);
+        }
+
+        public DeactivationWithCleaningException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public DeactivationWithCleaningException(Throwable cause) {
+            super(cause);
+        }
+
+        public DeactivationWithCleaningException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+            super(message, cause, enableSuppression, writableStackTrace);
         }
     }
 }

@@ -22,6 +22,11 @@ public class StubConfigurationExplorer implements ConfigurationExplorer {
     }
 
     @Override
+    public Configuration getDistributiveConfiguration() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public GlobalSettingsConfig getGlobalSettings() {
         throw new UnsupportedOperationException();
     }
