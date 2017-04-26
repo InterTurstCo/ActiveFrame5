@@ -52,7 +52,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     public ResultSet executeQuery() throws SQLException {
         try {
             sql = query;
-            // Заменяем знаки вопроса на нумерованные параметры
+            //Заменяем знаки вопроса на нумерованные параметры
             int paramNum = 0;
 
             while (sql.contains("?")) {
@@ -70,39 +70,40 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private List<Value> getParams() {
         List<Value> result = new ArrayList<Value>();
 
-        for (int index = 1; index <= parameters.size(); index++) {
+        
+        for(int index = 1; index <= parameters.size(); index++){
             Value parameter = null;
             Object value = parameters.get(index);
             if (value == null) {
                 parameter = getNullValue(index);
-            } else if (value instanceof Integer) {
-                parameter = new LongValue((Integer) value);
+            }else if (value instanceof Integer) {
+                parameter = new LongValue((Integer)value);
             } else if (value instanceof Long) {
-                parameter = new LongValue((Long) value);
+                parameter = new LongValue((Long)value);
             } else if (value instanceof Boolean) {
-                parameter = new BooleanValue((Boolean) value);
+                parameter = new BooleanValue((Boolean)value);
             } else if (value instanceof Timestamp) {
-                parameter = new DateTimeValue(new Date(((Timestamp) value).getTime()));
+                parameter = new DateTimeValue(new Date(((Timestamp)value).getTime()));
             } else if (value instanceof Date) {
-                parameter = new DateTimeValue((Date) value);
+                parameter = new DateTimeValue((Date)value);
             } else if (value instanceof TimelessDate) {
-                parameter = new TimelessDateValue((TimelessDate) value);
+                parameter = new TimelessDateValue((TimelessDate)value);
             } else if (value instanceof Id) {
-                parameter = new ReferenceValue((Id) value);
+                parameter = new ReferenceValue((Id)value);
             } else if (value instanceof List) {
-                List<Id> ids = (List) value;
-                List<Value<?>> values = new ArrayList<>(ids.size());
+                List<Id> ids = (List)value;
+                List<Value> values = new ArrayList<>(ids.size());
                 for (Id id : ids) {
                     values.add(new ReferenceValue(id));
                 }
-                parameter = ListValue.createListValue(values);
+                parameter = new ListValue(values);
             } else {
                 parameter = new StringValue(value.toString());
-            }
-
-            result.add(parameter);
+            } 
+            
+            result.add(parameter);            
         }
-
+        
         return result;
     }
 
@@ -114,13 +115,13 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     private Value getNullValue(int index) {
         Value result = null;
         int type = nullParameterType.get(index);
-        if (type == Types.INTEGER) {
+        if (type == Types.INTEGER){
             result = new LongValue();
-        } else if (type == Types.BOOLEAN) {
+        }else if (type == Types.BOOLEAN){
             result = new BooleanValue();
-        } else if (type == Types.DATE || type == Types.TIMESTAMP || type == Types.TIME) {
+        }else if (type == Types.DATE || type == Types.TIMESTAMP || type == Types.TIME){
             result = new DateTimeValue();
-        } else {
+        }else{
             result = new StringValue();
         }
         return result;
@@ -442,7 +443,7 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     }
 
     private void addParameter(int parameterIndex, Object value) throws SQLException {
-        if (value == null) {
+        if (value == null){
             throw new SQLException("Use setNull method to set Null parameter value");
         }
         parameters.put(parameterIndex, value);
@@ -452,6 +453,6 @@ public class JdbcPreparedStatement extends JdbcStatement implements PreparedStat
     @Override
     public IdentifiableObjectCollection getCollectionPartition() throws Exception {
         return getCollectionPartition(getParams());
-    }
+    }    
 
 }

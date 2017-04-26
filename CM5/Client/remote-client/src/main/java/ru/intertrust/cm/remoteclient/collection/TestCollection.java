@@ -8,6 +8,7 @@ import java.util.TimeZone;
 
 import ru.intertrust.cm.core.business.api.CollectionsService;
 import ru.intertrust.cm.core.business.api.CrudService;
+import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZoneValue;
 import ru.intertrust.cm.core.business.api.dto.Filter;
@@ -26,7 +27,7 @@ import ru.intertrust.cm.remoteclient.ClientBase;
 public class TestCollection extends ClientBase {
 
     protected CollectionsService.Remote collectionService;
-
+    
     protected CrudService.Remote crudService;
 
     public static void main(String[] args) {
@@ -38,14 +39,13 @@ public class TestCollection extends ClientBase {
         }
     }
 
-    @Override
     public void execute(String[] args) throws Exception {
         try {
             super.execute(args);
 
             collectionService = (CollectionsService.Remote) getService(
                     "CollectionsServiceImpl", CollectionsService.Remote.class);
-
+            
             String query = "select t.id, t.login, 'xxx' as xxx, 'yyy' as yyy from person t";
             executeQuery(query, 4);
 
@@ -80,14 +80,14 @@ public class TestCollection extends ClientBase {
             List<Value> params = new ArrayList<Value>();
             params.add(new ReferenceValue(new RdbmsId(5015, 1)));
             executeQuery(query, 1, params);
-
+            
             query = "select p.login from person p ";
             query += "inner join employee e on (p.id = e.id) ";
             query += "where e.department = {0}";
             params = new ArrayList<Value>();
             params.add(new ReferenceValue(new RdbmsId(5015, 1)));
             executeQuery(query, 1, params);
-
+            
             query = "select e.id from Tst_Employee e ";
             query += "where e.DateOn = {0}";
             params = new ArrayList<Value>();
@@ -108,12 +108,12 @@ public class TestCollection extends ClientBase {
             SortOrder sortOrder = new SortOrder();
             sortOrder.add(new SortCriterion("name", SortCriterion.Order.ASCENDING));
             List<Filter> filters = new ArrayList<Filter>();
-            /*
-             * Filter filter = new Filter(); filter.setFilter("byLastName");
-             * filter.addCriterion(0, null); filters.add(filter);
-             */
+            /*Filter filter = new Filter();
+            filter.setFilter("byLastName");
+            filter.addCriterion(0, null);
+            filters.add(filter);*/      
             executeCollection("Employees", 3, sortOrder, filters);
-
+            
             query = "select dateon, DateOff, DateAll from tst_employee";
             executeQuery(query, 3);
 
@@ -122,11 +122,11 @@ public class TestCollection extends ClientBase {
 
             query = "select dateon as \"works\" from tst_employee";
             executeQuery(query, 1);
-
+            
             query = "select id from employee where (select count(e.id) from employee e where e.name = 'xxx') > 0";
             executeQuery(query, 1);
-
-            // Расскоментировать после исправления CMFIVE-1220
+            
+            //Расскоментировать после исправления CMFIVE-1220
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5018, 1)));
             query = "select x.id, x.col2 from ( ";
@@ -136,19 +136,20 @@ public class TestCollection extends ClientBase {
             query += ") x where x.col3 = {0}";
             executeQuery(query, 2, params);
 
-            // Расскоментировать после исправления CMFIVE-1225
+            // Расскоментировать после исправления CMFIVE-1225 
             params.clear();
-            List<Value<?>> listParam = new ArrayList<>();
+            List <Value> listParam = new ArrayList<Value>();
             listParam.add(new ReferenceValue(new RdbmsId(5018, 1)));
             listParam.add(new ReferenceValue(new RdbmsId(5018, 2)));
             listParam.add(new ReferenceValue(new RdbmsId(5018, 3)));
-            params.add(ListValue.createListValue(listParam));
+            params.add(new ListValue(listParam));
             query = "select id, name from organization where id in ({0})";
             executeQuery(query, 2, params);
-
+            
+            
             query = "select id, dateon, dateoff, dateall from tst_employee";
             executeQuery(query, 4);
-
+            
             query = "select id from ("
                     + "select x.id from ("
                     + "select e.id, e.position, e.department as dpt "
@@ -158,8 +159,8 @@ public class TestCollection extends ClientBase {
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5015, 1)));
             executeQuery(query, 1, params);
-
-            // test CMFIVE-2150
+            
+            //test CMFIVE-2150
             query = "SELECT ";
             query += "d.id ";
             query += "FROM ";
@@ -181,9 +182,9 @@ public class TestCollection extends ClientBase {
             query += "e.id={0} ";
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5013, 2)));
-            executeQuery(query, 1, params);
-
-            // Проверка CMFIVE-2196
+            executeQuery(query, 1, params);  
+            
+            //Проверка CMFIVE-2196
             query = "SELECT ";
             query += "d.boss ";
             query += "FROM ";
@@ -194,7 +195,7 @@ public class TestCollection extends ClientBase {
             query += "d.boss={0} ";
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5013, 2)));
-            executeQuery(query, 1, params);
+            executeQuery(query, 1, params);            
 
             query = "SELECT ";
             query += "e.id as id, ";
@@ -206,50 +207,50 @@ public class TestCollection extends ClientBase {
             query += "where p.login is not null and profile = {0}";
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5036, 2)));
-            executeQuery(query, 3, params);
-
+            executeQuery(query, 3, params);      
+            
             sortOrder = new SortOrder();
             filters = new ArrayList<Filter>();
             Filter filter = new Filter();
             filter.setFilter("PROFILE");
             filter.addCriterion(0, new ReferenceValue(new RdbmsId(5036, 2)));
-            filters.add(filter);
-            executeCollection("Employee_Person", 3, sortOrder, filters);
-
+            filters.add(filter);   
+            executeCollection("Employee_Person", 3, sortOrder, filters);            
+            
             query = "SELECT orgDescr.Module FROM SO_OrgDescriptionSys so_org_desc_sys " +
                     "join SO_OrgDescription orgDescr on orgDescr.id = so_org_desc_sys.id and orgDescr.id_type = so_org_desc_sys.id_type  " +
                     "WHERE  orgDescr.IsDeleted=0 and orgDescr.Edited is null and module = {0}";
-
+            
             params.clear();
             params.add(new ReferenceValue(new RdbmsId(5110, 1)));
-            executeQuery(query, 1, params);
+            executeQuery(query, 1, params);            
 
             query = "select id, login from person where id in ({0})";
-
+            
             params.clear();
             listParam.clear();
             listParam.add(new ReferenceValue(new RdbmsId(5018, 1)));
             listParam.add(new ReferenceValue(new RdbmsId(5018, 2)));
-            params.add(ListValue.createListValue(listParam));
-            executeQuery(query, 2, params);
+            params.add(new ListValue(listParam));
+            executeQuery(query, 2, params);            
 
             listParam.remove(0);
             params.clear();
-            params.add(ListValue.createListValue(listParam));
-            executeQuery(query, 2, params);
-
+            params.add(new ListValue(listParam));
+            executeQuery(query, 2, params);         
+            
             query = "select id from person where login = {0}";
-
+            
             params.clear();
             params.add(new StringValue(null));
             executeQuery(query, 1, params);
-
-            // Тест запроса класса
+            
+            //Тест запроса класса
             sortOrder = new SortOrder();
             sortOrder.add(new SortCriterion("name", SortCriterion.Order.ASCENDING));
             filters = new ArrayList<Filter>();
             executeCollection("EmployeesGenerator", 3, sortOrder, filters);
-
+            
         } finally {
             writeLog();
         }

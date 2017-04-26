@@ -45,10 +45,10 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.WithItem;
-import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
@@ -244,7 +244,8 @@ public class SqlQueryModifier {
      * @param params
      *            список переданных параметров
      */
-    public String modifyQueryWithParameters(Select select, final QueryModifierPrompt prompt) {
+    public String modifyQueryWithParameters(Select select, final List<? extends Value> params, final Map<String, FieldConfig> columnToConfigMap,
+            final Map<String, Object> parameters) {
 
         final Map<String, String> replaceExpressions = new HashMap<>();
 
@@ -252,10 +253,11 @@ public class SqlQueryModifier {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect, String withItemName) {
                 ReferenceParamsProcessingVisitor modifyReferenceFieldParameter =
-                        new ReferenceParamsProcessingVisitor(prompt, false);
+                        new ReferenceParamsProcessingVisitor(params, columnToConfigMap);
 
                 plainSelect.accept(modifyReferenceFieldParameter);
                 replaceExpressions.putAll(modifyReferenceFieldParameter.getReplaceExpressions());
+                parameters.putAll(modifyReferenceFieldParameter.getJdbcParameters());
 
             }
         });
@@ -273,18 +275,22 @@ public class SqlQueryModifier {
      * Заменяет параметризованный фильтр по Reference полю (например, t.id =
      * {0}) на рабочий вариант этого фильтра {например, t.id = 1 and t.id_type =
      * 2 }
-     * @param prompt
-     *            TODO
+     * @param filterValues
+     *            список фильтров
      */
-    public String modifyQueryWithReferenceFilterValues(Select select, final QueryModifierPrompt prompt) {
+    public String modifyQueryWithReferenceFilterValues(Select select, final List<? extends Filter> filterValues,
+            final Map<String, FieldConfig> columnToConfigMap,
+            final Map<String, Object> parameters) {
         final Map<String, String> replaceExpressions = new HashMap<>();
 
         select = processSelect(select, new QueryProcessor() {
             @Override
             protected void processPlainSelect(PlainSelect plainSelect, String withItemName) {
-                ReferenceParamsProcessingVisitor visitor = new ReferenceParamsProcessingVisitor(prompt, true);
+                ReferenceFilterValuesProcessingVisitor visitor = new ReferenceFilterValuesProcessingVisitor(filterValues, columnToConfigMap);
+
                 plainSelect.accept(visitor);
                 replaceExpressions.putAll(visitor.getReplaceExpressions());
+                parameters.putAll(visitor.getJdbcParameters());
             }
         });
 

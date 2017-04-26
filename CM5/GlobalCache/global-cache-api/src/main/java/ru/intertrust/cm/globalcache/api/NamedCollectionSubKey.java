@@ -1,10 +1,5 @@
 package ru.intertrust.cm.globalcache.api;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
@@ -12,8 +7,12 @@ import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.dao.access.UserSubject;
 import ru.intertrust.cm.core.dao.api.DomainEntitiesCloner;
 
+import java.util.*;
+
 /**
- * @author Denis Mitavskiy Date: 13.08.2015 Time: 17:06
+ * @author Denis Mitavskiy
+ *         Date: 13.08.2015
+ *         Time: 17:06
  */
 public class NamedCollectionSubKey extends CollectionSubKey {
     public final Set<? extends Filter> filterValues;
@@ -31,7 +30,6 @@ public class NamedCollectionSubKey extends CollectionSubKey {
         this.sortOrder = sortOrder;
     }
 
-    @Override
     public int getKeyEntriesQty() {
         if (filterValues == null) {
             return 0;
@@ -47,8 +45,7 @@ public class NamedCollectionSubKey extends CollectionSubKey {
                 for (List<Value> value : values) {
                     if (value != null) {
                         if (value instanceof ListValue) {
-                            ListValue listValue = (ListValue) value;
-                            List<Value<?>> listValueValues = listValue.getUnmodifiableValuesList();
+                            final ArrayList<Value> listValueValues = ((ListValue) value).getValues();
                             if (listValueValues != null) {
                                 qty += listValueValues.size();
                             } else {
