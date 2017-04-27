@@ -32,6 +32,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortCriterion;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -497,6 +498,37 @@ public class CollectionsDaoImplTest {
         expected.put("byParent_0_0", asList(1L));
         expected.put("byParent_0_0_type", 1L);
         verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 AND (\"parent\" = :byParent_0 AND \"parent_type\" = :byParent_0_type)"),
+                eq(expected), any(CollectionRowMapper.class));
+    }
+
+    @Test
+    public void testIdsBasedFilters() {
+        Filter f = new IdsIncludedFilter();
+        f.setFilter("ids");
+
+        @SuppressWarnings("serial")
+        ArrayList<Long> t = new ArrayList<Long>() {
+            @Override
+            public boolean equals(Object o) {
+                if (o instanceof List) {
+                    List<?> t = (List<?>) o;
+                    return t.size() == this.size() && this.containsAll(t);
+                }
+                return false;
+            }
+        };
+
+        for (int i = 0; i < 10; i++) {
+            f.addReferenceCriterion(i, new RdbmsId(1, i));
+            t.add((long) i);
+        }
+        HashMap<String, Object> expected = new HashMap<>();
+        expected.put("idsIncluded0_0_0", t);
+        expected.put("idsIncluded0_0_0_type", 1L);
+        collectionsDaoImpl
+                .findCollection("children", singletonList(f), new SortOrder(), 0, 0, createMockSystemAccessToken());
+        verify(jdbcTemplate).query(eq("SELECT \"name\" FROM \"child\" WHERE 1 = 1 "
+                + "AND (child.\"id\" IN (:idsIncluded0_0_0) AND child.\"id_type\" = :idsIncluded0_0_0_type)"),
                 eq(expected), any(CollectionRowMapper.class));
     }
 

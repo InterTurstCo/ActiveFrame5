@@ -23,6 +23,7 @@ import ru.intertrust.cm.core.business.api.FilterForCache;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdBasedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
 import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
@@ -31,6 +32,7 @@ import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
 import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
+import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.FieldConfig;
@@ -415,20 +417,30 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         int index = 0;
         for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
-            IdsIncludedFilter clonedFilter = new IdsIncludedFilter(idsIncludedFilter);
+            Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
+            clonedFilter.addCriterion(0, mergeCriterions(idsIncludedFilter));
             processedFilters.add(clonedFilter);
             index++;
         }
 
         index = 0;
         for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
-            IdsExcludedFilter clonedFilter = new IdsExcludedFilter(idsExcludedFilter);
+            Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
+            clonedFilter.addCriterion(0, mergeCriterions(idsExcludedFilter));
             processedFilters.add(clonedFilter);
             index++;
         }
         return processedFilters;
+    }
+
+    private ListValue mergeCriterions(IdBasedFilter filter) {
+        ArrayList<ReferenceValue> values = new ArrayList<ReferenceValue>();
+        for (int criterion : filter.getCriterionKeys()) {
+            values.add(filter.getCriterion(criterion));
+        }
+        return ListValue.createListValue(values);
     }
 
     private IdentifiableObjectCollection getCollectionFromGenerator(String collectionGeneratorComponent, List<? extends Filter> filterValues,

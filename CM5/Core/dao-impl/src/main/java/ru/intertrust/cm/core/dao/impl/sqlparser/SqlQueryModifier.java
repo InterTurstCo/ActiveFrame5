@@ -1,5 +1,6 @@
 package ru.intertrust.cm.core.dao.impl.sqlparser;
 
+import static java.util.Collections.singletonList;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_POSTFIX;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
 import static ru.intertrust.cm.core.dao.api.DomainObjectDao.TIME_ID_ZONE_POSTFIX;
@@ -21,17 +22,15 @@ import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
-import net.sf.jsqlparser.expression.JdbcNamedParameter;
 import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.NullValue;
-import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.WhenClause;
 import net.sf.jsqlparser.expression.operators.arithmetic.Concat;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.AllColumns;
@@ -47,7 +46,6 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.WithItem;
 import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
 import ru.intertrust.cm.core.business.api.dto.Filter;
-import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
 import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
@@ -59,6 +57,7 @@ import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.exception.CollectionQueryException;
 import ru.intertrust.cm.core.dao.exception.DaoException;
+import ru.intertrust.cm.core.dao.impl.CollectionsDaoImpl;
 import ru.intertrust.cm.core.dao.impl.DomainObjectQueryHelper;
 import ru.intertrust.cm.core.dao.impl.utils.DaoUtils;
 import ru.intertrust.cm.core.model.FatalException;
@@ -662,40 +661,21 @@ public class SqlQueryModifier {
         }
 
         for (Filter filter : filterValues) {
-            if (!(filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter)) {
+            String name = filter.getFilter();
+            if (!name.startsWith("idsIncluded") && !name.startsWith("idsExcluded")) {
                 continue;
             }
 
             Expression expression = null;
-            for (Integer key : filter.getCriterionKeys()) {
-                Parenthesis parenthesis;
-                if (filter instanceof IdsIncludedFilter) {
-                    IdsIncludedFilter idsIncludedFilter = (IdsIncludedFilter) filter;
 
-                    Expression idExpression = getIdEqualsExpression(idsIncludedFilter, key, whereTable, idField, false);
-                    Expression typeExpression = getIdEqualsExpression(idsIncludedFilter, key, whereTable,
-                            getReferenceTypeColumnName(idField), true);
-
-                    parenthesis = new Parenthesis(new AndExpression(idExpression, typeExpression));
-                    if (expression != null) {
-                        expression = new OrExpression(expression, parenthesis);
-                    }
-                } else {
-                    IdsExcludedFilter idsExcludedFilter = (IdsExcludedFilter) filter;
-
-                    Expression idExpression = getIdNotEqualsExpression(idsExcludedFilter, key, whereTable, idField, false);
-                    Expression typeExpression = getIdNotEqualsExpression(idsExcludedFilter, key, whereTable,
-                            getReferenceTypeColumnName(idField), true);
-
-                    parenthesis = new Parenthesis(new OrExpression(idExpression, typeExpression));
-                    if (expression != null) {
-                        expression = new AndExpression(expression, parenthesis);
-                    }
-                }
-
-                if (expression == null) {
-                    expression = parenthesis;
-                }
+            if (!filter.getCriterionKeys().isEmpty()) {
+                InExpression inExpression = new InExpression();
+                inExpression.setNot(name.startsWith("idsExcluded"));
+                inExpression.setLeftExpression(new Column(whereTable, wrap(idField)));
+                inExpression
+                        .setRightItemsList(new ExpressionList(singletonList((Expression) new Column(CollectionsDaoImpl.PARAM_NAME_PREFIX + filter.getFilter()
+                                + "0"))));
+                expression = inExpression;
             }
 
             // Пустой фильтр разрешенных идентификаторов, поэтому используем
@@ -709,34 +689,11 @@ public class SqlQueryModifier {
             }
 
             if (expression != null) {
-                if (!(expression instanceof Parenthesis)) {
-                    expression = new Parenthesis(expression);
-                }
                 where = new AndExpression(where, expression);
             }
         }
 
         plainSelect.setWhere(where);
-    }
-
-    private Expression getIdEqualsExpression(IdsIncludedFilter filter, Integer key, Table table, String columnName, boolean isType) {
-        JdbcNamedParameter jdbcNamedParameter = new JdbcNamedParameter();
-        jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
-
-        EqualsTo idEqualsTo = new EqualsTo();
-        idEqualsTo.setLeftExpression(new Column(table, wrap(columnName)));
-        idEqualsTo.setRightExpression(jdbcNamedParameter);
-        return idEqualsTo;
-    }
-
-    private Expression getIdNotEqualsExpression(Filter filter, Integer key, Table table, String columnName, boolean isType) {
-        JdbcNamedParameter jdbcNamedParameter = new JdbcNamedParameter();
-        jdbcNamedParameter.setName(filter.getFilter() + key + (isType ? REFERENCE_TYPE_POSTFIX : ""));
-
-        NotEqualsTo idNotEqualsTo = new NotEqualsTo();
-        idNotEqualsTo.setLeftExpression(new Column(table, wrap(columnName)));
-        idNotEqualsTo.setRightExpression(jdbcNamedParameter);
-        return idNotEqualsTo;
     }
 
     /**

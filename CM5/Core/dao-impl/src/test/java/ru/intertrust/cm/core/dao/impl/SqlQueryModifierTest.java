@@ -52,16 +52,6 @@ public class SqlQueryModifierTest {
             "\"employee\" e, " +
             "\"department\" d WHERE 1 = 1 AND e.\"id\" = 1";
 
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS = "SELECT * FROM \"employee\" e, " +
-            "\"department\" d WHERE 1 = 1 AND (e.\"id\" = :idsIncluded10 AND e.\"id_type\" = :idsIncluded10_type) AND " +
-            "((e.\"id\" = :idsIncluded20 AND e.\"id_type\" = :idsIncluded20_type) OR " +
-            "(e.\"id\" = :idsIncluded21 AND e.\"id_type\" = :idsIncluded21_type))";
-
-    private static final String PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS = "SELECT * FROM \"employee\" e, " +
-            "\"department\" d WHERE 1 = 1 AND (e.\"person\" <> :idsExcluded10 OR e.\"person_type\" <> :idsExcluded10_type) " +
-            "AND ((e.\"person\" <> :idsExcluded20 OR e.\"person_type\" <> :idsExcluded20_type) AND " +
-            "(e.\"person\" <> :idsExcluded21 OR e.\"person_type\" <> :idsExcluded21_type))";
-
     private static final String UNION_QUERY_WITH_TYPE = "SELECT * FROM \"employee\" e, " +
             "\"department\" d WHERE 1 = 1 AND e.\"id\" = 1 " +
             "UNION SELECT * FROM \"employee\" e, \"department\" d WHERE 1 = 1 " +
@@ -260,7 +250,9 @@ public class SqlQueryModifierTest {
         selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
                 Arrays.asList(new Filter[] {idsIncludedFilter1, idsIncludedFilter2 }), "id");
 
-        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_INCLUDED_FILTERS, selectBody.toString());
+        assertEquals("SELECT * FROM \"employee\" e, \"department\" d WHERE 1 = 1 AND e.\"id\" IN ("
+                + CollectionsDaoImpl.PARAM_NAME_PREFIX + "idsIncluded10" + ") AND e.\"id\" IN ("
+                + CollectionsDaoImpl.PARAM_NAME_PREFIX + "idsIncluded20" + ")", selectBody.toString());
     }
 
     @Test
@@ -281,7 +273,9 @@ public class SqlQueryModifierTest {
         selectBody = collectionQueryModifier.addIdBasedFilters(selectBody,
                 Arrays.asList(new Filter[] {idsExcludedFilter1, idsExcludedFilter2 }), "person");
 
-        assertEquals(PLAIN_SELECT_QUERY_WITH_IDS_EXCLUDED_FILTERS, selectBody.toString());
+        assertEquals("SELECT * FROM \"employee\" e, \"department\" d WHERE 1 = 1 AND e.\"person\" NOT IN ("
+                + CollectionsDaoImpl.PARAM_NAME_PREFIX + "idsExcluded10" + ") AND e.\"person\" NOT IN ("
+                + CollectionsDaoImpl.PARAM_NAME_PREFIX + "idsExcluded20" + ")", selectBody.toString());
     }
 
 }
