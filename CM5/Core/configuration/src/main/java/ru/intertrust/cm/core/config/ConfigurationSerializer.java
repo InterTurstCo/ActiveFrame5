@@ -13,14 +13,10 @@ import ru.intertrust.cm.core.config.migration.MigrationScriptConfig;
 import ru.intertrust.cm.core.config.module.ModuleConfiguration;
 import ru.intertrust.cm.core.config.module.ModuleService;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * Предоставляет функциональность для сериализации/десериализации конфигурации
@@ -48,21 +44,58 @@ public class ConfigurationSerializer {
         try {
             createSerializerInstance().write(configuration, stringWriter);
         } catch (Exception e) {
-            throw new ConfigurationException("Failed to deserialize configuration");
+            throw new ConfigurationException("Failed to serialize configuration");
+        }
+
+        return stringWriter.toString();
+    }
+
+    public static String serializeConfiguration(Object config) {
+        StringWriter stringWriter = new StringWriter();
+
+        try {
+            createSerializerInstance().write(config, stringWriter);
+        } catch (Exception e) {
+            throw new ConfigurationException("Failed to serialize configuration");
         }
 
         return stringWriter.toString();
     }
 
     /**
-     * Десериализует текст конфигурации в Java-класс
+     * Десериализует набор конфигурационных файлов в Java-класс
+     * @param files набор файлов конфигураций
+     * @return конфигурация
+     * @throws ConfigurationException
+     *             в случае ошибки десериализации
+     */
+    public Configuration deserializeConfiguration(Collection<File> files) {
+        try {
+            Configuration configuration = new Configuration();
+            for (File file : files) {
+                new ConfigurationSchemaValidator(FileUtils.fileInputStream(file), getAllSchemaStreams()).validate();
+                combineConfigurations(createSerializerInstance().read(Configuration.class, file), configuration);
+            }
+            return configuration;
+        } catch (Throwable e) {
+            throw new ConfigurationException("Failed to deserialize configuration", e);
+        }
+    }
+
+    /**
+     * Десериализует конфигурации в Java-класс
      * @param configurationString XML-конфигурация
      * @return конфигурация
      * @throws ConfigurationException
      *             в случае ошибки десериализации
      */
-    public static Configuration deserializeConfiguration(String configurationString) {
+    public Configuration deserializeConfiguration(String configurationString) {
         try {
+            ConfigurationSchemaValidator schemaValidator =
+                    new ConfigurationSchemaValidator(
+                            new ByteArrayInputStream(configurationString.getBytes(Charset.forName("UTF-8"))),
+                            getAllSchemaStreams());
+            schemaValidator.validate();
             return createSerializerInstance().read(Configuration.class, configurationString);
         } catch (Exception e) {
             throw new ConfigurationException("Failed to deserialize configuration");
@@ -140,6 +173,23 @@ public class ConfigurationSerializer {
             }
         }
         return combinedConfiguration;
+    }
+
+    private InputStream[] getAllSchemaStreams() {
+        HashSet<String> schemaPaths = new HashSet<>();
+
+        for (ModuleConfiguration moduleConfiguration : moduleService.getModuleList()) {
+            if (moduleConfiguration.getConfigurationSchemaPath() != null
+                    && !schemaPaths.contains(moduleConfiguration.getConfigurationSchemaPath())) {
+                schemaPaths.add(moduleConfiguration.getConfigurationSchemaPath());
+            }
+        }
+        InputStream[] result = new InputStream[schemaPaths.size()];
+        int i = 0;
+        for (String schemaPath : schemaPaths) {
+            result[i++] = FileUtils.getFileInputStream(schemaPath);
+        }
+        return result;
     }
 
     private Configuration combineConfigurations(Configuration source, Configuration destination) {

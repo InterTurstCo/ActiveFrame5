@@ -6,10 +6,7 @@ import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
-import ru.intertrust.cm.core.business.api.dto.CaseInsensitiveMap;
-import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.business.api.dto.GenericDomainObject;
-import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationException;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
@@ -21,6 +18,7 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
 import ru.intertrust.cm.core.dao.api.DomainObjectDao;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -31,7 +29,7 @@ import java.util.*;
 public class ConfigurationExtensionProcessor {
     final static org.slf4j.Logger logger = LoggerFactory.getLogger(ConfigurationExtensionProcessor.class);
     public static final String CONFIGURATION_START = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-            "<configuration xmlns=\"https://cm5.intertrust.ru/config\">";
+            "<configuration xmlns=\"https://cm5.intertrust.ru/config\" xmlns:act=\"https://cm5.intertrust.ru/config/action\">";
     public static final String CONFIGURATION_END = "</configuration>";
     
     @Autowired
@@ -108,10 +106,29 @@ public class ConfigurationExtensionProcessor {
         activateDrafts(domainObjectDao.findAll("config_extension_tooling", getSystemAccessToken()));
     }
 
-    /*@Transactional
-    public void activateDraftsFromStream(InputStream stream) {
-        activateDrafts(domainObjectDao.findAll("config_extension_tooling", getSystemAccessToken()));
-    }*/
+    @Transactional
+    public void activateFromFiles(Collection<File> files) {
+        final AccessToken systemAccessToken = getSystemAccessToken();
+        final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
+        for (TopLevelConfig draftConfig : configuration.getConfigurationList()) {
+            final String configType = getTagType(draftConfig.getClass());
+            final String configName = draftConfig.getName();
+            final HashMap<String, Value> map = new HashMap<>();
+            map.put("type", new StringValue(configType));
+            map.put("name", new StringValue(configName));
+            DomainObject extensionDO = domainObjectDao.findByUniqueKey("configuration_extension", map, systemAccessToken);
+            if (extensionDO == null) {
+                extensionDO = new GenericDomainObject("configuration_extension");
+                extensionDO.setString("type", configType);
+                extensionDO.setString("name", configName);
+            }
+            extensionDO.setString("current_xml", ConfigurationSerializer.serializeConfiguration(draftConfig));
+            extensionDO.setBoolean("active", true);
+            domainObjectDao.save(extensionDO, systemAccessToken);
+        }
+        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
+        activateExtensions(activeExtensions);
+    }
 
     private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid() {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
@@ -191,12 +208,12 @@ public class ConfigurationExtensionProcessor {
             throw new DeactivationException("Empty XML");
         }
         final StringBuilder configString = new StringBuilder(CONFIGURATION_START.length() + overriddenXml.length() + CONFIGURATION_END.length());
-        configString.append(CONFIGURATION_START);
+        configString.append(CONFIGURATION_START); // todo: XSD schemas should include custom schemas as well
         configString.append(overriddenXml);
         configString.append(CONFIGURATION_END);
         List<TopLevelConfig> configurationList = null;
         try {
-            configurationList = ConfigurationSerializer.deserializeConfiguration(configString.toString()).getConfigurationList();
+            configurationList = configurationSerializer.deserializeConfiguration(configString.toString()).getConfigurationList();
         } catch (ConfigurationException e) {
             throw new DeactivationException("XML not valid", e);
         }
