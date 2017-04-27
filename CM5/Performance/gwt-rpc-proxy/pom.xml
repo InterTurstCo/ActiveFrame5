@@ -9,7 +9,7 @@
     <parent>
         <groupId>ru.intertrust.cm-sochi</groupId>
         <artifactId>performance</artifactId>
-        <version>0.6.1-4-TEST-SNAPSHOT</version>
+        <version>0.6.1-4-TEST</version>
     </parent>
 
     <dependencies>
