@@ -29,7 +29,7 @@ public class TableViewerConfig extends WidgetConfig implements HasLinkedFormMapp
     @Attribute(name = "edit-component",required = false)
     private String editComponent;
 
-    @Attribute(name = "show-activiti-menu",required = false)
+    @Attribute(name = "show-workflow-menu",required = false)
     private Boolean showWorkflowMenu;
 
     @Deprecated
