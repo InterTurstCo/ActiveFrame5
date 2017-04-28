@@ -66,7 +66,7 @@ public class ConfigurationSerializerTest {
     @Test
     public void testSerializeNullConfiguration() throws Exception {
         expectedException.expect(ConfigurationException.class);
-        expectedException.expectMessage("Failed to deserialize configuration");
+        expectedException.expectMessage("Failed to serialize configuration");
 
         ConfigurationSerializer.serializeConfiguration(null);
     }

@@ -407,6 +407,9 @@ public class DoelResolver implements DoelEvaluator {
                 id = (RdbmsId) item;
             } else if (item instanceof ReferenceValue) {
                 id = (RdbmsId) ((ReferenceValue) item).get();
+                if (id == null) {
+                    continue idCycle;
+                }
             } else {
                 throw new IllegalArgumentException("ids list must contain only Ids or ReferenceValues");
             }

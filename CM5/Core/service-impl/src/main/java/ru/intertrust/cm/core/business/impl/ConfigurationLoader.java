@@ -21,6 +21,9 @@ public class ConfigurationLoader {
 
     @Autowired
     private SpringApplicationContext springApplicationContext;
+
+    @Autowired
+    private ConfigurationExtensionProcessor configurationExtensionProcessor;
     
     private boolean configurationLoaded;
 
@@ -92,7 +95,11 @@ public class ConfigurationLoader {
             throw throwable;
         }
     }
-    
+
+    public void applyConfigurationExtension() {
+        configurationExtensionProcessor.applyConfigurationExtension();
+    }
+
     /**
      * Метод возвращает флаг загруженности конфигурации
      * @return

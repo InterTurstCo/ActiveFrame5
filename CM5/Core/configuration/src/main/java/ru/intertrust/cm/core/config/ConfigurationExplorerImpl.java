@@ -48,6 +48,8 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     private Configuration configuration;
 
+    private Configuration distributiveConfiguration;
+
     @Autowired
     private ApplicationContext context;
 
@@ -68,9 +70,23 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
 
     public ConfigurationExplorerImpl(Configuration configuration, ApplicationContext context, boolean skipLogicalValidation) {
         this.configuration = configuration;
+        this.distributiveConfiguration = configuration;
         this.skipLogicalValidation = skipLogicalValidation;
         this.context = context;
         init();
+    }
+
+    public void copyFrom(ConfigurationExplorerImpl another) {
+        readWriteLock.writeLock().lock();
+        try { // distributive configuration doesn't ever change
+            this.configStorage = another.configStorage;
+            this.configurationStorageBuilder = another.configurationStorageBuilder;
+            this.plainFormBuilder = another.plainFormBuilder;
+            this.skipLogicalValidation = another.skipLogicalValidation;
+            this.configuration = another.configuration;
+        } finally {
+            readWriteLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -80,6 +96,7 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
      */
     private ConfigurationExplorerImpl(double specialSpringConstructor, Configuration configuration) {
         this.configuration = configuration;
+        this.distributiveConfiguration = configuration;
         this.skipLogicalValidation = false;
     }
 
@@ -109,6 +126,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         } finally {
             unlock();
         }
+    }
+
+    public Configuration getDistributiveConfiguration() {
+        return distributiveConfiguration;
     }
 
     public GlobalSettingsConfig getGlobalSettings() {

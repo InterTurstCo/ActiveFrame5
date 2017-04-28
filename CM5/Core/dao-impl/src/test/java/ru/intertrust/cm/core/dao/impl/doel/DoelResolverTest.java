@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl.doel;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.junit.Assert.*;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.*;
 
 import java.util.*;
@@ -185,6 +186,33 @@ public class DoelResolverTest {
                 any(Integer.class), any(AccessToken.class));
         assertThat(sql.getAllValues().get(0), new SqlStatementMatcher(correctSql1));
         assertThat(sql.getAllValues().get(1), new SqlStatementMatcher(correctSql2));
+    }
+
+    @Test
+    public void testEvaluationWithReverseLinkAfterWildcardReference() {
+        DoelExpression expr = DoelExpression.parse("from.Commission^parent");
+
+        /*IdentifiableObjectCollection collectionValues = new GenericIdentifiableObjectCollection();
+        List<FieldConfig> collectionFieldConfigs = new ArrayList<>(1);
+        collectionFieldConfigs.add(configurationExplorer.getFieldConfig("IncomingDocument", "Addressee"));
+        collectionValues.setFieldsConfiguration(collectionFieldConfigs);
+
+        collectionValues.set(0, 0, new ReferenceValue(docId));
+        collectionValues.set(0, 1, new ReferenceValue(comm1Id));
+
+        when(collectionsDao.findCollectionByQuery(anyString(), any(Integer.class), any(Integer.class),
+                any(AccessToken.class))).thenReturn(collectionValues);*/
+
+        AccessToken accessToken = accessControlService.createSystemAccessToken(this.getClass().getName());
+        doelResolver.evaluate(expr, linkId, accessToken);
+
+        String correctSql =
+                "select t1.\"id\", t1.\"id_type\" " +
+                "from \"universallink\" t0 " +
+                "join \"commission\" t1 on t0.\"from\" = t1.\"parent\" " +
+                "where t0.\"id\" = " + linkId.getId();
+        verify(collectionsDao).findCollectionByQuery(argThat(new SqlStatementMatcher(correctSql)), any(Integer.class),
+                any(Integer.class), any(AccessToken.class));
     }
 
     @DoelFunction(name = "status", requiredParams = 1, optionalParams = 999, contextTypes = { FieldType.REFERENCE })
@@ -377,6 +405,9 @@ public class DoelResolverTest {
         when(configurationExplorer.getFieldConfig("Department", "Name", false)).thenReturn(null);
         ReferenceFieldConfig idFieldConfig = new ReferenceFieldConfig();
         idFieldConfig.setName("id");
-        when(configurationExplorer.getFieldConfig(anyString(), eq("id"))).thenReturn(idFieldConfig);
+        when(configurationExplorer.getFieldConfig(//not("*"),
+                or(eq("Document"), or(eq("IncomingDocument"), or(eq("Commission"), or(eq("Job"),
+                or(eq("Person"), or(eq("Unit"), or(eq("Department"), eq("UniversalLink")))))))),
+                eq("id"))).thenReturn(idFieldConfig);
     }
 }

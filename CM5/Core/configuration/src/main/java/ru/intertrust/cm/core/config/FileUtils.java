@@ -2,10 +2,7 @@ package ru.intertrust.cm.core.config;
 
 import ru.intertrust.cm.core.model.FatalException;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 
 /**
@@ -15,6 +12,15 @@ import java.net.URL;
  *         Time: 1:46 PM
  */
 public class FileUtils {
+    /**
+     * Возвращает эффективный поток чтения файла (в данной реализации BufferedInputStream)
+     * @param file файл
+     * @return эффективный поток чтения файла
+     * @throws FileNotFoundException, если файл не найден
+     */
+    public static InputStream fileInputStream(File file) throws FileNotFoundException {
+        return new BufferedInputStream(new FileInputStream(file));
+    }
 
     /**
      * Возвращает файл в виде потока
