@@ -28,6 +28,7 @@ import org.simpleframework.xml.core.Persister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -43,6 +44,7 @@ import com.healthmarketscience.rmiio.RemoteInputStream;
 
 import ru.intertrust.cm.core.business.api.DataSourceContext;
 import ru.intertrust.cm.core.business.api.GlobalServerSettingsService;
+import ru.intertrust.cm.core.business.api.ReportPostProcessor;
 import ru.intertrust.cm.core.business.api.ReportService;
 import ru.intertrust.cm.core.business.api.ReportServiceAdmin;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
@@ -123,7 +125,10 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
     private RestTemplate restTemplate;
     
     @Autowired
-    private GlobalCacheClient globalCacheClient;    
+    private GlobalCacheClient globalCacheClient;  
+    
+    @Autowired
+    private ApplicationContext applicationContext;
 
     public ReportResult generate(String name, Map<String, Object> parameters, DataSourceContext dataSource) {
         return generate(name, parameters, null, dataSource);
@@ -296,7 +301,19 @@ public abstract class ReportServiceImpl extends ReportServiceBase implements Rep
                 if (logger.isDebugEnabled()) {
                     logger.debug("Generated Report, name: " + name + ". Params: " + originalParams);
                 }
-
+                
+                //Вызов постобработчиков, указзаных в конфигурации отчёта
+                String format = reportMetadata.getFormats().get(0);
+                if (format.equals("SOCHIDOCX")){
+	                List<String> postProcessorsList = reportMetadata.getPostProcessors();
+	                if (postProcessorsList!=null){
+		                for (String postProcName : postProcessorsList) {
+		                	ReportPostProcessor postProcClass = (ReportPostProcessor) applicationContext.getBean(postProcName);
+		                	postProcClass.format(result);
+						}
+	                }
+                }
+                
                 //Вызов точки расширения после генерации отчета
                 //Сначала для точек расширения у которых указан фильтр
                 AfterGenerateReportExtentionHandler extentionHandler =

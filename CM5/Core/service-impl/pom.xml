@@ -156,7 +156,11 @@
             <version>17.0</version>
         </dependency>
 
-
+		<dependency>
+		    <groupId>org.docx4j</groupId>
+		    <artifactId>docx4j</artifactId>
+		</dependency>
+		
     </dependencies>
 
     <profiles>
