@@ -12,6 +12,7 @@ import ru.intertrust.cm.core.business.api.dto.Pair;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.LocalizableConfig;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.event.ConfigChange;
 import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.config.eventlog.EventLogsConfig;
 import ru.intertrust.cm.core.config.eventlog.LogDomainObjectAccessConfig;
@@ -76,14 +77,33 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
         init();
     }
 
-    public void copyFrom(ConfigurationExplorerImpl another) {
+    public Set<ConfigChange> copyFrom(ConfigurationExplorerImpl another) {
         readWriteLock.writeLock().lock();
-        try { // distributive configuration doesn't ever change
+        try {
+            HashSet<ConfigChange> configChanges = new HashSet<>();
+            final HashSet<TopLevelConfig> currentConfigs = new HashSet<>(getConfiguration().getConfigurationList());
+            final HashSet<TopLevelConfig> newAndChanged = new HashSet<>(another.getConfiguration().getConfigurationList());
+            newAndChanged.removeAll(currentConfigs); // left new and changed
+            for (TopLevelConfig newOrChanged : newAndChanged) {
+                configChanges.add(new ConfigChange(getConfig(newOrChanged.getClass(), newOrChanged.getName()), newOrChanged));
+            }
+            currentConfigs.removeAll(new HashSet<>(another.getConfiguration().getConfigurationList())); // left deleted and changed
+            for (TopLevelConfig newOrChanged : currentConfigs) {
+                configChanges.add(new ConfigChange(getConfig(newOrChanged.getClass(), newOrChanged.getName()), newOrChanged));
+            }
+
+            ConfigurationUpdateEvent event = new ConfigurationUpdateEvent(this, configChanges);
+
             this.configStorage = another.configStorage;
             this.configurationStorageBuilder = another.configurationStorageBuilder;
             this.plainFormBuilder = another.plainFormBuilder;
             this.skipLogicalValidation = another.skipLogicalValidation;
             this.configuration = another.configuration;
+
+            if (event.containsChanges()) {
+                applicationEventPublisher.publishEvent(event);
+            }
+            return configChanges;
         } finally {
             readWriteLock.writeLock().unlock();
         }
@@ -883,6 +903,10 @@ public class ConfigurationExplorerImpl implements ConfigurationExplorer, Applica
     @Override
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         this.applicationEventPublisher = applicationEventPublisher;
+    }
+
+    public ApplicationEventPublisher getApplicationEventPublisher() {
+        return applicationEventPublisher;
     }
 
     private FormConfig getParent(FormConfig formConfig) {

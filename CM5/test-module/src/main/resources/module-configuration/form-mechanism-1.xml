@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config"
-        >
+               xmlns:act="https://cm5.intertrust.ru/config/action">
     <!-- Test 1 - direct references 1:1 -->
-    <domain-object-type name="a1">
+    <domain-object-type name="a1" audit-log="true">
         <fields>
             <string name="name1" length="128" not-null="true"/>
             <string name="name2" length="128"/>
+            <string name="name3" length="128" encrypted="true"/>
             <reference name="b1" type="b1" not-null="true"/>
         </fields>
         <uniqueKey>
@@ -100,6 +101,17 @@
     </domain-object-type>
 
     <form name="a1_form" domain-object-type="a1" is-default="true">
+        <act:tool-bar useDefault="true">
+            <act:simple-action componentName="simple.action" action-handler="form.mechanism.server.action" text="Тестовое действие"
+                               permissions="Delete,Write,Create" merged="true" rendered="true" image="images/icons/executed.png">
+                <act:before-execution>
+                    <act:save-context value="false"/>
+                </act:before-execution>
+                <act:after-execution>
+                    <act:on-success-message text="Успешно"/>
+                </act:after-execution>
+            </act:simple-action>
+        </act:tool-bar>
         <markup>
             <header>
                 <table>
@@ -124,6 +136,12 @@
                                     </td>
                                     <td h-align="left">
                                         <widget id="a_name2"/>
+                                    </td>
+                                    <td h-align="right">
+                                        <widget id="a_name3_label"/>
+                                    </td>
+                                    <td h-align="left">
+                                        <widget id="a_name3"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -242,6 +260,14 @@
             </label>
             <text-box id="a_name2">
                 <field-path value="name2"/>
+            </text-box>
+
+            <label id="a_name3_label">
+                <field-path/>
+                <text>A. Name 3:</text>
+            </label>
+            <text-box id="a_name3">
+                <field-path value="name3"/>
             </text-box>
 
             <label id="c_name1_label">
@@ -389,7 +415,7 @@
         <form-save-extension before-save-component="a1.before.save.handler" after-save-component="a1.after.save.handler"/>
     </form>
 
-    <form name="f1_form" domain-object-type="f1" is-default="true">
+    <form name="f1_form" domain-object-type="f1" is-default="true" replace="runtime">
         <markup>
             <header>
                 <table>
@@ -441,7 +467,7 @@
         </widget-config>
     </form>
 
-    <collection name="a1_collection" idField="id">
+    <collection name="a1_collection" idField="id" replace="runtime">
         <prototype>
             <![CDATA[
                 select a1.id, a1.name1 a_name1, a1.name2 a_name2, b1.name1 b_name1, b1.name2 b_name2, c1.name1 c_name1, c1.name2 c_name2, d1.name1 d_name1, d1.name2 d_name2
@@ -498,7 +524,7 @@
         </counting-prototype>
     </collection>
 
-    <collection-view name="a1_collection_default_view" collection="a1_collection" is-default="true">
+    <collection-view name="a1_collection_default_view" collection="a1_collection" is-default="true" replace="runtime">
         <display>
             <column field="id" name="id" type="integer" sortable="false" max-width="250px" text-break-style="cut"/>
             <column field="a_name1" name="a_name1" editable="false" type="string" sortable="true" min-width="50px" text-break-style="cut"/>

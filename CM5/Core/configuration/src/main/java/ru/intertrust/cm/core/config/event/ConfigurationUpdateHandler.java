@@ -12,20 +12,35 @@ public abstract class ConfigurationUpdateHandler<T> implements ApplicationListen
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent updateEvent) {
-        TopLevelConfig config = updateEvent.getNewConfig();
-
-        if (config == null || getClazz() == null || !getClazz().isInstance(config)) {
+        if (getClazz() == null) {
             return;
         }
-
-        doUpdate(updateEvent);
+        if (!updateEvent.configTypeChanged((Class<? extends TopLevelConfig>) getClass())) {
+            return;
+        }
+        if (updateEvent.isLegacyDevelopmentMechanism()) {
+            doUpdate(updateEvent);
+        } else {
+            onUpdate(updateEvent);
+        }
     }
 
     /**
      * Производит действия по обновлению конфигурации (обновляет конфигурационные кэши и т.п.)
      * @param configurationUpdateEvent
+     * @deprecated этот метод используется механизмом "только для разработки" для обновления конфигурации
      */
     protected abstract void doUpdate(ConfigurationUpdateEvent configurationUpdateEvent);
+
+    /**
+     * Обработчик события обновления конфигурации. Чаще всего, этот метод переопределять не требуется, так как к моменту его вызова
+     * {@link ru.intertrust.cm.core.config.ConfigurationExplorer} и его встроенные кэши уже обновлены. Его нужно переопределять для
+     * проведения специфичных действий: очистки кэшей, сброса каких-то дополнительных настроек и прочего.
+     * @param event событие обновления конфигурации
+     */
+    protected void onUpdate(ConfigurationUpdateEvent event) {
+
+    }
 
     /**
      * Возвращает тип конфигурации, кот. обрабатывает данный обработчик

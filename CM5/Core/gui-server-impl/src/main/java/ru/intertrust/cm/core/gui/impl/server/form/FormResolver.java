@@ -47,7 +47,7 @@ public class FormResolver implements ApplicationListener<ConfigurationUpdateEven
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent event) {
-        if (event.getNewConfig() instanceof FormConfig) {
+        if (event.configTypeChanged(FormConfig.class)) {
             resetCaches();
         }
     }

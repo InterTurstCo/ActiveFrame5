@@ -2,18 +2,27 @@ package ru.intertrust.cm.core.business.impl;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.ejb.interceptor.SpringBeanAutowiringInterceptor;
 import ru.intertrust.cm.core.business.api.ConfigurationControlService;
 import ru.intertrust.cm.core.business.api.ImportDataService;
 import ru.intertrust.cm.core.business.api.ProcessService;
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.business.api.util.ObjectCloner;
 import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.CollectionConfig;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.event.ConfigChange;
+import ru.intertrust.cm.core.config.event.SingletonConfigurationUpdateEvent;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
+import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
 import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.model.FatalException;
 import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -22,9 +31,14 @@ import javax.ejb.Local;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.jms.JMSException;
+import javax.naming.NamingException;
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Смотри {@link ru.intertrust.cm.core.business.api.ConfigurationControlService}
@@ -52,6 +66,13 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Autowired private ProcessService processService;
     @Autowired private ImportDataService importDataService;
     @Autowired private CollectionQueryCache collectionQueryCache;
+    @Autowired private AccessControlService accessControlService;
+    @Autowired private ApplicationContext context;
+    @Autowired private CurrentUserAccessor currentUserAccessor;
+    @Autowired private UserGroupGlobalCache userGroupGlobalCache;
+
+    @org.springframework.beans.factory.annotation.Value("${NEVER.USE.IN.PRODUCTION.dev.mode.configuration.update:false}")
+    private boolean useDevModeConfigUpdate;
 
     /**
      * {@inheritDoc}
@@ -111,7 +132,67 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activateDraftsById(List<Id> toolingIds) throws ConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateDraftsById(toolingIds);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts(toolingDOs);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activateDrafts() throws ConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts();
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void activateFromFiles(Collection<File> files) throws ConfigurationException {
+        final Set<ConfigChange> configChanges = extensionProcessor().activateFromFiles(files);
+        notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    private ConfigurationExtensionProcessor extensionProcessor() {
+        final ConfigurationExtensionProcessor configurationExtensionProcessor = (ConfigurationExtensionProcessor) context.getBean("configurationExtensionProcessor");
+        if (!userGroupGlobalCache.isPersonSuperUser(currentUserAccessor.getCurrentUserId())) {
+            throw new FatalException("User: \"" + currentUserAccessor.getCurrentUserId() + "\" has no rights to update configuration");
+        }
+        configurationExtensionProcessor.setAccessToken(accessControlService.createSystemAccessToken("ConfigurationLoader"));
+        return configurationExtensionProcessor;
+    }
+
+    private void notifySingletonListenersAndClusterAboutExtensionActivation(Set<ConfigChange> configChanges) {
+        try {
+            if (!configChanges.isEmpty()) {
+                ((ConfigurationExplorerImpl) configurationExplorer).getApplicationEventPublisher()
+                        .publishEvent(new SingletonConfigurationUpdateEvent(configurationExplorer, configChanges));
+                JmsUtils.sendTopicMessage(new ConfigurationUpdateMessage(), CONFIGURATION_UPDATE_JMS_TOPIC);
+            }
+        } catch (JMSException | NamingException e) {
+            throw new UnexpectedException("ConfigurationControlService", "notifyClusterAboutExtensionActivation", null, e);
+        }
+    }
+
     private void processConfigurationUpdate(String configurationString) {
+        if (!useDevModeConfigUpdate) {
+            throw new ConfigurationException("Dev mode configuration update is not allowed");
+        }
         Configuration configuration = deserializeConfiguration(configurationString);
         updateConfiguration(configuration);
 

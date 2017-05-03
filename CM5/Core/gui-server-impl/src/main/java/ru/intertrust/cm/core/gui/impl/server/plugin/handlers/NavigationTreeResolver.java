@@ -43,7 +43,7 @@ public class NavigationTreeResolver implements ApplicationListener<Configuration
 
     @Override
     public void onApplicationEvent(ConfigurationUpdateEvent event) {
-       if(event.getNewConfig() instanceof NavigationConfig) {
+       if(event.configTypeChanged(NavigationConfig.class)) {
            initCaches();
        }
     }

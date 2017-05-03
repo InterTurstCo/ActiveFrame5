@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.intertrust.cm.core.business.api.ConfigurationLoadService;
+import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.api.ExtensionService;
 import ru.intertrust.cm.core.dao.api.extension.OnLoadConfigurationExtensionHandler;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
@@ -24,6 +25,9 @@ public class ConfigurationLoader {
 
     @Autowired
     private ConfigurationExtensionProcessor configurationExtensionProcessor;
+
+    @Autowired
+    private AccessControlService accessControlService;
     
     private boolean configurationLoaded;
 
@@ -96,8 +100,14 @@ public class ConfigurationLoader {
         }
     }
 
-    public void applyConfigurationExtension() {
-        configurationExtensionProcessor.applyConfigurationExtension();
+    public void applyConfigurationExtensionCleaningOutInvalid() {
+        extensionProcessor().applyConfigurationExtensionCleaningOutInvalid();
+    }
+
+    private ConfigurationExtensionProcessor extensionProcessor() {
+        final ConfigurationExtensionProcessor configurationExtensionProcessor = (ConfigurationExtensionProcessor) SpringApplicationContext.getContext().getBean("configurationExtensionProcessor");
+        configurationExtensionProcessor.setAccessToken(accessControlService.createSystemAccessToken("ConfigurationLoader"));
+        return configurationExtensionProcessor;
     }
 
     /**

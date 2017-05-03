@@ -1,6 +1,12 @@
 package ru.intertrust.cm.core.business.api;
 
+import ru.intertrust.cm.core.business.api.dto.DomainObject;
+import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
+
+import java.io.File;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Сервис загрузки и работы с конфигурацией доменных объектов
@@ -9,6 +15,7 @@ import ru.intertrust.cm.core.config.ConfigurationException;
  *         Time: 4:32 PM
  */
 public interface ConfigurationControlService {
+    String CONFIGURATION_CHANGE_MESSAGE = "__CONFIG_CHANGED";
 
     public interface Remote extends ConfigurationControlService {
 
@@ -21,6 +28,7 @@ public interface ConfigurationControlService {
      * @param configurationString обновляемый фрагмент конфигурации
      * @throws ru.intertrust.cm.core.config.ConfigurationException
      */
+    @Deprecated
     void updateConfiguration(String configurationString, String fileName) throws ConfigurationException;
 
     /**
@@ -30,4 +38,31 @@ public interface ConfigurationControlService {
      */
     @Deprecated // marked for removal
     boolean restartRequiredForFullUpdate(String configurationString);
+
+    /**
+     * Производит активацию конфигурационных расширений из черновиков, применяет локально и уведомляет узлы кластера
+     * @param toolingIds идентификаторы черновиков, которые необходимо активировать
+     * @throws ConfigurationException
+     */
+    void activateDraftsById(List<Id> toolingIds) throws ConfigurationException;
+
+    /**
+     * Производит активацию конфигурационных расширений из черновиков, применяет локально и уведомляет узлы кластера
+     * @param toolingDOs доменные объекты черновиков, которые необходимо активировать
+     * @throws ConfigurationException
+     */
+    void activateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+
+    /**
+     * Производит активацию конфигурационных расширений из всех черновиков, применяет локально и уведомляет узлы кластера
+     * @throws ConfigurationException
+     */
+    void activateDrafts() throws ConfigurationException;
+
+    /**
+     * Производит активацию конфигурационных расширений из набора файлов, применяет локально и уведомляет узлы кластера
+     * @param files файлы конфигураций
+     * @throws ConfigurationException
+     */
+    void activateFromFiles(Collection<File> files) throws ConfigurationException;
 }

@@ -4,9 +4,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
 import ru.intertrust.cm.core.config.DomainObjectTypeConfig;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.AclInfo;
 import ru.intertrust.cm.core.dao.api.CollectionsDao;
@@ -27,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *         Date: 03.07.2015
  *         Time: 15:54
  */
-public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
+public class PerGroupGlobalCacheClient extends LocalJvmCacheClient implements ApplicationListener<ConfigurationUpdateEvent> {
     private static final Logger logger = LoggerFactory.getLogger(PerGroupGlobalCacheClient.class);
 
     @Autowired
@@ -596,5 +599,15 @@ public class PerGroupGlobalCacheClient extends LocalJvmCacheClient {
         }
         TransactionChanges transactionChanges = createTransactionChangesIfAbsent(transactionId);
         transactionChanges.addObjectChanged(id, type);
+    }
+
+    @Override
+    public void onApplicationEvent(ConfigurationUpdateEvent event) {
+        if (event.configTypeChanged(CollectionConfig.class)) {
+            // config todo: clear only collections cache or matching collections only
+            if (globalCache != null) { // as "per group" or "per person" is an option, global cache may not be initialized
+                clearCurrentNode();
+            }
+        }
     }
 }

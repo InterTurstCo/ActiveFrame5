@@ -36,6 +36,11 @@ public class DomainObjectTypeConfigUpdateHandler extends ConfigurationUpdateHand
     }
 
     @Override
+    protected void onUpdate(ConfigurationUpdateEvent event) {
+        throw new UnsupportedOperationException("Domain Object Types can not be changed in runtime");
+    }
+
+    @Override
     protected Class<DomainObjectTypeConfig> getClazz() {
         return DomainObjectTypeConfig.class;
     }

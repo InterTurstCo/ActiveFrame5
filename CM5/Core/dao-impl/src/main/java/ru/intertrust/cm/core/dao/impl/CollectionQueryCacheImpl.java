@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.dao.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import ru.intertrust.cm.core.business.api.dto.Filter;
 import ru.intertrust.cm.core.business.api.dto.LruLimitedSynchronizedMap;
 import ru.intertrust.cm.core.business.api.dto.SortOrder;
@@ -10,6 +11,8 @@ import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.config.CollectionQueryCacheConfig;
 import ru.intertrust.cm.core.config.ConfigurationExplorer;
+import ru.intertrust.cm.core.config.base.CollectionConfig;
+import ru.intertrust.cm.core.config.event.ConfigurationUpdateEvent;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
 import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
@@ -25,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author atsvetkov
  *
  */
-public class CollectionQueryCacheImpl implements CollectionQueryCache {
+public class CollectionQueryCacheImpl implements CollectionQueryCache, ApplicationListener<ConfigurationUpdateEvent> {
 
 
     public static Map<CollectionQueryKey, CollectionQueryEntry> collectionQueryCache = new ConcurrentHashMap<>();
@@ -38,7 +41,14 @@ public class CollectionQueryCacheImpl implements CollectionQueryCache {
     private ConfigurationExplorer configurationExplorer;
 
     private CollectionQueryLogTimer collectionQueryLogTimer;
-    
+
+    @Override
+    public void onApplicationEvent(ConfigurationUpdateEvent event) {
+        if (event.configTypeChanged(CollectionConfig.class)) {
+            clearCollectionQueryCache();
+        }
+    }
+
     public static class CollectionQueryLogTimer {
         private static final int LOG_TIME_INTERVAL = 10000;
         private Long startTime;

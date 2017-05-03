@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.intertrust.cm.core.business.api.dto.*;
 import ru.intertrust.cm.core.config.ConfigurationException;
@@ -13,6 +14,7 @@ import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
 import ru.intertrust.cm.core.config.ConfigurationSerializer;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
+import ru.intertrust.cm.core.config.event.ConfigChange;
 import ru.intertrust.cm.core.dao.access.AccessControlService;
 import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.api.ConfigurationDao;
@@ -31,6 +33,7 @@ public class ConfigurationExtensionProcessor {
     public static final String CONFIGURATION_START = "<?xml version=\"1.1\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
             "<configuration xmlns=\"https://cm5.intertrust.ru/config\" xmlns:act=\"https://cm5.intertrust.ru/config/action\">";
     public static final String CONFIGURATION_END = "</configuration>";
+    private static final Object GLOBAL_LOCK = new Object();
     
     @Autowired
     private ConfigurationExplorer configurationExplorer;
@@ -45,92 +48,117 @@ public class ConfigurationExtensionProcessor {
     @Autowired
     private ApplicationContext context;
 
+    @org.springframework.beans.factory.annotation.Value("${NEVER.USE.IN.PRODUCTION.dev.mode.configuration.update:false}")
+    private boolean useDevModeConfigUpdate;
+
     // this bean is prototype, it is its local cache
     public Map<Class<?>, CaseInsensitiveMap<TopLevelConfig>> topLevelDistributiveConfigs = new HashMap<>();
 
+    private AccessToken accessToken;
+
+    public void setAccessToken(AccessToken accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void applyConfigurationExtensionCleaningOutInvalid() {
+        synchronized (GLOBAL_LOCK) {
+            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
+            createNewInactiveDistributiveExtensions();
+            try {
+                activateExtensions(activeExtensions);
+            } catch (Throwable e) {
+                Throwable cause = null;
+                if (e instanceof ConfigurationException) {
+                    cause = e;
+                } else if (e instanceof FatalBeanException) {
+                    cause = ((FatalBeanException) e).getCause();
+                }
+                if (cause != null && cause instanceof ConfigurationException) {
+                    logger.error("Configuration extension not applied. List of errors:");
+                    logger.error(((ConfigurationException) cause).getMessage());
+                }
+                logger.error("All extensions are deactivated", e);
+                deactivateExtensions(activeExtensions);
+            }
+        }
+    }
+
     @Transactional
-    public void applyConfigurationExtension() {
-        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
-        createNewInactiveDistributiveExtensions();
-        try {
-            activateExtensions(activeExtensions);
-        } catch (Throwable e) {
-            Throwable cause = null;
-            if (e instanceof ConfigurationException) {
-                cause = e;
-            } else if (e instanceof FatalBeanException) {
-                cause = ((FatalBeanException) e).getCause();
-            }
-            if (cause != null && cause instanceof ConfigurationException) {
-                logger.error("Configuration extension not applied. List of errors:");
-                logger.error(((ConfigurationException) cause).getMessage());
-            }
-            logger.error("All extensions are deactivated", e);
-            deactivateExtensions(activeExtensions);
+    public Set<ConfigChange> applyConfigurationExtension() {
+        synchronized (GLOBAL_LOCK) {
+            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(false);
+            return activateExtensions(activeExtensions);
         }
     }
 
-    @Transactional
-    public void activateDraftsById(List<Id> toolingIds) {
-        activateDrafts(domainObjectDao.find(new ArrayList<>(toolingIds), getSystemAccessToken()));
-    }
-
-    @Transactional
-    public void activateDrafts(List<DomainObject> toolingDOs) {
-        final AccessToken systemAccessToken = getSystemAccessToken();
-        for (DomainObject toolingDO : toolingDOs) {
-            final Id extensionId = toolingDO.getReference("configuration_extension");
-            DomainObject extensionDO;
-            if (extensionId == null) {
-                extensionDO = new GenericDomainObject("configuration_extension");
-                TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
-                extensionDO.setString("type", getTagType(draftConfig.getClass()));
-                extensionDO.setString("name", draftConfig.getName());
-            } else{
-                extensionDO = domainObjectDao.find(extensionId, systemAccessToken);
-            }
-            extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
-            extensionDO.setBoolean("active", true);
-            extensionDO = domainObjectDao.save(extensionDO, systemAccessToken);
-            if (extensionId == null) {
-                toolingDO.setReference("configuration_extension", extensionDO.getId());
-                domainObjectDao.save(toolingDO, systemAccessToken);
-            }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Set<ConfigChange> activateDraftsById(List<Id> toolingIds) {
+        synchronized (GLOBAL_LOCK) {
+            return activateDrafts(domainObjectDao.find(new ArrayList<>(toolingIds), accessToken));
         }
-        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
-        activateExtensions(activeExtensions);
     }
 
-    @Transactional
-    public void activateDrafts() {
-        activateDrafts(domainObjectDao.findAll("config_extension_tooling", getSystemAccessToken()));
-    }
-
-    @Transactional
-    public void activateFromFiles(Collection<File> files) {
-        final AccessToken systemAccessToken = getSystemAccessToken();
-        final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
-        for (TopLevelConfig draftConfig : configuration.getConfigurationList()) {
-            final String configType = getTagType(draftConfig.getClass());
-            final String configName = draftConfig.getName();
-            final HashMap<String, Value> map = new HashMap<>();
-            map.put("type", new StringValue(configType));
-            map.put("name", new StringValue(configName));
-            DomainObject extensionDO = domainObjectDao.findByUniqueKey("configuration_extension", map, systemAccessToken);
-            if (extensionDO == null) {
-                extensionDO = new GenericDomainObject("configuration_extension");
-                extensionDO.setString("type", configType);
-                extensionDO.setString("name", configName);
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Set<ConfigChange> activateDrafts(List<DomainObject> toolingDOs) {
+        synchronized (GLOBAL_LOCK) {
+            for (DomainObject toolingDO : toolingDOs) {
+                final Id extensionId = toolingDO.getReference("configuration_extension");
+                DomainObject extensionDO;
+                if (extensionId == null) {
+                    extensionDO = new GenericDomainObject("configuration_extension");
+                    TopLevelConfig draftConfig = parseXML(toolingDO.getString("draft_xml"));
+                    extensionDO.setString("type", getTagType(draftConfig.getClass()));
+                    extensionDO.setString("name", draftConfig.getName());
+                } else{
+                    extensionDO = domainObjectDao.find(extensionId, accessToken);
+                }
+                extensionDO.setString("current_xml", toolingDO.getString("draft_xml"));
+                extensionDO.setBoolean("active", true);
+                extensionDO = domainObjectDao.save(extensionDO, accessToken);
+                if (extensionId == null) {
+                    toolingDO.setReference("configuration_extension", extensionDO.getId());
+                    domainObjectDao.save(toolingDO, accessToken);
+                }
             }
-            extensionDO.setString("current_xml", ConfigurationSerializer.serializeConfiguration(draftConfig));
-            extensionDO.setBoolean("active", true);
-            domainObjectDao.save(extensionDO, systemAccessToken);
+            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
+            return activateExtensions(activeExtensions);
         }
-        final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid();
-        activateExtensions(activeExtensions);
     }
 
-    private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid() {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Set<ConfigChange> activateDrafts() {
+        synchronized (GLOBAL_LOCK) {
+            return activateDrafts(domainObjectDao.findAll("config_extension_tooling", accessToken));
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Set<ConfigChange> activateFromFiles(Collection<File> files) {
+        synchronized (GLOBAL_LOCK) {
+            final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
+            for (TopLevelConfig draftConfig : configuration.getConfigurationList()) {
+                final String configType = getTagType(draftConfig.getClass());
+                final String configName = draftConfig.getName();
+                final HashMap<String, Value> map = new HashMap<>();
+                map.put("type", new StringValue(configType));
+                map.put("name", new StringValue(configName));
+                DomainObject extensionDO = domainObjectDao.findByUniqueKey("configuration_extension", map, accessToken);
+                if (extensionDO == null) {
+                    extensionDO = new GenericDomainObject("configuration_extension");
+                    extensionDO.setString("type", configType);
+                    extensionDO.setString("name", configName);
+                }
+                extensionDO.setString("current_xml", ConfigurationSerializer.serializeConfiguration(draftConfig));
+                extensionDO.setBoolean("active", true);
+                domainObjectDao.save(extensionDO, accessToken);
+            }
+            final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(true);
+            return activateExtensions(activeExtensions);
+        }
+    }
+
+    private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid(boolean cleanOutInvalid) {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
         final Map<String, TagTypeInfo> tagTypeByTagName = getTagClassMapping();
         ArrayList<DomainObject> toDeactivate = new ArrayList<>();
@@ -188,6 +216,10 @@ public class ConfigurationExtensionProcessor {
             activeExtensions.add(new TagInfo(extensionConfig, extensionDO));
         }
 
+        if (!cleanOutInvalid) {
+            return activeExtensions;
+        }
+
         for (DomainObject domainObject : toDeactivate) {
             domainObject.setBoolean("active", false);
         }
@@ -195,7 +227,7 @@ public class ConfigurationExtensionProcessor {
             domainObject.setBoolean("active", false);
             domainObject.setString("current_xml", null);
         }
-        final AccessToken systemAccessToken = getSystemAccessToken();
+        final AccessToken systemAccessToken = accessToken;
         domainObjectDao.save(toDeactivate, systemAccessToken);
         domainObjectDao.save(toDeactivateAndClearXML, systemAccessToken);
         domainObjectDao.delete(toDelete, systemAccessToken);
@@ -243,10 +275,10 @@ public class ConfigurationExtensionProcessor {
                 newExtensibleTags.add(domainObject);
             }
         }
-        domainObjectDao.save(newExtensibleTags, getSystemAccessToken());
+        domainObjectDao.save(newExtensibleTags, accessToken);
     }
 
-    private void activateExtensions(Collection<TagInfo> activeExtensions) {
+    private Set<ConfigChange> activateExtensions(Collection<TagInfo> activeExtensions) {
         HashMap<TagInfo, TagInfo> extensionsMap = new HashMap<>(activeExtensions.size() * 2);
         for (TagInfo activeExtension : activeExtensions) {
             extensionsMap.put(activeExtension, activeExtension);
@@ -269,7 +301,7 @@ public class ConfigurationExtensionProcessor {
         configuration.setConfigurationList(configurationList);
 
         ConfigurationExplorer newExplorer = new ConfigurationExplorerImpl(configuration, context, false);
-        ((ConfigurationExplorerImpl) configurationExplorer).copyFrom(((ConfigurationExplorerImpl) newExplorer));
+        return ((ConfigurationExplorerImpl) configurationExplorer).copyFrom(((ConfigurationExplorerImpl) newExplorer));
     }
 
     private void deactivateExtensions(Collection<TagInfo> activeExtensions) {
@@ -277,16 +309,12 @@ public class ConfigurationExtensionProcessor {
         for (TagInfo extension : activeExtensions) {
             extension.extDomainObject.setBoolean("active", false);
             toDeactivate.add(extension.extDomainObject);
-            domainObjectDao.save(toDeactivate, getSystemAccessToken());
+            domainObjectDao.save(toDeactivate, accessToken);
         }
     }
 
     private List<DomainObject> getAllConfigExtensionDomainObjects() {
-        return domainObjectDao.findAll("configuration_extension", getSystemAccessToken());
-    }
-
-    private AccessToken getSystemAccessToken() {
-        return accessControlService.createSystemAccessToken(this.getClass().getName());
+        return domainObjectDao.findAll("configuration_extension", accessToken);
     }
 
     private String getTagDefString(String tagType, String tagName) {

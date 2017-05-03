@@ -153,7 +153,7 @@ public class GloballyLockableInitializerImpl implements GloballyLockableInitiali
         importReportsData.load();
         extensionService.getExtentionPoint(PostDataLoadApplicationInitializer.class, null).initialize();
         scheduleTaskLoader.load();
-        configurationLoader.applyConfigurationExtension();
+        configurationLoader.applyConfigurationExtensionCleaningOutInvalid();
         localizationLoader.load();
         migrationService.writeMigrationLog();
         pluginService.init(ExtensionService.PLATFORM_CONTEXT, context);

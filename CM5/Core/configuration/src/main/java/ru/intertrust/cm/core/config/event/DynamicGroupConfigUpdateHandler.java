@@ -22,6 +22,11 @@ public class DynamicGroupConfigUpdateHandler extends ConfigurationUpdateHandler<
     }
 
     @Override
+    protected void onUpdate(ConfigurationUpdateEvent event) {
+        throw new UnsupportedOperationException("Dynamic groups can not be changed in runtime");
+    }
+
+    @Override
     protected Class<DynamicGroupConfig> getClazz() {
         return DynamicGroupConfig.class;
     }
