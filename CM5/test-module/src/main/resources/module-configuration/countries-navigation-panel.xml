@@ -1856,19 +1856,6 @@
                         </hierarchy-surfer>
                     </plugin>
                 </link>
-
-                <link name="LSurfer" display-text="Списочный плагин с формой (прототип)">
-                    <plugin>
-                        <list-surfer>
-                            <list-plugin title="Прототип списка">
-                                <list-collection>
-                                    <list-collection-view view-name="tView"/>
-                                    <list-collection-ref name="tRef"/>
-                                </list-collection>
-                            </list-plugin>
-                        </list-surfer>
-                    </plugin>
-                </link>
             </child-links>
         </link>
 
