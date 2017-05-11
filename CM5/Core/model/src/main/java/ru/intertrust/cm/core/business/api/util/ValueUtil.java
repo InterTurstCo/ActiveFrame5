@@ -1,5 +1,11 @@
 package ru.intertrust.cm.core.business.api.util;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import ru.intertrust.cm.core.business.api.dto.BooleanValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeValue;
 import ru.intertrust.cm.core.business.api.dto.DateTimeWithTimeZone;
@@ -20,65 +26,61 @@ import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.model.GwtIncompatible;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /**
- * @author Lesia Puhova
- *         Date: 25.03.14
- *         Time: 10:59
+ * @author Lesia Puhova Date: 25.03.14 Time: 10:59
  */
 public class ValueUtil {
 
-    private static final String ITEMS_DELIMITER = "_"; //TODO: need to escape them in string values
+    private static final String ITEMS_DELIMITER = "_"; // TODO: need to escape
+                                                       // them in string values
     private static final String ITEM_TYPE_VALUE_DELIMItER = "-";
 
-    private ValueUtil() {} // non-instantiable
+    private ValueUtil() {
+    } // non-instantiable
 
     public static String valueToString(Value value) {
         if (value == null || value.isEmpty()) {
             return null;
         }
         switch (value.getFieldType()) {
-            case STRING:
-            case TEXT:
-            case PASSWORD:
-                return (String)value.get();
-            case BOOLEAN:
-            case DECIMAL:
-            case LONG:
-                return value.get().toString();
-            case DATETIMEWITHTIMEZONE:
-                return format((DateTimeWithTimeZone) (value.get()));
-            case DATETIME:
-                return ((Date)value.get()).getTime() + ""; // number of milliseconds as a string
-            case TIMELESSDATE:
-                return format((TimelessDate) (value.get()));
-            case REFERENCE:
-                return ((Id)(value.get())).toStringRepresentation();
-            case LIST:
-                StringBuilder sb = new StringBuilder();
-                int i = 0;
-                List<Serializable> items = ((ListValue)value).get();
-                for (Serializable item : items) {
-                    if (item instanceof Id) {
-                        sb.append(((Id)item).toStringRepresentation());
-                    } else {
-                        sb.append(item);
-                    }
-                    sb.append(ITEM_TYPE_VALUE_DELIMItER)
-                      .append(ValueUtil.getFieldTypeForListItem(item));
-
-                    if (++i <  items.size()) {
-                        sb.append(ITEMS_DELIMITER);
-                    }
+        case STRING:
+        case TEXT:
+        case PASSWORD:
+            return (String) value.get();
+        case BOOLEAN:
+        case DECIMAL:
+        case LONG:
+            return value.get().toString();
+        case DATETIMEWITHTIMEZONE:
+            return format((DateTimeWithTimeZone) (value.get()));
+        case DATETIME:
+            return ((Date) value.get()).getTime() + ""; // number of
+                                                        // milliseconds as a
+                                                        // string
+        case TIMELESSDATE:
+            return format((TimelessDate) (value.get()));
+        case REFERENCE:
+            return ((Id) (value.get())).toStringRepresentation();
+        case LIST:
+            StringBuilder sb = new StringBuilder();
+            int i = 0;
+            List<Serializable> items = ((ListValue) value).get();
+            for (Serializable item : items) {
+                if (item instanceof Id) {
+                    sb.append(((Id) item).toStringRepresentation());
+                } else {
+                    sb.append(item);
                 }
-                return sb.toString();
-            default:
-                throw new IllegalArgumentException();
+                sb.append(ITEM_TYPE_VALUE_DELIMItER)
+                        .append(ValueUtil.getFieldTypeForListItem(item));
+
+                if (++i < items.size()) {
+                    sb.append(ITEMS_DELIMITER);
+                }
+            }
+            return sb.toString();
+        default:
+            throw new IllegalArgumentException();
         }
     }
 
@@ -90,51 +92,52 @@ public class ValueUtil {
     @GwtIncompatible
     public static Value stringValueToObject(String string, FieldType fieldType) {
         switch (fieldType) {
-            case STRING:
-            case TEXT:
-            case PASSWORD:
-                return new StringValue(string);
-            case BOOLEAN:
-                if (string == null) {
-                    return new BooleanValue(null);
-                }
-                return new BooleanValue("true".equals(string) ? Boolean.TRUE : Boolean.FALSE);
-            case LONG:
-                if (string == null) {
-                    return new LongValue((Long) null);
-                }
-                return new LongValue(Long.parseLong(string));
-            case DECIMAL:
-                if (string == null) {
-                    return new DecimalValue((Long) null);
-                }
-                return new DecimalValue(new BigDecimal(string));
-            case DATETIMEWITHTIMEZONE:
-                return parseDateTimeWithTimezone(string);
-            case DATETIME:
-                return new DateTimeValue(new Date(Long.parseLong(string)));
-            case TIMELESSDATE:
-                return parseTimelessDate(string);
-            case REFERENCE:
-                Id id = new RdbmsId();
-                id.setFromStringRepresentation(string);
-                return new ReferenceValue(id);
-            case LIST:
-                List<Value> values = new ArrayList<>();
-                String[] chunks = string.split(ITEMS_DELIMITER);
-                for (String chunk : chunks) {
-                    if (chunk != null && !chunk.isEmpty()) {
-                        String[]parts = chunk.split(ITEM_TYPE_VALUE_DELIMItER);
-                        String paramValue = parts[0];
-                        String paramType = parts[1];
-                        if (paramValue != null && !"null".equals(paramValue)) {
-                            Value value = ValueUtil.stringValueToObject(paramValue, paramType);
-                            values.add(value);
-                        }
+        case STRING:
+        case TEXT:
+        case PASSWORD:
+            return new StringValue(string);
+        case BOOLEAN:
+            if (string == null) {
+                return new BooleanValue(null);
+            }
+            return new BooleanValue("true".equals(string) ? Boolean.TRUE : Boolean.FALSE);
+        case LONG:
+            if (string == null) {
+                return new LongValue((Long) null);
+            }
+            return new LongValue(Long.parseLong(string));
+        case DECIMAL:
+            if (string == null) {
+                return new DecimalValue((Long) null);
+            }
+            return new DecimalValue(new BigDecimal(string));
+        case DATETIMEWITHTIMEZONE:
+            return parseDateTimeWithTimezone(string);
+        case DATETIME:
+            return new DateTimeValue(new Date(Long.parseLong(string)));
+        case TIMELESSDATE:
+            return parseTimelessDate(string);
+        case REFERENCE:
+            Id id = new RdbmsId();
+            id.setFromStringRepresentation(string);
+            return new ReferenceValue(id);
+        case LIST:
+            List<Value<?>> values = new ArrayList<>();
+            String[] chunks = string.split(ITEMS_DELIMITER);
+            for (String chunk : chunks) {
+                if (chunk != null && !chunk.isEmpty()) {
+                    String[] parts = chunk.split(ITEM_TYPE_VALUE_DELIMItER);
+                    String paramValue = parts[0];
+                    String paramType = parts[1];
+                    if (paramValue != null && !"null".equals(paramValue)) {
+                        Value value = ValueUtil.stringValueToObject(paramValue, paramType);
+                        values.add(value);
                     }
                 }
-                return new ListValue(values);
-            default: return new StringValue(string);
+            }
+            return ListValue.createListValue(values);
+        default:
+            return new StringValue(string);
         }
     }
 
@@ -142,7 +145,7 @@ public class ValueUtil {
         if (plainValue instanceof Boolean) {
             return FieldType.BOOLEAN;
         }
-        if (plainValue instanceof String)  {
+        if (plainValue instanceof String) {
             return FieldType.STRING;
         }
         if (plainValue instanceof Long) {
@@ -186,7 +189,7 @@ public class ValueUtil {
 
         TimeZoneContext context = dateTime.getTimeZoneContext();
         if (context instanceof UTCOffsetTimeZoneContext) {
-            long offset = ((UTCOffsetTimeZoneContext)context).getOffset();
+            long offset = ((UTCOffsetTimeZoneContext) context).getOffset();
             sb.append("UTC ")
                     .append(day).append("/")
                     .append(month).append("/")
@@ -197,7 +200,7 @@ public class ValueUtil {
                     .append((milliseconds)).append(" ")
                     .append(offset);
         } else if (context instanceof OlsonTimeZoneContext) {
-            String timeZoneId = ((OlsonTimeZoneContext)context).getTimeZoneId();
+            String timeZoneId = ((OlsonTimeZoneContext) context).getTimeZoneId();
             sb.append("Olson ")
                     .append(day).append("/")
                     .append(month).append("/")
@@ -211,7 +214,6 @@ public class ValueUtil {
             throw new IllegalArgumentException("Unsupported TimeZoneContext: " + context);
         }
 
-
         return sb.toString();
     }
 
@@ -219,7 +221,8 @@ public class ValueUtil {
     private static Value parseTimelessDate(String string) {
         String[] date = string.split("/");
         int day = Integer.parseInt(date[0]);
-        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in timelessDate
+        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in
+                                                   // timelessDate
         int year = Integer.parseInt(date[2]);
         TimelessDate timelessDate = new TimelessDate(year, month, day);
         return new TimelessDateValue(timelessDate);
@@ -228,11 +231,13 @@ public class ValueUtil {
     @GwtIncompatible
     private static Value parseDateTimeWithTimezone(String string) {
         DateTimeWithTimeZone dateTimeZone;
-        String[] parts = string.split(" "); // [context type id, date, time, offset or timezone id]
+        String[] parts = string.split(" "); // [context type id, date, time,
+                                            // offset or timezone id]
 
         String[] date = parts[1].split("/");
         int day = Integer.parseInt(date[0]);
-        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in DateTimeWithTimeZone
+        int month = Integer.parseInt(date[1]) - 1; // month is 0-based in
+                                                   // DateTimeWithTimeZone
         int year = Integer.parseInt(date[2]);
         String[] time = parts[2].split(":");
         int hours = Integer.parseInt(time[0]);
@@ -242,7 +247,7 @@ public class ValueUtil {
         if ("UTC".equals(parts[0])) {
             int timeZoneUtcOffset = Integer.parseInt(parts[3]);
             dateTimeZone = new DateTimeWithTimeZone(timeZoneUtcOffset, year, month, day, hours, minutes, seconds, milliseconds);
-        } else if("Olson".equals(parts[0])) {
+        } else if ("Olson".equals(parts[0])) {
             String timeZoneId = parts[3];
             dateTimeZone = new DateTimeWithTimeZone(timeZoneId, year, month, day, hours, minutes, seconds, milliseconds);
         } else {

@@ -1,12 +1,36 @@
 package ru.intertrust.cm.core.dao.impl;
 
+import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
+import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
+import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import net.sf.jsqlparser.statement.select.Select;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import ru.intertrust.cm.core.business.api.dto.*;
+
+import ru.intertrust.cm.core.business.api.FilterForCache;
+import ru.intertrust.cm.core.business.api.QueryModifierPrompt;
+import ru.intertrust.cm.core.business.api.dto.Filter;
+import ru.intertrust.cm.core.business.api.dto.Id;
+import ru.intertrust.cm.core.business.api.dto.IdBasedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdentifiableObjectCollection;
+import ru.intertrust.cm.core.business.api.dto.IdsExcludedFilter;
+import ru.intertrust.cm.core.business.api.dto.IdsIncludedFilter;
+import ru.intertrust.cm.core.business.api.dto.Pair;
+import ru.intertrust.cm.core.business.api.dto.ReferenceValue;
+import ru.intertrust.cm.core.business.api.dto.SortOrder;
+import ru.intertrust.cm.core.business.api.dto.Value;
 import ru.intertrust.cm.core.business.api.dto.impl.RdbmsId;
 import ru.intertrust.cm.core.business.api.dto.util.ListValue;
 import ru.intertrust.cm.core.business.api.util.ModelUtil;
@@ -17,24 +41,24 @@ import ru.intertrust.cm.core.dao.access.AccessToken;
 import ru.intertrust.cm.core.dao.access.Subject;
 import ru.intertrust.cm.core.dao.access.UserGroupGlobalCache;
 import ru.intertrust.cm.core.dao.access.UserSubject;
-import ru.intertrust.cm.core.dao.api.*;
+import ru.intertrust.cm.core.dao.api.CollectionQueryCache;
+import ru.intertrust.cm.core.dao.api.CollectionQueryEntry;
+import ru.intertrust.cm.core.dao.api.CollectionsDao;
+import ru.intertrust.cm.core.dao.api.CurrentUserAccessor;
+import ru.intertrust.cm.core.dao.api.DomainObjectDao;
+import ru.intertrust.cm.core.dao.api.DomainObjectTypeIdCache;
+import ru.intertrust.cm.core.dao.api.GlobalCacheClient;
+import ru.intertrust.cm.core.dao.api.GlobalCacheManager;
+import ru.intertrust.cm.core.dao.api.ServerComponentService;
 import ru.intertrust.cm.core.dao.api.component.CollectionDataGenerator;
+import ru.intertrust.cm.core.dao.impl.parameters.ParametersConverter;
 import ru.intertrust.cm.core.dao.impl.sqlparser.CollectDOTypesVisitor;
-import ru.intertrust.cm.core.dao.impl.sqlparser.ReferenceFilterUtility;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier;
 import ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryParser;
 import ru.intertrust.cm.core.dao.impl.utils.CollectionRowMapper;
 
-import java.util.*;
-
-import static ru.intertrust.cm.core.dao.api.DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-import static ru.intertrust.cm.core.dao.impl.sqlparser.SqlQueryModifier.wrapAndLowerCaseNames;
-import static ru.intertrust.cm.core.dao.impl.utils.DaoUtils.setParameter;
-
 /**
- * @author vmatsukevich
- *         Date: 7/1/13
- *         Time: 6:58 PM
+ * @author vmatsukevich Date: 7/1/13 Time: 6:58 PM
  */
 public class CollectionsDaoImpl implements CollectionsDao {
     private static final Logger logger = LoggerFactory.getLogger(CollectionsDaoImpl.class);
@@ -82,7 +106,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private DomainObjectTypeIdCache domainObjectTypeIdCache;
 
     private GlobalCacheClient globalCacheClient;
-    
+
     @Autowired
     private GlobalCacheManager globalCacheManager;
 
@@ -101,7 +125,6 @@ public class CollectionsDaoImpl implements CollectionsDao {
     @Autowired
     protected DomainObjectQueryHelper domainObjectQueryHelper;
 
-    
     public CurrentUserAccessor getCurrentUserAccessor() {
         return currentUserAccessor;
     }
@@ -136,7 +159,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /**
      * Устанавливает {@link #configurationExplorer}
-     * @param configurationExplorer {@link #configurationExplorer}
+     * @param configurationExplorer
+     *            {@link #configurationExplorer}
      */
     public void setConfigurationExplorer(ConfigurationExplorer configurationExplorer) {
         this.configurationExplorer = configurationExplorer;
@@ -147,9 +171,11 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /*
-         * {@see ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollection(ru.intertrust.cm.core.config.model.
-         * CollectionNestedConfig, java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
-         */
+     * {@see
+     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollection(ru.intertrust
+     * .cm.core.config.model. CollectionNestedConfig, java.util.List,
+     * ru.intertrust.cm.core.business.api.dto.SortOrder, int, int)}
+     */
     @Override
     public IdentifiableObjectCollection findCollection(String collectionName,
             List<? extends Filter> filterValues,
@@ -158,7 +184,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         filterValues = processIdsFilters(filterValues);
         checkFilterValues(filterValues);
-        
+
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
@@ -168,17 +194,21 @@ public class CollectionsDaoImpl implements CollectionsDao {
             }
         }
 
-        if (collectionConfig.getGenerator() != null) { // generated collections aren't supported by global cache yet
+        if (collectionConfig.getGenerator() != null) { // generated collections
+                                                       // aren't supported by
+                                                       // global cache yet
             String collectionGeneratorComponent = collectionConfig.getGenerator().getClassName();
             return getCollectionFromGenerator(collectionGeneratorComponent, filterValues, sortOrder, offset, limit);
         }
 
-        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, filterValues, sortOrder, offset, limit, accessToken);
+        final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(collectionName, filterValues, sortOrder, offset, limit,
+                accessToken);
         if (fromGlobalCache != null) {
             return validateCache(collectionName, filterValues, sortOrder, offset, limit, accessToken, start, fromGlobalCache);
         }
 
-        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken);
+        final Pair<IdentifiableObjectCollection, Long> dbResultAndStart = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit,
+                accessToken);
         final IdentifiableObjectCollection collection = dbResultAndStart.getFirst();
 
         if (collectionConfig.getTransactionCache() == CollectionConfig.TransactionCacheType.enabled) {
@@ -189,20 +219,24 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private Pair<IdentifiableObjectCollection, Long> findCollectionInDB(long preparationStartTime, String collectionName,
-                                                       List<? extends Filter> filterValues,
-                                                       SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
+            List<? extends Filter> filterValues,
+            SortOrder sortOrder, int offset, int limit, AccessToken accessToken) {
         CollectionConfig collectionConfig = configurationExplorer.getConfig(CollectionConfig.class, collectionName);
         String collectionQuery;
         Map<String, FieldConfig> columnToConfigMapForSelectItems;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(collectionName, filterValues, sortOrder, offset, limit, accessToken);
 
         Map<String, Object> parameters = new HashMap<>();
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> paramsWithPrompt = converter.convertReferenceValuesInFilters(filterValues);
+        parameters.putAll(paramsWithPrompt.getFirst());
+
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(collectionName, filtersForCache(filterValues),
+                paramsWithPrompt.getSecond(), sortOrder, offset,
+                limit, accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
             columnToConfigMapForSelectItems = cachedQueryEntry.getColumnToConfigMap();
-
-            addReferenceFilterParameters(filterValues, parameters);
 
         } else {
             collectionQuery =
@@ -211,19 +245,21 @@ public class CollectionsDaoImpl implements CollectionsDao {
             SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
             Select select = sqlParser.getSelectStatement();
 
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+
             Map<String, FieldConfig> columnToConfigMap =
-                    createSqlQueryModifier().buildColumnToConfigMapForParameters(select);
+                    sqlQueryModifier.buildColumnToConfigMapForParameters(select);
             columnToConfigMapForSelectItems = createSqlQueryModifier().buildColumnToConfigMapForSelectItems(select);
 
             columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
-            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
-            collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, filterValues, columnToConfigMap, parameters);
+            collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, paramsWithPrompt.getSecond());
 
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
-            collectionQueryCache.putCollectionQuery(collectionName, filterValues, sortOrder, offset, limit, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionQuery(collectionName, filtersForCache(filterValues), paramsWithPrompt.getSecond(), sortOrder, offset, limit,
+                    accessToken, collectionQueryEntry);
         }
 
         fillFilterParameters(filterValues, parameters);
@@ -244,10 +280,25 @@ public class CollectionsDaoImpl implements CollectionsDao {
                         configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
     }
 
+    private Set<FilterForCache> filtersForCache(List<? extends Filter> filterValues) {
+        HashSet<FilterForCache> filtersForCache = new HashSet<>();
+        for (Filter f : filterValues) {
+            filtersForCache.add(new FilterForCache(f));
+        }
+        return filtersForCache;
+    }
+
     private Pair<Integer, Long> findCollectionCountInDB(long preparationStartTime, CollectionConfig collectionConfig, String collectionName,
-                                                                        List<? extends Filter> filterValues, AccessToken accessToken) {
+            List<? extends Filter> filterValues, AccessToken accessToken) {
+
+        Map<String, Object> parameters = new HashMap<>();
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> paramsWithPrompt = converter.convertReferenceValuesInFilters(filterValues);
+        parameters.putAll(paramsWithPrompt.getFirst());
+
         String collectionQuery;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filterValues, accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionCountQuery(collectionName, filtersForCache(filterValues),
+                paramsWithPrompt.getSecond(), accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
@@ -255,13 +306,18 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
             collectionQuery = getFindCollectionCountQuery(collectionConfig, filterValues, accessToken);
 
+            SqlQueryParser sqlParser = new SqlQueryParser(collectionQuery);
+            Select select = sqlParser.getSelectStatement();
+            SqlQueryModifier sqlQueryModifier = createSqlQueryModifier();
+            collectionQuery = sqlQueryModifier.modifyQueryWithReferenceFilterValues(select, paramsWithPrompt.getSecond());
+
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, null);
-            collectionQueryCache.putCollectionCountQuery(collectionName, filterValues, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionCountQuery(collectionName, filtersForCache(filterValues), paramsWithPrompt.getSecond(), accessToken,
+                    collectionQueryEntry);
         }
 
-        Map<String, Object> parameters = new HashMap<>();
         fillFilterParameters(filterValues, parameters);
 
         if (accessToken.isDeferred()) {
@@ -274,7 +330,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return new Pair<>(jdbcTemplate.queryForObject(collectionQuery, parameters, Integer.class), retrieveTime);
     }
 
-    private IdentifiableObjectCollection validateCache(String collectionName, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit, AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+    private IdentifiableObjectCollection validateCache(String collectionName, List<? extends Filter> filterValues, SortOrder sortOrder, int offset, int limit,
+            AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
         if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionInDB(start, collectionName, filterValues, sortOrder, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
@@ -284,7 +341,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return fromGlobalCache;
     }
 
-    private Integer validateCountCache(CollectionConfig config, String collectionName, List<? extends Filter> filterValues, AccessToken accessToken, long start, Integer fromGlobalCache) {
+    private Integer validateCountCache(CollectionConfig config, String collectionName, List<? extends Filter> filterValues, AccessToken accessToken,
+            long start, Integer fromGlobalCache) {
         if (globalCacheManager.isDebugEnabled()) {
             Integer fromDb = findCollectionCountInDB(start, config, collectionName, filterValues, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
@@ -296,10 +354,14 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /**
      * Возвращает доменные объекты, воздействующие на коллекцию
-     * @param collectionName название коллекции
-     * @param filterValues значения фильтров
-     * @return пару, первое значения которой - имена фильтров, второе - типы объектов
+     * @param collectionName
+     *            название коллекции
+     * @param filterValues
+     *            значения фильтров
+     * @return пару, первое значения которой - имена фильтров, второе - типы
+     *         объектов
      */
+    @Override
     public Pair<Set<String>, Set<String>> getDOTypes(String collectionName, List<? extends Filter> filterValues) {
         final Set<String> filterNames = ModelUtil.getFilterNames(filterValues);
         Set<String> result = collectionQueryCache.getCollectionDomainObjectTypes(collectionName, filterNames);
@@ -313,6 +375,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return new Pair<>(filterNames, result);
     }
 
+    @Override
     public Set<String> getQueryDOTypes(String collectionQuery) {
         Set<String> result = collectionQueryCache.getCollectionDomainObjectTypes(collectionQuery);
         if (result != null) {
@@ -354,55 +417,30 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
         int index = 0;
         for (IdsIncludedFilter idsIncludedFilter : idsIncludedFilters) {
-            IdsIncludedFilter clonedFilter = new IdsIncludedFilter(idsIncludedFilter);
+            Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_INCLUDED_FILTER_PREFIX + index);
+            clonedFilter.addCriterion(0, mergeCriterions(idsIncludedFilter));
             processedFilters.add(clonedFilter);
             index++;
         }
-        
+
         index = 0;
         for (IdsExcludedFilter idsExcludedFilter : idsExcludedFilters) {
-            IdsExcludedFilter clonedFilter = new IdsExcludedFilter(idsExcludedFilter);
+            Filter clonedFilter = new Filter();
             clonedFilter.setFilter(IDS_EXCLUDED_FILTER_PREFIX + index);
+            clonedFilter.addCriterion(0, mergeCriterions(idsExcludedFilter));
             processedFilters.add(clonedFilter);
             index++;
         }
         return processedFilters;
     }
 
-    private void addReferenceFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
-        if (filterValues != null) {
-            for (Filter filterValue : filterValues) {
-                for (Integer criterionKey : filterValue.getCriterionKeys()) {
-                    Value criterionValue = filterValue.getCriterion(criterionKey);
-                    if (criterionValue instanceof ReferenceValue) {
-                        String referenceParam = filterValue.getFilter() + "_" + criterionKey;
-                        String referenceTypeParam = referenceParam + DomainObjectDao.REFERENCE_TYPE_POSTFIX;
-
-                        ReferenceValue refValue = (ReferenceValue) criterionValue;
-
-                        long refId = ((RdbmsId) refValue.get()).getId();
-                        long refTypeId = ((RdbmsId) refValue.get()).getTypeId();
-
-                        parameters.put(referenceParam, refId);
-                        parameters.put(referenceTypeParam, refTypeId);
-                    } else if (criterionValue instanceof ListValue) {
-                        ListValue listValue = (ListValue) criterionValue;
-                        int index = 0;
-                        for (Value value : listValue.getValues()) {
-                            ReferenceValue refValue = ReferenceFilterUtility.getReferenceValue(value);
-                            if (refValue == null) {
-                                continue;
-                            }
-                            String referenceParam = filterValue.getFilter() + "_" + criterionKey + "_" + index;
-
-                            addParametersForReference(parameters, refValue, referenceParam);
-                            index++;
-                        }
-                    }
-                }
-            }
+    private ListValue mergeCriterions(IdBasedFilter filter) {
+        ArrayList<ReferenceValue> values = new ArrayList<ReferenceValue>();
+        for (int criterion : filter.getCriterionKeys()) {
+            values.add(filter.getCriterion(criterion));
         }
+        return ListValue.createListValue(values);
     }
 
     private IdentifiableObjectCollection getCollectionFromGenerator(String collectionGeneratorComponent, List<? extends Filter> filterValues,
@@ -412,13 +450,15 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * При запросе коллекции с набором фильтров, если в этом наборе дважды встречается фильтр с одним и тем же именем,
-     * следует выбрасывать исключение IllegalArgumentException.
-     * @param filterValues набор фильтров
+     * При запросе коллекции с набором фильтров, если в этом наборе дважды
+     * встречается фильтр с одним и тем же именем, следует выбрасывать
+     * исключение IllegalArgumentException.
+     * @param filterValues
+     *            набор фильтров
      */
     private void checkFilterValues(List<? extends Filter> filterValues) {
         if (filterValues != null && !filterValues.isEmpty()) {
-            Set<String> names = new HashSet<>((int)(filterValues.size() / 0.75f) + 1);
+            Set<String> names = new HashSet<>((int) (filterValues.size() / 0.75f) + 1);
             for (Filter filterValue : filterValues) {
                 String filterName = filterValue.getFilter();
                 if (names.contains(filterName)) {
@@ -464,7 +504,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
      */
     @Override
     public IdentifiableObjectCollection findCollectionByQuery(String query, List<? extends Value> params,
-                                                              int offset, int limit, AccessToken accessToken) {
+            int offset, int limit, AccessToken accessToken) {
         long start = System.nanoTime();
         final IdentifiableObjectCollection fromGlobalCache = globalCacheClient.getCollection(query, params, offset, limit, accessToken);
         if (fromGlobalCache != null) {
@@ -478,7 +518,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     public Pair<IdentifiableObjectCollection, Long> findCollectionByQueryInDB(long preparationStartTime, String query, int offset, int limit,
-                                                                              AccessToken accessToken) {
+            AccessToken accessToken) {
 
         Map<String, Object> parameters = new HashMap<>();
 
@@ -518,19 +558,22 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 new CollectionRowMapper(columnToConfigMapForSelectItems, configurationExplorer, domainObjectTypeIdCache)), retrieveTime);
     }
 
+    @SuppressWarnings("unchecked")
     private Pair<IdentifiableObjectCollection, Long> findCollectionByQueryInDB(long preparationStartTime, String query, List<? extends Value> params,
-                                                              int offset, int limit, AccessToken accessToken) {
+            int offset, int limit, AccessToken accessToken) {
         Map<String, Object> parameters = new HashMap<>();
+        ParametersConverter converter = new ParametersConverter();
+        Pair<Map<String, Object>, QueryModifierPrompt> paramsWithPrompt = converter.convertReferenceValues((List<Value<?>>) params);
+        parameters.putAll(paramsWithPrompt.getFirst());
 
-        Set<ListValue> listValueParams = getListValueParams(params);
         String collectionQuery;
         Map<String, FieldConfig> columnToConfigMapForSelectItems;
-        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, listValueParams, accessToken);
+        CollectionQueryEntry cachedQueryEntry = collectionQueryCache.getCollectionQuery(query, offset, limit, null, accessToken);
 
         if (cachedQueryEntry != null) {
             collectionQuery = cachedQueryEntry.getQuery();
             columnToConfigMapForSelectItems = cachedQueryEntry.getColumnToConfigMap();
-            addReferenceParameters(parameters, params);
+
         } else {
             CollectionQueryInitializer collectionQueryInitializer = createCollectionQueryInitializer(configurationExplorer);
 
@@ -545,16 +588,17 @@ public class CollectionsDaoImpl implements CollectionsDao {
             Map<String, FieldConfig> columnToConfigMap = sqlQueryModifier.buildColumnToConfigMapForParameters(select);
             columnToConfigMapForSelectItems = sqlQueryModifier.buildColumnToConfigMapForSelectItems(select);
 
-            // нужно объединить конфигурации колонок из Select части запроса и и для параметров для случая, когда в
+            // нужно объединить конфигурации колонок из Select части запроса и и
+            // для параметров для случая, когда в
             // параметре указывается алиас колонки из подзапроса
             columnToConfigMap.putAll(columnToConfigMapForSelectItems);
 
-            collectionQuery = sqlQueryModifier.modifyQueryWithParameters(select, params, columnToConfigMap, parameters);
+            collectionQuery = sqlQueryModifier.modifyQueryWithParameters(select, paramsWithPrompt.getSecond());
             collectionQuery = wrapAndLowerCaseNames(new SqlQueryParser(collectionQuery).getSelectStatement());
             collectionQuery = adjustParameterNamesAfterPreProcessing(collectionQuery);
 
             CollectionQueryEntry collectionQueryEntry = new CollectionQueryEntry(collectionQuery, columnToConfigMapForSelectItems);
-            collectionQueryCache.putCollectionQuery(query, offset, limit, listValueParams, accessToken, collectionQueryEntry);
+            collectionQueryCache.putCollectionQuery(query, offset, limit, null, accessToken, collectionQueryEntry);
         }
 
         if (accessToken.isDeferred()) {
@@ -571,7 +615,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private IdentifiableObjectCollection validateCache(String query, int offset, int limit,
-                                                       AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+            AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
         if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
@@ -582,7 +626,7 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     private IdentifiableObjectCollection validateCache(String query, List<? extends Value> params, int offset, int limit,
-                                                       AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
+            AccessToken accessToken, long start, IdentifiableObjectCollection fromGlobalCache) {
         if (globalCacheManager.isDebugEnabled()) {
             IdentifiableObjectCollection fromDb = findCollectionByQueryInDB(start, query, params, offset, limit, accessToken).getFirst();
             if (!fromGlobalCache.equals(fromDb)) {
@@ -592,76 +636,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
         return fromGlobalCache;
     }
 
-    private Set<ListValue> getListValueParams(List<? extends Value> params) {
-        Set<ListValue> listValueParams = new HashSet<>();
-        for (Value value : params) {
-            if (value instanceof ListValue && ((ListValue) value).getValues().size() > 1) {
-                listValueParams.add((ListValue) value);
-            }
-        }
-        return listValueParams;
-    }
-
     private SqlQueryModifier createSqlQueryModifier() {
         return new SqlQueryModifier(configurationExplorer, userGroupCache, currentUserAccessor, domainObjectQueryHelper);
-    }
-
-    private void addReferenceParameters(Map<String, Object> parameters, List<? extends Value> params) {
-        if (params == null) {
-            return;
-        }
-        int paramIndex = 0;
-        ReferenceValue referenceValue = null;
-        for (Value value : params) {
-            if (value instanceof ReferenceValue) {
-                referenceValue = (ReferenceValue) value;
-                if (referenceValue.get() != null) {
-                    String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
-                    addParametersForReference(parameters, referenceValue, referenceParam);
-
-                }
-            } else if (value instanceof StringValue) {
-                String strValue = ((StringValue) value).get();
-                if (strValue != null){
-                    try {
-                        referenceValue = new ReferenceValue(new RdbmsId(strValue));
-                    } catch (IllegalArgumentException ex) {
-                        // not reference string presentation
-                    }
-                    if (referenceValue != null) {
-                        String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex;
-                        addParametersForReference(parameters, referenceValue, referenceParam);
-    
-                    }
-                }
-            } else if (value instanceof ListValue) {
-                ListValue listValue = (ListValue) value;
-
-                int index = 0;
-                for (Value inValue : listValue.getValues()) {
-                    ReferenceValue refValue = null;
-                    if (inValue instanceof ReferenceValue) {
-                        refValue = (ReferenceValue) inValue;
-                        // ссылочные параметры могут передаваться в строковом виде.
-                    } else if (inValue instanceof StringValue) {
-                        String strParamValue = ((StringValue) inValue).get();
-                        try {
-                            refValue = new ReferenceValue(new RdbmsId(strParamValue));
-                        } catch (IllegalArgumentException ex) {
-                            // not reference string presentation
-                        }
-                    }
-
-                    if (refValue == null) {
-                        continue;
-                    }
-                    String referenceParam = CollectionsDaoImpl.JDBC_PARAM_PREFIX + paramIndex + "_" + index;
-                    addParametersForReference(parameters, refValue, referenceParam);
-                    index++;
-                }
-            }
-            paramIndex++;
-        }
     }
 
     private void addParametersForReference(Map<String, Object> parameters, ReferenceValue referenceValue, String referenceParam) {
@@ -689,8 +665,9 @@ public class CollectionsDaoImpl implements CollectionsDao {
 
     /*
      * {@see
-     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionCountByQuery(ru.intertrust.cm.core.config.model.
-     * CollectionNestedConfig , java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
+     * ru.intertrust.cm.core.dao.api.DomainObjectDao#findCollectionCountByQuery
+     * (ru.intertrust.cm.core.config.model. CollectionNestedConfig ,
+     * java.util.List, ru.intertrust.cm.core.business.api.dto.SortOrder)}
      */
     @Override
     public int findCollectionCount(String collectionName,
@@ -728,7 +705,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * Возвращает запрос, который используется в методе поиска коллекции доменных объектов
+     * Возвращает запрос, который используется в методе поиска коллекции
+     * доменных объектов
      */
     protected String getFindCollectionQuery(CollectionConfig collectionConfig,
             List<? extends Filter> filterValues, SortOrder sortOrder,
@@ -740,7 +718,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * Возвращает запрос, который используется в методе поиска количества объектов в коллекции
+     * Возвращает запрос, который используется в методе поиска количества
+     * объектов в коллекции
      */
     protected String getFindCollectionCountQuery(CollectionConfig collectionConfig,
             List<? extends Filter> filterValues, AccessToken accessToken) {
@@ -752,11 +731,13 @@ public class CollectionsDaoImpl implements CollectionsDao {
     private void fillParameterMap(List<? extends Value> params, Map<String, Object> parameterMap) {
         int index = 0;
         for (Value value : params) {
-            // ссылочные параметры не добавляются в список параметров, т.к. их значения подставляются прямо в запрос
+            // ссылочные параметры не добавляются в список параметров, т.к. их
+            // значения подставляются прямо в запрос
             if (!(value instanceof ReferenceValue)) {
-                // в исполняемом SQL запросе названия параметров совпадает с их номерами в начальном SQL запросе.
+                // в исполняемом SQL запросе названия параметров совпадает с их
+                // номерами в начальном SQL запросе.
                 String parameterName = index + "";
-                setParameter(parameterName, value, parameterMap);
+                setParameter(parameterName, value, parameterMap, true);
             }
             index++;
         }
@@ -767,9 +748,10 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * Модифицирует имена параметров в названия совместимые с {@see NamedParameterJdbcTemplate}. Заменяет префикс
-     * "_PARAM_NAME_" на ":"
-     * @param collectionQuery SQL запрос
+     * Модифицирует имена параметров в названия совместимые с {@see
+     * NamedParameterJdbcTemplate}. Заменяет префикс "_PARAM_NAME_" на ":"
+     * @param collectionQuery
+     *            SQL запрос
      */
     private String adjustParameterNamesForSpring(String collectionQuery) {
         collectionQuery = collectionQuery.replaceAll(PARAM_NAME_PREFIX, PARAM_NAME_PREFIX_SPRING);
@@ -785,7 +767,8 @@ public class CollectionsDaoImpl implements CollectionsDao {
     }
 
     /**
-     * Заполняет параметры. Имена параметров в формате имя_фильтра + ключ парметра, указанный в конфигурации.
+     * Заполняет параметры. Имена параметров в формате имя_фильтра + ключ
+     * парметра, указанный в конфигурации.
      */
     private void fillFilterParameters(List<? extends Filter> filterValues, Map<String, Object> parameters) {
         if (filterValues != null) {
@@ -798,16 +781,20 @@ public class CollectionsDaoImpl implements CollectionsDao {
                     if (criterion == null) {
                         parameters.put(parameterName, null);
                     }
-//                    //ссылочные параметры 
-//                    if(!(filter instanceof IdsIncludedFilter) && !(filter instanceof IdsExcludedFilter) && criterion instanceof ReferenceValue){
-//                        continue;
-//                    }
+                    // //ссылочные параметры
+                    // if(!(filter instanceof IdsIncludedFilter) && !(filter
+                    // instanceof IdsExcludedFilter) && criterion instanceof
+                    // ReferenceValue){
+                    // continue;
+                    // }
                     if (criterion instanceof Value) {
-                        setParameter(parameterName, (Value) criterion, parameters);
+                        setParameter(parameterName, (Value<?>) criterion, parameters, true);
                     } else if (criterion instanceof List) {
                         List<Value> valuesList = (List) criterion;
-                        List<Object> parameterValues = getParameterValues(valuesList);
-                        parameters.put(parameterName, parameterValues);
+                        if (doesNotContainReferenceValues(valuesList)) {
+                            List<Object> parameterValues = getParameterValues(valuesList);
+                            parameters.put(parameterName, parameterValues);
+                        }
                     }
 
                     if (filter instanceof IdsIncludedFilter || filter instanceof IdsExcludedFilter) {
@@ -818,6 +805,15 @@ public class CollectionsDaoImpl implements CollectionsDao {
                 }
             }
         }
+    }
+
+    private boolean doesNotContainReferenceValues(List<?> values) {
+        for (Object o : values) {
+            if (o instanceof ReferenceValue) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private List<Object> getParameterValues(List<Value> valuesList) {
