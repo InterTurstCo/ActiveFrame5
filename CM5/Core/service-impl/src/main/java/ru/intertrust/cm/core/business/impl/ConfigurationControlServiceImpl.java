@@ -27,9 +27,8 @@ import ru.intertrust.cm.core.model.SystemException;
 import ru.intertrust.cm.core.model.UnexpectedException;
 import ru.intertrust.cm.core.util.SpringApplicationContext;
 
-import javax.ejb.Local;
-import javax.ejb.Remote;
-import javax.ejb.Stateless;
+import javax.annotation.Resource;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 import javax.jms.JMSException;
 import javax.naming.NamingException;
@@ -70,6 +69,9 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Autowired private ApplicationContext context;
     @Autowired private CurrentUserAccessor currentUserAccessor;
     @Autowired private UserGroupGlobalCache userGroupGlobalCache;
+
+    @Resource
+    private EJBContext ejbContext;
 
     @org.springframework.beans.factory.annotation.Value("${NEVER.USE.IN.PRODUCTION.dev.mode.configuration.update:false}")
     private boolean useDevModeConfigUpdate;
@@ -148,6 +150,13 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     public void activateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateDrafts(toolingDOs);
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
+        extensionProcessor().validateAndActivateDrafts(toolingDOs, true);
+        ejbContext.setRollbackOnly();
     }
 
     /**
