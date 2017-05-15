@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
-    <form name="report_form" domain-object-type="report_template" is-default="true">
+    <form name="report_form" domain-object-type="report_template" is-default="true" replace="runtime">
         <act:tool-bar plugin="report.plugin" useDefault="false">
             <act:action-ref name-ref="aDelete" rendered="false"/>
             <act:action-ref name-ref="aSave" rendered="true" merged="false"/>

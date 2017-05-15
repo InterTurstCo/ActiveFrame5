@@ -1625,6 +1625,16 @@
                     </plugin>
                 </link>
 
+                <link name="GuiExtensions" display-text="Управление элементами GUI">
+                    <plugin>
+                        <domain-object-surfer domain-object-type-to-create="configuration_extension">
+                            <collection-viewer>
+                                <collection-ref name="gui_tag_collection"/>
+                            </collection-viewer>
+                        </domain-object-surfer>
+                    </plugin>
+                </link>
+
                 <link name="UserEvents" display-text="События пользователя">
                     <plugin>
                         <domain-object-surfer domain-object-type-to-create="user_event_log">

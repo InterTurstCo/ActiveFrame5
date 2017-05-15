@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
+    <form name="gui_extension" domain-object-type="configuration_extension" is-default="true">
+          <markup>
+            <header></header>
+            <body display-single-tab="true">
+                <tab name="Конфигурация элемента">
+                    <single-entry-group>
+                        <tab-group>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <widget id="distroXML"/>
+                                    </td>
+                                    <td colspan="2">
+                                        <widget id="distroXMLArea" height="100px" width="100%"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="currentXML"/>
+                                    </td>
+                                    <td colspan="2">
+                                        <widget id="currentXMLArea" height="100px" width="100%"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="draftXML"/>
+                                    </td>
+                                    <td colspan="2">
+                                        <widget id="draftXMLArea" height="100px" width="100%"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <widget id="isActive"/>
+                                    </td>
+                                    <td>
+                                        <widget id="isActiveCB"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tab-group>
+                    </single-entry-group>
+                </tab>
+            </body>
+        </markup>
+        <widget-config>
+            <label id="distroXML">
+                <text>XML дистрибутива</text>
+            </label>
+            <text-area id="distroXMLArea" read-only="true" handler="distro.xml.handler">
+                <field-path value="fake"/>
+            </text-area>
+            <label id="currentXML">
+                <text>Текущий XML</text>
+            </label>
+            <text-area id="currentXMLArea" read-only="true">
+                <field-path value="current_xml"/>
+            </text-area>
+            <label id="draftXML">
+                <text>Черновик</text>
+            </label>
+            <text-area id="draftXMLArea">
+                <field-path value="config_extension_tooling|configuration_extension.draft_xml"/>
+            </text-area>
+            <label id="isActive">
+                <text>Активен</text>
+            </label>
+            <check-box read-only="true" id="isActiveCB">
+                <field-path value="active"/>
+            </check-box>
+        </widget-config>
+    </form>
+</configuration>
