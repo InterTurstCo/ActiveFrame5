@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.io.File;
 import java.util.Collection;
@@ -72,4 +73,12 @@ public interface ConfigurationControlService {
      * @throws ConfigurationException
      */
     void activateFromFiles(Collection<File> files) throws ConfigurationException;
+
+    /**
+     * Возвращает TopLevelConfig из дистрибутива конфигурации
+     * @param tagType тип тэга
+     * @param tagName название тэга
+     * @return TopLevelConfig дистрибутива конфигурации
+     */
+    TopLevelConfig getDistributiveConfig(String tagType, String tagName);
 }

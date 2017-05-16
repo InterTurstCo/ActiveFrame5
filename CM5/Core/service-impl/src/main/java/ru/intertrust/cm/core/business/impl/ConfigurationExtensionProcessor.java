@@ -47,6 +47,8 @@ public class ConfigurationExtensionProcessor {
     private AccessControlService accessControlService;
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private ConfigurationExtensionHelper configurationExtensionHelper;
 
     @org.springframework.beans.factory.annotation.Value("${NEVER.USE.IN.PRODUCTION.dev.mode.configuration.update:false}")
     private boolean useDevModeConfigUpdate;
@@ -84,7 +86,6 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
-    @Transactional
     public Set<ConfigChange> applyConfigurationExtension() {
         synchronized (GLOBAL_LOCK) {
             final ArrayList<TagInfo> activeExtensions = getActiveExtensionsCleaningOutInvalid(false);
@@ -92,14 +93,12 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<ConfigChange> activateDraftsById(List<Id> toolingIds) {
         synchronized (GLOBAL_LOCK) {
             return activateDrafts(domainObjectDao.find(new ArrayList<>(toolingIds), accessToken));
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<ConfigChange> activateDrafts(List<DomainObject> toolingDOs) {
         return validateAndActivateDrafts(toolingDOs, false);
     }
@@ -131,14 +130,12 @@ public class ConfigurationExtensionProcessor {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<ConfigChange> activateDrafts() {
         synchronized (GLOBAL_LOCK) {
             return activateDrafts(domainObjectDao.findAll("config_extension_tooling", accessToken));
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Set<ConfigChange> activateFromFiles(Collection<File> files) {
         synchronized (GLOBAL_LOCK) {
             final Configuration configuration = configurationSerializer.deserializeConfiguration(files);
@@ -165,7 +162,7 @@ public class ConfigurationExtensionProcessor {
 
     private ArrayList<TagInfo> getActiveExtensionsCleaningOutInvalid(boolean cleanOutInvalid) {
         final List<DomainObject> extensionDOs = getAllConfigExtensionDomainObjects();
-        final Map<String, TagTypeInfo> tagTypeByTagName = getTagClassMapping();
+        final Map<String, ConfigurationExtensionHelper.TagTypeInfo> tagTypeByTagName = configurationExtensionHelper.getTagClassMapping();
         ArrayList<DomainObject> toDeactivate = new ArrayList<>();
         ArrayList<DomainObject> toDeactivateAndClearXML = new ArrayList<>();
         ArrayList<Id> toDelete = new ArrayList<>();
@@ -176,13 +173,13 @@ public class ConfigurationExtensionProcessor {
         for (DomainObject extensionDO : extensionDOs) {
             final String tagType = extensionDO.getString("type");
             final String tagName = extensionDO.getString("name");
-            final TagTypeInfo tagTypeInfo = tagTypeByTagName.get(tagType);
+            final ConfigurationExtensionHelper.TagTypeInfo tagTypeInfo = tagTypeByTagName.get(tagType);
             if (tagTypeInfo == null) {
                 logger.warn(getTagDefString(tagType, tagName) + " deleted - tag unknown");
                 toDelete.add(extensionDO.getId());
                 continue;
             }
-            final TopLevelConfig distrConfig = getTopLevelDistributiveConfig(tagTypeInfo.clazz, tagName);
+            final TopLevelConfig distrConfig = configurationExtensionHelper.getDistributiveConfig(tagTypeInfo.clazz, tagName);
             if (distrConfig != null) {
                 if (distrConfig.getReplacementPolicy() != TopLevelConfig.ExtensionPolicy.Runtime) {
                     logger.warn(getTagDefString(tagType, tagName) + " deleted - tag is not replaceable");
@@ -329,38 +326,6 @@ public class ConfigurationExtensionProcessor {
         return "Extension tag <" + tagType + " name=\"" + tagName + "\">";
     }
 
-    private Map<String, TagTypeInfo> getTagClassMapping() {
-        final Set<Class<?>> topLevelConfigClasses = configurationExplorer.getTopLevelConfigClasses();
-        HashMap<String, TagTypeInfo> mapping = new HashMap<>(topLevelConfigClasses.size() * 3 / 2);
-        for (Class clazz : topLevelConfigClasses) {
-            final String tagType = getTagType(clazz);
-            if (mapping.containsKey(tagType)) {
-                logger.error("Top level Tag Type is defined twice (possible in different namespaces: " + tagType);
-            }
-            mapping.put(tagType, new TagTypeInfo(clazz));
-        }
-        return mapping;
-    }
-
-    private TopLevelConfig getTopLevelDistributiveConfig(Class type, String name) {
-        if (topLevelDistributiveConfigs.isEmpty()) {
-            final List<TopLevelConfig> topLevelConfigs = configurationExplorer.getDistributiveConfiguration().getConfigurationList();
-            for (TopLevelConfig topLevelConfig : topLevelConfigs) {
-                CaseInsensitiveMap<TopLevelConfig> typeConfigsByName = topLevelDistributiveConfigs.get(topLevelConfig.getClass());
-                if (typeConfigsByName == null) {
-                    typeConfigsByName = new CaseInsensitiveMap<>();
-                    topLevelDistributiveConfigs.put(topLevelConfig.getClass(), typeConfigsByName);
-                }
-                typeConfigsByName.put(topLevelConfig.getName(), topLevelConfig);
-            }
-        }
-        final CaseInsensitiveMap<TopLevelConfig> typeConfigsByName = topLevelDistributiveConfigs.get(type);
-        if (typeConfigsByName == null) {
-            return null;
-        }
-        return typeConfigsByName.get(name);
-    }
-
     private static String getTagType(Class<? extends TopLevelConfig> clazz) {
         return clazz.getAnnotation(Root.class).name();
     }
@@ -411,22 +376,6 @@ public class ConfigurationExtensionProcessor {
         @Override
         public int hashCode() {
             return name.hashCode();
-        }
-    }
-
-    private static class TagTypeInfo {
-        public final Class<? extends TopLevelConfig> clazz;
-        public TopLevelConfig.ExtensionPolicy creationPolicy;
-
-        public TagTypeInfo(Class<? extends TopLevelConfig> clazz) {
-            this.clazz = clazz;
-            try {
-                final TopLevelConfig config = clazz.newInstance();
-                creationPolicy = config.getCreationPolicy();
-            } catch (InstantiationException | IllegalAccessException e) {
-                logger.error("Can't instantiate class: " + clazz, e);
-                creationPolicy = TopLevelConfig.ExtensionPolicy.None;
-            }
         }
     }
 

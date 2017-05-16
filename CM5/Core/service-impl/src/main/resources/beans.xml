@@ -20,6 +20,8 @@
     <bean id="configurationExtensionProcessor" class="ru.intertrust.cm.core.business.impl.ConfigurationExtensionProcessor"
           scope="prototype"/>
 
+    <bean id="distributiveConfigurationCache" class="ru.intertrust.cm.core.business.impl.ConfigurationExtensionHelper"/>
+
     <bean id="recursiveConfigurationLoader" class="ru.intertrust.cm.core.business.impl.RecursiveConfigurationLoader"
           scope="prototype"/>
 

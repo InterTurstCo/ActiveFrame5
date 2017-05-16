@@ -70,6 +70,9 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     @Autowired private CurrentUserAccessor currentUserAccessor;
     @Autowired private UserGroupGlobalCache userGroupGlobalCache;
 
+    @Autowired
+    private ConfigurationExtensionHelper configurationExtensionHelper;
+
     @Resource
     private EJBContext ejbContext;
 
@@ -175,6 +178,15 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
     public void activateFromFiles(Collection<File> files) throws ConfigurationException {
         final Set<ConfigChange> configChanges = extensionProcessor().activateFromFiles(files);
         notifySingletonListenersAndClusterAboutExtensionActivation(configChanges);
+    }
+
+    @Override
+    public TopLevelConfig getDistributiveConfig(String tagType, String tagName) {
+        final Class<? extends ConfigurationExtensionHelper.TagTypeInfo> clazz = configurationExtensionHelper.getTagClassMapping().get(tagType).getClass();
+        if (clazz == null) {
+            return null;
+        }
+        return configurationExtensionHelper.getDistributiveConfig(clazz, tagName);
     }
 
     private ConfigurationExtensionProcessor extensionProcessor() {
