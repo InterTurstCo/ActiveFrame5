@@ -3,6 +3,7 @@ package ru.intertrust.cm.core.business.api;
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
 import ru.intertrust.cm.core.business.api.dto.Id;
 import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.SummaryConfigurationException;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 
 import java.io.File;
@@ -57,10 +58,9 @@ public interface ConfigurationControlService {
     /**
      * Производит проверку конфигурационных расширений из черновиков
      * @param toolingDOs доменные объекты черновиков, которые необходимо проверить
-     * @throws ConfigurationException
-     * @return список проблем (исключений), возникающих при попытке слияния черновиков. Пустая коллекция, если всё в порядке
+     * @throws SummaryConfigurationException, содержащий список проблем (исключений), возникающих при попытке слияния черновиков
      */
-    Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException;
+    void validateDrafts(List<DomainObject> toolingDOs) throws SummaryConfigurationException;
 
     /**
      * Сохраняет черновики конфигурационных расширений

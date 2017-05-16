@@ -1,13 +1,12 @@
 package ru.intertrust.cm.core.gui.impl.server.configextension;
 
 import ru.intertrust.cm.core.business.api.dto.DomainObject;
-import ru.intertrust.cm.core.config.ConfigurationException;
+import ru.intertrust.cm.core.config.SummaryConfigurationException;
 import ru.intertrust.cm.core.gui.model.ComponentName;
 import ru.intertrust.cm.core.gui.model.GuiException;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionContext;
 import ru.intertrust.cm.core.gui.model.action.SimpleActionData;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,15 +23,11 @@ public class ValidateActionHandler extends ConfigExtensionsGuiActionBase {
         if(context.getRootObjectId()!=null){
             List<DomainObject> toolingDos = getToolingDos(context.getRootObjectId());
             if(toolingDos.size()>0) {
-                final Collection<ConfigurationException> configurationExceptions = configurationControlService.validateDrafts(toolingDos);
-                if (configurationExceptions.isEmpty()) {
+                try {
+                    configurationControlService.validateDrafts(toolingDos);
                     aData.setOnSuccessMessage("Объект успешно проверен.");
-                } else {
-                    StringBuilder resultMessage = new StringBuilder();
-                    for (ConfigurationException configurationException : configurationExceptions) {
-                        resultMessage.append(configurationException.getMessage()).append("\n");
-                    }
-                    throw new GuiException(resultMessage.toString());
+                } catch(SummaryConfigurationException e){
+                    throw new GuiException(e.getSummaryMessage());
                 }
             } else {
                 aData.setOnFailureMessage("Для данного обьекта нет шаблона");

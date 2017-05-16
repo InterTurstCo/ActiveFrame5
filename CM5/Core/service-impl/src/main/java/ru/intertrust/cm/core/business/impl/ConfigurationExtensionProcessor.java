@@ -8,10 +8,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.intertrust.cm.core.business.api.dto.*;
-import ru.intertrust.cm.core.config.ConfigurationException;
-import ru.intertrust.cm.core.config.ConfigurationExplorer;
-import ru.intertrust.cm.core.config.ConfigurationExplorerImpl;
-import ru.intertrust.cm.core.config.ConfigurationSerializer;
+import ru.intertrust.cm.core.config.*;
 import ru.intertrust.cm.core.config.base.Configuration;
 import ru.intertrust.cm.core.config.base.TopLevelConfig;
 import ru.intertrust.cm.core.config.event.ConfigChange;
@@ -108,28 +105,30 @@ public class ConfigurationExtensionProcessor {
         synchronized (GLOBAL_LOCK) {
             copyDraftsToExtensions(toolingDOs);
             final ExtensionsInfo extensions = getExtensionsInformation();
-            cleanOutInvalid(extensions);
+            if (!extensions.isValid()) {
+                throw new SummaryConfigurationException(extensions.getAllProblems());
+            }
             final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
             return applyNewExplorer(newExplorer);
         }
     }
 
-    public Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) {
+    public void validateDrafts(List<DomainObject> toolingDOs) {
         final ArrayList<ConfigurationException> result = new ArrayList<>();
         synchronized (GLOBAL_LOCK) {
             copyDraftsToExtensions(toolingDOs);
             final ExtensionsInfo extensions = getExtensionsInformation();
             if (!extensions.isValid()) {
-                result.addAll(extensions.getDeactivationReasons());
-                result.addAll(extensions.getDeactivationAndClearXMLReasons());
-                result.addAll(extensions.getDeleteReasons());
+                result.addAll(extensions.getAllProblems());
             }
             try {
                 final ConfigurationExplorer newExplorer = getNewExplorer(extensions.getValidActiveExtensions());
             } catch (ConfigurationException e) {
                 result.add(e);
             }
-            return result;
+            if (!result.isEmpty()) {
+                throw new SummaryConfigurationException(result);
+            }
         }
     }
 
@@ -496,6 +495,14 @@ public class ConfigurationExtensionProcessor {
 
         public boolean isValid() {
             return toDeactivate.isEmpty() && toDelete.isEmpty() && toDeactivateAndClearXML.isEmpty();
+        }
+
+        public Collection<ConfigurationException> getAllProblems() {
+            final ArrayList<ConfigurationException> result = new ArrayList<>();
+            result.addAll(getDeactivationReasons());
+            result.addAll(getDeactivationAndClearXMLReasons());
+            result.addAll(getDeleteReasons());
+            return result;
         }
     }
 

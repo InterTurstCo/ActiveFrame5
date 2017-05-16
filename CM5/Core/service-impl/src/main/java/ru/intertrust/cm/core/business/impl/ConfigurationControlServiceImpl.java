@@ -157,10 +157,9 @@ public class ConfigurationControlServiceImpl implements ConfigurationControlServ
 
     @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Collection<ConfigurationException> validateDrafts(List<DomainObject> toolingDOs) throws ConfigurationException {
-        final Collection<ConfigurationException> validationResult = extensionProcessor().validateDrafts(toolingDOs);
+    public void validateDrafts(List<DomainObject> toolingDOs) throws SummaryConfigurationException {
+        extensionProcessor().validateDrafts(toolingDOs);
         ejbContext.setRollbackOnly();
-        return validationResult;
     }
 
     @Override
