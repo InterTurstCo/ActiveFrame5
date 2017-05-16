@@ -37,6 +37,11 @@ public class SummaryConfigurationException extends ConfigurationException {
         return problemDetails;
     }
 
+    @Override
+    public String getMessage() {
+        return getSummaryMessage();
+    }
+
     public String getSummaryMessage() {
         StringBuilder resultMessage = new StringBuilder();
         for (ConfigurationException configurationException : problemDetails) {
