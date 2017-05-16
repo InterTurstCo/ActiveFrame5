@@ -2,15 +2,37 @@
 <configuration xmlns="https://cm5.intertrust.ru/config" xmlns:act="https://cm5.intertrust.ru/config/action">
     <form name="gui_extension" domain-object-type="configuration_extension" is-default="true">
         <act:tool-bar useDefault="false">
-            <act:action-ref name-ref="aDelete" merged="true" visibility-checker="extension.delete.visibility.checker"/>
+            <act:action-ref name-ref="aDelete" merged="true" visibility-checker="extension.delete.visibility.checker"
+                            rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)"/>
             <act:action-ref name-ref="aCreate" merged="true"
                             rendered="(not toggle-edit and not preview)  or (toggle-edit and preview)"/>
             <act:action-ref name-ref="aToggleEditOff" rendered="(toggle-edit and not preview) or (not toggle-edit and preview) or (toggle-edit and preview)" merged="false"/>
             <act:action-ref name-ref="aToggleEditOn" merged="true" rendered="toggle-edit and preview"/>
             <act:action-ref name-ref="aSave" merged="true" rendered="not preview"/>
+            <act:simple-action componentName="validate.action" action-handler="validate.action.handler" text="Проверить" merged="false" dirtySensitivity="true"/>
+            <act:simple-action componentName="apply.action" action-handler="apply.action.handler" text="Применить" merged="false" dirtySensitivity="true"/>
         </act:tool-bar>
           <markup>
-            <header></header>
+            <header>
+                <table>
+                    <tr>
+                        <td h-align="right">
+                            <widget id="NameLabel"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="NameValue"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td h-align="right">
+                            <widget id="TypeLabel"/>
+                        </td>
+                        <td h-align="left">
+                            <widget id="TypeValue"/>
+                        </td>
+                    </tr>
+                </table>
+            </header>
             <body display-single-tab="true">
                 <tab name="Конфигурация элемента">
                     <single-entry-group>
@@ -55,6 +77,19 @@
             </body>
         </markup>
         <widget-config>
+            <label id="NameLabel">
+                <text>Название</text>
+            </label>
+            <label id="TypeLabel">
+                <text>Тип</text>
+            </label>
+            <text-box id="NameValue" read-only="true">
+                <field-path value="name"/>
+            </text-box>
+            <text-box id="TypeValue" read-only="true">
+                <field-path value="type"/>
+            </text-box>
+
             <label id="distroXML">
                 <text>XML дистрибутива</text>
             </label>
@@ -81,4 +116,6 @@
             </check-box>
         </widget-config>
     </form>
+
+
 </configuration>
